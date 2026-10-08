@@ -55,6 +55,7 @@ class TelemetryTest extends TestCase
     {
         $emitted = null;
         $meter = $this->createMock(Meter::class);
+        $meter->method('isEnabled')->willReturn(true);
         $meter->expects($this->once())
             ->method('emit')
             ->willReturnCallback(static function (ConfiguredMetric $metric) use (&$emitted): void {
@@ -80,6 +81,7 @@ class TelemetryTest extends TestCase
     public function testInstrumentEmitsWhenCallbackThrows(): void
     {
         $meter = $this->createMock(Meter::class);
+        $meter->method('isEnabled')->willReturn(true);
         $meter->expects($this->once())->method('emit');
 
         $telemetry = new Telemetry($meter, 'prod');
@@ -87,7 +89,7 @@ class TelemetryTest extends TestCase
         $this->expectException(\RuntimeException::class);
 
         $telemetry->instrument(
-            callback: static fn () => throw new \RuntimeException('boom'),
+            callback: static fn () => throw new \RuntimeException('instrumented callback error'),
             metric: new DurationMetric('op.duration'),
         );
     }
@@ -125,6 +127,7 @@ class TelemetryTest extends TestCase
         new Profiler(new \ArrayIterator(['p' => $profilerMock]), ['p']);
 
         $meter = static::createStub(Meter::class);
+        $meter->method('isEnabled')->willReturn(true);
         $meter->method('emit')->willReturnCallback(static function () use (&$events): void {
             $events[] = 'metric-emit';
         });
@@ -139,6 +142,102 @@ class TelemetryTest extends TestCase
         );
 
         static::assertSame(['span-start', 'callback', 'span-stop', 'metric-emit'], $events);
+    }
+
+    public function testInstrumentSkipsMeasurementWhenMetricIsDisabled(): void
+    {
+        $meter = $this->createMock(Meter::class);
+        $meter->expects($this->once())->method('isEnabled')->with('op.duration')->willReturn(false);
+        $meter->expects($this->never())->method('emit');
+
+        $telemetry = new Telemetry($meter, 'prod');
+        $labelClosureCalled = false;
+
+        $result = $telemetry->instrument(
+            callback: static fn (): string => 'ran',
+            metric: new DurationMetric('op.duration', labels: static function (mixed $r, ?\Throwable $e) use (&$labelClosureCalled): array {
+                $labelClosureCalled = true;
+
+                return [];
+            }),
+        );
+
+        static::assertSame('ran', $result);
+        static::assertFalse($labelClosureCalled, 'a disabled metric must not resolve outcome labels');
+    }
+
+    public function testInstrumentWithDisabledMetricStillBracketsSpan(): void
+    {
+        $profilerMock = $this->createMock(ProfilerInterface::class);
+        $profilerMock->expects($this->once())->method('start')->with('op', 'shopware', []);
+        $profilerMock->expects($this->once())->method('stop')->with('op');
+        new Profiler(new \ArrayIterator(['p' => $profilerMock]), ['p']);
+
+        $meter = $this->createMock(Meter::class);
+        $meter->method('isEnabled')->willReturn(false);
+        $meter->expects($this->never())->method('emit');
+
+        $telemetry = new Telemetry($meter, 'prod');
+        $result = $telemetry->instrument(
+            callback: static fn (): string => 'done',
+            metric: new DurationMetric('op.duration'),
+            span: new Span('op'),
+        );
+
+        static::assertSame('done', $result);
+    }
+
+    public function testInstrumentOutcomeClosureReceivesResult(): void
+    {
+        $emitted = null;
+        $meter = static::createStub(Meter::class);
+        $meter->method('isEnabled')->willReturn(true);
+        $meter->method('emit')->willReturnCallback(static function (ConfiguredMetric $metric) use (&$emitted): void {
+            $emitted = $metric;
+        });
+
+        $telemetry = new Telemetry($meter, 'prod');
+        $telemetry->instrument(
+            callback: static fn (): string => 'the-result',
+            metric: new DurationMetric('op.duration', labels: static fn (?string $result, ?\Throwable $e): array => [
+                'result_value' => $result ?? 'none',
+                'failed' => $e === null ? 'no' : 'yes',
+            ]),
+        );
+
+        static::assertNotNull($emitted);
+        // outcome closures are wrapped argument-less, resolved by the Meter after the enabled gate
+        static::assertInstanceOf(\Closure::class, $emitted->labels);
+        static::assertSame(['result_value' => 'the-result', 'failed' => 'no'], ($emitted->labels)());
+    }
+
+    public function testInstrumentOutcomeClosureReceivesExceptionOnThrow(): void
+    {
+        $emitted = null;
+        $meter = static::createStub(Meter::class);
+        $meter->method('isEnabled')->willReturn(true);
+        $meter->method('emit')->willReturnCallback(static function (ConfiguredMetric $metric) use (&$emitted): void {
+            $emitted = $metric;
+        });
+
+        $telemetry = new Telemetry($meter, 'prod');
+
+        try {
+            $telemetry->instrument(
+                callback: static fn (): string => throw new \RuntimeException('instrumented callback error'),
+                metric: new DurationMetric('op.duration', labels: static fn (?string $result, ?\Throwable $e): array => [
+                    'result_value' => $result ?? 'none',
+                    'error' => $e instanceof \RuntimeException ? $e->getMessage() : 'none',
+                ]),
+            );
+            static::fail('the callback exception must propagate');
+        } catch (\RuntimeException $e) {
+            static::assertSame('instrumented callback error', $e->getMessage());
+        }
+
+        static::assertNotNull($emitted);
+        static::assertInstanceOf(\Closure::class, $emitted->labels);
+        static::assertSame(['result_value' => 'none', 'error' => 'instrumented callback error'], ($emitted->labels)());
     }
 
     public function testInstrumentWithoutMetricOrSpanThrowsInDev(): void

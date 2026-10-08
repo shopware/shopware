@@ -46,7 +46,9 @@ class MailMetricsInstrumentorTest extends TestCase
 
         $count = $this->getMetric('mail.send.count');
         static::assertInstanceOf(ConfiguredMetric::class, $count);
-        static::assertSame('mail_group_label:', $count->labels['mail_group']);
+        $labels = $count->labels;
+        static::assertIsArray($labels);
+        static::assertSame('mail_group_label:', $labels['mail_group']);
     }
 
     public function testSendClosureIsInvokedExactlyOnce(): void
@@ -77,12 +79,16 @@ class MailMetricsInstrumentorTest extends TestCase
 
         $duration = $this->getMetric('mail.send.duration');
         static::assertInstanceOf(ConfiguredMetric::class, $duration);
-        static::assertSame('failed', $duration->labels['result']);
+        $labels = $duration->labels;
+        static::assertIsArray($labels);
+        static::assertSame('failed', $labels['result']);
 
         $count = $this->getMetric('mail.send.count');
         static::assertInstanceOf(ConfiguredMetric::class, $count);
-        static::assertSame('failed', $count->labels['result']);
-        static::assertSame('mail_group_label:checkout.order.placed', $count->labels['mail_group']);
+        $labels = $count->labels;
+        static::assertIsArray($labels);
+        static::assertSame('failed', $labels['result']);
+        static::assertSame('mail_group_label:checkout.order.placed', $labels['mail_group']);
     }
 
     private function getMetric(string $name): ?ConfiguredMetric
@@ -111,4 +117,5 @@ class MailMetricsInstrumentorTest extends TestCase
 
         return new MailMetricsInstrumentor($meter, $mailGroupResolver);
     }
+
 }

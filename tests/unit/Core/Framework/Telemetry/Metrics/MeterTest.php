@@ -321,6 +321,103 @@ class MeterTest extends TestCase
         $meter->emit(new ConfiguredMetric('test', 1));
     }
 
+    public function testEmitResolvesLabelAndValueClosures(): void
+    {
+        $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: true, parameters: []);
+
+        $emitted = null;
+        $transport = $this->createMock(MetricTransportInterface::class);
+        $transport->expects($this->once())->method('emit')->willReturnCallback(static function (Metric $metric) use (&$emitted): void {
+            $emitted = $metric;
+        });
+
+        $meter = new Meter(
+            $this->createTransportCollectionMock([$transport]),
+            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            $this->createPassthroughLabelProcessor(),
+            static::createStub(LoggerInterface::class),
+            'prod',
+            true,
+        );
+
+        $meter->emit(new ConfiguredMetric(
+            'test',
+            static fn (): int => 41 + 1,
+            static fn (): array => ['test' => 'lazy'],
+        ));
+
+        static::assertNotNull($emitted);
+        static::assertSame(42, $emitted->value);
+        static::assertSame(['test' => 'lazy'], $emitted->labels);
+    }
+
+    public function testDiscardedMetricNeverComputesItsValue(): void
+    {
+        $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: true, parameters: []);
+
+        $labelProcessor = $this->createMock(MetricLabelProcessor::class);
+        $labelProcessor->expects($this->once())->method('process')->willReturn(null);
+
+        $collection = $this->createMock(TransportCollection::class);
+        $collection->expects($this->never())->method('getIterator');
+
+        $meter = new Meter(
+            $collection,
+            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            $labelProcessor,
+            static::createStub(LoggerInterface::class),
+            'prod',
+            true,
+        );
+
+        $meter->emit(new ConfiguredMetric(
+            'test',
+            static fn (): int => throw new \LogicException('value must not be computed for a discarded metric'),
+            ['region' => 'unknown'],
+        ));
+    }
+
+    public function testThrowingLabelClosureIsLoggedAndSwallowedInProd(): void
+    {
+        $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: true, parameters: []);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with('label error', static::arrayHasKey('exception'));
+
+        $collection = $this->createMock(TransportCollection::class);
+        $collection->expects($this->never())->method('getIterator');
+
+        $meter = new Meter(
+            $collection,
+            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            static::createStub(MetricLabelProcessor::class),
+            $logger,
+            'prod',
+            true,
+        );
+
+        $meter->emit(new ConfiguredMetric('test', 1, static fn (): array => throw new \RuntimeException('label error')));
+    }
+
+    public function testThrowingLabelClosureIsRethrownInTestEnv(): void
+    {
+        $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: true, parameters: []);
+
+        $meter = new Meter(
+            static::createStub(TransportCollection::class),
+            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            static::createStub(MetricLabelProcessor::class),
+            static::createStub(LoggerInterface::class),
+            'test',
+            true,
+        );
+
+        $this->expectExceptionObject(new \RuntimeException('label error'));
+        $meter->emit(new ConfiguredMetric('test', 1, static fn (): array => throw new \RuntimeException('label error')));
+    }
+
     public function testLabelProcessorDiscardPreventsEmission(): void
     {
         $configuredMetric = new ConfiguredMetric('test', 1, ['region' => 'unknown']);
@@ -353,7 +450,14 @@ class MeterTest extends TestCase
     {
         $configuredMetric = new ConfiguredMetric('test', 1, ['test' => 'test']);
         $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: true, parameters: [], unit: 'unit');
-        $metric = Metric::fromConfigured($configuredMetric, $metricConfig, ['test' => 'test']);
+        $metric = Metric::fromArray([
+            'name' => 'test',
+            'type' => Type::COUNTER,
+            'value' => 1,
+            'labels' => ['test' => 'test'],
+            'description' => 'test',
+            'unit' => 'unit',
+        ]);
         $transportCall = static::callback(static function (Metric $inputMetric) use ($metric) {
             self::assertEquals($metric, $inputMetric);
 

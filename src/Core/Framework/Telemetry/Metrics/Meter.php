@@ -80,12 +80,27 @@ class Meter
         // the gate in emit() already handled a missing definition and a disabled metric
         $metricConfig = $this->metricConfigProvider->get($metric->name);
 
-        $processedLabels = $this->labelProcessor->process($metricConfig, $metric->labels);
-        if ($processedLabels === null) {
+        try {
+            // labels before value, so a metric discarded by label policy never computes its value
+            $labels = $metric->labels instanceof \Closure ? ($metric->labels)() : $metric->labels;
+            $processedLabels = $this->labelProcessor->process($metricConfig, $labels);
+            if ($processedLabels === null) {
+                return null;
+            }
+
+            $value = $metric->value instanceof \Closure ? ($metric->value)() : $metric->value;
+
+            return Metric::fromConfig(metricConfig: $metricConfig, labels: $processedLabels, value: $value);
+        } catch (\Throwable $exception) {
+            // this has to be silenced so metrics failing closures do not break critical code/do not replace
+            // original exception when emitted in finally blocks
+            $this->logger->error($exception->getMessage(), ['exception' => $exception]);
+            if ($this->environment === 'dev' || $this->environment === 'test') {
+                throw $exception;
+            }
+
             return null;
         }
-
-        return Metric::fromConfigured(configuredMetric: $metric, metricConfig: $metricConfig, processedLabels: $processedLabels);
     }
 
     private function doEmitVia(Metric $metric, MetricTransportInterface $transport): void

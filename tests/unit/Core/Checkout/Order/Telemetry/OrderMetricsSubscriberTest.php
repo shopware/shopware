@@ -74,7 +74,9 @@ class OrderMetricsSubscriberTest extends TestCase
 
         $this->createSubscriber()->emitOrderPlacedMetrics($this->createEvent($order));
 
-        static::assertSame('swag_paypal_apple_pay', $this->getMetric('order.placed.count')->labels['payment_method']);
+        $labels = $this->getMetric('order.placed.count')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('swag_paypal_apple_pay', $labels['payment_method']);
     }
 
     public function testResolvesSalesChannelTypeLabel(): void
@@ -83,7 +85,9 @@ class OrderMetricsSubscriberTest extends TestCase
 
         $this->createSubscriber()->emitOrderPlacedMetrics($this->createEvent($order, Defaults::SALES_CHANNEL_TYPE_API));
 
-        static::assertSame('api', $this->getMetric('order.placed.count')->labels['sales_channel_type']);
+        $labels = $this->getMetric('order.placed.count')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('api', $labels['sales_channel_type']);
     }
 
     public function testPaymentMethodIsNoneWhenNoTransaction(): void
@@ -94,7 +98,9 @@ class OrderMetricsSubscriberTest extends TestCase
 
         $this->createSubscriber()->emitOrderPlacedMetrics($this->createEvent($order));
 
-        static::assertSame('none', $this->getMetric('order.placed.count')->labels['payment_method']);
+        $labels = $this->getMetric('order.placed.count')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('none', $labels['payment_method']);
     }
 
     public function testUsesLatestTransactionForPaymentMethod(): void
@@ -107,7 +113,9 @@ class OrderMetricsSubscriberTest extends TestCase
 
         $this->createSubscriber()->emitOrderPlacedMetrics($this->createEvent($order));
 
-        static::assertSame('swag_paypal_apple_pay', $this->getMetric('order.placed.count')->labels['payment_method']);
+        $labels = $this->getMetric('order.placed.count')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('swag_paypal_apple_pay', $labels['payment_method']);
     }
 
     public function testLineItemsCountIsZeroWhenLineItemsNotLoaded(): void
@@ -186,4 +194,5 @@ class OrderMetricsSubscriberTest extends TestCase
 
         return new CheckoutOrderPlacedEvent($context, $order);
     }
+
 }

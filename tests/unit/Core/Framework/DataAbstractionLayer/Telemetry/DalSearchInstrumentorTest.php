@@ -59,8 +59,10 @@ class DalSearchInstrumentorTest extends TestCase
         static::assertIsFloat($metric->value);
         static::assertGreaterThanOrEqual(0.0, $metric->value);
         // product_price buckets to the product group via EntityGroupResolver
-        static::assertSame('product', $metric->labels['entity_group']);
-        static::assertSame('searchIds', $metric->labels['operation']);
+        $labels = $metric->labels;
+        static::assertIsArray($labels);
+        static::assertSame('product', $labels['entity_group']);
+        static::assertSame('searchIds', $labels['operation']);
     }
 
     #[DataProvider('esAwareProvider')]
@@ -78,7 +80,9 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
         );
 
-        static::assertSame($expected, $this->emitted[0]->labels['es_aware']);
+        $labels = $this->emitted[0]->labels;
+        static::assertIsArray($labels);
+        static::assertSame($expected, $labels['es_aware']);
     }
 
     public static function esAwareProvider(): \Generator
@@ -96,7 +100,9 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
         );
 
-        static::assertSame('sql', $this->emitted[0]->labels['backend']);
+        $labels = $this->emitted[0]->labels;
+        static::assertIsArray($labels);
+        static::assertSame('sql', $labels['backend']);
     }
 
     public function testBackendIsElasticsearchWhenResultCarriesElasticsearchState(): void
@@ -112,7 +118,9 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => $result,
         );
 
-        static::assertSame('elasticsearch', $this->emitted[0]->labels['backend']);
+        $labels = $this->emitted[0]->labels;
+        static::assertIsArray($labels);
+        static::assertSame('elasticsearch', $labels['backend']);
     }
 
     public function testDoesNotEmitButStillRunsCallbackWhenTelemetryGloballyDisabled(): void
@@ -182,4 +190,5 @@ class DalSearchInstrumentorTest extends TestCase
 
         return $definition;
     }
+
 }

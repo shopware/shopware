@@ -58,7 +58,9 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
 
         $duration = $this->getMetric('number_range.allocation.duration');
         static::assertInstanceOf(ConfiguredMetric::class, $duration);
-        static::assertSame('number_range_type_label:', $duration->labels['number_range_type']);
+        $labels = $duration->labels;
+        static::assertIsArray($labels);
+        static::assertSame('number_range_type_label:', $labels['number_range_type']);
     }
 
     public function testFailingReserveIsRethrownAndDurationRecordedAsFailed(): void
@@ -80,9 +82,11 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
 
         $duration = $this->getMetric('number_range.allocation.duration');
         static::assertInstanceOf(ConfiguredMetric::class, $duration);
-        static::assertSame('failed', $duration->labels['result']);
-        static::assertSame('number_range_type_label:order', $duration->labels['number_range_type']);
-        static::assertSame('mysql', $duration->labels['storage']);
+        $labels = $duration->labels;
+        static::assertIsArray($labels);
+        static::assertSame('failed', $labels['result']);
+        static::assertSame('number_range_type_label:order', $labels['number_range_type']);
+        static::assertSame('mysql', $labels['storage']);
     }
 
     public function testPreviewDelegatesAndEmitsNothing(): void

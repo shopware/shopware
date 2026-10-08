@@ -50,8 +50,12 @@ class IndexerMetricsInstrumentorTest extends TestCase
             fn () => null,
         );
 
-        static::assertSame('partial', $this->getMetric('indexer.batch.size')->labels['mode']);
-        static::assertSame('partial', $this->getMetric('indexer.run.duration')->labels['mode']);
+        $labels = $this->getMetric('indexer.batch.size')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('partial', $labels['mode']);
+        $labels = $this->getMetric('indexer.run.duration')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('partial', $labels['mode']);
     }
 
     public function testBatchSizeIsOneForSingleNonArrayPayload(): void
@@ -73,7 +77,9 @@ class IndexerMetricsInstrumentorTest extends TestCase
             fn () => null,
         );
 
-        static::assertSame('acme.custom.indexer', $this->getMetric('indexer.run.duration')->labels['indexer']);
+        $labels = $this->getMetric('indexer.run.duration')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('acme.custom.indexer', $labels['indexer']);
     }
 
     public function testCallbackIsInvokedExactlyOnce(): void
@@ -112,7 +118,9 @@ class IndexerMetricsInstrumentorTest extends TestCase
 
         // batch size is emitted up front, duration is still recorded on the failure path (labelled failed)
         static::assertSame(2, $this->getMetric('indexer.batch.size')->value);
-        static::assertSame('failed', $this->getMetric('indexer.run.duration')->labels['result']);
+        $labels = $this->getMetric('indexer.run.duration')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('failed', $labels['result']);
     }
 
     private function getMetric(string $name): ConfiguredMetric

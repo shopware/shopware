@@ -64,7 +64,9 @@ class HttpRequestMetricSubscriberTest extends TestCase
         // terminate gets the pre-transform request without route attributes
         $subscriber->onKernelTerminate($this->createTerminateEvent('', [], 200, microtime(true)));
 
-        static::assertSame('storefront', $this->getMetric('http.server.request.duration')->labels['area']);
+        $labels = $this->getMetric('http.server.request.duration')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('storefront', $labels['area']);
     }
 
     public function testIgnoresEsiFragmentsAndSubRequests(): void
@@ -91,7 +93,9 @@ class HttpRequestMetricSubscriberTest extends TestCase
 
         $subscriber->onKernelTerminate($this->createTerminateEvent('', [], 200, microtime(true)));
 
-        static::assertSame('storefront', $this->getMetric('http.server.request.duration')->labels['area']);
+        $labels = $this->getMetric('http.server.request.duration')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('storefront', $labels['area']);
     }
 
     public function testRequestStartDiscardsStaleRoutedRequest(): void
@@ -111,7 +115,9 @@ class HttpRequestMetricSubscriberTest extends TestCase
         $subscriber->onKernelTerminate($this->createTerminateEvent('store-api.product.search', ['store-api'], 200, microtime(true)));
 
         // area should come from the terminate request itself (store-api), not the stale one (storefront)
-        static::assertSame('store-api', $this->getMetric('http.server.request.duration')->labels['area']);
+        $labels = $this->getMetric('http.server.request.duration')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('store-api', $labels['area']);
     }
 
     public function testSubRequestStartKeepsRoutedRequest(): void
@@ -128,7 +134,9 @@ class HttpRequestMetricSubscriberTest extends TestCase
 
         $subscriber->onKernelTerminate($this->createTerminateEvent('', [], 200, microtime(true)));
 
-        static::assertSame('storefront', $this->getMetric('http.server.request.duration')->labels['area']);
+        $labels = $this->getMetric('http.server.request.duration')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('storefront', $labels['area']);
     }
 
     public function testEsiFragmentRequestKeepsRoutedRequest(): void
@@ -148,7 +156,9 @@ class HttpRequestMetricSubscriberTest extends TestCase
 
         $subscriber->onKernelTerminate($this->createTerminateEvent('', [], 200, microtime(true)));
 
-        static::assertSame('storefront', $this->getMetric('http.server.request.duration')->labels['area']);
+        $labels = $this->getMetric('http.server.request.duration')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('storefront', $labels['area']);
     }
 
     public function testEmitsMetricsWithSharedLabels(): void
@@ -198,7 +208,9 @@ class HttpRequestMetricSubscriberTest extends TestCase
         $this->createSubscriber()
             ->onKernelTerminate($this->createTerminateEvent('frontend.detail.page', ['storefront'], 404, microtime(true)));
 
-        static::assertSame('4xx', $this->getMetric('http.server.request.duration')->labels['status_class']);
+        $labels = $this->getMetric('http.server.request.duration')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('4xx', $labels['status_class']);
     }
 
     public function testDurationIsSkippedWithoutRequestStartTime(): void
@@ -284,4 +296,5 @@ class HttpRequestMetricSubscriberTest extends TestCase
             new Response()
         );
     }
+
 }

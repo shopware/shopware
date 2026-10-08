@@ -66,7 +66,9 @@ class CartMetricsInstrumentorTest extends TestCase
 
         $this->createInstrumentor()->measure($this->createContext(), fn (): Cart => $cart);
 
-        static::assertSame('yes', $this->getMetric('cart.calculation.duration')->labels['has_promotions']);
+        $labels = $this->getMetric('cart.calculation.duration')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('yes', $labels['has_promotions']);
     }
 
     public function testLineItemCountCountsTopLevelRowsNotNestedChildren(): void
@@ -149,7 +151,9 @@ class CartMetricsInstrumentorTest extends TestCase
 
         $this->createInstrumentor()->measure($this->createContext(Defaults::SALES_CHANNEL_TYPE_API), fn (): Cart => $cart);
 
-        static::assertSame('api', $this->getMetric('cart.calculation.duration')->labels['sales_channel_type']);
+        $labels = $this->getMetric('cart.calculation.duration')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('api', $labels['sales_channel_type']);
     }
 
     private function getMetric(string $name): ConfiguredMetric

@@ -126,9 +126,12 @@ class MessengerQueueDepthCollectorTest extends TestCase
         foreach ($collector->collect() as $metric) {
             static::assertInstanceOf(ConfiguredMetric::class, $metric);
             static::assertSame('messenger.queue.depth', $metric->name);
-            static::assertArrayHasKey('transport', $metric->labels);
 
-            $transport = $metric->labels['transport'];
+            $labels = $metric->labels;
+            static::assertIsArray($labels);
+            static::assertArrayHasKey('transport', $labels);
+
+            $transport = $labels['transport'];
             $value = $metric->value;
             static::assertIsString($transport);
             static::assertIsInt($value);
@@ -183,4 +186,5 @@ class MessengerQueueDepthCollectorTest extends TestCase
             }
         };
     }
+
 }

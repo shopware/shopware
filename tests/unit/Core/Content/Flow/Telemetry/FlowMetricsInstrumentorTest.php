@@ -63,8 +63,10 @@ class FlowMetricsInstrumentorTest extends TestCase
 
         $duration = $this->getMetric('flow.execution.duration');
         static::assertInstanceOf(ConfiguredMetric::class, $duration);
-        static::assertSame('failed', $duration->labels['result']);
-        static::assertSame('trigger_group_label:checkout.order.placed', $duration->labels['trigger_group']);
+        $labels = $duration->labels;
+        static::assertIsArray($labels);
+        static::assertSame('failed', $labels['result']);
+        static::assertSame('trigger_group_label:checkout.order.placed', $labels['trigger_group']);
     }
 
     private function getMetric(string $name): ?ConfiguredMetric

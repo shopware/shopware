@@ -56,8 +56,10 @@ class SyncMetricsInstrumentorTest extends TestCase
         static::assertInstanceOf(ConfiguredMetric::class, $duration);
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0.0, $duration->value);
-        static::assertSame('default', $duration->labels['indexing_behavior']);
-        static::assertSame('success', $duration->labels['result']);
+        $labels = $duration->labels;
+        static::assertIsArray($labels);
+        static::assertSame('default', $labels['indexing_behavior']);
+        static::assertSame('success', $labels['result']);
     }
 
     public function testDurationPassesThroughExplicitIndexingBehavior(): void
@@ -70,7 +72,9 @@ class SyncMetricsInstrumentorTest extends TestCase
 
         $duration = $this->getMetric('api.sync.duration');
         static::assertInstanceOf(ConfiguredMetric::class, $duration);
-        static::assertSame('use-queue-indexing', $duration->labels['indexing_behavior']);
+        $labels = $duration->labels;
+        static::assertIsArray($labels);
+        static::assertSame('use-queue-indexing', $labels['indexing_behavior']);
     }
 
     public function testEmitsAffectedEntitiesAggregatedPerGroupAndAction(): void
@@ -136,7 +140,9 @@ class SyncMetricsInstrumentorTest extends TestCase
 
         $duration = $this->getMetric('api.sync.duration');
         static::assertInstanceOf(ConfiguredMetric::class, $duration);
-        static::assertSame('failed', $duration->labels['result']);
+        $labels = $duration->labels;
+        static::assertIsArray($labels);
+        static::assertSame('failed', $labels['result']);
         static::assertSame([], $this->findMetrics('api.sync.entities.affected'));
     }
 
@@ -175,7 +181,9 @@ class SyncMetricsInstrumentorTest extends TestCase
     private function getAffected(string $group, string $action): ?ConfiguredMetric
     {
         foreach ($this->findMetrics('api.sync.entities.affected') as $metric) {
-            if ($metric->labels['entity_group'] === $group && $metric->labels['action'] === $action) {
+            $labels = $metric->labels;
+            static::assertIsArray($labels);
+            if ($labels['entity_group'] === $group && $labels['action'] === $action) {
                 return $metric;
             }
         }

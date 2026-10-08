@@ -84,7 +84,9 @@ class MessageQueueTelemetrySubscriberTest extends TestCase
         $subscriber->onMessageReceived(new WorkerMessageReceivedEvent($envelope, 'async'));
         $subscriber->onMessageFailed(new WorkerMessageFailedEvent($envelope, 'async', new \RuntimeException()));
 
-        static::assertSame('failed', $this->getMetric('messenger.message.handled.count')->labels['result']);
+        $labels = $this->getMetric('messenger.message.handled.count')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('failed', $labels['result']);
         // failure latency is a first-class signal (slow failures burn worker slots); the result label
         // keeps it separable from success latency
         static::assertSame(
@@ -103,8 +105,12 @@ class MessageQueueTelemetrySubscriberTest extends TestCase
         $failed->setForRetry();
         $subscriber->onMessageFailed($failed);
 
-        static::assertSame('retried', $this->getMetric('messenger.message.handled.count')->labels['result']);
-        static::assertSame('retried', $this->getMetric('messenger.message.handling.duration')->labels['result']);
+        $labels = $this->getMetric('messenger.message.handled.count')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('retried', $labels['result']);
+        $labels = $this->getMetric('messenger.message.handling.duration')->labels;
+        static::assertIsArray($labels);
+        static::assertSame('retried', $labels['result']);
     }
 
     public function testDurationSkippedWhenReceiveNotRecorded(): void
@@ -151,4 +157,5 @@ class MessageQueueTelemetrySubscriberTest extends TestCase
 
         return null;
     }
+
 }

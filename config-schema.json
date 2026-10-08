@@ -390,6 +390,11 @@
                     "type": "integer",
                     "minimum": 1,
                     "title": "Timeout in seconds for app webhook MCP tool calls."
+                },
+                "tool_result_cache_ttl": {
+                    "type": "integer",
+                    "minimum": 60,
+                    "title": "Seconds a stored oversized MCP tool result is kept before the cleanup task removes it. The task runs hourly, so a result can stay up to an hour longer."
                 }
             },
             "title": "MCP (Model Context Protocol)"

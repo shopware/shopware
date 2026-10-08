@@ -15,13 +15,11 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  *
  * @internal
  *
- * Removes abandoned mcp_tool_result_cache rows by age. Rows are normally deleted when the
- * client sends DELETE /api/_mcp or DELETE /store-api/_mcp, but a client that disconnects
- * without a DELETE would otherwise leave full tool payloads behind forever. Age-based TTL
- * is used deliberately (unlike mcp_toolset_session, which keys off session-store liveness):
- * a stored result is only read during the call that produced it and the model's immediate
- * follow-up, and the 2026-07-28 modern era has no durable session store / DELETE returns
- * 405. So cleanup must not assume a SessionStoreInterface exists.
+ * Removes mcp_tool_result_cache rows older than `shopware.mcp.tool_result_cache_ttl`. DELETE of a
+ * session removes its rows too, but a client that never sends it would leave full tool results
+ * behind, and the stateless era has no DELETE at all. Age is used instead of session liveness
+ * (unlike mcp_toolset_session), because a stored result is only read right after the call that
+ * produced it, so no session store is needed.
  */
 #[Package('framework')]
 #[AsMessageHandler(handles: McpToolResultCacheCleanupTask::class)]
@@ -35,6 +33,7 @@ final class McpToolResultCacheCleanupTaskHandler extends ScheduledTaskHandler
         LoggerInterface $logger,
         private readonly ToolResultCacheStorage $storage,
         private readonly ClockInterface $clock,
+        private readonly LoggerInterface $mcpLogger,
         private readonly int $ttlSeconds = ToolResultCacheStorage::DEFAULT_TTL_SECONDS,
     ) {
         parent::__construct($scheduledTaskRepository, $logger);
@@ -44,6 +43,11 @@ final class McpToolResultCacheCleanupTaskHandler extends ScheduledTaskHandler
     {
         $threshold = $this->clock->now()->modify(\sprintf('-%d seconds', $this->ttlSeconds));
 
-        $this->storage->deleteOlderThan($threshold);
+        $deleted = $this->storage->deleteOlderThan($threshold);
+
+        $this->mcpLogger->info('Removed expired MCP tool results', [
+            'deleted' => $deleted,
+            'threshold' => $threshold->format(\DateTimeInterface::ATOM),
+        ]);
     }
 }

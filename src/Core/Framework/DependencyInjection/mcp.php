@@ -345,8 +345,11 @@ return static function (ContainerConfigurator $container): void {
             service('logger'),
             service(ToolResultCacheStorage::class),
             service(ClockInterface::class),
+            service('logger'),
+            param('shopware.mcp.tool_result_cache_ttl'),
         ])
-        ->tag('messenger.message_handler');
+        ->tag('messenger.message_handler')
+        ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(McpSessionCleanupSubscriber::class)
         ->args([

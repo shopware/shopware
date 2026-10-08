@@ -17,26 +17,22 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * Persists large tool results in the DB so the model can read them with `resources/read`.
  *
  * {@see self::storeFor()} returns a signed pointer that only the principal who stored the result can
- * read, on any later request and without an MCP session. The session id is still recorded, so rows are
- * also removed when a handshake-era session ends (DELETE /api/_mcp). Rows without a session are removed by
- * the age-based McpToolResultCacheCleanupTask.
+ * read, on any later request and without an MCP session. Rows are removed on DELETE of the session and
+ * by age, see {@see \Shopware\Core\Framework\Mcp\ScheduledTask\McpToolResultCacheCleanupTaskHandler}.
  */
 #[Package('framework')]
 class ToolResultCacheStorage
 {
     /**
-     * How long a cached oversized tool result may remain after `created_at`.
-     * Results are only read during the call that produced them and the model's immediate
-     * follow-up `resources/read`, so a fixed age is safe, unlike mcp_toolset_session,
-     * which must wait for session-store liveness.
+     * Default of `shopware.mcp.tool_result_cache_ttl`: seconds a stored result is kept after `created_at`.
      */
     public const DEFAULT_TTL_SECONDS = 86400;
 
     /**
-     * Bounded DELETE batch size for TTL GC. Matches CleanupCustomerRecoveryTaskHandler.
-     * Keeps lock / undo / replication pressure finite when the first run drains a backlog.
+     * Every row holds more than 100 KB (`McpToolResponse::MAX_RESPONSE_SIZE`), so a batch stays around
+     * 10 MB of row data, well below transaction size limits such as Group Replication's.
      */
-    private const CLEANUP_BATCH_SIZE = 1000;
+    private const CLEANUP_BATCH_SIZE = 100;
 
     /**
      * @internal
@@ -127,9 +123,7 @@ class ToolResultCacheStorage
     }
 
     /**
-     * Deletes rows older than `$threshold` (inclusive of equality at the boundary).
-     * Used by the scheduled TTL GC. Does not consult session stores.
-     * Deletes in bounded LIMIT batches to avoid one unbounded transaction on backlog.
+     * Deletes rows created at or before `$threshold`, in batches of CLEANUP_BATCH_SIZE.
      *
      * @return int Number of deleted rows
      */

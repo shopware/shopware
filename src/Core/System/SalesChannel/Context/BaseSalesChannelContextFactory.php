@@ -120,6 +120,11 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         if ($currency === null) {
             throw SalesChannelException::currencyNotFound($currencyId);
         }
+        $defaultCurrency = $availableCurrencies->get($salesChannel->getCurrencyId());
+        if ($defaultCurrency === null) {
+            throw SalesChannelException::currencyNotFound($salesChannel->getCurrencyId());
+        }
+        $salesChannel->setCurrency($defaultCurrency);
 
         // load not logged in customer with default shop configuration or with provided checkout scopes
         $shippingLocation = $this->loadShippingLocation($options, $context, $salesChannel);
@@ -133,6 +138,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         if ($customerGroup === null) {
             throw SalesChannelException::customerGroupNotFound($groupId);
         }
+        $salesChannel->setCustomerGroup($customerGroup);
 
         // loads tax rules based on active customer and delivery address
         $taxRules = $this->getTaxRules($context);

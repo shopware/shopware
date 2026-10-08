@@ -33,6 +33,10 @@ class CartMergedSubscriber implements EventSubscriberInterface
 
     public function addCartMergedNoticeFlash(CartMergedEvent $event): void
     {
+        if ($event->getPreviousCart()->getLineItems()->count() === 0) {
+            return;
+        }
+
         $mainRequest = $this->requestStack->getMainRequest();
 
         if ($mainRequest === null) {

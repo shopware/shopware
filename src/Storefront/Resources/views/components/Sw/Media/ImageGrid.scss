@@ -1,0 +1,105 @@
+/* Inherit, because the component sets these on the grid root but they are consumed inside it */
+@property --sw-media-image-grid-columns {
+    syntax: '*';
+    inherits: true;
+}
+
+@property --sw-media-image-grid-featured-columns {
+    syntax: '*';
+    inherits: true;
+}
+
+.sw-media-image-grid {
+    --sw-media-image-grid-gap: var(--spacer-sm);
+    --sw-media-image-grid-aspect-ratio: 1 / 1;
+    --sw-media-image-grid-featured-aspect-ratio: auto;
+    --sw-media-image-grid-focus-color: var(--bs-primary);
+    --sw-media-image-grid-hover-overlay-color: rgba(var(--bs-black-rgb), 0.2);
+    --sw-media-image-grid-hover-zoom: 1.05;
+    --sw-media-image-grid-hover-transition: 0.3s ease-in-out;
+}
+
+.sw-media-image-grid__items {
+    display: grid;
+    grid-template-columns: repeat(var(--sw-media-image-grid-columns, 2), minmax(0, 1fr));
+    gap: var(--sw-media-image-grid-gap);
+    margin: 0;
+}
+
+.sw-media-image-grid__item {
+    aspect-ratio: var(--sw-media-image-grid-aspect-ratio);
+    min-width: 0;
+    overflow: hidden;
+
+    &.is--featured {
+        grid-column: 1 / -1;
+        aspect-ratio: var(--sw-media-image-grid-featured-aspect-ratio);
+    }
+
+    /* Spans as many rows as columns, so it keeps the tile aspect ratio and the following items fill the cells beside it */
+    &.is--featured-partial {
+        grid-column: span var(--sw-media-image-grid-featured-columns);
+        grid-row: span var(--sw-media-image-grid-featured-columns);
+        aspect-ratio: var(--sw-media-image-grid-aspect-ratio);
+    }
+}
+
+.sw-media-image-grid__trigger {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+button.sw-media-image-grid__trigger {
+    appearance: none;
+    margin: 0;
+    padding: 0;
+    border: 0 none;
+    background-color: transparent;
+    color: inherit;
+    position: relative;
+
+    /* Must outweigh the reboot's `[type="button"]:not(:disabled)` pointer cursor */
+    &:not(:disabled) {
+        cursor: zoom-in;
+    }
+
+    /* No z-index, so the focus outline and the video preview overlay stay above it */
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-color: var(--sw-media-image-grid-hover-overlay-color);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--sw-media-image-grid-hover-transition);
+    }
+
+    &:hover::after {
+        opacity: 1;
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--sw-media-image-grid-focus-color);
+        outline-offset: -2px;
+    }
+}
+
+.sw-media-image-grid__media {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--sw-media-image-grid-hover-transition);
+}
+
+button.sw-media-image-grid__trigger:hover .sw-media-image-grid__media {
+    transform: scale(var(--sw-media-image-grid-hover-zoom));
+}
+
+@media (prefers-reduced-motion: reduce) {
+    button.sw-media-image-grid__trigger::after,
+    .sw-media-image-grid__media {
+        transition: none;
+    }
+}

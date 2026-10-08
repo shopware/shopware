@@ -26,7 +26,11 @@ use Symfony\Component\Filesystem\Path;
 )]
 class ThemeMigrateTranslationsCommand extends Command
 {
-    private const SNIPPET_DIRECTORY = 'Resources/app/administration/src/snippet';
+    private const PLUGIN_SNIPPET_DIRECTORY = 'Resources/app/administration/src/snippet';
+
+    private const APP_SNIPPET_DIRECTORY = 'Resources/app/administration/snippet';
+
+    private const APP_REQUIRED_LOCALE = 'en-GB';
 
     private const THEME_JSON = 'Resources/theme.json';
 
@@ -62,11 +66,9 @@ class ThemeMigrateTranslationsCommand extends Command
         }
 
         $themeDirectory = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($configuration)->location;
-        if ($this->filesystem->exists(Path::join($themeDirectory, 'manifest.xml'))) {
-            $io->error(\sprintf('"%s" is an app. App themes ship administration snippets in Resources/app/administration/snippet, please move the translations there manually.', $technicalName));
-
-            return self::FAILURE;
-        }
+        // apps ship administration snippets in a different directory and import them on install or update
+        $isApp = $this->filesystem->exists(Path::join($themeDirectory, 'manifest.xml'));
+        $snippetDirectory = $isApp ? self::APP_SNIPPET_DIRECTORY : self::PLUGIN_SNIPPET_DIRECTORY;
 
         $unplaceableGroups = $this->generator->findUnplaceableGroups($configuration);
         if ($unplaceableGroups !== []) {
@@ -86,15 +88,15 @@ class ThemeMigrateTranslationsCommand extends Command
         $rows = [];
         $shadowedLanguageFiles = [];
         foreach ($snippets as $locale => $content) {
-            $relativePath = \sprintf('%s/%s', self::SNIPPET_DIRECTORY, $this->generator->fileName($locale));
+            $relativePath = \sprintf('%s/%s', $snippetDirectory, $this->generator->fileName($locale));
             $path = Path::join($themeDirectory, $relativePath);
 
             // snippets already maintained in the theme always win over generated ones
             $merged = array_replace_recursive($content, $this->readJson($path));
             $rows[] = [$locale, $relativePath, $this->countSnippets($content)];
 
-            $languageFile = \sprintf('%s/%s', self::SNIPPET_DIRECTORY, $this->generator->fileName(explode('-', $locale)[0]));
-            if ($languageFile !== $relativePath && $this->filesystem->exists(Path::join($themeDirectory, $languageFile))) {
+            $languageFile = \sprintf('%s/%s', $snippetDirectory, $this->generator->fileName(explode('-', $locale)[0]));
+            if (!$isApp && $languageFile !== $relativePath && $this->filesystem->exists(Path::join($themeDirectory, $languageFile))) {
                 $shadowedLanguageFiles[] = \sprintf('%s is loaded after %s and overrides its matching keys', $relativePath, $languageFile);
             }
 
@@ -110,6 +112,15 @@ class ThemeMigrateTranslationsCommand extends Command
                 'The theme already maintains language snippet files. The administration loads locale files after language files, so the generated keys win over the maintained ones. Compare the files and remove the duplicates, or drop the legacy translations with --strip.',
                 ...$shadowedLanguageFiles,
             ]);
+        }
+
+        if ($isApp) {
+            $requiredFile = Path::join($themeDirectory, $snippetDirectory, $this->generator->fileName(self::APP_REQUIRED_LOCALE));
+            if (!isset($snippets[self::APP_REQUIRED_LOCALE]) && !$this->filesystem->exists($requiredFile)) {
+                $io->warning(\sprintf('App snippets require %s, otherwise the app cannot be installed. Add the file before refreshing the app.', $this->generator->fileName(self::APP_REQUIRED_LOCALE)));
+            }
+
+            $io->text(\sprintf('App snippets are imported on install and update, run "bin/console app:refresh" or "bin/console app:update %s" to load them.', $technicalName));
         }
 
         if ($input->getOption('strip')) {

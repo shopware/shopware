@@ -69,16 +69,33 @@ class ThemeMigrateTranslationsCommandTest extends TestCase
         static::assertStringContainsString('Theme "Unknown" not found.', $this->commandTester->getDisplay());
     }
 
-    public function testAppThemesAreRejected(): void
+    public function testAppThemesGetTheirSnippetsIntoTheAppSnippetDirectory(): void
     {
         $this->writeThemeJson(['sw-logo' => ['label' => ['en-GB' => 'Logo']]]);
         $this->filesystem->dumpFile($this->themeDirectory . '/manifest.xml', '<manifest/>');
 
         $exitCode = $this->commandTester->execute(['technical-name' => 'SwagTheme']);
+        $display = $this->commandTester->getDisplay();
 
-        static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsString('is an app', $this->commandTester->getDisplay());
+        static::assertSame(Command::SUCCESS, $exitCode);
         static::assertFileDoesNotExist($this->themeDirectory . self::SNIPPET_FILE);
+        static::assertSame(
+            ['sw-theme' => ['SwagTheme' => ['default' => ['default' => ['default' => ['sw-logo' => ['label' => 'Logo']]]]]]],
+            $this->readJson($this->themeDirectory . '/Resources/app/administration/snippet/en-GB.json'),
+        );
+        static::assertStringContainsString('app:update SwagTheme', $display);
+        static::assertStringNotContainsString('[WARNING]', $display);
+    }
+
+    public function testAppThemesWithoutEnglishSnippetsAreWarned(): void
+    {
+        $this->writeThemeJson(['sw-logo' => ['label' => ['de-DE' => 'Logo DE']]]);
+        $this->filesystem->dumpFile($this->themeDirectory . '/manifest.xml', '<manifest/>');
+
+        $this->commandTester->execute(['technical-name' => 'SwagTheme']);
+
+        static::assertStringContainsString('App snippets require en-GB.json', $this->commandTester->getDisplay());
+        static::assertFileExists($this->themeDirectory . '/Resources/app/administration/snippet/de-DE.json');
     }
 
     public function testThemeWithoutLegacyTranslationsWritesNothing(): void

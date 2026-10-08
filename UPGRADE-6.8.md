@@ -2678,7 +2678,7 @@ Run the following command to create the snippet files in the theme and remove th
 bin/console theme:migrate-translations <technicalName> --strip
 ```
 
-The command writes `Resources/app/administration/src/snippet/<locale>.json`, keeps snippets the theme already maintains there, and warns when a generated file would shadow an existing `<language>.json`. Use `--dry-run` to preview. You should prefer the language-agnostic file names (`en.json`, `de.json`) the administration and the storefront use themselves, unless the theme deliberately ships different texts per region. App themes are not supported. Add the snippets to `Resources/app/administration/snippet` of the app instead.
+The command writes `Resources/app/administration/src/snippet/<locale>.json`, keeps snippets the theme already maintains there, and warns when a generated file would shadow an existing `<language>.json`. Use `--dry-run` to preview. You should prefer the language-agnostic file names (`en.json`, `de.json`) the administration and the storefront use themselves, unless the theme deliberately ships different texts per region. For app themes the files go to `Resources/app/administration/snippet`. Keep the locale file names there, make sure `en-GB.json` exists, and refresh the app afterwards so the snippets are imported.
 
 Labels of tabs, blocks, sections and fields a child theme inherits are placed through the fields of its parent themes, so a theme that only relabels an inherited group or field gets the matching snippet without redefining the field. Labels of blocks or sections that no field of the theme or its parents uses have no snippet key. The command lists them as not migratable, so move the label to a group in use or drop it before running `--strip`.
 

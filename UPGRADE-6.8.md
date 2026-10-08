@@ -2668,9 +2668,9 @@ Use `name` and `description` instead.
 
 ## Deprecated theme.json translations
 
-The `label` and `helpText` properties of `theme.json` were deprecated in favor of the administration snippet system. The theme manager now reads its labels from administration snippets with a constructed key.
+The `label` and `helpText` properties of `theme.json` were deprecated in favor of the administration snippet system. The theme manager reads its labels from administration snippets with a constructed key.
 
-Themes that still define `label` or `helpText` in their `theme.json` keep working: on `theme:refresh`, plugin installation and plugin update Shopware generates the matching administration snippets from those properties and stores them in the private filesystem under `snippets/administration/<technicalName>/<locale>.json`. Snippet files shipped by the theme itself always take precedence over the generated ones, and a warning is logged while a theme still relies on the generated ones. This fallback will be removed in a later major version, so move the translations into snippet files before then.
+Themes that still define the properties keep working: on `theme:refresh` and plugin installation or update, Shopware converts them into administration snippets under `snippets/administration/<technicalName>/<locale>.json` in the private filesystem. That conversion is all Shopware still does with the properties. Snippet files shipped by the theme always win over the generated ones, and a warning is logged while a theme relies on them.
 
 Run the following command to create the snippet files in the theme and remove the deprecated properties from the `theme.json`:
 
@@ -2678,9 +2678,9 @@ Run the following command to create the snippet files in the theme and remove th
 bin/console theme:migrate-translations <technicalName> --strip
 ```
 
-The command writes `Resources/app/administration/src/snippet/<locale>.json` (`en-GB.json`, `de-DE.json`, ...), taking the locales over from the `theme.json` as they are, keeps every snippet the theme already maintains in those files, and offers `--dry-run` to preview the result. App themes are not supported by the command; add the snippets to `Resources/app/administration/snippet` of the app instead.
+The command writes `Resources/app/administration/src/snippet/<locale>.json`, keeps snippets the theme already maintains there, and warns when a generated file would shadow an existing `<language>.json`. Use `--dry-run` to preview. You should prefer the language-agnostic file names (`en.json`, `de.json`) the administration and the storefront use themselves, unless the theme deliberately ships different texts per region. App themes are not supported. Add the snippets to `Resources/app/administration/snippet` of the app instead.
 
-If the theme already maintains `<language>.json` files, the generated `<locale>.json` files are loaded after them in the administration and override matching keys; the command warns about this. Compare both files and remove the duplicates, or run the command with `--strip` to drop the legacy translations.
+Labels of tabs, blocks, sections and fields a child theme inherits are placed through the fields of its parent themes, so a theme that only relabels an inherited group or field gets the matching snippet without redefining the field. Labels of blocks or sections that no field of the theme or its parents uses have no snippet key. The command lists them as not migratable, so move the label to a group in use or drop it before running `--strip`.
 
 The snippet keys are constructed as follows.
 The mentioned `technicalName` implies the `technicalName` property of the theme, or its respective parent theme name, since snippets are inherited from the parent theme as well.
@@ -2706,7 +2706,7 @@ Examples:
 Both deprecated fields `label` & `helpText` of `Shopware\Storefront\Theme\ThemeEntity` are removed.
 Please use the snippet keys to be found in `\Shopware\Storefront\Theme\ThemeService::getThemeConfigurationStructuredFields` instead.
 
-The legacy translations are no longer persisted in `theme_translation.labels` and `theme_translation.help_texts` either; `theme:refresh` and the plugin lifecycle stopped writing them. Both columns and the `labels`/`helpTexts` properties of `ThemeTranslationEntity` are removed. Read the labels from the administration snippets instead, which are generated from the `theme.json` as described in "Deprecated theme.json translations" above.
+The legacy translations are no longer persisted in `theme_translation.labels` and `theme_translation.help_texts` either, because `theme:refresh` and the plugin lifecycle stopped writing them. Both columns and the `labels`/`helpTexts` properties of `ThemeTranslationEntity` are removed. Read the labels from the administration snippets instead, which are generated from the `theme.json` as described in "Deprecated theme.json translations" above.
 
 ## Removed `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields`
 

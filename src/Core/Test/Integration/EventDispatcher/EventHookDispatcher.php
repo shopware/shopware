@@ -118,11 +118,14 @@ final class EventHookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param callable $listener can not use native type declaration @see https://github.com/symfony/symfony/issues/42283
+     * The compiled container registers listeners as [service closure, method] arrays, which only become callable
+     * once the closure is resolved, so the parameter is widened like Symfony's own dispatcher does.
+     *
+     * @param callable|array{0: object, 1: string} $listener
      */
-    public function addListener(string $eventName, $listener, int $priority = 0): void // @phpstan-ignore-line
+    public function addListener(string $eventName, callable|array $listener, int $priority = 0): void
     {
-        /** @var callable(object): void $listener - Specify generic callback interface callers can provide more specific implementations */
+        /** @var callable $listener the interface declares callable; every dispatcher behind it accepts the array form */
         $this->inner->addListener($eventName, $listener, $priority);
     }
 

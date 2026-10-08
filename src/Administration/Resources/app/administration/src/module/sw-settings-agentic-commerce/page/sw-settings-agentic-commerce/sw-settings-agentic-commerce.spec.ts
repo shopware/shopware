@@ -13,6 +13,7 @@ interface MyExtension {
 type ComponentVm = {
     reloadPage: () => void;
     onInstallExtension: () => Promise<void>;
+    onUpdateExtension: () => Promise<void>;
     createNotificationError: (config: { message: string }) => void;
 };
 
@@ -20,6 +21,7 @@ function createServices(myExtensions: MyExtension[] = []) {
     return {
         shopwareExtensionService: {
             installAndActivateExtension: jest.fn().mockResolvedValue(undefined),
+            updateExtension: jest.fn().mockResolvedValue(undefined),
         },
         extensionStoreActionService: {
             getMyExtensions: jest.fn().mockResolvedValue(myExtensions),
@@ -32,12 +34,20 @@ function createServices(myExtensions: MyExtension[] = []) {
 }
 
 let services: ReturnType<typeof createServices>;
+let routerPush: jest.Mock;
 
-// Core renders the static "extension not installed" state — it never inspects the
-// installed bundles. The SwagAgenticCommerce plugin override drives the installed /
-// prepared / ready states (covered by the plugin's own tests).
-async function createWrapper(myExtensions: MyExtension[] = [], canInstall = true) {
+// `extensionInstalled` simulates an outdated plugin: the bundle is present but the plugin
+// override is absent (older versions did not ship it), so core renders the "update" branch.
+async function createWrapper(
+    myExtensions: MyExtension[] = [],
+    canInstall = true,
+    hasStoreRoute = true,
+    extensionInstalled = false,
+) {
     services = createServices(myExtensions);
+    routerPush = jest.fn();
+
+    Shopware.Context.app.config.bundles = extensionInstalled ? { SwagAgenticCommerce: { css: [], js: [] } } : {};
 
     return mount(
         await wrapTestComponent('sw-settings-agentic-commerce', {
@@ -56,6 +66,10 @@ async function createWrapper(myExtensions: MyExtension[] = [], canInstall = true
                         }
 
                         return path;
+                    },
+                    $router: {
+                        hasRoute: (name: string) => name === 'sw.extension.store.detail' && hasStoreRoute,
+                        push: routerPush,
                     },
                 },
                 stubs: {
@@ -90,6 +104,10 @@ async function createWrapper(myExtensions: MyExtension[] = [], canInstall = true
 }
 
 describe('module/sw-settings-agentic-commerce/page/sw-settings-agentic-commerce', () => {
+    afterEach(() => {
+        Shopware.Context.app.config.bundles = {};
+    });
+
     it('should expose exactly two readiness steps', async () => {
         const wrapper = await createWrapper();
 
@@ -204,17 +222,25 @@ describe('module/sw-settings-agentic-commerce/page/sw-settings-agentic-commerce'
             );
         });
 
-        it('falls back to the plugin type when the extension is not listed', async () => {
-            const wrapper = await createWrapper([]);
-            jest.spyOn(wrapper.vm as unknown as ComponentVm, 'reloadPage').mockImplementation(() => {});
+        it('opens the Store listing when the extension is not owned and the Extension Store is installed', async () => {
+            const wrapper = await createWrapper([], true, true);
 
             await (wrapper.vm as unknown as ComponentVm).onInstallExtension();
 
+            expect(services.shopwareExtensionService.installAndActivateExtension).not.toHaveBeenCalled();
             expect(services.extensionStoreActionService.downloadExtension).not.toHaveBeenCalled();
-            expect(services.shopwareExtensionService.installAndActivateExtension).toHaveBeenCalledWith(
-                'SwagAgenticCommerce',
-                'plugin',
-            );
+            expect(routerPush).toHaveBeenCalledWith({ name: 'sw.extension.store.detail', params: { id: '21761' } });
+            expect(wrapper.vm.isInstallingExtension).toBe(false);
+        });
+
+        it('opens the Extension Store landing page when the Extension Store is not installed', async () => {
+            const wrapper = await createWrapper([], true, false);
+
+            await (wrapper.vm as unknown as ComponentVm).onInstallExtension();
+
+            expect(services.shopwareExtensionService.installAndActivateExtension).not.toHaveBeenCalled();
+            expect(routerPush).toHaveBeenCalledWith({ name: 'sw.extension.store.landing-page' });
+            expect(wrapper.vm.isInstallingExtension).toBe(false);
         });
 
         it('marks the install as in progress while the flow runs', async () => {
@@ -260,6 +286,65 @@ describe('module/sw-settings-agentic-commerce/page/sw-settings-agentic-commerce'
             await flushPromises();
 
             expect(services.shopwareExtensionService.installAndActivateExtension).toHaveBeenCalled();
+        });
+    });
+
+    describe('installed but outdated extension', () => {
+        it('shows the update description and action instead of install', async () => {
+            const wrapper = await createWrapper([], true, true, true);
+
+            expect(wrapper.vm.isExtensionInstalled).toBe(true);
+            expect(wrapper.vm.extensionActionLabel).toBe(
+                'sw-settings-agentic-commerce.readiness.steps.extension.updateAction',
+            );
+
+            const extensionStep = (wrapper.vm.steps as { key: string; description: string }[]).find(
+                (step) => step.key === 'extension',
+            );
+            expect(extensionStep?.description).toBe(
+                'sw-settings-agentic-commerce.readiness.steps.extension.updateDescription',
+            );
+        });
+
+        it('routes the button action to the update flow when the bundle is present', async () => {
+            const wrapper = await createWrapper(
+                [{ name: 'SwagAgenticCommerce', source: 'store', type: 'plugin' }],
+                true,
+                true,
+                true,
+            );
+            jest.spyOn(wrapper.vm as unknown as ComponentVm, 'reloadPage').mockImplementation(() => {});
+
+            const button = wrapper
+                .findAll('button')
+                .find((candidate) =>
+                    candidate.text().includes('sw-settings-agentic-commerce.readiness.steps.extension.updateAction'),
+                );
+            if (!button) {
+                throw new Error('Update button not found');
+            }
+
+            await button.trigger('click');
+            await flushPromises();
+
+            expect(services.extensionStoreActionService.downloadExtension).toHaveBeenCalledWith('SwagAgenticCommerce');
+            expect(services.shopwareExtensionService.updateExtension).toHaveBeenCalledWith('SwagAgenticCommerce', 'plugin');
+            expect(services.shopwareExtensionService.installAndActivateExtension).not.toHaveBeenCalled();
+        });
+
+        it('notifies on a failed update without reloading', async () => {
+            const wrapper = await createWrapper([{ name: 'SwagAgenticCommerce', source: 'local' }], true, true, true);
+            const notifySpy = jest
+                .spyOn(wrapper.vm as unknown as ComponentVm, 'createNotificationError')
+                .mockImplementation(() => {});
+            const reloadSpy = jest.spyOn(wrapper.vm as unknown as ComponentVm, 'reloadPage').mockImplementation(() => {});
+            services.shopwareExtensionService.updateExtension.mockRejectedValue(new Error('failed'));
+
+            await (wrapper.vm as unknown as ComponentVm).onUpdateExtension();
+
+            expect(notifySpy).toHaveBeenCalled();
+            expect(reloadSpy).not.toHaveBeenCalled();
+            expect(wrapper.vm.isInstallingExtension).toBe(false);
         });
     });
 

@@ -18,9 +18,12 @@
                 "extension": {
                     "title": "Agentic Commerce installiert",
                     "description": "Installiere die Agentic-Commerce-Erweiterung, um zu starten.",
+                    "updateDescription": "Aktualisiere die Agentic-Commerce-Erweiterung auf eine neuere Version, um fortzufahren.",
                     "action": "Erweiterung installieren",
+                    "updateAction": "Erweiterung aktualisieren",
                     "missingPermissionTooltip": "Du hast keine Berechtigung, Erweiterungen zu installieren.",
-                    "installError": "Die Agentic-Commerce-Erweiterung konnte nicht installiert werden. Bitte versuche es erneut."
+                    "installError": "Die Agentic-Commerce-Erweiterung konnte nicht installiert werden. Bitte versuche es erneut.",
+                    "updateError": "Die Agentic-Commerce-Erweiterung konnte nicht aktualisiert werden. Bitte versuche es erneut."
                 },
                 "prepareSalesChannels": {
                     "title": "Bestehende Verkaufskanäle vorbereiten",

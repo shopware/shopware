@@ -8,6 +8,10 @@ const { Mixin } = Shopware;
 
 const EXTENSION_NAME = 'SwagAgenticCommerce';
 
+// Agentic Commerce's product id in the Shopware Store, used to deep-link merchants who do
+// not own the extension yet to its Store listing.
+const STORE_PRODUCT_ID = '21761';
+
 interface ReadinessStep {
     key: string;
     title: string;
@@ -49,7 +53,9 @@ export default Shopware.Component.wrapComponentConfig({
                 {
                     key: 'extension',
                     title: this.$t('sw-settings-agentic-commerce.readiness.steps.extension.title'),
-                    description: this.$t('sw-settings-agentic-commerce.readiness.steps.extension.description'),
+                    description: this.isExtensionInstalled
+                        ? this.$t('sw-settings-agentic-commerce.readiness.steps.extension.updateDescription')
+                        : this.$t('sw-settings-agentic-commerce.readiness.steps.extension.description'),
                     complete: false,
                 },
                 {
@@ -89,6 +95,16 @@ export default Shopware.Component.wrapComponentConfig({
             return this.$t('sw-settings-agentic-commerce.shopReadiness.extensionNotInstalled');
         },
 
+        isExtensionInstalled(): boolean {
+            return !!Shopware.Context.app.config.bundles?.SwagAgenticCommerce;
+        },
+
+        extensionActionLabel(): string {
+            return this.isExtensionInstalled
+                ? this.$t('sw-settings-agentic-commerce.readiness.steps.extension.updateAction')
+                : this.$t('sw-settings-agentic-commerce.readiness.steps.extension.action');
+        },
+
         canInstallExtension(): boolean {
             return this.acl.can('system.plugin_maintain');
         },
@@ -101,17 +117,28 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        onExtensionAction(): Promise<void> {
+            return this.isExtensionInstalled ? this.onUpdateExtension() : this.onInstallExtension();
+        },
+
         async onInstallExtension(): Promise<void> {
             this.isInstallingExtension = true;
 
             try {
                 const extension = await this.findExtension();
 
-                if (extension?.source === 'store') {
+                // Not owned/licensed and not on disk: it cannot be installed directly, so send
+                // the merchant to the Store listing to acquire it instead of failing.
+                if (!extension) {
+                    this.openExtensionInStore();
+                    return;
+                }
+
+                if (extension.source === 'store') {
                     await this.extensionStoreActionService.downloadExtension(EXTENSION_NAME);
                 }
 
-                await this.shopwareExtensionService.installAndActivateExtension(EXTENSION_NAME, extension?.type ?? 'plugin');
+                await this.shopwareExtensionService.installAndActivateExtension(EXTENSION_NAME, extension.type ?? 'plugin');
 
                 // wait until cacheApiService is transpiled to ts
                 // @ts-expect-error
@@ -126,10 +153,52 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
+        async onUpdateExtension(): Promise<void> {
+            this.isInstallingExtension = true;
+
+            try {
+                const extension = await this.findExtension();
+
+                // No longer owned/available: fall back to the Store listing.
+                if (!extension) {
+                    this.openExtensionInStore();
+                    return;
+                }
+
+                if (extension.source === 'store') {
+                    await this.extensionStoreActionService.downloadExtension(EXTENSION_NAME);
+                }
+
+                await this.shopwareExtensionService.updateExtension(EXTENSION_NAME, extension.type ?? 'plugin');
+
+                // wait until cacheApiService is transpiled to ts
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                await this.cacheApiService.clear();
+                this.reloadPage();
+            } catch {
+                this.isInstallingExtension = false;
+                this.createNotificationError({
+                    message: this.$t('sw-settings-agentic-commerce.readiness.steps.extension.updateError'),
+                });
+            }
+        },
+
         async findExtension() {
             const extensions = await this.extensionStoreActionService.getMyExtensions();
 
             return extensions.find((extension) => extension.name === EXTENSION_NAME) ?? null;
+        },
+
+        openExtensionInStore(): void {
+            this.isInstallingExtension = false;
+
+            if (this.$router.hasRoute('sw.extension.store.detail')) {
+                void this.$router.push({ name: 'sw.extension.store.detail', params: { id: STORE_PRODUCT_ID } });
+                return;
+            }
+
+            void this.$router.push({ name: 'sw.extension.store.landing-page' });
         },
 
         reloadPage(): void {

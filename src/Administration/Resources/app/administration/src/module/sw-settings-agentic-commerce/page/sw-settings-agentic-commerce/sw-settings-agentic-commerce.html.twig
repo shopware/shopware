@@ -141,9 +141,9 @@
                                     variant="primary"
                                     :is-loading="isInstallingExtension"
                                     :disabled="!canInstallExtension || isInstallingExtension"
-                                    @click="onInstallExtension"
+                                    @click="onExtensionAction"
                                 >
-                                    {{ $t('sw-settings-agentic-commerce.readiness.steps.extension.action') }}
+                                    {{ extensionActionLabel }}
                                 </mt-button>
                             </template>
                             {% endblock %}

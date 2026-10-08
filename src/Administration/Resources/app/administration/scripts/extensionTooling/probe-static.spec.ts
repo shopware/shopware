@@ -6,6 +6,7 @@
  */
 
 import path from 'path';
+import type * as Probe from './probe-static';
 import { eslintConfigVerdict, tsconfigVerdict } from './probe-static';
 import { cleanupTempProject, createTempProject, writeFile } from './test-helpers';
 
@@ -25,16 +26,59 @@ describe('scripts/extensionTooling/probe-static', () => {
     }
 
     describe('tsconfigVerdict', () => {
-        it('accepts a config that extends the bridge, JSONC comments included', () => {
+        it('accepts a config that extends the bridge, including JSONC comments and trailing commas', () => {
             writeFile(path.join(projectRoot, 'admin/tsconfig.json'), [
                 '{',
                 '    // JSONC comments must parse',
                 '    "extends": "./.shopware/tsconfig.json",',
-                '    "include": ["src/**/*"]',
+                '    "include": ["src/**/*"],',
                 '}',
             ]);
 
             expect(verdictFor('admin/tsconfig.json')).toEqual({ path: 'admin/tsconfig.json', composes: true });
+        });
+
+        it('reads config files without loading the legacy TypeScript compiler', () => {
+            writeFile(path.join(projectRoot, 'admin/tsconfig.json'), ['{ "extends": "./.shopware/tsconfig.json" }']);
+
+            try {
+                jest.isolateModules(() => {
+                    jest.doMock('typescript', () => {
+                        throw new Error('Config parsing must not load the legacy TypeScript compiler.');
+                    });
+                    const { tsconfigVerdict: verdict } = jest.requireActual<typeof Probe>('./probe-static');
+
+                    expect(verdict(path.join(projectRoot, 'admin/tsconfig.json'), 'admin/tsconfig.json').composes).toBe(
+                        true,
+                    );
+                });
+            } finally {
+                jest.dontMock('typescript');
+            }
+        });
+
+        it.each(['null', '[]', '"config"'])('rejects a non-object config: %s', (source) => {
+            writeFile(path.join(projectRoot, 'admin/tsconfig.json'), [source]);
+
+            const verdict = verdictFor('admin/tsconfig.json');
+
+            expect(verdict.composes).toBe(false);
+            expect(verdict.reason).toBe('unreadable');
+            expect(verdict.detail).toContain('JSON object');
+        });
+
+        it('accepts a UTF-8 BOM before the config object', () => {
+            writeFile(path.join(projectRoot, 'admin/tsconfig.json'), [
+                String.fromCharCode(0xfeff) + '{ "extends": "./.shopware/tsconfig.json" }',
+            ]);
+
+            expect(verdictFor('admin/tsconfig.json').composes).toBe(true);
+        });
+
+        it('treats an empty config as an object without an extends declaration', () => {
+            writeFile(path.join(projectRoot, 'admin/tsconfig.json'), ['// no options yet']);
+
+            expect(verdictFor('admin/tsconfig.json').reason).toBe('extends-missing');
         });
 
         it('follows an extends chain through an own base config to the shipped preset', () => {

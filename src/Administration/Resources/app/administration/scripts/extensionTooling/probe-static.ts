@@ -13,7 +13,8 @@
 
 import fs from 'fs';
 import path from 'path';
-import ts from 'typescript';
+import { parse, printParseErrorCode } from 'jsonc-parser';
+import type { ParseError } from 'jsonc-parser';
 import { SHIM_DIR_NAME, toPosix } from './shared';
 import type { OwnedConfig } from './shared';
 
@@ -41,13 +42,25 @@ function parseTsconfig(configPath: string): { config?: Record<string, unknown>; 
         return { error: error instanceof Error ? error.message : String(error) };
     }
 
-    const parsed = ts.parseConfigFileTextToJson(configPath, text);
+    const errors: ParseError[] = [];
+    const config: unknown = parse(text.replace(/^\uFEFF/, ''), errors, {
+        allowTrailingComma: true,
+        allowEmptyContent: true,
+    });
 
-    if (parsed.error) {
-        return { error: ts.flattenDiagnosticMessageText(parsed.error.messageText, ' ') };
+    if (errors.length > 0) {
+        return { error: `${printParseErrorCode(errors[0].error)} at offset ${errors[0].offset}.` };
     }
 
-    return { config: parsed.config as Record<string, unknown> };
+    if (config === undefined) {
+        return { config: {} };
+    }
+
+    if (typeof config !== 'object' || config === null || Array.isArray(config)) {
+        return { error: 'The tsconfig must contain a JSON object.' };
+    }
+
+    return { config: config as Record<string, unknown> };
 }
 
 /**

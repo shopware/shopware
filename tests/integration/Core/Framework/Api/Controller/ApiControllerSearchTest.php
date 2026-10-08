@@ -785,6 +785,47 @@ class ApiControllerSearchTest extends TestCase
         static::assertSame('100', $productStats['max']);
     }
 
+    public function testReverseInheritedAssociationIdFilterIncludesInheritedRows(): void
+    {
+        $ids = new IdsCollection();
+
+        $product = [
+            'id' => $ids->get('parent'),
+            'productNumber' => $ids->get('parent'),
+            'name' => 'Parent',
+            'stock' => 10,
+            'tax' => ['name' => 'test', 'taxRate' => 10],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false]],
+            'prices' => [
+                [
+                    'id' => $ids->get('price'),
+                    'quantityStart' => 1,
+                    'rule' => ['id' => $ids->get('rule'), 'name' => 'test', 'priority' => 1],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 5, 'net' => 5, 'linked' => false]],
+                ],
+            ],
+            'children' => [
+                ['id' => $ids->get('variant'), 'productNumber' => $ids->get('variant'), 'stock' => 10],
+            ],
+        ];
+
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $product);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
+
+        $this->getBrowser()->jsonRequest('POST', '/api/search/product-price', [
+            'filter' => [['type' => 'equals', 'field' => 'product.id', 'value' => $ids->get('variant')]],
+            'aggregations' => [['name' => 'rules', 'type' => 'terms', 'field' => 'rule.id']],
+        ], ['HTTP_SW_INHERITANCE' => '1']);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame([$ids->get('price')], array_column($content['data'], 'id'));
+        static::assertSame([$ids->get('rule')], array_column($content['aggregations']['rules']['buckets'], 'key'));
+    }
+
     public function testAccessDeniedAfterChangingUserPassword(): void
     {
         $browser = $this->getBrowser();

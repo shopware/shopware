@@ -624,7 +624,7 @@ class StoreApiGeneratorTest extends TestCase
         }
 
         // Should have operations without associations (entities that don't have associations)
-        static::assertNotEmpty($operationsWithoutAssociations, 'Should have operations without associations');
+        static::assertNotCount(0, $operationsWithoutAssociations, 'Should have operations without associations');
     }
 
     #[DataProvider('supportsDataProvider')]

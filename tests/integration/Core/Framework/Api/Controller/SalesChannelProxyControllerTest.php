@@ -685,7 +685,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->storeAPIRemoveLineItems($browser, [$firstProductId, $secondProductId], $salesChannelContext->getToken());
 
         $cart = $this->getStoreApiCart($browser, TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
-        static::assertEmpty($cart['deliveries']);
+        static::assertSame([], $cart['deliveries']);
 
         // adding a new product item to cart.
         $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
@@ -914,19 +914,19 @@ class SalesChannelProxyControllerTest extends TestCase
         $creditLineItems = array_filter($cart['lineItems'], static fn ($lineItem) => $lineItem['type'] === LineItem::CREDIT_LINE_ITEM_TYPE);
 
         // assert there is credit item in cart
-        static::assertNotEmpty($creditLineItems);
+        static::assertNotCount(0, $creditLineItems);
         $creditLineItem = array_values($creditLineItems)[0];
 
         // assert there is calculated taxes for product and custom items in cart
         static::assertCount(2, $calculatedTaxes = $creditLineItem['price']['calculatedTaxes']);
         $calculatedTaxForCustomItem = array_filter($calculatedTaxes, static fn ($tax) => $tax['taxRate'] === $taxForCustomItem);
 
-        static::assertNotEmpty($calculatedTaxForCustomItem);
+        static::assertNotCount(0, $calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
         $calculatedTaxForProductItem = array_filter($calculatedTaxes, static fn ($tax) => $tax['taxRate'] === $taxForProductItem);
 
-        static::assertNotEmpty($calculatedTaxForProductItem);
+        static::assertNotCount(0, $calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);
     }
 

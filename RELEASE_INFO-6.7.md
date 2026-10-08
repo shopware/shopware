@@ -2,6 +2,10 @@
 
 ## Critical Fixes
 
+### Sales channel contexts expose the default currency again
+
+`SalesChannelContext::getSalesChannel()->getCurrency()` returns the sales channel's default currency again, including when another currency is selected for the context. This restores the behavior before 6.7.15.0 for extensions that read the default currency. Use `SalesChannelContext::getCurrency()` for the currently selected currency.
+
 ### Line item conditions evaluate line items by the data they carry
 
 Since 6.7.14.0, most line item conditions of the Rule Builder evaluated only line items of the type `product`. Custom and credit line items and line items that extensions add to the cart no longer matched them, and a single custom line item could hide shipping methods or block promotions under a negated condition such as "Item with tag / All / Are none of".
@@ -59,6 +63,12 @@ With the newly added tabs feature, plugin developers can now add another layer o
 ### Preview three 6.8 behavior changes independently
 
 Set `MEDIA_URL_PATH_ENCODING=1` to test encoded media URL paths, `PROPORTIONAL_CART_TAXES=1` to test proportional tax calculation for percentage prices and split line items, or `DELETE_CART_AFTER_ORDER_CREATION=1` to test the earlier persisted-cart deletion during checkout. Each flag can be enabled without the other 6.8 changes. When `V6_8_0_0=1`, all three activate unless explicitly disabled. The corresponding migration guidance is in `UPGRADE-6.8.md`.
+
+### Asset installation on S3-compatible storage
+
+Asset installation now overwrites existing files without deleting their directory first when using `--force` or rebuilding a missing asset manifest. This prevents delayed storage deletions from removing freshly uploaded files. Obsolete files are still removed, and no configuration changes are required.
+
+Deactivating a plugin now removes its asset manifest entry but retains its public files until uninstall. This avoids a pending directory deletion removing files uploaded after reactivation. Uninstall still removes the plugin's public files.
 
 ### Product stream builders can migrate without dropping the legacy contract
 
@@ -313,6 +323,12 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### Shared order restoration for Store API routes
+
+`Shopware\Core\Checkout\Cart\Order\OrderRestorer::restore()` builds the sales channel context and cart of an existing order through `OrderConverter`, so its decorators and the context assembled events keep being invoked; `addRequiredAssociations()` adds the associations the order has to be loaded with. Read-only Store API routes opt in with the route default `_allowOrderRestoration`. For a request with an `orderId`, the restored objects are stored as `sw-effective-sales-channel-context`, `sw-effective-context` and `sw-effective-cart` and injected by the `SalesChannelContext`, `Context`, `Cart` and `Criteria` argument resolvers; the session attributes and `sw-context-token` stay untouched. A failing restoration answers `CHECKOUT__ORDER_RESTORATION_FAILED`.
+
+`AccountEditOrderPageLoader` and `SetPaymentOrderRoute` take `OrderRestorer` instead of `OrderConverter` and `CartService` in their constructors; the restored cart they pass to the checkout gateway now carries the order's deliveries.
+
 ### Sorting by `product.price` works with Elasticsearch
 
 The product index now contains `product.price`, so sorting, filtering and aggregating on it work with Elasticsearch. Before, a sorting on `product.price` (e.g. the "Default price" listing sorting) failed with `No mapping found for [price.c_....gross]`.
@@ -322,6 +338,16 @@ Run `bin/console es:index` after deploying. Existing documents have no price unt
 ### Reduced remote thumbnail URL generation overhead
 
 Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
+
+### Extensions can add their own spatial media types
+
+A media type that implements `Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface` is shown by the spatial viewer instead of as a picture. `MediaEntity::isSpatial()` checks for it in PHP and in Twig, while `MediaEntity::isSpatialObject()` still matches GLB files only. `SpatialObjectType` implements the interface.
+
+Both are experimental and become stable with 6.8.0.
+
+### GLB uploads with external references are rejected
+
+GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_INVALID_FILE` if it is not a valid binary glTF 2.0 container or if the `uri` of a buffer or image points to something other than an embedded `data:` URI. Self-contained models, which keep their buffers and textures in the binary chunk, are not affected and URLs in other fields such as `extras` or `asset.copyright` are still allowed.
 
 ## API
 
@@ -362,6 +388,10 @@ Store API responses contain the new properties wherever they contain a regulatio
 ### REST API indexing behavior header is honored
 
 The `indexing-behavior` header now supports `use-queue-indexing` and `disable-indexing` on REST API writes, matching the existing Sync API behavior. Requests without this header retain the current synchronous indexing behavior.
+
+### Store API payment, shipping and checkout gateway routes accept an `orderId`
+
+`/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
 
 ## Administration
 

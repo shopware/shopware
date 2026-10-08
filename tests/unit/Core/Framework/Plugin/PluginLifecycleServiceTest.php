@@ -535,7 +535,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $pluginLifecycleService->uninstallPlugin($plugin, Context::createDefaultContext());
 
-        static::assertEmpty($replacedEventDispatcher->getListeners());
+        static::assertCount(0, $replacedEventDispatcher->getListeners());
         static::assertCount(1, $this->eventDispatcher->getListeners());
     }
 
@@ -816,6 +816,25 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertArrayHasKey('1', $returnedEvents);
         static::assertInstanceOf(PluginPostDeactivateEvent::class, $returnedEvents[1]);
         static::assertFalse($pluginEntityMock->getActive());
+    }
+
+    public function testDeactivatePluginKeepsAssetsForReactivation(): void
+    {
+        $pluginEntity = $this->getPluginEntityMock();
+        $pluginEntity->setInstalledAt(new \DateTime());
+        $pluginEntity->setActive(true);
+        $this->cacheItemPoolInterfaceMock->method('getItem')->willReturn(new CacheItem());
+        $this->pluginMock->expects($this->once())->method('deactivate');
+
+        $assetService = $this->createMock(AssetService::class);
+        $assetService->expects($this->once())
+            ->method('removeAssetsOfBundle')
+            ->with('MockPlugin', false);
+        $this->pluginLifecycleService = $this->createService(assetService: $assetService);
+
+        $this->pluginLifecycleService->deactivatePlugin($pluginEntity, Context::createDefaultContext());
+
+        static::assertFalse($pluginEntity->getActive());
     }
 
     public function testDeactivatePluginNotInstalled(): void
@@ -1124,6 +1143,7 @@ class PluginLifecycleServiceTest extends TestCase
         ?RequirementsValidator $requirementsValidator = null,
         ?PluginService $pluginService = null,
         ?CustomFieldSetPersister $customFieldSetPersister = null,
+        ?AssetService $assetService = null,
     ): PluginLifecycleService {
         return new PluginLifecycleService(
             $pluginRepo ?? $this->pluginRepoMock,
@@ -1131,7 +1151,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->kernelPluginCollectionMock,
             $this->container,
             $migrationLoader ?? $this->migrationLoaderMock,
-            static::createStub(AssetService::class),
+            $assetService ?? static::createStub(AssetService::class),
             $commandExecutor ?? $this->commandExecutor,
             $requirementsValidator ?? $this->requirementsValidatorMock,
             $this->cacheItemPoolInterfaceMock,

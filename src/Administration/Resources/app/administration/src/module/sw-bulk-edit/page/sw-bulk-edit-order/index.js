@@ -554,10 +554,10 @@ export default {
             const promises = [];
 
             if (this.bulkEditData.orderTransactions.isChanged) {
-                promises.push(this.fetchStatusOptions('orderTransactions.order.id'));
+                promises.push(this.fetchStatusOptions('orderTransactions.orderId'));
             }
             if (this.bulkEditData.orderDeliveries?.isChanged) {
-                promises.push(this.fetchStatusOptions('orderDeliveries.order.id'));
+                promises.push(this.fetchStatusOptions('orderDeliveries.orderId'));
             }
             if (this.bulkEditData.orders.isChanged) {
                 promises.push(this.fetchStatusOptions('orders.id'));

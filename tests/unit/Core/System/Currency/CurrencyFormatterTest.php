@@ -77,10 +77,10 @@ class CurrencyFormatterTest extends TestCase
     {
         $this->formatter->formatCurrencyByLanguage(19.9999, 'EUR', Uuid::randomHex(), $this->createContext(2));
 
-        static::assertNotEmpty((new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
+        static::assertNotCount(0, (new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
         $this->formatter->reset();
 
-        static::assertEmpty((new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
+        static::assertCount(0, (new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
     }
 
     /**

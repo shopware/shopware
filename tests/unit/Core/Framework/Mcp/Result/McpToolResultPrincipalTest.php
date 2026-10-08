@@ -31,11 +31,23 @@ class McpToolResultPrincipalTest extends TestCase
     {
         $salesChannelContext = Generator::generateSalesChannelContext(token: 'context-token');
 
-        $request = new Request();
+        $request = new Request(server: ['HTTP_SW_CONTEXT_TOKEN' => 'context-token']);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $salesChannelContext->getContext());
 
         static::assertSame('store:' . $salesChannelContext->getSalesChannelId() . ':context-token', McpToolResultPrincipal::fromRequest($request));
+    }
+
+    public function testAStoreCallWithoutAContextTokenHasNoPrincipal(): void
+    {
+        // The context resolver puts a random token into the headers of such a request; the client never sees it.
+        $salesChannelContext = Generator::generateSalesChannelContext(token: 'minted-for-this-request');
+
+        $request = new Request();
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'minted-for-this-request');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+
+        static::assertNull(McpToolResultPrincipal::fromRequest($request));
     }
 
     public function testThereIsNoPrincipalWithoutAnAuthenticatedCaller(): void

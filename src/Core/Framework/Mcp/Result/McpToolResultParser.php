@@ -56,7 +56,9 @@ class McpToolResultParser
             return new McpToolResult(data: $data, meta: $meta);
         }
 
+        // The note becomes the summary, so the model doesn't read it twice.
         $note = \is_string($meta['note'] ?? null) ? $meta['note'] : null;
+        unset($meta['note']);
         $expiresAt = \is_string($meta['expiresAt'] ?? null) ? \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $meta['expiresAt']) : false;
 
         return new McpToolResult(

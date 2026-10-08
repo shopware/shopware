@@ -31,7 +31,7 @@ class StoreApiToolResultResourceTest extends TestCase
             ->with($token, 'store:' . $salesChannelContext->getSalesChannelId() . ':context-token')
             ->willReturn(['content' => '{"success":true}', 'mimeType' => 'application/json']);
 
-        $request = new Request();
+        $request = new Request(server: ['HTTP_SW_CONTEXT_TOKEN' => 'context-token']);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
         $requestStack = new RequestStack();
         $requestStack->push($request);

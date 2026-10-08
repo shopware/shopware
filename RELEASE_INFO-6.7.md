@@ -357,7 +357,7 @@ With the `v6.8.0.0` feature flag, the first text block holds the plain data or t
 
 A tool result larger than 100 KB is stored and linked instead of returned inline. The link is now a signed pointer for the caller: the integration or user on `/api/_mcp`, the sales channel and `sw-context-token` on `/store-api/_mcp`. It expires after an hour and can be read on any later request of the same caller, with or without an MCP session. Another caller gets "not found".
 
-The result keeps `_meta.resourceUri` in the text block and adds `_meta.expiresAt`. Clients on protocol 2025-06-18 or later also get the link as a `resource_link` content block. The Store API endpoint can now read these results with `resources/read`; before, its links could not be resolved. Store API clients have to send the same `sw-context-token` on the read, because a request without it gets a new anonymous context.
+The result keeps `_meta.resourceUri` in the text block and adds `_meta.expiresAt`. Clients on protocol 2025-06-18 or later also get the link as a `resource_link` content block. The Store API endpoint can now read these results with `resources/read`; before, its links could not be resolved. Store API clients have to send the same `sw-context-token` on the read. A Store API call without `sw-context-token` gets its result inline, because the token minted for that one request could never read it back.
 
 ### HTML in customer name and address fields is rejected with a dedicated violation
 

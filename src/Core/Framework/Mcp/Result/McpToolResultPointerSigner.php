@@ -21,8 +21,8 @@ use Shopware\Core\Framework\Log\Package;
 class McpToolResultPointerSigner
 {
     /**
-     * Models read a stored result right after the call that produced it. An hour leaves room for a
-     * slow conversation and stays well below the age at which the cleanup task removes the row.
+     * Models read a stored result right after the call that produced it, and an hour leaves room for
+     * a slow conversation.
      */
     public const TTL_SECONDS = 3600;
 

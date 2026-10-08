@@ -6,7 +6,7 @@ use Composer\IO\NullIO;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\PluginManagementService;
+use Shopware\Core\Framework\Plugin\PluginManagementServiceInterface;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -32,7 +32,7 @@ class ExtensionStoreActionsController extends AbstractController
         private readonly AbstractExtensionLifecycle $extensionLifecycleService,
         private readonly ExtensionDownloader $extensionDownloader,
         private readonly PluginService $pluginService,
-        private readonly PluginManagementService $pluginManagementService,
+        private readonly PluginManagementServiceInterface $pluginManagementService,
         private readonly Filesystem $fileSystem,
         private readonly bool $runtimeExtensionManagementAllowed,
     ) {

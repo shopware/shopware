@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\NoPluginFoundInZipException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
+use Shopware\Core\Framework\Plugin\PluginManagementServiceInterface;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -29,7 +30,7 @@ class PluginZipImportCommand extends Command
      * @internal
      */
     public function __construct(
-        private readonly PluginManagementService $pluginManagementService,
+        private readonly PluginManagementServiceInterface $pluginManagementService,
         private readonly PluginService $pluginService,
         protected CacheClearer $cacheClearer
     ) {

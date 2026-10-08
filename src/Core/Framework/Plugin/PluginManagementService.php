@@ -21,7 +21,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[Package('framework')]
-class PluginManagementService
+class PluginManagementService implements PluginManagementServiceInterface
 {
     final public const PLUGIN = 'plugin';
     final public const APP = 'app';

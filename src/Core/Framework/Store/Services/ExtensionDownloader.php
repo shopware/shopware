@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
-use Shopware\Core\Framework\Plugin\PluginManagementService;
+use Shopware\Core\Framework\Plugin\PluginManagementServiceInterface;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 
@@ -25,7 +25,7 @@ class ExtensionDownloader
     public function __construct(
         private readonly EntityRepository $pluginRepository,
         private readonly StoreClient $storeClient,
-        private readonly PluginManagementService $pluginManagementService,
+        private readonly PluginManagementServiceInterface $pluginManagementService,
     ) {
     }
 

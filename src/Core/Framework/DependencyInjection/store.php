@@ -15,7 +15,7 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\JWT\JWTDecoder;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
-use Shopware\Core\Framework\Plugin\PluginManagementService;
+use Shopware\Core\Framework\Plugin\PluginManagementServiceInterface;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Store\Api\ExtensionStoreActionsController;
 use Shopware\Core\Framework\Store\Api\ExtensionStoreDataController;
@@ -161,7 +161,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(StoreClient::class),
             service('plugin.repository'),
-            service(PluginManagementService::class),
+            service(PluginManagementServiceInterface::class),
             service(PluginLifecycleService::class),
             service('user.repository'),
         ])
@@ -260,7 +260,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('plugin.repository'),
             service(StoreClient::class),
-            service(PluginManagementService::class),
+            service(PluginManagementServiceInterface::class),
         ]);
 
     $services->set(ExtensionLifecycleService::class)
@@ -268,7 +268,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AbstractStoreAppLifecycleService::class),
             service(PluginService::class),
             service(PluginLifecycleService::class),
-            service(PluginManagementService::class),
+            service(PluginManagementServiceInterface::class),
         ]);
 
     $services->set(ExtensionStoreActionsController::class)
@@ -277,7 +277,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ExtensionLifecycleService::class),
             service(ExtensionDownloader::class),
             service(PluginService::class),
-            service(PluginManagementService::class),
+            service(PluginManagementServiceInterface::class),
             service(Filesystem::class),
             param('shopware.deployment.runtime_extension_management'),
         ])

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
+use Shopware\Core\Framework\Plugin\PluginManagementServiceInterface;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
@@ -75,6 +76,13 @@ class PluginManagementServiceTest extends TestCase
         $this->filesystem->remove($this->cacheDir);
 
         Kernel::getConnection()->executeStatement('DELETE FROM plugin');
+    }
+
+    public function testInterfaceAliasResolvesToDefaultImplementation(): void
+    {
+        $service = static::getContainer()->get(PluginManagementServiceInterface::class);
+
+        static::assertInstanceOf(PluginManagementService::class, $service);
     }
 
     public function testUploadPlugin(): void

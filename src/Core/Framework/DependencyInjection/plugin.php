@@ -50,6 +50,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
+use Shopware\Core\Framework\Plugin\PluginManagementServiceInterface;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
@@ -160,6 +161,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
         ]);
 
+    $services->alias(PluginManagementServiceInterface::class, PluginManagementService::class);
+
     $services->set(ExtensionExtractor::class)
         ->args([
             [
@@ -192,7 +195,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(PluginZipImportCommand::class)
         ->args([
-            service(PluginManagementService::class),
+            service(PluginManagementServiceInterface::class),
             service(PluginService::class),
             service(CacheClearer::class),
         ])

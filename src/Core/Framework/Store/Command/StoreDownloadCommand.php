@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
-use Shopware\Core\Framework\Plugin\PluginManagementService;
+use Shopware\Core\Framework\Plugin\PluginManagementServiceInterface;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\User\UserCollection;
@@ -39,7 +39,7 @@ class StoreDownloadCommand extends Command
     public function __construct(
         private readonly StoreClient $storeClient,
         private readonly EntityRepository $pluginRepo,
-        private readonly PluginManagementService $pluginManagementService,
+        private readonly PluginManagementServiceInterface $pluginManagementService,
         private readonly PluginLifecycleService $pluginLifecycleService,
         private readonly EntityRepository $userRepository,
     ) {

@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * It decorates closest to the base dispatcher, so nested events re-dispatched by outer decorators reach it.
  *
  * Tests get it with {@see self::fromContainer()}. The test bootstrap registers a PHPUnit subscriber that clears the
- * hooks after each test.
+ * hooks before each test.
  *
  * @internal
  */

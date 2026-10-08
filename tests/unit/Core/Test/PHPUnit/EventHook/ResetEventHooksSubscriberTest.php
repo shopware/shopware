@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Test\PHPUnit\EventHook;
 
 use PHPUnit\Event\Code\Phpt;
-use PHPUnit\Event\Test\Finished;
+use PHPUnit\Event\Test\PreparationStarted;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -25,7 +25,7 @@ class ResetEventHooksSubscriberTest extends TestCase
         $dispatcher = new EventHookDispatcher(new EventDispatcher());
         $dispatcher->on(Event::class, static function (): void {});
 
-        (new ResetEventHooksSubscriber())->notify(new Finished(TelemetryInfoFactory::create(), new Phpt('fakeFile'), 0));
+        (new ResetEventHooksSubscriber())->notify(new PreparationStarted(TelemetryInfoFactory::create(), new Phpt('fakeFile')));
 
         static::assertFalse($dispatcher->hasListeners(Event::class));
     }

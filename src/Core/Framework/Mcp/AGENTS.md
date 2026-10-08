@@ -73,7 +73,7 @@ Clients learn about changed tool, prompt and resource lists through `notificatio
 Invariants:
 - No state per server and no list of session ids. Every server reads the same versions from the database and writes only to the session store the SDK already uses, so this works with any session store and any number of servers, without a shared lock. The registry of session ids that this replaced had to be shared exactly as widely as the session store, which a compiler pass could only guess (#21284).
 - A notification costs one write per change; checking costs one small read per request, plus a session write only when something changed.
-- Don't add a mechanism that pushes to all sessions. It needs the list of sessions again. On the stateless era, the `subscriptions/listen` stream reads the same versions instead (see the stateless-era ADR).
+- Don't add a mechanism that pushes to all sessions. It needs the list of sessions again. On the stateless era, clients read the SDK notification bus through `subscriptions/listen`, and the versions feed that bus (see `adr/2026-09-24-mcp-stateless-era-degradation-policy.md`).
 
 ## Naming convention
 All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots):

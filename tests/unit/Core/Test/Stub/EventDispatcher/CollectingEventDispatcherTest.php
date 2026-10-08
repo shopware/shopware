@@ -18,7 +18,7 @@ class CollectingEventDispatcherTest extends TestCase
     {
         $dispatcher = new CollectingEventDispatcher();
 
-        static::assertEmpty($dispatcher->getListeners());
+        static::assertCount(0, $dispatcher->getListeners());
 
         $callable = static function (): void {};
 

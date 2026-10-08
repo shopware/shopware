@@ -178,13 +178,12 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->bundleBuildMetaCache = [];
 
         $imports = [];
-        $scopes = [];
         $styles = [];
 
         $bundleNames = $this->resolveBundleNames($configurationCollection);
 
         // Core vendor chunks → top-level specifier imports from bundle asset URLs.
-        $coreVendorMap = $this->readBundleBuildMeta('Storefront', $configurationCollection)['vendorMap'] ?? [];
+        $coreVendorMap = $this->readBundleBuildMeta('Storefront')['vendorMap'] ?? [];
         foreach ($coreVendorMap as $specifier => $chunkPath) {
             $imports[$specifier] = '/bundles/' . $this->toAssetDirectory('Storefront') . '/storefront/components/' . $chunkPath;
         }
@@ -194,9 +193,8 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         // Component entries (with content-hashed filenames) come from per-bundle
         // build metadata in `public/bundles/<bundle>/storefront/components/.vite/build-meta.json`.
-        $componentManifest = $this->collectComponentManifestEntries($bundleNames, $configurationCollection);
+        $componentManifest = $this->collectComponentManifestEntries($bundleNames);
         foreach ($componentManifest as $tag => $entry) {
-            $bundleName = $entry['bundle'];
             if (isset($entry['js']) && $entry['js'] !== '') {
                 $imports[$tag] = $entry['js'];
             }
@@ -209,7 +207,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         // Extension vendor maps → scoped specifier imports so that vendor chunks
         // are only resolved when inside that extension's component scope.
-        $scopes = $this->buildExtensionVendorScopes($bundleNames, $configurationCollection);
+        $scopes = $this->buildExtensionVendorScopes($bundleNames);
 
         $result = ['imports' => $imports];
 
@@ -308,11 +306,10 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private function collectComponentManifestEntries(
         array $bundleNames,
-        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
     ): array {
         $manifest = [];
         foreach ($bundleNames as $bundleName) {
-            $bundleManifest = $this->readBundleComponentManifest($bundleName, $configurationCollection);
+            $bundleManifest = $this->readBundleComponentManifest($bundleName);
             if ($bundleManifest === null) {
                 continue;
             }
@@ -330,9 +327,8 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private function readBundleComponentManifest(
         string $bundleName,
-        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
     ): ?array {
-        $buildMeta = $this->readBundleBuildMeta($bundleName, $configurationCollection);
+        $buildMeta = $this->readBundleBuildMeta($bundleName);
         if ($buildMeta === null || $buildMeta['manifest'] === []) {
             return null;
         }
@@ -412,7 +408,6 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private function readBundleBuildMeta(
         string $bundleName,
-        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
     ): ?array {
         if (\array_key_exists($bundleName, $this->bundleBuildMetaCache)) {
             return $this->bundleBuildMetaCache[$bundleName];
@@ -471,7 +466,6 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private function buildExtensionVendorScopes(
         array $bundleNames,
-        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
     ): array {
         $scopes = [];
 
@@ -480,7 +474,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            $vendorMap = $this->readBundleBuildMeta($bundleName, $configurationCollection)['vendorMap'] ?? [];
+            $vendorMap = $this->readBundleBuildMeta($bundleName)['vendorMap'] ?? [];
             if ($vendorMap === []) {
                 continue;
             }

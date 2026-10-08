@@ -86,11 +86,11 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         return $this->extensions->publish(
             name: ProductCrossSellingRouteExtension::NAME,
             extension: new ProductCrossSellingRouteExtension($productId, $request, $context, $criteria),
-            function: $this->_load(...),
+            function: fn (string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse => $this->_load($productId, $context, $criteria),
         );
     }
 
-    private function _load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
+    private function _load(string $productId, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
     {
         $crossSellings = $this->loadCrossSellings($productId, $context);
 

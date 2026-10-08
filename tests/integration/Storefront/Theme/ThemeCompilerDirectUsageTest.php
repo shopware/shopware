@@ -210,8 +210,6 @@ SCSS;
 
     public function testFeatureFlagVariablesAreInjected(): void
     {
-        $testScss = '$test: map.get($sw-features, "FEATURE_NEXT_1");';
-
         // This should compile without errors because $sw-features is injected by ThemeCompiler
         $config = new StorefrontPluginConfiguration('TestTheme');
 

@@ -659,8 +659,6 @@ class ApiController extends AbstractController
     {
         $payload = $this->getRequestBody($request);
         $noContent = !$request->query->has('_response');
-        // safari bug prevents us from using the location header
-        $appendLocationHeader = false;
 
         if ($this->isCollection($payload)) {
             throw ApiException::badRequest('Only single write operations are supported. Please send the entities one by one or use the /sync api endpoint.');

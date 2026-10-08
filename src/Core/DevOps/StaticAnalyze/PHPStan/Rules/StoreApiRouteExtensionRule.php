@@ -3,6 +3,7 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
@@ -143,11 +144,15 @@ class StoreApiRouteExtensionRule implements Rule
 
         $extension = $arguments['extension'] ?? null;
         $callback = $arguments['function'] ?? null;
+        $isAdapter = $callback instanceof ArrowFunction;
+        if ($isAdapter) {
+            $callback = $callback->expr;
+        }
 
         if ($extension === null
             || !(new ObjectType(Extension::class))->isSuperTypeOf($scope->getType($extension))->yes()
             || !$callback instanceof MethodCall
-            || !$callback->isFirstClassCallable()
+            || (!$isAdapter && !$callback->isFirstClassCallable())
             || !$callback->var instanceof Variable
             || $callback->var->name !== 'this'
             || !$callback->name instanceof Identifier

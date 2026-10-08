@@ -420,7 +420,7 @@ class CreditNoteRendererTest extends TestCase
         static::assertSame($operationCreditNote->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationCreditNote->getOrderVersionId()));
 
-        $result = $this->creditNoteRenderer->render(
+        $this->creditNoteRenderer->render(
             [$orderId => $operationCreditNote],
             $this->context,
             new DocumentRendererConfig()

@@ -62,7 +62,6 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             FROM %1$s
             WHERE JSON_UNQUOTE(JSON_EXTRACT(%1$s.custom_fields, CONCAT('$.', JSON_QUOTE(:field)))) IN (:ids)
             SQL;
-        $statements = [];
         foreach ($fieldsPerEntity as $entity => $fields) {
             $table = EntityDefinitionQueryHelper::escape($this->getTableName((string) $entity));
             $statement = \sprintf($template, $table);
@@ -117,7 +116,6 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             FROM %1$s
             WHERE JSON_UNQUOTE(JSON_EXTRACT(%1$s.custom_fields, CONCAT('$.', JSON_QUOTE(:field)))) IN (:ids)
             SQL;
-        $statements = [];
         foreach ($fieldsPerEntity as $entity => $fields) {
             $table = EntityDefinitionQueryHelper::escape($this->getTableName((string) $entity));
             $statement = \sprintf($template, $table);
@@ -154,7 +152,6 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
                 JSON_ARRAY(:ids)
             );
             SQL;
-        $statements = [];
         foreach ($fieldsPerEntity as $entity => $fields) {
             $table = EntityDefinitionQueryHelper::escape($this->getTableName((string) $entity));
             $statement = \sprintf($template, $table);

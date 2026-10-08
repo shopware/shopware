@@ -155,13 +155,13 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
             $this->groupedQueries[$connection] = $connectionGroupedQueries;
         }
 
-        foreach ($this->groupedQueries as &$queries) {
-            foreach ($queries as &$query) {
-                $query['executionPercent'] = $this->executionTimePercentage($query['executionMS'], $totalExecutionMS);
+        foreach ($this->groupedQueries as &$groupedQueries) {
+            foreach ($groupedQueries as &$groupedQuery) {
+                $groupedQuery['executionPercent'] = $this->executionTimePercentage($groupedQuery['executionMS'], $totalExecutionMS);
             }
-            unset($query);
+            unset($groupedQuery);
         }
-        unset($queries);
+        unset($groupedQueries);
 
         return $this->groupedQueries;
     }

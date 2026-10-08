@@ -64,9 +64,11 @@ class CmsRouteTest extends TestCase
         $criteria = $this->getExpectedCriteria($slots);
         $context = Generator::generateSalesChannelContext();
 
-        $pageLoader = static::createStub(SalesChannelCmsPageLoaderInterface::class);
+        $pageLoader = static::createMock(SalesChannelCmsPageLoaderInterface::class);
         $pageLoader
+            ->expects($this->once())
             ->method('load')
+            ->with($request, $criteria, $context)
             ->willReturn($searchResult);
 
         $actualCmsPage = (new CmsRoute($pageLoader, new ExtensionDispatcher(new EventDispatcher())))->load($this->ids->get('cms-page'), $request, $context)->getCmsPage();
@@ -91,9 +93,11 @@ class CmsRouteTest extends TestCase
         $criteria = $this->getExpectedCriteria($expectedSlots);
         $context = Generator::generateSalesChannelContext();
 
-        $pageLoader = static::createStub(SalesChannelCmsPageLoaderInterface::class);
+        $pageLoader = static::createMock(SalesChannelCmsPageLoaderInterface::class);
         $pageLoader
+            ->expects($this->once())
             ->method('load')
+            ->with($request, $criteria, $context)
             ->willReturn($searchResult);
 
         $actualCmsPage = (new CmsRoute($pageLoader, new ExtensionDispatcher(new EventDispatcher())))->load($this->ids->get('cms-page'), $request, $context)->getCmsPage();
@@ -109,9 +113,11 @@ class CmsRouteTest extends TestCase
         $criteria = new Criteria([$this->ids->get('cms-page')]);
         $context = Generator::generateSalesChannelContext();
 
-        $pageLoader = static::createStub(SalesChannelCmsPageLoaderInterface::class);
+        $pageLoader = static::createMock(SalesChannelCmsPageLoaderInterface::class);
         $pageLoader
+            ->expects($this->once())
             ->method('load')
+            ->with($request, $criteria, $context)
             ->willReturn($searchResult);
 
         $actualCmsPage = (new CmsRoute($pageLoader, new ExtensionDispatcher(new EventDispatcher())))->load($this->ids->get('cms-page'), $request, $context)->getCmsPage();
@@ -129,9 +135,11 @@ class CmsRouteTest extends TestCase
         $criteria = new Criteria([$cmsPageId]);
         $context = Generator::generateSalesChannelContext();
 
-        $pageLoader = static::createStub(SalesChannelCmsPageLoaderInterface::class);
+        $pageLoader = static::createMock(SalesChannelCmsPageLoaderInterface::class);
         $pageLoader
+            ->expects($this->once())
             ->method('load')
+            ->with($request, $criteria, $context)
             ->willReturn($searchResult);
 
         $route = new CmsRoute($pageLoader, new ExtensionDispatcher(new EventDispatcher()));

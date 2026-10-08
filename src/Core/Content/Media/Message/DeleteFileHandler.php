@@ -71,7 +71,7 @@ final readonly class DeleteFileHandler
 
     private function isDirectoryEmpty(FilesystemOperator $filesystem, string $path): bool
     {
-        foreach ($filesystem->listContents($path) as $ignored) {
+        foreach ($filesystem->listContents($path) as $_) {
             return false;
         }
 

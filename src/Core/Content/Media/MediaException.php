@@ -71,6 +71,9 @@ class MediaException extends HttpException
     public const MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION';
     public const MEDIA_PRESIGNED_UPLOAD_FAILED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_FAILED';
     public const MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED';
+    public const MEDIA_PRESIGNED_UPLOAD_TOKEN_INVALID = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_TOKEN_INVALID';
+    public const MEDIA_PRESIGNED_UPLOAD_TOKEN_EXPIRED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_TOKEN_EXPIRED';
+    public const MEDIA_MISSING_PRIVILEGE = 'CONTENT__MEDIA_MISSING_PRIVILEGE';
 
     /**
      * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
@@ -574,7 +577,7 @@ class MediaException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED,
-            'Presigned upload is not supported. S3 filesystem must be configured.'
+            'Presigned upload is not supported. A remote-storage filesystem must be configured.'
         );
     }
 
@@ -607,6 +610,37 @@ class MediaException extends HttpException
             self::MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED,
             'Could not verify uploaded file for media with id "{{ mediaId }}".',
             ['mediaId' => $mediaId]
+        );
+    }
+
+    public static function presignedUploadTokenInvalid(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_PRESIGNED_UPLOAD_TOKEN_INVALID,
+            'The presigned upload token is invalid.'
+        );
+    }
+
+    public static function presignedUploadTokenExpired(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_PRESIGNED_UPLOAD_TOKEN_EXPIRED,
+            'The presigned upload token has expired.'
+        );
+    }
+
+    /**
+     * @param list<string> $privileges
+     */
+    public static function missingPrivilege(array $privileges): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::MEDIA_MISSING_PRIVILEGE,
+            'Missing privilege: {{ missingPrivileges }}',
+            ['missingPrivileges' => implode(', ', $privileges)]
         );
     }
 }

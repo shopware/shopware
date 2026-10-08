@@ -358,6 +358,10 @@ GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_I
 
 ## API
 
+### Presigned media upload with request and confirm actions
+
+The Admin API has two new actions for uploading media files directly to remote storage. `POST /api/_action/media/upload/presign` takes the same parameters as `POST /api/_action/media/upload` and answers `201` with the media `id`, an `uploadToken` and the `upload` URL and headers to send the file with. `POST /api/_action/media/upload/confirm` takes the `uploadToken` and optionally `width` and `height`, and creates the media entity. When `id` names an existing media entity, the confirm action replaces its file instead. Both actions require `media:create`, or `media:update` for a replace. They are available when presigned uploads are enabled and the public and private filesystems use `amazon-s3`. The existing `presign-upload` and `finalize-upload` actions are unchanged.
+
 ### Generated document number in the V2 creation response
 
 The `POST /api/_action/order/document-v2/create` response now includes `documentNumber`, allowing clients to compare the assigned number with a previously displayed preview.

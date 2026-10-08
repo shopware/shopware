@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -10,6 +11,9 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
+use Shopware\Core\Content\Media\File\AbstractFileContentValidator;
+use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
+use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
@@ -17,11 +21,16 @@ use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Content\Media\Upload\FileMetadataResult;
 use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator;
+use Shopware\Core\Content\Media\Upload\MediaUploadParameters;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
+use Shopware\Core\Content\Media\Upload\PresignedUploadConfirmPayload;
 use Shopware\Core\Content\Media\Upload\PresignedUploadFinalizePayload;
 use Shopware\Core\Content\Media\Upload\PresignedUploadPreparePayload;
+use Shopware\Core\Content\Media\Upload\PresignedUploadToken;
+use Shopware\Core\Content\Media\Upload\PresignedUploadTokenSigner;
 use Shopware\Core\Content\Media\Upload\PresignedUrlGeneratorInterface;
 use Shopware\Core\Content\Media\Upload\PresignedUrlResult;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -35,6 +44,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(PresignedMediaUploadService::class)]
 class PresignedMediaUploadServiceTest extends TestCase
 {
+    private const SECRET = 'test-secret';
+
+    private const CONFIRM_MEDIA_ID = '0191c0d1e0e17c8fb0b4a2c3d4e5f601';
+
     private PresignedUrlGeneratorInterface&MockObject $presignedUrlGenerator;
 
     private EventDispatcherInterface&MockObject $eventDispatcher;
@@ -724,12 +737,525 @@ class PresignedMediaUploadServiceTest extends TestCase
         $service->finalize($mediaId, $payload, $context);
     }
 
+    public function testRequestUploadCreatesNoMediaRow(): void
+    {
+        [$repo, $service] = $this->createService();
+
+        $this->extensionValidator->expects($this->once())->method('validate');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('generate')
+            ->with(static::anything(), 'image/jpeg', false)
+            ->willReturn(new PresignedUrlResult(
+                url: 'https://s3.example.com/presigned-url',
+                path: 'media/ab/cd/test-file.jpg',
+                expiresAt: new \DateTimeImmutable('+5 minutes'),
+            ));
+
+        $uploadTicket = $service->requestUpload(
+            new MediaUploadParameters(fileName: 'test-file.jpg', mimeType: 'image/jpeg'),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame([], $repo->creates);
+        static::assertNotSame('', $uploadTicket->uploadToken);
+        static::assertSame('PUT', $uploadTicket->method);
+        static::assertSame('https://s3.example.com/presigned-url', $uploadTicket->url);
+        static::assertSame(['Content-Type' => 'image/jpeg'], $uploadTicket->headers);
+        static::assertSame(32, \strlen($uploadTicket->mediaId));
+    }
+
+    public function testRequestUploadPrivateUsesPrivateTarget(): void
+    {
+        [, $service] = $this->createService();
+
+        $this->extensionValidator->expects($this->once())->method('validate');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('generate')
+            ->with(static::anything(), 'application/pdf', true)
+            ->willReturn(new PresignedUrlResult(
+                url: 'https://private-bucket.s3.example.com/presigned-url',
+                path: 'media/ab/cd/secret.pdf',
+                expiresAt: new \DateTimeImmutable('+5 minutes'),
+            ));
+
+        $service->requestUpload(
+            new MediaUploadParameters(fileName: 'secret.pdf', mimeType: 'application/pdf', private: true),
+            Context::createDefaultContext()
+        );
+    }
+
+    public function testRequestUploadThrowsWhenReplaceIdDoesNotExist(): void
+    {
+        [$repo, $service] = $this->createService([new MediaCollection()]);
+
+        $this->extensionValidator->expects($this->never())->method('validate');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->never())->method('generate');
+
+        $replaceIdMissingException = null;
+
+        try {
+            $service->requestUpload(
+                new MediaUploadParameters(id: 'missingmediaid000000000000000000', fileName: 'test-file.jpg', mimeType: 'image/jpeg'),
+                Context::createDefaultContext()
+            );
+        } catch (MediaException $e) {
+            $replaceIdMissingException = $e;
+        }
+
+        static::assertNotNull($replaceIdMissingException);
+        static::assertSame(MediaException::MEDIA_NOT_FOUND, $replaceIdMissingException->getErrorCode());
+        static::assertSame([], $repo->creates);
+    }
+
+    public function testConfirmUploadCreatesMediaAtConfirm(): void
+    {
+        [$repo, $service] = $this->createService([new MediaCollection(), new MediaCollection()]);
+
+        $this->extensionValidator->expects($this->never())->method('validate');
+        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch');
+        $this->mediaFileCleanup->expects($this->once())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('getFileMetadata')
+            ->with('media/ab/cd/test-file.jpg', false)
+            ->willReturn(new FileMetadataResult(
+                size: 1234,
+                lastModified: new \DateTimeImmutable(),
+                etag: 'abc123',
+                contentType: 'image/jpeg',
+            ));
+
+        $confirmedMediaId = $service->confirmUpload(
+            new PresignedUploadConfirmPayload(uploadToken: $this->signToken()),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(self::CONFIRM_MEDIA_ID, $confirmedMediaId);
+        static::assertCount(1, $repo->creates);
+        static::assertSame(self::CONFIRM_MEDIA_ID, $repo->creates[0][0]['id']);
+        static::assertSame('test-file', $repo->creates[0][0]['fileName']);
+        static::assertSame('jpg', $repo->creates[0][0]['fileExtension']);
+        static::assertSame(1234, $repo->creates[0][0]['fileSize']);
+    }
+
+    public function testConfirmUploadRejectsTamperedToken(): void
+    {
+        [$repo, $service] = $this->createService();
+
+        $this->extensionValidator->expects($this->never())->method('validate');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->never())->method('getFileMetadata');
+
+        $tamperedTokenException = null;
+
+        try {
+            $service->confirmUpload(
+                new PresignedUploadConfirmPayload(uploadToken: 'garbage.token'),
+                Context::createDefaultContext()
+            );
+        } catch (MediaException $e) {
+            $tamperedTokenException = $e;
+        }
+
+        static::assertNotNull($tamperedTokenException);
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_TOKEN_INVALID, $tamperedTokenException->getErrorCode());
+        static::assertSame([], $repo->creates);
+    }
+
+    public function testConfirmUploadThrowsWhenObjectMissing(): void
+    {
+        [$repo, $service] = $this->createService([new MediaCollection()]);
+
+        $this->extensionValidator->expects($this->never())->method('validate');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->once())->method('getFileMetadata')->willReturn(null);
+
+        $objectMissingException = null;
+
+        try {
+            $service->confirmUpload(
+                new PresignedUploadConfirmPayload(uploadToken: $this->signToken()),
+                Context::createDefaultContext()
+            );
+        } catch (MediaException $e) {
+            $objectMissingException = $e;
+        }
+
+        static::assertNotNull($objectMissingException);
+        static::assertSame([], $repo->creates);
+    }
+
+    public function testConfirmUploadReplaceUpdatesExistingMedia(): void
+    {
+        $mediaToReplace = $this->buildMedia(self::CONFIRM_MEDIA_ID, false);
+        $mediaToReplace->setPath('media/old/path.jpg');
+
+        [$repo, $service] = $this->createService([new MediaCollection([$mediaToReplace])]);
+
+        $this->extensionValidator->expects($this->never())->method('validate');
+        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch');
+        $this->mediaFileCleanup->expects($this->once())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->once())->method('getFileMetadata')->willReturn(new FileMetadataResult(
+            size: 999,
+            lastModified: new \DateTimeImmutable(),
+            etag: 'e',
+            contentType: 'image/jpeg',
+        ));
+
+        $confirmedMediaId = $service->confirmUpload(
+            new PresignedUploadConfirmPayload(uploadToken: $this->signToken(isReplace: true)),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(self::CONFIRM_MEDIA_ID, $confirmedMediaId);
+        static::assertCount(1, $repo->updates);
+        static::assertSame([], $repo->creates);
+    }
+
+    public function testConfirmUploadDeduplicateReusesExistingMedia(): void
+    {
+        $alreadyStoredMedia = $this->buildMedia('existingmediaid00000000000000000', false);
+        $alreadyStoredMedia->setFileName('test-file');
+        $alreadyStoredMedia->setFileExtension('jpg');
+        $alreadyStoredMedia->setPath('media/ex/is/test-file.jpg');
+
+        [$repo, $service] = $this->createService([new MediaCollection(), new MediaCollection([$alreadyStoredMedia])]);
+
+        $this->extensionValidator->expects($this->never())->method('validate');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->once())->method('getFileMetadata')->willReturn(new FileMetadataResult(
+            size: 10,
+            lastModified: new \DateTimeImmutable(),
+            etag: 'e',
+            contentType: 'image/jpeg',
+        ));
+        $this->presignedUrlGenerator->expects($this->once())->method('deleteFromStorage');
+
+        $confirmedMediaId = $service->confirmUpload(
+            new PresignedUploadConfirmPayload(uploadToken: $this->signToken(deduplicate: true)),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame('existingmediaid00000000000000000', $confirmedMediaId);
+        static::assertSame([], $repo->creates);
+    }
+
+    public function testConfirmUploadThrowsDuplicateWithoutDedup(): void
+    {
+        $alreadyStoredMedia = $this->buildMedia('existingmediaid00000000000000000', false);
+        $alreadyStoredMedia->setFileName('test-file');
+        $alreadyStoredMedia->setFileExtension('jpg');
+        $alreadyStoredMedia->setPath('media/ex/is/test-file.jpg');
+
+        [$repo, $service] = $this->createService([new MediaCollection(), new MediaCollection([$alreadyStoredMedia]), new MediaCollection()]);
+
+        $this->extensionValidator->expects($this->never())->method('validate');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->once())->method('getFileMetadata')->willReturn(new FileMetadataResult(
+            size: 10,
+            lastModified: new \DateTimeImmutable(),
+            etag: 'e',
+            contentType: 'image/jpeg',
+        ));
+        $this->presignedUrlGenerator->expects($this->once())->method('deleteFromStorage');
+
+        $duplicateException = null;
+
+        try {
+            $service->confirmUpload(
+                new PresignedUploadConfirmPayload(uploadToken: $this->signToken()),
+                Context::createDefaultContext()
+            );
+        } catch (MediaException $e) {
+            $duplicateException = $e;
+        }
+
+        static::assertNotNull($duplicateException);
+        static::assertSame(MediaException::MEDIA_DUPLICATED_FILE_NAME, $duplicateException->getErrorCode());
+        static::assertSame([], $repo->creates);
+    }
+
+    public function testRequestUploadRequiresCreatePrivilege(): void
+    {
+        [, $service] = $this->createService();
+
+        $this->extensionValidator->expects($this->never())->method('validate');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->never())->method('generate');
+
+        $this->expectExceptionObject(MediaException::missingPrivilege(['media:create']));
+
+        $service->requestUpload(
+            new MediaUploadParameters(fileName: 'test-file.jpg'),
+            $this->createAdminContext(['media:update'])
+        );
+    }
+
+    public function testConfirmUploadReplaceRequiresUpdatePrivilege(): void
+    {
+        [$repo, $service] = $this->createService();
+
+        $this->extensionValidator->expects($this->never())->method('validate');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->never())->method('getFileMetadata');
+
+        $missingPrivilegeException = null;
+
+        try {
+            $service->confirmUpload(
+                new PresignedUploadConfirmPayload(uploadToken: $this->signToken(isReplace: true)),
+                $this->createAdminContext(['media:create'])
+            );
+        } catch (MediaException $e) {
+            $missingPrivilegeException = $e;
+        }
+
+        static::assertNotNull($missingPrivilegeException);
+        static::assertSame(MediaException::MEDIA_MISSING_PRIVILEGE, $missingPrivilegeException->getErrorCode());
+        static::assertSame(['missingPrivileges' => 'media:update'], $missingPrivilegeException->getParameters());
+        static::assertSame([], $repo->updates);
+    }
+
+    #[DataProvider('contentTypeProvider')]
+    public function testRequestUploadDerivesContentTypeFromExtension(string $fileName, ?string $requestedMimeType, string $expectedContentType): void
+    {
+        [, $service] = $this->createService();
+
+        $this->extensionValidator->expects($this->once())->method('validate');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('generate')
+            ->with(static::anything(), $expectedContentType, false)
+            ->willReturn(new PresignedUrlResult(
+                url: 'https://s3.example.com/presigned-url',
+                path: 'media/ab/cd/' . $fileName,
+                expiresAt: new \DateTimeImmutable('+5 minutes'),
+            ));
+
+        $uploadTicket = $service->requestUpload(
+            new MediaUploadParameters(fileName: $fileName, mimeType: $requestedMimeType),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(['Content-Type' => $expectedContentType], $uploadTicket->headers);
+    }
+
+    /**
+     * @return iterable<string, array{string, ?string, string}>
+     */
+    public static function contentTypeProvider(): iterable
+    {
+        yield 'requested type matching the extension' => ['photo.jpg', 'image/jpeg', 'image/jpeg'];
+        yield 'requested type contradicting the extension' => ['photo.png', 'text/html', 'image/png'];
+        yield 'no requested type' => ['photo.png', null, 'image/png'];
+        yield 'unknown extension' => ['data.unknownext', 'text/html', 'application/octet-stream'];
+    }
+
+    public function testConfirmUploadReturnsIdWhenAlreadyConfirmed(): void
+    {
+        $alreadyConfirmedMedia = $this->buildMedia(self::CONFIRM_MEDIA_ID, false);
+        $alreadyConfirmedMedia->setPath('media/ab/cd/test-file.jpg');
+
+        [$repo, $service] = $this->createService([new MediaCollection([$alreadyConfirmedMedia])]);
+
+        $this->extensionValidator->expects($this->never())->method('validate');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->never())->method('getFileMetadata');
+        $this->presignedUrlGenerator->expects($this->never())->method('deleteFromStorage');
+
+        $confirmedMediaId = $service->confirmUpload(
+            new PresignedUploadConfirmPayload(uploadToken: $this->signToken()),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(self::CONFIRM_MEDIA_ID, $confirmedMediaId);
+        static::assertSame([], $repo->creates);
+        static::assertSame([], $repo->deletes);
+    }
+
+    public function testConfirmUploadKeepsMediaThatAConcurrentConfirmCreated(): void
+    {
+        $alreadyStoredMedia = $this->buildMedia('existingmediaid00000000000000000', false);
+        $alreadyStoredMedia->setFileName('test-file');
+        $alreadyStoredMedia->setFileExtension('jpg');
+        $alreadyStoredMedia->setPath('media/ex/is/test-file.jpg');
+        $concurrentlyConfirmedMedia = $this->buildMedia(self::CONFIRM_MEDIA_ID, false);
+        $concurrentlyConfirmedMedia->setPath('media/ab/cd/test-file.jpg');
+
+        [$repo, $service] = $this->createService([
+            new MediaCollection(),
+            new MediaCollection([$alreadyStoredMedia]),
+            new MediaCollection([$concurrentlyConfirmedMedia]),
+        ]);
+
+        $this->extensionValidator->expects($this->never())->method('validate');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->once())->method('getFileMetadata')->willReturn(new FileMetadataResult(
+            size: 10,
+            lastModified: new \DateTimeImmutable(),
+            etag: 'e',
+            contentType: 'image/jpeg',
+        ));
+        $this->presignedUrlGenerator->expects($this->never())->method('deleteFromStorage');
+
+        $this->expectException(MediaException::class);
+
+        try {
+            $service->confirmUpload(
+                new PresignedUploadConfirmPayload(uploadToken: $this->signToken()),
+                Context::createDefaultContext()
+            );
+        } finally {
+            static::assertSame([], $repo->deletes);
+        }
+    }
+
+    public function testConfirmUploadDeletesUploadWhenContentValidationFails(): void
+    {
+        $rejectingValidator = $this->createMock(AbstractFileContentValidator::class);
+        $rejectingValidator->method('supports')->willReturn(true);
+        $rejectingValidator->expects($this->once())
+            ->method('validate')
+            ->willReturnCallback(static function (MediaFile $mediaFile): void {
+                static::assertSame('<svg/>', file_get_contents($mediaFile->getFileName()));
+
+                throw MediaException::invalidFile('Malicious SVG');
+            });
+
+        [$repo, $service] = $this->createService(
+            [new MediaCollection(), new MediaCollection(), new MediaCollection()],
+            new FileContentValidationStrategy([$rejectingValidator])
+        );
+
+        $this->extensionValidator->expects($this->never())->method('validate');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->once())->method('getFileMetadata')->willReturn(new FileMetadataResult(
+            size: 6,
+            lastModified: new \DateTimeImmutable(),
+            etag: 'e',
+            contentType: 'image/svg+xml',
+        ));
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('downloadToFile')
+            ->with('media/ab/cd/test-file.svg', false, static::anything())
+            ->willReturnCallback(static fn (string $path, bool $private, string $targetFile): bool => file_put_contents($targetFile, '<svg/>') !== false);
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('deleteFromStorage')
+            ->with('media/ab/cd/test-file.svg', false);
+
+        $contentRejectedException = null;
+
+        try {
+            $service->confirmUpload(
+                new PresignedUploadConfirmPayload(uploadToken: $this->signToken(extension: 'svg', mimeType: 'image/svg+xml')),
+                Context::createDefaultContext()
+            );
+        } catch (MediaException $e) {
+            $contentRejectedException = $e;
+        }
+
+        static::assertNotNull($contentRejectedException);
+        static::assertSame(MediaException::MEDIA_INVALID_FILE, $contentRejectedException->getErrorCode());
+        static::assertSame([], $repo->creates);
+    }
+
+    public function testConfirmUploadFailsWhenStoredFileCannotBeDownloadedForValidation(): void
+    {
+        $supportingValidator = $this->createMock(AbstractFileContentValidator::class);
+        $supportingValidator->method('supports')->willReturn(true);
+        $supportingValidator->expects($this->never())->method('validate');
+
+        [$repo, $service] = $this->createService(
+            [new MediaCollection(), new MediaCollection(), new MediaCollection()],
+            new FileContentValidationStrategy([$supportingValidator])
+        );
+
+        $this->extensionValidator->expects($this->never())->method('validate');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->mediaFileCleanup->expects($this->never())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->once())->method('getFileMetadata')->willReturn(new FileMetadataResult(
+            size: 6,
+            lastModified: new \DateTimeImmutable(),
+            etag: 'e',
+            contentType: 'image/svg+xml',
+        ));
+        $this->presignedUrlGenerator->expects($this->once())->method('downloadToFile')->willReturn(false);
+        $this->presignedUrlGenerator->expects($this->once())->method('deleteFromStorage');
+
+        $downloadFailedException = null;
+
+        try {
+            $service->confirmUpload(
+                new PresignedUploadConfirmPayload(uploadToken: $this->signToken(extension: 'svg', mimeType: 'image/svg+xml')),
+                Context::createDefaultContext()
+            );
+        } catch (MediaException $e) {
+            $downloadFailedException = $e;
+        }
+
+        static::assertNotNull($downloadFailedException);
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED, $downloadFailedException->getErrorCode());
+        static::assertSame([], $repo->creates);
+    }
+
+    public function testConfirmUploadPersistsImageDimensions(): void
+    {
+        [$repo, $service] = $this->createService([new MediaCollection(), new MediaCollection()]);
+
+        $this->extensionValidator->expects($this->never())->method('validate');
+        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch');
+        $this->mediaFileCleanup->expects($this->once())->method('dispatchThumbnailGeneration');
+        $this->presignedUrlGenerator->expects($this->once())->method('getFileMetadata')->willReturn(new FileMetadataResult(
+            size: 1234,
+            lastModified: new \DateTimeImmutable(),
+            etag: 'abc123',
+            contentType: 'image/jpeg',
+        ));
+
+        $service->confirmUpload(
+            new PresignedUploadConfirmPayload(uploadToken: $this->signToken(), width: 800, height: 600),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(
+            ['hash' => 'abc123', 'width' => 800, 'height' => 600, 'type' => \IMAGETYPE_JPEG],
+            $repo->creates[0][0]['metaData']
+        );
+    }
+
+    /**
+     * @param list<string> $permissions
+     */
+    private function createAdminContext(array $permissions): Context
+    {
+        $adminApiSource = new AdminApiSource('0191c0d1e0e17c8fb0b4a2c3d4e5f6aa');
+        $adminApiSource->setIsAdmin(false);
+        $adminApiSource->setPermissions($permissions);
+
+        return Context::createDefaultContext($adminApiSource);
+    }
+
     /**
      * @param list<MediaCollection> $searches
      *
      * @return array{StaticEntityRepository<MediaCollection>, PresignedMediaUploadService}
      */
-    private function createService(array $searches = []): array
+    private function createService(array $searches = [], ?FileContentValidationStrategy $contentValidation = null): array
     {
         $repo = new StaticEntityRepository($searches);
 
@@ -742,10 +1268,29 @@ class PresignedMediaUploadServiceTest extends TestCase
             $this->extensionValidator,
             $this->mediaPathStrategy,
             new NullLogger(),
-            new NativeClock()
+            new NativeClock(),
+            new PresignedUploadTokenSigner(self::SECRET),
+            $contentValidation ?? new FileContentValidationStrategy([]),
         );
 
         return [$repo, $service];
+    }
+
+    private function signToken(bool $private = false, bool $isReplace = false, bool $deduplicate = false, string $extension = 'jpg', string $mimeType = 'image/jpeg'): string
+    {
+        return (new PresignedUploadTokenSigner(self::SECRET))->sign(new PresignedUploadToken(
+            mediaId: self::CONFIRM_MEDIA_ID,
+            path: 'media/ab/cd/test-file.' . $extension,
+            fileName: 'test-file',
+            extension: $extension,
+            mimeType: $mimeType,
+            private: $private,
+            mediaFolderId: null,
+            deduplicate: $deduplicate,
+            isReplace: $isReplace,
+            uploadedAt: new \DateTimeImmutable(),
+            expiresAt: new \DateTimeImmutable('+5 minutes'),
+        ));
     }
 
     private function buildMedia(string $mediaId, bool $private = false): MediaEntity

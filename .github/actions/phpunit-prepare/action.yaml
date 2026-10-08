@@ -42,7 +42,7 @@ runs:
           echo "OPENSEARCH_URL=127.0.0.1:9200"
           echo "ADMIN_OPENSEARCH_URL=127.0.0.1:9200"
           echo "BLUE_GREEN_DEPLOYMENT=1"
-          echo "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true"
+          echo "PUPPETEER_SKIP_DOWNLOAD=true"
         } >> "$GITHUB_ENV"
 
     - name: Setup Shopware
@@ -53,6 +53,8 @@ runs:
         keep-composer-tools: ${{ inputs.keep-composer-tools }}
         shopware-version: ${{ github.ref }}
         shopware-repository: ${{ github.repository }}
+        # Keeps setup-shopware's default ini values; zend.assertions can't be enabled at runtime.
+        php-ini-values: "session.gc_probability=0,session.save_path=/tmp/php-sessions,zend.assertions=1"
         # setup-shopware's default extension list plus zstd, which CartCompressorTest and RedisCartPersisterTest
         # skip without; keep in sync with the action's default when it changes.
         php-extensions: "gd, xml, dom, curl, pdo, mysqli, mbstring, pdo_mysql, bcmath, pcov, zip, zstd"

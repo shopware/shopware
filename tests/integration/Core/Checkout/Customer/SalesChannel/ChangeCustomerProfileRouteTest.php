@@ -75,7 +75,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
@@ -560,7 +560,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
     {
         $accountTypes = static::getContainer()->getParameter('customer.account_types');
         static::assertIsArray($accountTypes);
-        static::assertNotEmpty($accountTypes);
+        static::assertNotCount(0, $accountTypes);
         $accountType = $accountTypes[array_rand($accountTypes)];
 
         $changeData = [
@@ -594,7 +594,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $customer = $this->getCustomer();
         $currentSalutationId = $customer->getSalutationId();
         $salutationIds = $this->getValidSalutationIds();
-        static::assertNotEmpty($salutationIds);
+        static::assertNotCount(0, $salutationIds);
 
         $updateSalutationId = null;
         foreach ($salutationIds as $salutationId) {

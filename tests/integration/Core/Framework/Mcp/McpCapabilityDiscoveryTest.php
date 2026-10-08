@@ -203,7 +203,7 @@ class McpCapabilityDiscoveryTest extends TestCase
         $toolsetRegistry = static::getContainer()->get(McpToolsetRegistry::class);
         static::assertInstanceOf(McpToolsetRegistry::class, $toolsetRegistry);
         $toolsets = $toolsetRegistry->toolsets();
-        static::assertNotEmpty($toolsets, 'expected at least one enable-able toolset');
+        static::assertNotCount(0, $toolsets, 'expected at least one enable-able toolset');
         $toolsetName = $toolsets[0]['name'];
 
         // Enable a toolset via the actual tool call. The notification is not part of this response;

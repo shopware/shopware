@@ -5,11 +5,10 @@ namespace Shopware\Tests\Unit\Core\System\NumberRange\Telemetry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\System\NumberRange\Telemetry\IncrementStorageMetricsDecorator;
 use Shopware\Core\System\NumberRange\Telemetry\NumberRangeTypeResolver;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
+use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 
 /**
  * @internal
@@ -18,10 +17,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Abs
 #[CoversClass(IncrementStorageMetricsDecorator::class)]
 class IncrementStorageMetricsDecoratorTest extends TestCase
 {
-    /**
-     * @var list<ConfiguredMetric>
-     */
-    private array $emitted = [];
+    private CollectingMeter $meter;
 
     public function testReserveReturnsDecoratedValueAndEmitsDurationWithResolvedLabels(): void
     {
@@ -32,8 +28,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
 
         static::assertSame(42, $result);
 
-        $duration = $this->getMetric('number_range.allocation.duration');
-        static::assertInstanceOf(ConfiguredMetric::class, $duration);
+        $duration = $this->meter->getMetric('number_range.allocation.duration');
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0.0, $duration->value);
         static::assertSame(
@@ -56,8 +51,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
 
         $this->createDecorator($decorated, 'mysql')->reserve($config);
 
-        $duration = $this->getMetric('number_range.allocation.duration');
-        static::assertInstanceOf(ConfiguredMetric::class, $duration);
+        $duration = $this->meter->getMetric('number_range.allocation.duration');
         $labels = $duration->labels;
         static::assertIsArray($labels);
         static::assertSame('number_range_type_label:', $labels['number_range_type']);
@@ -80,8 +74,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
         static::assertNotNull($thrown, 'the original exception must propagate');
         static::assertSame($exception, $thrown);
 
-        $duration = $this->getMetric('number_range.allocation.duration');
-        static::assertInstanceOf(ConfiguredMetric::class, $duration);
+        $duration = $this->meter->getMetric('number_range.allocation.duration');
         $labels = $duration->labels;
         static::assertIsArray($labels);
         static::assertSame('failed', $labels['result']);
@@ -100,7 +93,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
             ->willReturn(7);
 
         static::assertSame(7, $this->createDecorator($decorated, 'mysql')->preview($config));
-        static::assertSame([], $this->emitted);
+        static::assertSame([], $this->meter->getMetrics());
     }
 
     public function testListDelegatesAndEmitsNothing(): void
@@ -111,7 +104,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
             ->willReturn(['config-id' => 5]);
 
         static::assertSame(['config-id' => 5], $this->createDecorator($decorated, 'mysql')->list());
-        static::assertSame([], $this->emitted);
+        static::assertSame([], $this->meter->getMetrics());
     }
 
     public function testSetDelegatesAndEmitsNothing(): void
@@ -123,7 +116,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
 
         $this->createDecorator($decorated, 'mysql')->set('config-id', 99);
 
-        static::assertSame([], $this->emitted);
+        static::assertSame([], $this->meter->getMetrics());
     }
 
     public function testIncreaseToAtLeastDelegatesAndEmitsNothing(): void
@@ -135,7 +128,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
 
         $this->createDecorator($decorated, 'mysql')->increaseToAtLeast('config-id', 99);
 
-        static::assertSame([], $this->emitted);
+        static::assertSame([], $this->meter->getMetrics());
     }
 
     public function testGetDecoratedReturnsDecoratedInstance(): void
@@ -147,10 +140,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
 
     private function createDecorator(AbstractIncrementStorage $decorated, string $storage): IncrementStorageMetricsDecorator
     {
-        $meter = static::createStub(Meter::class);
-        $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
-            $this->emitted[] = $metric;
-        });
+        $this->meter = new CollectingMeter();
 
         // Pass-through resolver stub: echoes the technical name back with a fixed prefix, so it's easy to validate
         $typeResolver = static::createStub(NumberRangeTypeResolver::class);
@@ -158,7 +148,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
             static fn (?string $technicalName): string => 'number_range_type_label:' . $technicalName
         );
 
-        return new IncrementStorageMetricsDecorator($decorated, $meter, $typeResolver, $storage);
+        return new IncrementStorageMetricsDecorator($decorated, $this->meter, $typeResolver, $storage);
     }
 
     /**
@@ -177,16 +167,5 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
         }
 
         return $config;
-    }
-
-    private function getMetric(string $name): ?ConfiguredMetric
-    {
-        foreach ($this->emitted as $metric) {
-            if ($metric->name === $name) {
-                return $metric;
-            }
-        }
-
-        return null;
     }
 }

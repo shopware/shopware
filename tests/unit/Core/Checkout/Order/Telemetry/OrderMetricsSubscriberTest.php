@@ -14,12 +14,11 @@ use Shopware\Core\Checkout\Order\Telemetry\OrderMetricsSubscriber;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 
 /**
  * @internal
@@ -28,10 +27,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 #[CoversClass(OrderMetricsSubscriber::class)]
 class OrderMetricsSubscriberTest extends TestCase
 {
-    /**
-     * @var list<ConfiguredMetric>
-     */
-    private array $emitted = [];
+    private CollectingMeter $meter;
 
     private readonly IdsCollection $ids;
 
@@ -56,13 +52,13 @@ class OrderMetricsSubscriberTest extends TestCase
 
         $this->createSubscriber()->emitOrderPlacedMetrics($this->createEvent($order));
 
-        static::assertCount(2, $this->emitted);
+        static::assertCount(2, $this->meter->getMetrics());
 
-        $placed = $this->getMetric('order.placed.count');
+        $placed = $this->meter->getMetric('order.placed.count');
         static::assertSame(1, $placed->value);
         static::assertSame(['sales_channel_type' => 'storefront', 'payment_method' => 'payment_invoicepayment'], $placed->labels);
 
-        $lineItems = $this->getMetric('order.line_items.count');
+        $lineItems = $this->meter->getMetric('order.line_items.count');
         static::assertSame(3, $lineItems->value);
         static::assertSame(['sales_channel_type' => 'storefront'], $lineItems->labels);
     }
@@ -74,8 +70,7 @@ class OrderMetricsSubscriberTest extends TestCase
 
         $this->createSubscriber()->emitOrderPlacedMetrics($this->createEvent($order));
 
-        $labels = $this->getMetric('order.placed.count')->labels;
-        static::assertIsArray($labels);
+        $labels = $this->meter->getLabels('order.placed.count');
         static::assertSame('swag_paypal_apple_pay', $labels['payment_method']);
     }
 
@@ -85,8 +80,7 @@ class OrderMetricsSubscriberTest extends TestCase
 
         $this->createSubscriber()->emitOrderPlacedMetrics($this->createEvent($order, Defaults::SALES_CHANNEL_TYPE_API));
 
-        $labels = $this->getMetric('order.placed.count')->labels;
-        static::assertIsArray($labels);
+        $labels = $this->meter->getLabels('order.placed.count');
         static::assertSame('api', $labels['sales_channel_type']);
     }
 
@@ -98,8 +92,7 @@ class OrderMetricsSubscriberTest extends TestCase
 
         $this->createSubscriber()->emitOrderPlacedMetrics($this->createEvent($order));
 
-        $labels = $this->getMetric('order.placed.count')->labels;
-        static::assertIsArray($labels);
+        $labels = $this->meter->getLabels('order.placed.count');
         static::assertSame('none', $labels['payment_method']);
     }
 
@@ -113,8 +106,7 @@ class OrderMetricsSubscriberTest extends TestCase
 
         $this->createSubscriber()->emitOrderPlacedMetrics($this->createEvent($order));
 
-        $labels = $this->getMetric('order.placed.count')->labels;
-        static::assertIsArray($labels);
+        $labels = $this->meter->getLabels('order.placed.count');
         static::assertSame('swag_paypal_apple_pay', $labels['payment_method']);
     }
 
@@ -125,28 +117,14 @@ class OrderMetricsSubscriberTest extends TestCase
 
         $this->createSubscriber()->emitOrderPlacedMetrics($this->createEvent($order));
 
-        static::assertSame(0, $this->getMetric('order.line_items.count')->value);
-    }
-
-    private function getMetric(string $name): ConfiguredMetric
-    {
-        foreach ($this->emitted as $metric) {
-            if ($metric->name === $name) {
-                return $metric;
-            }
-        }
-
-        static::fail(\sprintf('Metric "%s" was not emitted', $name));
+        static::assertSame(0, $this->meter->getMetric('order.line_items.count')->value);
     }
 
     private function createSubscriber(): OrderMetricsSubscriber
     {
-        $meter = static::createStub(Meter::class);
-        $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
-            $this->emitted[] = $metric;
-        });
+        $this->meter = new CollectingMeter();
 
-        return new OrderMetricsSubscriber($meter, new SalesChannelTypeResolver());
+        return new OrderMetricsSubscriber($this->meter, new SalesChannelTypeResolver());
     }
 
     private function createOrder(int $lineItems, ?string $paymentTechnicalName): OrderEntity
@@ -194,5 +172,4 @@ class OrderMetricsSubscriberTest extends TestCase
 
         return new CheckoutOrderPlacedEvent($context, $order);
     }
-
 }

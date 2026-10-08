@@ -9,8 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Telemetry\IndexerMetricsInstrumentor;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
+use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 
 /**
  * @internal
@@ -19,10 +18,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 #[CoversClass(IndexerMetricsInstrumentor::class)]
 class IndexerMetricsInstrumentorTest extends TestCase
 {
-    /**
-     * @var list<ConfiguredMetric>
-     */
-    private array $emitted = [];
+    private CollectingMeter $meter;
 
     public function testEmitsBatchSizeAndRunDurationWithResolvedLabels(): void
     {
@@ -32,11 +28,11 @@ class IndexerMetricsInstrumentorTest extends TestCase
             fn () => null,
         );
 
-        $batchSize = $this->getMetric('indexer.batch.size');
+        $batchSize = $this->meter->getMetric('indexer.batch.size');
         static::assertSame(3, $batchSize->value);
         static::assertSame(['indexer' => 'product.indexer', 'mode' => 'full'], $batchSize->labels);
 
-        $duration = $this->getMetric('indexer.run.duration');
+        $duration = $this->meter->getMetric('indexer.run.duration');
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0.0, $duration->value);
         static::assertSame(['indexer' => 'product.indexer', 'mode' => 'full', 'result' => 'success'], $duration->labels);
@@ -50,11 +46,9 @@ class IndexerMetricsInstrumentorTest extends TestCase
             fn () => null,
         );
 
-        $labels = $this->getMetric('indexer.batch.size')->labels;
-        static::assertIsArray($labels);
+        $labels = $this->meter->getLabels('indexer.batch.size');
         static::assertSame('partial', $labels['mode']);
-        $labels = $this->getMetric('indexer.run.duration')->labels;
-        static::assertIsArray($labels);
+        $labels = $this->meter->getLabels('indexer.run.duration');
         static::assertSame('partial', $labels['mode']);
     }
 
@@ -66,7 +60,7 @@ class IndexerMetricsInstrumentorTest extends TestCase
             fn () => null,
         );
 
-        static::assertSame(1, $this->getMetric('indexer.batch.size')->value);
+        static::assertSame(1, $this->meter->getMetric('indexer.batch.size')->value);
     }
 
     public function testIndexerNameIsPassedThroughUnmapped(): void
@@ -77,8 +71,7 @@ class IndexerMetricsInstrumentorTest extends TestCase
             fn () => null,
         );
 
-        $labels = $this->getMetric('indexer.run.duration')->labels;
-        static::assertIsArray($labels);
+        $labels = $this->meter->getLabels('indexer.run.duration');
         static::assertSame('acme.custom.indexer', $labels['indexer']);
     }
 
@@ -117,31 +110,16 @@ class IndexerMetricsInstrumentorTest extends TestCase
         static::assertSame('boom', $thrown->getMessage());
 
         // batch size is emitted up front, duration is still recorded on the failure path (labelled failed)
-        static::assertSame(2, $this->getMetric('indexer.batch.size')->value);
-        $labels = $this->getMetric('indexer.run.duration')->labels;
-        static::assertIsArray($labels);
+        static::assertSame(2, $this->meter->getMetric('indexer.batch.size')->value);
+        $labels = $this->meter->getLabels('indexer.run.duration');
         static::assertSame('failed', $labels['result']);
-    }
-
-    private function getMetric(string $name): ConfiguredMetric
-    {
-        foreach ($this->emitted as $metric) {
-            if ($metric->name === $name) {
-                return $metric;
-            }
-        }
-
-        static::fail(\sprintf('Metric "%s" was not emitted', $name));
     }
 
     private function createInstrumentor(): IndexerMetricsInstrumentor
     {
-        $meter = static::createStub(Meter::class);
-        $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
-            $this->emitted[] = $metric;
-        });
+        $this->meter = new CollectingMeter();
 
-        return new IndexerMetricsInstrumentor($meter);
+        return new IndexerMetricsInstrumentor($this->meter);
     }
 
     private function createIndexer(string $name): EntityIndexer&Stub

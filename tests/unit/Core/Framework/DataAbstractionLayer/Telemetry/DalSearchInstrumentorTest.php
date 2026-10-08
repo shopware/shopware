@@ -14,8 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
+use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 
 /**
@@ -25,10 +24,7 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySea
 #[CoversClass(DalSearchInstrumentor::class)]
 class DalSearchInstrumentorTest extends TestCase
 {
-    /**
-     * @var list<ConfiguredMetric>
-     */
-    private array $emitted = [];
+    private CollectingMeter $meter;
 
     public function testMeasureReturnsCallbackResultUnchanged(): void
     {
@@ -53,8 +49,8 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
         );
 
-        static::assertCount(1, $this->emitted);
-        $metric = $this->emitted[0];
+        static::assertCount(1, $this->meter->getMetrics());
+        $metric = $this->meter->getMetrics()[0];
         static::assertSame('dal.search.duration', $metric->name);
         static::assertIsFloat($metric->value);
         static::assertGreaterThanOrEqual(0.0, $metric->value);
@@ -80,7 +76,7 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
         );
 
-        $labels = $this->emitted[0]->labels;
+        $labels = $this->meter->getMetrics()[0]->labels;
         static::assertIsArray($labels);
         static::assertSame($expected, $labels['es_aware']);
     }
@@ -100,7 +96,7 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
         );
 
-        $labels = $this->emitted[0]->labels;
+        $labels = $this->meter->getMetrics()[0]->labels;
         static::assertIsArray($labels);
         static::assertSame('sql', $labels['backend']);
     }
@@ -118,7 +114,7 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => $result,
         );
 
-        $labels = $this->emitted[0]->labels;
+        $labels = $this->meter->getMetrics()[0]->labels;
         static::assertIsArray($labels);
         static::assertSame('elasticsearch', $labels['backend']);
     }
@@ -135,7 +131,7 @@ class DalSearchInstrumentorTest extends TestCase
         );
 
         static::assertSame($result, $returned);
-        static::assertSame([], $this->emitted);
+        static::assertSame([], $this->meter->getMetrics());
     }
 
     public function testDoesNotEmitWhenThisMetricDefinitionIsDisabled(): void
@@ -147,17 +143,14 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
         );
 
-        static::assertSame([], $this->emitted);
+        static::assertSame([], $this->meter->getMetrics());
     }
 
     public function testDoesNotEmitWhenMetricConfigurationIsMissing(): void
     {
-        $meter = static::createStub(Meter::class);
-        $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
-            $this->emitted[] = $metric;
-        });
+        $this->meter = new CollectingMeter();
         // a provider without the metric configuration must disable the metric, never break the DAL
-        $instrumentor = new DalSearchInstrumentor($meter, new EntityGroupResolver(), new MetricConfigProvider([]), true);
+        $instrumentor = new DalSearchInstrumentor($this->meter, new EntityGroupResolver(), new MetricConfigProvider([]), true);
 
         $instrumentor->measure(
             DalSearchInstrumentor::OPERATION_SEARCH,
@@ -166,21 +159,18 @@ class DalSearchInstrumentorTest extends TestCase
             fn (): IdSearchResult => new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
         );
 
-        static::assertSame([], $this->emitted);
+        static::assertSame([], $this->meter->getMetrics());
     }
 
     private function createInstrumentor(bool $globalEnabled = true, bool $metricEnabled = true): DalSearchInstrumentor
     {
-        $meter = static::createStub(Meter::class);
-        $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
-            $this->emitted[] = $metric;
-        });
+        $this->meter = new CollectingMeter();
 
         $configProvider = new MetricConfigProvider([
             'dal.search.duration' => ['type' => 'histogram', 'description' => 'test', 'enabled' => $metricEnabled],
         ]);
 
-        return new DalSearchInstrumentor($meter, new EntityGroupResolver(), $configProvider, $globalEnabled);
+        return new DalSearchInstrumentor($this->meter, new EntityGroupResolver(), $configProvider, $globalEnabled);
     }
 
     private function definition(string $entityName): EntityDefinition
@@ -190,5 +180,4 @@ class DalSearchInstrumentorTest extends TestCase
 
         return $definition;
     }
-
 }

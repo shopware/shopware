@@ -585,7 +585,8 @@ class CheckoutControllerTest extends TestCase
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(1, $response['lineItems']);
-        static::assertNotEmpty($response['hash']);
+        static::assertIsString($response['hash']);
+        static::assertNotSame('', $response['hash']);
     }
 
     public function testCheckoutConfirmPageLoadedHookScriptsAreExecuted(): void
@@ -726,7 +727,7 @@ class CheckoutControllerTest extends TestCase
 
         $response = static::getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testCheckoutOffcanvasRendersOptionalPromotionField(): void

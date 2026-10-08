@@ -51,7 +51,7 @@ class CustomerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_NOT_LOGGED_IN, $exception->getErrorCode());
         static::assertSame('Customer is not logged in.', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 
     public function testDownloadFileNotFound(): void
@@ -69,7 +69,7 @@ class CustomerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_IDS_PARAMETER_IS_MISSING, $exception->getErrorCode());
         static::assertSame('Parameter "customerIds" is missing.', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 
     public function testUnknownPaymentMethod(): void
@@ -87,7 +87,7 @@ class CustomerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::PRODUCT_IDS_PARAMETER_IS_MISSING, $exception->getErrorCode());
         static::assertSame('Parameter "productIds" is missing.', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 
     public function testAddressNotFound(): void
@@ -105,7 +105,7 @@ class CustomerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_AUTH_BAD_CREDENTIALS, $exception->getErrorCode());
         static::assertSame('Invalid username and/or password.', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 
     /**
@@ -190,7 +190,7 @@ class CustomerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
         static::assertSame(CustomerException::WISHLIST_IS_NOT_ACTIVATED, $exception->getErrorCode());
         static::assertSame('Wishlist is not activated!', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 
     public function testCustomerWishlistNotFound(): void
@@ -199,7 +199,7 @@ class CustomerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
         static::assertSame(CustomerException::WISHLIST_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('Wishlist for this customer was not found.', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 
     public function testDuplicateWishlistProduct(): void
@@ -208,7 +208,7 @@ class CustomerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomerException::DUPLICATE_WISHLIST_PRODUCT, $exception->getErrorCode());
         static::assertSame('Product already added in wishlist', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 
     public function testLegacyPasswordEncoderNotFound(): void
@@ -226,7 +226,7 @@ class CustomerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
         static::assertSame(CustomerException::NO_HASH_PROVIDED, $exception->getErrorCode());
         static::assertSame('The given hash is empty.', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 
     public function testWishlistProductNotFound(): void
@@ -263,7 +263,7 @@ class CustomerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
         static::assertSame(CustomerException::CUSTOMER_GUEST_AUTH_INVALID, $exception->getErrorCode());
         static::assertSame('Guest account is not allowed to login', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 
     public function testCountryNotFound(): void

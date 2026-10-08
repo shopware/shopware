@@ -47,7 +47,7 @@ class CartMergedSubscriberTest extends TestCase
 
         $subscriber->addCartMergedNoticeFlash($cartMergedEvent);
 
-        static::assertNotEmpty($infoFlash = $session->getFlashBag()->get('info'));
+        static::assertNotCount(0, $infoFlash = $session->getFlashBag()->get('info'));
         static::assertSame('checkout.cart-merged-hint', $infoFlash[0]);
     }
 
@@ -97,7 +97,7 @@ class CartMergedSubscriberTest extends TestCase
 
         $subscriber->addCartMergedNoticeFlash($cartMergedEvent);
 
-        static::assertEmpty($session->getFlashBag()->get('info'));
+        static::assertCount(0, $session->getFlashBag()->get('info'));
     }
 
     public function testMergedSubscriberDoNothingWithEmptyRequestStack(): void
@@ -114,7 +114,7 @@ class CartMergedSubscriberTest extends TestCase
 
         $subscriber->addCartMergedNoticeFlash($cartMergedEvent);
 
-        static::assertEmpty($session->getFlashBag()->get('info'));
+        static::assertCount(0, $session->getFlashBag()->get('info'));
     }
 
     public function testMergedSubscriberDoNothingWithIncompatibleSession(): void

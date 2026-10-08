@@ -230,7 +230,7 @@ class ConfigurationServiceTest extends TestCase
     {
         $actualConfig = $this->getConfiguration($this->getAppConfig());
 
-        static::assertEmpty($actualConfig);
+        static::assertCount(0, $actualConfig);
     }
 
     public function testConfigurationNoFeatureFlag(): void

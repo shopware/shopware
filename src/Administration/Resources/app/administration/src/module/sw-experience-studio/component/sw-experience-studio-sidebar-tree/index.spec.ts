@@ -52,7 +52,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
             $emit,
         };
 
-        methods.onAddRootElement.call(vm, { currentTarget: trigger } as MouseEvent);
+        methods.onAddRootElement.call(vm, { currentTarget: trigger } as unknown as MouseEvent);
 
         expect($emit).toHaveBeenCalledWith('add-element', {
             parentElementId: null,

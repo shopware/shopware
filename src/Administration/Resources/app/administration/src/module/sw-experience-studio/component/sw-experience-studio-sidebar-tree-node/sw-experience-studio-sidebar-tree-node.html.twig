@@ -42,6 +42,16 @@
             <span class="sw-experience-studio-sidebar-tree-node__name">
                 {{ label }}
             </span>
+
+            {% block sw_experience_studio_sidebar_tree_node_anchor %}
+            <mt-icon
+                v-if="hasAnchor"
+                class="sw-experience-studio-sidebar-tree-node__anchor-icon"
+                name="regular-tag"
+                size="12px"
+                :aria-label="anchorTooltip"
+            />
+            {% endblock %}
         </div>
         {% endblock %}
 
@@ -141,6 +151,7 @@
                         v-for="(childElement, childIndex) in slot.elements"
                         :key="childElement.id"
                         :element="childElement"
+                        :anchors="anchors"
                         :selected-element-id="selectedElementId"
                         :depth="depth + 1"
                         :allow-drag-and-drop="allowDragAndDrop"

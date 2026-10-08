@@ -845,6 +845,10 @@
     "shrinkLabel": "weniger anzeigen"
   },
   "component": {
+    "scrollNavigation": {
+      "title": "Seitenabschnitte",
+      "fallbackLabel": "Abschnitt"
+    },
     "product": {
       "feature": {
         "label": {

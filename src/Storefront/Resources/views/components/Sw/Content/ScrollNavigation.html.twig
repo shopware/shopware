@@ -1,0 +1,69 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    page = null,
+    mode = 'sidebar',
+    position = 'right',
+%}
+
+{# Walks the rendered tree in document order and renders one entry per element the anchor listener stamped. #}
+{% macro items(elements) %}
+    {% for element in elements %}
+        {% if element.properties.scrollNavigation is defined %}
+            {% set label = element.properties.scrollNavigation.label ?? '' %}
+
+            <li class="sw-scroll-navigation__item">
+                <a class="sw-scroll-navigation__link"
+                   href="#sw-scroll-nav-{{ element.id }}"
+                   data-scroll-navigation-target="sw-scroll-nav-{{ element.id }}">
+                    <span class="sw-scroll-navigation__marker" aria-hidden="true"></span>
+                    {% if label is empty %}
+                        <span class="sw-scroll-navigation__label is--fallback">{{ 'component.scrollNavigation.fallbackLabel'|trans|sw_sanitize }}</span>
+                    {% else %}
+                        <span class="sw-scroll-navigation__label">{{ label }}</span>
+                    {% endif %}
+                </a>
+            </li>
+        {% endif %}
+
+        {% for children in element.slots %}
+            {{ _self.items(children) }}
+        {% endfor %}
+    {% endfor %}
+{% endmacro %}
+
+{% set items = _self.items(page.elements ?? []) %}
+
+{% if items|trim is not empty %}
+    {% set scrollNavigationCVA = cva({
+        base: 'sw-scroll-navigation',
+        variants: {
+            mode: {
+                sidebar: 'is--sidebar',
+                flat: 'is--flat',
+            },
+            position: {
+                left: 'is--left',
+                right: 'is--right',
+            },
+        },
+    }) %}
+
+    {% set attributeDefaults = {
+        class: scrollNavigationCVA.apply({ mode, position }),
+        'aria-label': ('component.scrollNavigation.title'|trans|striptags),
+        'data-component': 'Sw:Content:ScrollNavigation',
+    } %}
+
+    <nav {{ attributes.defaults(attributeDefaults) }}>
+        {% block content %}
+            <div class="sw-scroll-navigation__inner">
+                <ol class="sw-scroll-navigation__list">
+                    {{ items }}
+                </ol>
+            </div>
+        {% endblock %}
+    </nav>
+{% endif %}

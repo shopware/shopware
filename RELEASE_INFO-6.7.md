@@ -1,10 +1,14 @@
-# 6.7.15.1
+# 6.7.15.2 (upcoming)
 
 ## Critical Fixes
 
 ### Sales channel contexts expose the default currency again
 
 `SalesChannelContext::getSalesChannel()->getCurrency()` returns the sales channel's default currency again, including when another currency is selected for the context. This restores the behavior before 6.7.15.0 for extensions that read the default currency. Use `SalesChannelContext::getCurrency()` for the currently selected currency.
+
+# 6.7.15.1
+
+## Critical Fixes
 
 ### Line item conditions evaluate line items by the data they carry
 

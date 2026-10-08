@@ -13,6 +13,9 @@ use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Framework\App\Http\AppSystemHttpMiddleware;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
  * @internal
@@ -49,5 +52,18 @@ class AppSystemHttpMiddlewareTest extends TestCase
         /** @var array{request: RequestInterface, options: array<string, mixed>} $redirect */
         $redirect = $history[1];
         static::assertSame('token=required', $redirect['request']->getUri()->getQuery());
+    }
+
+    public function testTrustedUrlResolverServiceCanBeCreated(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('shopware.app_system.allowed_private_ip_addresses', []);
+        $loader = new XmlFileLoader(
+            $container,
+            new FileLocator(\dirname(__DIR__, 6) . '/src/Core/Framework/DependencyInjection')
+        );
+        $loader->load('app.xml');
+
+        static::assertInstanceOf(TrustedUrlResolver::class, $container->get('shopware.app_system.trusted_url_resolver'));
     }
 }

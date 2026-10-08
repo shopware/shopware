@@ -50,24 +50,22 @@ class UpdateElementPropertiesRequestTest extends TestCase
         static::assertSame($expectedMessage, (string) $violations->get(0)->getMessage());
     }
 
-    #[TestDox('accepts a request that writes a value and removes nothing')]
-    public function testAcceptsARequestCarryingOnlyValues(): void
+    #[DataProvider('acceptedRequestProvider')]
+    #[TestDox('accepts a request carrying $_dataName')]
+    public function testAcceptsARequestCarryingAWrite(UpdateElementPropertiesRequest $request): void
     {
-        $request = new UpdateElementPropertiesRequest(elementId: 'block-a', values: ['headline' => 'Hi']);
-
         $violations = $this->validator()->validate($request);
 
         static::assertCount(0, $violations);
     }
 
-    #[TestDox('accepts a request that writes nothing and removes a key')]
-    public function testAcceptsARequestCarryingOnlyRemoveKeys(): void
+    /**
+     * @return iterable<string, array{UpdateElementPropertiesRequest}>
+     */
+    public static function acceptedRequestProvider(): iterable
     {
-        $request = new UpdateElementPropertiesRequest(elementId: 'block-a', removeKeys: ['tag']);
-
-        $violations = $this->validator()->validate($request);
-
-        static::assertCount(0, $violations);
+        yield 'only values' => [new UpdateElementPropertiesRequest(elementId: 'block-a', values: ['headline' => 'Hi'])];
+        yield 'only removeKeys' => [new UpdateElementPropertiesRequest(elementId: 'block-a', removeKeys: ['tag'])];
     }
 
     /**

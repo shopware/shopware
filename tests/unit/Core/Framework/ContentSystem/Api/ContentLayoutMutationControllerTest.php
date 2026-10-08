@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutRemoveRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutReplaceRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutTranslateElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutUnwrapRequest;
+use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutUpdateElementPropertiesRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutWrapElementsRequest;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
@@ -43,6 +44,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\TranslateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\UpdateElementProperties;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\WrapElements;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
@@ -134,6 +136,7 @@ class ContentLayoutMutationControllerTest extends TestCase
         yield 'attach' => [static fn (ContentLayoutMutationController $c): Response => $c->attach('l', new ContentLayoutAttachRequest(['id' => 'incoming', 'component' => 'Sw:Card'], null), $context), AttachElement::class];
         yield 'bind' => [static fn (ContentLayoutMutationController $c): Response => $c->bind('l', new ContentLayoutBindRequest('el', 'core:hero', null), $context), BindElement::class];
         yield 'translate' => [static fn (ContentLayoutMutationController $c): Response => $c->translate('l', new ContentLayoutTranslateElementRequest('el', null, ['headline' => []]), $context), TranslateElement::class];
+        yield 'update properties' => [static fn (ContentLayoutMutationController $c): Response => $c->updateProperties('l', new ContentLayoutUpdateElementPropertiesRequest('el', null, ['headline' => []], []), $context), UpdateElementProperties::class];
     }
 
     /**
@@ -196,7 +199,6 @@ class ContentLayoutMutationControllerTest extends TestCase
         string $layoutId,
         ?string $expectedVersion,
         string $expectedErrorCode,
-        int $expectedStatus,
     ): void {
         $mutator = static::createStub(PersistedLayoutMutator::class);
         $mutator->method('mutate')->willThrowException($thrown);
@@ -205,13 +207,12 @@ class ContentLayoutMutationControllerTest extends TestCase
             $this->controller($mutator)->remove($layoutId, new ContentLayoutRemoveRequest('el', $expectedVersion), Context::createDefaultContext());
             static::fail('Expected a ' . $expectedErrorCode . ' exception, but none was thrown.');
         } catch (ContentSystemException $exception) {
-            static::assertSame($expectedErrorCode, $exception->getErrorCode());
-            static::assertSame($expectedStatus, $exception->getStatusCode());
+            static::assertSame($thrown, $exception);
         }
     }
 
     /**
-     * @return iterable<string, array{ContentSystemException, string, string|null, string, int}>
+     * @return iterable<string, array{ContentSystemException, string, string|null, string}>
      */
     public static function propagatesMutatorExceptionProvider(): iterable
     {
@@ -220,7 +221,6 @@ class ContentLayoutMutationControllerTest extends TestCase
             'layout-404',
             null,
             ContentSystemException::CONTENT_LAYOUT_NOT_FOUND,
-            Response::HTTP_NOT_FOUND,
         ];
 
         yield 'layoutVersionConflict for a stale expected version token' => [
@@ -228,7 +228,6 @@ class ContentLayoutMutationControllerTest extends TestCase
             'layout-1',
             '2020-01-01T00:00:00.000+00:00',
             ContentSystemException::LAYOUT_VERSION_CONFLICT,
-            Response::HTTP_CONFLICT,
         ];
     }
 

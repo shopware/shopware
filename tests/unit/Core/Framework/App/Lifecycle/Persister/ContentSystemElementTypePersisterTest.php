@@ -71,23 +71,26 @@ class ContentSystemElementTypePersisterTest extends TestCase
     #[TestDox('inserts new element type with correct payload')]
     public function testInsertsNewTypeWhenNoneExist(): void
     {
+        $appId = $this->ids->get('app');
+
         /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
-            static function (Criteria $criteria, Context $context): AppContentSystemElementTypeCollection {
+            static function (Criteria $criteria, Context $context) use ($appId): AppContentSystemElementTypeCollection {
                 static::assertCount(1, $criteria->getFilters());
                 $filter = $criteria->getFilters()[0];
                 static::assertInstanceOf(EqualsFilter::class, $filter);
                 static::assertSame('appId', $filter->getField());
+                static::assertSame($appId, $filter->getValue());
 
                 return new AppContentSystemElementTypeCollection();
             },
-            static function (Criteria $criteria, Context $context): AppContentSystemElementTypeCollection {
+            static function (Criteria $criteria, Context $context) use ($appId): AppContentSystemElementTypeCollection {
                 $filters = $criteria->getFilters();
-                static::assertCount(2, $filters);
-                static::assertInstanceOf(EqualsFilter::class, $filters[0]);
-                static::assertSame('app.active', $filters[0]->getField());
-                static::assertInstanceOf(NotFilter::class, $filters[1]);
                 static::assertArrayHasKey('app', $criteria->getAssociations());
+                static::assertEquals([
+                    new EqualsFilter('app.active', false),
+                    new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('appId', $appId)]),
+                ], $filters);
 
                 return new AppContentSystemElementTypeCollection();
             },
@@ -231,15 +234,7 @@ class ContentSystemElementTypePersisterTest extends TestCase
             new AppContentSystemElementTypeCollection(),
         ]);
 
-        $registry = static::createMock(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('all')->willReturn([]);
-        $registry->expects($this->once())->method('invalidate');
-
-        $presetRegistry = $this->createMock(AbstractContentSystemLayoutPresetRegistry::class);
-        $presetRegistry->expects($this->once())->method('invalidate');
-
-        $persister = $this->buildPersister($repo, loader: $loader, registry: $registry, presetRegistry: $presetRegistry);
-        $persister->persist($this->buildContext($this->buildRealFilesystem()));
+        $this->persistExpectingOneInvalidationOfEachRegistry($repo, $loader);
 
         static::assertCount(1, $repo->upserts);
         $payload = $repo->upserts[0][0];
@@ -262,15 +257,7 @@ class ContentSystemElementTypePersisterTest extends TestCase
             new AppContentSystemElementTypeCollection([$orphan]),
         ]);
 
-        $registry = static::createMock(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('all')->willReturn([]);
-        $registry->expects($this->once())->method('invalidate');
-
-        $presetRegistry = $this->createMock(AbstractContentSystemLayoutPresetRegistry::class);
-        $presetRegistry->expects($this->once())->method('invalidate');
-
-        $persister = $this->buildPersister($repo, loader: $loader, registry: $registry, presetRegistry: $presetRegistry);
-        $persister->persist($this->buildContext($this->buildRealFilesystem()));
+        $this->persistExpectingOneInvalidationOfEachRegistry($repo, $loader);
 
         static::assertSame([], $repo->upserts);
         static::assertCount(1, $repo->deletes);
@@ -426,7 +413,10 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $presetRegistry = $this->createMock(AbstractContentSystemLayoutPresetRegistry::class);
         $presetRegistry->expects($this->never())->method('invalidate');
 
-        $persister = $this->buildPersister($repo, loader: $loader, presetRegistry: $presetRegistry);
+        $connection = static::createMock(Connection::class);
+        $connection->expects($this->never())->method('transactional');
+
+        $persister = $this->buildPersister($repo, loader: $loader, connection: $connection, presetRegistry: $presetRegistry);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
 
         static::assertSame([], $repo->upserts);
@@ -596,6 +586,22 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $this->expectExceptionObject(
             ContentSystemException::elementTypeDuplicate('DemoApp:Hero', 'app:OtherApp', 'app:DemoApp')
         );
+        $persister->persist($this->buildContext($this->buildRealFilesystem()));
+    }
+
+    /**
+     * @param StaticEntityRepository<AppContentSystemElementTypeCollection> $repo
+     */
+    private function persistExpectingOneInvalidationOfEachRegistry(StaticEntityRepository $repo, YamlTypeLoader $loader): void
+    {
+        $registry = static::createMock(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('all')->willReturn([]);
+        $registry->expects($this->once())->method('invalidate');
+
+        $presetRegistry = $this->createMock(AbstractContentSystemLayoutPresetRegistry::class);
+        $presetRegistry->expects($this->once())->method('invalidate');
+
+        $persister = $this->buildPersister($repo, loader: $loader, registry: $registry, presetRegistry: $presetRegistry);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
     }
 

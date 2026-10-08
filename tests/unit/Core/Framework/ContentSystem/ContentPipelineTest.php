@@ -64,6 +64,7 @@ use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfigSerializer;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\DependencyInjection\ServiceLocator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -166,17 +167,15 @@ class ContentPipelineTest extends TestCase
         ));
 
         $injected = StoredElementBuilder::create('injected', 'injected-id')->build();
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            function (object $event) use ($injected) {
-                if ($event instanceof ContentTreePreparationEvent) {
-                    $event->replaceTree([$injected]);
-                }
-
-                return $event;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ContentTreePreparationEvent::class,
+            static function (ContentTreePreparationEvent $event) use ($injected): void {
+                $event->replaceTree([$injected]);
             }
         );
 
-        $pipeline = $this->createPipeline();
+        $pipeline = $this->createPipeline($dispatcher);
         $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
 
         $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), $mode, false, Generator::generateSalesChannelContext());
@@ -197,17 +196,15 @@ class ContentPipelineTest extends TestCase
         );
 
         $observed = null;
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            function (object $event) use (&$observed) {
-                if ($event instanceof ContentTreePreparationEvent) {
-                    $observed = $this->collectStoredIds($event->tree());
-                }
-
-                return $event;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ContentTreePreparationEvent::class,
+            function (ContentTreePreparationEvent $event) use (&$observed): void {
+                $observed = $this->collectStoredIds($event->tree());
             }
         );
 
-        $this->createPipeline()->load(
+        $this->createPipeline($dispatcher)->load(
             $layout,
             $specification,
             new RenderingCacheContext(),
@@ -236,17 +233,15 @@ class ContentPipelineTest extends TestCase
         );
 
         $observed = null;
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            static function (object $event) use (&$observed) {
-                if ($event instanceof ContentTreePreparationEvent) {
-                    $observed = $event->tree()[0]->property('title')?->asString();
-                }
-
-                return $event;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ContentTreePreparationEvent::class,
+            static function (ContentTreePreparationEvent $event) use (&$observed): void {
+                $observed = $event->tree()[0]->property('title')?->asString();
             }
         );
 
-        $result = $this->createPipeline()->load(
+        $result = $this->createPipeline($dispatcher)->load(
             $layout,
             $specification,
             new RenderingCacheContext(),
@@ -270,17 +265,15 @@ class ContentPipelineTest extends TestCase
         $layout = $this->createSingleRootLayout($root);
 
         $observed = null;
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            static function (object $event) use (&$observed) {
-                if ($event instanceof ContentTreePreparationEvent) {
-                    $observed = $event->tree()[0]->property('headline')?->jsonSerialize();
-                }
-
-                return $event;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ContentTreePreparationEvent::class,
+            static function (ContentTreePreparationEvent $event) use (&$observed): void {
+                $observed = $event->tree()[0]->property('headline')?->jsonSerialize();
             }
         );
 
-        $result = $this->createPipeline()->load(
+        $result = $this->createPipeline($dispatcher)->load(
             $layout,
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
@@ -342,17 +335,15 @@ class ContentPipelineTest extends TestCase
         $layout = $this->createSingleRootLayout($root);
 
         $observed = null;
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            static function (object $event) use (&$observed) {
-                if ($event instanceof ContentTreePreparationEvent) {
-                    $observed = array_keys($event->tree()[0]->contextDefinitions->getAllProviders());
-                }
-
-                return $event;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ContentTreePreparationEvent::class,
+            static function (ContentTreePreparationEvent $event) use (&$observed): void {
+                $observed = array_keys($event->tree()[0]->contextDefinitions->getAllProviders());
             }
         );
 
-        $result = $this->createPipeline()->load(
+        $result = $this->createPipeline($dispatcher)->load(
             $layout,
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
@@ -379,11 +370,6 @@ class ContentPipelineTest extends TestCase
             ->build();
         $layout = $this->createSingleRootLayout($redistributor);
 
-        // Fixture guard: the authored tree declares no provider at all, so the only way the payload
-        // can reach the child is through the provider the expansion derives.
-        static::assertSame([], $redistributor->contextDefinitions->getAllProviders());
-        static::assertNull($consumer->property('product'));
-
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
         $result = $this->createPipeline()->load(
@@ -394,6 +380,11 @@ class ContentPipelineTest extends TestCase
             false,
             Generator::generateSalesChannelContext()
         );
+
+        // Fixture guard: the authored tree declares no provider at all, so the only way the payload
+        // can reach the child is through the provider the expansion derives.
+        static::assertSame([], $redistributor->contextDefinitions->getAllProviders());
+        static::assertNull($consumer->property('product'));
 
         static::assertSame('product-payload', $this->renderedElement($result->tree, 'consumer-id')->properties['product']);
     }
@@ -416,10 +407,6 @@ class ContentPipelineTest extends TestCase
                 ->build()
         );
 
-        // Fixture guard: the middle element stores nothing of its own, so the only value it can
-        // redistribute is the one the root delivers to it — this is a genuine two-hop chain.
-        static::assertNull($middle->property('product'));
-
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
         $result = $this->createPipeline()->load(
@@ -430,6 +417,10 @@ class ContentPipelineTest extends TestCase
             false,
             Generator::generateSalesChannelContext()
         );
+
+        // Fixture guard: the middle element stores nothing of its own, so the only value it can
+        // redistribute is the one the root delivers to it — this is a genuine two-hop chain.
+        static::assertNull($middle->property('product'));
 
         static::assertSame('product-payload', $this->renderedElement($result->tree, 'grandchild-id')->properties['product']);
     }
@@ -452,11 +443,6 @@ class ContentPipelineTest extends TestCase
                 ->build()
         );
 
-        // Fixture guard: the middle element stores nothing of its own, so the derived provider has to
-        // read back the value the root delivered under the accepted key, not under the alias.
-        static::assertNull($middle->property('featuredProduct'));
-        static::assertNull($middle->property('product'));
-
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
         $result = $this->createPipeline()->load(
@@ -467,6 +453,11 @@ class ContentPipelineTest extends TestCase
             false,
             Generator::generateSalesChannelContext()
         );
+
+        // Fixture guard: the middle element stores nothing of its own, so the derived provider has to
+        // read back the value the root delivered under the accepted key, not under the alias.
+        static::assertNull($middle->property('featuredProduct'));
+        static::assertNull($middle->property('product'));
 
         static::assertSame('product-payload', $this->renderedElement($result->tree, 'grandchild-id')->properties['product']);
     }
@@ -499,10 +490,6 @@ class ContentPipelineTest extends TestCase
                 ->build()
         );
 
-        // Fixture guard: the two containers differ only in how they are wired — neither holds a value.
-        static::assertNull($shorthand->property('featuredProduct'));
-        static::assertNull($manual->property('featuredProduct'));
-
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
         $result = $this->createPipeline()->load(
@@ -513,6 +500,10 @@ class ContentPipelineTest extends TestCase
             false,
             Generator::generateSalesChannelContext()
         );
+
+        // Fixture guard: the two containers differ only in how they are wired — neither holds a value.
+        static::assertNull($shorthand->property('featuredProduct'));
+        static::assertNull($manual->property('featuredProduct'));
 
         static::assertSame('product-payload', $this->renderedElement($result->tree, 'shorthand-child-id')->properties['product']);
         static::assertSame('product-payload', $this->renderedElement($result->tree, 'manual-child-id')->properties['product']);
@@ -569,19 +560,17 @@ class ContentPipelineTest extends TestCase
     public function testPreparationSubscribersSeeTheUnprunedTree(): void
     {
         $observed = null;
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            function (object $event) use (&$observed) {
-                if ($event instanceof ContentTreePreparationEvent) {
-                    $observed = $this->collectStoredIds($event->tree());
-                }
-
-                return $event;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ContentTreePreparationEvent::class,
+            function (ContentTreePreparationEvent $event) use (&$observed): void {
+                $observed = $this->collectStoredIds($event->tree());
             }
         );
 
         $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request(), 'target-id');
 
-        $this->createPipeline()->load(
+        $this->createPipeline($dispatcher)->load(
             $this->createPartialRenderLayout(),
             $specification,
             new RenderingCacheContext(),
@@ -604,21 +593,16 @@ class ContentPipelineTest extends TestCase
             new Request()
         );
 
-        // Fixture guard: without page-level data requirements there is no virtual root to unwrap.
-        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $layout->elements));
-
         $observed = null;
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            function (object $event) use (&$observed) {
-                if ($event instanceof RenderedTreeFinalizationEvent) {
-                    $observed = $this->collectRenderedIds($event->tree());
-                }
-
-                return $event;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            RenderedTreeFinalizationEvent::class,
+            function (RenderedTreeFinalizationEvent $event) use (&$observed): void {
+                $observed = $this->collectRenderedIds($event->tree());
             }
         );
 
-        $this->createPipeline()->load(
+        $this->createPipeline($dispatcher)->load(
             $layout,
             $specification,
             new RenderingCacheContext(),
@@ -626,6 +610,9 @@ class ContentPipelineTest extends TestCase
             false,
             Generator::generateSalesChannelContext()
         );
+
+        // Fixture guard: without page-level data requirements there is no virtual root to unwrap.
+        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $layout->elements));
 
         static::assertSame(['root-id'], $observed);
     }
@@ -635,26 +622,20 @@ class ContentPipelineTest extends TestCase
     {
         $layout = $this->createPartialRenderLayout();
 
-        // Fixture guard: the target consumes context, so the prune keeps its ancestor and the
-        // extract has an ancestor left to remove.
         $target = $this->findStoredChild($layout->elements[0], 'target-id');
-        static::assertNotNull($target);
-        static::assertTrue((new ContextDependencyAnalyzer())->requiresParentData($target));
 
         $observed = null;
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            function (object $event) use (&$observed) {
-                if ($event instanceof RenderedTreeFinalizationEvent) {
-                    $observed = $this->collectRenderedIds($event->tree());
-                }
-
-                return $event;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            RenderedTreeFinalizationEvent::class,
+            function (RenderedTreeFinalizationEvent $event) use (&$observed): void {
+                $observed = $this->collectRenderedIds($event->tree());
             }
         );
 
         $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request(), 'target-id');
 
-        $this->createPipeline()->load(
+        $this->createPipeline($dispatcher)->load(
             $layout,
             $specification,
             new RenderingCacheContext(),
@@ -662,6 +643,11 @@ class ContentPipelineTest extends TestCase
             false,
             Generator::generateSalesChannelContext()
         );
+
+        // Fixture guard: the target consumes context, so the prune keeps its ancestor and the
+        // extract has an ancestor left to remove.
+        static::assertNotNull($target);
+        static::assertTrue((new ContextDependencyAnalyzer())->requiresParentData($target));
 
         static::assertSame(['target-id'], $observed);
     }
@@ -674,22 +660,18 @@ class ContentPipelineTest extends TestCase
         );
 
         $observed = null;
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            static function (object $event) use (&$observed) {
-                if ($event instanceof RenderedTreeFinalizationEvent) {
-                    $projected = [];
-                    foreach ($event->tree() as $element) {
-                        $projected[] = [$element::class, $element->id, $element->component, $element->properties];
-                    }
-
-                    $observed = $projected;
-                }
-
-                return $event;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            RenderedTreeFinalizationEvent::class,
+            static function (RenderedTreeFinalizationEvent $event) use (&$observed): void {
+                $observed = array_map(
+                    static fn (RenderedElement $element): array => [$element::class, $element->id, $element->component, $element->properties],
+                    $event->tree()
+                );
             }
         );
 
-        $this->createPipeline()->load(
+        $this->createPipeline($dispatcher)->load(
             $layout,
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
@@ -716,17 +698,15 @@ class ContentPipelineTest extends TestCase
             ->build();
         $layout = $this->createSingleRootLayout($root);
 
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            static function (object $event) {
-                if ($event instanceof RenderedTreeFinalizationEvent) {
-                    $event->replaceTree([$event->tree()[0]->withProperty('title', 'replaced-title')]);
-                }
-
-                return $event;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            RenderedTreeFinalizationEvent::class,
+            static function (RenderedTreeFinalizationEvent $event): void {
+                $event->replaceTree([$event->tree()[0]->withProperty('title', 'replaced-title')]);
             }
         );
 
-        $result = $this->createPipeline()->load(
+        $result = $this->createPipeline($dispatcher)->load(
             $layout,
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
@@ -744,25 +724,87 @@ class ContentPipelineTest extends TestCase
         static::assertSame('replaced-title', $elements[0]->properties['title']);
     }
 
+    #[TestDox('builds the value index over the forest a finalization subscriber put back')]
+    public function testValueIndexIsBuiltOverTheTreeReplacedDuringFinalization(): void
+    {
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('text', 'root-id')->withProperty('title', 'authored-title')->build()
+        );
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            RenderedTreeFinalizationEvent::class,
+            static function (RenderedTreeFinalizationEvent $event): void {
+                $event->replaceTree([$event->tree()[0]->withProperty('title', 'replaced-title')]);
+            }
+        );
+
+        $result = $this->createPipeline($dispatcher)->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            true,
+            Generator::generateSalesChannelContext()
+        );
+
+        // The authored value differs from the replacement, so the index can only resolve 'replaced-title' if it
+        // was built over the forest the subscriber handed back rather than the one the render produced.
+        $index = $result->index;
+        static::assertNotNull($index);
+        static::assertSame('replaced-title', $index->value($index->assignments()['root-id']['title']));
+    }
+
+    #[TestDox('builds the value index over the extracted partial-render subtree only')]
+    public function testValueIndexIsBuiltOverTheExtractedPartialRenderSubtree(): void
+    {
+        $target = StoredElementBuilder::create('text', 'target-id')
+            ->withConsumer('product', ContextType::Single)
+            ->withProperty('title', 'target-title')
+            ->build();
+        $sibling = StoredElementBuilder::create('text', 'sibling-id')->withProperty('title', 'sibling-title')->build();
+        $root = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', 'root-title')
+            ->withSlot('default', [$target, $sibling])
+            ->build();
+        $layout = $this->createSingleRootLayout($root);
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request(), 'target-id'),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            true,
+            Generator::generateSalesChannelContext()
+        );
+
+        // The target consumes context, so the prune keeps the root above it and the lowered tree still carries
+        // that root and its title. Only the extract removes it, so an index over the lowered tree would
+        // assign 'root-id' as well.
+        $index = $result->index;
+        static::assertNotNull($index);
+        static::assertSame(['target-id'], array_keys($index->assignments()));
+    }
+
     #[TestDox('serves an element a finalization subscriber added to the forest')]
     public function testLoadServesAnElementAddedDuringFinalization(): void
     {
         $layout = $this->createSingleRootLayout(StoredElementBuilder::create('text', 'root-id')->build());
 
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            static function (object $event) {
-                if ($event instanceof RenderedTreeFinalizationEvent) {
-                    $event->replaceTree([
-                        ...$event->tree(),
-                        new RenderedElement('added-id', 'text', ['title' => 'added-title']),
-                    ]);
-                }
-
-                return $event;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            RenderedTreeFinalizationEvent::class,
+            static function (RenderedTreeFinalizationEvent $event): void {
+                $event->replaceTree([
+                    ...$event->tree(),
+                    new RenderedElement('added-id', 'text', ['title' => 'added-title']),
+                ]);
             }
         );
 
-        $result = $this->createPipeline()->load(
+        $result = $this->createPipeline($dispatcher)->load(
             $layout,
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
@@ -799,10 +841,6 @@ class ContentPipelineTest extends TestCase
                 ->build()
         );
 
-        // Fixture guard: the authored tree declares no provider, so only the derived one can carry the
-        // payload down, and the sibling proves the prune really ran.
-        static::assertSame([], $redistributor->contextDefinitions->getAllProviders());
-
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
         $result = $this->createPipeline()->load(
@@ -814,11 +852,14 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
+        // Fixture guard: the authored tree declares no provider, so only the derived one can carry the
+        // payload down, and the sibling proves the prune really ran.
+        static::assertSame([], $redistributor->contextDefinitions->getAllProviders());
+
         // Why this test exists: the derivation moved from the pre-prune forest onto the surviving tree.
         // That is safe today only because the derivation is node-local and the prune never rewrites a
-        // survivor's wiring. Nothing else pins that pairing — every other redistribute test either runs
-        // without a partial render or asserts a throw — so this is the test that fails when a future
-        // change makes the derivation depend on a node the prune has removed.
+        // survivor's wiring. This test fails when a future change makes the derivation depend on a node
+        // the prune has removed.
         static::assertSame(['redistributor-id', 'consumer-id'], $this->collectRenderedIds($result->tree));
         static::assertSame('product-payload', $this->renderedElement($result->tree, 'consumer-id')->properties['product']);
     }
@@ -835,11 +876,6 @@ class ContentPipelineTest extends TestCase
                 ->withSlot('default', [$target, $discarded])
                 ->build()
         );
-
-        // Fixture guard: the target needs no parent data, so the prune stops at it and the sibling
-        // carrying the requirement is what the prune drops.
-        static::assertFalse((new ContextDependencyAnalyzer())->requiresParentData($target));
-        static::assertArrayHasKey('language', $discarded->dataRequirements);
 
         $loads = 0;
         $loader = static::createStub(AbstractContentDataLoader::class);
@@ -864,6 +900,11 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
+        // Fixture guard: the target needs no parent data, so the prune stops at it and the sibling
+        // carrying the requirement is what the prune drops.
+        static::assertFalse((new ContextDependencyAnalyzer())->requiresParentData($target));
+        static::assertArrayHasKey('language', $discarded->dataRequirements);
+
         static::assertSame(['target-id'], $this->collectRenderedIds($result->tree));
         static::assertSame(0, $loads);
     }
@@ -887,12 +928,6 @@ class ContentPipelineTest extends TestCase
             [$rootScoped, $parentScoped]
         );
 
-        // Fixture guard: neither root provides anything or holds a value under the consumed key, so the
-        // page-level requirement is the only possible source for either of them.
-        static::assertSame([], $rootScoped->contextDefinitions->getAllProviders());
-        static::assertNull($rootScoped->property('language'));
-        static::assertNull($parentScoped->property('language'));
-
         $pageData = new StubStruct();
         $this->lowering = $this->createLowering(['language' => $this->pageLoaderReturning($pageData)]);
 
@@ -906,6 +941,12 @@ class ContentPipelineTest extends TestCase
             false,
             Generator::generateSalesChannelContext()
         );
+
+        // Fixture guard: neither root provides anything or holds a value under the consumed key, so the
+        // page-level requirement is the only possible source for either of them.
+        static::assertSame([], $rootScoped->contextDefinitions->getAllProviders());
+        static::assertNull($rootScoped->property('language'));
+        static::assertNull($parentScoped->property('language'));
 
         static::assertSame($pageData, $this->renderedElement($result->tree, 'root-scoped-id')->properties['language']);
         static::assertSame([], $this->renderedElement($result->tree, 'parent-scoped-id')->properties);
@@ -921,12 +962,7 @@ class ContentPipelineTest extends TestCase
     {
         $layout = $this->createSingleRootLayout($this->nestedRootScopedConsumerTree());
 
-        // Fixture guard: every element between the root and the consumer is wiring-free, so nothing can
-        // relay the value down a hop at a time.
         $middle = $this->findStoredChild($layout->elements[0], 'middle-id');
-        static::assertNotNull($middle);
-        static::assertSame([], $middle->contextDefinitions->getAllConsumers());
-        static::assertSame([], $middle->contextDefinitions->getAllProviders());
 
         $pageData = new StubStruct();
         $this->lowering = $this->createLowering(['language' => $this->pageLoaderReturning($pageData)]);
@@ -942,6 +978,12 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
+        // Fixture guard: every element between the root and the consumer is wiring-free, so nothing can
+        // relay the value down a hop at a time.
+        static::assertNotNull($middle);
+        static::assertSame([], $middle->contextDefinitions->getAllConsumers());
+        static::assertSame([], $middle->contextDefinitions->getAllProviders());
+
         static::assertSame($pageData, $this->renderedElement($result->tree, 'consumer-id')->properties['language']);
     }
 
@@ -949,7 +991,7 @@ class ContentPipelineTest extends TestCase
      * The prune-independence pin. The partial render targets the deep consumer, and the prune keeps only the
      * path its `requiresParentData()` rule demands — so whether the wrapper survives into the rendered tree
      * is a question about the finishing steps, not about root context. The ambient map is read off the
-     * PRE-prune forest, so the answer here must be the same as in the full render above.
+     * PRE-prune forest, so the answer here must be the same as in a full render.
      */
     #[TestDox('delivers a page-level data requirement to a root-scoped consumer on a partial render')]
     public function testPageLevelDataRequirementSurvivesThePartialPrune(): void
@@ -962,9 +1004,6 @@ class ContentPipelineTest extends TestCase
             'consumer-id'
         );
 
-        // Fixture guard, and what makes this test discriminate: the prune stops at the wiring-free container
-        // above the target, so the wrapper is NOT in the tree the render step lowers. A mechanism that read
-        // root context off the rendered forest would find no wrapper here and deliver nothing.
         $preparation = (new StoredTreePreparer(
             $this->typeRegistry(),
             new VirtualRootWrapper(),
@@ -972,9 +1011,6 @@ class ContentPipelineTest extends TestCase
             $this->configSerializerProvider(),
             $this->dataLoaderProvider(),
         ))->prepare($layout->elements, $specification, RenderingMode::FULL, Generator::generateSalesChannelContext());
-        static::assertFalse($preparation->scaffolding->virtualRootSurvivedPrune);
-        static::assertSame(['middle-id', 'consumer-id'], $this->collectStoredIds($preparation->tree));
-        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $preparation->prePruneForest[0]->id);
 
         $pageData = new StubStruct();
         $this->lowering = $this->createLowering(['language' => $this->pageLoaderReturning($pageData)]);
@@ -989,6 +1025,13 @@ class ContentPipelineTest extends TestCase
             false,
             Generator::generateSalesChannelContext()
         );
+
+        // Fixture guard, and what makes this test discriminate: the prune stops at the wiring-free container
+        // above the target, so the wrapper is NOT in the tree the render step lowers. A mechanism that read
+        // root context off the rendered forest would find no wrapper here and deliver nothing.
+        static::assertFalse($preparation->scaffolding->virtualRootSurvivedPrune);
+        static::assertSame(['middle-id', 'consumer-id'], $this->collectStoredIds($preparation->tree));
+        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $preparation->prePruneForest[0]->id);
 
         // The extract really ran: the served forest is the bare target, with none of its ancestors.
         static::assertSame(['consumer-id'], $this->collectRenderedIds($result->tree));
@@ -1102,10 +1145,6 @@ class ContentPipelineTest extends TestCase
 
         $wrapper = new VirtualRootWrapper();
 
-        // Fixture guard: without page-level data requirements the pipeline never wraps, and the unwrap step
-        // is inert.
-        static::assertTrue($wrapper->requiresWrapping($specification, $layout->elements));
-
         $preparation = (new StoredTreePreparer(
             $this->typeRegistry(),
             $wrapper,
@@ -1113,15 +1152,6 @@ class ContentPipelineTest extends TestCase
             $this->configSerializerProvider(),
             $this->dataLoaderProvider(),
         ))->prepare($layout->elements, $specification, RenderingMode::SKELETON, Generator::generateSalesChannelContext());
-
-        // Fixture guard, and what makes the order observable at all: both finishing steps are live, because
-        // the prune left the virtual root heading the forest and the target it extracts is still under it.
-        static::assertTrue($preparation->scaffolding->virtualRootSurvivedPrune);
-        static::assertSame('target-id', $preparation->scaffolding->extractTargetId);
-        static::assertSame(
-            [VirtualRootWrapper::VIRTUAL_ROOT_ID, 'root-id', 'target-id'],
-            $this->collectStoredIds($preparation->tree)
-        );
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
@@ -1132,6 +1162,19 @@ class ContentPipelineTest extends TestCase
             RenderingMode::SKELETON,
             false,
             Generator::generateSalesChannelContext()
+        );
+
+        // Fixture guard: without page-level data requirements the pipeline never wraps, and the unwrap step
+        // is inert.
+        static::assertTrue($wrapper->requiresWrapping($specification, $layout->elements));
+
+        // Fixture guard, and what makes the order observable at all: both finishing steps are live, because
+        // the prune left the virtual root heading the forest and the target it extracts is still under it.
+        static::assertTrue($preparation->scaffolding->virtualRootSurvivedPrune);
+        static::assertSame('target-id', $preparation->scaffolding->extractTargetId);
+        static::assertSame(
+            [VirtualRootWrapper::VIRTUAL_ROOT_ID, 'root-id', 'target-id'],
+            $this->collectStoredIds($preparation->tree)
         );
 
         static::assertSame(['target-id'], $this->collectRenderedIds($result->tree));
@@ -1177,16 +1220,16 @@ class ContentPipelineTest extends TestCase
             [$provider]
         );
 
-        // Fixture guard: only a consumer that is still unfilled makes the hydration branch observable.
-        static::assertArrayHasKey('product', $consumer->contextDefinitions->getAllConsumers());
-        static::assertNull($consumer->property('product'));
-
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
         $pipeline = $this->createPipeline();
         $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
 
         $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, false, Generator::generateSalesChannelContext());
+
+        // Fixture guard: only a consumer that is still unfilled makes the hydration branch observable.
+        static::assertArrayHasKey('product', $consumer->contextDefinitions->getAllConsumers());
+        static::assertNull($consumer->property('product'));
 
         static::assertSame('product-payload', $this->renderedElement($result->tree, 'consumer-id')->properties['product']);
     }
@@ -1200,17 +1243,15 @@ class ContentPipelineTest extends TestCase
         // forest the subscriber handed back.
         static::assertSame(['root-id'], $this->collectStoredIds($layout->elements));
 
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            static function (object $event) {
-                if ($event instanceof ContentTreePreparationEvent) {
-                    $event->replaceTree([]);
-                }
-
-                return $event;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ContentTreePreparationEvent::class,
+            static function (ContentTreePreparationEvent $event): void {
+                $event->replaceTree([]);
             }
         );
 
-        $result = $this->createPipeline()->load(
+        $result = $this->createPipeline($dispatcher)->load(
             $layout,
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
@@ -1319,18 +1360,16 @@ class ContentPipelineTest extends TestCase
         // duplicate exists only in the forest the subscriber hands back.
         static::assertSame(['root-id'], $this->collectStoredIds($layout->elements));
 
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            static function (object $event) {
-                if ($event instanceof RenderedTreeFinalizationEvent) {
-                    // The twins share an id and differ in their title, so the throw can only come from the
-                    // id collision and not from two identical nodes being folded together.
-                    $event->replaceTree([
-                        new RenderedElement('twin-id', 'text', ['title' => 'first-twin']),
-                        new RenderedElement('twin-id', 'text', ['title' => 'second-twin']),
-                    ]);
-                }
-
-                return $event;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            RenderedTreeFinalizationEvent::class,
+            static function (RenderedTreeFinalizationEvent $event): void {
+                // The twins share an id and differ in their title, so the throw can only come from the
+                // id collision and not from two identical nodes being folded together.
+                $event->replaceTree([
+                    new RenderedElement('twin-id', 'text', ['title' => 'first-twin']),
+                    new RenderedElement('twin-id', 'text', ['title' => 'second-twin']),
+                ]);
             }
         );
 
@@ -1338,7 +1377,8 @@ class ContentPipelineTest extends TestCase
             $layout,
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             $mode,
-            'twin-id'
+            'twin-id',
+            $dispatcher
         );
     }
 
@@ -1350,28 +1390,26 @@ class ContentPipelineTest extends TestCase
         // Fixture guard: the stored forest repeats nothing, so the check over it cannot be what fires.
         static::assertSame(['root-id'], $this->collectStoredIds($layout->elements));
 
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            static function (object $event) {
-                if ($event instanceof RenderedTreeFinalizationEvent) {
-                    // The second twin sits two slots deep, so only a walk that descends into `slots`
-                    // reaches it: a check that compared root ids alone would serve this forest. The two
-                    // share an id and differ in their title, so the throw is the collision and not two
-                    // identical nodes folding together.
-                    $event->replaceTree([
-                        new RenderedElement('twin-id', 'text', ['title' => 'the-root-twin']),
-                        new RenderedElement('holder-id', 'section', [], [
-                            'default' => [
-                                new RenderedElement('inner-id', 'section', [], [
-                                    'default' => [
-                                        new RenderedElement('twin-id', 'text', ['title' => 'the-buried-twin']),
-                                    ],
-                                ]),
-                            ],
-                        ]),
-                    ]);
-                }
-
-                return $event;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            RenderedTreeFinalizationEvent::class,
+            static function (RenderedTreeFinalizationEvent $event): void {
+                // The second twin sits two slots deep, so only a walk that descends into `slots`
+                // reaches it: a check that compared root ids alone would serve this forest. The two
+                // share an id and differ in their title, so the throw is the collision and not two
+                // identical nodes folding together.
+                $event->replaceTree([
+                    new RenderedElement('twin-id', 'text', ['title' => 'the-root-twin']),
+                    new RenderedElement('holder-id', 'section', [], [
+                        'default' => [
+                            new RenderedElement('inner-id', 'section', [], [
+                                'default' => [
+                                    new RenderedElement('twin-id', 'text', ['title' => 'the-buried-twin']),
+                                ],
+                            ]),
+                        ],
+                    ]),
+                ]);
             }
         );
 
@@ -1379,7 +1417,8 @@ class ContentPipelineTest extends TestCase
             $layout,
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             RenderingMode::FULL,
-            'twin-id'
+            'twin-id',
+            $dispatcher
         );
     }
 
@@ -1499,10 +1538,10 @@ class ContentPipelineTest extends TestCase
         return new DataLoaderProvider($locator);
     }
 
-    private function createPipeline(): ContentPipeline
+    private function createPipeline(?EventDispatcherInterface $dispatcher = null): ContentPipeline
     {
         return new ContentPipeline(
-            $this->eventDispatcher,
+            $dispatcher ?? $this->eventDispatcher,
             new StoredTreePreparer(
                 $this->typeRegistry(),
                 new VirtualRootWrapper(),
@@ -1658,9 +1697,10 @@ class ContentPipelineTest extends TestCase
         RenderingSpecification $specification,
         RenderingMode $mode,
         string $elementId,
+        ?EventDispatcherInterface $dispatcher = null,
     ): void {
         try {
-            $this->createPipeline()->load(
+            $this->createPipeline($dispatcher)->load(
                 $layout,
                 $specification,
                 new RenderingCacheContext(),

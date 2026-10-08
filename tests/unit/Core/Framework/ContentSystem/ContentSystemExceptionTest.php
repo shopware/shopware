@@ -45,7 +45,7 @@ class ContentSystemExceptionTest extends TestCase
 
     #[DataProvider('classifiesClientDefectProvider')]
     #[TestDox('classifies $_dataName')]
-    public function testIsClientDefect(ContentSystemException $exception, bool $isClientDefect): void
+    public function testIsClientDefect(\Throwable $exception, bool $isClientDefect): void
     {
         static::assertSame($isClientDefect, ContentSystemException::isClientDefect($exception));
     }
@@ -80,12 +80,6 @@ class ContentSystemExceptionTest extends TestCase
         sort($actual);
 
         static::assertSame($expected, $actual);
-    }
-
-    #[TestDox('rejects a non content-system throwable as a client defect')]
-    public function testForeignThrowableIsNotAClientDefect(): void
-    {
-        static::assertFalse(ContentSystemException::isClientDefect(new \RuntimeException('boom')));
     }
 
     #[TestDox('propagates previous throwable when loading element type fails')]
@@ -142,6 +136,8 @@ class ContentSystemExceptionTest extends TestCase
         yield 'a line separator, which addcslashes would have missed' => ["hero\u{2028}", 'hero\\u2028'];
 
         yield 'an embedded quote, kept balanced' => ['"hero"', '\\"hero\\"'];
+
+        yield 'an invalid UTF-8 id, returned as-is because it cannot be JSON-escaped' => ["hero\xFF", "hero\xFF"];
     }
 
     #[TestDox('propagates previous throwable when a data loader config is invalid')]
@@ -211,7 +207,7 @@ class ContentSystemExceptionTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{ContentSystemException, bool}>
+     * @return iterable<string, array{\Throwable, bool}>
      */
     public static function classifiesClientDefectProvider(): iterable
     {
@@ -230,6 +226,8 @@ class ContentSystemExceptionTest extends TestCase
         // decode turns it into a 400 and the lintable one collects it as a 200 violation, while the
         // stored-column read keeps the fault status.
         yield 'an invalid element id as a client defect despite its 500' => [ContentSystemException::invalidElementId('12', 'reads as an integer'), true];
+        // Only a content-system exception can be a client defect, whatever its message says.
+        yield 'a non content-system throwable as an internal fault' => [new \RuntimeException('boom'), false];
     }
 
     /**
@@ -610,6 +608,48 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_BAD_REQUEST,
             'CONTENT_SYSTEM__DEFAULT_CONTENT_LAYOUT_DELETION',
             'layout-a, layout-b',
+        ];
+
+        yield 'invalid field value range' => [
+            ContentSystemException::invalidFieldValueRange('columns', 1, 0),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INVALID_FIELD_VALUE_RANGE',
+            'expected a minimum of 1, got 0',
+        ];
+
+        yield 'unknown style breakpoint reusing the map-key code' => [
+            ContentSystemException::unknownStyleBreakpoint('padding', 'xxl', ['xs', 'sm']),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INVALID_MAP_KEY',
+            'has no breakpoint "xxl"; expected one of xs, sm.',
+        ];
+
+        yield 'layout preset duplicate' => [
+            ContentSystemException::layoutPresetDuplicate('hero-preset'),
+            Response::HTTP_CONFLICT,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_DUPLICATE',
+            'hero-preset',
+        ];
+
+        yield 'style option duplicate' => [
+            ContentSystemException::styleOptionDuplicate('padding', 'core', 'MyPlugin'),
+            Response::HTTP_CONFLICT,
+            'CONTENT_SYSTEM__STYLE_OPTION_DUPLICATE',
+            'padding',
+        ];
+
+        yield 'binding specification reserved id' => [
+            ContentSystemException::bindingSpecificationReservedId('default', 'Sw:Product:Card', 'bindings/default.yaml'),
+            Response::HTTP_CONFLICT,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID',
+            'is reserved for the synthesized default of element type "Sw:Product:Card"',
+        ];
+
+        yield 'binding specification default ambiguous' => [
+            ContentSystemException::bindingSpecificationDefaultAmbiguous('Sw:Product:Card', ['core:a', 'core:b']),
+            Response::HTTP_CONFLICT,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS',
+            'core:a, core:b',
         ];
     }
 

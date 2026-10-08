@@ -28,10 +28,12 @@ use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintValidatorFactoryInterface;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -171,11 +173,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         // dto validates cleanly, proving resolveType() picked the overlay: registry-first would violate on every
         // key. Mirrors the canonicalizer twin (its resolveType can diverge independently).
         $bareType = new ContentSystemElementTypeSpecification('image', 'Image', '', null, null, new CopilotSpecification('', []), [], []);
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturn(true);
-        $registry->method('get')->willReturn($bareType);
-
-        $validator = $this->validatorWithRegistry($registry, $this->map(['entity' => $this->loaderSpec()]));
+        $validator = $this->validatorWithRegistry($this->registryServing($bareType), $this->map(['entity' => $this->loaderSpec()]));
 
         $dto = new BindingSpecificationDto(
             type: 'image',
@@ -230,9 +228,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             [],
         );
 
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturn(true);
-        $registry->method('get')->willReturn($type);
+        $registry = $this->registryServing($type);
 
         // INVALID_FIELD_TYPE is NOT in CLIENT_DEFECT_CODES, so decodeConfig() must rethrow it rather than
         // turning it into a violation.
@@ -286,6 +282,27 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         }
     }
 
+    #[TestDox('throws an UnexpectedTypeException when handed a constraint other than TypeConsistentBindingSpecification')]
+    public function testThrowsOnForeignConstraint(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+        $constraint = new NotBlank();
+
+        $this->expectExceptionObject(new UnexpectedTypeException($constraint, TypeConsistentBindingSpecification::class));
+
+        $validator->validate(new BindingSpecificationDtoCollection([]), $constraint);
+    }
+
+    #[TestDox('throws an UnexpectedTypeException when handed a value that is not a BindingSpecificationDtoCollection')]
+    public function testThrowsOnNonCollectionValue(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $this->expectExceptionObject(new UnexpectedTypeException('not-a-collection', BindingSpecificationDtoCollection::class));
+
+        $validator->validate('not-a-collection', new TypeConsistentBindingSpecification());
+    }
+
     #[TestDox('flags a resolves entry in the unsupported "context" form as a violation')]
     public function testResolvesEntryContextFormIsViolation(): void
     {
@@ -305,23 +322,27 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertStringContainsString('"context" form', (string) $violations->get(0)->getMessage());
     }
 
-    #[TestDox('flags a resolves entry whose key names a primitive property rather than a reference as a violation')]
-    public function testResolvesEntryKeyNotReferencePropertyIsViolation(): void
+    #[DataProvider('rejectsNonReferenceResolvesKeyProvider')]
+    #[TestDox('flags a resolves entry whose key names $_dataName rather than a reference property as a violation')]
+    public function testResolvesEntryKeyNotReferencePropertyIsViolation(string $key): void
     {
-        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+        $validator = $this->validator($this->referenceVariantsType(), $this->map(['entity' => $this->loaderSpec()]));
 
         $dto = new BindingSpecificationDto(
             type: 'image',
             label: 'label',
-            resolves: ['mediaId' => ['loader' => 'entity']],
+            resolves: [$key => ['loader' => 'entity']],
             inputs: [],
         );
 
         $violations = $this->validateWith($dto, $validator);
 
         static::assertCount(1, $violations);
-        static::assertSame('bindings[' . self::ID . '].resolves[mediaId]', $violations->get(0)->getPropertyPath());
-        static::assertStringContainsString('does not name a reference property', (string) $violations->get(0)->getMessage());
+        static::assertSame('bindings[' . self::ID . '].resolves[' . $key . ']', $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            \sprintf('resolves entry "%s" does not name a reference property of type "image"', $key),
+            (string) $violations->get(0)->getMessage(),
+        );
     }
 
     #[TestDox('flags a resolves entry naming an unregistered loader as a violation')]
@@ -401,8 +422,46 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertStringContainsString('not assignable', (string) $violations->get(0)->getMessage());
     }
 
-    #[TestDox('flags an inputs entry whose key names a reference property rather than a primitive as a violation')]
-    public function testInputsEntryKeyNotPrimitivePropertyIsViolation(): void
+    #[TestDox('accepts a resolves entry whose produced type is a subclass of the declared reference type')]
+    public function testResolvesEntryProducedSubclassOfDeclaredTypeIsAccepted(): void
+    {
+        // The loader produces a MediaEntity, which is a subclass of the declared bare Entity reference of "media".
+        $validator = $this->validator($this->referenceVariantsType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']]],
+            inputs: [],
+        );
+
+        static::assertCount(0, $this->validateWith($dto, $validator));
+    }
+
+    #[TestDox('reports only the not-assignable violation when the config also names a non-primitive property')]
+    public function testResolvesEntryNotAssignableSkipsPropertyReferenceCheck(): void
+    {
+        // The config's property "media" is a reference property, which the propertyReference check would flag as a
+        // second violation if the not-assignable violation did not end the entry's validation.
+        $validator = $this->validatorProducing(Entity::class);
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'media']]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media]', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('not assignable', (string) $violations->get(0)->getMessage());
+    }
+
+    #[DataProvider('rejectsNonPrimitiveInputsKeyProvider')]
+    #[TestDox('flags an inputs entry whose key names $_dataName rather than a primitive property as a violation')]
+    public function testInputsEntryKeyNotPrimitivePropertyIsViolation(string $key): void
     {
         $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
 
@@ -410,14 +469,17 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             type: 'image',
             label: 'label',
             resolves: [],
-            inputs: ['media' => ['default' => 'seed']],
+            inputs: [$key => ['default' => 'seed']],
         );
 
         $violations = $this->validateWith($dto, $validator);
 
         static::assertCount(1, $violations);
-        static::assertSame('bindings[' . self::ID . '].inputs[media]', $violations->get(0)->getPropertyPath());
-        static::assertStringContainsString('does not name a primitive property', (string) $violations->get(0)->getMessage());
+        static::assertSame('bindings[' . self::ID . '].inputs[' . $key . ']', $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            \sprintf('inputs entry "%s" does not name a primitive property of type "image"', $key),
+            (string) $violations->get(0)->getMessage(),
+        );
     }
 
     #[TestDox('flags an inputs entry whose default value does not match the declared primitive type as a violation')]
@@ -437,6 +499,111 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertCount(1, $violations);
         static::assertSame('bindings[' . self::ID . '].inputs[mediaId].default', $violations->get(0)->getPropertyPath());
         static::assertStringContainsString('must match the declared type', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('accepts an integer inputs default on an integer property')]
+    public function testInputsEntryIntegerDefaultOnIntegerPropertyIsAccepted(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: [],
+            inputs: ['width' => ['default' => 7]],
+        );
+
+        static::assertCount(0, $this->validateWith($dto, $validator));
+    }
+
+    #[DataProvider('nonIntegerDefaultProvider')]
+    #[TestDox('flags $_dataName as an inputs default on an integer property as a violation')]
+    public function testInputsEntryNonIntegerDefaultOnIntegerPropertyIsViolation(string|float $default): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: [],
+            inputs: ['width' => ['default' => $default]],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].inputs[width].default', $violations->get(0)->getPropertyPath());
+        static::assertSame('inputs entry "width" default value must match the declared type "integer"', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('accepts a boolean inputs default on a boolean property')]
+    public function testInputsEntryBooleanDefaultOnBooleanPropertyIsAccepted(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: [],
+            inputs: ['autoplay' => ['default' => true]],
+        );
+
+        static::assertCount(0, $this->validateWith($dto, $validator));
+    }
+
+    #[TestDox('flags an integer inputs default on a boolean property as a violation')]
+    public function testInputsEntryNonBooleanDefaultOnBooleanPropertyIsViolation(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: [],
+            inputs: ['autoplay' => ['default' => 1]],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].inputs[autoplay].default', $violations->get(0)->getPropertyPath());
+        static::assertSame('inputs entry "autoplay" default value must match the declared type "boolean"', (string) $violations->get(0)->getMessage());
+    }
+
+    #[DataProvider('numericDefaultProvider')]
+    #[TestDox('accepts $_dataName as an inputs default on a number property')]
+    public function testInputsEntryNumericDefaultOnNumberPropertyIsAccepted(int|float $default): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: [],
+            inputs: ['ratio' => ['default' => $default]],
+        );
+
+        static::assertCount(0, $this->validateWith($dto, $validator));
+    }
+
+    #[DataProvider('nonNumberDefaultProvider')]
+    #[TestDox('flags $_dataName as an inputs default on a number property as a violation')]
+    public function testInputsEntryNonNumericDefaultOnNumberPropertyIsViolation(string $default): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: [],
+            inputs: ['ratio' => ['default' => $default]],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].inputs[ratio].default', $violations->get(0)->getPropertyPath());
+        static::assertSame('inputs entry "ratio" default value must match the declared type "number"', (string) $violations->get(0)->getMessage());
     }
 
     #[TestDox('accepts an inputs entry whose scalar default targets a translatable property')]
@@ -520,13 +687,73 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         yield 'a reference property' => ['media'];
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function rejectsNonReferenceResolvesKeyProvider(): iterable
+    {
+        yield 'a primitive property' => ['mediaId'];
+        yield 'an undeclared key' => ['ghost'];
+        yield 'an object property' => ['payload'];
+        yield 'a union property' => ['identifier'];
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function rejectsNonPrimitiveInputsKeyProvider(): iterable
+    {
+        yield 'a reference property' => ['media'];
+        yield 'an undeclared key' => ['ghost'];
+    }
+
+    /**
+     * @return iterable<string, array{string|float}>
+     */
+    public static function nonIntegerDefaultProvider(): iterable
+    {
+        yield 'a string' => ['7'];
+        yield 'a float' => [1.5];
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function nonNumberDefaultProvider(): iterable
+    {
+        yield 'a non-numeric string' => ['x'];
+        yield 'a numeric string' => ['1.5'];
+    }
+
+    /**
+     * @return iterable<string, array{int|float}>
+     */
+    public static function numericDefaultProvider(): iterable
+    {
+        yield 'a float' => [1.5];
+        yield 'an integer' => [2];
+    }
+
     private function validator(ContentSystemElementTypeSpecification $type, ContentSystemDataLoaderMap $map): TypeConsistentBindingSpecificationValidator
     {
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturn(true);
-        $registry->method('get')->willReturn($type);
+        return $this->validatorWithRegistry($this->registryServing($type), $map);
+    }
 
-        return $this->validatorWithRegistry($registry, $map);
+    private function registryServing(ContentSystemElementTypeSpecification $type): AbstractContentSystemElementTypeRegistry
+    {
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static function (string $name) use ($type): bool {
+            static::assertSame($type->name(), $name);
+
+            return true;
+        });
+        $registry->method('get')->willReturnCallback(static function (string $name) use ($type): ContentSystemElementTypeSpecification {
+            static::assertSame($type->name(), $name);
+
+            return $type;
+        });
+
+        return $registry;
     }
 
     private function validatorWithRegistry(AbstractContentSystemElementTypeRegistry $registry, ContentSystemDataLoaderMap $map): TypeConsistentBindingSpecificationValidator
@@ -551,9 +778,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
      */
     private function validatorProducing(string $producedType): TypeConsistentBindingSpecificationValidator
     {
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturn(true);
-        $registry->method('get')->willReturn($this->imageType());
+        $registry = $this->registryServing($this->imageType());
 
         $provider = static::createStub(DataLoaderConfigSerializerProvider::class);
         $provider->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));
@@ -569,9 +794,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
 
     private function validatorFailingDecodeWith(ContentSystemException $exception): TypeConsistentBindingSpecificationValidator
     {
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturn(true);
-        $registry->method('get')->willReturn($this->imageType());
+        $registry = $this->registryServing($this->imageType());
 
         $provider = static::createStub(DataLoaderConfigSerializerProvider::class);
         $provider->method('decode')->willThrowException($exception);
@@ -589,9 +812,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
 
     private function validatorFailingProducedTypeWith(ContentSystemException $exception): TypeConsistentBindingSpecificationValidator
     {
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturn(true);
-        $registry->method('get')->willReturn($this->imageType());
+        $registry = $this->registryServing($this->imageType());
 
         $provider = static::createStub(DataLoaderConfigSerializerProvider::class);
         $provider->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));
@@ -646,6 +867,29 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
                 'autoplay' => new PropertySpecification('autoplay', new PropertyType('boolean', false, null, null), false, '', '', null),
                 'ratio' => new PropertySpecification('ratio', new PropertyType('number', false, null, null), false, '', '', null),
                 'position' => new PropertySpecification('position', new PropertyType('integer', true, null, null), false, '', '', null),
+            ],
+            [],
+        );
+    }
+
+    /**
+     * Declares the properties imageType() lacks: a bare `object`, a union of primitives, and an `Entity`
+     * reference that a produced MediaEntity is a subclass of.
+     */
+    private function referenceVariantsType(): ContentSystemElementTypeSpecification
+    {
+        return new ContentSystemElementTypeSpecification(
+            'image',
+            'Image',
+            '',
+            null,
+            null,
+            new CopilotSpecification('', []),
+            [
+                'media' => new PropertySpecification('media', new PropertyType(Entity::class, false, null, null), false, '', '', null),
+                'mediaId' => new PropertySpecification('mediaId', new PropertyType('string', false, null, null), false, '', '', null),
+                'payload' => new PropertySpecification('payload', new PropertyType('object', false, null, null), false, '', '', null),
+                'identifier' => new PropertySpecification('identifier', new PropertyType(['string', 'integer'], false, null, null), false, '', '', null),
             ],
             [],
         );

@@ -72,5 +72,7 @@ class ConfigKeySpecificationTest extends TestCase
         yield 'a list<string> key rejects an integer declaration' => ['list<string>', 'integer', false];
         yield 'a list<string> key rejects a number declaration' => ['list<string>', 'number', false];
         yield 'a list<string> key rejects a boolean declaration' => ['list<string>', 'boolean', false];
+        // Outside REFERENCED_TYPES, which the container build rejects; a key constructed with one admits nothing.
+        yield 'an undeclarable referenced type rejects even a string declaration' => ['list<integer>', 'string', false];
     }
 }

@@ -1,13 +1,12 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('As an admin user, I want to create a rule', { tag: '@Rule' }, async ({
-    AdminRuleDetail,
-    AdminRuleListing,
-    ShopAdmin,
-    IdProvider,
-    TestDataService,
-    CreateRule,
-}) => {
+test(
+    'As an admin user, I want to create a rule',
+    { tag: '@Rule' },
+    async ({ AdminRuleDetail, AdminRuleListing, ShopAdmin, IdProvider, TestDataService }) => {
+        const { id: uniqueId } = IdProvider.getIdPair();
+        const { id: taxId, name: taxName } = await TestDataService.createTaxRate();
+        const { id: ruleTagId, name: ruleTag } = await TestDataService.createTag(`Test tag - ${uniqueId}`);
 
     const { uuid: ruleId, id: uniqueId } = IdProvider.getIdPair();
     const { id: taxId, name: taxName } = (await TestDataService.createTaxRate());
@@ -15,22 +14,108 @@ test('As an admin user, I want to create a rule', { tag: '@Rule' }, async ({
     const yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
 
-    const testConfig = {
-    ruleId,
-    ruleName: `Test rule - ${uniqueId}`,
-    ruleTypes: ['Price', 'Shipping', 'Payment', 'Flow Builder'],
-    rulePriority: 1,
-    ruleDescription: 'This is a test rule, created to test the Rule Builder.',
-    ruleTag: (await TestDataService.createTag(`Test tag - ${uniqueId}`)).name,
-    taxId,
-    taxName,
-    customerSurname: 'Schmitz-Rimpler',
-    fromDate: formatDateOnlyWithOffset(yesterday),
-    toDate: formatDateOnlyWithOffset(today),
-    quantity: 5,
-    isAdminOrder: false,
-    stock: 10,
-};
+        const rule = await TestDataService.createBasicRule({
+            name: testConfig.ruleName,
+            priority: testConfig.rulePriority,
+            description: testConfig.ruleDescription,
+            moduleTypes: {
+                types: testConfig.ruleTypes.map((type) => type.toLowerCase().split(' ')[0]),
+            },
+            tags: [
+                {
+                    id: ruleTagId,
+                    name: testConfig.ruleTag,
+                },
+            ],
+            conditions: [
+                {
+                    type: 'orContainer',
+                    children: [
+                        {
+                            type: 'andContainer',
+                            children: [
+                                {
+                                    type: 'cartLineItemGoodsTotal',
+                                    value: {
+                                        count: testConfig.quantity,
+                                        operator: '>=',
+                                    },
+                                    children: [
+                                        {
+                                            type: 'orContainer',
+                                            children: [
+                                                {
+                                                    type: 'andContainer',
+                                                    children: [
+                                                        {
+                                                            type: 'cartLineItemActualStock',
+                                                            value: {
+                                                                stock: testConfig.stock,
+                                                                operator: '>=',
+                                                            },
+                                                        },
+                                                    ],
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                {
+                                    type: 'dateRange',
+                                    value: {
+                                        toDate: testConfig.toDate,
+                                        useTime: false,
+                                        fromDate: testConfig.fromDate,
+                                    },
+                                },
+                                {
+                                    type: 'orContainer',
+                                    children: [
+                                        {
+                                            type: 'customerLastName',
+                                            value: {
+                                                lastName: testConfig.customerSurname,
+                                                operator: '=',
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                        {
+                            type: 'andContainer',
+                            children: [
+                                {
+                                    type: 'cartLineItemTaxation',
+                                    value: {
+                                        taxIds: [testConfig.taxId],
+                                        operator: '=',
+                                    },
+                                },
+                                {
+                                    type: 'timeRange',
+                                    value: {
+                                        toTime: testConfig.toDate.split('T')[1].substring(0, 5),
+                                        fromTime: testConfig.fromDate.split('T')[1].substring(0, 5),
+                                    },
+                                },
+                                {
+                                    type: 'orContainer',
+                                    children: [
+                                        {
+                                            type: 'orderCreatedByAdmin',
+                                            value: {
+                                                shouldOrderBeCreatedByAdmin: testConfig.isAdminOrder,
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
 
     await test.step('Create rule via API', async () => {
         await ShopAdmin.attemptsTo(CreateRule(testConfig));

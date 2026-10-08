@@ -556,6 +556,19 @@ Check your Administration extensions for these changes:
 
 ## Storefront
 
+### Google Tag Manager events use the GA4 ecommerce data layer format
+
+Storefront analytics now send GA4-compliant ecommerce events. With a `GTM-` tracking ID they are pushed under the `ecommerce` key of the data layer, and the previous ecommerce object is cleared before each event. With a Google tag ID they still use `gtag('event', ...)`.
+
+What to adjust:
+
+* Google Tag Manager setups that remap parameters from `eventModel` should use the standard `ecommerce` data layer variable instead.
+* Item properties are named `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`.
+* `.hidden-line-items-information` no longer carries `data-value`. Sum `data-price` times `data-quantity` of the `.hidden-line-item` elements instead.
+* The hidden line items and the analytics attributes of the buy widget are only rendered for a sales channel with active analytics.
+* Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class, which `view_item` reads.
+
+The events also report more accurate data: `item_variant`, the promotion `coupon`, graduated prices in `add_to_cart`, brand and category for products added from a product box, and `add_shipping_info` / `add_payment_info` once per selected method instead of on every page load. Discounts and other line items that are not products are no longer reported as items.
 ### Extension component aliases work in the dev server
 
 The unified Storefront component dev server now applies aliases from each extension's `vite.components.config.mts` only to imports from that extension's resource tree. Extensions can use the same alias name for different module paths, including imports between modules under `Resources/app/storefront/src`, in development and production builds.

@@ -30,7 +30,7 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
 
         // Try to get product data from product detail/listing page first
         let productData = ProductPageHelper.getProductData(productId);
-        let categories = ProductPageHelper.getCategories();
+        let categories = ProductPageHelper.getCategoriesFor(productId);
 
         // Fallback to line item data (cart/checkout/finish pages)
         if (!productData.name) {
@@ -41,13 +41,15 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
             }
         }
 
-        gtag('event', 'add_to_wishlist', {
+        this.pushEvent('add_to_wishlist', {
             'currency': productData.currency,
             'value': productData.value,
             'items': [{
-                'id': productData.id ?? productId,
-                'name': productData.name,
-                'brand': productData.brand,
+                'item_id': productData.id ?? productId,
+                'item_name': productData.name,
+                'item_brand': productData.brand,
+                'item_variant': productData.variant,
+                'price': productData.value,
                 ...categories,
             }],
         });

@@ -38,11 +38,12 @@ export default class LineItemHelper
             }
 
             const itemData = {
-                id: itemEl.getAttribute('data-sku') ?? itemEl.getAttribute('data-id'),
-                name: itemEl.getAttribute('data-name'),
+                item_id: itemEl.getAttribute('data-sku') ?? itemEl.getAttribute('data-id'),
+                item_name: itemEl.getAttribute('data-name'),
                 quantity: itemEl.getAttribute('data-quantity'),
                 price: itemEl.getAttribute('data-price'),
-                brand: itemEl.getAttribute('data-brand'),
+                item_brand: itemEl.getAttribute('data-brand'),
+                item_variant: itemEl.getAttribute('data-variant'),
             };
 
             lineItems.push({
@@ -55,17 +56,38 @@ export default class LineItemHelper
     }
 
     /**
+     * A page that renders no cart has no container, so the properties are empty rather than a
+     * `TypeError` that takes the surrounding event down with it.
+     *
      * @returns { Object }
      */
     static getAdditionalProperties() {
         const lineItemsContainer = document.querySelector('.hidden-line-items-information');
+        const value = LineItemHelper.getLineItems().reduce((sum, item) => {
+            const price = Number(item.price);
+            const quantity = Number(item.quantity) || 1;
+
+            return Number.isNaN(price) ? sum : sum + (price * quantity);
+        }, 0);
 
         return {
-            currency: lineItemsContainer.getAttribute('data-currency'),
-            shipping: lineItemsContainer.getAttribute('data-shipping'),
-            value: lineItemsContainer.getAttribute('data-value'),
-            tax: lineItemsContainer.getAttribute('data-tax'),
+            currency: lineItemsContainer?.getAttribute('data-currency'),
+            shipping: lineItemsContainer?.getAttribute('data-shipping'),
+            value,
+            tax: lineItemsContainer?.getAttribute('data-tax'),
+            coupon: LineItemHelper.getCoupon(),
         };
+    }
+
+    /**
+     * GA4 reports a single order level coupon, so all applied promotion codes are joined.
+     * @returns { string }
+     */
+    static getCoupon() {
+        const couponElements = document.querySelectorAll('.hidden-line-items-information .hidden-line-item-coupon');
+        const codes = new Set([...couponElements].map(element => element.getAttribute('data-code')));
+
+        return [...codes].join(', ');
     }
 
     /**
@@ -95,9 +117,10 @@ export default class LineItemHelper
         }
 
         return {
-            id: lineItem.id,
-            name: lineItem.name,
-            brand: lineItem.brand,
+            id: lineItem.item_id,
+            name: lineItem.item_name,
+            brand: lineItem.item_brand,
+            variant: lineItem.item_variant,
             value: lineItem.price,
             currency: additionalProperties.currency,
             categories,

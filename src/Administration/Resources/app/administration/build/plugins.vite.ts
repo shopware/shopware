@@ -133,20 +133,29 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
                           'date-fns-tz',
                       ],
                       holdUntilCrawlEnd: true,
-                      esbuildOptions: {
-                          define: {
-                              global: 'globalThis',
+                      rolldownOptions: {
+                          transform: {
+                              define: {
+                                  global: 'globalThis',
+                              },
                           },
                       },
                   },
               }),
+
+        css: {
+            // Lightning CSS minifies the CSS since Vite 8. It fails on invalid rules, which esbuild and browsers just drop.
+            lightningcss: {
+                errorRecovery: true,
+            },
+        },
 
         build: {
             outDir: path.resolve(extension.basePath, 'Resources/public/administration'),
             emptyOutDir: true,
             manifest: true,
             sourcemap: useSourceMap,
-            rollupOptions: {
+            rolldownOptions: {
                 input: {
                     [extension.technicalName]: extension.filePath,
                 },

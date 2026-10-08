@@ -7,6 +7,7 @@ import { createHtmlPlugin } from 'vite-plugin-html';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import svgLoader from 'vite-svg-loader';
 import vue from '@vitejs/plugin-vue';
+import basicSsl from '@vitejs/plugin-basic-ssl';
 import * as path from 'path';
 import * as fs from 'fs';
 import symfonyPlugin from 'vite-plugin-symfony';
@@ -19,6 +20,7 @@ import ImageDeprecationPlugin from './build/vite-plugins/image-deprecation';
 import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postprocess-plugin';
 import ShopwareSetupPlugin from './build/vite-plugins/shopware-setup';
 import VirtualShopwareModulesPlugin from './build/vite-plugins/virtual-shopware-modules';
+import NodeEnvDefinePlugin from './build/vite-plugins/node-env-define';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
 
@@ -129,6 +131,14 @@ export default defineConfig(({ command }) => {
                 return [
                     ...sharedPlugins,
 
+                    NodeEnvDefinePlugin(),
+
+                    // Browsers only use HTTP/2 over TLS, so the dev server needs a certificate
+                    basicSsl({
+                        name: 'localhost',
+                        domains: ['localhost'],
+                    }),
+
                     // used to serve index.html and link index.vite.ts automatically
                     createHtmlPlugin({
                         minify: false,
@@ -194,6 +204,13 @@ export default defineConfig(({ command }) => {
             ],
         },
 
+        css: {
+            // Lightning CSS minifies the CSS since Vite 8. It fails on invalid rules, which esbuild and browsers just drop.
+            lightningcss: {
+                errorRecovery: true,
+            },
+        },
+
         optimizeDeps: {
             include: [
                 'vue-router',
@@ -209,17 +226,19 @@ export default defineConfig(({ command }) => {
             exclude: ['@shopware-ag/dive'],
             // This avoids full-page reload but the browser can't process more requests in parallel
             holdUntilCrawlEnd: true,
-            esbuildOptions: {
-                // Node.js global to browser globalThis
-                define: {
-                    global: 'globalThis',
+            rolldownOptions: {
+                transform: {
+                    // Node.js global to browser globalThis
+                    define: {
+                        global: 'globalThis',
+                    },
                 },
             },
         },
 
         worker: {
             format: 'es',
-            rollupOptions: {
+            rolldownOptions: {
                 output: {
                     format: 'iife',
                 },
@@ -237,7 +256,7 @@ export default defineConfig(({ command }) => {
             // generate .vite/manifest.json in outDir
             manifest: true,
             sourcemap: useSourceMap,
-            rollupOptions: {
+            rolldownOptions: {
                 // overwrite default .html entry
                 input: {
                     administration: 'src/index.ts',

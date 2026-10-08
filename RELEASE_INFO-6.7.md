@@ -375,6 +375,19 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 ## Administration
 
+### Administration build and watcher use Vite 8 and HTTP/2
+
+The Administration and the Administration code of extensions are now built with Vite 8 (Rolldown and Oxc instead of Rollup and esbuild). The watcher (`composer watch:admin`) serves the Administration over HTTPS with a self-signed certificate at `https://localhost:5173`, so the browser loads all files, including the files of extensions, over HTTP/2.
+
+Building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
+
+Extension developers should check their Administration code for:
+
+* Extglob patterns like `!(*.spec)` in `import.meta.glob`. They no longer match. Use negated patterns instead: `import.meta.glob(['./**/*.ts', '!./**/*.spec.ts'])`.
+* Default imports of CommonJS modules, which now follow the Node.js interop rules. See the [Vite 8 migration guide](https://vite.dev/guide/migration).
+
+Invalid CSS rules are still dropped during minification, but now reported as warnings.
+
 ### [Internal] Native `<sw-block>` names are isolated per component
 
 Native `<sw-block>` blocks are now identified by `componentName + blockName`, matching how TwigJS identifies a `{% block %}`. Previously they matched on the block name alone, so a `<sw-block extends="foo">` or a legacy Twig override of `foo` could apply to a `<sw-block name="foo">` in an unrelated component. Blocks with the same name in different components are now isolated, and a `name` / `extends` pair only resolves against each other within the same component. No action is required from core or plugin developers.

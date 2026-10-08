@@ -117,7 +117,7 @@ class VersionManagerTest extends TestCase
             static::createStub(CloneBehavior::class)
         );
 
-        static::assertNotEmpty($entityWriteResult);
+        static::assertNotCount(0, $entityWriteResult);
         static::assertSame('insert', $entityWriteResult['product'][0]->getOperation());
         static::assertSame('product', $entityWriteResult['product'][0]->getEntityName());
     }

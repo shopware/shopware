@@ -288,34 +288,24 @@ export default Component.wrapComponentConfig({
             return number;
         },
 
-        async onCreateDocument(additionalAction = ''): Promise<void> {
+        onCreateDocument(additionalAction = ''): void {
             if (this.invalidInput || !this.currentTechnicalName) {
                 return;
             }
 
-            if (this.documentNumberPreview === this.documentConfig.documentNumber) {
-                let documentNumber;
-
-                try {
-                    documentNumber = await this.reserveDocumentNumber(this.currentTechnicalName, false);
-                } catch {
-                    this.createNotificationError({
-                        message: this.$t('sw-order.components.createDocumentModal.error.loadDocumentNumber'),
-                    });
-
-                    return;
-                }
-
-                if (documentNumber !== this.documentConfig.documentNumber) {
-                    this.createNotificationInfo({
-                        message: this.$t('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
-                    });
-                }
-
-                this.documentConfig.documentNumber = documentNumber;
-            }
-
-            this.$emit('document-create', this.documentConfig, additionalAction, this.getReferencedDocumentId());
+            this.$emit(
+                'document-create',
+                {
+                    ...this.documentConfig,
+                    documentNumberPreview: this.documentNumberPreview,
+                    documentNumber:
+                        this.documentNumberPreview === this.documentConfig.documentNumber
+                            ? ''
+                            : this.documentConfig.documentNumber,
+                },
+                additionalAction,
+                this.getReferencedDocumentId(),
+            );
         },
 
         onPreview(format: string | null = null): void {

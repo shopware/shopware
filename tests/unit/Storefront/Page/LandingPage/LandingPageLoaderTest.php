@@ -91,7 +91,7 @@ class LandingPageLoaderTest extends TestCase
         $product = $this->getProduct($productId);
         $cmsPage = $this->getCmsPage($product);
 
-        $landingPageLoader = $this->getLandingPageLoaderWithProduct($landingPageId, $cmsPage);
+        $landingPageLoader = $this->getLandingPageLoaderWithProduct($landingPageId, $cmsPage, $request, $salesChannelContext);
 
         $page = $landingPageLoader->load($request, $salesChannelContext);
 
@@ -120,7 +120,7 @@ class LandingPageLoaderTest extends TestCase
             'metaKeywords' => $translated['keywords'],
         ];
 
-        $landingPageLoader = $this->getLandingPageLoaderWithTranslated($landingPageId, $translated);
+        $landingPageLoader = $this->getLandingPageLoaderWithTranslated($landingPageId, $translated, $request, $salesChannelContext);
 
         $page = $landingPageLoader->load($request, $salesChannelContext);
         $metaInformation = $page->getMetaInformation();
@@ -147,7 +147,7 @@ class LandingPageLoaderTest extends TestCase
             'metaKeywords' => '',
         ];
 
-        $landingPageLoader = $this->getLandingPageLoaderWithTranslated($landingPageId, $translated);
+        $landingPageLoader = $this->getLandingPageLoaderWithTranslated($landingPageId, $translated, $request, $salesChannelContext);
 
         $page = $landingPageLoader->load($request, $salesChannelContext);
         $metaInformation = $page->getMetaInformation();
@@ -158,20 +158,15 @@ class LandingPageLoaderTest extends TestCase
         static::assertSame($metaInformation->getMetaKeywords(), $expected['metaKeywords']);
     }
 
-    private function getLandingPageLoaderWithProduct(string $landingPageId, CmsPageEntity $cmsPage): LandingPageLoader
+    private function getLandingPageLoaderWithProduct(string $landingPageId, CmsPageEntity $cmsPage, Request $request, SalesChannelContext $salesChannelContext): LandingPageLoader
     {
         $landingPage = new LandingPageEntity();
         $landingPage->setId($landingPageId);
         $landingPage->setCmsPage($cmsPage);
 
-        $landingPageRouteMock = static::createStub(LandingPageRoute::class);
-        $landingPageRouteMock
-            ->method('load')
-            ->willReturn(new LandingPageRouteResponse($landingPage));
-
         return new LandingPageLoader(
             static::createStub(GenericPageLoader::class),
-            $landingPageRouteMock,
+            $this->createLandingPageRoute($landingPage, $request, $salesChannelContext),
             static::createStub(EventDispatcherInterface::class)
         );
     }
@@ -179,7 +174,7 @@ class LandingPageLoaderTest extends TestCase
     /**
      * @param array<string> $translated
      */
-    private function getLandingPageLoaderWithTranslated(string $landingPageId, array $translated): LandingPageLoader
+    private function getLandingPageLoaderWithTranslated(string $landingPageId, array $translated, Request $request, SalesChannelContext $salesChannelContext): LandingPageLoader
     {
         $productId = Uuid::randomHex();
         $product = $this->getProduct($productId);
@@ -191,16 +186,28 @@ class LandingPageLoaderTest extends TestCase
         $landingPage->setTranslated($translated);
         $landingPage->setName('INCORRECT_NAME');
 
-        $landingPageRouteMock = static::createStub(LandingPageRoute::class);
-        $landingPageRouteMock
-            ->method('load')
-            ->willReturn(new LandingPageRouteResponse($landingPage));
-
         return new LandingPageLoader(
             static::createStub(GenericPageLoader::class),
-            $landingPageRouteMock,
+            $this->createLandingPageRoute($landingPage, $request, $salesChannelContext),
             static::createStub(EventDispatcherInterface::class)
         );
+    }
+
+    private function createLandingPageRoute(LandingPageEntity $landingPage, Request $expectedRequest, SalesChannelContext $expectedContext): LandingPageRoute
+    {
+        $landingPageRoute = $this->createMock(LandingPageRoute::class);
+        $landingPageRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willReturnCallback(static function (string $landingPageId, Request $request, SalesChannelContext $context) use ($landingPage, $expectedRequest, $expectedContext): LandingPageRouteResponse {
+                static::assertSame($landingPage->getId(), $landingPageId);
+                static::assertSame($expectedRequest, $request);
+                static::assertSame($expectedContext, $context);
+
+                return new LandingPageRouteResponse($landingPage);
+            });
+
+        return $landingPageRoute;
     }
 
     private function getProduct(string $productId): SalesChannelProductEntity

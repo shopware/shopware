@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Storefront\Theme\AbstractCompilerConfiguration;
+use Shopware\Storefront\Theme\AbstractScssCompiler;
 use Shopware\Storefront\Theme\CompilerConfiguration;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
@@ -55,23 +57,7 @@ class ThemeCompilerDirectUsageTest extends TestCase
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
         $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
 
-        $this->themeCompiler = new ThemeCompiler(
-            $this->filesystem,
-            $this->tempFilesystem,
-            $this->assetFilesystem,
-            new CopyBatchInputFactory(),
-            static::getContainer()->get(ThemeFileResolver::class),
-            true,
-            $this->eventDispatcher,
-            static::getContainer()->get(ThemeFilesystemResolver::class),
-            ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
-            static::getContainer()->get(CacheInvalidator::class),
-            static::createStub(LoggerInterface::class),
-            new MD5ThemePathBuilder(),
-            static::getContainer()->get(ScssPhpCompiler::class),
-            [],
-            false
-        );
+        $this->themeCompiler = $this->createThemeCompiler(static::getContainer()->get(ScssPhpCompiler::class));
     }
 
     // ===================================
@@ -210,21 +196,29 @@ SCSS;
 
     public function testFeatureFlagVariablesAreInjected(): void
     {
-        // This should compile without errors because $sw-features is injected by ThemeCompiler
-        $config = new StorefrontPluginConfiguration('TestTheme');
+        // Stands in for a theme style file that reads the feature map: it only compiles when ThemeCompiler injects $sw-features
+        $scssCompiler = new class(static::getContainer()->get(ScssPhpCompiler::class)) extends AbstractScssCompiler {
+            public function __construct(private readonly AbstractScssCompiler $inner)
+            {
+            }
 
-        $this->themeCompiler->compileTheme(
+            public function compileString(AbstractCompilerConfiguration $config, string $scss, ?string $path = null): string
+            {
+                return $this->inner->compileString($config, $scss . '.feature-map { content: type-of($sw-features); }', $path);
+            }
+        };
+
+        $this->createThemeCompiler($scssCompiler)->compileTheme(
             $this->mockSalesChannelId,
             'test-theme-id',
-            $config,
+            new StorefrontPluginConfiguration('TestTheme'),
             new StorefrontPluginConfigurationCollection(),
             false,
             Context::createDefaultContext()
         );
 
-        // If we get here, compilation succeeded (no exception thrown)
-        // Verify theme variables were written successfully
-        static::assertTrue($this->tempFilesystem->has('theme-variables.scss'));
+        $themePrefix = (new MD5ThemePathBuilder())->assemblePath($this->mockSalesChannelId, 'test-theme-id');
+        static::assertStringContainsString('content: map', $this->filesystem->read('theme/' . $themePrefix . '/css/all.css'));
     }
 
     // ===================================
@@ -717,5 +711,26 @@ SCSS;
 
         $variablesContent = $this->tempFilesystem->read('theme-variables.scss');
         static::assertStringContainsString('$sw-asset-theme-url: \'http://localhost\'', $variablesContent);
+    }
+
+    private function createThemeCompiler(AbstractScssCompiler $scssCompiler): ThemeCompiler
+    {
+        return new ThemeCompiler(
+            $this->filesystem,
+            $this->tempFilesystem,
+            $this->assetFilesystem,
+            new CopyBatchInputFactory(),
+            static::getContainer()->get(ThemeFileResolver::class),
+            true,
+            $this->eventDispatcher,
+            static::getContainer()->get(ThemeFilesystemResolver::class),
+            ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
+            static::getContainer()->get(CacheInvalidator::class),
+            static::createStub(LoggerInterface::class),
+            new MD5ThemePathBuilder(),
+            $scssCompiler,
+            [],
+            false
+        );
     }
 }

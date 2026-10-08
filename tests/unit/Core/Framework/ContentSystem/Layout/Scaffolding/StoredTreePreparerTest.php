@@ -185,34 +185,29 @@ class StoredTreePreparerTest extends TestCase
         static::assertTrue($prepared->scaffolding->virtualRootSurvivedPrune);
     }
 
-    #[TestDox('leaves a list property untouched, its string items included')]
-    public function testPrepareDoesNotRecurseIntoListProperties(): void
+    /**
+     * @param list<string>|array<string, string> $value
+     */
+    #[DataProvider('containerPropertyProvider')]
+    #[TestDox('leaves a $_dataName property untouched, the strings inside it included')]
+    public function testPrepareLeavesAContainerPropertyUntouched(string $key, array $value): void
     {
         $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('tags', ['Product {{productId}}', 'plain'])
+            ->withProperty($key, $value)
             ->build();
 
         $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
 
-        static::assertSame(
-            ['Product {{productId}}', 'plain'],
-            $prepared[0]->property('tags')?->jsonSerialize()
-        );
+        static::assertSame($value, $prepared[0]->property($key)?->jsonSerialize());
     }
 
-    #[TestDox('leaves a map property untouched, its string values included')]
-    public function testPrepareDoesNotRecurseIntoMapProperties(): void
+    /**
+     * @return iterable<string, array{string, list<string>|array<string, string>}>
+     */
+    public static function containerPropertyProvider(): iterable
     {
-        $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('labels', ['headline' => 'Product {{productId}}'])
-            ->build();
-
-        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
-
-        static::assertSame(
-            ['headline' => 'Product {{productId}}'],
-            $prepared[0]->property('labels')?->jsonSerialize()
-        );
+        yield 'list' => ['tags', ['Product {{productId}}', 'plain']];
+        yield 'map' => ['labels', ['headline' => 'Product {{productId}}']];
     }
 
     #[TestDox('leaves the element style untouched')]
@@ -229,16 +224,29 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame($style, $prepared[0]->style);
     }
 
-    #[TestDox('leaves a token with no declared value verbatim')]
-    public function testPrepareLeavesUnknownTokenVerbatim(): void
+    /**
+     * @param array<string, string> $placeholderValues
+     */
+    #[DataProvider('unresolvedTokenProvider')]
+    #[TestDox('leaves a token verbatim when $_dataName')]
+    public function testPrepareLeavesAnUnresolvedTokenVerbatim(string $title, array $placeholderValues): void
     {
         $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('title', 'Category {{categoryId}}')
+            ->withProperty('title', $title)
             ->build();
 
-        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
+        $prepared = $this->prepare([$element], $placeholderValues);
 
-        static::assertSame('Category {{categoryId}}', $prepared[0]->property('title')?->asString());
+        static::assertSame($title, $prepared[0]->property('title')?->asString());
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, string>}>
+     */
+    public static function unresolvedTokenProvider(): iterable
+    {
+        yield 'no declared value matches it' => ['Category {{categoryId}}', ['productId' => 'prod-1']];
+        yield 'the placeholder values map is empty' => ['Product {{productId}}', []];
     }
 
     #[TestDox('records that the virtual root did not survive a prune that cut it away')]
@@ -285,33 +293,48 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame([], $prepared);
     }
 
-    #[TestDox('leaves a token verbatim when the placeholder values map is empty')]
-    public function testPrepareLeavesATokenVerbatimWithAnEmptyPlaceholderValuesMap(): void
+    /**
+     * @param array<string, string> $map
+     * @param non-empty-list<string> $languageIdChain
+     */
+    #[DataProvider('chainSelectionProvider')]
+    #[TestDox('reduces a translatable map to $_dataName')]
+    public function testPrepareSelectsTheChainLanguageEntryOfAStringMap(array $map, array $languageIdChain, string $expected): void
     {
         $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('title', 'Product {{productId}}')
+            ->withProperty('headline', $map)
             ->build();
 
-        $prepared = $this->prepare([$element], []);
+        $prepared = $this->prepare([$element], [], $languageIdChain);
 
-        static::assertSame('Product {{productId}}', $prepared[0]->property('title')?->asString());
+        static::assertSame($expected, $prepared[0]->property('headline')?->asString());
     }
 
-    #[TestDox('replaces a translatable map with the value of the first chain language the map carries')]
-    public function testPrepareSelectsTheFirstChainLanguageTheMapCarries(): void
+    /**
+     * @return iterable<string, array{array<string, string>, non-empty-list<string>, string}>
+     */
+    public static function chainSelectionProvider(): iterable
     {
         // The anchor heads the map and the selected entry trails it, so map order cannot produce the answer.
-        $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('headline', [
+        yield 'the entry of the first chain language it carries' => [
+            [
                 Defaults::LANGUAGE_SYSTEM => 'anchor copy',
                 'language-parent' => 'parent copy',
                 'language-child' => 'child copy',
-            ])
-            ->build();
+            ],
+            ['language-child', 'language-parent', Defaults::LANGUAGE_SYSTEM],
+            'child copy',
+        ];
 
-        $prepared = $this->prepare([$element], [], ['language-child', 'language-parent', Defaults::LANGUAGE_SYSTEM]);
-
-        static::assertSame('child copy', $prepared[0]->property('headline')?->asString());
+        // The dangling entry heads the map, so an implementation reading the map rather than the chain takes it.
+        yield 'the anchor entry when a language outside the chain heads the map' => [
+            [
+                'language-dangling' => 'ghost copy',
+                Defaults::LANGUAGE_SYSTEM => 'anchor copy',
+            ],
+            [Defaults::LANGUAGE_SYSTEM],
+            'anchor copy',
+        ];
     }
 
     #[TestDox('walks the chain to the anchor entry when no earlier language is in the map')]
@@ -322,22 +345,6 @@ class StoredTreePreparerTest extends TestCase
             ->build();
 
         $prepared = $this->prepare([$element], [], ['language-child', 'language-parent', Defaults::LANGUAGE_SYSTEM]);
-
-        static::assertSame('anchor copy', $prepared[0]->property('headline')?->asString());
-    }
-
-    #[TestDox('never selects a map entry whose language is absent from the chain')]
-    public function testPrepareSkipsALanguageAbsentFromTheChain(): void
-    {
-        // The dangling entry heads the map, so an implementation reading the map rather than the chain takes it.
-        $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('headline', [
-                'language-dangling' => 'ghost copy',
-                Defaults::LANGUAGE_SYSTEM => 'anchor copy',
-            ])
-            ->build();
-
-        $prepared = $this->prepare([$element], []);
 
         static::assertSame('anchor copy', $prepared[0]->property('headline')?->asString());
     }
@@ -373,6 +380,56 @@ class StoredTreePreparerTest extends TestCase
         yield 'translatable boolean holding false' => ['visible', [Defaults::LANGUAGE_SYSTEM => true, 'language-child' => false], false];
 
         yield 'translatable number holding an integer entry' => ['ratio', [Defaults::LANGUAGE_SYSTEM => 1.5, 'language-child' => 2], 2];
+    }
+
+    #[TestDox('reduces a registered slot child under a parent whose component no type declares, leaving the parent whole')]
+    public function testPrepareReducesASlotChildUnderAnUnregisteredParent(): void
+    {
+        $child = StoredElementBuilder::create('text', 'child-id')
+            ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'anchor copy', 'language-child' => 'child copy'])
+            ->build();
+        $parent = StoredElementBuilder::create('section', 'root-id')
+            ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'parent anchor copy', 'language-child' => 'parent child copy'])
+            ->withSlot('default', [$child])
+            ->build();
+
+        $prepared = $this->prepare([$parent], [], ['language-child', Defaults::LANGUAGE_SYSTEM]);
+
+        static::assertSame('child copy', $prepared[0]->slots['default'][0]->property('headline')?->asString());
+        static::assertSame(
+            [Defaults::LANGUAGE_SYSTEM => 'parent anchor copy', 'language-child' => 'parent child copy'],
+            $prepared[0]->property('headline')?->jsonSerialize()
+        );
+    }
+
+    #[TestDox('carries the reduced and substituted values in the pre-prune forest, discarded subtree included')]
+    public function testPrepareCarriesPreparedValuesInTheFullModePrePruneForest(): void
+    {
+        $root = StoredElementBuilder::create('section', 'root-id')
+            ->withSlot('default', [
+                StoredElementBuilder::create('text', 'target-id')
+                    ->withConsumer('product', ContextType::Single)
+                    ->build(),
+                StoredElementBuilder::create('text', 'sibling-id')
+                    ->withProperty('title', 'Product {{productId}}')
+                    ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'anchor copy', 'language-child' => 'child copy'])
+                    ->build(),
+            ])
+            ->build();
+        $specification = new RenderingSpecification([], PlaceholderValues::from(['productId' => 'prod-1']), new Request(), 'target-id');
+
+        $prepared = $this->preparer()->prepare(
+            [$root],
+            $specification,
+            RenderingMode::FULL,
+            $this->salesChannelContext(['language-child', Defaults::LANGUAGE_SYSTEM])
+        );
+
+        static::assertSame(['root-id', 'target-id'], $this->collectIds($prepared->tree));
+        $discardedSibling = $prepared->prePruneForest[0]->slots['default'][1];
+        static::assertSame('sibling-id', $discardedSibling->id);
+        static::assertSame('Product prod-1', $discardedSibling->property('title')?->asString());
+        static::assertSame('child copy', $discardedSibling->property('headline')?->asString());
     }
 
     #[TestDox('leaves a declared non-translatable property whole, a language-map-shaped value included')]
@@ -495,8 +552,12 @@ class StoredTreePreparerTest extends TestCase
     private function preparer(): StoredTreePreparer
     {
         $serializerLocator = static::createStub(ServiceLocator::class);
-        $serializerLocator->method('has')->willReturn(true);
-        $serializerLocator->method('get')->willReturn(new NavigationLoaderConfigSerializer());
+        $serializerLocator->method('has')->willReturnCallback(static fn (string $id): bool => $id === 'test_literal');
+        $serializerLocator->method('get')->willReturnCallback(
+            static fn (string $id): NavigationLoaderConfigSerializer => $id === 'test_literal'
+                ? new NavigationLoaderConfigSerializer()
+                : throw new \LogicException(\sprintf('Unexpected serializer id "%s"', $id))
+        );
 
         $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([
@@ -504,8 +565,12 @@ class StoredTreePreparerTest extends TestCase
         ]));
 
         $loaderLocator = static::createStub(ServiceLocator::class);
-        $loaderLocator->method('has')->willReturn(true);
-        $loaderLocator->method('get')->willReturn($loader);
+        $loaderLocator->method('has')->willReturnCallback(static fn (string $id): bool => $id === 'test_literal');
+        $loaderLocator->method('get')->willReturnCallback(
+            static fn (string $id): AbstractContentDataLoader => $id === 'test_literal'
+                ? $loader
+                : throw new \LogicException(\sprintf('Unexpected loader id "%s"', $id))
+        );
 
         return new StoredTreePreparer(
             $this->typeRegistry(),

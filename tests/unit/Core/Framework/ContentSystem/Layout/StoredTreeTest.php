@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -130,14 +131,6 @@ class StoredTreeTest extends TestCase
         static::assertSame($this->serialize($tree), $this->serialize($tree->remove('absent')));
     }
 
-    #[TestDox('insertAtRoot appends when no index is given')]
-    public function testInsertAtRootAppendsWithoutAnIndex(): void
-    {
-        $inserted = $this->tree()->insertAtRoot(null, [$this->element('root-3')]);
-
-        static::assertSame(['root-1', 'root-2', 'root-3'], $this->rootIds($inserted));
-    }
-
     #[TestDox('insertAtRoot places the nodes at the given index')]
     public function testInsertAtRootPlacesNodesAtTheGivenIndex(): void
     {
@@ -146,24 +139,26 @@ class StoredTreeTest extends TestCase
         static::assertSame(['root-0', 'root-1', 'root-2'], $this->rootIds($inserted));
     }
 
-    #[TestDox('insertAtRoot appends when the index is beyond the end of the root list')]
-    public function testInsertAtRootAppendsWhenTheIndexIsOutOfRange(): void
+    #[DataProvider('appendingIndexProvider')]
+    #[TestDox('insertAtRoot appends when the index is $_dataName')]
+    public function testInsertAtRootAppends(?int $index): void
     {
-        $inserted = $this->tree()->insertAtRoot(99, [$this->element('root-3')]);
+        $inserted = $this->tree()->insertAtRoot($index, [$this->element('root-3')]);
 
         static::assertSame(['root-1', 'root-2', 'root-3'], $this->rootIds($inserted));
     }
 
-    #[TestDox('insertAtRoot appends when the index is negative')]
-    public function testInsertAtRootAppendsWhenTheIndexIsNegative(): void
+    /**
+     * @return iterable<string, array{int|null}>
+     */
+    public static function appendingIndexProvider(): iterable
     {
-        // splice()'s compound append guard ORs in `$index < 0`; every other insertAtRoot test uses
-        // null or an out-of-range positive index, so this operand alone discriminates it. Deleting it would send a
-        // negative index down the array_slice branch instead, inserting before the last element rather than
-        // appending.
-        $inserted = $this->tree()->insertAtRoot(-1, [$this->element('root-3')]);
-
-        static::assertSame(['root-1', 'root-2', 'root-3'], $this->rootIds($inserted));
+        yield 'absent' => [null];
+        yield 'beyond the end of the root list' => [99];
+        // splice()'s compound append guard ORs in `$index < 0`, so this operand alone discriminates it.
+        // Deleting it would send a negative index down the array_slice branch instead, inserting before the
+        // last element rather than appending.
+        yield 'negative' => [-1];
     }
 
     #[TestDox('insertIntoSlot places the nodes inside a slot of a nested parent')]

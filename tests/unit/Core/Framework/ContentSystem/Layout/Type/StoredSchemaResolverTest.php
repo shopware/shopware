@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Type;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -238,8 +239,12 @@ class StoredSchemaResolverTest extends TestCase
         ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
     }
 
-    #[TestDox('skips an integer-like binding token, which no stored key can be')]
-    public function testResolveSkipsIntegerLikeToken(): void
+    /**
+     * @param array<string, mixed> $loaderConfig
+     */
+    #[DataProvider('unstoredBindingTokenProvider')]
+    #[TestDox('skips a binding token that names no stored key: $_dataName')]
+    public function testResolveSkipsABindingTokenThatNamesNoStoredKey(array $loaderConfig): void
     {
         $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Media:Image')
             ->reference('media', MediaEntity::class, required: true)
@@ -250,7 +255,7 @@ class StoredSchemaResolverTest extends TestCase
             'media-picker',
             'Sw:Media:Image',
             'Media Picker',
-            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => '42'])],
+            ['media' => new LoaderBinding('entity', $loaderConfig)],
             [],
             'core',
         );
@@ -260,53 +265,47 @@ class StoredSchemaResolverTest extends TestCase
         ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
     }
 
-    #[TestDox('skips a binding token that is absent from the config and has no key default, which names no stored key')]
-    public function testResolveSkipsAbsentBindingTokenWithoutKeyDefault(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function unstoredBindingTokenProvider(): iterable
     {
-        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Media:Image')
-            ->reference('media', MediaEntity::class, required: true)
-            ->primitive('height', 'string', default: 'auto')
-            ->build();
+        yield 'an integer-like token, which no stored key can be' => [['entity' => 'media', 'property' => '42']];
+
+        yield 'a negative integer-like token, which no stored key can be' => [['entity' => 'media', 'property' => '-1']];
 
         // 'property' is declared hasDefault: false, so an omitted config value leaves the token null.
         // Deleting the `!\is_string($token)` operand from StoredSchemaResolver::namesStoredKey() would let
-        // this null token pass and publish an entry under the coerced key '', which the assertion below
-        // would then fail to match.
-        $specification = new BindingSpecification(
-            'media-picker',
-            'Sw:Media:Image',
-            'Media Picker',
-            ['media' => new LoaderBinding('entity', ['entity' => 'media'])],
-            [],
-            'core',
-        );
+        // this null token pass and publish an entry under the coerced key '', which the assertion would
+        // then fail to match.
+        yield 'an absent token without a key default' => [['entity' => 'media']];
 
-        static::assertSame([
-            'height' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto'],
-        ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
+        // Deleting the `$token === ''` operand from StoredSchemaResolver::namesStoredKey() would let this
+        // empty token pass and publish an entry under the coerced key '', which the assertion would
+        // then fail to match.
+        yield 'an empty token' => [['entity' => 'media', 'property' => '']];
     }
 
-    #[TestDox('skips an empty binding token, which names no stored key')]
-    public function testResolveSkipsEmptyToken(): void
+    #[TestDox('ignores a config key that is not a property reference, even when its value could name a stored key')]
+    public function testResolveIgnoresNonPropertyReferenceConfigKey(): void
     {
         $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Media:Image')
             ->reference('media', MediaEntity::class, required: true)
             ->primitive('height', 'string', default: 'auto')
             ->build();
 
-        // Deleting the `$token === ''` operand from StoredSchemaResolver::namesStoredKey() would let this
-        // empty token pass and publish an entry under the coerced key '', which the assertion below would
-        // then fail to match.
+        // The entityName key's value 'product' passes every token check a property reference key's value would.
         $specification = new BindingSpecification(
             'media-picker',
             'Sw:Media:Image',
             'Media Picker',
-            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => ''])],
+            ['media' => new LoaderBinding('entity', ['entity' => 'product', 'property' => 'mediaId'])],
             [],
             'core',
         );
 
         static::assertSame([
+            'mediaId' => ['kind' => 'config', 'type' => 'string', 'required' => true],
             'height' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto'],
         ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
     }

@@ -108,7 +108,7 @@ class StoredElementTest extends TestCase
     #[TestDox('serializes a language map with every entry it holds')]
     public function testJsonSerializeEmitsALanguageMapInFull(): void
     {
-        $childLanguageId = Uuid::randomHex();
+        $childLanguageId = Uuid::fromStringToHex('child-language');
         $element = StoredElementBuilder::create('core:text', 'element-1')
             ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'anchor copy', $childLanguageId => 'child copy'])
             ->build();

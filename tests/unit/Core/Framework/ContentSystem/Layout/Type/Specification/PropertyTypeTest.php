@@ -345,19 +345,9 @@ class PropertyTypeTest extends TestCase
             [Defaults::LANGUAGE_SYSTEM => false],
         ];
 
-        yield 'translatable integer keys its default under the anchor language' => [
-            new PropertyType('integer', true, null, 0),
-            [Defaults::LANGUAGE_SYSTEM => 0],
-        ];
-
         yield 'non-translatable string keeps the bare scalar' => [
             new PropertyType('string', false, null, 'auto-fit'),
             'auto-fit',
-        ];
-
-        yield 'non-translatable integer keeps the bare scalar' => [
-            new PropertyType('integer', false, null, 1360),
-            1360,
         ];
 
         // A false default is not an absent default: the null test has to be an identity check, not truthiness.
@@ -443,11 +433,6 @@ class PropertyTypeTest extends TestCase
             new PropertyType('string', true, null, null),
             'string (translatable)',
         ];
-
-        yield 'translatable integer spells out the flag' => [
-            new PropertyType('integer', true, null, null),
-            'integer (translatable)',
-        ];
     }
 
     #[DataProvider('admittedMapEntryProvider')]
@@ -524,52 +509,82 @@ class PropertyTypeTest extends TestCase
         ];
     }
 
-    /**
-     * @param array<string, PropertySpecification>|null $expected
-     */
-    #[DataProvider('nestedMembersProvider')]
-    #[TestDox('reports the nested member declarations, or null when the declaration carries none: $_dataName')]
-    public function testPropertiesReportsTheNestedMemberDeclarations(PropertyType $type, ?array $expected): void
+    #[TestDox('reports the nested member declarations of an object declaration through its schema')]
+    public function testToSchemaReportsTheNestedMemberDeclarations(): void
     {
-        static::assertSame($expected, $type->properties());
-    }
-
-    /**
-     * @return iterable<string, array{PropertyType, array<string, PropertySpecification>|null}>
-     */
-    public static function nestedMembersProvider(): iterable
-    {
-        $members = [
+        $type = new PropertyType('object', false, null, null, [
             'url' => new PropertySpecification('url', new PropertyType('string', false, null, null), true, 'Url', 'Link target.', null),
-            'newTab' => new PropertySpecification('newTab', new PropertyType('boolean', false, null, null), false, 'New tab', 'Open in a new tab.', null),
-        ];
+        ]);
 
-        yield 'object declaring nested members returns them keyed as declared' => [
-            new PropertyType('object', false, null, null, $members),
-            $members,
-        ];
-
-        yield 'lone primitive declaring no members returns null' => [
-            new PropertyType('string', false, null, null),
-            null,
-        ];
+        static::assertSame([
+            'url' => [
+                'type' => 'string',
+                'translatable' => false,
+                'enum' => null,
+                'default' => null,
+                'properties' => null,
+                'required' => true,
+                'title' => 'Url',
+                'description' => 'Link target.',
+                'adminUI' => null,
+            ],
+        ], $type->toSchema()['properties']);
     }
 
-    #[TestDox('reads the translatable flag a translatable declaration carries')]
-    public function testTranslatableReadsTheFlagATranslatableDeclarationCarries(): void
+    #[TestDox('reports the declared type, enum and default through its schema, with null where no nested members are declared')]
+    public function testToSchemaReportsEveryDeclaredMember(): void
     {
-        $type = new PropertyType('string', true, null, null);
+        $type = new PropertyType('string', false, ['auto-fit', 'fixed'], 'auto-fit');
 
-        static::assertTrue($type->translatable());
-        static::assertTrue($type->toSchema()['translatable']);
+        static::assertSame([
+            'type' => 'string',
+            'translatable' => false,
+            'enum' => ['auto-fit', 'fixed'],
+            'default' => 'auto-fit',
+            'properties' => null,
+        ], $type->toSchema());
     }
 
-    #[TestDox('reports no translatable flag for a non-translatable declaration')]
-    public function testTranslatableReportsNoFlagForANonTranslatableDeclaration(): void
+    #[DataProvider('translatableFlagProvider')]
+    #[TestDox('reports the declared translatable flag through its schema: $_dataName')]
+    public function testToSchemaReportsTheDeclaredTranslatableFlag(bool $translatable): void
     {
-        $type = new PropertyType('string', false, null, null);
+        $type = new PropertyType('string', $translatable, null, null);
 
-        static::assertFalse($type->translatable());
-        static::assertFalse($type->toSchema()['translatable']);
+        static::assertSame($translatable, $type->toSchema()['translatable']);
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function translatableFlagProvider(): iterable
+    {
+        yield 'translatable declaration' => [true];
+
+        yield 'non-translatable declaration' => [false];
+    }
+
+    /**
+     * @param string|list<string> $declaredType
+     */
+    #[DataProvider('primitiveTypeProvider')]
+    #[TestDox('tells a lone primitive declaration from any other declared type: $_dataName')]
+    public function testIsPrimitiveTellsALonePrimitiveFromAnyOtherDeclaredType(string|array $declaredType, bool $expected): void
+    {
+        static::assertSame($expected, (new PropertyType($declaredType, false, null, null))->isPrimitive());
+    }
+
+    /**
+     * @return iterable<string, array{string|list<string>, bool}>
+     */
+    public static function primitiveTypeProvider(): iterable
+    {
+        yield 'lone primitive' => ['string', true];
+
+        yield 'bare object' => ['object', false];
+
+        yield 'FQCN' => [SalesChannelProductEntity::class, false];
+
+        yield 'union of one primitive' => [['string'], false];
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Preset\Loader;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
@@ -30,16 +31,56 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
         static::assertSame([], $this->loader($connection, 'dev')->load());
     }
 
-    #[TestDox('builds a compiled specification from each active-app row in prod')]
-    public function testProdBuildsSpecsFromRows(): void
+    #[TestWith(['prod'])]
+    #[TestWith(['test'])]
+    #[TestWith(['staging'])]
+    #[TestDox('builds a compiled specification from each active-app row in the $environment environment')]
+    public function testNonDevBuildsSpecsFromRows(string $environment): void
     {
+        $layout = [['component' => 'text']];
+        $compiled = [['id' => 'compiled-element']];
+        $compiler = static::createStub(LayoutPresetPayloadCompiler::class);
+        $compiler->method('compile')->willReturnCallback(
+            static fn (array $received): array => $received === $layout ? $compiled : throw new \LogicException('Unexpected layout passed to the compiler.')
+        );
+
         $presets = $this->loader($this->connectionWithRows([
-            ['name' => 'MyApp:Hero', 'schema' => '{"name":"Hero","description":"A hero.","icon":"regular-star","layout":[]}', 'app_name' => 'MyApp'],
-        ]), 'prod')->load();
+            ['name' => 'MyApp:Hero', 'schema' => '{"name":"Hero","description":"A hero.","icon":"regular-star","layout":[{"component":"text"}]}', 'app_name' => 'MyApp'],
+        ]), $environment, $compiler)->load();
 
         static::assertCount(1, $presets);
         static::assertSame('MyApp:Hero', $presets[0]->id);
         static::assertSame('Hero', $presets[0]->name);
+        static::assertSame('A hero.', $presets[0]->description);
+        static::assertSame('regular-star', $presets[0]->icon);
+        static::assertSame($compiled, $presets[0]->payload);
+    }
+
+    #[TestDox('returns the specifications of all rows in row order')]
+    public function testLoadsEveryRowInOrder(): void
+    {
+        $presets = $this->loader($this->connectionWithRows([
+            ['name' => 'MyApp:First', 'schema' => '{"name":"First","description":"First preset.","icon":"regular-star","layout":[]}', 'app_name' => 'MyApp'],
+            ['name' => 'MyApp:Second', 'schema' => '{"name":"Second","description":"Second preset.","icon":"regular-star","layout":[]}', 'app_name' => 'MyApp'],
+        ]), 'prod')->load();
+
+        static::assertSame(['MyApp:First', 'MyApp:Second'], array_map(static fn ($preset): string => $preset->id, $presets));
+    }
+
+    #[TestDox('names an unnamed row "<unknown>" in the load failure')]
+    public function testUnnamedRowFailureNamesItUnknown(): void
+    {
+        $loader = $this->loader($this->connectionWithRows([
+            ['name' => '', 'schema' => '{ not json', 'app_name' => 'MyApp'],
+        ]), 'prod');
+
+        try {
+            $loader->load();
+            static::fail('Expected the load to abort.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::LAYOUT_PRESET_LOAD_FAILED, $e->getErrorCode());
+            static::assertSame('Failed to load layout preset from "app:MyApp:<unknown>": Invalid JSON data: Syntax error', $e->getMessage());
+        }
     }
 
     #[TestDox('aborts the load on a row whose stored data is not valid JSON')]
@@ -89,6 +130,24 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
         } catch (ContentSystemException $e) {
             static::assertSame(ContentSystemException::LAYOUT_PRESETS_INVALID, $e->getErrorCode());
             static::assertStringContainsString('Layout preset validation failed: ', $e->getMessage());
+            static::assertStringContainsString('MyApp:Bad', $e->getMessage());
+            static::assertStringNotContainsString('MyApp:Good', $e->getMessage());
+        }
+    }
+
+    #[TestDox('aborts the load on an invalid row that follows a valid one, without naming the valid one')]
+    public function testInvalidRowAfterValidRowAbortsLoad(): void
+    {
+        $loader = $this->loader($this->connectionWithRows([
+            ['name' => 'MyApp:Good', 'schema' => '{"name":"Good","description":"Good preset.","icon":"regular-star","layout":[]}', 'app_name' => 'MyApp'],
+            ['name' => 'MyApp:Bad', 'schema' => '{"layout":[]}', 'app_name' => 'MyApp'],
+        ]), 'prod');
+
+        try {
+            $loader->load();
+            static::fail('Expected the load to abort.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::LAYOUT_PRESETS_INVALID, $e->getErrorCode());
             static::assertStringContainsString('MyApp:Bad', $e->getMessage());
             static::assertStringNotContainsString('MyApp:Good', $e->getMessage());
         }

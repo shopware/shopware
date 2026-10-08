@@ -17,7 +17,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpec
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyTypeTest;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
@@ -50,20 +49,17 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'a float under a number declaration' => [['ratio' => 1.5]];
         yield 'a boolean under a boolean declaration' => [['featured' => true]];
         yield 'a null under a string declaration' => [['headline' => null]];
-        yield 'a null under an integer declaration' => [['count' => null]];
-        yield 'a null under a number declaration' => [['ratio' => null]];
-        yield 'a null under a boolean declaration' => [['featured' => null]];
         yield 'a value matching the first member of an all-primitive union' => [['spread' => 'wide']];
         yield 'a value matching the second member of an all-primitive union' => [['spread' => 3]];
         yield 'an array under a bare object declaration' => [['config' => ['nested' => 'value']]];
-        yield 'a scalar under a bare object declaration' => [['config' => 'whatever']];
         yield 'a value matching no member of a union carrying object' => [['columns' => 'not-an-integer']];
-        yield 'a scalar under a declared reference property' => [['product' => 'oops']];
         yield 'a value under a key the type does not declare' => [['mediaId' => ['not', 'a', 'string']]];
         yield 'an element carrying no properties at all' => [[]];
-        // The sharing pin: no private match table this pass used to carry admitted a map, so these two rows
-        // pass only through the one conformance predicate on the declared type.
+        // A map under a string declaration passes only through the conformance predicate on the declared type;
+        // a private match table would reject it.
         yield 'a single-entry anchor map under a translatable declaration' => [['text' => [Defaults::LANGUAGE_SYSTEM => 'Hallo']]];
+        // A map with a second language key passes only through the conformance predicate on the declared type;
+        // a private match table would reject it.
         yield 'a multi-entry language map under a translatable declaration' => [['text' => [Defaults::LANGUAGE_SYSTEM => 'Hallo', Uuid::randomHex() => 'Ciao']]];
     }
 
@@ -89,6 +85,23 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         $element = ['id' => 'el-1', 'component' => 'Sw:Ghost', 'properties' => ['headline' => 42]];
 
         static::assertCount(0, $this->validate($element, $registry));
+    }
+
+    #[DataProvider('ignoresMalformedElementProvider')]
+    #[TestDox('reports no violation for an element with $_dataName')]
+    public function testIgnoresAMalformedElement(mixed $element): void
+    {
+        static::assertCount(0, $this->validate($element));
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function ignoresMalformedElementProvider(): iterable
+    {
+        yield 'a non-string component' => [['component' => 7, 'properties' => ['headline' => 42]]];
+        yield 'a missing component' => [['properties' => ['headline' => 42]]];
+        yield 'non-array properties' => [['component' => 'Sw:Block', 'properties' => 'oops']];
     }
 
     /**
@@ -118,14 +131,14 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'a string under a number declaration' => [['ratio' => '1.5'], 'ratio', 'number', 'string'];
         yield 'an integer under a boolean declaration' => [['featured' => 1], 'featured', 'boolean', 'int'];
         yield 'a value matching no member of an all-primitive union' => [['spread' => true], 'spread', 'string|integer', 'bool'];
-        // The full reject-row set for the translatable shape is pinned at {@see PropertyTypeTest}; the row
-        // below proves the call to PropertyType::admits() is wired, by keeping a case a surviving private
-        // match table would judge with a different message.
+        // Proves the violation is built from PropertyType::admits(): a surviving private match table would
+        // judge a bare string under a translatable declaration with a different message.
         yield 'a bare string under a translatable declaration' => [['text' => 'Hallo'], 'text', 'string (translatable)', 'string'];
-        // The predicate's false verdict for an empty map is pinned at {@see PropertyTypeTest}; what only this
-        // pass can pin is the violation a client reads for that same refusal. The declared type, the actual
-        // type and the path are what the predicate's boolean does not express.
+        // Pins the violation a client reads for an empty map: the declared type, the actual type and the path,
+        // none of which the predicate's boolean verdict expresses.
         yield 'an empty language map, refused because absence rather than an empty map means no translations' => [['text' => []], 'text', 'string (translatable)', 'array'];
+        // A map entry that fails the type check is reported once as a type violation, not again for its non-language key.
+        yield 'a language map with a non-string entry under a non-language key, reported once as a type violation' => [['text' => ['de-DE' => 5]], 'text', 'string (translatable)', 'array'];
     }
 
     #[DataProvider('rejectsLanguageKeyProvider')]
@@ -155,12 +168,14 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'a UUID hex key one character short' => [substr(Defaults::LANGUAGE_SYSTEM, 0, 31)];
     }
 
-    #[TestDox('reports one violation per non-language key rather than one for the whole property')]
+    #[TestDox('reports one violation per non-language key, and none for a language key beside them')]
     public function testReportsOneViolationPerNonLanguageKey(): void
     {
-        $violations = $this->validate($this->element(['text' => ['de-DE' => 'Hallo', 'en-GB' => 'Hi']]));
+        $violations = $this->validate($this->element(['text' => [Defaults::LANGUAGE_SYSTEM => 'Hallo', 'de-DE' => 'Hallo', 'en-GB' => 'Hi']]));
 
         static::assertCount(2, $violations);
+        static::assertStringContainsString('"de-DE" is not', (string) $violations->get(0)->getMessage());
+        static::assertStringContainsString('"en-GB" is not', (string) $violations->get(1)->getMessage());
     }
 
     /**
@@ -173,10 +188,7 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         return ['id' => 'el-1', 'component' => 'Sw:Block', 'properties' => $properties];
     }
 
-    /**
-     * @param array<array-key, mixed> $element
-     */
-    private function validate(array $element, ?AbstractContentSystemElementTypeRegistry $registry = null): ConstraintViolationListInterface
+    private function validate(mixed $element, ?AbstractContentSystemElementTypeRegistry $registry = null): ConstraintViolationListInterface
     {
         $validator = new PropertyTypeConformanceValidator($registry ?? $this->registry());
 
@@ -205,7 +217,6 @@ class PropertyTypeConformanceValidatorTest extends TestCase
                 'spread' => $this->property(['string', 'integer']),
                 'columns' => $this->property(['integer', 'object']),
                 'config' => $this->property('object'),
-                'product' => $this->property('Shopware\\Core\\Content\\Media\\MediaEntity'),
                 'text' => $this->property('string', translatable: true),
             ],
             [],

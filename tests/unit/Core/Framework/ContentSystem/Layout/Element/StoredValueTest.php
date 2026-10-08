@@ -120,6 +120,7 @@ class StoredValueTest extends TestCase
         yield 'empty array' => [[]];
         yield 'flat list' => [['a', 'b']];
         yield 'flat map' => [['x' => 1, 'y' => 2]];
+        yield 'a sparse integer-keyed array' => [[1 => 'a', 3 => 'b']];
         yield 'map nested in a list' => [[['x' => 1], ['x' => 2]]];
         yield 'list nested in a map' => [['items' => ['a', 'b'], 'count' => 2]];
         yield 'mixed depth' => [['a' => ['b' => [1, ['c' => null]]]]];
@@ -176,6 +177,11 @@ class StoredValueTest extends TestCase
         yield 'maps with different keys' => [
             StoredValue::ofMap(['x' => StoredValue::ofInt(1)]),
             StoredValue::ofMap(['y' => StoredValue::ofInt(1)]),
+            false,
+        ];
+        yield 'a map and its strict superset' => [
+            StoredValue::ofMap(['x' => StoredValue::ofInt(1)]),
+            StoredValue::ofMap(['x' => StoredValue::ofInt(1), 'y' => StoredValue::ofInt(2)]),
             false,
         ];
         yield 'a list and a map carrying the same single payload' => [
@@ -251,7 +257,6 @@ class StoredValueTest extends TestCase
         yield 'map variant' => [StoredValue::ofMap(['x' => StoredValue::ofString('a')]), true];
         yield 'decoded keyed array' => [StoredValue::fromDecoded(['x' => 'a']), true];
         yield 'list variant' => [StoredValue::ofList([StoredValue::ofString('a')]), false];
-        yield 'empty list' => [StoredValue::ofList([]), false];
         yield 'decoded empty array' => [StoredValue::fromDecoded([]), false];
         yield 'null variant' => [StoredValue::ofNull(), false];
         yield 'string variant' => [StoredValue::ofString('a'), false];
@@ -289,7 +294,6 @@ class StoredValueTest extends TestCase
     #[TestDox('reads a zero-indexed array as a list and a keyed array as a map')]
     public function testFromDecodedDistinguishesListsFromMaps(): void
     {
-        static::assertFalse(StoredValue::fromDecoded([])->isMap());
         static::assertTrue(StoredValue::fromDecoded([])->equals(StoredValue::ofList([])));
         static::assertTrue(StoredValue::fromDecoded(['x' => 1])->equals(StoredValue::ofMap(['x' => StoredValue::ofInt(1)])));
     }

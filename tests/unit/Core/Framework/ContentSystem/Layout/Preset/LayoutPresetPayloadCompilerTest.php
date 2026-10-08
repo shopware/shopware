@@ -222,6 +222,46 @@ class LayoutPresetPayloadCompilerTest extends TestCase
         static::assertSame(['text' => null], $captured[0]['properties']);
     }
 
+    #[TestDox('adds no null entry for a translatable property the preset does not author')]
+    public function testCompileAddsNoNullEntryForAnUnauthoredTranslatableProperty(): void
+    {
+        $captured = [];
+        $compiler = $this->createCompiler($this->capturingDecoder($captured), $this->textRegistry());
+
+        $compiler->compile([
+            ['component' => 'Sw:Content:Text', 'properties' => ['alignment' => 'left']],
+        ]);
+
+        static::assertSame(['alignment' => 'left'], $captured[0]['properties']);
+    }
+
+    #[TestDox('keeps non-array properties of a registered component verbatim for the decoder to reject')]
+    public function testCompileKeepsInvalidPropertiesVerbatim(): void
+    {
+        $captured = [];
+        $compiler = $this->createCompiler($this->capturingDecoder($captured), $this->textRegistry());
+
+        $compiler->compile([
+            ['component' => 'Sw:Content:Text', 'properties' => 'nope'],
+        ]);
+
+        static::assertSame('nope', $captured[0]['properties']);
+    }
+
+    #[TestDox('keeps a non-string component verbatim for the decoder to reject')]
+    public function testCompileKeepsAnInvalidComponentVerbatim(): void
+    {
+        $captured = [];
+        $compiler = $this->createCompiler($this->capturingDecoder($captured), $this->textRegistry());
+
+        $compiler->compile([
+            ['component' => 42, 'properties' => ['text' => 'x']],
+        ]);
+
+        static::assertSame(42, $captured[0]['component']);
+        static::assertSame(['text' => 'x'], $captured[0]['properties']);
+    }
+
     #[TestDox('re-encodes the decoded elements into the served payload')]
     public function testCompileEncodesDecodedElements(): void
     {

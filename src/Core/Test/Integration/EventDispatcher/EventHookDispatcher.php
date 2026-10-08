@@ -75,8 +75,7 @@ final class EventHookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * Hooks every method the subscriber subscribes to. Priorities are ignored: hooks always run after the
-     * dispatcher's own listeners.
+     * Hooks every subscribed method; priorities are ignored, hooks always run after the listeners.
      */
     public function subscribe(EventSubscriberInterface $subscriber): void
     {
@@ -114,14 +113,13 @@ final class EventHookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * The compiled container registers listeners as [service closure, method] arrays, which only become callable
-     * once the closure is resolved, so the parameter is widened like Symfony's own dispatcher does.
+     * Compiled listeners arrive as [service closure, method] arrays, which Symfony's own dispatcher accepts too.
      *
      * @param callable|array{0: object, 1: string} $listener
      */
     public function addListener(string $eventName, callable|array $listener, int $priority = 0): void
     {
-        /** @var callable $listener the interface declares callable; every dispatcher behind it accepts the array form */
+        /** @var callable $listener the interface only declares callable */
         $this->inner->addListener($eventName, $listener, $priority);
     }
 

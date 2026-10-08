@@ -10,11 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 
 /**
- * Clears the hooks of the test-environment event dispatcher before each test. Registered by the test bootstrap.
- *
- * It reacts to PreparationStarted, which PHPUnit emits for every test before setUp(), because Finished is only
- * emitted for tests that got past preparation: a hook registered in setUp() before a skip or a preparation error
- * would otherwise stay on the dispatcher for the next test.
+ * Clears the event hooks before each test, on PreparationStarted: Finished is not emitted for tests that skip or
+ * fail in setUp(), which would leave their hooks behind. Registered by the test bootstrap.
  *
  * @internal
  */

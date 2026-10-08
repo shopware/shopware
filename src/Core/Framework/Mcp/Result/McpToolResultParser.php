@@ -60,6 +60,8 @@ class McpToolResultParser
         $note = \is_string($meta['note'] ?? null) ? $meta['note'] : null;
         unset($meta['note']);
         $expiresAt = \is_string($meta['expiresAt'] ?? null) ? \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $meta['expiresAt']) : false;
+        // Promoted to the result's expiry, which the renderer sends as `shopware/expiresAt`.
+        unset($meta['expiresAt']);
 
         return new McpToolResult(
             data: $data,

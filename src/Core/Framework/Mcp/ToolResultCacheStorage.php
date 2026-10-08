@@ -82,17 +82,24 @@ class ToolResultCacheStorage
     }
 
     /**
-     * Returns the stored result for $id if it belongs to $sessionId, null otherwise.
+     * Returns the stored result for a plain $id, as issued before the pointers were signed, if it belongs
+     * to $sessionId and is not older than a signed pointer may be, null otherwise. Every signed pointer
+     * starts with the plain id, so without the age check this would outlive the pointer's expiry.
      *
      * @return array{content: string, mimeType: string}|null
      */
     public function read(string $id, string $sessionId): ?array
     {
+        if (!Uuid::isValid($id)) {
+            return null;
+        }
+
         $row = $this->connection->fetchAssociative(
-            'SELECT `content`, `mime_type` FROM `mcp_tool_result_cache` WHERE `id` = :id AND `session_id` = :sessionId',
+            'SELECT `content`, `mime_type` FROM `mcp_tool_result_cache` WHERE `id` = :id AND `session_id` = :sessionId AND `created_at` >= :since',
             [
                 'id' => Uuid::fromHexToBytes($id),
                 'sessionId' => $sessionId,
+                'since' => $this->clock->now()->modify(\sprintf('-%d seconds', McpToolResultPointerSigner::TTL_SECONDS))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
         );
 

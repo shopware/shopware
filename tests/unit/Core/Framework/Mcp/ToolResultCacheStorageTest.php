@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultPointerSigner;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
 
 /**
@@ -68,12 +69,18 @@ class ToolResultCacheStorageTest extends TestCase
         $connection->expects($this->once())
             ->method('fetchAssociative')
             ->with(
-                static::anything(),
-                ['id' => Uuid::fromHexToBytes($id), 'sessionId' => 'session-abc'],
+                static::stringContains('`created_at` >= :since'),
+                [
+                    'id' => Uuid::fromHexToBytes($id),
+                    'sessionId' => 'session-abc',
+                    // A plain id lives no longer than a signed pointer: one hour before the clock.
+                    'since' => '2026-10-08 11:00:00.000',
+                ],
             )
             ->willReturn(['content' => '{"foo": "bar"}', 'mime_type' => 'application/json']);
 
-        $storage = new ToolResultCacheStorage($connection, new NativeClock(), new McpToolResultPointerSigner('secret', new NativeClock()));
+        $clock = new MockClock('2026-10-08 12:00:00');
+        $storage = new ToolResultCacheStorage($connection, $clock, new McpToolResultPointerSigner('secret', $clock));
         $result = $storage->read($id, 'session-abc');
 
         static::assertNotNull($result);
@@ -92,6 +99,16 @@ class ToolResultCacheStorageTest extends TestCase
         $result = $storage->read($id, 'other-session');
 
         static::assertNull($result);
+    }
+
+    public function testReadReturnsNullForAMalformedIdWithoutQuerying(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchAssociative');
+
+        $storage = new ToolResultCacheStorage($connection, new NativeClock(), new McpToolResultPointerSigner('secret', new NativeClock()));
+
+        static::assertNull($storage->read('not-a-uuid', 'session-abc'));
     }
 
     public function testReadReturnsNullForUnknownId(): void

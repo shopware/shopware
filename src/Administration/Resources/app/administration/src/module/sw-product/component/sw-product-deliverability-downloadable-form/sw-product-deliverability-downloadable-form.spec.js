@@ -13,18 +13,13 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         return { ...values, getOrigin: () => origin };
     }
 
-    async function createWrapper(productEntityOverride, parentProductOverride) {
+    async function createWrapper(productEntityOverride, parentProduct = {}) {
         const productEntity = createProduct({
             metaTitle: 'Product1',
             id: 'productId1',
             isCloseout: false,
             ...productEntityOverride,
         });
-
-        const parentProduct = {
-            id: 'productId',
-            ...parentProductOverride,
-        };
 
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
@@ -91,8 +86,6 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
     }
 
     let wrapper;
-
-    const NO_PARENT = { id: null };
 
     const orderQuantityFieldsClassName = [
         '.product-deliverability-downloadable-form__min-purchase',
@@ -187,7 +180,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         ['a min. order quantity above 1', { minPurchase: 2, maxPurchase: 1 }],
         ['purchase steps above 1', { purchaseSteps: 2, maxPurchase: 1 }],
     ])('should show the order quantities of a product with %s', async (_, orderQuantities) => {
-        wrapper = await createWrapper(orderQuantities, NO_PARENT);
+        wrapper = await createWrapper(orderQuantities);
         await flushPromises();
 
         expect(orderQuantitySwitch().element.checked).toBe(true);
@@ -202,7 +195,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         async (_, parentMaxPurchase, expected) => {
             wrapper = await createWrapper(
                 { minPurchase: null, purchaseSteps: null, maxPurchase: null },
-                { minPurchase: 1, purchaseSteps: 1, maxPurchase: parentMaxPurchase },
+                { id: 'parentId', minPurchase: 1, purchaseSteps: 1, maxPurchase: parentMaxPurchase },
             );
             await flushPromises();
 
@@ -212,7 +205,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
     );
 
     it('should keep the order quantities when the order quantity switch is turned on', async () => {
-        wrapper = await createWrapper({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 1 }, NO_PARENT);
+        wrapper = await createWrapper({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 1 });
         await flushPromises();
 
         await orderQuantitySwitch().setChecked(true);
@@ -222,7 +215,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
     });
 
     it('should limit the product to one unit per order when the order quantity switch is turned off', async () => {
-        wrapper = await createWrapper({ minPurchase: 2, purchaseSteps: 2, maxPurchase: 10 }, NO_PARENT);
+        wrapper = await createWrapper({ minPurchase: 2, purchaseSteps: 2, maxPurchase: 10 });
         await flushPromises();
 
         await orderQuantitySwitch().setChecked(false);
@@ -232,7 +225,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
     });
 
     it('should restore the order quantities when the order quantity switch is turned on again', async () => {
-        wrapper = await createWrapper({ minPurchase: 2, purchaseSteps: 2, maxPurchase: 10 }, NO_PARENT);
+        wrapper = await createWrapper({ minPurchase: 2, purchaseSteps: 2, maxPurchase: 10 });
         await flushPromises();
 
         await setMaxPurchase('20');
@@ -245,7 +238,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
     });
 
     it('should store a max purchase above one so customers can choose the quantity', async () => {
-        wrapper = await createWrapper({ maxPurchase: 1 }, NO_PARENT);
+        wrapper = await createWrapper({ maxPurchase: 1 });
         await flushPromises();
 
         await orderQuantitySwitch().setChecked(true);
@@ -288,13 +281,13 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
     });
 
     it('should keep the entered stock when a variant inherits manage stock again', async () => {
-        wrapper = await createWrapper({ isCloseout: true, stock: 10 }, { isCloseout: true });
+        wrapper = await createWrapper({ isCloseout: true, stock: 10 }, { id: 'parentId', isCloseout: true });
         await flushPromises();
 
         await stockInput().setValue('20');
         await wrapper
-            .findComponent('.product-deliverability-downloadable-form__manage-stock-switch')
-            .vm.$emit('inheritance-restore');
+            .find('.product-deliverability-downloadable-form__manage-stock-switch .mt-inheritance-switch')
+            .trigger('click');
 
         expect(product().isCloseout).toBeNull();
         expect(product().stock).toBe(20);

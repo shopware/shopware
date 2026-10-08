@@ -1,8 +1,11 @@
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {
-        "module": "ESNext",
+        "module": "CommonJS",
         "moduleResolution": "Bundler",
+        // Preserve the legacy check's deep imports into packages without matching exports.
+        "resolvePackageJsonExports": false,
+        "resolvePackageJsonImports": false,
         "baseUrl": null,
         "paths": {
             "*": ["./*"],

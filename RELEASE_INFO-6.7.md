@@ -10,9 +10,9 @@ The conditions now evaluate a line item by the data it carries instead of by its
 
 ## Features
 
-### Optional TypeScript 7 Administration type checking
+### TypeScript 7 Administration type checking
 
-Administration developers can run `npm run lint:types:ts7` to evaluate the native TypeScript 7 compiler with a separate ESNext/Bundler configuration. The default type check continues to use TypeScript 5.7, which also remains available to compiler API consumers and extension tooling. The optional check does not change production builds or the compiler used by extensions.
+The Administration's `npm run lint:types` command now uses the native TypeScript 7 compiler. Its separate configuration preserves CommonJS and the existing package lookup behavior. TypeScript 5.7 remains available to build scripts, compiler API consumers, and extension tooling. Extensions continue to use their existing compiler and configuration.
 
 ### System configuration tabs
 

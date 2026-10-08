@@ -188,6 +188,27 @@ class McpToolResponseTest extends TestCase
         static::assertArrayNotHasKey('resourceUri', $data['_meta'] ?? []);
     }
 
+    public function testOversizedPayloadWithoutARouteScopeStaysInline(): void
+    {
+        // Only a request on the Admin API scope can read a stored result back.
+        $cache = $this->createMock(ToolResultCacheStorage::class);
+        $cache->expects($this->never())->method('store');
+
+        $request = new Request();
+        $request->headers->set('Mcp-Session-Id', 'session-abc');
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $tool = new TestTool();
+        $tool->setToolResultCache($cache, $requestStack, new NullLogger());
+
+        $data = json_decode($tool->callSuccess(['items' => array_fill(0, 5_000, str_repeat('x', 30))]), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($data['data']['items']);
+        static::assertArrayNotHasKey('resourceUri', $data['_meta'] ?? []);
+    }
+
     public function testSuccessWithMetaIncludesMetaKey(): void
     {
         $tool = new TestTool();

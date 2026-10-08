@@ -23,6 +23,9 @@ class McpToolResultRendererTest extends TestCase
 {
     private const NOW = '2026-09-28T10:00:00+00:00';
 
+    /**
+     * @deprecated tag:v6.8.0 - Tests the legacy envelope, will be removed
+     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testRendersSuccessWithTheLegacyTextAndStructuredData(): void
     {
@@ -36,6 +39,9 @@ class McpToolResultRendererTest extends TestCase
         static::assertSame(['shopware/generatedAt' => self::NOW], $result->meta);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Tests the legacy envelope, will be removed
+     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testRendersFailureAsIsErrorWithAStructuredErrorObject(): void
     {
@@ -118,6 +124,9 @@ class McpToolResultRendererTest extends TestCase
         static::assertSame(['shopware/generatedAt' => '2026-09-01T08:00:00+00:00', 'shopware/expiresAt' => '2026-09-02T08:00:00+00:00'], $result->meta);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Tests the legacy envelope, will be removed
+     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testBuildsTheLegacyEnvelopeWithMetaWhenTheToolReturnedAnObject(): void
     {
@@ -146,6 +155,10 @@ class McpToolResultRendererTest extends TestCase
         $failure = $this->renderer()->render(McpToolResult::failure('Not found'), ProtocolVersion::latestHandshake());
         static::assertSame('Not found', $this->text($failure->content[0]));
         static::assertCount(1, $failure->content);
+
+        $rejected = $this->renderer()->render(McpToolResult::failure('Invalid cart', McpToolError::INVALID_ARGUMENTS, ['violations' => ['quantity']]), ProtocolVersion::latestHandshake());
+        static::assertSame('Invalid cart', $this->text($rejected->content[0]));
+        static::assertSame('{"details":{"violations":["quantity"]}}', $this->text($rejected->content[1]), 'the model needs the details to fix its call');
     }
 
     public function testSpecOnlyModeSendsNoDataBlockForAResultWithoutData(): void

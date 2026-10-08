@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class McpToolResultParser
 {
+    private const ENVELOPE_KEYS = ['success' => true, 'data' => true, '_meta' => true, 'error' => true, 'code' => true];
+
     public function parse(string $text): ?McpToolResult
     {
         // Objects, not associative arrays: `json_decode(…, true)` would turn an empty JSON object in the
@@ -26,6 +28,14 @@ class McpToolResultParser
         }
 
         $meta = isset($decoded->_meta) && $decoded->_meta instanceof \stdClass ? get_object_vars($decoded->_meta) : [];
+
+        // Keys next to the envelope fields, such as `dryRun` and `preview` of agentic-commerce's UCP tools,
+        // tell a preview from a committed change. They are kept as metadata, so they reach the client.
+        foreach (get_object_vars($decoded) as $key => $value) {
+            if (!isset(self::ENVELOPE_KEYS[$key])) {
+                $meta[$key] ??= $value;
+            }
+        }
 
         if ($decoded->success) {
             return new McpToolResult(data: $decoded->data ?? null, meta: $meta);

@@ -70,21 +70,18 @@ class McpToolResultRenderer
     }
 
     /**
-     * The text blocks of the spec-only format. The data comes first as plain JSON, because it is
-     * the copy of `structuredContent` the spec asks for, and clients that only pass `content` to the
-     * model would otherwise lose it. A summary is an additional block, never a replacement.
-     *
-     * The metadata gets a block of its own as well. `_meta` of the result is for the client, and most
-     * clients don't show it to the model, but much of it is written for the model: `dryRun` says a
-     * change was only previewed, `total` that there are more results, `usage`, `note` and `resourceUri`
-     * what to call next. The legacy envelope carried all of it in the text, and this keeps it there.
+     * The text blocks of the spec-only format: the data as plain JSON first, then the summary, then
+     * `{"_meta": …}`. A summary never replaces the data. A failure sends its message, then its details.
      *
      * @return non-empty-list<string>
      */
     private function specTexts(McpToolResult $result): array
     {
         if ($result->error !== null) {
-            return [$result->error->message];
+            // The details, for example the violations of a rejected call, are what the model needs to fix it.
+            return $result->error->details === []
+                ? [$result->error->message]
+                : [$result->error->message, Json::encode(['details' => $result->error->details])];
         }
 
         $texts = [];

@@ -81,6 +81,7 @@ Deactivating a plugin now removes its asset manifest entry but retains its publi
 ### Feature flags can belong to a major version
 
 Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatically when `V6_8_0_0=1` is set. An explicit setting for the individual flag still takes precedence, so `JSON_LD_DATA=0` keeps that feature off. Standalone major flags are recognized by their version-shaped names; the `major` field is only for sub-features and must name a parent version flag. Flags without a parent omit `major` from their metadata and the feature-flag API response. `FEATURE_ALL` now activates every registered feature for any truthy value; use a version flag to test only that major's changes.
+
 ### Order age rule condition
 
 The Rule Builder condition `daysSinceOrderPlaced` compares the order's `orderDate` with the current date in calendar days. It supports numeric comparison operators and requires an integer `daysPassed` value, for example `operator: <=` and `daysPassed: 30` to match orders placed within the last 30 days.

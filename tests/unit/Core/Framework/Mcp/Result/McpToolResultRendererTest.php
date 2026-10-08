@@ -169,6 +169,24 @@ class McpToolResultRendererTest extends TestCase
         static::assertCount(1, $result->content);
     }
 
+    public function testSendsNoStructuredContentBeforeTheRevisionThatIntroducedIt(): void
+    {
+        $success = $this->renderer()->render(McpToolResult::success(['a' => 1]), ProtocolVersion::V2025_03_26);
+        static::assertNull($success->structuredContent);
+
+        $failure = $this->renderer()->render(McpToolResult::failure('Not found', McpToolError::NOT_FOUND), ProtocolVersion::V2025_03_26);
+        static::assertNull($failure->structuredContent);
+        static::assertTrue($failure->isError, '`isError` exists on every revision');
+    }
+
+    public function testSpecOnlyModeSendsTheMetadataOfAFailure(): void
+    {
+        $result = $this->renderer()->render(new McpToolResult(error: new McpToolError('Rejected'), meta: ['dryRun' => true]), ProtocolVersion::latestHandshake());
+
+        static::assertSame('Rejected', $this->text($result->content[0]));
+        static::assertSame('{"_meta":{"dryRun":true}}', $this->text($result->content[1]));
+    }
+
     private function renderer(): McpToolResultRenderer
     {
         return new McpToolResultRenderer(new MockClock(self::NOW));

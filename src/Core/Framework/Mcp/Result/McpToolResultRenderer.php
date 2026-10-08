@@ -37,7 +37,8 @@ class McpToolResultRenderer
 
     /**
      * @param string|null $legacyText the string the tool returned, if it returned the legacy envelope;
-     *                                kept as is so existing readers see exactly what they saw before
+     *                                kept as is so existing readers see exactly what they saw before. Goes
+     *                                away with the legacy envelope in 6.8.0
      */
     public function render(McpToolResult $result, ProtocolVersion $protocolVersion, ?string $legacyText = null): CallToolResult
     {
@@ -53,9 +54,10 @@ class McpToolResultRenderer
     }
 
     /**
-     * The legacy envelope that `McpToolResponse::success()` and `::error()` produce.
+     * The legacy envelope that `McpToolResponse::success()` and `::error()` produce. Goes away with the
+     * legacy envelope in 6.8.0.
      */
-    public function legacyEnvelope(McpToolResult $result): string
+    private function legacyEnvelope(McpToolResult $result): string
     {
         if ($result->error !== null) {
             return Json::encode(['success' => false, 'error' => $result->error->message, 'code' => $result->error->code]);
@@ -71,17 +73,24 @@ class McpToolResultRenderer
 
     /**
      * The text blocks of the spec-only format: the data as plain JSON first, then the summary, then
-     * `{"_meta": …}`. A summary never replaces the data. A failure sends its message, then its details.
+     * `{"_meta": …}`. A summary never replaces the data. A failure sends its message, then its details and
+     * `{"_meta": …}`.
      *
      * @return non-empty-list<string>
      */
     private function specTexts(McpToolResult $result): array
     {
         if ($result->error !== null) {
+            $texts = [$result->error->message];
             // The details, for example the violations of a rejected call, are what the model needs to fix it.
-            return $result->error->details === []
-                ? [$result->error->message]
-                : [$result->error->message, Json::encode(['details' => $result->error->details])];
+            if ($result->error->details !== []) {
+                $texts[] = Json::encode(['details' => $result->error->details]);
+            }
+            if ($result->meta !== []) {
+                $texts[] = Json::encode(['_meta' => $result->meta]);
+            }
+
+            return $texts;
         }
 
         $texts = [];
@@ -101,6 +110,11 @@ class McpToolResultRenderer
 
     private function structuredContent(McpToolResult $result, ProtocolVersion $protocolVersion): mixed
     {
+        // `structuredContent` exists since 2025-06-18; older clients read the text block only.
+        if (!$protocolVersion->isAtLeast(ProtocolVersion::V2025_06_18)) {
+            return null;
+        }
+
         if ($result->error !== null) {
             return ['error' => array_filter([
                 'code' => $result->error->code,

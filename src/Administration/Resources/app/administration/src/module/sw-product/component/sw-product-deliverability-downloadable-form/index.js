@@ -23,6 +23,7 @@ export default {
 
     data() {
         return {
+            // Saves the entered values to restore them when their switch is turned back on
             enteredStock: null,
             enteredOrderQuantity: null,
             showOrderQuantitySetting: false,
@@ -82,11 +83,8 @@ export default {
         },
 
         onSwitchInput(enabled) {
-            // Restoring the inheritance passes null, which keeps the stock
             if (enabled === false) {
-                // Kept until saving, so switching back on restores what the merchant entered
                 this.enteredStock = this.product.stock;
-                // A new product has no saved stock yet and starts with 0
                 this.product.stock = this.product.getOrigin().stock ?? 0;
 
                 return;
@@ -101,7 +99,6 @@ export default {
             this.showOrderQuantitySetting = enabled;
 
             if (enabled === false) {
-                // Kept until saving, so switching back on restores what the merchant entered
                 this.enteredOrderQuantity = this.getOrderQuantity();
                 this.setOrderQuantity({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 1 });
 
@@ -123,7 +120,6 @@ export default {
             this.product.maxPurchase = maxPurchase;
         },
 
-        // Variants inherit the order quantities of their parent until they set their own
         getInheritedValue(field) {
             if (!this.parentProduct?.id) {
                 return this.product[field];

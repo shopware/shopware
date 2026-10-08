@@ -68,20 +68,6 @@ export default {
         ]),
     },
 
-    watch: {
-        // Saving reloads the product
-        product() {
-            this.showOrderQuantitySetting = !this.isLimitedToOneUnit;
-            this.enteredStock = null;
-            this.enteredOrderQuantity = null;
-        },
-
-        // A variant's parent loads after the variant
-        parentProduct() {
-            this.showOrderQuantitySetting = !this.isLimitedToOneUnit;
-        },
-    },
-
     created() {
         this.createdComponent();
     },

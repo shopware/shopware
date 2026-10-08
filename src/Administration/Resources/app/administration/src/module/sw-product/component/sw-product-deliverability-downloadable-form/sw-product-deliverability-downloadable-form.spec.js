@@ -117,13 +117,6 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         await maxPurchaseInput().trigger('change');
     }
 
-    // Saving reloads the product, which replaces it in the store with the saved values as its origin
-    async function reloadProduct() {
-        const store = Shopware.Store.get('swProductDetail');
-        store.product = createProduct({ ...store.product });
-        await flushPromises();
-    }
-
     function expectOrderQuantityFields(visible) {
         orderQuantityFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(visible);
@@ -218,19 +211,6 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         },
     );
 
-    it('should check the order quantities again once the parent of a variant is loaded', async () => {
-        wrapper = await createWrapper({ maxPurchase: null }, NO_PARENT);
-        await flushPromises();
-
-        expect(orderQuantitySwitch().element.checked).toBe(true);
-
-        Shopware.Store.get('swProductDetail').parentProduct = { id: 'parentId', maxPurchase: 1 };
-        await flushPromises();
-
-        expect(orderQuantitySwitch().element.checked).toBe(false);
-        expectOrderQuantityFields(false);
-    });
-
     it('should keep the order quantities when the order quantity switch is turned on', async () => {
         wrapper = await createWrapper({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 1 }, NO_PARENT);
         await flushPromises();
@@ -262,17 +242,6 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         await orderQuantitySwitch().setChecked(true);
 
         expect(orderQuantity()).toEqual({ minPurchase: 2, purchaseSteps: 2, maxPurchase: 20 });
-    });
-
-    it('should not restore the order quantities from before saving when the order quantity switch is turned on again', async () => {
-        wrapper = await createWrapper({ minPurchase: 2, purchaseSteps: 2, maxPurchase: 10 }, NO_PARENT);
-        await flushPromises();
-
-        await orderQuantitySwitch().setChecked(false);
-        await reloadProduct();
-        await orderQuantitySwitch().setChecked(true);
-
-        expect(orderQuantity()).toEqual({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 1 });
     });
 
     it('should store a max purchase above one so customers can choose the quantity', async () => {
@@ -318,19 +287,6 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         expect(stockInput().element.value).toBe('20');
     });
 
-    it('should not restore the stock from before saving when manage stock is turned on again', async () => {
-        wrapper = await createWrapper({ stock: 10 });
-        await flushPromises();
-
-        await stockSwitch().setChecked(true);
-        await stockInput().setValue('20');
-        await stockSwitch().setChecked(false);
-        await reloadProduct();
-        await stockSwitch().setChecked(true);
-
-        expect(product().stock).toBe(10);
-    });
-
     it('should keep the entered stock when a variant inherits manage stock again', async () => {
         wrapper = await createWrapper({ isCloseout: true, stock: 10 }, { isCloseout: true });
         await flushPromises();
@@ -341,18 +297,6 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
             .vm.$emit('inheritance-restore');
 
         expect(product().isCloseout).toBeNull();
-        expect(product().stock).toBe(20);
-    });
-
-    it('should keep the saved stock when manage stock is turned off after saving', async () => {
-        wrapper = await createWrapper({ stock: 10 });
-        await flushPromises();
-
-        await stockSwitch().setChecked(true);
-        await stockInput().setValue('20');
-        await reloadProduct();
-        await stockSwitch().setChecked(false);
-
         expect(product().stock).toBe(20);
     });
 });

@@ -475,7 +475,8 @@ function main(): void {
         });
 }
 
-if (require.main === module) {
+// jiti sets argv[1] to the entry script without making it require.main.
+if (process.argv[1] === __filename) {
     main();
 }
 

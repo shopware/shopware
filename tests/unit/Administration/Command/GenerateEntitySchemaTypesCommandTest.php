@@ -67,7 +67,7 @@ class GenerateEntitySchemaTypesCommandTest extends TestCase
         static::assertSame(3, $exitCode, 'the converter exit code is propagated');
 
         $capture = $this->readToolingCapture($administrationRoot);
-        static::assertStringEndsWith('scripts/entitySchemaConverter/convert-schema.ts', $capture['argv'][1]);
+        static::assertSame([$administrationRoot . '/scripts/entitySchemaConverter/convert-schema.ts'], $capture['argv']);
 
         $this->removeAdministrationRoot($administrationRoot);
     }
@@ -141,7 +141,7 @@ class GenerateEntitySchemaTypesCommandTest extends TestCase
     /**
      * Registers the real command in an Application alongside a fake `framework:schema`,
      * so `execute()` runs end-to-end on the real class (the schema dump delegates to
-     * the fake, the conversion spawns the injected root's `ts-node` stub).
+     * the fake, the conversion spawns the injected root's `jiti` stub).
      */
     private function commandInApplication(string $administrationRoot, int $dumpExitCode): GenerateEntitySchemaTypesCommand
     {

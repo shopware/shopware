@@ -25,7 +25,7 @@ class SetupExtensionToolingCommandTest extends TestCase
         $tester->execute(['tooling-args' => ['--check']]);
 
         $capture = $this->readToolingCapture($administrationRoot);
-        static::assertStringEndsWith('scripts/extensionTooling/setup.ts', $capture['argv'][1]);
+        static::assertStringEndsWith('scripts/extensionTooling/setup.ts', $capture['argv'][0]);
         static::assertContains('--check', $capture['argv']);
 
         $this->removeAdministrationRoot($administrationRoot);

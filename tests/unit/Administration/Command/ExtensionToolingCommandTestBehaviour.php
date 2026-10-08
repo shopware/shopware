@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  *
- * Builds a disposable Administration app root with a fake `ts-node` executable so
+ * Builds a disposable Administration app root with a fake `jiti` executable so
  * the commands can be driven end-to-end on their real class (which is what makes
  * `execute()`/`configure()` coverage attributable — an anonymous subclass driven
  * through the console runner records none). The stub records how it was invoked
@@ -48,7 +48,7 @@ trait ExtensionToolingCommandTestBehaviour
         $filesystem = new Filesystem();
         $filesystem->mkdir($root . '/node_modules/.bin');
         $filesystem->dumpFile(
-            $root . '/node_modules/.bin/ts-node',
+            $root . '/node_modules/.bin/jiti',
             '#!' . \PHP_BINARY . "\n"
             . "<?php\n"
             . "file_put_contents(__DIR__ . '/../../.tooling-capture.json', json_encode([\n"
@@ -59,7 +59,7 @@ trait ExtensionToolingCommandTestBehaviour
             . "fwrite(STDOUT, 'tooling-ran');\n"
             . "exit({$exitCode});\n",
         );
-        $filesystem->chmod($root . '/node_modules/.bin/ts-node', 0755);
+        $filesystem->chmod($root . '/node_modules/.bin/jiti', 0755);
     }
 
     /**

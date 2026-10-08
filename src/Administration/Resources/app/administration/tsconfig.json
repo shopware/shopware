@@ -4,7 +4,7 @@
   // below is a deliberate host divergence from that baseline.
   "extends": "./extension-tooling/tsconfig.base.json",
   "compilerOptions": {
-    // No ESNext/Bundler migration yet: jest and ts-node consume this config.
+    // No ESNext/Bundler migration yet: compiler API consumers use this config.
     // "node" resolution must be set explicitly — the inherited "Bundler" is
     // invalid together with commonjs (TS5095).
     "module": "commonjs",

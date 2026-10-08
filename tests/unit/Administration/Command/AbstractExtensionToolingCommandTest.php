@@ -55,7 +55,7 @@ class AbstractExtensionToolingCommandTest extends TestCase
         $capture = $this->readToolingCapture($administrationRoot);
         static::assertSame('/shop', $capture['project_root']);
         static::assertSame(realpath($administrationRoot), $capture['cwd']);
-        static::assertContains('--transpileOnly', $capture['argv']);
+        static::assertNotContains('--transpileOnly', $capture['argv']);
         static::assertContains('--only=MyPlugin', $capture['argv']);
         static::assertContains('--all', $capture['argv']);
 

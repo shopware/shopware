@@ -51,11 +51,11 @@ class GenerateEntitySchemaTypesCommand extends Command
             return $dumpExit;
         }
 
-        $tsNode = $administrationRoot . '/node_modules/.bin/ts-node';
+        $jiti = $administrationRoot . '/node_modules/.bin/jiti';
 
-        if (!is_file($tsNode)) {
+        if (!is_file($jiti)) {
             $io->error([
-                \sprintf('The Administration\'s Node dependencies are not installed (%s is missing).', $tsNode),
+                \sprintf('The Administration\'s Node dependencies are not installed (%s is missing).', $jiti),
                 \sprintf('Run "npm ci" in %s first, then re-run this command.', $administrationRoot),
             ]);
 
@@ -99,14 +99,13 @@ class GenerateEntitySchemaTypesCommand extends Command
     }
 
     /**
-     * Converts the dumped schema to entity-schema-definition.d.ts via the ts-node converter. Overridable for tests.
+     * Converts the dumped schema to entity-schema-definition.d.ts via jiti. Overridable for tests.
      */
     protected function convertEntitySchema(string $administrationRoot, OutputInterface $output): int
     {
         $process = new Process(
             [
-                $administrationRoot . '/node_modules/.bin/ts-node',
-                '--transpileOnly',
+                $administrationRoot . '/node_modules/.bin/jiti',
                 $administrationRoot . '/scripts/entitySchemaConverter/convert-schema.ts',
             ],
             $administrationRoot,

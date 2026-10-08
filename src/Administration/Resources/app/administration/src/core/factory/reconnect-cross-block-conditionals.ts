@@ -19,7 +19,7 @@
 
 import { NodeTypes, parse } from '@vue/compiler-dom';
 import type { DirectiveNode, ElementNode, RootNode, TemplateChildNode } from '@vue/compiler-dom';
-// Relative on purpose: the sfc-migration codemod loads this module under ts-node, where the `src/` alias does not resolve.
+// Relative on purpose: the sfc-migration codemod loads this module under jiti, where the `src/` alias does not resolve.
 import { warn } from '../service/utils/debug.utils';
 
 const ORPHANED_CONTINUATION = 'orphaned cross-block v-else (no preceding v-if)';

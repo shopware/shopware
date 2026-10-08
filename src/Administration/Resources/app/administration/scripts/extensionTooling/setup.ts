@@ -348,6 +348,7 @@ export function runSetupCli(argv: string[]): number {
     }
 }
 
-if (require.main === module) {
+// jiti sets argv[1] to the entry script without making it require.main.
+if (process.argv[1] === __filename) {
     process.exitCode = runSetupCli(process.argv.slice(2));
 }

@@ -28,7 +28,7 @@ class CheckExtensionsCommandTest extends TestCase
         $tester->execute(['tooling-args' => ['--only=MyPlugin']]);
 
         $capture = $this->readToolingCapture($administrationRoot);
-        static::assertStringEndsWith('scripts/extensionTooling/check.ts', $capture['argv'][1]);
+        static::assertStringEndsWith('scripts/extensionTooling/check.ts', $capture['argv'][0]);
         static::assertContains('--only=MyPlugin', $capture['argv']);
 
         $this->removeAdministrationRoot($administrationRoot);

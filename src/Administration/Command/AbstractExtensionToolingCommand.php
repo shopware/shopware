@@ -22,11 +22,11 @@ use Symfony\Component\Process\Process;
  * for v6.8.0). The command names, their options, the generated-file layout and
  * the manifest format can change in any release, so the tooling can be
  * reshaped once real-world usage shows what does not hold. This class is
- * `@internal` on top of that: the bridge mechanism itself (how the ts-node
+ * `@internal` on top of that: the bridge mechanism itself (how the jiti
  * entry point is resolved and spawned) is an implementation detail and must
  * not be extended from outside the platform.
  *
- * Bridges the Administration extension-tooling CLI — a ts-node script shipped
+ * Bridges the Administration extension-tooling CLI — a TypeScript script shipped
  * inside the Administration package — to `bin/console`, so it is usable from a
  * Composer/Flex install where the Administration lives under vendor/ and the
  * platform-only composer scripts do not exist. The Administration app root is
@@ -59,11 +59,11 @@ abstract class AbstractExtensionToolingCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $administrationRoot = $this->administrationRoot();
-        $tsNode = $administrationRoot . '/node_modules/.bin/ts-node';
+        $jiti = $administrationRoot . '/node_modules/.bin/jiti';
 
-        if (!is_file($tsNode)) {
+        if (!is_file($jiti)) {
             $io->error([
-                \sprintf('The Administration\'s Node dependencies are not installed (%s is missing).', $tsNode),
+                \sprintf('The Administration\'s Node dependencies are not installed (%s is missing).', $jiti),
                 \sprintf('Run "npm ci" in %s first, then re-run this command.', $administrationRoot),
             ]);
 
@@ -74,8 +74,7 @@ abstract class AbstractExtensionToolingCommand extends Command
         $forwardedArguments = $input->getArgument('tooling-args');
 
         $command = [
-            $tsNode,
-            '--transpileOnly',
+            $jiti,
             $administrationRoot . '/scripts/extensionTooling/' . $this->toolingEntryScript(),
             ...$forwardedArguments,
         ];
@@ -84,7 +83,7 @@ abstract class AbstractExtensionToolingCommand extends Command
     }
 
     /**
-     * The ts-node entry script under scripts/extensionTooling, e.g. "check.ts".
+     * The TypeScript entry script under scripts/extensionTooling, e.g. "check.ts".
      */
     abstract protected function toolingEntryScript(): string;
 

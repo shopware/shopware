@@ -60,8 +60,7 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
             const result = spawnSync(
                 process.execPath,
                 [
-                    '-r',
-                    'ts-node/register/transpile-only',
+                    path.join(process.cwd(), 'node_modules/.bin/jiti'),
                     path.join(__dirname, 'run-sfc-migration.ts'),
                     ...args,
                 ],

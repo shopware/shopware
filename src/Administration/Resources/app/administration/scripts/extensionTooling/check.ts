@@ -369,7 +369,8 @@ export async function runCheckCli(argv: string[]): Promise<number> {
     return check.exitCode;
 }
 
-if (require.main === module) {
+// jiti sets argv[1] to the entry script without making it require.main.
+if (process.argv[1] === __filename) {
     runCheckCli(process.argv.slice(2)).then(
         (exitCode) => {
             process.exitCode = exitCode;

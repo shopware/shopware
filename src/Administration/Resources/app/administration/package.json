@@ -5,7 +5,7 @@
   "main": "./src/core/shopware.js",
   "types": "./types/index.d.ts",
   "scripts": {
-    "build": "export VITE_MODE=production && ts-node -T build.ts",
+    "build": "export VITE_MODE=production && jiti build.ts",
     "code-mods": "node code-mods.js",
     "codemod:js-vue3-feature-flag-removal": "ts-node --transpileOnly ./scripts/codemods/js-vue3-feature-flag-removal/index.ts",
     "codemod:twig-feature-flag-removal": "ts-node --transpileOnly ./scripts/codemods/twig-feature-flag-removal/index.ts",
@@ -13,7 +13,7 @@
     "codemod:sfc-migration": "ts-node --transpileOnly ./scripts/codemods/sfc-migration/run-sfc-migration.ts",
     "convert-entity-schema": "ts-node --transpileOnly ./scripts/entitySchemaConverter/convert-schema.ts",
     "create-test": "node ./scripts/create-spec-file/index.mjs",
-    "dev": "export VITE_MODE=development && ts-node -T build.ts",
+    "dev": "export VITE_MODE=development && jiti build.ts",
     "extension-tooling:check": "ts-node --transpileOnly ./scripts/extensionTooling/check.ts",
     "extension-tooling:setup": "ts-node --transpileOnly ./scripts/extensionTooling/setup.ts",
     "format": "prettier --check \"src/**/*.{js,ts}\" \"test/**/*.{js,ts}\" \"extension-tooling/**/*.mjs\" \"scripts/extensionTooling/**/*.ts\" \"scripts/codemods/**/*.ts\" \"scripts/generate-shopware-modules/**/*.ts\" \"build/vite-plugins/**/*.{js,ts}\" \"build/vue-setup-transform/**/*.{js,ts}\" \"build/plugins.vite.ts\" \"build.ts\"",

@@ -11,7 +11,7 @@ export function startDevelopmentProcesses() {
     return concurrently(
         [
             {
-                command: 'ts-node -T build/plugins.vite.ts',
+                command: 'jiti build/plugins.vite.ts',
                 name: 'Extensions',
                 prefixColor: 'yellow',
             },

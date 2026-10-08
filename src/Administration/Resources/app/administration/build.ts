@@ -8,9 +8,8 @@ import { startDevelopmentProcesses } from './build/vite-plugins/development-proc
 import { exportViteServerMapping } from './build/vite-plugins/utils';
 
 async function runPluginsBuild(): Promise<void> {
-    // Assuming ts-node is installed as a dependency
     return new Promise((resolve, reject) => {
-        const process = spawn('ts-node', ['-T', 'build/plugins.vite.ts'], {
+        const process = spawn('jiti', ['build/plugins.vite.ts'], {
             stdio: 'inherit',
         });
 

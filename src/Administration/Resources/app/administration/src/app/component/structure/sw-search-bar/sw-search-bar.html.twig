@@ -189,6 +189,7 @@
                                 :index="index"
                                 :entity-icon-color="getEntityIconColor(entity.entity)"
                                 :entity-icon-name="getEntityIconName(entity.entity)"
+                                @click-search-result="onClickSearchResult"
                             />
 
                             {% block sw_search_bar_results_list_bar_item %}
@@ -437,6 +438,7 @@
                                 :index="index"
                                 :entity-icon-color="getEntityIconColor(item.entity)"
                                 :entity-icon-name="getEntityIconName(item.entity)"
+                                @click-search-result="onClickSearchResult"
                             />
                         </ul>
                         {% endblock %}

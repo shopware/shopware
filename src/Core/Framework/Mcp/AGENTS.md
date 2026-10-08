@@ -228,7 +228,7 @@ Open questions before implementing:
 - Overlap: when does the admin MCP + store-API proxy (current approach) become insufficient vs. needing a real customer-scoped MCP?
 
 ### SDK-ready features (no upstream changes needed)
-The symfony-mcp-bundle (v0.8.0) and mcp/sdk (v0.4.0) already implement the following — Shopware just needs to wire them up:
+symfony/mcp-bundle and mcp/sdk (see `composer.json` for the versions in use) already implement the following — Shopware just needs to wire them up:
 
 - **Resource subscriptions** — SDK has `ResourceSubscribeHandler` and `ResourceUnsubscribeHandler` (`vendor/mcp/sdk`). Resource templates (`#[McpResourceTemplate]`) are already wired up in core — see `ToolResultResource` and `Resource/AGENTS.md`. Subscriptions remain to be wired up if clients need push notifications when resources change.
 - **Protocol-level pagination** — `RegistryInterface::getTools(?int $limit, ?string $cursor)` etc. already support cursor-based pagination; bundle has a `mcp.pagination_limit` config param. Shopware doesn't configure or expose it — relevant once tool/resource counts grow large.

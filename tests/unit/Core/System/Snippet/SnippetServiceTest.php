@@ -23,6 +23,7 @@ use Shopware\Core\System\Snippet\DataTransfer\Language\Language as LanguageDto;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection as LanguageDtoCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 use Shopware\Core\System\Snippet\Event\SnippetsThemeResolveEvent;
+use Shopware\Core\System\Snippet\Files\FilesystemSnippetFile;
 use Shopware\Core\System\Snippet\Files\RemoteSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
@@ -55,11 +56,14 @@ class SnippetServiceTest extends TestCase
 
     private Filesystem $filesystem;
 
+    private Flysystem $privateFilesystem;
+
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $this->flysystem = new Flysystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
         $this->filesystem = new Filesystem();
+        $this->privateFilesystem = new Flysystem(new InMemoryFilesystemAdapter());
         $this->snippetCollection = new SnippetFileCollection();
         $this->addThemes();
     }
@@ -116,6 +120,32 @@ class SnippetServiceTest extends TestCase
         $snippetSetId = $snippetService->findSnippetSetId(Uuid::randomHex(), Uuid::randomHex(), 'en-GB');
 
         static::assertSame($snippetSetId, $snippetSetIdWithSalesChannelDomain);
+    }
+
+    public function testDecodeSnippetsFromThePrivateFilesystem(): void
+    {
+        $this->privateFilesystem->write(
+            'snippets/storefront/MyIntegration/storefront.es.json',
+            '{"shop_storefront": "From the private filesystem"}',
+        );
+        $this->snippetCollection->add(new FilesystemSnippetFile(
+            'storefront.es',
+            'snippets/storefront/MyIntegration/storefront.es.json',
+            'es',
+            'MyIntegration',
+            false,
+            'MyIntegration',
+        ));
+
+        $this->connection->expects($this->once())
+            ->method('fetchOne')->willReturn('es');
+
+        $snippetService = $this->createSnippetService();
+
+        $catalogue = new MessageCatalogue('es', ['messages' => []]);
+        $snippets = $snippetService->getStorefrontSnippets($catalogue, Uuid::randomHex(), 'es', Uuid::randomHex());
+
+        static::assertSame(['shop_storefront' => 'From the private filesystem'], $snippets);
     }
 
     public function testDecodeRemoteSnippets(): void
@@ -520,6 +550,7 @@ class SnippetServiceTest extends TestCase
             $eventDispatcher ?? new EventDispatcher(),
             $this->flysystem,
             $this->filesystem,
+            $this->privateFilesystem,
         );
     }
 

@@ -91,7 +91,7 @@ class DocumentControllerTest extends TestCase
 
         $paymentMethod = $this->getAvailablePaymentMethod();
 
-        $customerId = $this->createCustomer($paymentMethod->getId());
+        $customerId = $this->createCustomer();
         $shippingMethod = $this->getAvailableShippingMethod();
         $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
@@ -220,7 +220,8 @@ class DocumentControllerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertNotEmpty($response->getContent());
+        static::assertNotFalse($response->getContent());
+        static::assertNotSame('', $response->getContent());
 
         $documentEntity = $this->documentRepository->search(new Criteria([$document->getId()]), $context)->getEntities()->first();
         static::assertNotNull($documentEntity);
@@ -452,7 +453,7 @@ class DocumentControllerTest extends TestCase
         return static::getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
     }
 
-    private function createCustomer(string $paymentMethodId): string
+    private function createCustomer(): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();

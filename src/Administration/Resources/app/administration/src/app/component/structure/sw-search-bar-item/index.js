@@ -45,6 +45,8 @@ export default {
         },
     },
 
+    emits: ['click-search-result'],
+
     props: {
         item: {
             type: Object,
@@ -265,6 +267,7 @@ export default {
 
         onClickSearchResult(entity, id, payload = {}) {
             this.recentlySearchService.add(this.currentUser.id, entity, id, payload);
+            this.$emit('click-search-result', entity, id, payload);
         },
     },
 };

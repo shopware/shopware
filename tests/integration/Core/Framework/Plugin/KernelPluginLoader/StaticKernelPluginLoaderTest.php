@@ -31,8 +31,8 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader = $this->createKernelPluginLoaderWithPlugins([]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        static::assertEmpty($loader->getPluginInfos());
-        static::assertEmpty($loader->getPluginInstances()->all());
+        static::assertCount(0, $loader->getPluginInfos());
+        static::assertCount(0, $loader->getPluginInstances()->all());
     }
 
     public function testNoKernelPluginsWithoutInit(): void
@@ -41,7 +41,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader = $this->createKernelPluginLoaderWithPlugins([$activePluginData]);
 
         static::assertCount(1, $loader->getPluginInfos());
-        static::assertEmpty($loader->getPluginInstances()->all());
+        static::assertCount(0, $loader->getPluginInstances()->all());
     }
 
     public function testKernelPluginsAfterInit(): void
@@ -120,7 +120,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
         $class = $activePluginData['baseClass'];
         $kernelPlugin = $loader->getPluginInstances()->get($class);
-        static::assertNotEmpty($kernelPlugin);
+        static::assertNotNull($kernelPlugin);
         static::assertSame($kernelPlugin, $loader->getPluginInstance($class));
     }
 
@@ -134,7 +134,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
         $class = $pluginData['baseClass'];
         $kernelPlugin = $loader->getPluginInstances()->get($class);
-        static::assertNotEmpty($kernelPlugin);
+        static::assertNotNull($kernelPlugin);
         static::assertNull($loader->getPluginInstance($class));
     }
 
@@ -173,7 +173,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
         $bundles = iterator_to_array($loader->getBundles());
 
-        static::assertEmpty($bundles);
+        static::assertCount(0, $bundles);
     }
 
     public function testGetBundlesNoPlugins(): void

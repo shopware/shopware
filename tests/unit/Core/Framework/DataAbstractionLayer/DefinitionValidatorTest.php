@@ -36,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
@@ -43,6 +44,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -50,6 +52,8 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistr
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityAgg;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\_fixtures\CascadingManyToOneEntity;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionStub;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionWithInheritedAssociationsStub;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionWithInheritedFlagWithoutInheritanceStub;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionWithNonStorageAwarePrimaryKeyStub;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -125,7 +129,7 @@ class DefinitionValidatorTest extends TestCase
             static fn (string $violation): bool => str_contains($violation, 'Primary key mismatch')
         );
 
-        static::assertEmpty($primaryKeyViolations, 'Expected no primary key violations, but got: ' . implode(', ', $primaryKeyViolations));
+        static::assertCount(0, $primaryKeyViolations, 'Expected no primary key violations, but got: ' . implode(', ', $primaryKeyViolations));
     }
 
     public function testPrimaryKeyValidationSkipsNonExistentTable(): void
@@ -143,7 +147,7 @@ class DefinitionValidatorTest extends TestCase
         );
 
         // When table doesn't exist in the schema, validatePrimaryKeyConsistency skips validation
-        static::assertEmpty($primaryKeyViolations, 'Expected no primary key violations when table does not exist, but got: ' . implode(', ', $primaryKeyViolations));
+        static::assertCount(0, $primaryKeyViolations, 'Expected no primary key violations when table does not exist, but got: ' . implode(', ', $primaryKeyViolations));
 
         static::assertContains(
             'Table "definition_validator_test" referenced by definition but not found in schema',
@@ -192,7 +196,7 @@ class DefinitionValidatorTest extends TestCase
 
         // The non-StorageAware field should be skipped (line 990 coverage)
         // So only 'id' should be considered, which matches the database
-        static::assertEmpty($primaryKeyViolations, 'Non-StorageAware primary key fields should be ignored');
+        static::assertCount(0, $primaryKeyViolations, 'Non-StorageAware primary key fields should be ignored');
     }
 
     public function testForeignKeyReferencingFullCompositePrimaryKeyReportsNoViolation(): void
@@ -324,7 +328,7 @@ class DefinitionValidatorTest extends TestCase
     public function testFeatureGatedIgnoreFieldsAreValidatedWithFeatureActive(string $key): void
     {
         [$entityName, $fieldName] = explode('.', $key);
-        static::assertNotEmpty($entityName);
+        static::assertNotSame('', $entityName);
 
         Feature::fake([], function () use ($entityName, $fieldName): void {
             static::assertSame([], $this->getUnmappedColumnViolations($entityName, $fieldName));
@@ -403,7 +407,7 @@ class DefinitionValidatorTest extends TestCase
             $violations[DefinitionInstanceRegistry::class] ?? [],
             static fn (string $v): bool => str_contains($v, 'not a complete PRIMARY or UNIQUE key')
         );
-        static::assertEmpty($registryFkViolations, 'FK violation should not fall back to the registry key when a definition owns the table');
+        static::assertCount(0, $registryFkViolations, 'FK violation should not fall back to the registry key when a definition owns the table');
 
         static::assertArrayHasKey($owningClass, $violations);
         $ownerFkViolations = array_filter(
@@ -604,6 +608,57 @@ class DefinitionValidatorTest extends TestCase
         );
     }
 
+    public function testInheritedAssociationHelperColumnPresentReportsNoViolation(): void
+    {
+        $definition = new DefinitionWithInheritedAssociationsStub();
+        $validator = $this->createValidatorWithColumns(
+            $definition,
+            ['id', 'foo', 'parent_id', 'optional_id', 'children', 'parent', 'optional', 'created_at', 'updated_at'],
+            ['id']
+        );
+
+        static::assertSame([], $this->filterInheritanceViolations($validator, $definition));
+    }
+
+    public function testMissingInheritedHelperColumnReportsViolation(): void
+    {
+        $definition = new DefinitionWithInheritedAssociationsStub();
+        $validator = $this->createValidatorWithColumns(
+            $definition,
+            ['id', 'foo', 'parent_id', 'optional_id', 'created_at', 'updated_at'],
+            ['id']
+        );
+
+        $inheritanceViolations = $this->filterInheritanceViolations($validator, $definition);
+
+        static::assertCount(3, $inheritanceViolations, 'Expected three missing helper column violations, but got: ' . implode(', ', $inheritanceViolations));
+
+        $joined = implode("\n", $inheritanceViolations);
+        static::assertStringContainsString('helper column `children` is missing', $joined);
+        static::assertStringContainsString('helper column `parent` is missing', $joined);
+        static::assertStringContainsString('helper column `optional` is missing', $joined);
+        static::assertStringContainsString(InheritanceUpdaterTrait::class, $joined);
+    }
+
+    public function testInheritedFlagOnNonInheritanceAwareDefinitionReportsViolation(): void
+    {
+        $definition = new DefinitionWithInheritedFlagWithoutInheritanceStub();
+        $validator = $this->createValidatorWithColumns(
+            $definition,
+            ['id', 'foo', 'parent_id', 'optional_id', 'children', 'parent', 'optional', 'created_at', 'updated_at'],
+            ['id']
+        );
+
+        $inheritanceViolations = $this->filterInheritanceViolations($validator, $definition);
+
+        static::assertCount(3, $inheritanceViolations, 'Expected three superfluous Inherited flag violations, but got: ' . implode(', ', $inheritanceViolations));
+
+        foreach ($inheritanceViolations as $violation) {
+            static::assertStringContainsString('is not inheritance aware', $violation);
+            static::assertStringContainsString('Remove the `' . Inherited::class . '` flag', $violation);
+        }
+    }
+
     /**
      * A column that no field maps to is reported as a violation, unless the `<entity>.<column>` key is
      * ignored. The reported violations are therefore the observable behaviour of the ignore lists.
@@ -667,6 +722,77 @@ class DefinitionValidatorTest extends TestCase
     }
 
     /**
+     * @return list<string>
+     */
+    private function filterInheritanceViolations(DefinitionValidator $validator, EntityDefinition $definition): array
+    {
+        return array_values(array_filter(
+            $validator->validate()[$definition::class] ?? [],
+            static fn (string $violation): bool => str_contains($violation, 'inheritance helper column') || str_contains($violation, 'is not inheritance aware')
+        ));
+    }
+
+    /**
+     * @param list<string> $columnNames
+     * @param list<string> $dbPrimaryKeys
+     */
+    private function createValidatorWithColumns(EntityDefinition $definition, array $columnNames, array $dbPrimaryKeys): DefinitionValidator
+    {
+        $pkConstraint = null;
+        if ($dbPrimaryKeys !== []) {
+            $pkColumns = array_map(
+                static function (string $col): UnqualifiedName {
+                    static::assertNotSame('', $col);
+
+                    return new UnqualifiedName(Identifier::unquoted($col));
+                },
+                $dbPrimaryKeys
+            );
+            $pkConstraint = new PrimaryKeyConstraint(null, $pkColumns, false);
+        }
+
+        $columns = array_map(
+            static fn (string $name): Column => new Column($name, Type::getType(Types::BINARY)),
+            $columnNames
+        );
+
+        $columnLookup = array_fill_keys($columnNames, true);
+
+        $table = static::createStub(Table::class);
+        $table->method('getName')->willReturn($definition->getEntityName());
+        $table->method('getColumns')->willReturn($columns);
+        $table->method('getPrimaryKeyConstraint')->willReturn($pkConstraint);
+        $table->method('hasColumn')->willReturnCallback(
+            static fn (string $name): bool => isset($columnLookup[$name])
+        );
+
+        $schema = static::createStub(Schema::class);
+        $schema->method('hasTable')->willReturn(true);
+        $schema->method('getTable')->willReturn($table);
+        $schema->method('getTables')->willReturn([$table]);
+
+        $schemaManager = static::createStub(AbstractSchemaManager::class);
+        $schemaManager->method('introspectSchema')->willReturn($schema);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('createSchemaManager')->willReturn($schemaManager);
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $definition->compile($registry);
+        $registry->method('getDefinitions')->willReturn([$definition]);
+        $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getByClassOrEntityName')->willReturn($definition);
+
+        // @phpstan-ignore class.extendsFinalByPhpDoc
+        return new class($registry, $connection) extends DefinitionValidator {
+            protected function shouldSkipDefinition(string $definitionClass): bool
+            {
+                return false;
+            }
+        };
+    }
+
+    /**
      * @param list<string> $dbPrimaryKeys
      */
     private function createValidatorWithTable(EntityDefinition $definition, array $dbPrimaryKeys, EntityDefinition ...$references): DefinitionValidator
@@ -675,7 +801,7 @@ class DefinitionValidatorTest extends TestCase
         if ($dbPrimaryKeys !== []) {
             $pkColumns = array_map(
                 static function (string $col): UnqualifiedName {
-                    static::assertNotEmpty($col);
+                    static::assertNotSame('', $col);
 
                     return new UnqualifiedName(Identifier::unquoted($col));
                 },
@@ -856,7 +982,7 @@ class DefinitionValidatorTest extends TestCase
         if ($primaryKeyColumns !== []) {
             $pkColumns = array_map(
                 static function (string $columnName): UnqualifiedName {
-                    static::assertNotEmpty($columnName);
+                    static::assertNotSame('', $columnName);
 
                     return new UnqualifiedName(Identifier::unquoted($columnName));
                 },

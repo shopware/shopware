@@ -175,6 +175,28 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         expect(emptyState.find('.mt-empty-state__link').exists()).toBe(false);
     });
 
+    it('should only allow toggling the inherit switch when the inheritance is removed', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: 'parentProductId',
+            crossSellings: [],
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = {
+            id: 'parentProductId',
+        };
+
+        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const switchInput = () => wrapper.find('.sw-product-detail-cross-selling__inherit-switch input');
+        expect(switchInput().attributes('disabled')).toBeDefined();
+
+        wrapper.vm.isInherited = false;
+        await wrapper.vm.$nextTick();
+
+        expect(switchInput().attributes('disabled')).toBeUndefined();
+    });
+
     it('should keep the deprecated assetFilter for template overrides', async () => {
         wrapper = await createWrapper();
 

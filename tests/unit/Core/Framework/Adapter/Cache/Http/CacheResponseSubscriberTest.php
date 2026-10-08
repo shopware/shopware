@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -291,9 +292,9 @@ class CacheResponseSubscriberTest extends TestCase
 
         $cookies = $response->headers->getCookies();
         if ($currencyId === null) {
-            static::assertEmpty($cookies);
+            static::assertCount(0, $cookies);
         } else {
-            static::assertNotEmpty($cookies);
+            static::assertNotCount(0, $cookies);
             static::assertSame($currencyId, $cookies[0]->getValue());
         }
     }
@@ -353,7 +354,7 @@ class CacheResponseSubscriberTest extends TestCase
             $response
         ));
 
-        static::assertEmpty($response->headers->getCookies(), var_export($response->headers->getCookies(), true));
+        static::assertCount(0, $response->headers->getCookies(), var_export($response->headers->getCookies(), true));
         static::assertSame('no-cache, private', $response->headers->get('cache-control'));
     }
 
@@ -376,7 +377,7 @@ class CacheResponseSubscriberTest extends TestCase
             $response
         ));
 
-        static::assertEmpty($response->headers->getCookies(), var_export($response->headers->getCookies(), true));
+        static::assertCount(0, $response->headers->getCookies(), var_export($response->headers->getCookies(), true));
         static::assertFalse($response->headers->has('set-cookie'));
     }
 
@@ -570,7 +571,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         // Check cookies absence for non-storefront routes
         static::assertIsArray($routeScope);
-        static::assertEmpty($response->headers->getCookies(), 'Should not have cookies');
+        static::assertCount(0, $response->headers->getCookies(), 'Should not have cookies');
         static::assertFalse($response->headers->has(HttpCacheKeyGenerator::HEADER_DYNAMIC_CACHE_BYPASS));
     }
 
@@ -817,6 +818,35 @@ class CacheResponseSubscriberTest extends TestCase
             $response
         ));
 
+        static::assertSame('no-cache, private', $response->headers->get('cache-control'));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
+    public function testSessionResolvedStoreApiRequestsKeepTheStorefrontCacheCookiesCurrent(): void
+    {
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getCustomer')->willReturn(new CustomerEntity());
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+        $request->attributes->set(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION, true);
+
+        $this->cartService->expects($this->once())
+            ->method('getCart');
+        $this->cacheHeadersService->expects($this->once())
+            ->method('applyCacheHash');
+
+        $response = new Response();
+        $this->subscriber->setResponseCache($this->createResponseEvent($request, $response));
+
+        $cookies = $response->headers->getCookies();
+        static::assertCount(1, $cookies);
+        static::assertSame(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, $cookies[0]->getName());
+        static::assertSame('logged-in', $cookies[0]->getValue());
         static::assertSame('no-cache, private', $response->headers->get('cache-control'));
     }
 

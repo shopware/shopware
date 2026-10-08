@@ -10,7 +10,6 @@ const DEFAULT_LIMIT = 25;
  * @private
  * @module app/service/custom-field
  * @memberOf module:core/service/custom-field
- * @constructor
  * @method createCustomFieldTypeService
  * @returns {Object}
  */

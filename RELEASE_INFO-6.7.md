@@ -10,6 +10,10 @@ The conditions now evaluate a line item by the data it carries instead of by its
 
 ## Features
 
+### Optional TypeScript 7 Administration type checking
+
+Administration developers can run `npm run lint:types:ts7` to evaluate the native TypeScript 7 compiler with a separate ESNext/Bundler configuration. The default type check continues to use TypeScript 5.7, which also remains available to compiler API consumers and extension tooling. The optional check does not change production builds or the compiler used by extensions.
+
 ### System configuration tabs
 
 With the newly added tabs feature, plugin developers can now add another layer of organization to the already existing cards in the system configuration. This allows to group related cards into individual tabs and provide a better overview for merchants when configuring a plugin. The feature is fully optional to use and works with partial usage as well - any cards not added to a tab are automatically gathered in a "General" tab.

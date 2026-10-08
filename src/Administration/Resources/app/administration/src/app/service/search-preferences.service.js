@@ -6,7 +6,6 @@ import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.servi
 
 /**
  * @description Exposes an user search preferences
- * @constructor
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function SearchPreferencesService() {

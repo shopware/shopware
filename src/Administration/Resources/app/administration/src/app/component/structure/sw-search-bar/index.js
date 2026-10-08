@@ -44,7 +44,12 @@ export default {
         };
     },
 
-    emits: ['search', 'active-item-index-select', 'keyup-enter'],
+    emits: [
+        'search',
+        'active-item-index-select',
+        'keyup-enter',
+        'click-search-result',
+    ],
 
     shortcuts: {
         f: 'setFocus',
@@ -397,6 +402,11 @@ export default {
             this.isActive = false;
         },
 
+        onClickSearchResult(entity, id, payload = {}) {
+            this.$emit('click-search-result', entity, id, payload);
+            this.closeSearchPanels();
+        },
+
         showSearchBar() {
             this.isSearchBarShown = true;
             this.isActive = true;
@@ -636,7 +646,7 @@ export default {
                     'sw-inheritance': true,
                 });
 
-                const data = response?.data[this.currentSearchType] ?? {
+                const data = response?.data?.[this.currentSearchType] ?? {
                     total: 0,
                     data: {},
                 };

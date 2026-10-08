@@ -31,6 +31,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
@@ -454,7 +455,7 @@ class WishlistControllerTest extends TestCase
     {
         $session = $this->getSession();
 
-        if (!method_exists($session, 'getFlashBag')) {
+        if (!$session instanceof FlashBagAwareSessionInterface) {
             throw new \RuntimeException('session does not have flashbag');
         }
 

@@ -42,7 +42,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
         static::assertSame(0, $idSearchResult->getTotal());
-        static::assertEmpty($idSearchResult->getIds());
+        static::assertCount(0, $idSearchResult->getIds());
     }
 
     public function testHydrateWithHits(): void

@@ -37,7 +37,7 @@ class ReinstallAppsStrategyTest extends TestCase
         );
 
         static::assertSame(ReinstallAppsStrategy::STRATEGY_NAME, $strategy->getName());
-        static::assertNotEmpty($strategy->getDescription());
+        static::assertNotSame('', $strategy->getDescription());
     }
 
     public function testDeletesShopIdAndReregistersEveryApp(): void

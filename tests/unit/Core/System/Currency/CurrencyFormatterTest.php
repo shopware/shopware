@@ -97,6 +97,34 @@ class CurrencyFormatterTest extends TestCase
         ];
     }
 
+    public function testResetDropsFormattersBuiltWithThePreviousDefaultLocale(): void
+    {
+        // An empty locale code makes ICU use the process default locale, which a long-running worker changes per request
+        $localeProvider = static::createStub(LanguageLocaleCodeProvider::class);
+        $localeProvider->method('getLocaleForLanguageId')->willReturn('');
+        $formatter = new CurrencyFormatter($localeProvider);
+        $context = $this->createContext(2);
+        $previousLocale = \Locale::getDefault();
+
+        $german = (new \NumberFormatter('de_DE', \NumberFormatter::CURRENCY))->formatCurrency(1234.5, 'EUR');
+        $english = (new \NumberFormatter('en_US', \NumberFormatter::CURRENCY))->formatCurrency(1234.5, 'EUR');
+        static::assertNotSame($german, $english);
+
+        try {
+            \Locale::setDefault('de_DE');
+            static::assertSame($german, $formatter->formatCurrencyByLanguage(1234.5, 'EUR', Uuid::randomHex(), $context));
+
+            \Locale::setDefault('en_US');
+            static::assertSame($german, $formatter->formatCurrencyByLanguage(1234.5, 'EUR', Uuid::randomHex(), $context));
+
+            $formatter->reset();
+
+            static::assertSame($english, $formatter->formatCurrencyByLanguage(1234.5, 'EUR', Uuid::randomHex(), $context));
+        } finally {
+            \Locale::setDefault($previousLocale);
+        }
+    }
+
     private function createContext(int $decimals): Context
     {
         return new Context(

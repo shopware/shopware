@@ -283,6 +283,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(NewsletterSubscribeRoute::class),
             service(NewsletterUnsubscribeRoute::class),
             service(RevocationRequestRoute::class),
+            service(ProductReviewSaveRoute::class),
             service(ConstraintViolationTranslator::class),
         ])
         ->call('setContainer', [service('service_container')]);

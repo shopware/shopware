@@ -610,11 +610,10 @@
                 "properties": {
                     "layout": {
                         "type": "array",
-                        "description": "The draft element tree to render. Must be non-empty.",
+                        "description": "The draft element tree to render. May be empty for a layout without elements.",
                         "items": {
                             "$ref": "#/components/schemas/StoredContentElement"
-                        },
-                        "minItems": 1
+                        }
                     },
                     "entityType": {
                         "type": "string",

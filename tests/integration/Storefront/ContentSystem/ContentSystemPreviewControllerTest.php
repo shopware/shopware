@@ -119,6 +119,25 @@ class ContentSystemPreviewControllerTest extends TestCase
         static::assertStringContainsString('Manufacturer not available', $content);
     }
 
+    #[TestDox('renders a draft layout without elements as a page with an empty content region')]
+    public function testEmptyStoredEnvelopeRenders(): void
+    {
+        $store = static::getContainer()->get(ContentPreviewPayloadStore::class);
+        $token = $store->store(new ContentPreviewRequest(
+            layout: [],
+            entityType: 'product',
+            entityId: $this->createProduct(),
+            salesChannelId: $this->getSalesChannelId(),
+        ));
+
+        $response = $this->request('GET', 'content-system/preview/' . $token, []);
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        static::assertMatchesRegularExpression('/data-page-id="[0-9a-f]{32}"/', $content);
+        static::assertStringNotContainsString('data-element-id=', $content);
+    }
+
     private function createProduct(): string
     {
         $id = Uuid::randomHex();

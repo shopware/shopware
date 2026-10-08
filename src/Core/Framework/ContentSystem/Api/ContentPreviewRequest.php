@@ -21,7 +21,6 @@ final class ContentPreviewRequest
      * @param array<string, mixed> $settings
      */
     public function __construct(
-        #[Assert\NotBlank]
         #[Assert\Type('array')]
         public readonly array $layout,
         #[Assert\NotBlank]

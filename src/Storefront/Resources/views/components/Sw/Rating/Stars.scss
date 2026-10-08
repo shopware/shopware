@@ -1,3 +1,21 @@
+@property --sw-rating-stars-fill {
+    syntax: '*';
+    inherits: false;
+}
+
 .sw-rating-stars {
     color: var(--icon-review-color, #fedc70);
+}
+
+.sw-rating-stars__half {
+    position: relative;
+    display: inline-block;
+}
+
+.sw-rating-stars__half-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    // Reveal only the left fraction of the solid star; --sw-rating-stars-fill is the clipped-away right inset.
+    clip-path: inset(0 var(--sw-rating-stars-fill, 50%) 0 0);
 }

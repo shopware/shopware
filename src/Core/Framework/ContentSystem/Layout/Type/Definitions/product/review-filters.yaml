@@ -1,0 +1,17 @@
+meta:
+  label: "Product Review Filters"
+  description: "Sort and language-filter controls that drive a product's review list."
+  icon: "regular-filter-s"
+  category: "content"
+  copilot:
+    summary: "Sort and language controls for a product's reviews."
+    hints:
+      - "Use on a product detail page; place it anywhere alongside the Product Reviews element."
+      - "It controls the review list of the Product Reviews element on the same page; it renders no reviews itself."
+
+properties:
+  reviews:
+    type: Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult
+    required: false
+    title: "Reviews"
+    description: "Hydrated review result the controls read their counts and current sorting from. Received as root-scoped context from the page, which loads it once, so the controls add no load of their own."

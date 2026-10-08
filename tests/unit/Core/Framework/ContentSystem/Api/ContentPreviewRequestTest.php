@@ -34,6 +34,22 @@ class ContentPreviewRequestTest extends TestCase
     }
 
     /**
+     * A freshly created layout has no elements yet, and the studio requests a preview as soon as it opens.
+     */
+    #[TestDox('accepts an empty layout')]
+    public function testAcceptsAnEmptyLayout(): void
+    {
+        $request = new ContentPreviewRequest(
+            layout: [],
+            entityType: 'product',
+            entityId: 'prod-1',
+            salesChannelId: 'sales-channel-1',
+        );
+
+        static::assertCount(0, $this->validator()->validate($request));
+    }
+
+    /**
      * @param array<array-key, mixed> $queryParameters
      */
     #[DataProvider('rejectedQueryParameterKeyProvider')]

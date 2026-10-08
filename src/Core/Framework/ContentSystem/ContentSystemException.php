@@ -78,6 +78,7 @@ class ContentSystemException extends HttpException
     public const ROOT_SOURCE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ROOT_SOURCE_RESOLUTION_UNSUPPORTED';
     public const NONE_SOURCE_NOT_RENDERABLE = 'CONTENT_SYSTEM__NONE_SOURCE_NOT_RENDERABLE';
     public const ROOT_SOURCE_ASSIGNMENT_MISMATCH = 'CONTENT_SYSTEM__ROOT_SOURCE_ASSIGNMENT_MISMATCH';
+    public const DEFAULT_CONTENT_LAYOUT_DELETION = 'CONTENT_SYSTEM__DEFAULT_CONTENT_LAYOUT_DELETION';
     public const UNKNOWN_REQUEST_FIELD = 'CONTENT_SYSTEM__UNKNOWN_REQUEST_FIELD';
     public const UNSUPPORTED_STYLE_VALUE_TYPE = 'CONTENT_SYSTEM__UNSUPPORTED_STYLE_VALUE_TYPE';
     public const STYLE_OPTION_DUPLICATE = 'CONTENT_SYSTEM__STYLE_OPTION_DUPLICATE';
@@ -381,7 +382,7 @@ class ContentSystemException extends HttpException
     /**
      * A served layout is stored data, not client input, so a corrupt one is an internal fault rather than a
      * client defect: deliberately absent from {@see self::CLIENT_DEFECT_CODES}. Element ids are unique across
-     * a forest by contract, and the DAL write enforces it through `StoredTree::validate()`. The read path runs
+     * a forest by contract, and the DAL write enforces it through `StoredTree::duplicateElementIds()`. The read path runs
      * no validation, so a raw-SQL or migration write, or a preparation listener replacing the stored tree, can
      * put a repeated id in front of a consumer whose correctness depends on the invariant — and so can a
      * finalization listener replacing the rendered tree, which is why the rendered forest is checked as well
@@ -934,8 +935,8 @@ class ContentSystemException extends HttpException
         );
     }
 
-    // The client-facing 400 surfaced as the assignment write violation when an entity/section is bound to a layout
-    // whose immutable root source is a different page kind. Assignment is a tree-blind type-match against rootSource.
+    // The client-facing 400 when an entity/section, or a product/category default layout in system config, is bound to a
+    // layout whose immutable root source is a different page kind. Assignment is a tree-blind type-match against rootSource.
     public static function rootSourceAssignmentMismatch(string $rootSource, string $assignmentType): self
     {
         return new self(
@@ -943,6 +944,19 @@ class ContentSystemException extends HttpException
             self::ROOT_SOURCE_ASSIGNMENT_MISMATCH,
             'Cannot assign a "{{ assignmentType }}" entity to a content layout whose root source is "{{ rootSource }}".',
             ['rootSource' => $rootSource, 'assignmentType' => $assignmentType]
+        );
+    }
+
+    /**
+     * @param list<string> $layoutIds
+     */
+    public static function defaultContentLayoutDeletion(array $layoutIds): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DEFAULT_CONTENT_LAYOUT_DELETION,
+            'The content layouts with ids "{{ layoutIds }}" are assigned as a default and therefore cannot be deleted.',
+            ['layoutIds' => implode(', ', $layoutIds)]
         );
     }
 

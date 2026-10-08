@@ -19,3 +19,7 @@ Its value is a `resolves` entry value and goes through the same three sugar tier
 Because the type name is reserved for the synthesized default, an authored `bindings:` entry whose map key equals the containing file's type name is a hard load error (`ContentSystemException::bindingSpecificationReservedId`, 409) — the default can never be impersonated, and can never carry authored `inputs`. This applies whether or not the file actually declares a `resolvedBy` property.
 
 `resolvedBy` needs no `bindings:` section, no pseudo-property for the id, and no client-side binding step: the client inserts the element and the type's default is fill-applied automatically (see [default-specification.md](default-specification.md)). Author a `bindings:` entry (see [inline-bindings.md](inline-bindings.md)) when a type needs an alternative or additional wiring beyond its default.
+
+## The Classification Enum
+
+`ResolvedByLoaderBranch` is the closed tier-A classification, `@internal`, with the cases `Entity` and `EntityCollection`. `fromReferenceFqcn(fqcn)` classifies a reference property and answers `null` for neither branch; `loaderSource()` returns the built-in loader's `SOURCE` constant (`EntityLoader::SOURCE` or `EntityCollectionLoader::SOURCE`, never a bare string literal); `fromLoaderSource(source)` is its inverse; `matchesStoredValueShape(value)` is the per-branch check on a stored value.

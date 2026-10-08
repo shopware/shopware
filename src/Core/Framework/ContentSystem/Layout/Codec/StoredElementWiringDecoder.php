@@ -34,11 +34,10 @@ use Shopware\Core\Framework\Log\Package;
  * element-local violation is unreadable here rather than repaired.
  *
  * A consumer entry's key set is closed exactly as the codec closes the element and data-requirement sets. A
- * provider entry is the one map that does carry extra keys: the declared distribution strategy's own fields
- * ride alongside `type` and `distribution`, and the strategy's config object reads them. Those strategy
- * fields are, in turn, judged by the distribution config's own `fromArray()`, which substitutes its declared
- * default for a field that is absent or null but rejects a present one of the wrong type; this class neither
- * validates nor repeats that judgement itself.
+ * provider entry carries only `type`, `distribution`, and the selected distribution strategy's own fields.
+ * Its config object reads those fields through `fromArray()` and exposes the canonical key set through
+ * `toArray()`; decode rejects every authored key absent from that round-trip rather than silently dropping it.
+ * The write-side descriptor closes the same selected set independently from the config's constraints.
  *
  * The write-side counterpart is {@see StoredTreeWiringConstraints} and the render-side one is
  * {@see WiringPlanner}. The three stay independent implementations of the same rules; StoredTreeShapeConformanceTest
@@ -106,10 +105,17 @@ final class StoredElementWiringDecoder
                 );
             }
 
-            $providers[$key] = new ContextProvider(
-                $contextType,
-                $this->distributionConfig($strategy, $this->stringKeyed($config, $path))
+            $config = $this->stringKeyed($config, $path);
+            $distributionConfig = $this->distributionConfig($strategy, $config);
+
+            $this->rejectUnknownKeys(
+                $config,
+                ['type', ...array_keys($distributionConfig->toArray())],
+                $path,
+                'provider'
             );
+
+            $providers[$key] = new ContextProvider($contextType, $distributionConfig);
         }
 
         return $providers;
@@ -281,8 +287,8 @@ final class StoredElementWiringDecoder
 
     /**
      * A key set decode closes: a key outside it is a decode failure, so a field the shape does not carry is
-     * never silently dropped on the way to the stored model. The write-path descriptor closes the same set,
-     * so neither side admits what the other refuses.
+     * never silently dropped on the way to the stored model. The write-path descriptor independently closes
+     * the same selected-strategy set from its constraints, so neither side admits what the other refuses.
      *
      * @param array<array-key, mixed> $data
      * @param list<string> $known

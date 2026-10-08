@@ -35,27 +35,15 @@ export default {
         metaDescriptionLength() {
             return this.category.metaDescription?.length ?? 0;
         },
+    },
 
-        isMetaTitleExceeded() {
-            return this.metaTitleLength > this.recommendedMetaTitleLength;
+    methods: {
+        getRecommendedLengthClass(count, max) {
+            return { 'is--exceeded': count > max };
         },
 
-        isMetaDescriptionExceeded() {
-            return this.metaDescriptionLength > this.recommendedMetaDescriptionLength;
-        },
-
-        metaTitleHint() {
-            return this.$t('sw-category.base.seo.recommendedLength', {
-                count: this.metaTitleLength,
-                max: this.recommendedMetaTitleLength,
-            });
-        },
-
-        metaDescriptionHint() {
-            return this.$t('sw-category.base.seo.recommendedLength', {
-                count: this.metaDescriptionLength,
-                max: this.recommendedMetaDescriptionLength,
-            });
+        getRecommendedLengthHint(count, max) {
+            return this.$t('sw-category.base.seo.recommendedLength', { count, max });
         },
     },
 };

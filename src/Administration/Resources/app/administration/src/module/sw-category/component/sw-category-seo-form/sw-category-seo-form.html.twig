@@ -15,9 +15,9 @@
         <template #hint>
             <span
                 class="sw-category-seo-form__recommended-length"
-                :class="{ 'is--exceeded': isMetaTitleExceeded }"
+                :class="getRecommendedLengthClass(metaTitleLength, recommendedMetaTitleLength)"
             >
-                {{ metaTitleHint }}
+                {{ getRecommendedLengthHint(metaTitleLength, recommendedMetaTitleLength) }}
             </span>
         </template>
         {% endblock %}
@@ -37,9 +37,9 @@
         <template #hint>
             <span
                 class="sw-category-seo-form__recommended-length"
-                :class="{ 'is--exceeded': isMetaDescriptionExceeded }"
+                :class="getRecommendedLengthClass(metaDescriptionLength, recommendedMetaDescriptionLength)"
             >
-                {{ metaDescriptionHint }}
+                {{ getRecommendedLengthHint(metaDescriptionLength, recommendedMetaDescriptionLength) }}
             </span>
         </template>
         {% endblock %}

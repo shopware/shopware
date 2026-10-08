@@ -32,7 +32,7 @@ function getDirectNamedSlot(node: ElementNode): ElementNode | undefined {
         );
 
         if (directive) {
-            return child as ElementNode;
+            return child;
         }
     }
 
@@ -59,9 +59,7 @@ function assertSwBlockAttributes(node: ElementNode, mode: ShopwareSetupMode, tem
         getDefaultSlotDirective(node) ??
         node.children.find(
             (child): child is ElementNode =>
-                child.type === NodeTypes.ELEMENT &&
-                child.tag === 'template' &&
-                Boolean(getDefaultSlotDirective(child as ElementNode)),
+                child.type === NodeTypes.ELEMENT && child.tag === 'template' && Boolean(getDefaultSlotDirective(child)),
         );
 
     if (authoredDefaultSlot) {

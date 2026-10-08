@@ -210,7 +210,8 @@ export function createIdeBootstraps(
     eslintMajorVersion: number,
 ): Record<string, ManagedFileState> {
     const states: Record<string, ManagedFileState> = {};
-    const tsdk = `${adminRelative}/node_modules/typescript/lib`;
+    // The compatibility package delegates to the full compiler and language server here.
+    const tsdk = `${adminRelative}/node_modules/@typescript/old/lib`;
     const nodePath = `${adminRelative}/node_modules`;
     const flags = eslintMajorVersion < 10 ? ['v10_config_lookup_from_file'] : [];
     // One settings map per IDE is the single source for both the generated file

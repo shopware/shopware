@@ -62,7 +62,7 @@ export async function probeTsMode(
     }
 
     const relativePath = target.tsconfig.path;
-    const tscPath = path.join(administrationRoot, 'node_modules', 'typescript', 'bin', 'tsc');
+    const tscPath = path.join(administrationRoot, 'node_modules', 'typescript', 'lib', 'tsc.js');
     const tsconfigPath = path.resolve(projectRoot, relativePath);
     const probe = await runCommand(
         process.execPath,

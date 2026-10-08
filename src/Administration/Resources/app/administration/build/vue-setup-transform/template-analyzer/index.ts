@@ -95,7 +95,7 @@ function forEachTemplateElement(nodes: TemplateChildNode[], visit: (element: Ele
             return;
         }
 
-        const element = node as ElementNode;
+        const element = node;
         visit(element);
         forEachTemplateElement(element.children, visit);
     });

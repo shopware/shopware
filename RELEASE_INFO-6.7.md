@@ -12,7 +12,7 @@ The conditions now evaluate a line item by the data it carries instead of by its
 
 ### TypeScript 7 Administration type checking
 
-The Administration's `npm run lint:types` command now uses the native TypeScript 7 compiler. Its separate configuration preserves CommonJS and the existing package lookup behavior. TypeScript 5.7 remains available to build scripts, compiler API consumers, and extension tooling. Extensions continue to use their existing compiler and configuration.
+The Administration's `npm run lint:types` command now uses the native TypeScript 7 compiler. Its separate configuration preserves CommonJS and the existing package lookup behavior. ESLint, Vue test transforms, and extension type checking use the TypeScript 6 compatibility compiler. Extension checks may report additional diagnostics from the updated compiler; review these when running `administration:check-extensions`.
 
 ### System configuration tabs
 

@@ -4,11 +4,11 @@
   // below is a deliberate host divergence from that baseline.
   "extends": "./extension-tooling/tsconfig.base.json",
   "compilerOptions": {
-    // No ESNext/Bundler migration yet: compiler API consumers use this config.
-    // "node" resolution must be set explicitly — the inherited "Bundler" is
-    // invalid together with commonjs (TS5095).
+    // Preserve package lookup for the TypeScript 6 compiler API consumers.
     "module": "commonjs",
     "moduleResolution": "node",
+    // Native type checking uses tsconfig.ts7.json without these deprecated options.
+    "ignoreDeprecations": "6.0",
     // Kept verbatim (the base adds DOM.Iterable, which would change DOM
     // collection typings across the codebase).
     "lib": ["ES2020", "DOM", "ES2023"],
@@ -25,8 +25,14 @@
       // exports map. "node" resolution ignores that map, so without this mapping
       // every DIVE type that touches three degrades to `any`.
       "three/webgpu": ["./node_modules/@types/three/build/three.webgpu.d.ts"],
-      "@tiptap/vue-3": ["./node_modules/@tiptap/vue-3/dist/index.d.ts", "./node_modules/@shopware-ag/meteor-component-library/node_modules/@tiptap/vue-3/dist/index.d.ts"],
-      "@tiptap/extension-link": ["./node_modules/@tiptap/extension-link/dist/index.d.ts", "./node_modules/@shopware-ag/meteor-component-library/node_modules/@tiptap/extension-link/dist/index.d.ts"],
+      "@tiptap/vue-3": [
+        "./node_modules/@tiptap/vue-3/dist/index.d.ts",
+        "./node_modules/@shopware-ag/meteor-component-library/node_modules/@tiptap/vue-3/dist/index.d.ts"
+      ],
+      "@tiptap/extension-link": [
+        "./node_modules/@tiptap/extension-link/dist/index.d.ts",
+        "./node_modules/@shopware-ag/meteor-component-library/node_modules/@tiptap/extension-link/dist/index.d.ts"
+      ]
     },
     // The base empties "types" so extension programs stay runner-free; the
     // admin program does include its specs and needs the jest globals.
@@ -37,7 +43,7 @@
     // Divergence from the base preset: the native-setup tooling imports .ts files
     // with explicit extensions (e.g. build/vue-setup-transform), which the base does not allow.
     "allowImportingTsExtensions": true,
-    "noErrorTruncation": false,
+    "noErrorTruncation": false
   },
   "include": [
     "build.ts",

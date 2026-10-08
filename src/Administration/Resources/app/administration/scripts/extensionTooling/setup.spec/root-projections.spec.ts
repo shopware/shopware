@@ -41,6 +41,17 @@ describe('scripts/extensionTooling/setup root projections', () => {
         return JSON.parse(raw.split('\n').slice(1).join('\n')) as ReturnType<typeof readRootTsconfig>;
     }
 
+    it('points editors at the full TypeScript 6 language server', () => {
+        writeDefaultFixtures(projectRoot);
+        setupExtensionTooling({ projectRoot, administrationRoot });
+
+        const vscodeSettings = fs.readFileSync(path.join(projectRoot, '.vscode/settings.json'), 'utf8');
+        const zedSettings = fs.readFileSync(path.join(projectRoot, '.zed/settings.json'), 'utf8');
+
+        expect(vscodeSettings).toContain('node_modules/@typescript/old/lib');
+        expect(zedSettings).toContain('node_modules/@typescript/old/lib');
+    });
+
     it('leaves the root tsconfig empty once every extension owns a composing config', () => {
         writeDefaultFixtures(projectRoot);
 

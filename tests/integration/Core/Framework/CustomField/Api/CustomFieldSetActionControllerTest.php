@@ -24,7 +24,7 @@ class CustomFieldSetActionControllerTest extends TestCase
         static::assertSame('application/json', $response->headers->get('Content-Type'));
 
         $availableRelations = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertNotEmpty($availableRelations);
+        static::assertIsArray($availableRelations);
 
         static::assertContains('product', $availableRelations);
         static::assertNotContains('product_translation', $availableRelations);

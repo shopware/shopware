@@ -77,7 +77,7 @@ class AdminSearcherTest extends TestCase
 
         static::assertCount(1, $result);
 
-        static::assertNotEmpty($result['product']);
+        static::assertArrayHasKey('product', $result);
 
         /** @var ProductCollection $products */
         $products = $result['product']['data'];
@@ -122,8 +122,8 @@ class AdminSearcherTest extends TestCase
 
         static::assertCount(2, $resultWithPermissions);
 
-        static::assertNotEmpty($resultWithPermissions['category']);
-        static::assertNotEmpty($resultWithPermissions['product']);
+        static::assertArrayHasKey('category', $resultWithPermissions);
+        static::assertArrayHasKey('product', $resultWithPermissions);
 
         $adminSource = new AdminApiSource($this->userId);
         $adminSource->setIsAdmin(false);
@@ -136,7 +136,7 @@ class AdminSearcherTest extends TestCase
         $resultWithoutPermissions = $this->searcher->search($queries, $this->context);
 
         static::assertCount(1, $resultWithoutPermissions);
-        static::assertNotEmpty($resultWithoutPermissions['category']);
+        static::assertArrayHasKey('category', $resultWithoutPermissions);
         static::assertArrayNotHasKey('product', $resultWithoutPermissions);
     }
 }

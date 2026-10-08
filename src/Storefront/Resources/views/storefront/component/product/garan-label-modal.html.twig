@@ -1,7 +1,4 @@
 {% block component_product_garan_label_modal %}
-    {# Same lookup as the nested label on the line item, so a label that is shown there can always be opened #}
-    {% set garanLabel = productId|sw_garan_label(context.context) %}
-
     {% block component_product_garan_label_modal_title %}
         <div class="js-pseudo-modal-template-title-element">
             {{ 'detail.garanLabelTitle'|trans|sw_sanitize }}
@@ -10,7 +7,7 @@
 
     {% block component_product_garan_label_modal_body %}
         {% if garanLabel %}
-            <a href="{{ 'detail.garanLabelYourEuropeUrl'|trans|striptags }}"
+            <a href="{{ context.languageId|sw_garan_label_link }}"
                class="garan-label-modal-link"
                target="_blank"
                rel="noopener">

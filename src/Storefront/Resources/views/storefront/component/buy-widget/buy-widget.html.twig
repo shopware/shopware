@@ -324,7 +324,7 @@
 
                         {% block buy_widget_garan_label_full %}
                             <div class="product-detail-garan-label-full d-none">
-                                <a href="{{ 'detail.garanLabelYourEuropeUrl'|trans|striptags }}"
+                                <a href="{{ context.languageId|sw_garan_label_link }}"
                                    target="_blank"
                                    rel="noopener">
                                     {% sw_include '@Framework/garan/label.svg.twig' with {

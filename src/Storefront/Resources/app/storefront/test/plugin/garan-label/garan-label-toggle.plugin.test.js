@@ -60,4 +60,10 @@ describe('GaranLabelTogglePlugin tests', () => {
         expectExpanded(true);
         expect(document.activeElement).toBe(trigger());
     });
+
+    test('clicking next to the nested label does not expand the full label', () => {
+        preview().click();
+
+        expectExpanded(false);
+    });
 });

@@ -331,6 +331,19 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         expect(product().stock).toBe(10);
     });
 
+    it('should keep the entered stock when a variant inherits manage stock again', async () => {
+        wrapper = await createWrapper({ isCloseout: true, stock: 10 }, { isCloseout: true });
+        await flushPromises();
+
+        await stockInput().setValue('20');
+        await wrapper
+            .findComponent('.product-deliverability-downloadable-form__manage-stock-switch')
+            .vm.$emit('inheritance-restore');
+
+        expect(product().isCloseout).toBeNull();
+        expect(product().stock).toBe(20);
+    });
+
     it('should keep the saved stock when manage stock is turned off after saving', async () => {
         wrapper = await createWrapper({ stock: 10 });
         await flushPromises();

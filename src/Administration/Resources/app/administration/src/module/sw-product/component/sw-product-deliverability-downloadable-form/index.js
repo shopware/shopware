@@ -96,6 +96,7 @@ export default {
         },
 
         onSwitchInput(enabled) {
+            // Restoring the inheritance passes null, which keeps the stock
             if (enabled === false) {
                 // Kept until saving, so switching back on restores what the merchant entered
                 this.enteredStock = this.product.stock;
@@ -113,7 +114,7 @@ export default {
         onOrderQuantitySwitchInput(enabled) {
             this.showOrderQuantitySetting = enabled;
 
-            if (!enabled) {
+            if (enabled === false) {
                 // Kept until saving, so switching back on restores what the merchant entered
                 this.enteredOrderQuantity = this.getOrderQuantity();
                 this.setOrderQuantity({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 1 });

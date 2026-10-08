@@ -1,4 +1,5 @@
 import DeviceDetection from 'src/helper/device-detection.helper';
+import Feature from 'src/helper/feature.helper';
 import OffCanvasCartPlugin from 'src/plugin/offcanvas-cart/offcanvas-cart.plugin';
 
 /**
@@ -36,6 +37,7 @@ describe('OffCanvasCartPlugin tests', () => {
     let plugin;
 
     beforeEach(() => {
+        window.Feature = Feature;
         jest.spyOn(DeviceDetection, 'isTouchDevice').mockReturnValue(false);
 
         global.fetch = jest.fn((url, init) => {

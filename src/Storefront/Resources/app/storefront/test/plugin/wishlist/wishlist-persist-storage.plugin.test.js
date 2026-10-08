@@ -1,4 +1,5 @@
 import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage.plugin';
+import Feature from 'src/helper/feature.helper';
 import WishlistPersistStoragePlugin from 'src/plugin/wishlist/persist-wishlist.plugin';
 import Storage from 'src/helper/storage/storage.helper';
 
@@ -31,6 +32,7 @@ describe('WishlistPersistStoragePlugin tests', () => {
     }
 
     beforeEach(() => {
+        window.Feature = Feature;
         originalFetch = global.fetch;
         window.salesChannelId = 'test-sales-channel';
         storageKey = 'wishlist-test-sales-channel';

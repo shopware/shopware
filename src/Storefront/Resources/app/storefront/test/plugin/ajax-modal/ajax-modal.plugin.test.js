@@ -1,4 +1,5 @@
 import AjaxModalPlugin from 'src/plugin/ajax-modal/ajax-modal.plugin';
+import Feature from 'src/helper/feature.helper';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
 
@@ -9,6 +10,7 @@ describe('AjaxModalPlugin tests', () => {
     let ajaxModalPlugin = undefined;
 
     beforeEach(() => {
+        window.Feature = Feature;
         window.PluginManager.initializePluginsInParentElement = jest.fn();
         window.focusHandler = {
             saveFocusState: jest.fn(),

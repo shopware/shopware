@@ -1,5 +1,6 @@
 /* eslint-disable */
 import SearchPlugin from 'src/plugin/header/search-widget.plugin';
+import Feature from 'src/helper/feature.helper';
 import FocusHandler from 'src/helper/focus-handler.helper';
 import DeviceDetection from 'src/helper/device-detection.helper';
 
@@ -9,6 +10,7 @@ describe('SearchPlugin Tests', () => {
     let spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
+        window.Feature = Feature;
         document.body.innerHTML = `
             <form id="search-widget" data-search-widget="true" data-url="/search" class="js-search-form">
                 <input type="search" name="search" autocapitalize="off" autocomplete="off">

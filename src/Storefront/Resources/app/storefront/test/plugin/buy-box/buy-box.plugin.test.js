@@ -1,4 +1,5 @@
 import BuyBoxPlugin from 'src/plugin/buy-box/buy-box.plugin';
+import Feature from 'src/helper/feature.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 
 describe('BuyBoxPlugin tests', () => {
@@ -7,6 +8,7 @@ describe('BuyBoxPlugin tests', () => {
     let spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
+        window.Feature = Feature;
         const mockElement = document.createElement('div');
 
         document.$emitter = new NativeEventEmitter();

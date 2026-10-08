@@ -1,4 +1,5 @@
 import FormAjaxSubmitPlugin from 'src/plugin/forms/form-ajax-submit.plugin';
+import Feature from 'src/helper/feature.helper';
 
 /**
  * @package content
@@ -8,6 +9,7 @@ describe('FormAjaxSubmitPlugin tests', () => {
     let formElement;
 
     beforeEach(() => {
+        window.Feature = Feature;
         document.body.innerHTML = `
             <div class="replace-me"></div>
 

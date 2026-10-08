@@ -23,7 +23,6 @@ export default {
 
     data() {
         return {
-            // Saves the entered values to restore them when their switch is turned back on
             enteredStock: null,
             enteredOrderQuantity: null,
             showOrderQuantitySetting: false,

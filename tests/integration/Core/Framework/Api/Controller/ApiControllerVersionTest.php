@@ -43,7 +43,7 @@ class ApiControllerVersionTest extends TestCase
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
-        static::assertNotNull($response->headers->get('Location'));
+        static::assertSame('http://localhost/api/category/' . $id, $response->headers->get('Location'));
 
         $this->getBrowser()->jsonRequest(
             'POST',

@@ -44,6 +44,7 @@ class CacheStateSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
+        // Sub-features can be explicitly disabled in major mode; the removed subscriber must still register no events.
         if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
             return [];
         }

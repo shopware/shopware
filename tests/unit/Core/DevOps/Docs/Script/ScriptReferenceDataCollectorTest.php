@@ -68,7 +68,7 @@ class ScriptReferenceDataCollectorTest extends TestCase
         $classes = ScriptReferenceDataCollector::getShopwareClasses();
 
         static::assertIsArray($classes);
-        static::assertNotEmpty($classes);
+        static::assertNotCount(0, $classes);
         foreach ($classes as $class) {
             static::assertIsString($class);
         }
@@ -92,7 +92,7 @@ class ScriptReferenceDataCollectorTest extends TestCase
         $files = ScriptReferenceDataCollector::getFiles();
 
         static::assertIsArray($files);
-        static::assertNotEmpty($files);
+        static::assertNotCount(0, $files);
     }
 
     public function testGetFilesIsCachedAfterFirstCall(): void

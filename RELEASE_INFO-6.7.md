@@ -324,6 +324,7 @@ If you override these limits in your configuration, set `policy`, `limit` and `i
 Shopware now requires `symfony/mcp-bundle` 0.14.1, still on `mcp/sdk` 0.8. The extension tags and the registration described for 6.7.15.0 are unchanged.
 
 One behaviour changes for extensions: a `%` in MCP metadata, for example a tool description or schema such as "discount in %", is now kept as written. Before, the bundle read it as a container parameter placeholder, which either broke the container build ("non-existent parameter") or changed the text. If your extension worked around that by writing `%%`, remove the workaround, or the description now shows `%%`.
+The additional 10-minute limits of the old configuration (1000 and 600 requests) are gone, so the sustained maximum is now 300 and 120 requests per minute.
 
 ### Every Store API route publishes an extension event
 

@@ -56,9 +56,11 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
-### Product stream builders can migrate without dropping the legacy contract
+### New `ProductBackInStockEvent`
 
-`AbstractProductStreamBuilder` now implements the deprecated `ProductStreamBuilderInterface` and forwards `buildFilters()` to `enrichCriteria()`. Extensions can therefore migrate their implementations to the abstract class while remaining compatible with code that still consumes the legacy interface.
+The new `Shopware\Core\Content\Product\Events\ProductBackInStockEvent` is dispatched with the ids of products whose `available` flag changed from `false` to `true`, for example after a restock of a closeout product.
+
+`Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent` now only contains products whose `available` flag changed from `true` to `false`. If your subscriber reacts to both directions, for example to invalidate caches, subscribe to both events.
 
 ### Feature flags can belong to a major version
 

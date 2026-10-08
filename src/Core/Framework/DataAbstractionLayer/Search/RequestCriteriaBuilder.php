@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\RequestCriteriaParsedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('framework')]
 class RequestCriteriaBuilder
@@ -70,6 +72,7 @@ class RequestCriteriaBuilder
         private readonly ApiCriteriaValidator $validator,
         private readonly CriteriaArrayConverter $converter,
         private readonly CompressedCriteriaDecoder $compressedCriteriaDecoder,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ?int $maxLimit = null,
     ) {
     }
@@ -109,7 +112,11 @@ class RequestCriteriaBuilder
      */
     public function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
-        return $this->parse($payload, $criteria, $definition, $context, $this->maxLimit);
+        $criteria = $this->parse($payload, $criteria, $definition, $context, $this->maxLimit);
+
+        $this->eventDispatcher->dispatch(new RequestCriteriaParsedEvent($criteria, $definition, $context));
+
+        return $criteria;
     }
 
     public function addTotalCountMode(string $totalCountMode, Criteria $criteria): void

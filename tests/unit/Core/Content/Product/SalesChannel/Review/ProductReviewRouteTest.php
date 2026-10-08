@@ -220,6 +220,7 @@ class ProductReviewRouteTest extends TestCase
             new ApiCriteriaValidator($registry),
             new CriteriaArrayConverter($parser),
             new CompressedCriteriaDecoder(),
+            new EventDispatcher(),
             100,
         );
 

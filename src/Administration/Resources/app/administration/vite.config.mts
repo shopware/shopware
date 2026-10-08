@@ -57,9 +57,14 @@ export default defineConfig(({ command }) => {
         (isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||
         (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
     const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1' && !isInsideDockerContainer();
+    const useBundledDev = isDev && process.env.SHOPWARE_ADMIN_BUNDLED_DEV === '1';
 
     if (isProd) {
         console.log(colors.yellow('# Production mode activated 🚀'));
+    }
+
+    if (useBundledDev) {
+        console.log(colors.yellow('# Experimental bundled dev mode activated'));
     }
 
     // We only load extensions here to display the successful injection
@@ -80,6 +85,10 @@ export default defineConfig(({ command }) => {
         base,
 
         logLevel: isProd ? 'warn' : 'info',
+
+        experimental: {
+            bundledDev: useBundledDev,
+        },
 
         server: {
             open: openBrowserForWatch,
@@ -257,9 +266,9 @@ export default defineConfig(({ command }) => {
             manifest: true,
             sourcemap: useSourceMap,
             rolldownOptions: {
-                // overwrite default .html entry
+                // overwrite default .html entry, except for the bundled dev mode, which serves the index.html from the bundle
                 input: {
-                    administration: 'src/index.ts',
+                    administration: useBundledDev ? 'index.html' : 'src/index.ts',
                 },
                 output: {
                     entryFileNames: 'assets/[name]-[hash].js',

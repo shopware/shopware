@@ -379,6 +379,8 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 The Administration and the Administration code of extensions are now built with Vite 8 (Rolldown and Oxc instead of Rollup and esbuild). The watcher (`composer watch:admin`) serves the Administration over HTTPS with a self-signed certificate at `https://localhost:5173`, so the browser loads all files, including the files of extensions, over HTTP/2.
 
+To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite, start the watcher with `SHOPWARE_ADMIN_BUNDLED_DEV=1 composer watch:admin`.
+
 Building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
 
 Extension developers should check their Administration code for:

@@ -12,6 +12,7 @@ properties:
   mediaItems:
     type: Shopware\Core\Content\Media\MediaCollection
     required: true
+    mappable: true
     title: "Media"
     description: "The images to be shown in the gallery."
     resolvedBy: mediaIds

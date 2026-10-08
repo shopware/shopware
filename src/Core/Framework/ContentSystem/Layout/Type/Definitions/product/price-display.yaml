@@ -14,19 +14,19 @@ properties:
     required: false
     title: "Product"
     description: "Hydrated product whose price is shown."
+    resolvedBy: productId
+    mappable: true
+    defaultMapping:
+      type: root
+      id: product
+    adminUI:
+      component: "entity-single-select"
+      entity: "product"
 
   showTaxInfo:
     type: boolean
     title: "Show tax info"
     description: "Render the tax/shipping information link below the price."
-    default: true
-    adminUI:
-      component: "switch"
-
-  jsonLd:
-    type: boolean
-    title: "JSON-LD structured data"
-    description: "Emit schema.org (JSON-LD) structured pricing data for search engines. Enabled on the product detail page."
     default: true
     adminUI:
       component: "switch"

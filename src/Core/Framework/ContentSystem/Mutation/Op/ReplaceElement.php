@@ -7,6 +7,7 @@ use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystem
 use Shopware\Core\Framework\ContentSystem\Binding\ResolvedByLoaderBranch;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
@@ -40,6 +42,8 @@ final class ReplaceElement extends AbstractLayoutMutation
         private readonly string $newType,
         private readonly AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         private readonly BindingApplicator $bindingApplicator,
+        private readonly ?StoredMappingInspector $mappingInspector = null,
+        private readonly ?string $rootSource = null,
     ) {
     }
 
@@ -64,7 +68,7 @@ final class ReplaceElement extends AbstractLayoutMutation
 
         $keptDataRequirements = $this->carryWiring($node->dataRequirements, $properties);
         $keptProviders = $this->carryWiring($contextDefinitions->getAllProviders(), $properties);
-        $keptConsumers = $this->carryWiring($contextDefinitions->getAllConsumers(), $properties);
+        $keptConsumers = $this->carryConsumers($contextDefinitions->getAllConsumers(), $properties);
         $keptAttributedSpecifications = array_intersect_key($node->attributedSpecifications, $keptDataRequirements);
 
         $this->droppedWiring = $this->droppedWiringKeys(
@@ -90,6 +94,8 @@ final class ReplaceElement extends AbstractLayoutMutation
         if ($default !== null) {
             $replacement = $this->bindingApplicator->applyFillOnly($replacement, $default, $default->qualifiedId());
         }
+
+        $replacement = $this->dropInvalidMappings($replacement);
 
         // Whole subtree, not just the replaced element: a kept descendant may re-resolve if the new type drops a provider it consumed.
         $this->affected = $this->subtreeIds($replacement);
@@ -203,6 +209,70 @@ final class ReplaceElement extends AbstractLayoutMutation
         }
 
         return $kept;
+    }
+
+    /**
+     * @param array<string, ContextConsumer> $consumers
+     * @param array<string, PropertySpecification> $newTypeProperties
+     *
+     * @return array<string, ContextConsumer>
+     */
+    private function carryConsumers(array $consumers, array $newTypeProperties): array
+    {
+        $kept = [];
+
+        foreach ($consumers as $key => $consumer) {
+            $propertyKey = $consumer->propertyAlias ?? $key;
+
+            if (
+                $consumer->source !== null
+                && $this->mappingInspector !== null
+                && $this->rootSource !== null
+                && isset($newTypeProperties[$propertyKey])
+            ) {
+                $kept[$key] = $consumer;
+
+                continue;
+            }
+
+            if (
+                $consumer->source === null
+                && isset($newTypeProperties[$propertyKey])
+                && !$newTypeProperties[$propertyKey]->type()->isPrimitive()
+            ) {
+                $kept[$key] = $consumer;
+            }
+        }
+
+        return $kept;
+    }
+
+    private function dropInvalidMappings(StoredElement $replacement): StoredElement
+    {
+        if ($this->mappingInspector === null || $this->rootSource === null) {
+            return $replacement;
+        }
+
+        $problems = $this->mappingInspector->inspect([$replacement], $this->rootSource);
+
+        if ($problems === []) {
+            return $replacement;
+        }
+
+        $definitions = $replacement->contextDefinitions;
+        $consumers = $definitions->getAllConsumers();
+
+        foreach ($problems as $problem) {
+            unset($consumers[$problem->propertyKey]);
+            $this->droppedWiring[] = $problem->propertyKey;
+        }
+
+        $this->droppedWiring = array_values(array_unique($this->droppedWiring));
+
+        return $replacement->withContextDefinitions(new ContextDefinitions(
+            $definitions->getAllProviders(),
+            $consumers,
+        ));
     }
 
     /**

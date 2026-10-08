@@ -22,6 +22,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(ContentPreviewRequest::class)]
 class ContentPreviewRequestTest extends TestCase
 {
+    #[TestDox('accepts an empty element tree for a blank preview page')]
+    public function testAcceptsAnEmptyLayout(): void
+    {
+        static::assertCount(0, $this->validator()->validate($this->request([], [])));
+    }
+
     /**
      * PHP casts a JSON member name to an integer array key only in canonical decimal form, so this stays a
      * string key and the constraint's `is_string($key)` branch never fires — the same branch an ordinary
@@ -31,22 +37,6 @@ class ContentPreviewRequestTest extends TestCase
     public function testAcceptsAQueryParameterNameThatStaysAString(): void
     {
         static::assertCount(0, $this->validator()->validate($this->request(['elementId' => 'el-1'])));
-    }
-
-    /**
-     * A freshly created layout has no elements yet, and the studio requests a preview as soon as it opens.
-     */
-    #[TestDox('accepts an empty layout')]
-    public function testAcceptsAnEmptyLayout(): void
-    {
-        $request = new ContentPreviewRequest(
-            layout: [],
-            entityType: 'product',
-            entityId: 'prod-1',
-            salesChannelId: 'sales-channel-1',
-        );
-
-        static::assertCount(0, $this->validator()->validate($request));
     }
 
     /**
@@ -86,11 +76,12 @@ class ContentPreviewRequestTest extends TestCase
 
     /**
      * @param array<array-key, mixed> $queryParameters
+     * @param array<int|string, mixed> $layout
      */
-    private function request(array $queryParameters): ContentPreviewRequest
+    private function request(array $queryParameters, array $layout = [['id' => 'el-1', 'component' => 'Sw:Block']]): ContentPreviewRequest
     {
         return new ContentPreviewRequest(
-            layout: [['id' => 'el-1', 'component' => 'Sw:Block']],
+            layout: $layout,
             entityType: 'product',
             entityId: 'prod-1',
             salesChannelId: 'sales-channel-1',

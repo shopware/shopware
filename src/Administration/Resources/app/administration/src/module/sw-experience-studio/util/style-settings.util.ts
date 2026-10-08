@@ -138,10 +138,15 @@ export function styleOptionToElementProperty(
                   'object',
               ]
             : option.type,
+        contextTypes: ['single'],
         translatable: false,
         enum: option.enum,
         default: option.default,
         required: false,
+        // A style option is presentation, not content: there is nothing to map.
+        mappable: false,
+        inlineMappable: false,
+        defaultMapping: null,
         title: typeof adminUI.label === 'string' && adminUI.label.length > 0 ? adminUI.label : key,
         description: typeof adminUI.description === 'string' ? adminUI.description : '',
         adminUI: {

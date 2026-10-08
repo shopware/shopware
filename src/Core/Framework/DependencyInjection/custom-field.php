@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition;
 use Shopware\Core\System\CustomField\Api\CustomFieldSetActionController;
+use Shopware\Core\System\CustomField\ContentSystem\Mapping\CustomFieldMappingCandidateProvider;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
@@ -49,4 +50,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('custom_field_set_relation.repository'),
             service('custom_field.repository'),
         ]);
+
+    $services->set(CustomFieldMappingCandidateProvider::class)
+        ->args([
+            service('custom_field.repository'),
+        ])
+        ->tag('content_system.mapping_candidate_provider');
 };

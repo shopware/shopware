@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Mapping\DefaultMappingSeeder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -34,11 +35,29 @@ class PersistedLayoutMutator
         private readonly EntityRepository $contentLayoutRepository,
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly LayoutDiagnostics $diagnostics,
+        private readonly ?DefaultMappingSeeder $defaultMappingSeeder = null,
     ) {
     }
 
     public function mutate(string $layoutId, ?string $expectedVersion, LayoutMutation $mutation, Context $context): MutationResult
     {
+        return $this->mutateSourceAware(
+            $layoutId,
+            $expectedVersion,
+            static fn (string $rootSource): LayoutMutation => $mutation,
+            $context,
+        );
+    }
+
+    /**
+     * @param \Closure(string): LayoutMutation $mutationFactory
+     */
+    public function mutateSourceAware(
+        string $layoutId,
+        ?string $expectedVersion,
+        \Closure $mutationFactory,
+        Context $context,
+    ): MutationResult {
         // Serialize concurrent writers for this layout id so the load → versionMatches → update span is atomic:
         // a second writer blocks here, then re-reads the now-bumped updatedAt and fails versionMatches with a 409
         // instead of silently clobbering the first edit (the lost-update window the optimistic token alone leaves open).
@@ -56,10 +75,15 @@ class PersistedLayoutMutator
                 throw ContentSystemException::layoutVersionConflict($layoutId);
             }
 
+            $mutation = $mutationFactory($layout->getRootSource());
+
             // The entity holds the storage model the operations speak, so the loaded tree goes in as it is and the
             // mutated one is handed to the write path the same way: the layout field's serializer takes stored
             // elements directly.
             $mutated = $mutation->apply(new StoredTree($layout->getLayout()));
+            if ($this->defaultMappingSeeder !== null) {
+                $mutated = $this->defaultMappingSeeder->seed($mutated, $layout->getRootSource(), $mutation->created());
+            }
 
             $this->contentLayoutRepository->update([[
                 'id' => $layoutId,
@@ -114,6 +138,6 @@ class PersistedLayoutMutator
     {
         $rootContext = $this->rootSourceRegistry->resolve($rootSource, $context);
 
-        return $this->diagnostics->analyze($tree->roots, $rootContext);
+        return $this->diagnostics->analyze($tree->roots, $rootContext, $rootSource);
     }
 }

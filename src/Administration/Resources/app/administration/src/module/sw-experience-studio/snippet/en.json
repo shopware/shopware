@@ -7,6 +7,112 @@
       "moduleTitle": "Experience Studio",
       "createNewLayout": "Create new layout"
     },
+    "mapping": {
+      "category": {
+        "name": {
+          "label": "Category name",
+          "description": "The name of the category the page shows."
+        },
+        "description": {
+          "label": "Category description",
+          "description": "The description text of the category."
+        },
+        "metaTitle": {
+          "label": "Meta title",
+          "description": "The SEO title of the category."
+        },
+        "metaDescription": {
+          "label": "Meta description",
+          "description": "The SEO description of the category."
+        },
+        "keywords": {
+          "label": "Keywords",
+          "description": "The SEO keywords of the category."
+        },
+        "media": {
+          "label": "Category image",
+          "description": "The image assigned to the category."
+        }
+      },
+      "product": {
+        "entity": {
+          "label": "Product entity",
+          "description": "The full product shown on the page."
+        },
+        "name": {
+          "label": "Product name",
+          "description": "The name of the product the page shows."
+        },
+        "description": {
+          "label": "Product description",
+          "description": "The description text of the product."
+        },
+        "productNumber": {
+          "label": "Product number",
+          "description": "The order number of the product."
+        },
+        "metaTitle": {
+          "label": "Meta title",
+          "description": "The SEO title of the product."
+        },
+        "metaDescription": {
+          "label": "Meta description",
+          "description": "The SEO description of the product."
+        },
+        "keywords": {
+          "label": "Keywords",
+          "description": "The SEO keywords of the product."
+        },
+        "cover": {
+          "label": "Cover image",
+          "description": "The main image of the product."
+        },
+        "media": {
+          "label": "Product images",
+          "description": "All images of the product, in the order set on the product."
+        }
+      },
+      "landingPage": {
+        "name": {
+          "label": "Landing page name",
+          "description": "The name of the landing page being shown."
+        },
+        "url": {
+          "label": "Landing page URL",
+          "description": "The URL path configured for the landing page."
+        },
+        "metaTitle": {
+          "label": "Meta title",
+          "description": "The SEO title of the landing page."
+        },
+        "metaDescription": {
+          "label": "Meta description",
+          "description": "The SEO description of the landing page."
+        },
+        "keywords": {
+          "label": "Keywords",
+          "description": "The SEO keywords of the landing page."
+        }
+      },
+      "context": {
+        "currencyIsoCode": {
+          "label": "Currency ISO code",
+          "description": "The ISO 4217 code of the current Storefront currency."
+        },
+        "currencySymbol": {
+          "label": "Currency symbol",
+          "description": "The symbol of the current Storefront currency."
+        },
+        "languageLocale": {
+          "label": "Language locale",
+          "description": "The locale code of the current Storefront language."
+        },
+        "taxState": {
+          "label": "Tax state",
+          "description": "The current Storefront tax state."
+        }
+      }
+    },
     "elements": {
       "sw-grid-container": {
         "panels": {
@@ -136,8 +242,30 @@
         "boxSpacingLeft": "Left",
         "boxSpacingLinkSides": "Edit all sides together",
         "boxSpacingUnlinkSides": "Edit sides individually",
-        "inlineTextHint": "Edit text directly in the preview. Double-click to edit.",
-        "inlineTextEditingActive": "Inline editing is currently active in the preview."
+        "mapping": {
+          "mapAction": "Dynamic data",
+          "insertAction": "Insert dynamic data",
+          "unmapAction": "Remove dynamic data",
+          "modalTitle": "Select dynamic data",
+          "modalIntro": "Choose the data that fills \"{property}\" when the page is shown.",
+          "sourceIntro": "Choose a property to use for this field.",
+          "searchLabel": "Search",
+          "searchPlaceholder": "Search data fields",
+          "noCandidates": "No dynamic data is available for this field.",
+          "noSearchResults": "No data field matches your search.",
+          "groups": {
+            "basic": "Basic information",
+            "seo": "SEO",
+            "media": "Media",
+            "customFields": "Custom Fields",
+            "storefront-context": "Storefront context"
+          },
+          "sources": {
+            "rootEntity": "Root entity",
+            "storefrontContext": "Storefront context",
+            "navigationLabel": "Data sources"
+          }
+        }
       },
       "elementPicker": {
         "title": "Add element",

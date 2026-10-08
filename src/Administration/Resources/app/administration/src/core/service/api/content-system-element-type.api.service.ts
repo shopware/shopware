@@ -46,10 +46,24 @@ export interface ContentSystemElementTypePropertyAdminUi {
  */
 export interface ContentSystemElementTypeProperty {
     type: string | string[];
+    /**
+     * Which kinds of mapping candidate can fill this property: `single`, `collection`, or both for a union
+     * or a bare `object`. Derived from `type` on the server, because telling a collection class from an
+     * entity class is a PHP class-hierarchy question.
+     */
+    contextTypes: Array<'single' | 'collection'>;
     translatable: boolean;
     enum: Array<string | number | boolean> | null;
     default: string | number | boolean | null;
     required: boolean;
+    /** Whether the author may replace this property's static value with a mapping onto the layout's entity data. */
+    mappable: boolean;
+    defaultMapping: { type: string; id: string; config?: Record<string, unknown>; path?: string } | null;
+    /**
+     * Whether the author may embed `{{map:path}}` tokens in this property's text, mapping values *within* the value
+     * rather than instead of it. Only ever set on a `string` property, and never together with `mappable`.
+     */
+    inlineMappable: boolean;
     title: string;
     description: string;
     adminUI: ContentSystemElementTypePropertyAdminUi | null;

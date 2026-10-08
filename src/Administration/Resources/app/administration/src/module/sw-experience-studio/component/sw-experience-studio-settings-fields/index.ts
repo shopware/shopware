@@ -3,6 +3,8 @@ import type {
     ContentSystemElementTypeProperty,
     ContentSystemElementTypeSpecification,
 } from 'src/core/service/api/content-system-element-type.api.service';
+import type { ContentSystemMappingCandidate } from 'src/core/service/api/content-system-mapping-candidate.api.service';
+import type { ContentSystemViolation } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import {
     getAdminUiHelpText,
     getAdminUiProps as getPropertyAdminUiProps,
@@ -10,6 +12,13 @@ import {
     getPropertyControlType,
 } from '../../util/element-settings.util';
 import { normalizeBoxSpacingCSSValue } from '../../util/box-spacing.util';
+import {
+    getCandidatesForProperty,
+    getInlineMappingCandidates,
+    getMappingCandidateTranslation,
+    isInlineMappableProperty,
+    isMappableProperty,
+} from '../../util/element-mapping.util';
 import { isViewportSpecificBreakpointMap } from '../../util/style-settings.util';
 import template from './sw-experience-studio-settings-fields.html.twig';
 import './sw-experience-studio-settings-fields.scss';
@@ -87,25 +96,34 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
-        isInlineEditingActive: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-        showInlineTextHints: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
         showPanels: {
             type: Boolean,
             required: false,
             default: false,
         },
+        mappingCandidates: {
+            type: Array as PropType<ContentSystemMappingCandidate[]>,
+            required: false,
+            default: () => [],
+        },
+        /**
+         * Catalogue path per mapped property key. A property absent here renders its authored value.
+         */
+        mappings: {
+            type: Object as PropType<Record<string, string>>,
+            required: false,
+            default: () => ({}),
+        },
+        violations: {
+            type: Array as PropType<ContentSystemViolation[]>,
+            required: false,
+            default: () => [],
+        },
     },
 
     emits: [
         'update-field',
+        'update-mapping',
     ],
 
     watch: {
@@ -128,6 +146,7 @@ export default Shopware.Component.wrapComponentConfig({
             expandedResponsiveProperties: {} as Record<string, boolean>,
             responsiveGlobalSnapshots: {} as Record<string, PrimitiveValue>,
             touchedBreakpointAwareProperties: {} as Record<string, boolean>,
+            mappingModalFieldKey: null as string | null,
         };
     },
 
@@ -164,6 +183,28 @@ export default Shopware.Component.wrapComponentConfig({
 
             return Array.from(panels.values());
         },
+
+        mappingModalField(): SettingsFieldDefinition | null {
+            if (this.mappingModalFieldKey === null) {
+                return null;
+            }
+
+            return this.fields.find((field) => field.key === this.mappingModalFieldKey) ?? null;
+        },
+
+        mappingModalCandidates(): ContentSystemMappingCandidate[] {
+            const field = this.mappingModalField;
+
+            return field === null ? [] : this.getMappingCandidatesForField(field);
+        },
+
+        /**
+         * Computed once for the panel rather than per field: inline mapping fills text rather than a typed slot, so
+         * unlike `getMappingCandidatesForField` the narrowing does not depend on which property is being edited.
+         */
+        inlineMappingCandidates(): ContentSystemMappingCandidate[] {
+            return getInlineMappingCandidates(this.mappingCandidates);
+        },
     },
 
     methods: {
@@ -196,28 +237,114 @@ export default Shopware.Component.wrapComponentConfig({
             return getPropertyControlType(property);
         },
 
+        getMappingCandidatesForField(field: SettingsFieldDefinition): ContentSystemMappingCandidate[] {
+            if (!isMappableProperty(field.property)) {
+                return [];
+            }
+
+            return getCandidatesForProperty(this.mappingCandidates, field.property);
+        },
+
+        isFieldMapped(field: SettingsFieldDefinition): boolean {
+            return typeof this.mappings[field.key] === 'string';
+        },
+
+        isInlineMappableField(field: SettingsFieldDefinition): boolean {
+            return isInlineMappableProperty(field.property);
+        },
+
+        getFieldMappingPath(field: SettingsFieldDefinition): string | null {
+            return this.mappings[field.key] ?? null;
+        },
+
+        /**
+         * A mapping offered by one root source can survive a layout being pointed at another, so fall back to the
+         * stored path when the current catalogue no longer describes it.
+         */
+        getFieldMappingLabel(field: SettingsFieldDefinition): string {
+            const path = this.getFieldMappingPath(field);
+
+            if (path === null) {
+                return '';
+            }
+
+            const candidate = this.mappingCandidates.find((entry) => entry.path === path);
+
+            if (!candidate) {
+                return path;
+            }
+
+            const configuredLabel = getMappingCandidateTranslation(
+                candidate.labelTranslations,
+                Shopware.Store.get('session').currentLocale ?? '',
+                Shopware.Context.app.fallbackLocale ?? '',
+            );
+
+            if (configuredLabel !== '') {
+                return configuredLabel;
+            }
+
+            return this.$te(candidate.label) ? this.$t(candidate.label) : candidate.path;
+        },
+
+        canMapField(field: SettingsFieldDefinition): boolean {
+            return !this.isFieldMapped(field) && this.getMappingCandidatesForField(field).length > 0;
+        },
+
+        getFieldViolation(field: SettingsFieldDefinition): ContentSystemViolation | null {
+            const violations = this.violations.filter((violation) => violation.key === field.key);
+
+            return violations.find((violation) => violation.severity === 'error') ?? violations[0] ?? null;
+        },
+
+        onOpenMappingModal(field: SettingsFieldDefinition): void {
+            if (!this.allowEdit) {
+                return;
+            }
+
+            this.mappingModalFieldKey = field.key;
+        },
+
+        onCloseMappingModal(): void {
+            this.mappingModalFieldKey = null;
+        },
+
+        onSelectMapping(candidate: ContentSystemMappingCandidate): void {
+            const field = this.mappingModalField;
+
+            this.mappingModalFieldKey = null;
+
+            if (field === null || !this.allowEdit) {
+                return;
+            }
+
+            this.$emit('update-mapping', {
+                key: field.key,
+                source: candidate.source,
+                contextType: candidate.contextType,
+                projection: candidate.projection,
+            });
+        },
+
+        onUnmapField(field: SettingsFieldDefinition): void {
+            if (!this.allowEdit) {
+                return;
+            }
+
+            this.$emit('update-mapping', {
+                key: field.key,
+                source: null,
+                contextType: null,
+                projection: null,
+            });
+        },
+
         isBreakpointAwareField(field: SettingsFieldDefinition): boolean {
             if (field.breakpointAware === true) {
                 return true;
             }
 
             return this.getControlType(field.property) === 'responsive-number';
-        },
-
-        isInlineTextProperty(key: string, property: ContentSystemElementTypeProperty): boolean {
-            const selectedElementType = this.selectedElementType as ContentSystemElementTypeSpecification | null;
-
-            if (!this.showInlineTextHints || !selectedElementType || key !== 'text') {
-                return false;
-            }
-
-            const matchesTextType = selectedElementType.name.endsWith(':text');
-            const matchesTextProperty = Boolean(
-                selectedElementType.properties.text &&
-                    this.getControlType(selectedElementType.properties.text) === 'richtext',
-            );
-
-            return (matchesTextType || matchesTextProperty) && this.getControlType(property) === 'richtext';
         },
 
         getPropertyValue(key: string, property: ContentSystemElementTypeProperty): PrimitiveValue {

@@ -45,7 +45,7 @@
             {% endblock %}
 
             {% block sw_experience_studio_detail_workspace %}
-                <div class="sw-experience-studio-detail__workspace">
+                <div ref="workspace" class="sw-experience-studio-detail__workspace" :class="{ 'is-resizing': isResizingElementSettings, 'has-rich-text-settings': selectedElementHasRichText }" :style="{ '--element-settings-width': elementSettingsWidth + 'px' }">
                 {% block sw_experience_studio_detail_sidebar_tree %}
                     <sw-experience-studio-sidebar-tree
                         class="sw-experience-studio-detail__sidebar-tree"
@@ -68,13 +68,21 @@
                         :sales-channel-id="previewSalesChannelId"
                         :entity-type="previewEntityType"
                         :entity-id="previewEntityId"
-                        :suspend-auto-reload="isInlineEditing"
                         @select-element="onSelectElement"
-                        @inline-edit-start="onInlineEditStart"
-                        @inline-edit-change="onInlineEditChange"
-                        @inline-edit-commit="onInlineEditCommit"
-                        @inline-edit-cancel="onInlineEditCancel"
                     />
+                {% endblock %}
+
+                {% block sw_experience_studio_detail_settings_resizer %}
+                    <div
+                        class="sw-experience-studio-detail__settings-resizer"
+                        role="separator"
+                        aria-orientation="vertical"
+                        :aria-valuenow="elementSettingsWidth"
+                        aria-valuemin="280"
+                        aria-valuemax="800"
+                        tabindex="0"
+                        @pointerdown="onElementSettingsResizeStart"
+                    ></div>
                 {% endblock %}
 
                 {% block sw_experience_studio_detail_element_settings %}
@@ -90,9 +98,11 @@
                         :type-load-error="elementTypeStore.loadError"
                         :style-option-load-error="styleOptionStore.loadError"
                         :allow-edit="allowSave"
-                        :is-inline-editing-active="isInlineEditing"
+                        :mapping-candidates="mappingCandidates"
+                        :violations="selectedElementViolations"
                         @update-properties="onElementSettingsChange"
                         @update-style="onElementStyleChange"
+                        @update-mapping="onElementMappingChange"
                     />
                 {% endblock %}
                 </div>

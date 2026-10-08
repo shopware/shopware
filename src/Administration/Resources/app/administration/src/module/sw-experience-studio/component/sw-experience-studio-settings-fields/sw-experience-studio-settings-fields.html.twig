@@ -30,8 +30,50 @@
                     v-for="field in panel.fields"
                     :key="field.key"
                     class="sw-experience-studio-settings-fields__field"
+                    :class="{ 'is--error': getFieldViolation(field)?.severity === 'error' }"
                 >
-                    <template v-if="isBreakpointAwareField(field)">
+                    <div
+                        v-if="isFieldMapped(field)"
+                        class="sw-experience-studio-settings-fields__mapping mt-field"
+                    >
+                        <span class="sw-experience-studio-settings-fields__mapping-label mt-field__label label">
+                            {{ field.property.title }}
+                        </span>
+
+                        <div class="sw-experience-studio-settings-fields__mapping-chip">
+                            <button
+                                type="button"
+                                class="sw-experience-studio-settings-fields__mapping-value"
+                                :disabled="!allowEdit"
+                                :title="getFieldMappingPath(field)"
+                                @click="onOpenMappingModal(field)"
+                            >
+                                <mt-icon
+                                    name="regular-variables-xs"
+                                    size="12px"
+                                />
+                                <span class="sw-experience-studio-settings-fields__mapping-name">
+                                    {{ getFieldMappingLabel(field) }}
+                                </span>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="sw-experience-studio-settings-fields__mapping-remove"
+                                :disabled="!allowEdit"
+                                :title="$t('sw-experience-studio.detail.elementSettings.mapping.unmapAction')"
+                                :aria-label="$t('sw-experience-studio.detail.elementSettings.mapping.unmapAction')"
+                                @click="onUnmapField(field)"
+                            >
+                                <mt-icon
+                                    name="regular-times-xs"
+                                    size="10px"
+                                />
+                            </button>
+                        </div>
+                    </div>
+
+                    <template v-else-if="isBreakpointAwareField(field)">
                         <div class="sw-experience-studio-settings-fields__responsive-control">
                             <div
                                 v-if="getControlType(field.property) === 'responsive-number'"
@@ -241,8 +283,18 @@
                     </template>
 
                     <template v-else>
+                        <sw-experience-studio-inline-text-field
+                            v-if="isInlineMappableField(field)"
+                            :label="field.property.title"
+                            :help-text="getPropertyHelpText(field.property)"
+                            :value="String(getPropertyValue(field.key, field.property) ?? '')"
+                            :candidates="inlineMappingCandidates"
+                            :disabled="!allowEdit"
+                            @update:value="onUpdateField(field.key, $event)"
+                        />
+
                         <mt-switch
-                            v-if="getControlType(field.property) === 'switch'"
+                            v-else-if="getControlType(field.property) === 'switch'"
                             v-bind="getControlProps(field.property)"
                             :label="field.property.title"
                             :help-text="getPropertyHelpText(field.property)"
@@ -371,24 +423,6 @@
                             @update:value="onUpdateField(field.key, $event)"
                         />
 
-                        <div
-                            v-else-if="isInlineTextProperty(field.key, field.property)"
-                            class="sw-experience-studio-settings-fields__inline-text-hint"
-                        >
-                            <div class="sw-experience-studio-settings-fields__inline-text-title">
-                                {{ field.property.title }}
-                            </div>
-                            <div class="sw-experience-studio-settings-fields__inline-text-description">
-                                {{ $t('sw-experience-studio.detail.elementSettings.inlineTextHint') }}
-                            </div>
-                            <div
-                                v-if="isInlineEditingActive"
-                                class="sw-experience-studio-settings-fields__inline-text-state"
-                            >
-                                {{ $t('sw-experience-studio.detail.elementSettings.inlineTextEditingActive') }}
-                            </div>
-                        </div>
-
                         <mt-text-editor
                             v-else-if="getControlType(field.property) === 'richtext'"
                             v-bind="getControlProps(field.property)"
@@ -417,9 +451,40 @@
                             @update:model-value="onUpdateField(field.key, $event)"
                         />
                     </template>
+
+                    <div
+                        v-if="getFieldViolation(field)"
+                        class="sw-experience-studio-settings-fields__violation"
+                        role="alert"
+                    >
+                        {{ getFieldViolation(field).message }}
+                    </div>
+
+                    <button
+                        v-if="canMapField(field)"
+                        type="button"
+                        class="sw-experience-studio-settings-fields__mapping-trigger"
+                        :disabled="!allowEdit"
+                        @click="onOpenMappingModal(field)"
+                    >
+                        <mt-icon
+                            name="regular-variables-xs"
+                            size="12px"
+                        />
+                        {{ $t('sw-experience-studio.detail.elementSettings.mapping.mapAction') }}
+                    </button>
                 </div>
             </div>
         </template>
     </sw-collapse>
+
+    <sw-experience-studio-mapping-modal
+        v-if="mappingModalField"
+        :candidates="mappingModalCandidates"
+        :property-title="mappingModalField.property.title"
+        :current-path="getFieldMappingPath(mappingModalField)"
+        @select="onSelectMapping"
+        @close="onCloseMappingModal"
+    />
 </div>
 {% endblock %}

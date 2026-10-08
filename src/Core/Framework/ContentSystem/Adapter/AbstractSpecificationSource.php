@@ -59,4 +59,19 @@ abstract class AbstractSpecificationSource
     {
         return [];
     }
+
+    /**
+     * The root-source id whose mapping catalogue applies to a layout this source renders, or null for a source
+     * offering none. Entity sources override it with their content-layout entity type, which is the id
+     * `Mapping\Registry\AbstractContentSystemMappingCandidateRegistry::forRootSource()` is keyed by.
+     *
+     * This is stated rather than derived. The alternative — taking the first segment of a mapping path and
+     * treating it as the catalogue key — happens to work today only because an entity source's single
+     * page-level requirement key equals its entity type, and it would break the moment a catalogue offers a
+     * path whose root segment is not an ambient key, such as the planned `context.*` candidates.
+     */
+    public function rootSource(): ?string
+    {
+        return null;
+    }
 }

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapabil
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\Log\Package;
@@ -30,6 +31,7 @@ class ElementResolver
         private readonly AbstractContentSystemDataLoaderMapResolver $mapResolver,
         private readonly DataLoaderConfigSerializerProvider $configSerializers,
         private readonly DataLoaderProvider $dataLoaderProvider,
+        private readonly MappingConsumers $mappingConsumers,
     ) {
     }
 
@@ -45,8 +47,10 @@ class ElementResolver
         }
 
         // A string $element carries no stored wiring by design: only a StoredElement instance has
-        // dataRequirements, so a type-name-only resolve never produces a Stored candidate.
+        // dataRequirements, so a type-name-only resolve never produces a Stored candidate. The same holds
+        // for mappings, which live on the element too.
         $storedRequirements = $element instanceof StoredElement ? $element->dataRequirements : [];
+        $mappedPaths = $element instanceof StoredElement ? $this->mappingConsumers->mappedPaths($element) : [];
 
         $resolutions = [];
 
@@ -61,6 +65,7 @@ class ElementResolver
                     required: $property->required(),
                     type: \is_string($declaredType) ? $declaredType : null,
                     default: $propertyType->default(),
+                    resolved: $this->mappedCandidate($mappedPaths[$key] ?? null),
                 );
 
                 continue;
@@ -70,6 +75,39 @@ class ElementResolver
         }
 
         return $resolutions;
+    }
+
+    /**
+     * How a mapped primitive is filled, or null for one that is not mapped.
+     *
+     * A primitive property used to report nothing at all — no resolved pick and an empty candidates list —
+     * which was fine while every primitive took its value from the element's own `properties` and became
+     * wrong the moment an author could bind one to entity data. The Administration reads these resolutions to
+     * show where a value comes from, and without this a mapped headline is indistinguishable from an empty one.
+     *
+     * {@see CandidateOrigin::Root} because that is literally where the value comes from: the delivery layer
+     * resolves the path against the layout's root-ambient context
+     * ({@see \Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver::overlayRootContext()}).
+     * `contextKey` carries the mapped path rather than the ambient key alone, matching the dotted `contextKey`
+     * a root candidate already reports for a path-selected reference.
+     *
+     * It is a RESOLVED pick and not a candidate offer, for the reason applied wiring is: a candidate is
+     * something an authoring UI may still choose, and this one is already chosen. The catalogue of what could
+     * be chosen instead is the mapping candidate endpoint's, not this list's — a resolution has no way to
+     * enumerate it, since it never sees the root source.
+     *
+     * Note what this deliberately does NOT do: a required primitive with a mapping and no authored value is
+     * still reported `unresolved_required` by the diagnostics layer. That is correct rather than a gap. A
+     * mapped path that resolves to null falls back to the authored value instead of delivering the null, so a
+     * required property with nothing authored genuinely can render empty, and the mapping does not make it safe.
+     */
+    private function mappedCandidate(?string $path): ?ResolutionCandidate
+    {
+        if ($path === null) {
+            return null;
+        }
+
+        return new ResolutionCandidate(origin: CandidateOrigin::Root, contextKey: $path);
     }
 
     private function resolveReference(string $key, string $fqcn, bool $required, ResolutionContext $context, ?DataRequirement $storedRequirement): PropertyResolution

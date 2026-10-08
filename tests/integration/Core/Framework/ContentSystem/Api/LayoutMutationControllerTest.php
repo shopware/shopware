@@ -275,12 +275,11 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame(['media' => self::CORE_MEDIA_BINDING_ID], $inserted['attributedSpecifications']);
     }
 
-    #[TestDox('mirrors a resolved root-ambient reference onto a freshly inserted element as a root-scope acceptsContext consumer')]
+    #[TestDox('seeds the default product mapping on a freshly inserted element while retaining its resolvedBy loader')]
     public function testInsertElementMirrorsRootContextConsumerOntoCreatedElement(): void
     {
-        // Sw:Product:PriceDisplay declares a bare SalesChannelProductEntity "product" reference: no resolvedBy
-        // (so no default binding fills it) and no self-provided key, and the "product" root source offers that
-        // exact FQCN, so every mirror skip clears and the live resolver, not a hand-built candidate, proves it.
+        // Sw:Product:PriceDisplay declares the product root source as its default mapping and keeps a
+        // resolvedBy loader underneath it so unmapping restores the entity selection.
         $body = $this->mutate('insert-element', [
             'layout' => [],
             'type' => 'Sw:Product:PriceDisplay',
@@ -288,11 +287,16 @@ class LayoutMutationControllerTest extends TestCase
         ]);
 
         $inserted = $body['layout'][0];
-        static::assertArrayNotHasKey('product', $inserted['dataRequirements'] ?? []);
         static::assertSame(
-            ['type' => 'single', 'required' => false, 'scope' => 'root'],
+            [
+                'type' => 'single',
+                'required' => false,
+                'scope' => 'root',
+                'source' => ['type' => 'root', 'id' => 'product'],
+            ],
             $inserted['acceptsContext']['product'],
         );
+        static::assertArrayHasKey('product', $inserted['dataRequirements'] ?? []);
     }
 
     #[TestDox('resolves the bound media reference via CandidateOrigin::Stored once mediaId is filled in on the bound draft')]

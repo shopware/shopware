@@ -10,6 +10,7 @@ The DI tags a plugin registers its content system services under, and the classe
 | `content_system.specification_source` | `section` attribute    | `section` (required, e.g. `header` / `footer`) |
 | `content_system.data_loader`          | `getRequirementType()` | None                                           |
 | `content_system.config_serializer`    | `getSource()`          | None                                           |
+| `content_system.mapping_candidate_provider` | `supports()` / `provide()` | `priority` (optional; higher-priority providers win overlapping candidates) |
 | `content_system.section_resolver`     | `section` attribute    | `section` (required, e.g. `main` / `header` / `footer`) |
 
 Framework-owned DI configuration: `src/Core/Framework/DependencyInjection/content-system.php`. Domain sources register in their owning module's DI instead: `content_system.entity_specification_source` is tagged in `src/Core/Content/DependencyInjection/product.php`, `category.php` and `landing_page.php`, and `content_system.specification_source` is tagged in `src/Storefront/DependencyInjection/content-system.php` for the header and footer sections.
@@ -26,6 +27,7 @@ Key types extension developers encounter when working with the ContentSystem:
 | `AbstractContentDataLoader`                 | Custom data loader          |
 | `AbstractContentDataLoaderConfig`           | Loader configuration DTO    |
 | `AbstractContentDataLoaderConfigSerializer` | Config encode/decode        |
+| `AbstractMappingCandidateProvider`          | Curated mapping sources and runtime resolution |
 
 ### Result / Value Objects
 
@@ -37,6 +39,9 @@ Key types extension developers encounter when working with the ContentSystem:
 | `PlaceholderValues`       | Created via `PlaceholderValues::from(array $values)`                                   |
 
 The layout value objects a source assembles and the pipeline consumes — `RenderingSpecification`, `ResolvedContentLayout`, `LayoutReference`, `RenderableLayout` — are listed in [AGENTS.md](../AGENTS.md#source-code-references).
+Mapping provider candidate and runtime contracts are described in [Mapping/README.md](../Mapping/README.md). Providers may resolve only catalogued values, including declared loader results and approved Storefront context values; a missing value omits the mapped property.
+
+The layout value objects a source assembles and the pipeline consumes — `RenderingSpecification`, `ResolvedContentLayout`, `LayoutReference`, `RenderableLayout` — are described in [README.md](../README.md#key-classes).
 
 ### Enums
 

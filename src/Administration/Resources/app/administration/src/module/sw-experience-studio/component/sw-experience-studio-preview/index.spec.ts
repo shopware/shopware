@@ -3,36 +3,45 @@ import previewComponent from './index';
 
 describe('module/sw-experience-studio/component/sw-experience-studio-preview', () => {
     const methods = (previewComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
-    const watchers = (previewComponent as unknown as { watch: Record<string, (...args: unknown[]) => unknown> }).watch;
 
-    it('allows reload scheduling only when auto reload is not suspended', () => {
+    it('schedules a debounced reload', () => {
         const debouncedLoadPreview = jest.fn();
 
-        methods.schedulePreviewReload.call({
-            suspendAutoReload: true,
-            debouncedLoadPreview,
-        });
-        expect(debouncedLoadPreview).not.toHaveBeenCalled();
+        methods.schedulePreviewReload.call({ debouncedLoadPreview });
 
-        methods.schedulePreviewReload.call({
-            suspendAutoReload: false,
-            debouncedLoadPreview,
-        });
         expect(debouncedLoadPreview).toHaveBeenCalledTimes(1);
     });
 
-    it('triggers a reload when suspend flag switches off', () => {
-        const debouncedLoadPreview = jest.fn();
+    it('relays element selection but ignores inline edit messages from the preview', () => {
+        const created = (previewComponent as unknown as { created: () => void }).created;
+        const emit = jest.fn();
+        const vm = {
+            debouncedLoadPreview: null as (() => void) | null,
+            previewMessageHandler: null as ((event: MessageEvent) => void) | null,
+            isTrustedPreviewMessage: () => true,
+            schedulePreviewReload: jest.fn(),
+            $emit: emit,
+        };
 
-        watchers.suspendAutoReload.call(
-            {
-                debouncedLoadPreview,
-            },
-            false,
-            true,
-        );
+        created.call(vm);
 
-        expect(debouncedLoadPreview).toHaveBeenCalledTimes(1);
+        const dispatch = (data: unknown) => {
+            vm.previewMessageHandler?.({ data } as MessageEvent);
+        };
+
+        dispatch({ source: 'sw-experience-studio-preview', type: 'select-element', elementId: 'element-1' });
+        dispatch({ source: 'sw-experience-studio-preview', type: 'inline-edit-start', elementId: 'element-1' });
+        dispatch({
+            source: 'sw-experience-studio-preview',
+            type: 'inline-edit-commit',
+            elementId: 'element-1',
+            value: '<p>Overwritten</p>',
+        });
+
+        expect(emit).toHaveBeenCalledTimes(1);
+        expect(emit).toHaveBeenCalledWith('select-element', 'element-1');
+
+        window.removeEventListener('message', vm.previewMessageHandler as EventListener);
     });
 
     it('validates preview origin and source frame', () => {

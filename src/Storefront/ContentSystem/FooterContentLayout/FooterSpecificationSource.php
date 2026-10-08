@@ -38,6 +38,11 @@ class FooterSpecificationSource extends AbstractSpecificationSource
         return true;
     }
 
+    public function rootSource(): string
+    {
+        return 'footer';
+    }
+
     public function resolveLayoutId(string $path, Request $request, SalesChannelContext $context): string
     {
         return $this->resolveAssignment($context)->getContentLayoutId();

@@ -602,6 +602,80 @@
                     }
                 ]
             },
+            "ContentSystemMappingSourceReference": {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                    "type": { "type": "string", "minLength": 1, "example": "root" },
+                    "id": { "type": "string", "minLength": 1, "example": "product" },
+                    "path": { "type": "string", "minLength": 1, "example": "name" },
+                    "config": { "type": "object", "additionalProperties": true }
+                },
+                "additionalProperties": false
+            },
+            "ContentLayoutMapPropertyRequest": {
+                "title": "Map property request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "propertyKey", "source", "rootSource"],
+                        "properties": {
+                            "elementId": { "$ref": "#/components/schemas/ContentElementId" },
+                            "propertyKey": { "type": "string", "minLength": 1 },
+                            "source": { "$ref": "#/components/schemas/ContentSystemMappingSourceReference" },
+                            "rootSource": { "type": "string", "minLength": 1, "example": "product" }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutUnmapPropertyRequest": {
+                "title": "Unmap property request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "propertyKey"],
+                        "properties": {
+                            "elementId": { "$ref": "#/components/schemas/ContentElementId" },
+                            "propertyKey": { "type": "string", "minLength": 1 }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedMapPropertyRequest": {
+                "title": "Map property request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "propertyKey", "source"],
+                        "properties": {
+                            "elementId": { "$ref": "#/components/schemas/ContentElementId" },
+                            "propertyKey": { "type": "string", "minLength": 1 },
+                            "source": { "$ref": "#/components/schemas/ContentSystemMappingSourceReference" }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedUnmapPropertyRequest": {
+                "title": "Unmap property request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "propertyKey"],
+                        "properties": {
+                            "elementId": { "$ref": "#/components/schemas/ContentElementId" },
+                            "propertyKey": { "type": "string", "minLength": 1 }
+                        }
+                    }
+                ]
+            },
             "ContentPreviewEntityRequest": {
                 "title": "Content preview request",
                 "type": "object",
@@ -611,6 +685,7 @@
                     "layout": {
                         "type": "array",
                         "description": "The draft element tree to render. May be empty for a layout without elements.",
+                        "description": "The draft element tree to render; an empty array renders a blank page.",
                         "items": {
                             "$ref": "#/components/schemas/StoredContentElement"
                         }

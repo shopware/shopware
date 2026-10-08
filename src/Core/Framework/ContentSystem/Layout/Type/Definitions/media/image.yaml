@@ -13,6 +13,7 @@ properties:
   media:
     type: Shopware\Core\Content\Media\MediaEntity
     required: true
+    mappable: true
     title: "Media"
     description: "The image to be shown."
     resolvedBy: mediaId

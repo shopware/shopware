@@ -598,6 +598,76 @@
                     "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
                 }
             }
+        },
+        "/_action/content-system/layout/{layoutId}/map-property": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Map a property in a stored layout",
+                "operationId": "contentSystemLayoutPersistedMapProperty",
+                "description": "Maps one mappable property to a path catalogued for the stored layout's authoritative root source and commits the edit. Context cardinality and projection are derived by the server.",
+                "parameters": [{
+                    "name": "layoutId",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedMapPropertyRequest" }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed layout plus diagnostics.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/unmap-property": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Unmap a property in a stored layout",
+                "operationId": "contentSystemLayoutPersistedUnmapProperty",
+                "description": "Removes one property mapping, retains its authored fallback value, and commits the edit.",
+                "parameters": [{
+                    "name": "layoutId",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedUnmapPropertyRequest" }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed layout plus diagnostics.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                }
+            }
         }
     }
 }

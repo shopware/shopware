@@ -84,10 +84,10 @@ class ServiceReferenceGeneratorTest extends TestCase
         $result = $this->generator->generate();
 
         static::assertIsArray($result);
-        static::assertNotEmpty($result);
+        static::assertNotCount(0, $result);
         $expectedKey = array_key_first($result);
         static::assertIsString($expectedKey);
-        static::assertNotEmpty($result[$expectedKey]);
+        static::assertNotSame('', $result[$expectedKey]);
         static::assertStringContainsString('ValidService', $result[$expectedKey]);
     }
 

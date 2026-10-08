@@ -196,15 +196,27 @@ SCSS;
 
     public function testFeatureFlagVariablesAreInjected(): void
     {
-        // Stands in for a theme style file that reads the feature map: it only compiles when ThemeCompiler injects $sw-features
-        $scssCompiler = new class(static::getContainer()->get(ScssPhpCompiler::class)) extends AbstractScssCompiler {
-            public function __construct(private readonly AbstractScssCompiler $inner)
-            {
+        $features = Feature::getAll();
+        static::assertNotSame([], $features);
+
+        // Stands in for a theme style file that reads the feature map: one rule per registered flag, which only compiles when ThemeCompiler injects $sw-features
+        $probe = '';
+        $expected = '';
+        foreach ($features as $flag => $active) {
+            $probe .= \sprintf('.feature-map-%s { content: map-get($sw-features, "%s"); }', md5($flag), $flag);
+            $expected .= \sprintf(".feature-map-%s {\n  content: %s;\n}\n", md5($flag), $active ? 'true' : 'false');
+        }
+
+        $scssCompiler = new class(static::getContainer()->get(ScssPhpCompiler::class), $probe) extends AbstractScssCompiler {
+            public function __construct(
+                private readonly AbstractScssCompiler $inner,
+                private readonly string $probe,
+            ) {
             }
 
             public function compileString(AbstractCompilerConfiguration $config, string $scss, ?string $path = null): string
             {
-                return $this->inner->compileString($config, $scss . '.feature-map { content: type-of($sw-features); }', $path);
+                return $this->inner->compileString($config, $scss . $this->probe, $path);
             }
         };
 
@@ -218,7 +230,7 @@ SCSS;
         );
 
         $themePrefix = (new MD5ThemePathBuilder())->assemblePath($this->mockSalesChannelId, 'test-theme-id');
-        static::assertStringContainsString('content: map', $this->filesystem->read('theme/' . $themePrefix . '/css/all.css'));
+        static::assertStringContainsString($expected, $this->filesystem->read('theme/' . $themePrefix . '/css/all.css'));
     }
 
     // ===================================

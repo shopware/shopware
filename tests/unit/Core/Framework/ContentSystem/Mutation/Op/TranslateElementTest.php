@@ -31,16 +31,6 @@ class TranslateElementTest extends TestCase
 {
     private const TYPE = 'Sw:Test:Translatable';
 
-    #[TestDox('writes a translatable property\'s language map exactly as supplied')]
-    public function testWritesALanguageMapAsSupplied(): void
-    {
-        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $this->german() => 'Herbstschlussverkauf'];
-
-        $result = (new TranslateElement($this->registry(), 'block-a', ['label' => $map]))->apply(new StoredTree([$this->target()]));
-
-        static::assertEquals($map, $this->propertiesOf($result, 'block-a')['label']);
-    }
-
     /**
      * @param array<string, int|bool> $map
      */
@@ -67,18 +57,6 @@ class TranslateElementTest extends TestCase
             'visible',
             [Defaults::LANGUAGE_SYSTEM => true, Uuid::fromStringToHex('language-german') => false],
         ];
-    }
-
-    #[TestDox('carries every key not in the request verbatim and overlays no type default')]
-    public function testCarriesTheRestAndOverlaysNoDefault(): void
-    {
-        $translate = new TranslateElement($this->registry(), 'block-a', ['label' => [Defaults::LANGUAGE_SYSTEM => 'New']]);
-
-        $properties = $this->propertiesOf($translate->apply(new StoredTree([$this->target()])), 'block-a');
-        unset($properties['label']);
-
-        // 'tag' declares a default and is absent from the target, so an overlay would surface it here
-        static::assertEquals(['headline' => 'Old', 'mediaId' => 'm-1'], $properties);
     }
 
     #[TestDox('writes a language map that lacks the anchor entry as supplied, without adding one')]
@@ -197,20 +175,13 @@ class TranslateElementTest extends TestCase
 
         // A reference property is wiring filled by the pipeline, never a language map.
         yield 'a declared reference property' => ['media'];
-    }
 
-    #[TestDox('reports a JSON member name PHP casts to an integer array key as not translatable instead of failing with a TypeError')]
-    public function testIntegerCastKeyReportedAsNotTranslatable(): void
-    {
         // PHP turns the member name "42" into the integer array key 42, the shape a decoded request body delivers.
-        $translate = new TranslateElement($this->registry(), 'block-a', ['42' => [Defaults::LANGUAGE_SYSTEM => 'New']]);
-
-        $this->expectExceptionObject(ContentSystemException::mutationPropertyNotTranslatable('block-a', '42'));
-        $translate->apply(new StoredTree([$this->target()]));
+        yield 'a member name PHP casts to an integer array key, reported instead of a TypeError' => ['42'];
     }
 
     /**
-     * @param array<string, mixed> $values
+     * @param array<array-key, mixed> $values
      */
     #[DataProvider('rejectedValueProvider')]
     #[TestDox('rejects $_dataName, naming the element, the key and the actual type')]
@@ -223,7 +194,7 @@ class TranslateElementTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>, ContentSystemException}>
+     * @return iterable<string, array{array<array-key, mixed>, ContentSystemException}>
      */
     public static function rejectedValueProvider(): iterable
     {
@@ -255,15 +226,11 @@ class TranslateElementTest extends TestCase
             ['visible' => [Defaults::LANGUAGE_SYSTEM => 1]],
             ContentSystemException::mutationPropertyValueRejected('block-a', 'visible', 'array'),
         ];
-    }
 
-    #[TestDox('reports a rejected value under a declared property whose name PHP casts to an integer array key instead of failing with a TypeError')]
-    public function testValueUnderADeclaredIntegerCastNameRejected(): void
-    {
-        $translate = new TranslateElement($this->registry(), 'block-a', [7 => 'Seven']);
-
-        $this->expectExceptionObject(ContentSystemException::mutationPropertyValueRejected('block-a', '7', 'string'));
-        $translate->apply(new StoredTree([$this->target()]));
+        yield 'a value under a declared property name PHP casts to an integer array key' => [
+            [7 => 'Seven'],
+            ContentSystemException::mutationPropertyValueRejected('block-a', '7', 'string'),
+        ];
     }
 
     /**

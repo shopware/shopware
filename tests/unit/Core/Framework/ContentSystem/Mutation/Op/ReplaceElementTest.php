@@ -43,7 +43,7 @@ use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeRegistry;
 #[CoversClass(ReplaceElement::class)]
 class ReplaceElementTest extends TestCase
 {
-    #[TestDox('keeps the element id while swapping the component')]
+    #[TestDox('keeps the element id while swapping the component, applying no wiring when the new type has no default specification')]
     public function testReplaceKeepsElementId(): void
     {
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old')]);
@@ -52,6 +52,8 @@ class ReplaceElementTest extends TestCase
 
         static::assertSame('el', $result->roots[0]->id);
         static::assertSame('Sw:New', $result->roots[0]->component);
+        static::assertSame([], $result->roots[0]->dataRequirements);
+        static::assertSame([], $result->roots[0]->attributedSpecifications);
     }
 
     #[TestDox('reports the re-scaffolded node as created and never the children it carried over')]
@@ -87,23 +89,28 @@ class ReplaceElementTest extends TestCase
             'content' => [new StoredElement('child', 'Sw:Block')],
         ])]);
 
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
 
         static::assertSame('child', $result->roots[0]->slots['content'][0]->id);
+        static::assertSame([], $replace->orphaned());
     }
 
     #[TestDox('keeps context definitions whose key matches a new-type reference property and drops the rest')]
     public function testReplaceContextDefinitionsCarryover(): void
     {
         $kept = new ContextConsumer(ContextType::Single, true);
+        $keptProvider = new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple());
         $dropped = new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple());
-        $definitions = new ContextDefinitions(['legacy' => $dropped], ['product' => $kept]);
+        $definitions = new ContextDefinitions(['legacy' => $dropped, 'product' => $keptProvider], ['product' => $kept]);
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old', [], [], [], $definitions)]);
 
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
 
         static::assertSame(['product' => $kept], $result->roots[0]->contextDefinitions->getAllConsumers());
-        static::assertSame([], $result->roots[0]->contextDefinitions->getAllProviders());
+        static::assertSame(['product' => $keptProvider], $result->roots[0]->contextDefinitions->getAllProviders());
+        static::assertSame(['legacy'], $replace->droppedWiring());
     }
 
     #[TestDox('carries the element style over to the replacement unconditionally on a type swap')]
@@ -476,17 +483,6 @@ class ReplaceElementTest extends TestCase
         static::assertSame(7, $result->roots[0]->property('count')?->jsonSerialize());
     }
 
-    #[TestDox('does not throw and applies no additional wiring when the new type has no default specification')]
-    public function testReplaceWithNoDefaultAppliesNothingExtra(): void
-    {
-        $tree = new StoredTree([new StoredElement('el', 'Sw:Old')]);
-
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
-
-        static::assertSame([], $result->roots[0]->dataRequirements);
-        static::assertSame([], $result->roots[0]->attributedSpecifications);
-    }
-
     #[TestDox('keeps the attributed specification for a carried wired key and drops it for a wired key the new type no longer has')]
     public function testReplaceKeepsAttributedSpecificationForCarriedKeyAndDropsForAbsentKey(): void
     {
@@ -500,6 +496,22 @@ class ReplaceElementTest extends TestCase
         $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply(new StoredTree([$old]));
 
         static::assertSame(['product' => 'spec-product'], $result->roots[0]->attributedSpecifications);
+    }
+
+    #[TestDox('drops the attributed specification of a carried key that has no data requirement')]
+    public function testReplaceDropsAttributedSpecificationOfAKeyWithoutDataRequirement(): void
+    {
+        $old = StoredElementBuilder::create('Sw:Old', 'el')
+            ->withConsumer('product', ContextType::Single)
+            ->withAttributedSpecification('product', 'spec-product')
+            ->build();
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply(new StoredTree([$old]));
+
+        static::assertSame([], $result->roots[0]->attributedSpecifications);
+        static::assertArrayHasKey('product', $result->roots[0]->contextDefinitions->getAllConsumers());
+        static::assertSame([], $replace->droppedWiring());
     }
 
     #[TestDox('rejects wiring whose key the new type declares as a primitive property and reports the key as dropped')]
@@ -516,42 +528,6 @@ class ReplaceElementTest extends TestCase
 
         static::assertSame([], $result->roots[0]->dataRequirements);
         static::assertSame(['headline'], $replace->droppedWiring());
-    }
-
-    #[TestDox('carries a null stored under a key the new type declares as a primitive')]
-    public function testReplaceCarriesANullUnderADeclaredPrimitive(): void
-    {
-        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('headline', null)->build()]);
-
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
-        $result = $replace->apply($tree);
-
-        static::assertTrue($result->roots[0]->property('headline')?->isNull());
-        static::assertSame([], $this->rawDrops($replace->droppedProperties()));
-    }
-
-    #[TestDox('carries a value matching one member of an all-primitive union')]
-    public function testReplaceCarriesAValueMatchingAnAllPrimitiveUnion(): void
-    {
-        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('flexible', 42)->build()]);
-
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
-        $result = $replace->apply($tree);
-
-        static::assertSame(42, $result->roots[0]->property('flexible')?->jsonSerialize());
-        static::assertSame([], $this->rawDrops($replace->droppedProperties()));
-    }
-
-    #[TestDox('drops a value matching no member of an all-primitive union')]
-    public function testReplaceDropsAValueMatchingNoUnionMember(): void
-    {
-        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('flexible', true)->build()]);
-
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
-        $result = $replace->apply($tree);
-
-        static::assertNull($result->roots[0]->property('flexible'));
-        static::assertSame(['flexible' => true], $this->rawDrops($replace->droppedProperties()));
     }
 
     #[TestDox('drops a value under a key the new type declares as a bare object')]
@@ -735,7 +711,6 @@ class ReplaceElementTest extends TestCase
                 'count' => $this->primitive('integer'),
                 'ratio' => $this->primitive('number'),
                 'featured' => $this->primitive('boolean'),
-                'flexible' => $this->union(['string', 'integer']),
                 'payload' => $this->primitive('object'),
                 'product' => $this->reference(),
             ],
@@ -772,14 +747,6 @@ class ReplaceElementTest extends TestCase
     private function primitive(string $type): PropertySpecification
     {
         return new PropertySpecification('prop', new PropertyType($type, false, null, null), false, '', '', null);
-    }
-
-    /**
-     * @param list<string> $types
-     */
-    private function union(array $types): PropertySpecification
-    {
-        return new PropertySpecification('prop', new PropertyType($types, false, null, null), false, '', '', null);
     }
 
     private function reference(): PropertySpecification

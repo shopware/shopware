@@ -53,19 +53,8 @@ class UpdateElementPropertiesTest extends TestCase
         static::assertSame(3, $this->propertiesOf($result, 'block-a')['columns']);
     }
 
-    #[TestDox('writes a translatable property\'s language map exactly as supplied')]
-    public function testWritesALanguageMapAsSupplied(): void
-    {
-        $german = Uuid::randomHex();
-        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $german => 'Herbstschlussverkauf'];
-
-        $result = (new UpdateElementProperties($this->registry(), 'block-a', ['label' => $map], []))->apply(new StoredTree([$this->target()]));
-
-        static::assertSame($map, $this->propertiesOf($result, 'block-a')['label']);
-    }
-
     /**
-     * @param array<string, int|float|bool> $map
+     * @param array<string, string|int|float|bool> $map
      */
     #[DataProvider('typedLanguageMapProvider')]
     #[TestDox('writes $_dataName exactly as supplied')]
@@ -77,10 +66,15 @@ class UpdateElementPropertiesTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, array<string, int|float|bool>}>
+     * @return iterable<string, array{string, array<string, string|int|float|bool>}>
      */
     public static function typedLanguageMapProvider(): iterable
     {
+        yield 'a string language map on a translatable string' => [
+            'label',
+            [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', Uuid::fromStringToHex('language-german') => 'Herbstschlussverkauf'],
+        ];
+
         yield 'a boolean language map on a translatable boolean' => [
             'visible',
             [Defaults::LANGUAGE_SYSTEM => false, Uuid::fromStringToHex('language-german') => true],
@@ -130,7 +124,7 @@ class UpdateElementPropertiesTest extends TestCase
     }
 
     #[TestDox('reports the target as the only affected element and mints nothing')]
-    public function testAffectedIsTheTargetAndNothingIsCreated(): void
+    public function testReportsTheTargetAsAffectedNotCreated(): void
     {
         $update = new UpdateElementProperties($this->registry(), 'block-a', ['headline' => 'New'], []);
         $update->apply(new StoredTree([$this->target(), StoredElementBuilder::create(self::TYPE, 'block-b')->build()]));
@@ -177,7 +171,7 @@ class UpdateElementPropertiesTest extends TestCase
 
         // Instance identity is deliberately unasserted: the module contract permits a result tree to alias an
         // input subtree by reference, so whether the sibling comes back as the same instance or an equal one is
-        // not this op's promise to keep. StoredTree::replace()'s own rebuild behaviour is pinned in StoredTreeTest.
+        // not this op's promise to keep.
         static::assertEquals($sibling, $result->roots[1]);
     }
 
@@ -201,7 +195,7 @@ class UpdateElementPropertiesTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $values
+     * @param array<array-key, mixed> $values
      * @param list<string> $removeKeys
      */
     #[DataProvider('undeclaredKeyProvider')]
@@ -215,11 +209,19 @@ class UpdateElementPropertiesTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>, list<string>, string}>
+     * @return iterable<string, array{array<array-key, mixed>, list<string>, string}>
      */
     public static function undeclaredKeyProvider(): iterable
     {
         yield 'a key the type does not declare at all' => [['ghost' => 'x'], [], 'ghost'];
+
+        // A JSON member name such as "0" arrives as an integer array key and must still report as an unknown key.
+        yield 'an integer-cast key in the value map' => [[0 => 'x'], [], '0'];
+
+        // A union is declared but not primitive, so it fails the primitive half of the gate.
+        yield 'a declared union property as a write target' => [['span' => 2], [], 'span'];
+
+        yield 'a declared union property in the removal list' => [[], ['span'], 'span'];
 
         // A reference property is wiring, not a value: it is declared, so it passes the presence half of the
         // gate and is refused on the primitive half.
@@ -234,15 +236,6 @@ class UpdateElementPropertiesTest extends TestCase
         yield 'a declared reference property in the removal list' => [[], ['media'], 'media'];
 
         yield 'a resolvedBy storage key in the removal list' => [[], ['mediaId'], 'mediaId'];
-    }
-
-    #[TestDox('rejects a key present in both the value map and the removal list with a 400')]
-    public function testKeyInBothListsRejected(): void
-    {
-        $update = new UpdateElementProperties($this->registry(), 'block-a', ['headline' => 'New'], ['headline']);
-
-        $this->expectExceptionObject(ContentSystemException::mutationPropertyConflict('block-a', 'headline'));
-        $update->apply(new StoredTree([$this->target()]));
     }
 
     /**
@@ -364,9 +357,9 @@ class UpdateElementPropertiesTest extends TestCase
             ContentSystemException::mutationPropertyConflict('block-a', 'columns'),
         ];
 
-        // The two rules above are broken by the same key, so they cannot tell a per-key evaluation from the
-        // spec's per-rule one. Here the failures sit on different keys in different lists: an implementation
-        // that judged the value map before scanning the removal list would report the rejection instead.
+        // The failures sit on different keys in different lists, which a per-key evaluation cannot tell from the
+        // spec's per-rule one when one key breaks both: an implementation that judged the value map before
+        // scanning the removal list would report the rejection instead.
         yield 'the unknown removal key ahead of a value rejection on another key' => [
             ['columns' => 'three'],
             ['ghost'],
@@ -412,6 +405,7 @@ class UpdateElementPropertiesTest extends TestCase
                 ->primitive('visible', 'boolean', translatable: true)
                 ->primitive('ratio', 'number', translatable: true)
                 ->primitive('columns', 'integer')
+                ->declared('span', ['integer', 'object'])
                 ->reference('media', StubStruct::class)
                 ->build(),
         ]);

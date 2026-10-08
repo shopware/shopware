@@ -42,8 +42,8 @@ use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 #[CoversClass(InsertElement::class)]
 class InsertElementTest extends TestCase
 {
-    #[TestDox('appends a fresh element of the type to the root with a server-minted id and no seeded style, and reports that id as the only affected element')]
-    public function testInsertAppendsRootElementAndReportsMintedIdAsAffected(): void
+    #[TestDox('appends a fresh element of the type to the root with a server-minted id, no seeded style, and no wiring when the type has no default specification')]
+    public function testInsertAppendsFreshRootElement(): void
     {
         $tree = new StoredTree([new StoredElement('existing', 'Sw:Block')]);
 
@@ -55,22 +55,34 @@ class InsertElementTest extends TestCase
         static::assertSame('Sw:Card', $result->roots[1]->component);
         static::assertTrue(Uuid::isValid($result->roots[1]->id));
         static::assertTrue($result->roots[1]->style->isEmpty());
+        static::assertSame([], $result->roots[1]->dataRequirements);
+        static::assertSame([], $result->roots[1]->attributedSpecifications);
+    }
+
+    #[TestDox('reports the minted id as the whole affected set and the whole created set')]
+    public function testInsertReportsMintedIdInBothChangeSets(): void
+    {
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $insert->apply(new StoredTree([new StoredElement('existing', 'Sw:Block')]));
+
         static::assertSame([$result->roots[1]->id], $insert->affected());
         static::assertSame([$result->roots[1]->id], $insert->created());
     }
 
-    #[TestDox('splices the new element into a parent slot at the given index')]
+    #[TestDox('splices the new element into a parent slot at the given index, leaving the parent\'s other fields intact')]
     public function testInsertIntoParentSlotAtIndex(): void
     {
-        $parent = new StoredElement('parent', 'Sw:Block', [], [], [
+        $style = new ElementStyle(['padding' => ['md' => '1rem']]);
+        $parent = new StoredElement('parent', 'Sw:Block', [], ['title' => StoredValue::ofString('Section')], [
             'content' => [new StoredElement('a', 'Sw:Block'), new StoredElement('b', 'Sw:Block')],
-        ]);
+        ], new ContextDefinitions([], []), $style);
 
         $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'parent', slot: 'content', index: 1);
         $result = $insert->apply(new StoredTree([$parent]));
 
         $children = $result->roots[0]->slots['content'];
         static::assertSame(['a', 'Sw:Card', 'b'], [$children[0]->id, $children[1]->component, $children[2]->id]);
+        static::assertSame($style->toArray(), $result->roots[0]->style->toArray());
     }
 
     #[TestDox('prepends to the root when index zero is given without a parent')]
@@ -83,19 +95,6 @@ class InsertElementTest extends TestCase
 
         static::assertSame('Sw:Card', $result->roots[0]->component);
         static::assertSame('existing', $result->roots[1]->id);
-    }
-
-    #[TestDox('preserves the parent style when inserting into its slot')]
-    public function testInsertIntoSlotPreservesParentStyle(): void
-    {
-        $style = new ElementStyle(['padding' => ['md' => '1rem']]);
-        $tree = new StoredTree([new StoredElement('parent', 'Sw:Block', [], ['title' => StoredValue::ofString('Section')], [
-            'content' => [new StoredElement('a', 'Sw:Block')],
-        ], new ContextDefinitions([], []), $style)]);
-
-        $result = (new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'parent', slot: 'content'))->apply($tree);
-
-        static::assertSame($style->toArray(), $result->roots[0]->style->toArray());
     }
 
     #[TestDox('seeds top-level primitive properties that declare a default')]
@@ -194,16 +193,6 @@ class InsertElementTest extends TestCase
         static::assertSame([Defaults::LANGUAGE_SYSTEM => 'Autumn sale'], $result->roots[0]->property('text')?->jsonSerialize());
     }
 
-    #[TestDox('does not throw and applies no wiring or attribution when the type has no default specification')]
-    public function testInsertWithNoDefaultAppliesNothing(): void
-    {
-        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
-        $result = $insert->apply(new StoredTree([]));
-
-        static::assertSame([], $result->roots[0]->dataRequirements);
-        static::assertSame([], $result->roots[0]->attributedSpecifications);
-    }
-
     #[TestDox('auto-applies the type default specification onto a fresh insert with no explicit bindingSpecificationId, attributed to its own qualified id')]
     public function testInsertAutoAppliesTypeDefault(): void
     {
@@ -265,7 +254,7 @@ class InsertElementTest extends TestCase
      * scaffolding a fresh element of the declaring type, the same path a real insert takes.
      */
     #[DataProvider('seedingPropertyProvider')]
-    #[TestDox('every default producer emits the stored shape the property type defines: $_dataName')]
+    #[TestDox('emits the stored shape the property type defines from every default producer: $_dataName')]
     public function testInsertScaffoldsPrimitiveDefaultsAgreeingWithTheStoredShapeRule(string $key, PropertyType $propertyType): void
     {
         $produced = $this->produceDefaults($key, $propertyType);
@@ -303,7 +292,7 @@ class InsertElementTest extends TestCase
     }
 
     #[DataProvider('nonSeedingPropertyProvider')]
-    #[TestDox('every default producer emits no key for a property that seeds nothing: $_dataName')]
+    #[TestDox('emits no key from any default producer for a property that seeds nothing: $_dataName')]
     public function testInsertScaffoldsNoKeyForAPropertyThatSeedsNothing(string $key, PropertyType $propertyType): void
     {
         $produced = $this->produceDefaults($key, $propertyType);

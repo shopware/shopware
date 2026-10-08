@@ -8,8 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
@@ -126,6 +130,48 @@ class AttachElementTest extends TestCase
         $carried = $result->roots[0]->property('text');
         static::assertNotNull($carried);
         static::assertObjectEquals(StoredValue::fromDecoded($translations), $carried);
+    }
+
+    #[TestDox('wires and attributes the type default binding on the root and nested elements of an unwired subtree')]
+    public function testAttachAppliesTypeDefaultBindingToUnwiredSubtree(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $default = new BindingSpecification(
+            'Sw:Card',
+            'Sw:Card',
+            'Card',
+            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])],
+            [],
+            'core',
+        );
+        $bindingRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $bindingRegistry->method('all')->willReturn(['core:Sw:Card' => $default]);
+        $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $serializers->method('decode')->willReturnCallback(static function (string $source, array $data) use ($config): AbstractContentDataLoaderConfig {
+            static::assertSame('entity', $source);
+            static::assertSame(['entity' => 'media', 'property' => 'mediaId'], $data);
+
+            return $config;
+        });
+        $incoming = new StoredElement('incoming', 'Sw:Card', [], [], [
+            'content' => [new StoredElement('incoming-child', 'Sw:Card')],
+        ]);
+
+        $attach = new AttachElement(
+            $this->registry(),
+            $incoming,
+            $bindingRegistry,
+            new BindingApplicator($serializers, static::createStub(AbstractContentSystemElementTypeRegistry::class)),
+        );
+        $result = $attach->apply(new StoredTree([]));
+
+        $attached = $result->roots[0];
+        $child = $attached->slots['content'][0];
+        $wiring = ['media' => new DataRequirement('media', 'entity', $config)];
+        static::assertEquals($wiring, $attached->dataRequirements);
+        static::assertSame(['media' => 'core:Sw:Card'], $attached->attributedSpecifications);
+        static::assertEquals($wiring, $child->dataRequirements);
+        static::assertSame(['media' => 'core:Sw:Card'], $child->attributedSpecifications);
     }
 
     #[TestDox('detaches nothing: orphaned and dropped wiring stay empty')]

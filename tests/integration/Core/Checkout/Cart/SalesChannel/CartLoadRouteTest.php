@@ -85,7 +85,7 @@ class CartLoadRouteTest extends TestCase
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(0, $response['price']['totalPrice']);
-        static::assertEmpty($response['errors']);
+        static::assertCount(0, $response['errors']);
     }
 
     /**
@@ -181,7 +181,8 @@ class CartLoadRouteTest extends TestCase
 
         static::assertSame(10, $response['price']['totalPrice']);
         static::assertCount(1, $response['lineItems']);
-        static::assertNotEmpty($response['hash']);
+        static::assertIsString($response['hash']);
+        static::assertNotSame('', $response['hash']);
     }
 
     public function testDeferredCartErrors(): void
@@ -221,7 +222,7 @@ class CartLoadRouteTest extends TestCase
         // Check that product was added to cart
         $cartResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(1, $cartResponse['lineItems']);
-        static::assertEmpty($cartResponse['errors']);
+        static::assertCount(0, $cartResponse['errors']);
 
         // Set product out of stock (to force a temporary cart error)
         $this->productRepository->update([
@@ -240,7 +241,7 @@ class CartLoadRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         $cartResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEmpty($cartResponse['lineItems']);
+        static::assertCount(0, $cartResponse['lineItems']);
         static::assertCount(1, $cartResponse['errors']);
 
         // Fetch cart again, error should not be present anymore
@@ -248,8 +249,8 @@ class CartLoadRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         $cartResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEmpty($cartResponse['lineItems']);
-        static::assertEmpty($cartResponse['errors']);
+        static::assertCount(0, $cartResponse['lineItems']);
+        static::assertCount(0, $cartResponse['errors']);
     }
 
     private function createPersistedCartWithProduct(): SalesChannelContext

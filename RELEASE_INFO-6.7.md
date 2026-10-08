@@ -358,6 +358,10 @@ GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_I
 
 ## API
 
+### Generated document number in the V2 creation response
+
+The `POST /api/_action/order/document-v2/create` response now includes `documentNumber`, allowing clients to compare the assigned number with a previously displayed preview.
+
 ### HTML in customer name and address fields is rejected with a dedicated violation
 
 Registration and address routes now reject HTML in `firstName`, `lastName`, `title`, `company`, `department`, `street`, `additionalAddressLine1`, `additionalAddressLine2` and `city` with the violation code `VIOLATION::CONTAINS_HTML_ERROR` and a source pointer to the offending field. Previously such input was emptied while being sanitized and then surfaced as a generic error that the storefront could not attach to a field, so a first name like `<John` failed registration with "Something went wrong".

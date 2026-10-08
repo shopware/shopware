@@ -2,7 +2,7 @@
 
 What an entity-based render loads before your layout runs, and how a layout takes delivery of it.
 
-Entity-based rendering automatically loads the main entity before rendering your layout -- no `dataRequirements` declaration needed. The entity ID is available via placeholders, and the entity object is loaded with pre-configured associations and available as the layout's root-ambient context.
+Entity-based rendering automatically loads the main entity before rendering your layout -- no `dataRequirements` declaration needed -- whenever an element on the page reads it through a root-scoped consumer. The entity ID is available via placeholders, and the entity object is loaded with pre-configured associations and available as the layout's root-ambient context. A page-level requirement that no element reads is not loaded, so it runs no query and contributes no cache tag.
 
 **Auto-loaded entities and associations:**
 

@@ -92,10 +92,8 @@ class MediaUploadServiceTest extends TestCase
 
     public function testUploadFromLocalPath(): void
     {
-        $filePath = __DIR__ . '/fixtures/test-image.jpg';
+        $filePath = __DIR__ . '/../fixtures/shopware.jpg';
         $params = new MediaUploadParameters();
-
-        (new Filesystem())->dumpFile($filePath, 'test content');
 
         $fileSaver = $this->createMock(FileSaver::class);
         $fileSaver
@@ -123,8 +121,6 @@ class MediaUploadServiceTest extends TestCase
         static::assertCount(1, $this->mediaRepository->creates);
         static::assertTrue(isset($this->mediaRepository->creates[0][0]['id']));
         static::assertTrue(isset($this->mediaRepository->creates[0][0]['private']));
-
-        (new Filesystem())->remove($filePath);
     }
 
     public function testUploadFromLocalPathFileNotFound(): void
@@ -200,17 +196,19 @@ class MediaUploadServiceTest extends TestCase
             'test-hash'
         );
 
-        $tmpDir = sys_get_temp_dir();
-
+        $tempFile = null;
         $fileFetcher = $this->createMock(FileFetcher::class);
         $fileFetcher
             ->expects($this->once())
             ->method('fetchFromURL')
-            ->with(
-                $url,
-                static::stringContains($tmpDir)
-            )
-            ->willReturn($mediaFile);
+            ->willReturnCallback(static function (string $fetchedUrl, string $destination) use ($url, $mediaFile, &$tempFile): MediaFile {
+                static::assertSame($url, $fetchedUrl);
+                // the service hands the fetcher a temp file it created and removes it after the upload
+                static::assertFileExists($destination);
+                $tempFile = $destination;
+
+                return $mediaFile;
+            });
 
         $fileSaver = $this->createMock(FileSaver::class);
         $fileSaver
@@ -227,9 +225,10 @@ class MediaUploadServiceTest extends TestCase
 
         $result = $service->uploadFromURL($url, $this->context, $params);
 
-        static::assertIsString($result);
         static::assertTrue(Uuid::isValid($result));
         static::assertCount(1, $this->mediaRepository->creates);
+        static::assertNotNull($tempFile);
+        static::assertFileDoesNotExist($tempFile);
     }
 
     public function testLinkURL(): void
@@ -355,11 +354,9 @@ class MediaUploadServiceTest extends TestCase
 
     public function testUploadWithDeduplication(): void
     {
-        $filePath = __DIR__ . '/fixtures/test-image.jpg';
+        $filePath = __DIR__ . '/../fixtures/shopware.jpg';
         $existingMediaId = Uuid::randomHex();
         $params = new MediaUploadParameters(deduplicate: true);
-
-        (new Filesystem())->dumpFile($filePath, 'test content');
 
         // Setup the repository to return an existing media ID for deduplication
         $this->mediaRepository->addSearch([$existingMediaId]);
@@ -374,16 +371,12 @@ class MediaUploadServiceTest extends TestCase
 
         static::assertSame($existingMediaId, $result);
         static::assertCount(0, $this->mediaRepository->creates);
-
-        (new Filesystem())->remove($filePath);
     }
 
     public function testUploadWithErrorHandling(): void
     {
-        $filePath = __DIR__ . '/fixtures/test-image.jpg';
+        $filePath = __DIR__ . '/../fixtures/shopware.jpg';
         $params = new MediaUploadParameters();
-
-        (new Filesystem())->dumpFile($filePath, 'test content');
 
         $fileSaver = $this->createMock(FileSaver::class);
         $fileSaver
@@ -403,14 +396,12 @@ class MediaUploadServiceTest extends TestCase
             // Verify that the media was created and then deleted due to error
             static::assertCount(1, $this->mediaRepository->creates);
             static::assertCount(1, $this->mediaRepository->deletes);
-
-            (new Filesystem())->remove($filePath);
         }
     }
 
     public function testUploadWithCustomParameters(): void
     {
-        $filePath = __DIR__ . '/fixtures/test-image.jpg';
+        $filePath = __DIR__ . '/../fixtures/shopware.jpg';
         $customId = Uuid::randomHex();
         $mediaFolderId = Uuid::randomHex();
         $params = new MediaUploadParameters(
@@ -419,9 +410,6 @@ class MediaUploadServiceTest extends TestCase
             private: true,
             fileName: 'custom-name.jpg'
         );
-
-        // Create test file
-        file_put_contents($filePath, 'test content');
 
         $fileSaver = $this->createMock(FileSaver::class);
         $fileSaver
@@ -449,8 +437,6 @@ class MediaUploadServiceTest extends TestCase
         static::assertSame($customId, $createdMedia['id']);
         static::assertTrue($createdMedia['private']);
         static::assertSame($mediaFolderId, $createdMedia['mediaFolderId']);
-
-        (new Filesystem())->remove($filePath);
     }
 
     public function testAddExternalThumbnailsToMedia(): void
@@ -759,9 +745,4 @@ class MediaUploadServiceTest extends TestCase
 
         return $service;
     }
-}
-
-// Create fixtures directory structure
-if (!is_dir(__DIR__ . '/fixtures')) {
-    mkdir(__DIR__ . '/fixtures', 0777, true);
 }

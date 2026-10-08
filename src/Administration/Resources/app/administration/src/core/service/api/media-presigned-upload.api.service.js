@@ -10,12 +10,12 @@ const s3Client = Axios.create();
 
 /**
  * Text-based MIME types that must be served with an explicit `charset=utf-8`, otherwise browsers render
- * multi-byte characters (ä, ö, ü, ß, …) as mojibake when the object is served directly from S3/CDN.
+ * multi-byte characters (ä, ö, ü, ß, …) as mojibake when the object is served directly from remote storage/CDN.
  *
  * IMPORTANT: This is the client-side mirror of `FileInfoHelper::TEXT_BASED_MIME_TYPES` in
- * src/Core/Content/Media/File/FileInfoHelper.php. In the presigned direct-to-S3 flow the `Content-Type` header
- * sent on the PUT must match the value the server presigned byte-for-byte, or S3 rejects the upload with
- * `SignatureDoesNotMatch`. Keep both lists in sync.
+ * src/Core/Content/Media/File/FileInfoHelper.php. In the presigned direct-to-remote-storage flow the `Content-Type`
+ * header sent on the PUT must match the value the server presigned byte-for-byte, or the remote storage rejects the
+ * upload with a signature mismatch. Keep both lists in sync.
  */
 const TEXT_BASED_MIME_TYPES = [
     'text/plain',
@@ -110,6 +110,74 @@ class MediaPresignedUploadApiService extends ApiService {
     }
 
     /**
+     * @returns {Promise<{id: string, uploadToken: string, upload: {method: string, url: string, headers: Object.<string, string>, expiresAt: string}}>}
+     */
+    requestUpload({ fileName, mimeType, id = null, mediaFolderId = null, isPrivate = false, deduplicate = false }) {
+        const body = { fileName, mimeType, private: isPrivate };
+
+        if (id !== null) {
+            body.id = id;
+        }
+
+        if (mediaFolderId !== null) {
+            body.mediaFolderId = mediaFolderId;
+        }
+
+        if (deduplicate) {
+            body.deduplicate = deduplicate;
+        }
+
+        return this.httpClient
+            .post('/_action/media/upload/presign', JSON.stringify(body), {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    /**
+     * @returns {Promise<void>}
+     */
+    uploadToTicket(upload, file, onProgress = null) {
+        return s3Client.request({
+            method: upload.method,
+            url: upload.url,
+            data: file,
+            headers: upload.headers,
+            onUploadProgress: onProgress
+                ? (progressEvent) => {
+                      onProgress({
+                          loaded: progressEvent.loaded,
+                          total: progressEvent.total ?? file.size,
+                      });
+                  }
+                : undefined,
+            timeout: 0,
+        });
+    }
+
+    /**
+     * @returns {Promise<{id: string}>}
+     */
+    confirmUpload({ uploadToken, width = null, height = null }) {
+        const body = { uploadToken };
+
+        if (width !== null && height !== null) {
+            body.width = width;
+            body.height = height;
+        }
+
+        return this.httpClient
+            .post('/_action/media/upload/confirm', JSON.stringify(body), {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    /**
      * Resolves image dimensions from a File using the browser's native decoding.
      * Returns null for non-image files.
      *
@@ -162,31 +230,24 @@ class MediaPresignedUploadApiService extends ApiService {
                 const { fileName, extension } = fileReader.getNameAndExtensionFromFile(fileHandle);
                 const mimeType = fileHandle.type || 'application/octet-stream';
                 let mediaId = null;
-                let result = null;
 
                 try {
-                    const [prepareResult, dimensions] = await Promise.all([
-                        this.prepareUpload({
-                            fileName,
-                            extension,
+                    const [uploadTicket, dimensions] = await Promise.all([
+                        this.requestUpload({
+                            fileName: fileHandle.name,
                             mimeType,
                             ...options,
                         }),
                         this.getImageDimensions(fileHandle),
                     ]);
 
-                    result = prepareResult;
-                    mediaId = result.mediaId;
-
-                    if (result.isDuplicate) {
-                        throw this.buildDuplicateError(fileName, extension);
-                    }
+                    mediaId = uploadTicket.id;
 
                     emit(UploadEvents.UPLOAD_ADDED, {
                         data: [{ targetId: mediaId, src: fileHandle }],
                     });
 
-                    await this.uploadToPresignedUrl(result.url, fileHandle, mimeType, (progress) => {
+                    await this.uploadToTicket(uploadTicket.upload, fileHandle, (progress) => {
                         emit(UploadEvents.UPLOAD_PROGRESS, {
                             targetId: mediaId,
                             loaded: progress.loaded,
@@ -194,18 +255,15 @@ class MediaPresignedUploadApiService extends ApiService {
                         });
                     });
 
-                    await this.finalizeUpload(mediaId, {
-                        fileName,
-                        extension,
-                        mimeType,
-                        path: result.path,
+                    const confirmedMedia = await this.confirmUpload({
+                        uploadToken: uploadTicket.uploadToken,
                         width: dimensions?.width ?? null,
                         height: dimensions?.height ?? null,
                     });
 
                     successCount += 1;
                     emit(UploadEvents.UPLOAD_FINISHED, {
-                        targetId: mediaId,
+                        targetId: confirmedMedia.id,
                         successAmount: successCount,
                         failureAmount: failureCount,
                         totalAmount: totalFiles,
@@ -227,22 +285,6 @@ class MediaPresignedUploadApiService extends ApiService {
                 }
             }),
         );
-    }
-
-    buildDuplicateError(fileName, extension) {
-        return {
-            response: {
-                data: {
-                    errors: [
-                        {
-                            status: '400',
-                            code: 'CONTENT__MEDIA_DUPLICATED_FILE_NAME',
-                            detail: `A file with the name "${fileName}.${extension}" already exists.`,
-                        },
-                    ],
-                },
-            },
-        };
     }
 }
 

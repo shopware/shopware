@@ -8,11 +8,12 @@ import createHTTPClient from 'src/core/factory/http.factory';
 
 jest.mock('axios', () => {
     const mockPut = jest.fn().mockResolvedValue({});
+    const mockRequest = jest.fn().mockResolvedValue({});
     return {
         __esModule: true,
         default: {
             ...jest.requireActual('axios'),
-            create: jest.fn(() => ({ put: mockPut })),
+            create: jest.fn(() => ({ put: mockPut, request: mockRequest })),
         },
     };
 });
@@ -191,5 +192,128 @@ describe('mediaPresignedUploadService', () => {
 
         const result = await service.getImageDimensions(file);
         expect(result).toBeNull();
+    });
+
+    it('requestUpload sends params and returns a ticket', async () => {
+        const service = getMediaPresignedUploadApiService();
+        const postSpy = jest.spyOn(service.httpClient, 'post').mockResolvedValue({
+            data: {
+                id: 'media-123',
+                uploadToken: 'signed.token',
+                upload: {
+                    method: 'PUT',
+                    url: 'https://s3.example.com/presigned',
+                    headers: { 'Content-Type': 'image/jpeg' },
+                    expiresAt: '2026-02-10T12:00:00+00:00',
+                },
+            },
+        });
+
+        const ticket = await service.requestUpload({
+            fileName: 'test.jpg',
+            mimeType: 'image/jpeg',
+            mediaFolderId: 'folder-123',
+            isPrivate: true,
+        });
+
+        expect(postSpy).toHaveBeenCalledWith(
+            '/_action/media/upload/presign',
+            JSON.stringify({
+                fileName: 'test.jpg',
+                mimeType: 'image/jpeg',
+                private: true,
+                mediaFolderId: 'folder-123',
+            }),
+            expect.objectContaining({ headers: expect.any(Object) }),
+        );
+        expect(ticket.id).toBe('media-123');
+        expect(ticket.uploadToken).toBe('signed.token');
+    });
+
+    it('uploadToTicket sends the ticket headers verbatim', async () => {
+        const s3Client = Axios.create();
+        const service = getMediaPresignedUploadApiService();
+        const file = new File(['Schöppingen'], 'umlauts.txt', { type: 'text/plain' });
+        const upload = {
+            method: 'PUT',
+            url: 'https://s3.example.com/presigned',
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        };
+
+        await service.uploadToTicket(upload, file);
+
+        expect(s3Client.request).toHaveBeenCalledWith(
+            expect.objectContaining({
+                method: 'PUT',
+                url: 'https://s3.example.com/presigned',
+                data: file,
+                headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+                timeout: 0,
+            }),
+        );
+    });
+
+    it('confirmUpload sends the upload token', async () => {
+        const service = getMediaPresignedUploadApiService();
+        const postSpy = jest.spyOn(service.httpClient, 'post').mockResolvedValue({
+            data: { id: 'media-123' },
+        });
+
+        const result = await service.confirmUpload({ uploadToken: 'signed.token' });
+
+        expect(postSpy).toHaveBeenCalledWith(
+            '/_action/media/upload/confirm',
+            JSON.stringify({ uploadToken: 'signed.token' }),
+            expect.objectContaining({ headers: expect.any(Object) }),
+        );
+        expect(result.id).toBe('media-123');
+    });
+
+    it('confirmUpload includes dimensions when provided', async () => {
+        const service = getMediaPresignedUploadApiService();
+        const postSpy = jest.spyOn(service.httpClient, 'post').mockResolvedValue({
+            data: { id: 'media-123' },
+        });
+
+        await service.confirmUpload({ uploadToken: 'signed.token', width: 800, height: 600 });
+
+        expect(postSpy).toHaveBeenCalledWith(
+            '/_action/media/upload/confirm',
+            JSON.stringify({ uploadToken: 'signed.token', width: 800, height: 600 }),
+            expect.objectContaining({ headers: expect.any(Object) }),
+        );
+    });
+
+    it('runUploads confirms with the image dimensions and reports the confirmed media id', async () => {
+        const service = getMediaPresignedUploadApiService();
+        const file = new File(['content'], 'image.png', { type: 'image/png' });
+        const listener = jest.fn();
+
+        jest.spyOn(service, 'requestUpload').mockResolvedValue({
+            id: 'requested-id',
+            uploadToken: 'signed.token',
+            upload: { method: 'PUT', url: 'https://s3.example.com/presigned', headers: {} },
+        });
+        jest.spyOn(service, 'getImageDimensions').mockResolvedValue({ width: 800, height: 600 });
+        jest.spyOn(service, 'uploadToTicket').mockResolvedValue();
+        const confirmSpy = jest.spyOn(service, 'confirmUpload').mockResolvedValue({ id: 'existing-id' });
+
+        await service.runUploads(
+            'upload-tag',
+            [file],
+            {},
+            {
+                getListeners: () => [listener],
+                createEvent: (action, uploadTag, payload) => ({ action, uploadTag, payload }),
+            },
+        );
+
+        expect(confirmSpy).toHaveBeenCalledWith({ uploadToken: 'signed.token', width: 800, height: 600 });
+        expect(listener).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                action: 'media-upload-finish',
+                payload: expect.objectContaining({ targetId: 'existing-id' }),
+            }),
+        );
     });
 });

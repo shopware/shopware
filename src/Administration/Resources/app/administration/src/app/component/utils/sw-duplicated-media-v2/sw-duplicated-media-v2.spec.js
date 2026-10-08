@@ -44,9 +44,10 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                         },
                     },
                     mediaPresignedUploadService: {
-                        prepareUpload: jest.fn(),
-                        uploadToPresignedUrl: jest.fn(),
-                        finalizeUpload: jest.fn(),
+                        requestUpload: jest.fn(),
+                        getImageDimensions: jest.fn(),
+                        uploadToTicket: jest.fn(),
+                        confirmUpload: jest.fn(),
                     },
                     mediaService: {
                         addDefaultListener: jest.fn(),
@@ -130,5 +131,28 @@ describe('components/utils/sw-duplicated-media-v2', () => {
         await replaceButton.trigger('click');
 
         expect(wrapper.vm.mediaService.runUploads).toHaveBeenCalledWith('upload-tag-sw-media-index');
+    });
+
+    it('should confirm a presigned upload with the image dimensions and return the confirmed media id', async () => {
+        const presignedUploadService = wrapper.vm.mediaPresignedUploadService;
+        presignedUploadService.requestUpload.mockResolvedValue({
+            id: 'requested-id',
+            uploadToken: 'signed.token',
+            upload: { method: 'PUT', url: 'https://s3.example.com/presigned', headers: {} },
+        });
+        presignedUploadService.getImageDimensions.mockResolvedValue({ width: 800, height: 600 });
+        presignedUploadService.confirmUpload.mockResolvedValue({ id: 'existing-id' });
+
+        const confirmedMediaId = await wrapper.vm.presignedUpload(uploadTaskMock, null);
+
+        expect(presignedUploadService.requestUpload).toHaveBeenCalledWith(
+            expect.objectContaining({ fileName: 'my-demo-image.jpg', id: null }),
+        );
+        expect(presignedUploadService.confirmUpload).toHaveBeenCalledWith({
+            uploadToken: 'signed.token',
+            width: 800,
+            height: 600,
+        });
+        expect(confirmedMediaId).toBe('existing-id');
     });
 });

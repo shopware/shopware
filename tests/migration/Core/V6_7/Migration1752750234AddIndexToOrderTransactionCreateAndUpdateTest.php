@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1752750234AddIndexToOrderTransactionCreateAndUpdate;
-use Shopware\Tests\Migration\NonStandardFkGuardTestTrait;
+use Shopware\Tests\Migration\NonStandardFkGuardTestHelper;
 
 /**
  * @internal
@@ -18,8 +18,6 @@ use Shopware\Tests\Migration\NonStandardFkGuardTestTrait;
 #[CoversClass(Migration1752750234AddIndexToOrderTransactionCreateAndUpdate::class)]
 class Migration1752750234AddIndexToOrderTransactionCreateAndUpdateTest extends TestCase
 {
-    use NonStandardFkGuardTestTrait;
-
     private Connection $connection;
 
     protected function setUp(): void
@@ -51,7 +49,7 @@ class Migration1752750234AddIndexToOrderTransactionCreateAndUpdateTest extends T
 
     public function testIndexCreationSurvivesNonStandardForeignKeyGuard(): void
     {
-        $this->assertIndexCreationSurvivesNonStandardForeignKeyGuard(new Migration1752750234AddIndexToOrderTransactionCreateAndUpdate(), 'order_transaction');
+        NonStandardFkGuardTestHelper::assertIndexCreationSurvivesNonStandardForeignKeyGuard($this, new Migration1752750234AddIndexToOrderTransactionCreateAndUpdate(), 'order_transaction');
     }
 
     private function rollback(): void

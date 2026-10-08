@@ -6,19 +6,22 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
+use PHPUnit\Framework\Assert;
+use PHPUnit\Framework\MockObject\MockBuilder;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
  */
-trait NonStandardFkGuardTestTrait
+final class NonStandardFkGuardTestHelper
 {
-    private function assertIndexCreationSurvivesNonStandardForeignKeyGuard(MigrationStep $migration, string $table): void
+    public static function assertIndexCreationSurvivesNonStandardForeignKeyGuard(TestCase $test, MigrationStep $migration, string $table): void
     {
-        $tableSchema = $this->createMock(Table::class);
+        $tableSchema = (new MockBuilder($test, Table::class))->disableOriginalConstructor()->getMock();
         $tableSchema->method('hasIndex')->willReturn(false);
 
-        $schemaManager = $this->createMock(AbstractSchemaManager::class);
+        $schemaManager = (new MockBuilder($test, AbstractSchemaManager::class))->disableOriginalConstructor()->getMock();
         $schemaManager->method('introspectTableByUnquotedName')->willReturn($tableSchema);
 
         $failure = new class(1553, 'Cannot drop index \'<unknown key name>\': needed in a foreign key constraint') extends DriverException {
@@ -30,7 +33,7 @@ trait NonStandardFkGuardTestTrait
         };
 
         $statements = [];
-        $connection = $this->createMock(Connection::class);
+        $connection = (new MockBuilder($test, Connection::class))->disableOriginalConstructor()->getMock();
         $connection->method('createSchemaManager')->willReturn($schemaManager);
         $connection->method('fetchAssociative')->willReturn(['Variable_name' => 'restrict_fk_on_non_standard_key', 'Value' => 'ON']);
         $connection->method('executeStatement')->willReturnCallback(static function (string $sql) use (&$statements, $failure): int {
@@ -45,11 +48,11 @@ trait NonStandardFkGuardTestTrait
 
         $migration->update($connection);
 
-        static::assertCount(4, $statements);
-        static::assertStringStartsWith('CREATE INDEX', $statements[0]);
-        static::assertStringContainsString(\sprintf('ON `%s`', $table), $statements[0]);
-        static::assertSame('SET SESSION restrict_fk_on_non_standard_key = OFF', $statements[1]);
-        static::assertSame($statements[0], $statements[2]);
-        static::assertSame('SET SESSION restrict_fk_on_non_standard_key = ON', $statements[3]);
+        Assert::assertCount(4, $statements);
+        Assert::assertStringStartsWith('CREATE INDEX', $statements[0]);
+        Assert::assertStringContainsString(\sprintf('ON `%s`', $table), $statements[0]);
+        Assert::assertSame('SET SESSION restrict_fk_on_non_standard_key = OFF', $statements[1]);
+        Assert::assertSame($statements[0], $statements[2]);
+        Assert::assertSame('SET SESSION restrict_fk_on_non_standard_key = ON', $statements[3]);
     }
 }

@@ -139,7 +139,7 @@ class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
 
         $violations = $this->validator->validate(new ElementTypeSpecificationDtoCollection($specificationDtos));
         if ($violations->count() > 0) {
-            throw ContentSystemException::elementTypesInvalid($violations);
+            throw ContentSystemException::elementTypeLoadFailed($violations);
         }
 
         return $resolvedSpecificationDtos;

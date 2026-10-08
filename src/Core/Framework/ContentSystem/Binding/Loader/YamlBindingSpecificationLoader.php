@@ -182,7 +182,7 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
 
         $violations = $this->validator->validate(new BindingSpecificationDtoCollection($specificationDtos, $typeOverlay));
         if ($violations->count() > 0) {
-            throw ContentSystemException::bindingSpecificationsInvalid($violations);
+            throw ContentSystemException::bindingSpecificationLoadFailed($violations);
         }
 
         return $resolvedSpecificationDtos;

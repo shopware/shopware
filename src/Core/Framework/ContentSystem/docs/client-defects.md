@@ -2,7 +2,7 @@
 
 Which error codes mean the client's layout input was wrong, and why a status code alone cannot answer that.
 
-`ContentSystemException::isClientDefect()`, backed by `CLIENT_DEFECT_CODES`, marks the fourteen codes that signal a defect in client-supplied layout input rather than an internal fault:
+`ContentSystemException::isClientDefect()`, backed by `CLIENT_DEFECT_CODES`, marks the fifteen codes that signal a defect in client-supplied layout input rather than an internal fault:
 
 | Code | Means |
 |---|---|
@@ -14,10 +14,11 @@ Which error codes mean the client's layout input was wrong, and why a status cod
 | `PROVIDER_DELIVERY_COLLISION` | a child-facing provider-key collision |
 | `INVALID_MAP_KEY` | a numeric wiring key |
 | `INVALID_ELEMENT_ID` | an element id outside the decode gate's value domain |
+| `BOX_SPACING_INVALID_VALUE` | box-spacing input exceeded a PCRE processing limit or had invalid encoding |
 
-The enforcement sites for the last four wiring codes are in [../Layout/Element/Context/AGENTS.md](../Layout/Element/Context/AGENTS.md).
+The enforcement sites for the element-definition context-wiring codes are in [../Layout/Element/Context/AGENTS.md](../Layout/Element/Context/AGENTS.md).
 
-`Diagnostics/LayoutDiagnostics` catches only these, per element, and maps them to a `ViolationCode::InvalidConfig` violation. Every other code propagates, so an internal fault is never relabelled as the client's mistake.
+`Diagnostics/LayoutDiagnostics` catches only these, per element, and maps them to a `ViolationCode::InvalidConfig` violation. Draft decoding remaps catalogued defects to `invalidLayoutStructure`; DAL layout writes remap catalogued defects from the tree codec and write boundary to a 400 write rejection. The DAL serializer separately maps `INVALID_LAYOUT_STRUCTURE` as malformed input. Other `ContentSystemException` codes propagate unchanged, preserving their own status and code, so internal faults are not relabelled as the client's mistake.
 
 ## Why Not Filter by Status Code
 

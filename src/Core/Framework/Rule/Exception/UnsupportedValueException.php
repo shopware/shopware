@@ -3,14 +3,13 @@
 namespace Shopware\Core\Framework\Rule\Exception;
 
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use CartException::unsupportedValue() or CustomerException::unsupportedValue() or RuleException::unsupportedValue() instead
- *
- * @codeCoverageIgnore
+ * @deprecated tag:v6.8.0 - Will be removed, use CartException::unsupportedValue() or CustomerException::unsupportedValue() or RuleException::unsupportedValue() instead
  */
 #[Package('fundamentals@after-sales')]
 class UnsupportedValueException extends ShopwareHttpException
@@ -19,6 +18,8 @@ class UnsupportedValueException extends ShopwareHttpException
         protected string $type,
         protected string $class
     ) {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
         parent::__construct(
             'Unsupported value of type {{ type }} in {{ class }}',
             ['type' => $type, 'class' => $class]

@@ -62,6 +62,8 @@ includes:
 
 ## Customization
 
+`DeprecatedExceptionPattern` validates removed exception constructors and factories without `reason:remove-exception` exemptions. They must start with `Feature::throwIfActive()` for the removal flag; existing ordinary constructor/factory triggers remain supported. Known status/error-code and legacy metadata getters remain callable without deprecation guards, including after a flag-state change.
+
 Instead of including the predefined configuration files, you can also create your own configuration file and include only the parts you want to use:
 
 ```neon

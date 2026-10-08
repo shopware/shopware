@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Cookie;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,12 +26,14 @@ class CookieException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed as it will be unused with the next major version
+     * @deprecated tag:v6.8.0 - Will be removed as it will be unused with the next major version
      *
      * @param array<string, mixed> $cookieGroup
      */
     public static function invalidLegacyCookieGroupProvided(array $cookieGroup): self
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+
         try {
             $encodedCookieGroup = json_encode($cookieGroup, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
@@ -46,12 +49,14 @@ class CookieException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed as it will be unused with the next major version
+     * @deprecated tag:v6.8.0 - Will be removed as it will be unused with the next major version
      *
      * @param array<string, mixed> $entry
      */
     public static function invalidLegacyCookieEntryProvided(array $entry): self
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+
         try {
             $encodedEntry = json_encode($entry, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {

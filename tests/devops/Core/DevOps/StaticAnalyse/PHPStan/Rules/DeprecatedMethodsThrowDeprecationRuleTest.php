@@ -5,6 +5,7 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 use PHPStan\Rules\Rule;
 use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedExceptionPattern;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDecoratorPattern;
 use Shopware\Core\Framework\Log\Package;
@@ -73,6 +74,17 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
         ]);
     }
 
+    public function testRemovedExceptionsGuardConstructionAndFactoriesButNotMetadata(): void
+    {
+        $this->analyse([__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/RemovedExceptions.php'], [
+            ['Deprecated framework method "Shopware\\Core\\DevOps\\MyFakeNamespace\\RemovedException::getErrorCode" must remain callable without a deprecation guard.', 23],
+            ['Deprecated framework method "Shopware\\Core\\DevOps\\MyFakeNamespace\\RemovedException::missingFactoryGuard" must start with "Feature::throwIfActive" for feature flag "v6.8.0.0".', 30],
+            ['Deprecated framework method "Shopware\\Core\\DevOps\\MyFakeNamespace\\ExceptionFactories::wrongFactoryFlag" must start with "Feature::throwIfActive" for feature flag "v6.8.0.0".', 61],
+            ['Deprecated framework method "Shopware\\Core\\DevOps\\MyFakeNamespace\\UnguardedException::__construct" must start with "Feature::throwIfActive" for feature flag "v6.8.0.0".', 74],
+            ['Deprecated framework method "Shopware\\Core\\DevOps\\MyFakeNamespace\\UnguardedException::getCustomData" must start with "Feature::throwIfActive" for feature flag "v6.8.0.0".', 79],
+        ]);
+    }
+
     protected function getRule(): Rule
     {
         /** @phpstan-ignore phpstanApi.constructor */
@@ -82,6 +94,7 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
         $serviceMap = $factory->create();
 
         return new DeprecatedMethodsThrowDeprecationRule($serviceMap, [
+            new DeprecatedExceptionPattern(),
             new DeprecatedServiceDecoratorPattern($serviceMap, self::createReflectionProvider()),
         ]);
     }

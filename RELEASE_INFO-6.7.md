@@ -60,6 +60,10 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Invalid price definition exception factory
+
+Use `DataAbstractionLayerException::invalidPriceFieldType()` instead of constructing the deprecated `InvalidPriceFieldTypeException`. The factory preserves the legacy exception in 6.7 and returns `DataAbstractionLayerException` with the same error code and message when `v6.8.0.0` is active.
+
 ### Asset installation on S3-compatible storage
 
 Asset installation now overwrites existing files without deleting their directory first when using `--force` or rebuilding a missing asset manifest. This prevents delayed storage deletions from removing freshly uploaded files. Obsolete files are still removed, and no configuration changes are required.

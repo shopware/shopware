@@ -47,7 +47,7 @@ use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityDetector;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityLifecycleSubscriber;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
-use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
+use Shopware\Core\Framework\Mcp\Notification\McpListVersions;
 use Shopware\Core\Framework\Mcp\Prompt\ShopwareContextPrompt;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Resource\BusinessEventsResource;
@@ -86,7 +86,6 @@ use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolsetEnableTool;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolsetsListTool;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Cache\Psr16Cache;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
@@ -102,20 +101,13 @@ return static function (ContainerConfigurator $container): void {
     // allowlist request handlers page with the same number.
     $container->parameters()->set('shopware.mcp.pagination_limit', 50);
 
-    $services->set('shopware.mcp.session_registry_cache', Psr16Cache::class)
-        ->args([service('cache.system')]);
-
-    $services->set(McpSessionRegistry::class)
-        ->args([
-            service('shopware.mcp.session_registry_cache'),
-            'shopware.mcp.active_session_ids',
-            service('lock.factory'),
-        ]);
+    $services->set(McpListVersions::class)
+        ->args([service(Connection::class), service(ClockInterface::class)]);
 
     $services->set(McpListChangedNotifier::class)
         ->args([
             service('mcp.server.admin.session.store')->nullOnInvalid(),
-            service(McpSessionRegistry::class),
+            service(McpListVersions::class),
             service('logger'),
         ])
         ->tag('monolog.logger', ['channel' => 'mcp']);
@@ -200,31 +192,21 @@ return static function (ContainerConfigurator $container): void {
             service(McpAllowlistProvider::class),
             service('logger'),
             service(McpAllowlistFilter::class),
-            service(McpSessionRegistry::class),
             service(McpListChangedNotifier::class),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     // Store-api-scoped discovery stack: second instances of the scope-neutral discovery classes,
-    // pointed at the store-api registry/params and an isolated session registry (own cache) so
-    // enabling an admin toolset never notifies store-api sessions and vice versa.
-    $services->set('mcp.store_api.session_registry_cache', Psr16Cache::class)
-        ->args([service('cache.system')]);
+    // pointed at the store-api registry and params, so enabling an admin toolset never notifies
+    // store-api sessions and vice versa.
 
-    // Distinct cache key from the Admin registry so the two endpoints' active-session populations
-    // stay isolated even though both wrap the cache.system pool.
-    $services->set('mcp.store_api.session_registry', McpSessionRegistry::class)
-        ->args([
-            service('mcp.store_api.session_registry_cache'),
-            'shopware.mcp.store_api.active_session_ids',
-            service('lock.factory'),
-        ]);
-
+    // App capabilities only reach the Admin API server, so store-api lists change per session only
+    // (toolset enable) and need no shared list versions.
     $services->set('mcp.store_api.list_changed_notifier', McpListChangedNotifier::class)
         ->args([
             service('mcp.server.store_api.session.store')->nullOnInvalid(),
-            service('mcp.store_api.session_registry'),
+            null,
             service('logger'),
         ])
         ->tag('monolog.logger', ['channel' => 'mcp']);
@@ -262,7 +244,6 @@ return static function (ContainerConfigurator $container): void {
             service(McpRateLimiter::class),
             service(McpSessionIdValidator::class),
             service('logger'),
-            service('mcp.store_api.session_registry'),
             service('mcp.store_api.list_changed_notifier'),
         ])
         ->tag('controller.service_arguments')
@@ -343,8 +324,6 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(ToolResultCacheStorage::class),
             service(McpToolsetSessionStorage::class),
-            service(McpSessionRegistry::class),
-            service('mcp.store_api.session_registry'),
         ])
         ->tag('kernel.event_subscriber');
 

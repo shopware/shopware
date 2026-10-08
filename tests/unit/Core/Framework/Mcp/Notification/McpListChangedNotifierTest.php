@@ -2,18 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Notification;
 
+use Mcp\Server\Session\InMemorySessionStore;
 use Mcp\Server\Session\SessionStoreInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
-use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
+use Shopware\Core\Framework\Mcp\Notification\McpListVersions;
 use Shopware\Core\Framework\Util\Json;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
-use Symfony\Component\Cache\Psr16Cache;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -23,116 +21,125 @@ use Symfony\Component\Uid\Uuid;
 #[CoversClass(McpListChangedNotifier::class)]
 class McpListChangedNotifierTest extends TestCase
 {
-    public function testQueuesListChangedNotificationsForActiveSessions(): void
+    private const TOOLS_CHANGED = 'notifications/tools/list_changed';
+    private const RESOURCES_CHANGED = 'notifications/resources/list_changed';
+    private const PROMPTS_CHANGED = 'notifications/prompts/list_changed';
+
+    private InMemorySessionStore $store;
+
+    /**
+     * @var array{tools: int, resources: int, prompts: int}
+     */
+    private array $versions = ['tools' => 0, 'resources' => 0, 'prompts' => 0];
+
+    protected function setUp(): void
     {
-        $sessionId = Uuid::v4()->toRfc4122();
-        $registry = $this->registry();
-        $registry->register($sessionId);
-
-        $store = $this->createMock(SessionStoreInterface::class);
-        $store->method('exists')->willReturn(true);
-        $store->method('read')->willReturn(Json::encode([
-            'initialized' => true,
-        ]));
-        $store->expects($this->once())
-            ->method('write')
-            ->with(
-                static::callback(static fn (Uuid $uuid): bool => $uuid->toRfc4122() === $sessionId),
-                static::callback(static function (string $payload): bool {
-                    $data = Json::decodeToArray($payload);
-
-                    $mcpData = $data['_mcp'] ?? null;
-                    static::assertIsArray($mcpData);
-
-                    $queue = $mcpData['outgoing_queue'] ?? null;
-                    static::assertIsArray($queue);
-                    static::assertCount(3, $queue);
-
-                    $messages = [];
-                    foreach ($queue as $queued) {
-                        static::assertIsArray($queued);
-                        static::assertIsString($queued['message'] ?? null);
-
-                        $messages[] = Json::decodeToArray($queued['message']);
-                    }
-
-                    static::assertSame([
-                        ['jsonrpc' => '2.0', 'method' => 'notifications/tools/list_changed'],
-                        ['jsonrpc' => '2.0', 'method' => 'notifications/resources/list_changed'],
-                        ['jsonrpc' => '2.0', 'method' => 'notifications/prompts/list_changed'],
-                    ], $messages);
-                    static::assertIsArray($queue[0]);
-                    static::assertSame(['type' => 'notification'], $queue[0]['context']);
-
-                    return true;
-                }),
-            )
-            ->willReturn(true);
-
-        $notifier = new McpListChangedNotifier($store, $registry, new NullLogger());
-        $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: true, prompts: true));
+        $this->store = new InMemorySessionStore();
     }
 
-    public function testDoesNotWriteWhenNoNotificationTypesChanged(): void
+    public function testNotifyBumpsTheListVersions(): void
     {
-        $registry = $this->registry();
-        $registry->register(Uuid::v4()->toRfc4122());
+        $listVersions = $this->createMock(McpListVersions::class);
+        $changes = new McpListChangedNotificationSet(tools: true, resources: false, prompts: true);
+        $listVersions->expects($this->once())->method('bump')->with($changes);
 
-        $store = $this->createMock(SessionStoreInterface::class);
-        $store->expects($this->never())->method('write');
-
-        $notifier = new McpListChangedNotifier($store, $registry);
-        $notifier->notify(McpListChangedNotificationSet::none());
+        (new McpListChangedNotifier($this->store, $listVersions))->notify($changes);
     }
 
-    public function testDoesNotWriteWhenSessionStoreIsUnavailable(): void
+    public function testNotifyWithoutChangesDoesNothing(): void
     {
-        $registry = $this->registry();
-        $registry->register(Uuid::v4()->toRfc4122());
+        $listVersions = $this->createMock(McpListVersions::class);
+        $listVersions->expects($this->never())->method('bump');
 
-        $notifier = new McpListChangedNotifier(null, $registry);
-        $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
-
-        static::assertNotSame([], $registry->all());
+        (new McpListChangedNotifier($this->store, $listVersions))->notify(McpListChangedNotificationSet::none());
     }
 
-    public function testRemovesStaleSessionsFromRegistry(): void
+    public function testANewSessionStartsAtTheCurrentVersionsWithoutANotification(): void
     {
-        $sessionId = Uuid::v4()->toRfc4122();
-        $registry = $this->registry();
-        $registry->register($sessionId);
+        $this->versions = ['tools' => 3, 'resources' => 1, 'prompts' => 0];
+        $sessionId = $this->session();
 
+        $this->notifier()->syncSession($sessionId, isNewSession: true);
+
+        static::assertSame([], $this->queuedMethods($sessionId));
+        static::assertSame($this->versions, $this->sessionData($sessionId)['shopware_list_versions']);
+    }
+
+    public function testASessionIsNotifiedAboutTheListsThatChangedSinceItLastLooked(): void
+    {
+        $sessionId = $this->session();
+        $notifier = $this->notifier();
+        $notifier->syncSession($sessionId);
+
+        $this->versions = ['tools' => 1, 'resources' => 0, 'prompts' => 1];
+        $notifier->syncSession($sessionId);
+
+        static::assertSame([self::TOOLS_CHANGED, self::PROMPTS_CHANGED], $this->queuedMethods($sessionId));
+        static::assertSame($this->versions, $this->sessionData($sessionId)['shopware_list_versions']);
+    }
+
+    public function testAnOlderSessionWithoutStoredVersionsIsNotifiedAboutEveryChangedList(): void
+    {
+        // For example a session opened before the upgrade, when an app changed tools before its next request.
+        $this->versions = ['tools' => 1, 'resources' => 0, 'prompts' => 0];
+        $sessionId = $this->session();
+
+        $this->notifier()->syncSession($sessionId);
+
+        static::assertSame([self::TOOLS_CHANGED], $this->queuedMethods($sessionId));
+        static::assertSame($this->versions, $this->sessionData($sessionId)['shopware_list_versions']);
+    }
+
+    public function testEachChangeIsQueuedOnlyOnce(): void
+    {
+        $sessionId = $this->session();
+        $notifier = $this->notifier();
+        $notifier->syncSession($sessionId);
+
+        $this->versions['resources'] = 1;
+        $notifier->syncSession($sessionId);
+        $notifier->syncSession($sessionId);
+
+        static::assertSame([self::RESOURCES_CHANGED], $this->queuedMethods($sessionId));
+    }
+
+    public function testSyncKeepsTheDataTheSdkStoredInTheSession(): void
+    {
+        $sessionId = $this->session(['initialized' => true, '_mcp' => ['outgoing_queue' => [['message' => 'queued', 'context' => []]]]]);
+        $notifier = $this->notifier();
+        $notifier->syncSession($sessionId);
+
+        $this->versions['tools'] = 1;
+        $notifier->syncSession($sessionId);
+
+        $data = $this->sessionData($sessionId);
+        static::assertTrue($data['initialized']);
+        static::assertCount(2, $data['_mcp']['outgoing_queue']);
+        static::assertSame('queued', $data['_mcp']['outgoing_queue'][0]['message']);
+    }
+
+    public function testSyncIgnoresUnknownAndInvalidSessions(): void
+    {
         $store = $this->createMock(SessionStoreInterface::class);
         $store->method('exists')->willReturn(false);
         $store->expects($this->never())->method('write');
 
-        $notifier = new McpListChangedNotifier($store, $registry);
-        $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
-
-        static::assertSame([], $registry->all());
+        $notifier = new McpListChangedNotifier($store, $this->listVersions());
+        $notifier->syncSession(Uuid::v4()->toRfc4122());
+        $notifier->syncSession('not-a-uuid');
     }
 
-    public function testRemovesInvalidSessionIdsFromRegistry(): void
+    public function testSyncDoesNothingWithoutListVersions(): void
     {
-        $registry = $this->registry();
-        $registry->register('not-a-uuid');
+        $sessionId = $this->session();
 
-        $store = $this->createMock(SessionStoreInterface::class);
-        $store->expects($this->never())->method('exists');
-        $store->expects($this->never())->method('write');
+        (new McpListChangedNotifier($this->store))->syncSession($sessionId);
 
-        $notifier = new McpListChangedNotifier($store, $registry);
-        $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
-
-        static::assertSame([], $registry->all());
+        static::assertArrayNotHasKey('shopware_list_versions', $this->sessionData($sessionId));
     }
 
     public function testSkipsUnreadableSessionData(): void
     {
-        $sessionId = Uuid::v4()->toRfc4122();
-        $registry = $this->registry();
-        $registry->register($sessionId);
-
         $store = $this->createMock(SessionStoreInterface::class);
         $store->method('exists')->willReturn(true);
         $store->method('read')->willReturn('{broken');
@@ -141,115 +148,87 @@ class McpListChangedNotifierTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('warning');
 
-        $notifier = new McpListChangedNotifier($store, $registry, $logger);
-        $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
+        (new McpListChangedNotifier($store, $this->listVersions(), $logger))->syncSession(Uuid::v4()->toRfc4122());
     }
 
-    public function testNormalizesMalformedOutgoingQueueData(): void
+    public function testNotifySessionQueuesForThatSessionOnly(): void
     {
-        $sessionId = Uuid::v4()->toRfc4122();
-        $registry = $this->registry();
-        $registry->register($sessionId);
+        $target = $this->session();
+        $other = $this->session();
 
-        $store = $this->createMock(SessionStoreInterface::class);
-        $store->method('exists')->willReturn(true);
-        $store->method('read')->willReturn(Json::encode([
-            '_mcp' => [
-                'outgoing_queue' => 'not-a-list',
-            ],
-        ]));
-        $store->expects($this->once())
-            ->method('write')
-            ->with(
-                static::anything(),
-                static::callback(static function (string $payload): bool {
-                    $data = Json::decodeToArray($payload);
+        $this->notifier()->notifySession($target, new McpListChangedNotificationSet(tools: true, resources: true, prompts: true));
 
-                    static::assertCount(1, $data['_mcp']['outgoing_queue']);
-
-                    return true;
-                }),
-            )
-            ->willReturn(true);
-
-        $notifier = new McpListChangedNotifier($store, $registry);
-        $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
+        static::assertSame([self::TOOLS_CHANGED, self::RESOURCES_CHANGED, self::PROMPTS_CHANGED], $this->queuedMethods($target));
+        static::assertSame([], $this->queuedMethods($other));
     }
 
-    public function testNormalizesMalformedMcpSessionData(): void
+    public function testNotifySessionNormalizesMalformedQueueData(): void
     {
-        $sessionId = Uuid::v4()->toRfc4122();
-        $registry = $this->registry();
-        $registry->register($sessionId);
+        $queueNotAList = $this->session(['_mcp' => ['outgoing_queue' => 'not-a-list']]);
+        $mcpNotAnArray = $this->session(['_mcp' => 'not-an-array']);
+        $notifier = $this->notifier();
 
-        $store = $this->createMock(SessionStoreInterface::class);
-        $store->method('exists')->willReturn(true);
-        $store->method('read')->willReturn(Json::encode([
-            '_mcp' => 'not-an-array',
-        ]));
-        $store->expects($this->once())
-            ->method('write')
-            ->with(
-                static::anything(),
-                static::callback(static function (string $payload): bool {
-                    $data = Json::decodeToArray($payload);
+        foreach ([$queueNotAList, $mcpNotAnArray] as $sessionId) {
+            $notifier->notifySession($sessionId, new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
 
-                    static::assertCount(1, $data['_mcp']['outgoing_queue']);
-
-                    return true;
-                }),
-            )
-            ->willReturn(true);
-
-        $notifier = new McpListChangedNotifier($store, $registry);
-        $notifier->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
+            static::assertSame([self::TOOLS_CHANGED], $this->queuedMethods($sessionId));
+        }
     }
 
-    public function testNotifySessionQueuesForOnlyThatSession(): void
-    {
-        $target = Uuid::v4()->toRfc4122();
-        $other = Uuid::v4()->toRfc4122();
-        $registry = $this->registry();
-        $registry->register($target);
-        $registry->register($other);
-
-        $store = $this->createMock(SessionStoreInterface::class);
-        $store->method('exists')->willReturn(true);
-        $store->method('read')->willReturn(Json::encode(['initialized' => true]));
-        $store->expects($this->once())
-            ->method('write')
-            ->with(
-                static::callback(static fn (Uuid $uuid): bool => $uuid->toRfc4122() === $target),
-                static::anything(),
-            )
-            ->willReturn(true);
-
-        $notifier = new McpListChangedNotifier($store, $registry);
-        $notifier->notifySession($target, new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
-    }
-
-    public function testNotifySessionDoesNotWriteWhenNoNotificationTypesChanged(): void
+    public function testNotifySessionDoesNothingWithoutChangesOrStore(): void
     {
         $store = $this->createMock(SessionStoreInterface::class);
         $store->expects($this->never())->method('write');
 
-        $notifier = new McpListChangedNotifier($store, $this->registry());
-        $notifier->notifySession(Uuid::v4()->toRfc4122(), McpListChangedNotificationSet::none());
+        (new McpListChangedNotifier($store))->notifySession(Uuid::v4()->toRfc4122(), McpListChangedNotificationSet::none());
+        (new McpListChangedNotifier(null))->notifySession(Uuid::v4()->toRfc4122(), new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
     }
 
-    public function testNotifySessionDoesNotWriteWhenSessionStoreIsUnavailable(): void
+    private function notifier(): McpListChangedNotifier
     {
-        $store = null;
-
-        $notifier = new McpListChangedNotifier($store, $this->registry());
-        $notifier->notifySession(Uuid::v4()->toRfc4122(), new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
-
-        // No exception and nothing to assert on a null store — the call is simply a no-op.
-        $this->addToAssertionCount(1);
+        return new McpListChangedNotifier($this->store, $this->listVersions());
     }
 
-    private function registry(): McpSessionRegistry
+    private function listVersions(): McpListVersions
     {
-        return new McpSessionRegistry(new Psr16Cache(new ArrayAdapter()));
+        $listVersions = static::createStub(McpListVersions::class);
+        $listVersions->method('current')->willReturnCallback(fn (): array => $this->versions);
+
+        return $listVersions;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function session(array $data = ['initialized' => true]): string
+    {
+        $uuid = Uuid::v4();
+        $this->store->write($uuid, Json::encode($data));
+
+        return $uuid->toRfc4122();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function sessionData(string $sessionId): array
+    {
+        $raw = $this->store->read(Uuid::fromString($sessionId));
+        static::assertIsString($raw);
+
+        return Json::decodeToArray($raw);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function queuedMethods(string $sessionId): array
+    {
+        $queue = $this->sessionData($sessionId)['_mcp']['outgoing_queue'] ?? [];
+
+        return array_values(array_map(
+            static fn (array $queued): string => Json::decodeToArray($queued['message'])['method'],
+            array_filter($queue, static fn (array $queued): bool => ($queued['context']['type'] ?? null) === 'notification'),
+        ));
     }
 }

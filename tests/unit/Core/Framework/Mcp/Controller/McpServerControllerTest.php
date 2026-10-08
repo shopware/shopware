@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
-use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -138,21 +137,27 @@ class McpServerControllerTest extends TestCase
             'id' => 1,
         ], \JSON_THROW_ON_ERROR);
 
-        $sessionRegistry = $this->createMock(McpSessionRegistry::class);
-        $sessionRegistry->expects($this->once())
-            ->method('register')
-            ->with(static::callback(static fn (string $sessionId): bool => $sessionId !== ''));
+        $syncedSessionIds = [];
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->once())
+            ->method('syncSession')
+            ->willReturnCallback(static function (string $sessionId, bool $isNewSession) use (&$syncedSessionIds): void {
+                static::assertTrue($isNewSession, 'initialize opens a new session');
+                $syncedSessionIds[] = $sessionId;
+            });
 
         $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $controller = $this->buildController(
             $psrRequest,
             new HttpFoundationFactory(),
-            sessionRegistry: $sessionRegistry,
+            listChangedNotifier: $notifier,
         );
 
         $response = $controller->handle(Request::create('/api/_mcp', 'POST', content: $body));
 
-        static::assertNotSame('', (string) $response->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID));
+        $sessionId = (string) $response->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID);
+        static::assertNotSame('', $sessionId);
+        static::assertSame([$sessionId], $syncedSessionIds, 'a new session takes its id from the response');
     }
 
     public function testHandleDetectsStreamedResponse(): void
@@ -173,10 +178,10 @@ class McpServerControllerTest extends TestCase
         static::assertSame(405, $response->getStatusCode());
     }
 
-    public function testDoesNotRegisterSessionWhenResponseHasNoSessionHeader(): void
+    public function testDoesNotSyncListVersionsWithoutASession(): void
     {
-        $sessionRegistry = $this->createMock(McpSessionRegistry::class);
-        $sessionRegistry->expects($this->never())->method('register');
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->never())->method('syncSession');
 
         $psrRequest = new ServerRequest('GET', '/api/_mcp');
         $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
@@ -185,7 +190,7 @@ class McpServerControllerTest extends TestCase
         $controller = $this->buildController(
             $psrRequest,
             $httpFoundationFactory,
-            sessionRegistry: $sessionRegistry,
+            listChangedNotifier: $notifier,
         );
 
         $response = $controller->handle(new Request());
@@ -816,7 +821,6 @@ class McpServerControllerTest extends TestCase
         ?McpAllowlistProvider $allowlistProvider = null,
         ?RateLimiter $rateLimiter = null,
         ?Server $server = null,
-        ?McpSessionRegistry $sessionRegistry = null,
         ?McpListChangedNotifier $listChangedNotifier = null,
     ): McpServerController {
         $psr17 = new Psr17Factory();
@@ -838,7 +842,6 @@ class McpServerControllerTest extends TestCase
             new McpSessionIdValidator(),
             $allowlistProvider,
             allowlistFilter: new McpAllowlistFilter(),
-            sessionRegistry: $sessionRegistry,
             listChangedNotifier: $listChangedNotifier,
         );
     }

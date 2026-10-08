@@ -115,6 +115,7 @@ jobs:
           files: build/artifacts/jest/cobertura-coverage.xml
           flags: jest-admin
           disable_search: true
+          disable_file_fixes: true
 
   extension-tooling-e2e:
     needs:

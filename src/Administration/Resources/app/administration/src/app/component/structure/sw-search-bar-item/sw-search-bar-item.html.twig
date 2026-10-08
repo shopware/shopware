@@ -275,19 +275,25 @@
     <router-link
         v-else-if="detailRoute && displayValue.length > 0"
         ref="routerLink"
-        class="sw-search-bar-item__link"
+        v-slot="{ href, navigate }"
         :to="{ name: detailRoute, params: { id: item.id } }"
+        custom
     >
-
-        {% block sw_search_bar_item_other_entity_label %}
-        <span class="sw-search-bar-item__label">
-            <sw-highlight-text
-                :search-term="searchTerm"
-                :text="displayValue"
-            />
-        </span>
-        {% endblock %}
-
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult(type, item.id) && navigate($event)"
+        >
+            {% block sw_search_bar_item_other_entity_label %}
+            <span class="sw-search-bar-item__label">
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="displayValue"
+                />
+            </span>
+            {% endblock %}
+        </a>
     </router-link>
     {% endblock %}
 </li>

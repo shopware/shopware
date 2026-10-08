@@ -17,6 +17,6 @@ class EmptyEntityExistenceTest extends TestCase
     public function testICanCreateStub(): void
     {
         $stub = new EmptyEntityExistence();
-        static::assertEmpty($stub->getEntityName());
+        static::assertSame('', $stub->getEntityName());
     }
 }

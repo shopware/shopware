@@ -293,9 +293,13 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 ### Telemetry updates
 
-- Default metrics prefix was changes from `io.opentelemetry.contrib.php.shopware` to `shopware.platform`.
-- `http.server.request.duration` now show client-facing latency without post-response processing
-- metrics are flushed after all other terminate tasks
+- Default metrics prefix was changed from `io.opentelemetry.contrib.php.shopware` to `shopware.platform`.
+- `http.server.request.duration` now shows client-facing latency without post-response processing.
+- `cart.calculation.duration` records failed calculations (added `result=success|failed` label).
+- `Telemetry::instrument()` now collects duration metrics also for failed callbacks. 
+- Added support for lazy labels calculation in `DurationMetric` and `ConfiguredMetric` (see instrumentors for usage examples).
+- New methods `Telemetry::isMetricEnabled()` / `Meter::isEnabled()` saying if a metric would be emitted, so expensive calculations may be skipped for disabled metrics.
+- Metrics are flushed after all other terminate tasks.
 
 Metrics are still behind the feature flag `TELEMETRY_METRICS`.
 

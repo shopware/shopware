@@ -66,6 +66,7 @@ class McpToolResultLinkTest extends TestCase
         $response = $this->rpcResponse($browser, '/api/_mcp', $this->initialize($browser, '/api/_mcp'), 'resources/read', ['uri' => $pointer->uri()]);
 
         static::assertArrayHasKey('error', $response, 'another integration must not read the result');
+        static::assertStringContainsString('not found', $response['error']['message']);
     }
 
     public function testAStoreResultIsReadableInTheSameSalesChannelContextOnly(): void
@@ -80,6 +81,7 @@ class McpToolResultLinkTest extends TestCase
         $otherVisitor = $this->createSalesChannelBrowser();
         $response = $this->rpcResponse($otherVisitor, '/store-api/_mcp', $this->initialize($otherVisitor, '/store-api/_mcp'), 'resources/read', ['uri' => $pointer->uri()]);
         static::assertArrayHasKey('error', $response, 'another context token must not read the result');
+        static::assertStringContainsString('not found', $response['error']['message']);
     }
 
     private function salesChannelIdOf(KernelBrowser $browser): string

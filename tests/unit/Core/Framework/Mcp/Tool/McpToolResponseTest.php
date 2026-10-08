@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -136,6 +137,28 @@ class McpToolResponseTest extends TestCase
         $data = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($data['success']);
+        static::assertIsArray($data['data']['items']);
+        static::assertArrayNotHasKey('resourceUri', $data['_meta'] ?? []);
+    }
+
+    public function testOversizedPayloadOfAnAnonymousStoreCallStaysInline(): void
+    {
+        // Without `sw-context-token` the stored result could never be read back, so it is not stored.
+        $cache = $this->createMock(ToolResultCacheStorage::class);
+        $cache->expects($this->never())->method('storeFor');
+
+        $request = new Request();
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'minted-for-this-request');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext(token: 'minted-for-this-request'));
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $tool = new TestTool();
+        $tool->setToolResultCache($cache, $requestStack, new NullLogger());
+
+        $data = json_decode($tool->callSuccess(['items' => array_fill(0, 5_000, str_repeat('x', 30))]), true, 512, \JSON_THROW_ON_ERROR);
+
         static::assertIsArray($data['data']['items']);
         static::assertArrayNotHasKey('resourceUri', $data['_meta'] ?? []);
     }

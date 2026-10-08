@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\DatabaseBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -57,10 +58,12 @@ class RegistryBindingSpecificationCanonicityTest extends TestCase
                     continue;
                 }
 
-                try {
-                    $serializers->decode($binding->loader, $binding->config);
-                } catch (ContentSystemException $exception) {
-                    $problems[] = \sprintf('%s.resolves[%s]: config does not decode through loader "%s": %s', $qualifiedId, $referenceKey, $binding->loader, $exception->getMessage());
+                foreach ($this->configBranches($binding->config) as $branchConfig) {
+                    try {
+                        $serializers->decode($binding->loader, $branchConfig);
+                    } catch (ContentSystemException $exception) {
+                        $problems[] = \sprintf('%s.resolves[%s]: config does not decode through loader "%s": %s', $qualifiedId, $referenceKey, $binding->loader, $exception->getMessage());
+                    }
                 }
             }
         }
@@ -124,6 +127,40 @@ class RegistryBindingSpecificationCanonicityTest extends TestCase
         static::assertInstanceOf(DatabaseBindingSpecificationLoader::class, $loader);
 
         return $loader;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function configBranches(array $config): array
+    {
+        $rootSources = [];
+
+        foreach ($config as $value) {
+            $map = RootSourceConfigMap::scopeMap($value);
+
+            if ($map === null) {
+                continue;
+            }
+
+            foreach (array_keys($map) as $rootSource) {
+                $rootSources[$rootSource] = true;
+            }
+        }
+
+        if ($rootSources === []) {
+            return [$config];
+        }
+
+        $branches = [];
+
+        foreach (array_keys($rootSources) as $rootSource) {
+            $branches[] = RootSourceConfigMap::collapse($config, (string) $rootSource);
+        }
+
+        return $branches;
     }
 
     private function dataLoaderMap(): ContentSystemDataLoaderMap

@@ -637,6 +637,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DataLoaderConfigSerializerProvider::class),
             service(RootContextMapper::class),
             service(ContentSystemDataLoaderMapResolver::class),
+            service(RootSourceRegistry::class),
         ])
         ->tag('validator.constraint_validator');
 

@@ -1,0 +1,14 @@
+.sw-breadcrumb__link {
+    color: var(--bs-body-color);
+    font-size: var(--bs-body-font-size);
+
+    &:hover {
+        color: var(--bs-primary);
+        text-decoration: none;
+    }
+}
+
+.breadcrumb-item.active .sw-breadcrumb__link {
+    color: var(--bs-breadcrumb-item-active-color);
+    font-weight: 700;
+}

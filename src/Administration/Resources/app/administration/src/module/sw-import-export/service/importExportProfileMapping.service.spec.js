@@ -452,6 +452,12 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'salesChannel.type.id',
             'salesChannel.type.translations.DEFAULT.name',
             'salesChannel.customerGroup.id',
+            ...(Shopware.Feature.isActive('v6.8.0.0')
+                ? [
+                      'salesChannel.customerGroup.displayGross',
+                      'salesChannel.customerGroup.priceBasis',
+                  ]
+                : []),
             'salesChannel.customerGroup.translations.DEFAULT.name',
             'salesChannel.currency.id',
             'salesChannel.currency.factor',

@@ -60,6 +60,7 @@ use Shopware\Core\Checkout\Cart\Price\CurrencyPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\PriceActionController;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
@@ -350,6 +351,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(QuantityPriceCalculator::class),
             service(PercentageTaxRuleBuilder::class),
+            service(PriceSelector::class),
+        ]);
+
+    $services->set(PriceSelector::class)
+        ->args([
+            service(TaxCalculator::class),
         ]);
 
     $services->set(CartContextHasher::class)
@@ -460,6 +467,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(QuantityPriceCalculator::class),
             service(PercentageTaxRuleBuilder::class),
             service(CashRounding::class),
+            service(PriceSelector::class),
         ]);
 
     $services->set(PriceActionController::class)
@@ -540,6 +548,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('custom_field.repository'),
             service(LanguageLocaleCodeProvider::class),
             service(DefinitionInstanceRegistry::class),
+            service(PriceSelector::class),
+            service(QuantityPriceCalculator::class),
         ]);
 
     $services->set(TransactionProcessor::class);
@@ -703,6 +713,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(QuantityPriceCalculator::class),
             service(PercentagePriceCalculator::class),
+            service(PriceSelector::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 

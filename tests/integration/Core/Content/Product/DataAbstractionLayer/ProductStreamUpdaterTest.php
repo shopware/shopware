@@ -577,6 +577,101 @@ class ProductStreamUpdaterTest extends TestCase
     }
 
     /**
+     * Regression test for https://github.com/shopware/shopware/issues/10770.
+     */
+    public function testIndexingHandlesStreamsWithMoreThanSixtyOneConditions(): void
+    {
+        $streamId = Uuid::randomHex();
+
+        $conditions = $this->buildManyDistinctAssociationConditions();
+        static::assertGreaterThan(61, \count($conditions));
+
+        // the shape the Administration writes: a root OR container holding AND groups
+        $this->createStream($streamId, [[
+            'type' => 'multi',
+            'operator' => 'OR',
+            'queries' => [[
+                'type' => 'multi',
+                'operator' => 'AND',
+                'queries' => $conditions,
+            ]],
+        ]]);
+
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId);
+
+        // passes every condition of the first batch - it has no parent - but fails the
+        // canonicalProduct conditions of a later one, so it must not be matched
+        $excludedId = Uuid::randomHex();
+        $this->createProduct($excludedId);
+        $this->productRepository->update(
+            [['id' => $excludedId, 'canonicalProductId' => $productId]],
+            Context::createDefaultContext()
+        );
+
+        $this->productStreamUpdater->handle(
+            new ProductStreamMappingIndexingMessage($streamId, null, Context::createDefaultContext())
+        );
+
+        $this->assertProductIsInStream($productId, $streamId);
+        $this->assertProductIsNotInStream($excludedId, $streamId);
+
+        $this->productStreamUpdater->updateProducts([$productId, $excludedId], Context::createDefaultContext());
+
+        $this->assertProductIsInStream($productId, $streamId);
+        $this->assertProductIsNotInStream($excludedId, $streamId);
+    }
+
+    /**
+     * Conditions whose fields each traverse a DISTINCT association path, so the
+     * conjunction joins well over 61 tables in a single query. Every path is
+     * rooted in an association the created product does not have, so all of them
+     * match and the result of the conjunction is verifiable.
+     *
+     * @return list<array<string, string|null>>
+     */
+    private function buildManyDistinctAssociationConditions(): array
+    {
+        $leaves = [
+            'manufacturer.name',
+            'tax.name',
+            'unit.name',
+            'deliveryTime.name',
+            'cmsPage.name',
+            'featureSet.name',
+            'cover.id',
+            'categories.name',
+            'properties.name',
+            'options.name',
+            'tags.name',
+            'categoriesRo.name',
+            'media.id',
+            'prices.quantityStart',
+            'visibilities.id',
+            'productReviews.id',
+            'mainCategories.id',
+            'seoUrls.id',
+            'crossSellings.id',
+            'configuratorSettings.id',
+        ];
+
+        $prefixes = ['parent.', 'canonicalProduct.', 'parent.parent.', 'canonicalProduct.parent.'];
+
+        $conditions = [];
+        foreach ($prefixes as $prefix) {
+            foreach ($leaves as $leaf) {
+                $conditions[] = [
+                    'type' => 'equals',
+                    'field' => $prefix . $leaf,
+                    'value' => null,
+                ];
+            }
+        }
+
+        return $conditions;
+    }
+
+    /**
      * Returns an updater whose search reports a stale match, as a concurrent delete would.
      *
      * @param list<string> $matches

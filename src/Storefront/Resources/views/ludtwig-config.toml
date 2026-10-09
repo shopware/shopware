@@ -177,6 +177,7 @@ valid-filters = [
     "sw_garan_label_duration",
     "sw_garan_label",
     "sw_garan_label_nested",
+    "sw_garan_label_link",
     "sw_legal_guarantee_notice",
     "sw_legal_guarantee_notice_link",
     "sw_icon_cache",

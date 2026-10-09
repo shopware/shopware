@@ -138,7 +138,7 @@ class AppSecretRotationServiceTest extends TestCase
 
         $app = $this->createAppOnIntegration($appId, $oldIntegrationId);
         $app->setAppSecret('committed-secret');
-        $this->setupAppLookup($appId, $app);
+        $this->setupAppLookup($app);
 
         $manifest = static::createStub(Manifest::class);
         $this->manifestFactory->expects($this->once())
@@ -192,7 +192,7 @@ class AppSecretRotationServiceTest extends TestCase
         $context = Context::createDefaultContext();
         $app = $this->createAppOnIntegration($appId, Uuid::randomHex());
         $app->setAppSecret('committed-secret');
-        $this->setupAppLookup($appId, $app);
+        $this->setupAppLookup($app);
 
         $manifest = static::createStub(Manifest::class);
         $this->manifestFactory->expects($this->once())
@@ -236,7 +236,7 @@ class AppSecretRotationServiceTest extends TestCase
         $app = $this->createAppOnIntegration($appId, Uuid::randomHex());
         // a previous rotation left an unresolved pending secret
         $app->setUnconfirmedAppSecrets(['left-over-pending']);
-        $this->setupAppLookup($appId, $app);
+        $this->setupAppLookup($app);
 
         $this->setupResolvableManifest();
 
@@ -264,7 +264,7 @@ class AppSecretRotationServiceTest extends TestCase
 
         $app = $this->createAppOnIntegration($appId, Uuid::randomHex());
         $app->setAppSecret('committed-secret');
-        $this->setupAppLookup($appId, $app);
+        $this->setupAppLookup($app);
 
         $this->setupResolvableManifest();
 
@@ -294,7 +294,7 @@ class AppSecretRotationServiceTest extends TestCase
         $app = $this->createAppOnIntegration($appId, Uuid::randomHex());
         $app->setUnconfirmedAppSecrets(['pending-secret']);
         $app->setAppSecret('committed-secret');
-        $this->setupAppLookup($appId, $app);
+        $this->setupAppLookup($app);
 
         $this->setupResolvableManifest();
 
@@ -329,7 +329,7 @@ class AppSecretRotationServiceTest extends TestCase
 
         $app = $this->createAppOnIntegration($appId, Uuid::randomHex());
         $app->setUnconfirmedAppSecrets(['minted-by-the-prior-recovery', $secretAppStillTrusts]);
-        $this->setupAppLookup($appId, $app);
+        $this->setupAppLookup($app);
 
         $this->setupResolvableManifest();
 
@@ -358,7 +358,7 @@ class AppSecretRotationServiceTest extends TestCase
         $app = $this->createAppOnIntegration($appId, $oldIntegrationId);
         $app->setUnconfirmedAppSecrets($unconfirmed);
         $app->setAppSecret('committed-secret');
-        $this->setupAppLookup($appId, $app);
+        $this->setupAppLookup($app);
 
         $this->setupResolvableManifest();
 
@@ -430,9 +430,9 @@ class AppSecretRotationServiceTest extends TestCase
     }
 
     /**
-     * Wires the app repository so that loading $appId yields $app (or, with null, resolves to "not found").
+     * Wires the app repository so that loading the app yields $app (or, with null, resolves to "not found").
      */
-    private function setupAppLookup(string $appId, ?AppEntity $app): void
+    private function setupAppLookup(?AppEntity $app): void
     {
         $searchResult = static::createStub(EntitySearchResult::class);
         $searchResult->method('getEntities')->willReturn(new AppCollection($app ? [$app] : []));

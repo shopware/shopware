@@ -243,7 +243,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": ["deepLinkCode", "documentId", "formats"],
+                  "required": ["deepLinkCode", "documentId", "documentNumber", "formats"],
                   "properties": {
                     "deepLinkCode": {
                       "description": "A unique hash code which is required to download the generated document.",
@@ -253,6 +253,10 @@
                       "description": "Identifier of the document.",
                       "type": "string",
                       "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "documentNumber": {
+                      "description": "The document number assigned to the generated document.",
+                      "type": "string"
                     },
                     "formats": {
                       "description": "The generated formats. Use one of these values as the `format` path parameter when downloading the document.",
@@ -265,6 +269,7 @@
                   "example": {
                     "deepLinkCode": "COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN",
                     "documentId": "018f5972f9ea72a0be49f7c39f72a2a0",
+                    "documentNumber": "1002",
                     "formats": ["pdf", "zugferd_xml"]
                   }
                 }

@@ -9,13 +9,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Test-environment decorator of the shared event dispatcher that lets a test hook into dispatched events
- * without adding listeners to the dispatcher at runtime, which Symfony 8.2 deprecates for its compiled
- * dispatcher. Hooks run after the dispatcher's own listeners and are skipped once propagation is stopped.
- * It decorates closest to the base dispatcher, so nested events re-dispatched by outer decorators reach it.
- *
- * Tests get it with {@see self::fromContainer()}. The test bootstrap registers a PHPUnit subscriber that clears the
- * hooks after each test.
+ * Lets integration tests hook into dispatched events without adding runtime listeners, which Symfony 8.2
+ * deprecates. Hooks run after the listeners, respect stopped propagation and are cleared before each test.
+ * Get it with {@see self::fromContainer()}.
  *
  * @internal
  */
@@ -28,13 +24,16 @@ final class EventHookDispatcher implements EventDispatcherInterface
     private array $hooks = [];
 
     /**
-     * @var \WeakReference<self>|null
+     * Every dispatcher built in this process, so a reset reaches the shared kernel's dispatcher even after a test
+     * booted a kernel of its own.
+     *
+     * @var list<\WeakReference<self>>
      */
-    private static ?\WeakReference $current = null;
+    private static array $instances = [];
 
     public function __construct(private readonly EventDispatcherInterface $inner)
     {
-        self::$current = \WeakReference::create($this);
+        self::$instances[] = \WeakReference::create($this);
     }
 
     public static function fromContainer(ContainerInterface $container): self
@@ -48,11 +47,22 @@ final class EventHookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * Clears the hooks of the dispatcher of the current kernel, if one was built.
+     * Clears the hooks of every live dispatcher and forgets the collected ones.
      */
-    public static function resetCurrent(): void
+    public static function resetAll(): void
     {
-        self::$current?->get()?->reset();
+        $live = [];
+        foreach (self::$instances as $reference) {
+            $dispatcher = $reference->get();
+            if ($dispatcher === null) {
+                continue;
+            }
+
+            $dispatcher->reset();
+            $live[] = $reference;
+        }
+
+        self::$instances = $live;
     }
 
     public function on(string $eventName, callable $hook, bool $once = false): void
@@ -79,8 +89,7 @@ final class EventHookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * Hooks every method the subscriber subscribes to. Priorities are ignored: hooks always run after the
-     * dispatcher's own listeners.
+     * Hooks every subscribed method; priorities are ignored, hooks always run after the listeners.
      */
     public function subscribe(EventSubscriberInterface $subscriber): void
     {
@@ -118,11 +127,13 @@ final class EventHookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param callable $listener can not use native type declaration @see https://github.com/symfony/symfony/issues/42283
+     * Compiled listeners arrive as [service closure, method] arrays, which Symfony's own dispatcher accepts too.
+     *
+     * @param callable|array{0: object, 1: string} $listener
      */
-    public function addListener(string $eventName, $listener, int $priority = 0): void // @phpstan-ignore-line
+    public function addListener(string $eventName, callable|array $listener, int $priority = 0): void
     {
-        /** @var callable(object): void $listener - Specify generic callback interface callers can provide more specific implementations */
+        /** @var callable $listener the interface only declares callable */
         $this->inner->addListener($eventName, $listener, $priority);
     }
 

@@ -4,18 +4,19 @@ namespace Shopware\Core\Test\PHPUnit\EventHook;
 
 use PHPUnit\Event\EventFacadeIsSealedException;
 use PHPUnit\Event\Facade;
-use PHPUnit\Event\Test\Finished;
-use PHPUnit\Event\Test\FinishedSubscriber;
+use PHPUnit\Event\Test\PreparationStarted;
+use PHPUnit\Event\Test\PreparationStartedSubscriber;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 
 /**
- * Clears the hooks of the test-environment event dispatcher after each test. Registered by the test bootstrap.
+ * Clears the event hooks before each test, on PreparationStarted: Finished is not emitted for tests that skip or
+ * fail in setUp(), which would leave their hooks behind. Registered by the test bootstrap.
  *
  * @internal
  */
 #[Package('framework')]
-class ResetEventHooksSubscriber implements FinishedSubscriber
+class ResetEventHooksSubscriber implements PreparationStartedSubscriber
 {
     private static bool $registered = false;
 
@@ -35,8 +36,8 @@ class ResetEventHooksSubscriber implements FinishedSubscriber
         self::$registered = true;
     }
 
-    public function notify(Finished $event): void
+    public function notify(PreparationStarted $event): void
     {
-        EventHookDispatcher::resetCurrent();
+        EventHookDispatcher::resetAll();
     }
 }

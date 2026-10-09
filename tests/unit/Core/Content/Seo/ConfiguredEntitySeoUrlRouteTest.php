@@ -34,7 +34,6 @@ class ConfiguredEntitySeoUrlRouteTest extends TestCase
 
     public function testDelegatesToAFullSeoUrlRoute(): void
     {
-        $config = $this->createConfig();
         $criteria = new Criteria();
         $salesChannel = new SalesChannelEntity();
         $entity = new PartialEntity();

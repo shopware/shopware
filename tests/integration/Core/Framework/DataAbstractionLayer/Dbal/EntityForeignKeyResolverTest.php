@@ -94,7 +94,7 @@ class EntityForeignKeyResolverTest extends TestCase
         static::assertContainsOnlyArray($deletedCategoriesRo);
 
         static::assertSame($productId, $deletedProduct[0]);
-        static::assertEmpty($deletedCategories, print_r($deletedCategories, true));
+        static::assertCount(0, $deletedCategories, print_r($deletedCategories, true));
         static::assertCount(3, $deletedCategoriesRo);
 
         foreach ($deletedCategoriesRo as $deletedRo) {
@@ -105,9 +105,7 @@ class EntityForeignKeyResolverTest extends TestCase
             }
         }
 
-        foreach ($categoryIds as $categoryId) {
-            static::fail('All category IDS must be unset at this point');
-        }
+        static::assertCount(0, $categoryIds, 'All category IDS must be unset at this point');
     }
 
     public function testNestedCascades(): void

@@ -9,14 +9,14 @@ https://getbootstrap.com/docs/5.2/components/badge/
 .badge {
     border: 0;
     box-sizing: content-box;
-    height: 20px;
-    line-height: 20px;
+    height: auto;
+    line-height: max(20px, 1.25em);
     margin: 0 5px;
     min-width: 10px;
 }
 
 .badge-lg {
-    height: 28px;
-    line-height: 28px;
+    height: auto;
+    line-height: max(28px, 1.25em);
     padding: 0 10px;
 }

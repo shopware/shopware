@@ -1360,6 +1360,14 @@ $this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior(
 ```
 
 
+## `HreflangLoaderParameter` no longer derives the homepage from the route name
+
+`HreflangLoaderParameter::isHomepage()` only reads the `$homepage` constructor argument and no longer compares the route name with `frontend.home.page`. If you construct `HreflangLoaderParameter` for the homepage, pass `true` as `$homepage`, otherwise no homepage hreflang links are generated:
+
+```php
+new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChannelContext, true);
+```
+
 # Administration
 
 ## Removal of deprecated `config` data property in `sw-system-config` component

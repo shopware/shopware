@@ -60,6 +60,10 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Homepage hreflang links restored for existing `HreflangLoaderParameter` callers
+
+When `HreflangLoaderParameter` is constructed without the `$homepage` argument, `isHomepage()` again detects the homepage from the `frontend.home.page` route name, so homepage hreflang links are generated for these callers. This fallback is deprecated and will be removed in 6.8. If you construct `HreflangLoaderParameter` yourself, pass `$homepage` explicitly.
+
 ### Snippets can be provided through the private filesystem
 
 Administration and storefront snippets are now also loaded from the private filesystem (`shopware.filesystem.private`, by default `files/`):
@@ -326,6 +330,19 @@ The order confirmation mail reads the GARAN label from the new `garanLabels` tem
 
 If you customized the order confirmation mail, replace `nestedItem.productId|sw_garan_label_mail(context)` with `garanLabels[nestedItem.productId] ?? null`, and `lineItem.productId|sw_garan_label_mail(context)` with `garanLabels[lineItem.productId] ?? null` in the plain text version. `garanLabels` is passed to every mail template that references it and has an `order` in its data.
 
+### GARAN guarantee terms per product
+
+Product's new fields for the guarantee terms, inherited by variants: `guaranteeTermsMediaId` for a PDF and `guaranteeTermsUrl` for a web page. `guaranteeTermsUrl` only accepts `http://` and `https://` URLs; other values are rejected with the `INVALID_GARAN_GUARANTEE_TERMS_URL` violation.
+
+Each `garanLabels` entry has a new `termsUrl` key: the URL, or the PDF's URL if no URL is set. Mails that reference `garanLabels` attach the PDFs of the products. A migration adds the terms link to the order confirmation mail for shops that never edited it.
+If you customized the template, add the link below the GARAN label:
+
+```twig
+{% if garanLabel.termsUrl %}<a href="{{ garanLabel.termsUrl }}">Guarantee terms</a>{% endif %}
+```
+
+The product detail page links the terms below the GARAN label, in the new block `buy_widget_garan_label_terms_link`.
+
 ### Customer login publishes an extension event
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
@@ -581,7 +598,21 @@ Check your Administration extensions for these changes:
 - The search input of `mt-select` gets the field's `name`, or a generated id, as its `id` and opts out of browser autofill.
 - Text-entry fields forward the `autocomplete` attribute to the native input.
 
+### Order quantities of digital products can be set in the Administration
+
+The deliverability card of digital products has a new "Allow multiple units per order" switch. Turn it on to set `minPurchase`, `purchaseSteps` and `maxPurchase`, or off to limit the digital product to one unit per order. Bulk edit no longer hides these fields for digital products.
+
 ## Storefront
+
+### Improved extensibility of buy widget form
+
+Extensibility of the `buy-widget-form.html.twig` template has been improved for extension developers. It is now possible to extend `data-add-to-cart-options` and `data-quantity-selector-options` objects via the respective twig variables `addToCartOptions` and `quantitySelectorOptions`. Additionally, the following new blocks have been added to the quantity selector input group:
+
+- `buy_widget_buy_quantity_input_group_legend`
+- `buy_widget_buy_quantity_input_group_button_minus`
+- `buy_widget_buy_quantity_input_group_input`
+- `buy_widget_buy_quantity_input_group_button_plus`
+- `buy_widget_buy_quantity_input_group_unit`
 
 ### Legacy theme.json translations keep working and can be migrated with a command
 
@@ -643,11 +674,41 @@ The snippet `general.listPricePreviously` now reads "Lowest price (last 30 days)
 
 If you override `buy-widget-price`, `block-price`, `price-unit` or `badges`: `isListPrice` is `false` while a regulation price is set, the new `isRegulationPriceSaving` tells whether there is a saving against it, and the regulation price section renders a `list-price-percentage` element.
 
+### Nested GARAN label opens the full label
+
+The nested GARAN label is now a button that shows the full label. On line items it opens a modal loaded from the new route `frontend.product.garan-label` (template `storefront/component/product/garan-label-modal.html.twig`); on the product detail page it expands the full label.
+
+If you override `component_line_item_garan_label`, `buy_widget_garan_label_preview` or `buy_widget_garan_label_full`, take over the new button and link markup.
+
 ## App system
 
 ### App requests keep body and signature across redirects
 
 Shopware now follows a `301` or `302` from an app endpoint without dropping the `POST` method, the request body or the `shopware-shop-signature` header, so the redirect target receives the same signed request.
+
+### SEO URLs for app storefront routes
+
+Apps can give their script-rendered storefront pages SEO URLs by declaring `<seo-url>` and `<entity-seo-url>` elements inside `<storefront>` in `manifest.xml`.
+
+```xml
+<storefront>
+    <seo-url name="imprint">
+        <path>imprint</path>
+        <path lang="de-DE">impressum</path>
+    </seo-url>
+    <entity-seo-url name="blog-detail" entity="ce_blog">
+        <default-template>blog/{{ ceBlog.translated.title }}</default-template>
+    </entity-seo-url>
+</storefront>
+```
+
+A `<seo-url>` maps its path to the script hook `storefront-<name>` on every storefront sales channel domain, using the path of the domain's language; the `hook` attribute overrides the hook name. Installing or updating an app fails when one of its paths is already used by a storefront route, another app or an existing SEO URL.
+
+An `<entity-seo-url>` generates one SEO URL per entity. The app needs `read` permission for the entity and for every association its default template uses, otherwise the install or update fails; its own custom entities are covered automatically. A script hook can be claimed by one app only. Its default template is only seeded: merchants adjust it per sales channel in Settings > SEO, where the route is listed as `storefront.app.<appName>.<name>`, and app updates don't overwrite it. Changing the entity of a route resets all of its templates, including sales channel overrides. The template context exposes the entity under its camel-cased name, for example `ceBlog`. The URLs follow entity writes and the indexing behaviour like the core SEO URLs, get rebuilt by `dal:refresh:index`, and are marked as deleted while the app is inactive or after it is uninstalled.
+
+The script receives the entity id as `hook.query.id`. Templates link to such pages with `seoUrl('frontend.script_endpoint', { hook: 'blog-detail', id: entity.id })`; the placeholder is replaced with the SEO path like for products and categories.
+
+Four supporting changes apply to all SEO URLs: query parameters stored in `seo_url.path_info` are merged into the request when the SEO URL is resolved and take precedence over the browser's query string, `seo_url.route_name` now allows 255 characters, updating the SEO URLs of one route no longer marks the SEO URLs of other routes for the same entity as deleted or restores them, and the SEO URLs of an entity follow a changed technical target (`path_info`) without losing merchant-edited paths. Editing a canonical URL via `PATCH /api/_action/seo-url/canonical` now keeps the requested route when several storefront routes serve one entity.
 
 ### App translations fall back to the closest language
 

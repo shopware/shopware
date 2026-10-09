@@ -60,6 +60,10 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Homepage hreflang links restored for existing `HreflangLoaderParameter` callers
+
+When `HreflangLoaderParameter` is constructed without the `$homepage` argument, `isHomepage()` again detects the homepage from the `frontend.home.page` route name, so homepage hreflang links are generated for these callers. This fallback is deprecated and will be removed in 6.8. If you construct `HreflangLoaderParameter` yourself, pass `$homepage` explicitly.
+
 ### Snippets can be provided through the private filesystem
 
 Administration and storefront snippets are now also loaded from the private filesystem (`shopware.filesystem.private`, by default `files/`):
@@ -580,6 +584,10 @@ Check your Administration extensions for these changes:
 - The time zone hint of datetime `mt-datepicker` fields is rendered by `mt-field-hint`. Styles targeting `.mt-datepicker__hint-icon` or `.mt-datepicker__hint p` no longer apply; `data-testid="time-zone-hint"` is unchanged.
 - The search input of `mt-select` gets the field's `name`, or a generated id, as its `id` and opts out of browser autofill.
 - Text-entry fields forward the `autocomplete` attribute to the native input.
+
+### Order quantities of digital products can be set in the Administration
+
+The deliverability card of digital products has a new "Allow multiple units per order" switch. Turn it on to set `minPurchase`, `purchaseSteps` and `maxPurchase`, or off to limit the digital product to one unit per order. Bulk edit no longer hides these fields for digital products.
 
 ## Storefront
 

@@ -93,9 +93,6 @@ function buildBaseScript(
     const privateNames = analysis.runtimeBindings
         .filter((binding) => !publicLocalNames.has(binding.name))
         .map((binding) => binding.name);
-    // Only the author's own runtime bindings are re-declared. Override-local `__swOverride` is not
-    // destructured here: a base component reaches its block data scope through the scope
-    // `attachOverrides` registers (getScriptSetupDataScope), never through a setup-return binding.
     const destructureEntries = analysis.runtimeBindings.map((binding) => binding.name);
 
     // Base mode drops the compile-time markers and rewrites every author binding to its alias; the body

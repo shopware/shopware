@@ -5,9 +5,8 @@
 /**
  * Owns the generated bindings of `<sw-block>` elements.
  *
- * The transform generates the block's `data` binding (base mode) and its `#default` slot scope
- * (override mode). Authoring either binding - or a `v-bind` object that could carry them - is
- * rejected, so what a block receives is always exactly what the transform wired.
+ * The transform generates the block's `data` binding (base mode). Authoring it, a `#default` scope, or a
+ * `v-bind` object that could carry either is rejected, so what a block receives is exactly what was wired.
  */
 
 import { NodeTypes, type TemplateChildNode } from '@vue/compiler-dom';
@@ -124,33 +123,6 @@ function assertSwBlockAttributes(node: ElementNode, mode: ShopwareSetupMode, tem
 }
 
 /**
- * Rejects writing to a forwarded override binding from `<sw-block extends>` content.
- *
- * A forwarded binding arrives in the block's slot scope ref-unwrapped, as a slot-scope local, so a
- * template write (`@click="count = count + 1"`, `count++`) assigns to that local and silently no-ops -
- * the identical line works in a base component, which makes it a nasty trap. Reject it and point the
- * author at mutating the value from a method in the override setup instead.
- */
-function assertNoWritesToForwardedBindings(
-    writeTargets: Map<string, number>,
-    forwardableNames: Set<string>,
-    templateOffset: number,
-): void {
-    writeTargets.forEach((offset, name) => {
-        if (!forwardableNames.has(name)) {
-            return;
-        }
-
-        throw new ShopwareSetupTransformError(
-            `Cannot assign to "${name}" inside <sw-block extends> content: forwarded override bindings are read-only ` +
-                'there (the write targets a slot-scope local and has no effect). Mutate the value from a method defined ' +
-                'in the override setup and call that instead.',
-            templateOffset + offset,
-        );
-    });
-}
-
-/**
  * Rejects any top-level override template content that is not a `<sw-block extends>` block.
  *
  * An override `.vue` file fundamentally represents "the extension points of a component": it only
@@ -185,37 +157,6 @@ function assertOverrideTemplateTopLevel(children: TemplateChildNode[], templateO
 }
 
 /**
- * Returns the insertion point before the closing angle bracket of an opening tag.
- *
- */
-function findOpeningTagAttributeEnd(template: string, elementStart: number): number {
-    let quote: '"' | "'" | null = null;
-
-    for (let index = elementStart; index < template.length; index += 1) {
-        const character = template[index];
-
-        if (quote) {
-            if (character === quote) {
-                quote = null;
-            }
-
-            continue;
-        }
-
-        if (character === '"' || character === "'") {
-            quote = character;
-            continue;
-        }
-
-        if (character === '>') {
-            return template[index - 1] === '/' ? index - 1 : index;
-        }
-    }
-
-    throw new ShopwareSetupTransformError('Unable to locate <sw-block> opening tag end.', elementStart);
-}
-
-/**
  * Returns the insertion point immediately after an opening tag name.
  *
  */
@@ -234,10 +175,4 @@ function findOpeningTagNameEnd(template: string, elementStart: number): number {
 /**
  * @private
  */
-export {
-    assertNoWritesToForwardedBindings,
-    assertOverrideTemplateTopLevel,
-    assertSwBlockAttributes,
-    findOpeningTagAttributeEnd,
-    findOpeningTagNameEnd,
-};
+export { assertOverrideTemplateTopLevel, assertSwBlockAttributes, findOpeningTagNameEnd };

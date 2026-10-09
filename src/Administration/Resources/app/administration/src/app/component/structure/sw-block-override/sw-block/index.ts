@@ -19,6 +19,7 @@ import useBlockContext from '../../../../composables/use-block-context';
 import { createShimSlot } from '../shim/create-shim-slot';
 import reduceToSingleRoot from '../reduce-to-single-root';
 import useLegacyConditionContext from '../shim/legacy-condition-context';
+import { renderInBlockScope } from '../../../../adapter/composition-extension-system/block-scope';
 
 /**
  * Builds the key under which a block registers and resolves its slots.
@@ -210,8 +211,11 @@ export default Shopware.Component.wrapComponentConfig({
             // (registered at mount time), matching the expected stacking order:
             //   default → shim (legacy plugin) → native (newer plugin or core extension)
             const nativeBlocks = getBlocks(componentBlockKey(props.swInternalComponentName, props.name));
-            const blocksAndParent = [slots.default ?? (() => []), ...shimSlots, ...nativeBlocks];
-            const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
+            // Only native override content reads binding proxies, so base and Twig content skip the re-binding.
+            const blocksNodes = [
+                ...[slots.default ?? (() => []), ...shimSlots].map((block) => block(props.data)),
+                ...nativeBlocks.map((block) => renderInBlockScope(props.data, block)),
+            ];
 
             const lastNode = blocksNodes.pop();
             // Each <sw-block-parent /> calls .pop() exactly once in its own setup()

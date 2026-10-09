@@ -14,7 +14,7 @@ import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 import { absoluteRange, walk } from './utils';
 import { isFunctionLikeNode } from '../utils/ast-traversal';
-import { RESERVED_OVERRIDE_STATE_NAME, SHOPWARE_SETUP_INTERNAL_PREFIX, type ShopwareSetupMacroName } from './macros';
+import { SHOPWARE_SETUP_INTERNAL_PREFIX, type ShopwareSetupMacroName } from './macros';
 import { RESERVED_HELPER_NAMES, VUE_BUILTIN_MACRO_NAMES, getWrongModeWalkChecks } from './macro-registry';
 
 /**
@@ -119,13 +119,6 @@ function assertReservedMacroNames(bindings: NamedBinding[], scriptOffset: number
         if (helpers.has(binding.name)) {
             throw new ShopwareSetupTransformError(
                 `"${binding.name}" is reserved by the Shopware setup transform and must not be declared or imported.`,
-                absoluteRange(binding.node, scriptOffset),
-            );
-        }
-
-        if (binding.name === RESERVED_OVERRIDE_STATE_NAME) {
-            throw new ShopwareSetupTransformError(
-                `"${binding.name}" is reserved for Shopware override-private state and must not be declared or imported.`,
                 absoluteRange(binding.node, scriptOffset),
             );
         }

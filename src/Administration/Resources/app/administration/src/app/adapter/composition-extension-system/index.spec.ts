@@ -3227,76 +3227,7 @@ describe('src/app/adapter/composition-extension-system', () => {
         });
     });
 
-    describe('Script setup override-local state:', () => {
-        it('should merge __swOverride fields from multiple overrides', async () => {
-            type OverrideState = {
-                firstPlugin?: {
-                    pluginMessage: string;
-                };
-                secondPlugin?: {
-                    pluginMessage: string;
-                };
-            };
-
-            const originalComponent = defineComponent({
-                template: `
-                    <div>{{ headline }}</div>
-                `,
-                setup: (props, context) =>
-                    createExtendableSetup(
-                        {
-                            props,
-                            context,
-                            name: 'originalComponent',
-                        },
-                        () => ({
-                            public: {
-                                headline: ref('Base headline'),
-                            },
-                        }),
-                    ),
-            });
-
-            const wrapper = mount(originalComponent);
-
-            overrideComponentSetup()('originalComponent', () => ({
-                __swOverride: {
-                    firstPlugin: {
-                        pluginMessage: 'First plugin message',
-                    },
-                },
-            }));
-
-            await flushPromises();
-
-            const overrideState = (
-                wrapper.vm.$ as unknown as {
-                    setupState: {
-                        __swOverride: OverrideState;
-                    };
-                }
-            ).setupState.__swOverride;
-
-            expect(overrideState.firstPlugin?.pluginMessage).toBe('First plugin message');
-            expect(overrideState.secondPlugin).toBeUndefined();
-
-            overrideComponentSetup()('originalComponent', () => ({
-                __swOverride: {
-                    secondPlugin: {
-                        pluginMessage: 'Second plugin message',
-                    },
-                },
-            }));
-
-            await flushPromises();
-
-            expect(overrideState.firstPlugin?.pluginMessage).toBe('First plugin message');
-            expect(overrideState.secondPlugin?.pluginMessage).toBe('Second plugin message');
-        });
-    });
-
     describe('TS Types', () => {
-        /* eslint-disable jest/expect-expect */
         /**
          * These are just type checks without any runtime assertions
          */
@@ -3569,7 +3500,6 @@ describe('src/app/adapter/composition-extension-system', () => {
                 return {};
             });
         });
-        /* eslint-enable jest/expect-expect */
     });
 
     describe('Effect disposal:', () => {

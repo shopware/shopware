@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\Garan\AbstractGaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\AbstractProductPurchaseLimitRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
@@ -50,6 +51,7 @@ class ProductController extends StorefrontController
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         private readonly AbstractProductReviewLoader $productReviewLoader,
         private readonly AbstractProductPurchaseLimitRoute $productPurchaseLimitRoute,
+        private readonly AbstractGaranLabelRoute $garanLabelRoute,
     ) {
     }
 
@@ -253,5 +255,22 @@ class ProductController extends StorefrontController
             'purchaseSteps' => $result->getPurchaseSteps(),
             'maxPurchase' => $result->getMaxPurchase(),
         ]);
+    }
+
+    #[Route(
+        path: '/product/{productId}/garan-label',
+        name: 'frontend.product.garan-label',
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_GET]
+    )]
+    public function garanLabel(string $productId, SalesChannelContext $context): Response
+    {
+        try {
+            $garanLabel = $this->garanLabelRoute->load($productId, $context)->getObject()->get('svg');
+        } catch (ProductNotFoundException) {
+            $garanLabel = null;
+        }
+
+        return $this->renderStorefront('@Storefront/storefront/component/product/garan-label-modal.html.twig', ['garanLabel' => $garanLabel]);
     }
 }

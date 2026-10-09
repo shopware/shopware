@@ -272,7 +272,7 @@ class PromotionExtensionCodesTest extends TestCase
         static::assertInstanceOf(CartExtension::class, $extension);
 
         $before = $extension->getCodes();
-        static::assertNotEmpty($before);
+        static::assertNotCount(0, $before);
 
         /** @var string $discountId */
         $discountId = array_keys($cart->getLineItems()->getElements())[1];
@@ -282,7 +282,7 @@ class PromotionExtensionCodesTest extends TestCase
         $this->cartService->remove($cart, $discountId, $context);
 
         $after = $extension->getCodes();
-        static::assertEmpty($after);
+        static::assertCount(0, $after);
     }
 
     public function testRecalculatePromotionsWithSkippedPrivilege(): void

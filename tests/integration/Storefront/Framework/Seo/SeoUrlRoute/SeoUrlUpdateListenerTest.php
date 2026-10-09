@@ -415,7 +415,7 @@ class SeoUrlUpdateListenerTest extends TestCase
         static::assertNotNull($product->getSeoUrls());
 
         $seoUrls = $product->getSeoUrls()->filterBySalesChannelId($salesChannelId);
-        static::assertEmpty($seoUrls);
+        static::assertCount(0, $seoUrls);
 
         $this->upsertProduct([
             'id' => $id,
@@ -433,7 +433,7 @@ class SeoUrlUpdateListenerTest extends TestCase
         static::assertNotNull($product->getSeoUrls());
         $seoUrls = $product->getSeoUrls()->filterBySalesChannelId($salesChannelId);
 
-        static::assertNotEmpty($seoUrls);
+        static::assertNotCount(0, $seoUrls);
     }
 
     public function testMultiCreate(): void

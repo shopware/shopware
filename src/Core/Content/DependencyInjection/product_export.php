@@ -109,6 +109,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(SalesChannelContextFactory::class),
             service(ProductExporter::class),
+            service('product_export.repository'),
+            service('logger'),
         ])
         ->tag('console.command');
 

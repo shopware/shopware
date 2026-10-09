@@ -93,7 +93,7 @@ class PromotionCodeServiceTest extends TestCase
 
         $codeService->addIndividualCodes($promotionId, 10, $context);
 
-        static::assertNotEmpty($individualCodeRepository->upserts[0]);
+        static::assertNotCount(0, $individualCodeRepository->upserts[0]);
         static::assertCount(10, $individualCodeRepository->upserts[0]);
     }
 
@@ -132,7 +132,7 @@ class PromotionCodeServiceTest extends TestCase
 
         $codeService->addIndividualCodes($promotionId, 10, $context);
 
-        static::assertNotEmpty($individualCodeRepository->upserts[0]);
+        static::assertNotCount(0, $individualCodeRepository->upserts[0]);
         static::assertCount(10, $individualCodeRepository->upserts[0]);
     }
 }

@@ -17,10 +17,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -150,8 +150,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->addDomain($domainUrlTest['domain']);
 
         $caughtEvent = null;
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerAccountRecoverRequestEvent::EVENT_NAME,
             static function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -182,20 +181,15 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set('core.loginRegistration.pwdRecoverUrl', '/test/rec/password/%%RECOVERHASH%%"');
 
-        /** @var EventDispatcherInterface $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $caughtEvent = null;
-        $this->addEventListener(
-            $dispatcher,
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerAccountRecoverRequestEvent::EVENT_NAME,
             static function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             }
         );
 
-        $this->addEventListener(
-            $dispatcher,
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             PasswordRecoveryUrlEvent::class,
             static function (PasswordRecoveryUrlEvent $event): void {
                 $event->setRecoveryUrl($event->getRecoveryUrl() . '/?somethingSpecial=1');

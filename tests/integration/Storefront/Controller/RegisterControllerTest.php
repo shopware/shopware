@@ -349,7 +349,7 @@ class RegisterControllerTest extends TestCase
         static::assertInstanceOf(Session::class, $session);
         $success = $session->getFlashBag()->get('success');
 
-        static::assertNotEmpty($success);
+        static::assertNotCount(0, $success);
         static::assertSame($container->get('translator')->trans('account.optInRegistrationAlert'), $success[0]);
 
         static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $event);
@@ -393,7 +393,7 @@ class RegisterControllerTest extends TestCase
         static::assertInstanceOf(Session::class, $session);
         $success = $session->getFlashBag()->get('success');
 
-        static::assertNotEmpty($success);
+        static::assertNotCount(0, $success);
         static::assertSame($container->get('translator')->trans('account.optInRegistrationAlert'), $success[0]);
 
         static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $event);

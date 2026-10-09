@@ -20,10 +20,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Storefront\Theme\Snippet\ThemeSnippetFileWriter;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -56,6 +58,7 @@ class ThemeLifecycleService
         private readonly Connection $connection,
         private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
         private readonly ThemeRuntimeConfigService $runtimeConfigService,
+        private readonly ThemeSnippetFileWriter $snippetFileWriter,
     ) {
     }
 
@@ -94,7 +97,10 @@ class ThemeLifecycleService
             $themeData['active'] = true;
         }
 
-        $themeData['translations'] = $this->getTranslationsConfiguration($configuration, $context);
+        // @deprecated tag:v6.8.0 - Remove the whole block, legacy label translations are no longer persisted; the generated administration snippets replace them
+        if (!Feature::isActive('v6.8.0.0')) {
+            $themeData['translations'] = $this->getTranslationsConfiguration($configuration, $context);
+        }
 
         $updatedData = $this->updateMediaInConfiguration($theme, $configuration, $context);
 
@@ -124,6 +130,8 @@ class ThemeLifecycleService
         $this->themeChildRepository->delete($toDeleteIds, $context);
         $this->themeChildRepository->upsert($parentThemes, $context);
 
+        $this->snippetFileWriter->write($configuration);
+
         /** @deprecated tag:v6.8.0 - Remove whole next line as $configurationCollection will become a part of method signature */
         $configurationCollection = \func_num_args() === 3 ? \func_get_arg(2) : null;
 
@@ -152,6 +160,7 @@ class ThemeLifecycleService
 
         $this->removeOldMedia($technicalName, $context);
         $this->runtimeConfigService->deleteByTechnicalName($technicalName);
+        $this->snippetFileWriter->remove($technicalName);
         $this->themeRepository->delete(array_map(static fn (string $id) => ['id' => $id], $ids), $context);
     }
 

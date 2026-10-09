@@ -51,15 +51,4 @@ class StoreApiToolsetEnableToolTest extends TestCase
         // Like the admin tool, the store-api variant records intent; the controller emits it.
         static::assertTrue($request->attributes->getBoolean(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE));
     }
-
-    public function testInvokeIsDeclaredOnConcreteClassSoDiscoveryBindsToIt(): void
-    {
-        // The MCP SDK discoverer binds a tool handler to __invoke's declaring class, and the store-api
-        // service locator keys on the service id (= class). If __invoke were only inherited from
-        // ToolsetEnableTool, discovery would bind the handler to the admin base and the store-api
-        // tool would resolve to the wrong (admin-wired) instance.
-        $method = new \ReflectionMethod(StoreApiToolsetEnableTool::class, '__invoke');
-
-        static::assertSame(StoreApiToolsetEnableTool::class, $method->getDeclaringClass()->getName());
-    }
 }

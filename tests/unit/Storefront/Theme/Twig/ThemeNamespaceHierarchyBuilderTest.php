@@ -30,12 +30,15 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
 {
     private ThemeNamespaceHierarchyBuilder $builder;
 
+    private TestInheritanceBuilder $inheritanceBuilder;
+
     protected function setUp(): void
     {
         $connectionMock = static::createStub(Connection::class);
         $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
 
-        $this->builder = new ThemeNamespaceHierarchyBuilder(new TestInheritanceBuilder(), $cachedThemeLoader);
+        $this->inheritanceBuilder = new TestInheritanceBuilder();
+        $this->builder = new ThemeNamespaceHierarchyBuilder($this->inheritanceBuilder, $cachedThemeLoader);
     }
 
     public function testThemeNamespaceHierarchyBuilderSubscribesToRequestAndExceptionEvents(): void
@@ -208,6 +211,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
             'Storefront' => 1,
             'TestTheme' => 1,
         ], $hierarchy);
+        static::assertSame($bundles, $this->inheritanceBuilder->receivedBundles);
     }
 
     /**
@@ -262,9 +266,18 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
      */
     private function assertThemes(array $expectation, ThemeNamespaceHierarchyBuilder $builder): void
     {
-        $refProperty = (new \ReflectionProperty(ThemeNamespaceHierarchyBuilder::class, 'themes'))->getValue($builder);
+        $bundles = ['SomeBundle' => 1];
+        $hierarchy = $builder->buildNamespaceHierarchy($bundles);
 
-        static::assertEquals($expectation, $refProperty);
+        if ($expectation === []) {
+            // Without detected themes the hierarchy is passed through untouched
+            static::assertSame($bundles, $hierarchy);
+
+            return;
+        }
+
+        // TestInheritanceBuilder maps every theme it receives to a priority
+        static::assertEquals(array_map(static fn (bool $active): int => $active ? 1 : 0, $expectation), $hierarchy);
     }
 }
 
@@ -274,6 +287,11 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
 class TestInheritanceBuilder implements ThemeInheritanceBuilderInterface
 {
     /**
+     * @var array<string, int>|null
+     */
+    public ?array $receivedBundles = null;
+
+    /**
      * @param array<string, int> $bundles
      * @param array<int|string, bool> $themes
      *
@@ -281,6 +299,8 @@ class TestInheritanceBuilder implements ThemeInheritanceBuilderInterface
      */
     public function build(array $bundles, array $themes): array
     {
+        $this->receivedBundles = $bundles;
+
         // Convert boolean theme values to integer priorities for test purposes
         $result = [];
         foreach ($themes as $key => $value) {

@@ -3,17 +3,6 @@
  */
 import { mount } from '@vue/test-utils';
 
-function createClickEventWithPath(classes = []) {
-    return {
-        target: document.createElement('div'),
-        composedPath: () => {
-            return classes.map((cssClass) => {
-                return { classList: [cssClass] };
-            });
-        },
-    };
-}
-
 describe('src/module/sw-media/component/sw-media-grid', () => {
     let wrapper;
 
@@ -22,27 +11,19 @@ describe('src/module/sw-media/component/sw-media-grid', () => {
         wrapper = null;
     });
 
-    it('emits selection clear on outside click', async () => {
-        wrapper = mount(await wrapTestComponent('sw-media-grid', { sync: true }));
+    it('applies the presentation class', async () => {
+        wrapper = mount(await wrapTestComponent('sw-media-grid', { sync: true }), {
+            props: { presentation: 'list-preview' },
+        });
 
-        wrapper.vm.clearSelectionOnClickOutside(createClickEventWithPath());
-
-        expect(wrapper.emitted('media-grid-selection-clear')).toHaveLength(1);
+        expect(wrapper.find('.sw-media-grid__content').classes()).toContain('sw-media-grid__presentation--list-preview');
     });
 
-    it('does not emit selection clear for clicks inside mt-modal', async () => {
+    it('does not emit anything on clicks outside of the grid', async () => {
         wrapper = mount(await wrapTestComponent('sw-media-grid', { sync: true }));
 
-        wrapper.vm.clearSelectionOnClickOutside(createClickEventWithPath(['mt-modal']));
+        window.dispatchEvent(new Event('click'));
 
-        expect(wrapper.emitted('media-grid-selection-clear')).toBeUndefined();
-    });
-
-    it('does not emit selection clear for clicks on mt-modal backdrop', async () => {
-        wrapper = mount(await wrapTestComponent('sw-media-grid', { sync: true }));
-
-        wrapper.vm.clearSelectionOnClickOutside(createClickEventWithPath(['mt-modal-root__backdrop']));
-
-        expect(wrapper.emitted('media-grid-selection-clear')).toBeUndefined();
+        expect(wrapper.emitted()).toEqual({});
     });
 });

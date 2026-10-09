@@ -8,8 +8,6 @@ import './sw-media-grid.scss';
 export default {
     template,
 
-    emits: ['media-grid-selection-clear'],
-
     props: {
         presentation: {
             required: false,
@@ -35,62 +33,6 @@ export default {
 
         presentationClass() {
             return `sw-media-grid__presentation--${this.presentation}`;
-        },
-
-        nonDeselectingComponents() {
-            return [
-                'sw-media-sidebar',
-                'sw-context-menu',
-                'sw-media-index__load-more',
-                'sw-media-index__options-container',
-                'sw-modal',
-                'mt-modal',
-                'mt-modal-root__backdrop',
-            ];
-        },
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    beforeUnmount() {
-        this.beforeDestroyComponent();
-    },
-
-    methods: {
-        createdComponent() {
-            window.addEventListener('click', this.clearSelectionOnClickOutside, false);
-        },
-
-        beforeDestroyComponent() {
-            window.removeEventListener('click', this.clearSelectionOnClickOutside, false);
-        },
-
-        clearSelectionOnClickOutside(event) {
-            if (!this.isEmittedFromChildren(event.target) && !this.originatesFromExcludedComponent(event)) {
-                this.emitSelectionCleared(event);
-            }
-        },
-
-        originatesFromExcludedComponent(event) {
-            const eventPathClasses = event.composedPath().reduce((classes, eventParent) => {
-                return eventParent.classList ? classes.concat(Array.from(eventParent.classList)) : classes;
-            }, []);
-
-            return this.nonDeselectingComponents.some((cssClass) => {
-                return eventPathClasses.includes(cssClass);
-            });
-        },
-
-        isEmittedFromChildren(target) {
-            return this.$refs.componentRef?.contains(target) ?? false;
-        },
-
-        emitSelectionCleared(originalDomEvent) {
-            this.$emit('media-grid-selection-clear', {
-                originalDomEvent,
-            });
         },
     },
 };

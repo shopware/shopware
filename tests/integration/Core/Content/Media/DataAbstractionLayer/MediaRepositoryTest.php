@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -703,6 +704,54 @@ class MediaRepositoryTest extends TestCase
 
         $deletedMedia = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($mediaId);
         static::assertNull($deletedMedia);
+    }
+
+    public function testPathWithLiteralPercentIsPersistedAndUrlEncodedAsStorageKey(): void
+    {
+        $mediaId = Uuid::randomHex();
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $mediaId,
+                    'fileName' => 'fifty-off',
+                    'fileExtension' => 'png',
+                    'mimeType' => 'image/png',
+                    'private' => false,
+                    'path' => 'media/ab/cd/50%20off.png',
+                    'thumbnails' => [
+                        [
+                            'width' => 100,
+                            'height' => 100,
+                            'path' => 'media/ab/cd/50%20off_100x100.png',
+                            'mediaThumbnailSize' => [
+                                'id' => Uuid::randomHex(),
+                                'width' => 100,
+                                'height' => 100,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            $this->context
+        );
+
+        $criteria = new Criteria([$mediaId]);
+        $criteria->addAssociation('thumbnails');
+
+        $media = Feature::withFeatureEnabled('v6.8.0.0', fn () => $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($mediaId));
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertSame('media/ab/cd/50%20off.png', $media->getPath());
+        static::assertStringContainsString('/media/ab/cd/50%2520off.png?ts=', $media->getUrl());
+
+        $thumbnail = $media->getThumbnails()?->first();
+        static::assertInstanceOf(MediaThumbnailEntity::class, $thumbnail);
+        static::assertSame('media/ab/cd/50%20off_100x100.png', $thumbnail->getPath());
+        static::assertStringContainsString('/media/ab/cd/50%2520off_100x100.png', $thumbnail->getUrl());
+
+        $legacyMedia = Feature::withFeatureDisabled('v6.8.0.0', fn () => $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($mediaId));
+        static::assertInstanceOf(MediaEntity::class, $legacyMedia);
+        static::assertStringContainsString('/media/ab/cd/50%20off.png?ts=', $legacyMedia->getUrl());
     }
 
     public function testAltTextLongerThan255CharactersIsRejected(): void

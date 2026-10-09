@@ -120,7 +120,7 @@ class CartOrderEventSubscriberTest extends TestCase
         );
 
         $orderId = $this->cartService->order($cart, $context, new RequestDataBag());
-        static::assertNotEmpty($orderId);
+        static::assertNotSame('', $orderId);
 
         $freshContext = $this->contextFactory->create($token, $this->ids->get('sales-channel'), ['customerId' => $customerId]);
 

@@ -1,6 +1,7 @@
 name: Technical TODO
-description: For Improvements and Tasks related to refactoring, testing, design, perf, docs, spikes, config changes, etc.
+description: For Improvements and Tasks related to refactoring, testing, design, perf, docs, spikes, config changes, etc. Defaults to the Improvement type, switch it to Task for docs, spikes or config work.
 labels: [Technical TODO]
+type: Improvement
 body:
     - type: markdown
       attributes:

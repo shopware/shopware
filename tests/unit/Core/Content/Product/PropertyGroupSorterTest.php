@@ -264,7 +264,7 @@ class PropertyGroupSorterTest extends TestCase
     /**
      * @param class-string<PropertyGroupOptionEntity|PartialEntity> $entityType
      */
-    private function createOption(string $entityType, string $groupId, string $name, int $position, ?Entity $group): Entity
+    private function createOption(string $entityType, string $groupId, string $name, int $position, ?Entity $group): PropertyGroupOptionEntity|PartialEntity
     {
         if ($entityType === PartialEntity::class) {
             return $this->createPartialOption($groupId, $name, $position, $group);
@@ -312,7 +312,7 @@ class PropertyGroupSorterTest extends TestCase
     /**
      * @return EntityCollection<PropertyGroupOptionEntity|PartialEntity>
      */
-    private function createOptionsCollection(Entity ...$options): EntityCollection
+    private function createOptionsCollection(PropertyGroupOptionEntity|PartialEntity ...$options): EntityCollection
     {
         $collection = new EntityCollection();
 

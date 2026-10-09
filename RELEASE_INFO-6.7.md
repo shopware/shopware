@@ -65,6 +65,7 @@ With the newly added tabs feature, plugin developers can now add another layer o
 Services tagged with `kernel.reset` are now reset between two requests handled by the same kernel instance, as in a plain Symfony application. Previously the reset never ran, so resettable services kept their state for the whole lifetime of a worker in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole). Extensions that relied on state surviving across requests in such runtimes must move that state to an explicit cache or store; in PHP-FPM setups nothing changes.
 
 As part of this change Symfony's `http_cache` service is no longer registered (`framework.http_cache.enabled` is now `false`) — HTTP caching keeps being handled by Shopware's own cache layer, which decorates `http_kernel`. Projects that referenced the `http_cache` service or enabled it in their own configuration must remove those references.
+
 ### Homepage hreflang links restored for existing `HreflangLoaderParameter` callers
 
 When `HreflangLoaderParameter` is constructed without the `$homepage` argument, `isHomepage()` again detects the homepage from the `frontend.home.page` route name, so homepage hreflang links are generated for these callers. This fallback is deprecated and will be removed in 6.8. If you construct `HreflangLoaderParameter` yourself, pass `$homepage` explicitly.

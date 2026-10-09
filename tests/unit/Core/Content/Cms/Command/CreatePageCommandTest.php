@@ -80,7 +80,7 @@ class CreatePageCommandTest extends TestCase
         static::assertCount(4, $cmsPage['blocks']);
 
         // no deleted cms pages
-        static::assertEmpty($this->cmsPageRepository->deletes);
+        static::assertCount(0, $this->cmsPageRepository->deletes);
 
         static::assertSame(0, $commandTester->getStatusCode());
     }

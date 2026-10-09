@@ -69,8 +69,10 @@ class SitemapRouteTest extends TestCase
         static::assertSame('sitemap', $response[0]['apiAlias']);
         static::assertArrayHasKey('filename', $response[0]);
         static::assertArrayHasKey('created', $response[0]);
-        static::assertNotEmpty($response[0]['filename']);
-        static::assertNotEmpty($response[0]['created']);
+        static::assertIsString($response[0]['filename']);
+        static::assertNotSame('', $response[0]['filename']);
+        static::assertIsString($response[0]['created']);
+        static::assertNotSame('', $response[0]['created']);
     }
 
     public function testLiveStrategyHeadlessWithoutExternalStorefrontDomainReturnsEmptyList(): void
@@ -126,7 +128,8 @@ class SitemapRouteTest extends TestCase
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $browser->getResponse()->getStatusCode());
-        static::assertNotEmpty($response);
+        static::assertIsArray($response);
+        static::assertNotCount(0, $response);
 
         foreach ($response as $sitemap) {
             // the external storefront does not serve the files, so the listing must not point at it

@@ -75,9 +75,7 @@ class CmsRouteTest extends TestCase
         static::assertSame($this->ids->get('page'), $response['id']);
         static::assertSame('test page', $response['name']);
         static::assertSame('landingpage', $response['type']);
-        static::assertNotEmpty($response['sections']);
         static::assertCount(1, $response['sections']);
-        static::assertNotEmpty($response['sections'][0]['blocks']);
         static::assertCount(1, $response['sections'][0]['blocks']);
         static::assertCount(2, $response['sections'][0]['blocks'][0]['slots']);
     }

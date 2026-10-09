@@ -17,7 +17,10 @@ scripts/classify.sh --range <merge-base>...HEAD --base trunk \
   renamed files, so globs match both sides.
 - `--rules-ref`: `guides/index.json` and the guide files are read from that git
   ref (the merge base of the PR), never from the checked-out head, so a PR
-  cannot change the rules it is reviewed against.
+  cannot change the rules it is reviewed against. When the ref has no index yet
+  (the guides are being introduced, or a stacked branch), the script falls back
+  to the working tree and reports `"rules_source": "working-tree"`; there is
+  nothing to protect in that case.
 - `--meta`: `{"fork": bool, "author_association": "...", "labels": [...], "fixes_issue": bool}`; all optional.
 - `--root`: the checkout; needed for `git` and for the `@internal` lookup.
 - `--files files.txt --diff diff.patch` is the offline form used by the routing

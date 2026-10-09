@@ -60,11 +60,17 @@ tr -d '\r' < "$FILES" > "$WORK/files.lf"; FILES="$WORK/files.lf"
 tr -d '\r' < "$DIFF" > "$WORK/diff.lf"; DIFF="$WORK/diff.lf"
 
 # rule files: from the working tree, or from --rules-ref via git show
-if [ -n "$RULES_REF" ]; then
+RULES_SOURCE="working-tree"
+if [ -n "$RULES_REF" ] && git -C "$ROOT" cat-file -e "$RULES_REF:$SKILL_REL/guides/index.json" 2>/dev/null; then
   INDEX="$WORK/index.json"
-  git -C "$ROOT" show "$RULES_REF:$SKILL_REL/guides/index.json" > "$INDEX" || { echo "cannot read guides/index.json from $RULES_REF" >&2; exit 2; }
+  git -C "$ROOT" show "$RULES_REF:$SKILL_REL/guides/index.json" > "$INDEX"
   guide_exists() { git -C "$ROOT" cat-file -e "$RULES_REF:$SKILL_REL/guides/$1.md" 2>/dev/null; }
+  RULES_SOURCE="$RULES_REF"
 else
+  # The base branch has no router index yet (the guides are being introduced by this very
+  # PR, or a stacked branch): fall back to the working tree and say so in the output.
+  [ -n "$RULES_REF" ] && echo "note: $RULES_REF has no $SKILL_REL/guides/index.json; using the working tree" >&2
+  RULES_REF=""
   [ -n "$INDEX" ] || INDEX="$SCRIPT_DIR/../guides/index.json"
   [ -f "$INDEX" ] || { echo "guide index not found: $INDEX" >&2; exit 2; }
   GUIDES_DIR="$(dirname "$INDEX")"
@@ -240,5 +246,5 @@ jq -n \
   --argjson signals "$signals_json" \
   --argjson fork "$fork" --arg assoc "$assoc" --argjson labels "$labels" \
   --argjson files "$n_files" --argjson lines "$n_lines" --argjson over "$over_cap" \
-  --argjson guides "$selected" \
-  '{base_ref:$base, path_classes:$classes, signals:$signals, metadata:{fork:$fork, author_association:$assoc, labels:$labels}, size:{files:$files, changed_lines:$lines, over_cap:$over}, guides:$guides}'
+  --argjson guides "$selected" --arg rules "$RULES_SOURCE" \
+  '{base_ref:$base, rules_source:$rules, path_classes:$classes, signals:$signals, metadata:{fork:$fork, author_association:$assoc, labels:$labels}, size:{files:$files, changed_lines:$lines, over_cap:$over}, guides:$guides}'

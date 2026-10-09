@@ -12,7 +12,7 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: ['loginService'],
+    inject: ['loginService', 'ssoSettingsService'],
 
     emits: ['verified', 'close'],
 
@@ -21,6 +21,8 @@ export default {
     data() {
         return {
             confirmPassword: '',
+            // null until the SSO lookup resolved; the password prompt renders only for non-SSO sessions
+            isSso: null,
         };
     },
 
@@ -29,7 +31,22 @@ export default {
     },
 
     methods: {
-        createdComponent() {},
+        async createdComponent() {
+            try {
+                this.isSso = (await this.ssoSettingsService.isSso()).isSso === true;
+            } catch {
+                this.isSso = false;
+            }
+
+            if (!this.isSso) {
+                return;
+            }
+
+            // An SSO session has no Shopware password to verify and the user-verified scope
+            // is not granted to it anyway; the identity provider already verified the user.
+            this.$emit('verified', { ...Shopware.Context.api });
+            this.$emit('close');
+        },
 
         onSubmitConfirmPassword() {
             return this.loginService

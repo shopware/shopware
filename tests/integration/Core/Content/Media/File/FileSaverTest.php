@@ -318,7 +318,7 @@ SVG;
         $this->getPublicFilesystem()->writeStream($pathName, $resource);
 
         static::assertIsString($png->getFileName());
-        static::assertNotEmpty($png->getFileName());
+        static::assertNotSame('', $png->getFileName());
 
         try {
             $this->fileSaver->persistFileToMedia(

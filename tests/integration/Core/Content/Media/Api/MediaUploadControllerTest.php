@@ -290,7 +290,7 @@ class MediaUploadControllerTest extends TestCase
             . \PHP_EOL . 'Attributes not allowed: onload.',
             $responseData['errors'][0]['detail']
         );
-        static::assertEmpty($media->getPath());
+        static::assertSame('', $media->getPath());
         static::assertNull($this->thrownMediaEvent);
     }
 
@@ -386,7 +386,7 @@ class MediaUploadControllerTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertNotEmpty($media->getPath());
+        static::assertNotSame('', $media->getPath());
 
         $this->getPublicFilesystem()->write($media->getPath(), 'some content');
 

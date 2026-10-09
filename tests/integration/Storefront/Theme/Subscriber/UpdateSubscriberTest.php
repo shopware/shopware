@@ -71,7 +71,7 @@ class UpdateSubscriberTest extends TestCase
             });
 
         $updateSubscriber->updateFinished($event);
-        static::assertEmpty($themes, print_r($themes, true));
+        static::assertCount(0, $themes, print_r($themes, true));
     }
 
     public function testThemesAreNotCompiledWithStateSkipAssetBuilding(): void

@@ -399,7 +399,7 @@
                     "Asset Management"
                 ],
                 "summary": "Prepare a presigned upload",
-                "description": "Creates or reuses a media entity and returns a presigned S3 URL for direct browser-to-storage upload. The client uploads the file directly to the returned URL, then calls the finalize endpoint.",
+                "description": "Creates or reuses a media entity and returns a presigned URL for a direct browser-to-remote-storage upload. The client uploads the file directly to the returned URL, then calls the finalize endpoint.",
                 "operationId": "presignUpload",
                 "requestBody": {
                     "required": true,
@@ -583,6 +583,202 @@
                     },
                     "422": {
                         "description": "Validation error. Required fields (`fileName`, `extension`, `mimeType`, `path`) must not be blank.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/media/upload/presign": {
+            "post": {
+                "tags": [
+                    "Asset Management"
+                ],
+                "summary": "Request a presigned upload",
+                "description": "Signs a direct browser-to-remote-storage upload and returns an upload ticket. The client uploads the file to `upload.url` sending `upload.headers` verbatim, then calls the confirm endpoint with the returned `uploadToken`.",
+                "operationId": "presignUploadRequest",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["fileName"],
+                                "properties": {
+                                    "fileName": {
+                                        "type": "string",
+                                        "description": "Full file name including extension, e.g. `image.jpg`"
+                                    },
+                                    "mimeType": {
+                                        "type": "string",
+                                        "description": "MIME type of the file, e.g. `image/jpeg`. Used only when it is a known MIME type of the file extension, otherwise the type is derived from the extension."
+                                    },
+                                    "id": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "description": "ID of an existing media entity to replace. If omitted, a new entity is created on confirm."
+                                    },
+                                    "mediaFolderId": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "description": "ID of the media folder to place the new media in"
+                                    },
+                                    "private": {
+                                        "type": "boolean",
+                                        "description": "Whether the media should be private"
+                                    },
+                                    "deduplicate": {
+                                        "type": "boolean",
+                                        "description": "If true, reuse an existing media with the same file name instead of failing on confirm"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Upload ticket created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["id", "uploadToken", "upload"],
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$",
+                                            "description": "ID the media entity will be created with on confirm"
+                                        },
+                                        "uploadToken": {
+                                            "type": "string",
+                                            "description": "Opaque signed token to pass back to the confirm endpoint"
+                                        },
+                                        "upload": {
+                                            "type": "object",
+                                            "required": ["method", "url", "headers", "expiresAt"],
+                                            "properties": {
+                                                "method": {
+                                                    "type": "string",
+                                                    "description": "HTTP method to use for the upload, e.g. `PUT`"
+                                                },
+                                                "url": {
+                                                    "type": "string",
+                                                    "description": "Presigned URL to upload the file to"
+                                                },
+                                                "headers": {
+                                                    "type": "object",
+                                                    "additionalProperties": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": "Headers that must be sent verbatim with the upload request"
+                                                },
+                                                "expiresAt": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "description": "Expiration time of the presigned URL"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. The file extension is not supported or the file name is invalid.",
+                        "$ref": "#/components/responses/400"
+                    },
+                    "403": {
+                        "description": "The integration or user lacks `media:create`, or `media:update` for a replace.",
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "description": "The media entity with the given `id` was not found.",
+                        "$ref": "#/components/responses/404"
+                    },
+                    "422": {
+                        "description": "Validation error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/media/upload/confirm": {
+            "post": {
+                "tags": [
+                    "Asset Management"
+                ],
+                "summary": "Confirm a presigned upload",
+                "description": "Verifies the upload token and the presence of the uploaded object, then creates (or, for a replace, updates) the media entity. No file metadata is re-declared; the server derives everything from the signed token and the stored object.",
+                "operationId": "confirmUpload",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["uploadToken"],
+                                "properties": {
+                                    "uploadToken": {
+                                        "type": "string",
+                                        "description": "Opaque signed token returned by the presign request"
+                                    },
+                                    "width": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "description": "Image width in pixels, stored in the media metadata when sent together with `height`"
+                                    },
+                                    "height": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "description": "Image height in pixels, stored in the media metadata when sent together with `width`"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Upload confirmed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["id"],
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$",
+                                            "description": "ID of the created or updated media entity"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. The upload token is invalid or expired, the file name is already taken, the uploaded file could not be found on the remote storage, or its content is not allowed.",
+                        "$ref": "#/components/responses/400"
+                    },
+                    "403": {
+                        "description": "The integration or user lacks `media:create`, or `media:update` for a replace.",
+                        "$ref": "#/components/responses/403"
+                    },
+                    "422": {
+                        "description": "Validation error. `uploadToken` must not be blank and `width` and `height` must be positive.",
                         "content": {
                             "application/json": {
                                 "schema": {

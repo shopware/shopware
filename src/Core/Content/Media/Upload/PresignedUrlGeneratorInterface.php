@@ -20,4 +20,6 @@ interface PresignedUrlGeneratorInterface
     public function getFileMetadata(string $path, bool $private): ?FileMetadataResult;
 
     public function deleteFromStorage(string $path, bool $private): void;
+
+    public function downloadToFile(string $path, bool $private, string $targetFile): bool;
 }

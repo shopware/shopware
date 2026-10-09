@@ -255,7 +255,7 @@ export default {
             newTask.fileName = fileName;
 
             if (this.presignedSupported && uploadTask.src instanceof File) {
-                const mediaId = await this.presignedUpload(newTask, newTask.targetId);
+                const mediaId = await this.presignedUpload(newTask, null);
                 this.emitUploadFinished(newTask.uploadTag, mediaId);
                 return;
             }
@@ -287,7 +287,7 @@ export default {
 
         async skipFile(uploadTask) {
             const oldTarget = await this.mediaRepository.get(uploadTask.targetId, Context.api);
-            if (!oldTarget.hasFile) {
+            if (oldTarget && !oldTarget.hasFile) {
                 await this.mediaRepository.delete(oldTarget.id, Context.api);
             }
 
@@ -343,31 +343,11 @@ export default {
             await this.mediaRepository.get(uploadTask.targetId, Context.api);
         },
 
-        async presignedUpload(uploadTask, mediaId) {
-            const mimeType = uploadTask.src.type || 'application/octet-stream';
-
-            const [result, dimensions] = await Promise.all([
-                this.mediaPresignedUploadService.prepareUpload({
-                    fileName: uploadTask.fileName,
-                    extension: uploadTask.extension,
-                    mimeType,
-                    mediaId,
-                }),
-                this.mediaPresignedUploadService.getImageDimensions(uploadTask.src),
-            ]);
-
-            await this.mediaPresignedUploadService.uploadToPresignedUrl(result.url, uploadTask.src, mimeType);
-
-            await this.mediaPresignedUploadService.finalizeUpload(result.mediaId, {
-                fileName: uploadTask.fileName,
-                extension: uploadTask.extension,
-                mimeType,
-                path: result.path,
-                width: dimensions?.width ?? null,
-                height: dimensions?.height ?? null,
+        presignedUpload(uploadTask, mediaId) {
+            return this.mediaPresignedUploadService.uploadFile(uploadTask.src, {
+                fileName: `${uploadTask.fileName}.${uploadTask.extension}`,
+                id: mediaId,
             });
-
-            return result.mediaId;
         },
 
         emitUploadFinished(uploadTag, targetId, originalTargetId = null) {
@@ -386,8 +366,9 @@ export default {
 
         async keepFile(uploadTask) {
             const originalTargetId = uploadTask.targetId;
+            // With presigned uploads no placeholder row is created before confirm, so targetId may not resolve.
             const oldTarget = await this.mediaRepository.get(uploadTask.targetId, Context.api);
-            if (!oldTarget.hasFile) {
+            if (oldTarget && !oldTarget.hasFile) {
                 await this.mediaRepository.delete(oldTarget.id, Context.api);
             }
 

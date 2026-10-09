@@ -13,6 +13,7 @@ use Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -386,6 +387,68 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         );
 
         static::assertNull($generator->getFileMetadata('media/ab/cd/test.jpg', false));
+    }
+
+    public function testDownloadToFileWhenNotSupported(): void
+    {
+        $generator = PresignedUploadUrlGenerator::create(
+            $this->mediaPathStrategy,
+            ['type' => 'local'],
+            new NullLogger(),
+            new NativeClock(),
+        );
+
+        static::assertFalse($generator->downloadToFile('media/ab/cd/test.svg', false, '/nonexistent/target'));
+    }
+
+    public function testDownloadToFileWritesStoredObject(): void
+    {
+        $generator = PresignedUploadUrlGenerator::create(
+            $this->mediaPathStrategy,
+            $this->s3Config('public-bucket', ['credentials' => ['key' => 'test-key', 'secret' => 'test-secret']]),
+            new NullLogger(),
+            new NativeClock(),
+            httpClient: new MockHttpClient(new MockResponse('<svg/>', ['http_code' => 200])),
+        );
+        $targetFile = (string) tempnam(sys_get_temp_dir(), '');
+
+        try {
+            static::assertTrue($generator->downloadToFile('media/ab/cd/test.svg', false, $targetFile));
+            static::assertSame('<svg/>', file_get_contents($targetFile));
+        } finally {
+            unlink($targetFile);
+        }
+    }
+
+    public function testDownloadToFileFailsWhenTheTargetFileCannotBeOpened(): void
+    {
+        $generator = PresignedUploadUrlGenerator::create(
+            $this->mediaPathStrategy,
+            $this->s3Config('public-bucket', ['credentials' => ['key' => 'test-key', 'secret' => 'test-secret']]),
+            new NullLogger(),
+            new NativeClock(),
+            httpClient: new MockHttpClient(new MockResponse('<svg/>', ['http_code' => 200])),
+        );
+
+        static::assertFalse($generator->downloadToFile('media/ab/cd/test.svg', false, sys_get_temp_dir() . '/missing-directory/test.svg'));
+    }
+
+    public function testDownloadToFileFailsWhenStorageRejectsTheRequest(): void
+    {
+        $generator = PresignedUploadUrlGenerator::create(
+            $this->mediaPathStrategy,
+            $this->s3Config('public-bucket', ['credentials' => ['key' => 'test-key', 'secret' => 'test-secret']]),
+            new NullLogger(),
+            new NativeClock(),
+            httpClient: new MockHttpClient(new MockResponse('', ['http_code' => 404])),
+        );
+        $targetFile = (string) tempnam(sys_get_temp_dir(), '');
+
+        try {
+            static::assertFalse($generator->downloadToFile('media/ab/cd/missing.svg', false, $targetFile));
+        } finally {
+            unlink($targetFile);
+        }
     }
 
     public function testCreateWithCustomHttpClient(): void

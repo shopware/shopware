@@ -8,6 +8,10 @@ const mediaService = {
     renameMedia: jest.fn().mockResolvedValue(),
 };
 
+const mediaPresignedUploadService = {
+    uploadFile: jest.fn().mockResolvedValue('media-id-123'),
+};
+
 const createWrapper = async () => {
     return mount(await wrapTestComponent('sw-media-modal-replace', { sync: true }), {
         props: {
@@ -26,7 +30,7 @@ const createWrapper = async () => {
             },
             provide: {
                 mediaService,
-                mediaPresignedUploadService: {},
+                mediaPresignedUploadService,
                 repositoryFactory: {
                     create: jest.fn(),
                 },
@@ -55,5 +59,14 @@ describe('components/media/sw-media-modal-replace', () => {
 
         expect(mediaService.runUploads).toHaveBeenCalledWith('media-id-123');
         expect(mediaService.renameMedia).toHaveBeenCalledWith('media-id-123', 'image');
+    });
+
+    it('replaces the media through a presigned upload to its own id', async () => {
+        const wrapper = await createWrapper();
+        const file = new File(['content'], 'replacement.png', { type: 'image/png' });
+
+        await wrapper.vm.runPresignedReplace(file);
+
+        expect(mediaPresignedUploadService.uploadFile).toHaveBeenCalledWith(file, { id: 'media-id-123' });
     });
 });

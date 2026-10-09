@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media\Upload;
 
 use AsyncAws\S3\Input\DeleteObjectRequest;
+use AsyncAws\S3\Input\GetObjectRequest;
 use AsyncAws\S3\Input\HeadObjectRequest;
 use AsyncAws\S3\Input\PutObjectRequest;
 use AsyncAws\S3\S3Client;
@@ -187,6 +188,38 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
                 'message' => $e->getMessage(),
                 'exception' => $e,
             ]);
+        }
+    }
+
+    public function downloadToFile(string $path, bool $private, string $targetFile): bool
+    {
+        ['client' => $client, 'bucket' => $bucket, 'root' => $root] = $this->target($private);
+
+        if ($client === null || $bucket === null) {
+            return false;
+        }
+
+        try {
+            $request = new GetObjectRequest([
+                'Bucket' => $bucket,
+                'Key' => $this->ensureRootPrefix($path, $root),
+            ]);
+
+            $targetFileHandle = new \SplFileObject($targetFile, 'wb');
+
+            foreach ($client->getObject($request)->getBody()->getChunks() as $chunk) {
+                $targetFileHandle->fwrite($chunk);
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            $this->logger->warning('Failed to download presigned upload at path "{path}": {message}', [
+                'path' => $path,
+                'message' => $e->getMessage(),
+                'exception' => $e,
+            ]);
+
+            return false;
         }
     }
 

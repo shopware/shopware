@@ -10,12 +10,12 @@ const s3Client = Axios.create();
 
 /**
  * Text-based MIME types that must be served with an explicit `charset=utf-8`, otherwise browsers render
- * multi-byte characters (ä, ö, ü, ß, …) as mojibake when the object is served directly from S3/CDN.
+ * multi-byte characters (ä, ö, ü, ß, …) as mojibake when the object is served directly from remote storage/CDN.
  *
  * IMPORTANT: This is the client-side mirror of `FileInfoHelper::TEXT_BASED_MIME_TYPES` in
- * src/Core/Content/Media/File/FileInfoHelper.php. In the presigned direct-to-S3 flow the `Content-Type` header
- * sent on the PUT must match the value the server presigned byte-for-byte, or S3 rejects the upload with
- * `SignatureDoesNotMatch`. Keep both lists in sync.
+ * src/Core/Content/Media/File/FileInfoHelper.php. In the presigned direct-to-remote-storage flow the `Content-Type`
+ * header sent on the PUT must match the value the server presigned byte-for-byte, or the remote storage rejects the
+ * upload with a signature mismatch. Keep both lists in sync.
  */
 const TEXT_BASED_MIME_TYPES = [
     'text/plain',
@@ -34,6 +34,21 @@ const TEXT_BASED_MIME_TYPES = [
  */
 function withCharset(mimeType) {
     return TEXT_BASED_MIME_TYPES.includes(mimeType) ? `${mimeType}; charset=utf-8` : mimeType;
+}
+
+/**
+ * @param {File} file
+ * @param {function({loaded: number, total: number}): void|null} onProgress
+ * @returns {function(ProgressEvent): void|undefined}
+ */
+function createUploadProgressHandler(file, onProgress) {
+    if (!onProgress) {
+        return undefined;
+    }
+
+    return (progressEvent) => {
+        onProgress({ loaded: progressEvent.loaded, total: progressEvent.total ?? file.size });
+    };
 }
 
 /**
@@ -77,14 +92,7 @@ class MediaPresignedUploadApiService extends ApiService {
         return s3Client.put(presignedUrl, file, {
             // Must match the ContentType the server presigned byte-for-byte (see withCharset above).
             headers: { 'Content-Type': withCharset(mimeType) },
-            onUploadProgress: onProgress
-                ? (progressEvent) => {
-                      onProgress({
-                          loaded: progressEvent.loaded,
-                          total: progressEvent.total ?? file.size,
-                      });
-                  }
-                : undefined,
+            onUploadProgress: createUploadProgressHandler(file, onProgress),
             timeout: 0,
         });
     }
@@ -102,6 +110,67 @@ class MediaPresignedUploadApiService extends ApiService {
 
         return this.httpClient
             .post(`/_action/media/${mediaId}/finalize-upload`, JSON.stringify(body), {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    /**
+     * @returns {Promise<{id: string, uploadToken: string, upload: {method: string, url: string, headers: Object.<string, string>, expiresAt: string}}>}
+     */
+    requestUpload({ fileName, mimeType, id = null, mediaFolderId = null, isPrivate = false, deduplicate = false }) {
+        const body = { fileName, mimeType, private: isPrivate };
+
+        if (id !== null) {
+            body.id = id;
+        }
+
+        if (mediaFolderId !== null) {
+            body.mediaFolderId = mediaFolderId;
+        }
+
+        if (deduplicate) {
+            body.deduplicate = deduplicate;
+        }
+
+        return this.httpClient
+            .post('/_action/media/upload/presign', JSON.stringify(body), {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    /**
+     * @returns {Promise<void>}
+     */
+    uploadToTicket(upload, file, onProgress = null) {
+        return s3Client.request({
+            method: upload.method,
+            url: upload.url,
+            data: file,
+            headers: upload.headers,
+            onUploadProgress: createUploadProgressHandler(file, onProgress),
+            timeout: 0,
+        });
+    }
+
+    /**
+     * @returns {Promise<{id: string}>}
+     */
+    confirmUpload({ uploadToken, width = null, height = null }) {
+        const body = { uploadToken };
+
+        if (width !== null && height !== null) {
+            body.width = width;
+            body.height = height;
+        }
+
+        return this.httpClient
+            .post('/_action/media/upload/confirm', JSON.stringify(body), {
                 headers: this.getBasicHeaders(),
             })
             .then((response) => {
@@ -144,6 +213,34 @@ class MediaPresignedUploadApiService extends ApiService {
     }
 
     /**
+     * `params` are passed on to the request, so a `fileName` there overrides the file's own name.
+     *
+     * @returns {Promise<EntityKey<'media'>>} the id of the confirmed media
+     */
+    async uploadFile(file, params = {}, { onRequested = null, onProgress = null } = {}) {
+        const [uploadTicket, dimensions] = await Promise.all([
+            this.requestUpload({
+                fileName: file.name,
+                mimeType: file.type || 'application/octet-stream',
+                ...params,
+            }),
+            this.getImageDimensions(file),
+        ]);
+
+        onRequested?.(uploadTicket.id);
+
+        await this.uploadToTicket(uploadTicket.upload, file, onProgress);
+
+        const confirmedMedia = await this.confirmUpload({
+            uploadToken: uploadTicket.uploadToken,
+            width: dimensions?.width ?? null,
+            height: dimensions?.height ?? null,
+        });
+
+        return confirmedMedia.id;
+    }
+
+    /**
      * @returns {Promise<void>}
      */
     runUploads(uploadTag, files, options, { getListeners, createEvent }) {
@@ -157,92 +254,46 @@ class MediaPresignedUploadApiService extends ApiService {
             });
         };
 
-        return Promise.all(
-            files.map(async (fileHandle) => {
+        const uploadAndReport = async (fileHandle) => {
+            let requestedMediaId = null;
+
+            try {
+                const confirmedMediaId = await this.uploadFile(fileHandle, options, {
+                    onRequested: (mediaId) => {
+                        requestedMediaId = mediaId;
+                        emit(UploadEvents.UPLOAD_ADDED, { data: [{ targetId: mediaId, src: fileHandle }] });
+                    },
+                    onProgress: ({ loaded, total }) => {
+                        emit(UploadEvents.UPLOAD_PROGRESS, { targetId: requestedMediaId, loaded, total });
+                    },
+                });
+
+                successCount += 1;
+                emit(UploadEvents.UPLOAD_FINISHED, {
+                    targetId: confirmedMediaId,
+                    successAmount: successCount,
+                    failureAmount: failureCount,
+                    totalAmount: totalFiles,
+                });
+            } catch (error) {
+                failureCount += 1;
                 const { fileName, extension } = fileReader.getNameAndExtensionFromFile(fileHandle);
-                const mimeType = fileHandle.type || 'application/octet-stream';
-                let mediaId = null;
-                let result = null;
-
-                try {
-                    const [prepareResult, dimensions] = await Promise.all([
-                        this.prepareUpload({
-                            fileName,
-                            extension,
-                            mimeType,
-                            ...options,
-                        }),
-                        this.getImageDimensions(fileHandle),
-                    ]);
-
-                    result = prepareResult;
-                    mediaId = result.mediaId;
-
-                    if (result.isDuplicate) {
-                        throw this.buildDuplicateError(fileName, extension);
-                    }
-
-                    emit(UploadEvents.UPLOAD_ADDED, {
-                        data: [{ targetId: mediaId, src: fileHandle }],
-                    });
-
-                    await this.uploadToPresignedUrl(result.url, fileHandle, mimeType, (progress) => {
-                        emit(UploadEvents.UPLOAD_PROGRESS, {
-                            targetId: mediaId,
-                            loaded: progress.loaded,
-                            total: progress.total,
-                        });
-                    });
-
-                    await this.finalizeUpload(mediaId, {
-                        fileName,
-                        extension,
-                        mimeType,
-                        path: result.path,
-                        width: dimensions?.width ?? null,
-                        height: dimensions?.height ?? null,
-                    });
-
-                    successCount += 1;
-                    emit(UploadEvents.UPLOAD_FINISHED, {
-                        targetId: mediaId,
-                        successAmount: successCount,
-                        failureAmount: failureCount,
-                        totalAmount: totalFiles,
-                    });
-                } catch (error) {
-                    failureCount += 1;
-                    emit(UploadEvents.UPLOAD_FAILED, {
-                        targetId: mediaId ?? fileHandle.name,
-                        fileName,
-                        extension,
-                        src: fileHandle,
-                        isPrivate: options.isPrivate ?? false,
-                        uploadTag,
-                        error,
-                        successAmount: successCount,
-                        failureAmount: failureCount,
-                        totalAmount: totalFiles,
-                    });
-                }
-            }),
-        );
-    }
-
-    buildDuplicateError(fileName, extension) {
-        return {
-            response: {
-                data: {
-                    errors: [
-                        {
-                            status: '400',
-                            code: 'CONTENT__MEDIA_DUPLICATED_FILE_NAME',
-                            detail: `A file with the name "${fileName}.${extension}" already exists.`,
-                        },
-                    ],
-                },
-            },
+                emit(UploadEvents.UPLOAD_FAILED, {
+                    targetId: requestedMediaId ?? fileHandle.name,
+                    fileName,
+                    extension,
+                    src: fileHandle,
+                    isPrivate: options.isPrivate ?? false,
+                    uploadTag,
+                    error,
+                    successAmount: successCount,
+                    failureAmount: failureCount,
+                    totalAmount: totalFiles,
+                });
+            }
         };
+
+        return Promise.all(files.map(uploadAndReport));
     }
 }
 

@@ -54,6 +54,30 @@ class FileContentValidationStrategyTest extends TestCase
         $validator->validate($mediaFile);
     }
 
+    public function testSupportsWhenAnyValidatorSupportsTheFile(): void
+    {
+        $mediaFile = $this->createMediaFile('svg');
+        $nonSupportingValidator = $this->createMock(AbstractFileContentValidator::class);
+        $nonSupportingValidator->expects($this->once())->method('supports')->willReturn(false);
+        $supportingValidator = $this->createMock(AbstractFileContentValidator::class);
+        $supportingValidator->expects($this->once())->method('supports')->willReturn(true);
+
+        $validator = new FileContentValidationStrategy([$nonSupportingValidator, $supportingValidator]);
+
+        static::assertTrue($validator->supports($mediaFile));
+    }
+
+    public function testDoesNotSupportWhenNoValidatorSupportsTheFile(): void
+    {
+        $mediaFile = $this->createMediaFile('png');
+        $nonSupportingValidator = $this->createMock(AbstractFileContentValidator::class);
+        $nonSupportingValidator->expects($this->once())->method('supports')->willReturn(false);
+
+        $validator = new FileContentValidationStrategy([$nonSupportingValidator]);
+
+        static::assertFalse($validator->supports($mediaFile));
+    }
+
     private function createMediaFile(string $extension): MediaFile
     {
         return new MediaFile('/tmp/example.' . $extension, 'image/' . $extension, $extension, 1);

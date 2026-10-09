@@ -90,6 +90,7 @@ use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
+use Shopware\Core\Content\Media\Upload\PresignedUploadTokenSigner;
 use Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator;
 use Shopware\Core\Content\Media\Upload\PresignedUrlGeneratorInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
@@ -458,6 +459,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->alias('shopware.media.upload.http_client', 'http_client');
     // endregion Testable service aliases
 
+    $services->set(PresignedUploadTokenSigner::class)
+        ->args([
+            param('kernel.secret'),
+        ]);
+
     $services->set(PresignedUploadUrlGenerator::class)
         ->factory([PresignedUploadUrlGenerator::class, 'create'])
         ->args([
@@ -512,6 +518,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AbstractMediaPathStrategy::class),
             service('logger'),
             service(ClockInterface::class),
+            service(PresignedUploadTokenSigner::class),
+            service(FileContentValidationStrategy::class),
         ]);
 
     $services->set(PresignedUploadController::class)

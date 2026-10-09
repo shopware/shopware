@@ -563,7 +563,34 @@ class MediaExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED, $exception->getErrorCode());
-        static::assertSame('Presigned upload is not supported. S3 filesystem must be configured.', $exception->getMessage());
+        static::assertSame('Presigned upload is not supported. A remote-storage filesystem must be configured.', $exception->getMessage());
+    }
+
+    public function testPresignedUploadTokenInvalid(): void
+    {
+        $exception = MediaException::presignedUploadTokenInvalid();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_TOKEN_INVALID, $exception->getErrorCode());
+        static::assertSame('The presigned upload token is invalid.', $exception->getMessage());
+    }
+
+    public function testPresignedUploadTokenExpired(): void
+    {
+        $exception = MediaException::presignedUploadTokenExpired();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_TOKEN_EXPIRED, $exception->getErrorCode());
+        static::assertSame('The presigned upload token has expired.', $exception->getMessage());
+    }
+
+    public function testMissingPrivilege(): void
+    {
+        $exception = MediaException::missingPrivilege(['media:update']);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_MISSING_PRIVILEGE, $exception->getErrorCode());
+        static::assertSame('Missing privilege: media:update', $exception->getMessage());
     }
 
     public function testPresignedUploadInvalidConfiguration(): void

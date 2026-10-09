@@ -8,6 +8,8 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -35,7 +37,9 @@ class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
         private readonly EntityRepository $appRepository,
         private readonly AppManager $appManager,
         private readonly ShopIdProvider $shopIdProvider,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly AppUrlVerifier $appUrlVerifier,
+        private readonly string $appUrl,
     ) {
     }
 
@@ -58,6 +62,12 @@ class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
             // no resolution needed
             return;
         } catch (ShopIdChangeSuggestedException $e) {
+            $state = $this->appUrlVerifier->forceVerify($this->appUrl);
+
+            if (!$state->is(VerificationStatus::PASS)) {
+                throw AppException::appUrlFailedVerification($this->appUrl, $state->failureReason());
+            }
+
             $this->shopIdProvider->regenerateAndSetShopId($e->shopId->id);
         }
 

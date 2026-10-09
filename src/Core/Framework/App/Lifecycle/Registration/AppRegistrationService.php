@@ -44,7 +44,7 @@ class AppRegistrationService
         private readonly HandshakeFactory $handshakeFactory,
         private readonly Client $httpClient,
         private readonly EntityRepository $appRepository,
-        private readonly string $shopUrl,
+        private readonly string $appUrl,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly string $shopwareVersion,
         private readonly ClockInterface $clock,
@@ -90,7 +90,7 @@ class AppRegistrationService
 
         $app = $this->fetchApp($id, $context);
         $shopId = $this->fetchShopId($app);
-        $this->verifyAppUrl($app, $shopId);
+        $this->verifyAppUrl();
 
         $currentSecret = $appHeldSecret ?? $app->getAppSecret();
         $logContext = ['appId' => $app->getId(), 'appName' => $app->getName()];
@@ -156,15 +156,12 @@ class AppRegistrationService
         }
     }
 
-    private function verifyAppUrl(AppEntity $app, ShopId $shopId): void
+    private function verifyAppUrl(): void
     {
-        $state = $this->appUrlVerifier->forceVerify($shopId);
+        $state = $this->appUrlVerifier->forceVerify($this->appUrl);
 
         if (!$state->is(VerificationStatus::PASS)) {
-            throw AppException::registrationFailed(
-                $app->getName(),
-                \sprintf('APP_URL "%s" is incorrect or does not reach this installation (%s)', $this->shopUrl, $state->info ?? $state->status->name),
-            );
+            throw AppException::appUrlFailedVerification($this->appUrl, $state->failureReason());
         }
     }
 
@@ -330,7 +327,7 @@ class AppRegistrationService
             'apiKey' => $integration->getAccessKey(),
             'secretKey' => $secretAccessKey,
             'timestamp' => (string) $this->clock->now()->getTimestamp(),
-            'shopUrl' => $this->shopUrl,
+            'shopUrl' => $this->appUrl,
             'shopId' => $shopId->id,
         ];
     }

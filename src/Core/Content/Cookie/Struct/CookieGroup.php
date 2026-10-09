@@ -32,7 +32,7 @@ class CookieGroup extends Struct
     protected ?CookieEntryCollection $entries;
 
     public function __construct(
-        private readonly string $technicalName,
+        protected readonly string $technicalName,
     ) {
         $this->name = $technicalName;
     }

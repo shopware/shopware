@@ -16,6 +16,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -90,6 +91,35 @@ class CookieRouteTest extends TestCase
         $response2 = (new CookieRoute($cookieProvider2, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
 
         static::assertNotSame($response1->getHash(), $response2->getHash());
+    }
+
+    public function testHashChangesWhenConsentIdEntryIsAdded(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $consentId = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONSENT_ID_COOKIE);
+        $consentId->expiration = 120;
+
+        $withoutConsentId = $this->getHash(new CookieEntryCollection([new CookieEntry('test-cookie')]), $salesChannelContext);
+        $withConsentId = $this->getHash(new CookieEntryCollection([new CookieEntry('test-cookie'), $consentId]), $salesChannelContext);
+
+        static::assertNotSame($withoutConsentId, $withConsentId, 'Switching consent logging on must ask visitors again, so their decision is logged');
+    }
+
+    public function testHashIgnoresConsentIdLifetime(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $consentId = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONSENT_ID_COOKIE);
+        $consentId->expiration = 120;
+        $otherRetention = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONSENT_ID_COOKIE);
+        $otherRetention->expiration = 365;
+
+        $hash = $this->getHash(new CookieEntryCollection([$consentId]), $salesChannelContext);
+        $otherRetentionHash = $this->getHash(new CookieEntryCollection([$otherRetention]), $salesChannelContext);
+
+        static::assertSame($hash, $otherRetentionHash, 'Changing the consent log retention must not ask visitors again');
+        static::assertSame(365, $otherRetention->expiration, 'The cookie lifetime sent to the client must stay unchanged');
     }
 
     public function testHashIsConsistentRegardlessOfOrder(): void
@@ -395,5 +425,16 @@ class CookieRouteTest extends TestCase
         );
 
         static::assertSame($response, $route->getCookieGroups($request, $salesChannelContext));
+    }
+
+    private function getHash(CookieEntryCollection $requiredEntries, SalesChannelContext $salesChannelContext): string
+    {
+        $requiredGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
+        $requiredGroup->setEntries($requiredEntries);
+
+        $cookieProvider = static::createStub(CookieProvider::class);
+        $cookieProvider->method('getCookieGroups')->willReturn(new CookieGroupCollection([$requiredGroup]));
+
+        return (new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext)->getHash();
     }
 }

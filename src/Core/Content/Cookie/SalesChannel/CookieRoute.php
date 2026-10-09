@@ -92,10 +92,13 @@ class CookieRoute extends AbstractCookieRoute
 
                 $entriesData = [];
                 foreach ($entries as $cookieEntry) {
+                    // The consent ID lifetime follows the log retention, which is not part of what the visitor consents to
+                    $expiration = $cookieEntry->cookie === CookieProvider::COOKIE_ENTRY_CONSENT_ID_COOKIE ? null : $cookieEntry->expiration ?? null;
+
                     $entriesData[] = [
                         'cookie' => $cookieEntry->cookie,
                         'value' => $cookieEntry->value ?? null,
-                        'expiration' => $cookieEntry->expiration ?? null,
+                        'expiration' => $expiration,
                         'name' => $cookieEntry->name ?? null,
                         'description' => $cookieEntry->description ?? null,
                         'hidden' => $cookieEntry->hidden,

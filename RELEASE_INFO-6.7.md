@@ -533,6 +533,11 @@ The group order in the permissions grid of Settings > Users & permissions follow
 
 The order is the `parentOrder` computed of `sw-users-permissions-permissions-grid`, and label lookups go through its `parentLabel()` method; both can be overridden to place an extension's group.
 
+### Runtime guards for Administration deprecations
+
+`Shopware.Feature.triggerDeprecationOrThrow(majorFlag, message)` warns about a deprecated Administration API in development builds and throws once the major flag is active, like its PHP counterpart.
+
+The `deprecated` option of components and props now follows the same lifecycle: it used to only warn and now throws in next-major mode. See the [coding guidelines](coding-guidelines/administration/feature-flags-and-deprecations.md#runtime-guards) for usage.
 ### Order line items are paginated
 
 The line item list on the order detail page shows 10 items per page once an order has more than 10 top-level line items. A pagination with an items-per-page selection appears below the list. Searching or adding a line item returns to the first page.

@@ -420,6 +420,19 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         }
     }
 
+    public function testDownloadToFileFailsWhenTheTargetFileCannotBeOpened(): void
+    {
+        $generator = PresignedUploadUrlGenerator::create(
+            $this->mediaPathStrategy,
+            $this->s3Config('public-bucket', ['credentials' => ['key' => 'test-key', 'secret' => 'test-secret']]),
+            new NullLogger(),
+            new NativeClock(),
+            httpClient: new MockHttpClient(new MockResponse('<svg/>', ['http_code' => 200])),
+        );
+
+        static::assertFalse($generator->downloadToFile('media/ab/cd/test.svg', false, sys_get_temp_dir() . '/missing-directory/test.svg'));
+    }
+
     public function testDownloadToFileFailsWhenStorageRejectsTheRequest(): void
     {
         $generator = PresignedUploadUrlGenerator::create(

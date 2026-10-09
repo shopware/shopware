@@ -230,6 +230,52 @@ describe('mediaPresignedUploadService', () => {
         expect(ticket.uploadToken).toBe('signed.token');
     });
 
+    it.each([
+        {
+            scenario: 'a new upload with defaults',
+            params: { fileName: 'test.jpg', mimeType: 'image/jpeg' },
+            expectedBody: { fileName: 'test.jpg', mimeType: 'image/jpeg', private: false },
+        },
+        {
+            scenario: 'a replace that deduplicates',
+            params: { fileName: 'test.jpg', mimeType: 'image/jpeg', id: 'media-123', deduplicate: true },
+            expectedBody: {
+                fileName: 'test.jpg',
+                mimeType: 'image/jpeg',
+                private: false,
+                id: 'media-123',
+                deduplicate: true,
+            },
+        },
+    ])('requestUpload sends only the given optional params for $scenario', async ({ params, expectedBody }) => {
+        const service = getMediaPresignedUploadApiService();
+        const postSpy = jest.spyOn(service.httpClient, 'post').mockResolvedValue({ data: {} });
+
+        await service.requestUpload(params);
+
+        expect(postSpy).toHaveBeenCalledWith(
+            '/_action/media/upload/presign',
+            JSON.stringify(expectedBody),
+            expect.objectContaining({ headers: expect.any(Object) }),
+        );
+    });
+
+    it('uploadToTicket reports progress and falls back to the file size as total', async () => {
+        const s3Client = Axios.create();
+        const service = getMediaPresignedUploadApiService();
+        const file = new File(['content'], 'image.png', { type: 'image/png' });
+        const onProgress = jest.fn();
+
+        await service.uploadToTicket(
+            { method: 'PUT', url: 'https://s3.example.com/presigned', headers: {} },
+            file,
+            onProgress,
+        );
+        s3Client.request.mock.lastCall[0].onUploadProgress({ loaded: 3 });
+
+        expect(onProgress).toHaveBeenCalledWith({ loaded: 3, total: file.size });
+    });
+
     it('uploadToTicket sends the ticket headers verbatim', async () => {
         const s3Client = Axios.create();
         const service = getMediaPresignedUploadApiService();
@@ -313,6 +359,95 @@ describe('mediaPresignedUploadService', () => {
             expect.objectContaining({
                 action: 'media-upload-finish',
                 payload: expect.objectContaining({ targetId: 'existing-id' }),
+            }),
+        );
+    });
+
+    it('uploadFile falls back to a binary type and confirms without dimensions', async () => {
+        const service = getMediaPresignedUploadApiService();
+        const file = new File(['content'], 'archive.bin');
+        const requestSpy = jest.spyOn(service, 'requestUpload').mockResolvedValue({
+            id: 'requested-id',
+            uploadToken: 'signed.token',
+            upload: { method: 'PUT', url: 'https://s3.example.com/presigned', headers: {} },
+        });
+        jest.spyOn(service, 'getImageDimensions').mockResolvedValue(null);
+        jest.spyOn(service, 'uploadToTicket').mockResolvedValue();
+        const confirmSpy = jest.spyOn(service, 'confirmUpload').mockResolvedValue({ id: 'requested-id' });
+
+        const confirmedMediaId = await service.uploadFile(file);
+
+        expect(requestSpy).toHaveBeenCalledWith({ fileName: 'archive.bin', mimeType: 'application/octet-stream' });
+        expect(confirmSpy).toHaveBeenCalledWith({ uploadToken: 'signed.token', width: null, height: null });
+        expect(confirmedMediaId).toBe('requested-id');
+    });
+
+    it('runUploads reports upload progress for the requested media id', async () => {
+        const service = getMediaPresignedUploadApiService();
+        const file = new File(['content'], 'image.png', { type: 'image/png' });
+        const listener = jest.fn();
+
+        jest.spyOn(service, 'requestUpload').mockResolvedValue({
+            id: 'requested-id',
+            uploadToken: 'signed.token',
+            upload: { method: 'PUT', url: 'https://s3.example.com/presigned', headers: {} },
+        });
+        jest.spyOn(service, 'getImageDimensions').mockResolvedValue(null);
+        jest.spyOn(service, 'uploadToTicket').mockImplementation((upload, uploadedFile, onProgress) => {
+            onProgress({ loaded: 3, total: 7 });
+
+            return Promise.resolve();
+        });
+        jest.spyOn(service, 'confirmUpload').mockResolvedValue({ id: 'requested-id' });
+
+        await service.runUploads(
+            'upload-tag',
+            [file],
+            {},
+            {
+                getListeners: () => [listener],
+                createEvent: (action, uploadTag, payload) => ({ action, uploadTag, payload }),
+            },
+        );
+
+        expect(listener).toHaveBeenCalledWith(
+            expect.objectContaining({
+                action: 'media-upload-progress',
+                payload: { targetId: 'requested-id', loaded: 3, total: 7 },
+            }),
+        );
+    });
+
+    it('runUploads reports a failed upload under the file name when no ticket was issued', async () => {
+        const service = getMediaPresignedUploadApiService();
+        const file = new File(['content'], 'image.png', { type: 'image/png' });
+        const listener = jest.fn();
+        const error = new Error('Request failed');
+
+        jest.spyOn(service, 'requestUpload').mockRejectedValue(error);
+        jest.spyOn(service, 'getImageDimensions').mockResolvedValue(null);
+
+        await service.runUploads(
+            'upload-tag',
+            [file],
+            {},
+            {
+                getListeners: () => [listener],
+                createEvent: (action, uploadTag, payload) => ({ action, uploadTag, payload }),
+            },
+        );
+
+        expect(listener).toHaveBeenCalledWith(
+            expect.objectContaining({
+                action: 'media-upload-fail',
+                payload: expect.objectContaining({
+                    targetId: 'image.png',
+                    fileName: 'image',
+                    extension: 'png',
+                    isPrivate: false,
+                    error,
+                    failureAmount: 1,
+                }),
             }),
         );
     });

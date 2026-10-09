@@ -27,59 +27,30 @@ class PresignedUploadConfirmPayloadTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{PresignedUploadConfirmPayload}>
+     * @param list<string> $expectedViolatedFields
      */
-    public static function validDataProvider(): iterable
+    #[DataProvider('payloadProvider')]
+    public function testValidatesPayload(string $uploadToken, ?int $width, ?int $height, array $expectedViolatedFields): void
     {
-        yield 'token without dimensions' => [
-            new PresignedUploadConfirmPayload(uploadToken: 'signed.token'),
-        ];
+        $payload = new PresignedUploadConfirmPayload(uploadToken: $uploadToken, width: $width, height: $height);
 
-        yield 'token with dimensions' => [
-            new PresignedUploadConfirmPayload(uploadToken: 'signed.token', width: 800, height: 600),
-        ];
-    }
-
-    #[DataProvider('validDataProvider')]
-    public function testAcceptsValidPayload(PresignedUploadConfirmPayload $payload): void
-    {
-        static::assertCount(0, $this->validator->validate($payload));
-    }
-
-    /**
-     * @return iterable<string, array{PresignedUploadConfirmPayload, list<string>}>
-     */
-    public static function invalidDataProvider(): iterable
-    {
-        yield 'blank upload token' => [
-            new PresignedUploadConfirmPayload(),
-            ['uploadToken'],
-        ];
-
-        yield 'zero width' => [
-            new PresignedUploadConfirmPayload(uploadToken: 'signed.token', width: 0, height: 600),
-            ['width'],
-        ];
-
-        yield 'negative height' => [
-            new PresignedUploadConfirmPayload(uploadToken: 'signed.token', width: 800, height: -1),
-            ['height'],
-        ];
-    }
-
-    /**
-     * @param list<string> $expectedFields
-     */
-    #[DataProvider('invalidDataProvider')]
-    public function testRejectsInvalidFields(PresignedUploadConfirmPayload $payload, array $expectedFields): void
-    {
-        $violations = $this->validator->validate($payload);
-
-        $violatedProperties = [];
-        foreach ($violations as $violation) {
-            $violatedProperties[] = $violation->getPropertyPath();
+        $violatedFields = [];
+        foreach ($this->validator->validate($payload) as $violation) {
+            $violatedFields[] = $violation->getPropertyPath();
         }
 
-        static::assertSame($expectedFields, $violatedProperties);
+        static::assertSame($expectedViolatedFields, $violatedFields);
+    }
+
+    /**
+     * @return iterable<string, array{string, ?int, ?int, list<string>}>
+     */
+    public static function payloadProvider(): iterable
+    {
+        yield 'token without dimensions is valid' => ['signed.token', null, null, []];
+        yield 'token with dimensions is valid' => ['signed.token', 800, 600, []];
+        yield 'blank upload token is rejected' => ['', null, null, ['uploadToken']];
+        yield 'zero width is rejected' => ['signed.token', 0, 600, ['width']];
+        yield 'negative height is rejected' => ['signed.token', 800, -1, ['height']];
     }
 }

@@ -343,27 +343,11 @@ export default {
             await this.mediaRepository.get(uploadTask.targetId, Context.api);
         },
 
-        async presignedUpload(uploadTask, mediaId) {
-            const mimeType = uploadTask.src.type || 'application/octet-stream';
-
-            const [uploadTicket, dimensions] = await Promise.all([
-                this.mediaPresignedUploadService.requestUpload({
-                    fileName: `${uploadTask.fileName}.${uploadTask.extension}`,
-                    mimeType,
-                    id: mediaId,
-                }),
-                this.mediaPresignedUploadService.getImageDimensions(uploadTask.src),
-            ]);
-
-            await this.mediaPresignedUploadService.uploadToTicket(uploadTicket.upload, uploadTask.src);
-
-            const confirmedMedia = await this.mediaPresignedUploadService.confirmUpload({
-                uploadToken: uploadTicket.uploadToken,
-                width: dimensions?.width ?? null,
-                height: dimensions?.height ?? null,
+        presignedUpload(uploadTask, mediaId) {
+            return this.mediaPresignedUploadService.uploadFile(uploadTask.src, {
+                fileName: `${uploadTask.fileName}.${uploadTask.extension}`,
+                id: mediaId,
             });
-
-            return confirmedMedia.id;
         },
 
         emitUploadFinished(uploadTag, targetId, originalTargetId = null) {

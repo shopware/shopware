@@ -93,24 +93,7 @@ export default {
         },
 
         async runPresignedReplace(fileHandle) {
-            const mimeType = fileHandle.type || 'application/octet-stream';
-
-            const [uploadTicket, dimensions] = await Promise.all([
-                this.mediaPresignedUploadService.requestUpload({
-                    fileName: fileHandle.name,
-                    mimeType,
-                    id: this.itemToReplace.id,
-                }),
-                this.mediaPresignedUploadService.getImageDimensions(fileHandle),
-            ]);
-
-            await this.mediaPresignedUploadService.uploadToTicket(uploadTicket.upload, fileHandle);
-
-            await this.mediaPresignedUploadService.confirmUpload({
-                uploadToken: uploadTicket.uploadToken,
-                width: dimensions?.width ?? null,
-                height: dimensions?.height ?? null,
-            });
+            await this.mediaPresignedUploadService.uploadFile(fileHandle, { id: this.itemToReplace.id });
         },
     },
 };

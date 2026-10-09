@@ -205,17 +205,10 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
                 'Key' => $this->ensureRootPrefix($path, $root),
             ]);
 
-            $targetFileHandle = fopen($targetFile, 'wb');
-            if ($targetFileHandle === false) {
-                return false;
-            }
+            $targetFileHandle = new \SplFileObject($targetFile, 'wb');
 
-            try {
-                foreach ($client->getObject($request)->getBody()->getChunks() as $chunk) {
-                    fwrite($targetFileHandle, $chunk);
-                }
-            } finally {
-                fclose($targetFileHandle);
+            foreach ($client->getObject($request)->getBody()->getChunks() as $chunk) {
+                $targetFileHandle->fwrite($chunk);
             }
 
             return true;

@@ -37,6 +37,21 @@ function withCharset(mimeType) {
 }
 
 /**
+ * @param {File} file
+ * @param {function({loaded: number, total: number}): void|null} onProgress
+ * @returns {function(ProgressEvent): void|undefined}
+ */
+function createUploadProgressHandler(file, onProgress) {
+    if (!onProgress) {
+        return undefined;
+    }
+
+    return (progressEvent) => {
+        onProgress({ loaded: progressEvent.loaded, total: progressEvent.total ?? file.size });
+    };
+}
+
+/**
  * @class
  * @extends ApiService
  */
@@ -77,14 +92,7 @@ class MediaPresignedUploadApiService extends ApiService {
         return s3Client.put(presignedUrl, file, {
             // Must match the ContentType the server presigned byte-for-byte (see withCharset above).
             headers: { 'Content-Type': withCharset(mimeType) },
-            onUploadProgress: onProgress
-                ? (progressEvent) => {
-                      onProgress({
-                          loaded: progressEvent.loaded,
-                          total: progressEvent.total ?? file.size,
-                      });
-                  }
-                : undefined,
+            onUploadProgress: createUploadProgressHandler(file, onProgress),
             timeout: 0,
         });
     }
@@ -145,14 +153,7 @@ class MediaPresignedUploadApiService extends ApiService {
             url: upload.url,
             data: file,
             headers: upload.headers,
-            onUploadProgress: onProgress
-                ? (progressEvent) => {
-                      onProgress({
-                          loaded: progressEvent.loaded,
-                          total: progressEvent.total ?? file.size,
-                      });
-                  }
-                : undefined,
+            onUploadProgress: createUploadProgressHandler(file, onProgress),
             timeout: 0,
         });
     }
@@ -212,6 +213,34 @@ class MediaPresignedUploadApiService extends ApiService {
     }
 
     /**
+     * `params` are passed on to the request, so a `fileName` there overrides the file's own name.
+     *
+     * @returns {Promise<EntityKey<'media'>>} the id of the confirmed media
+     */
+    async uploadFile(file, params = {}, { onRequested = null, onProgress = null } = {}) {
+        const [uploadTicket, dimensions] = await Promise.all([
+            this.requestUpload({
+                fileName: file.name,
+                mimeType: file.type || 'application/octet-stream',
+                ...params,
+            }),
+            this.getImageDimensions(file),
+        ]);
+
+        onRequested?.(uploadTicket.id);
+
+        await this.uploadToTicket(uploadTicket.upload, file, onProgress);
+
+        const confirmedMedia = await this.confirmUpload({
+            uploadToken: uploadTicket.uploadToken,
+            width: dimensions?.width ?? null,
+            height: dimensions?.height ?? null,
+        });
+
+        return confirmedMedia.id;
+    }
+
+    /**
      * @returns {Promise<void>}
      */
     runUploads(uploadTag, files, options, { getListeners, createEvent }) {
@@ -225,66 +254,46 @@ class MediaPresignedUploadApiService extends ApiService {
             });
         };
 
-        return Promise.all(
-            files.map(async (fileHandle) => {
+        const uploadAndReport = async (fileHandle) => {
+            let requestedMediaId = null;
+
+            try {
+                const confirmedMediaId = await this.uploadFile(fileHandle, options, {
+                    onRequested: (mediaId) => {
+                        requestedMediaId = mediaId;
+                        emit(UploadEvents.UPLOAD_ADDED, { data: [{ targetId: mediaId, src: fileHandle }] });
+                    },
+                    onProgress: ({ loaded, total }) => {
+                        emit(UploadEvents.UPLOAD_PROGRESS, { targetId: requestedMediaId, loaded, total });
+                    },
+                });
+
+                successCount += 1;
+                emit(UploadEvents.UPLOAD_FINISHED, {
+                    targetId: confirmedMediaId,
+                    successAmount: successCount,
+                    failureAmount: failureCount,
+                    totalAmount: totalFiles,
+                });
+            } catch (error) {
+                failureCount += 1;
                 const { fileName, extension } = fileReader.getNameAndExtensionFromFile(fileHandle);
-                const mimeType = fileHandle.type || 'application/octet-stream';
-                let mediaId = null;
+                emit(UploadEvents.UPLOAD_FAILED, {
+                    targetId: requestedMediaId ?? fileHandle.name,
+                    fileName,
+                    extension,
+                    src: fileHandle,
+                    isPrivate: options.isPrivate ?? false,
+                    uploadTag,
+                    error,
+                    successAmount: successCount,
+                    failureAmount: failureCount,
+                    totalAmount: totalFiles,
+                });
+            }
+        };
 
-                try {
-                    const [uploadTicket, dimensions] = await Promise.all([
-                        this.requestUpload({
-                            fileName: fileHandle.name,
-                            mimeType,
-                            ...options,
-                        }),
-                        this.getImageDimensions(fileHandle),
-                    ]);
-
-                    mediaId = uploadTicket.id;
-
-                    emit(UploadEvents.UPLOAD_ADDED, {
-                        data: [{ targetId: mediaId, src: fileHandle }],
-                    });
-
-                    await this.uploadToTicket(uploadTicket.upload, fileHandle, (progress) => {
-                        emit(UploadEvents.UPLOAD_PROGRESS, {
-                            targetId: mediaId,
-                            loaded: progress.loaded,
-                            total: progress.total,
-                        });
-                    });
-
-                    const confirmedMedia = await this.confirmUpload({
-                        uploadToken: uploadTicket.uploadToken,
-                        width: dimensions?.width ?? null,
-                        height: dimensions?.height ?? null,
-                    });
-
-                    successCount += 1;
-                    emit(UploadEvents.UPLOAD_FINISHED, {
-                        targetId: confirmedMedia.id,
-                        successAmount: successCount,
-                        failureAmount: failureCount,
-                        totalAmount: totalFiles,
-                    });
-                } catch (error) {
-                    failureCount += 1;
-                    emit(UploadEvents.UPLOAD_FAILED, {
-                        targetId: mediaId ?? fileHandle.name,
-                        fileName,
-                        extension,
-                        src: fileHandle,
-                        isPrivate: options.isPrivate ?? false,
-                        uploadTag,
-                        error,
-                        successAmount: successCount,
-                        failureAmount: failureCount,
-                        totalAmount: totalFiles,
-                    });
-                }
-            }),
-        );
+        return Promise.all(files.map(uploadAndReport));
     }
 }
 

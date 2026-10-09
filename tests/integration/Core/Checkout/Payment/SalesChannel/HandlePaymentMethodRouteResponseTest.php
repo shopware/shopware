@@ -172,7 +172,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
             ]
         );
         $contextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken, 'Login should succeed');
+        static::assertNotSame('', $contextToken, 'Login should succeed');
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 

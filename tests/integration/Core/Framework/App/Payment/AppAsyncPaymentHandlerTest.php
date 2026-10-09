@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 {
     final public const REDIRECT_URL = 'http://payment.app/do/something';
@@ -363,9 +363,9 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
         static::assertSame(\hash_hmac('sha256', $body, $appSecret), $request->getHeaderLine('shopware-shop-signature'));
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
         $content = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
@@ -544,9 +544,9 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
         static::assertSame(\hash_hmac('sha256', $body, $appSecret), $request->getHeaderLine('shopware-shop-signature'));
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
         $content = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
@@ -559,9 +559,9 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
             'inAppPurchases' => null,
         ], $content['source']);
         static::assertArrayHasKey('returnUrl', $content);
-        static::assertNotEmpty($content['returnUrl']);
+        static::assertIsString($content['returnUrl']);
+        static::assertNotSame('', $content['returnUrl']);
         $token = $this->getToken($content['returnUrl']);
-        static::assertNotEmpty($token);
         static::assertArrayHasKey('order', $content);
         static::assertIsArray($content['order']);
         static::assertArrayHasKey('language', $content['order']);
@@ -606,8 +606,8 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         \parse_str($query, $params);
 
         $token = $params['_sw_payment_token'];
-        static::assertNotEmpty($token);
         static::assertIsString($token);
+        static::assertNotSame('', $token);
 
         if (!Feature::isActive('v6.8.0.0')) {
             return static::getContainer()->get(JWTFactoryV2::class)->parseToken($token);

@@ -20,8 +20,8 @@
       "labelColumnDescription": "Beschreibung",
       "warningDeleteText": "Wenn Du diesen Flow löschst, werden für den Auslöser keine Aktionen mehr ausgeführt.",
       "confirmText": "Bist Du sicher, dass Du diesen Flow löschen möchtest?",
-      "emptyStateTitle": "Noch keine Flows erstellt",
-      "emptyStateSubTitle": "Füge Flows über den \"Hinzufügen\"-Button hinzu.",
+      "emptyStateTitle": "Noch keine Flows",
+      "emptyStateSubTitle": "Flows führen automatisch Aktionen aus, wenn in Deinem Shop etwas passiert, zum Beispiel eine E-Mail nach einer Bestellung.",
       "unknownTrigger": "Unbekannter Auslöser"
     },
     "template": {
@@ -199,7 +199,11 @@
       "document": {
         "titleCreateDocument": "Dokumente erzeugen",
         "labelDocumentType": "Dokumente",
-        "placeholderDocumentType": "Dokumente auswählen ..."
+        "placeholderDocumentType": "Dokumente auswählen ...",
+        "labelDocumentTypeSingle": "Dokumenttyp",
+        "placeholderDocumentTypeSingle": "Dokumenttyp auswählen ...",
+        "labelFileFormats": "Dateiformate",
+        "placeholderFileFormats": "Dateiformate auswählen ..."
       },
       "downloadAccess": {
         "titleSetDownloadAccess": "Download-Recht setzen",
@@ -361,7 +365,11 @@
       "pending": "Ausstehend",
       "changed": "Geändert",
       "update": "Aktualisierung",
-      "password": "Passwort"
+      "password": "Passwort",
+      "confirm": "Bestätigung",
+      "document": "Dokument",
+      "generation": "Erzeugung",
+      "revocationRequest": "Widerrufsantrag"
     }
   },
   "sw-privileges": {

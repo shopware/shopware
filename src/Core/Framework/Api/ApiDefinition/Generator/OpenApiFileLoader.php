@@ -38,7 +38,7 @@ class OpenApiFileLoader
         }
 
         $finder = new Finder();
-        $finder->in($this->paths)->name('*.json');
+        $finder->in($this->paths)->name('*.json')->sortByName();
 
         foreach ($finder as $entry) {
             try {

@@ -43,13 +43,25 @@ class ApiRouteInfoResolverTest extends TestCase
         $route3 = new Route(path: '/route3', methods: ['POST']);
         $routeCollection->add('route3', $route3);
 
+        $route4 = new Route(
+            path: '/route4',
+            defaults: [
+                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID],
+                PlatformRequest::ATTRIBUTE_OPENAPI => false,
+            ],
+            methods: ['DELETE']
+        );
+        $routeCollection->add('route4', $route4);
+
         $this->routerInterface->expects($this->once())
             ->method('getRouteCollection')
             ->willReturn($routeCollection);
 
         $routeInfo = $this->apiRouteInfoResolver->getApiRoutes(ApiRouteScope::ID);
-        static::assertCount(1, $routeInfo);
+        static::assertCount(2, $routeInfo);
         static::assertSame($route1->getPath(), $routeInfo[0]->path);
         static::assertSame($route1->getMethods(), $routeInfo[0]->methods);
+        static::assertSame($route4->getPath(), $routeInfo[1]->path);
+        static::assertSame($route4->getMethods(), $routeInfo[1]->methods);
     }
 }

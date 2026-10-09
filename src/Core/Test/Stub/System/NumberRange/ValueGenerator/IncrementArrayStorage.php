@@ -46,6 +46,13 @@ class IncrementArrayStorage extends AbstractIncrementStorage
         $this->states[$configurationId] = $value;
     }
 
+    public function increaseToAtLeast(string $configurationId, int $value): void
+    {
+        if (!isset($this->states[$configurationId]) || $this->states[$configurationId] < $value) {
+            $this->states[$configurationId] = $value;
+        }
+    }
+
     public function getDecorated(): AbstractIncrementStorage
     {
         throw new DecorationPatternException(self::class);

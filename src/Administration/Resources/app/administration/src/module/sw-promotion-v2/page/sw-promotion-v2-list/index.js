@@ -11,15 +11,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -161,8 +155,6 @@ export default {
                         individualCodePattern: '',
                         individualCodes: null,
                         active: false,
-                        orderCount: 0,
-                        ordersPerCustomerCount: null,
                     },
                 };
                 const clone = await this.promotionRepository.clone(referencePromotion.id, behavior, Shopware.Context.api);

@@ -335,31 +335,6 @@
                 "default": "none",
                 "enum": ["none", "exact", "next-pages"]
             },
-            "Query": {
-                "type": "object",
-                "properties": {
-                    "score": {
-                        "type": "number"
-                    },
-                    "query": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/SimpleFilter"
-                            },
-                            {
-                                "$ref": "#/components/schemas/EqualsFilter"
-                            },
-                            {
-                                "$ref": "#/components/schemas/MultiNotFilter"
-                            },
-                            {
-                                "$ref": "#/components/schemas/RangeFilter"
-                            }
-                        ]
-                    }
-                },
-                "additionalProperties": true
-            },
             "Sort": {
                 "type": "object",
                 "properties": {

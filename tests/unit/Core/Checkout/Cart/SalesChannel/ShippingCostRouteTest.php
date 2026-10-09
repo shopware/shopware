@@ -11,28 +11,35 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingCostCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Extension\ShippingCostRouteExtension;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\RuleLoaderResult;
 use Shopware\Core\Checkout\Cart\SalesChannel\ShippingCostRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\ShippingCostRouteResponse;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -48,6 +55,7 @@ class ShippingCostRouteTest extends TestCase
             static::createStub(EntityRepository::class),
             static::createStub(CartRuleLoader::class),
             static::createStub(AbstractCheckoutGatewayRoute::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $this->expectException(DecorationPatternException::class);
@@ -99,6 +107,7 @@ class ShippingCostRouteTest extends TestCase
             $this->createShippingMethodRepositoryMock($shippingMethods, $context, [$shippingMethod1->getId(), $shippingMethod2->getId(), $shippingMethod3->getId()]),
             $cartRuleLoader,
             $checkoutGatewayRoute,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $route->shippingCostsCart($cart, $context);
@@ -142,6 +151,7 @@ class ShippingCostRouteTest extends TestCase
             $this->createShippingMethodRepositoryMock(new ShippingMethodCollection([$shippingMethod2]), $context, [$shippingMethod2->getId()]),
             $cartRuleLoader,
             $checkoutGatewayRoute,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $context->withPermissions(
@@ -150,6 +160,50 @@ class ShippingCostRouteTest extends TestCase
         );
 
         static::assertCount(1, $response->getShippingCosts());
+    }
+
+    public function testShippingCostsCartWithCartErrorsUsesThrowawayTokenAndDoesNotCrash(): void
+    {
+        $shippingMethod1 = $this->createShippingMethod('shipping-1');
+        $shippingMethod2 = $this->createShippingMethod('shipping-2');
+        $context = Generator::generateSalesChannelContext(shippingMethod: $shippingMethod1);
+
+        $cart = Generator::createCartWithDelivery();
+        $error = new ShippingMethodBlockedError('shipping-1', 'shipping-1', 'no shipping costs found');
+        $cart->addErrors($error);
+
+        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $cartRuleLoader
+            ->expects($this->once())
+            ->method('loadByCart')
+            ->with(
+                static::isInstanceOf(SalesChannelContext::class),
+                static::callback(function (Cart $recalculationCart) use ($cart): bool {
+                    static::assertNotSame($cart->getToken(), $recalculationCart->getToken());
+
+                    return true;
+                }),
+                static::isInstanceOf(CartBehavior::class),
+                true,
+            )
+            ->willReturn(new RuleLoaderResult(Generator::createCartWithDelivery(), new RuleCollection()));
+
+        $checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $checkoutGatewayRoute
+            ->expects($this->never())
+            ->method('load');
+
+        $route = new ShippingCostRoute(
+            $this->createShippingMethodRepositoryMock(new ShippingMethodCollection([$shippingMethod1, $shippingMethod2]), $context, [$shippingMethod1->getId(), $shippingMethod2->getId()]),
+            $cartRuleLoader,
+            $checkoutGatewayRoute,
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $response = $route->shippingCostsCart($cart, $context, [$shippingMethod1->getId(), $shippingMethod2->getId()]);
+
+        static::assertCount(2, $response->getShippingCosts());
+        static::assertSame($error, $cart->getErrors()->first());
     }
 
     public function testShippingCostsCartReturnsEmptyWhenCheckoutGatewayReturnsNoShippingMethods(): void
@@ -191,6 +245,7 @@ class ShippingCostRouteTest extends TestCase
             $shippingMethodRepository,
             $cartRuleLoader,
             $checkoutGatewayRoute,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $route->shippingCostsCart($cart, $context);
@@ -219,6 +274,7 @@ class ShippingCostRouteTest extends TestCase
             $this->createShippingMethodRepositoryMock(new ShippingMethodCollection([$shippingMethod]), $context, [$shippingMethod->getId()]),
             $cartRuleLoader,
             $checkoutGatewayRoute,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $route->shippingCostsCart($cart, $context, [$shippingMethod->getId()]);
@@ -257,11 +313,37 @@ class ShippingCostRouteTest extends TestCase
             $this->createShippingMethodRepositoryMock($shippingMethods, $context, [$shippingMethod1->getId(), $shippingMethod2->getId()]),
             $cartRuleLoader,
             $checkoutGatewayRoute,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $route->shippingCostsCart($cart, $context, [$shippingMethod1->getId(), $shippingMethod2->getId()]);
 
         static::assertCount(0, $response->getShippingCosts());
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $cart = new Cart(Uuid::randomHex());
+        $context = Generator::generateSalesChannelContext();
+        $availableShippingMethodIds = [Uuid::randomHex()];
+        $response = new ShippingCostRouteResponse(new ShippingCostCollection());
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('shipping-cost-route.shipping-costs-cart.pre', static function (ShippingCostRouteExtension $extension) use ($cart, $context, $availableShippingMethodIds, $response): void {
+            static::assertSame(['cart' => $cart, 'salesChannelContext' => $context, 'availableShippingMethodIds' => $availableShippingMethodIds], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ShippingCostRoute(
+            static::createStub(EntityRepository::class),
+            static::createStub(CartRuleLoader::class),
+            static::createStub(AbstractCheckoutGatewayRoute::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->shippingCostsCart($cart, $context, $availableShippingMethodIds));
     }
 
     /**

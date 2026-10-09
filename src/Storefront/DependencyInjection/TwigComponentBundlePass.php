@@ -54,10 +54,11 @@ final class TwigComponentBundlePass implements CompilerPassInterface
                 continue;
             }
 
-            $meta = $bundlesMeta[$bundleName] ?? null;
-            if (!\is_array($meta)) {
+            if (!isset($bundlesMeta[$bundleName]) || !\is_array($bundlesMeta[$bundleName])) {
                 continue;
             }
+
+            $meta = $bundlesMeta[$bundleName];
 
             $componentDir = Path::join($meta['path'], self::COMPONENT_DIRECTORY);
 

@@ -8,7 +8,7 @@
     {% block sw_order_state_history_modal_content %}
     <sw-data-grid
         :columns="columns"
-        :data-source="dataSource"
+        :data-source="stateHistory"
         :is-loading="isLoading || statesLoading"
         :plain-appearance="true"
         :show-selection="false"
@@ -86,7 +86,7 @@
             <sw-pagination
                 :page="page"
                 :limit="limit"
-                :total="total"
+                :total="dataSource.length"
                 :steps="steps"
                 @page-change="onPageChange"
             />

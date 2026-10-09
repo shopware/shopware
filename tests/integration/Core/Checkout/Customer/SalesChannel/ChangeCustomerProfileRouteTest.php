@@ -75,7 +75,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
@@ -151,6 +151,36 @@ class ChangeCustomerProfileRouteTest extends TestCase
         static::assertSame($changeData['company'], $customer->getCompany());
         static::assertSame($changeData['firstName'], $customer->getFirstName());
         static::assertSame($changeData['lastName'], $customer->getLastName());
+    }
+
+    public function testChangeProfileDataWithCommercialAccountNormalizesVatIdBeforeMatchingRegex(): void
+    {
+        $this->setVatIdOfTheCountryToValidateFormat();
+
+        $changeData = [
+            'salutationId' => $this->getValidSalutationId(),
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'company' => 'Test Company',
+            'vatIds' => [
+                'de 123456789',
+            ],
+        ];
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-profile',
+                $changeData
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($response['success']);
+
+        $customer = $this->getCustomer();
+
+        static::assertSame(['DE123456789'], $customer->getVatIds());
     }
 
     public function testChangeProfileDataWithCommercialAccountAndVatIdsIsEmpty(): void
@@ -316,7 +346,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
                 'validateFormat' => false,
             ],
             true,
-            ['some-text'],
+            ['SOME-TEXT'],
         ];
 
         yield 'Success when vatIds is require but no validate format, and has value is random string' => [
@@ -326,7 +356,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
                 'validateFormat' => false,
             ],
             true,
-            ['some-text'],
+            ['SOME-TEXT'],
         ];
 
         yield 'Success when vatIds need to validate format but no require and has value is empty' => [
@@ -530,7 +560,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
     {
         $accountTypes = static::getContainer()->getParameter('customer.account_types');
         static::assertIsArray($accountTypes);
-        static::assertNotEmpty($accountTypes);
+        static::assertNotCount(0, $accountTypes);
         $accountType = $accountTypes[array_rand($accountTypes)];
 
         $changeData = [
@@ -564,7 +594,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $customer = $this->getCustomer();
         $currentSalutationId = $customer->getSalutationId();
         $salutationIds = $this->getValidSalutationIds();
-        static::assertNotEmpty($salutationIds);
+        static::assertNotCount(0, $salutationIds);
 
         $updateSalutationId = null;
         foreach ($salutationIds as $salutationId) {

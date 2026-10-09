@@ -1,4 +1,5 @@
 import { test } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
 test(
     'The Storefront should implement accessibility best practices.',
@@ -20,6 +21,8 @@ test(
         StorefrontCheckoutCart,
         StorefrontAccountProfile,
         StorefrontAccountAddresses,
+        StorefrontPageNotFound,
+        InstanceMeta,
     }) => {
         test.slow();
 
@@ -80,5 +83,14 @@ test(
             await ShopCustomer.goesTo(StorefrontAccountAddresses.url());
             await ShopCustomer.attemptsTo(ValidateAccessibility('Account Addresses', true));
         });
+
+        // The 404 page title and landmark fixes are not available before version 6.7.14.0.
+        // eslint-disable-next-line playwright/no-conditional-in-test
+        if (!satisfies(InstanceMeta.version, '<6.7.14.0')) {
+            await test.step('Page Not Found Accessibility', async () => {
+                await ShopCustomer.goesTo(StorefrontPageNotFound.url());
+                await ShopCustomer.attemptsTo(ValidateAccessibility('Page Not Found', true));
+            });
+        }
     },
 );

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -27,12 +28,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Controller\AccountOrderController;
@@ -41,6 +45,7 @@ use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoader;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
+use Shopware\Tests\Unit\Storefront\Controller\Stub\AccountOrderControllerStub;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -54,7 +59,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(AccountOrderController::class)]
 class AccountOrderControllerTest extends TestCase
 {
-    private AccountOrderControllerTestClass $controller;
+    private AccountOrderControllerStub $controller;
 
     private Stub&AbstractOrderRoute $orderRouteMock;
 
@@ -85,7 +90,7 @@ class AccountOrderControllerTest extends TestCase
         $response = $this->controller->editOrder($ids->get('order'), new Request(), Generator::generateSalesChannelContext());
 
         // Ensure flash massage is shown
-        static::assertSame(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->flashBag);
+        static::assertSame(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->recorder()->flashBag);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
         static::assertSame('frontend.account.order.page', $response->getTargetUrl());
@@ -99,7 +104,7 @@ class AccountOrderControllerTest extends TestCase
         $response = $this->controller->editOrder('invalid-id', new Request(), Generator::generateSalesChannelContext());
 
         // Ensure flash massage is shown
-        static::assertSame(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->flashBag);
+        static::assertSame(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->recorder()->flashBag);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
         static::assertSame('frontend.account.order.page', $response->getTargetUrl());
@@ -147,7 +152,7 @@ class AccountOrderControllerTest extends TestCase
         $response = $this->controller->editOrder($ids->get('order'), new Request(), $salesChannelContext);
 
         // Ensure flash massage is shown
-        static::assertSame(['danger' => ['error.CHECKOUT__ORDER_ORDER_ALREADY_PAID']], $this->controller->flashBag);
+        static::assertSame(['danger' => ['error.CHECKOUT__ORDER_ORDER_ALREADY_PAID']], $this->controller->recorder()->flashBag);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
         static::assertSame('frontend.account.order.page', $response->getTargetUrl());
@@ -186,6 +191,67 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('frontend.account.order.single.page', $response->getTargetUrl());
+    }
+
+    public function testOrderChangePaymentPassesTheSelectedPaymentMethodToTheEditOrderPage(): void
+    {
+        $ids = new IdsCollection();
+
+        $contextSwitchRoute = $this->createMock(AbstractContextSwitchRoute::class);
+        $contextSwitchRoute
+            ->expects($this->never())
+            ->method('switchContext');
+
+        $controller = $this->createController(
+            $this->orderRouteMock,
+            $this->handlePaymentRouteMock,
+            $contextSwitchRoute,
+        );
+
+        $request = new Request();
+        $request->request->set('paymentMethodId', $ids->get('payment-method'));
+
+        $response = $controller->orderChangePayment($ids->get('order'), $request, Generator::generateSalesChannelContext());
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('frontend.account.edit-order.page', $response->getTargetUrl());
+        static::assertSame(
+            [[
+                'parameters' => [
+                    'orderId' => $ids->get('order'),
+                    'paymentMethodId' => $ids->get('payment-method'),
+                ],
+                'status' => Response::HTTP_FOUND,
+            ]],
+            $controller->recorder()->redirected['frontend.account.edit-order.page']
+        );
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testOrderChangePaymentStillSwitchesTheContext(): void
+    {
+        $ids = new IdsCollection();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $contextSwitchRoute = $this->createMock(AbstractContextSwitchRoute::class);
+        $contextSwitchRoute
+            ->expects($this->once())
+            ->method('switchContext')
+            ->with(
+                new RequestDataBag([SalesChannelContextService::PAYMENT_METHOD_ID => $ids->get('payment-method')]),
+                $salesChannelContext
+            );
+
+        $controller = $this->createController(
+            $this->orderRouteMock,
+            $this->handlePaymentRouteMock,
+            $contextSwitchRoute,
+        );
+
+        $request = new Request();
+        $request->request->set('paymentMethodId', $ids->get('payment-method'));
+
+        $controller->orderChangePayment($ids->get('order'), $request, $salesChannelContext);
     }
 
     public function testTransactionsStateMachineAssociationIsLoadedOnOrderUpdate(): void
@@ -252,14 +318,76 @@ class AccountOrderControllerTest extends TestCase
         $controller->updateOrder($ids->get('order'), $request, $salesChannelContext);
     }
 
+    /**
+     * @param array<string, string> $credentials
+     */
+    #[DataProvider('guestAuthenticationFailures')]
+    public function testOrderSingleOverviewRedirectsToGuestLogin(\Throwable $exception, array $credentials, bool $expectedLoginError): void
+    {
+        $orderPageLoader = static::createStub(AccountOrderPageLoader::class);
+        $orderPageLoader->method('load')->willThrowException($exception);
+
+        $controller = $this->createController(
+            $this->orderRouteMock,
+            $this->handlePaymentRouteMock,
+            orderPageLoader: $orderPageLoader,
+        );
+
+        $request = new Request(request: $credentials, attributes: ['deepLinkCode' => 'deep-link-code']);
+
+        $response = $controller->orderSingleOverview($request, Generator::generateSalesChannelContext());
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('frontend.account.guest.login.page', $response->getTargetUrl());
+
+        $parameters = $controller->recorder()->redirected['frontend.account.guest.login.page'][0]['parameters'];
+        static::assertSame(['deepLinkCode' => 'deep-link-code'], $parameters['redirectParameters']);
+        static::assertSame($expectedLoginError, $parameters['loginError']);
+    }
+
+    public static function guestAuthenticationFailures(): \Generator
+    {
+        yield 'opening the link without credentials asks for them without an error' => [
+            OrderException::guestNotAuthenticated(),
+            [],
+            false,
+        ];
+
+        yield 'submitted credentials for a code matching no order show an error' => [
+            OrderException::guestNotAuthenticated(),
+            ['email' => 'guest@example.com', 'zipcode' => '12345'],
+            true,
+        ];
+
+        yield 'an incomplete submission asks for the credentials again without an error' => [
+            OrderException::guestNotAuthenticated(),
+            ['email' => 'guest@example.com'],
+            false,
+        ];
+
+        yield 'submitted credentials not matching the order show an error' => [
+            OrderException::wrongGuestCredentials(),
+            ['email' => 'guest@example.com', 'zipcode' => '12345'],
+            true,
+        ];
+
+        yield 'throttled submissions only show the wait time, not the error' => [
+            OrderException::customerAuthThrottledException(10),
+            ['email' => 'guest@example.com', 'zipcode' => '12345'],
+            false,
+        ];
+    }
+
     private function createController(
         AbstractOrderRoute $orderRoute,
         AbstractHandlePaymentMethodRoute $handlePaymentRoute,
-    ): AccountOrderControllerTestClass {
-        return new AccountOrderControllerTestClass(
-            static::createStub(AccountOrderPageLoader::class),
+        ?AbstractContextSwitchRoute $contextSwitchRoute = null,
+        ?AccountOrderPageLoader $orderPageLoader = null,
+    ): AccountOrderControllerStub {
+        return new AccountOrderControllerStub(
+            $orderPageLoader ?? static::createStub(AccountOrderPageLoader::class),
             $this->accountEditOrderPageLoaderMock,
-            static::createStub(AbstractContextSwitchRoute::class),
+            $contextSwitchRoute ?? static::createStub(AbstractContextSwitchRoute::class),
             static::createStub(AbstractCancelOrderRoute::class),
             static::createStub(AbstractSetPaymentOrderRoute::class),
             $handlePaymentRoute,
@@ -273,12 +401,4 @@ class AccountOrderControllerTest extends TestCase
             static::createStub(FooterPageletLoaderInterface::class),
         );
     }
-}
-
-/**
- * @internal
- */
-class AccountOrderControllerTestClass extends AccountOrderController
-{
-    use StorefrontControllerMockTrait;
 }

@@ -1,0 +1,17 @@
+@import "~scss/variables";
+
+.sw-extension-bulk-deactivation-modal {
+    font-size: $font-size-xs;
+    line-height: 22px;
+
+    &__list {
+        margin-block: 1em;
+        padding-inline-start: 1.5em;
+        list-style: disc;
+    }
+
+    &__bold-paragraph {
+        margin-block-start: 1em;
+        font-weight: $font-weight-semi-bold;
+    }
+}

@@ -43,10 +43,13 @@ runs:
       with:
         script: |
           const approved = process.env.APPROVED === 'true'
+          // 'pending' blocks the merge exactly like 'failure' for a required
+          // status check, but keeps the commit rollup yellow: missing reviews
+          // are a waiting state, not a broken build.
           await github.rest.repos.createCommitStatus({
             ...context.repo,
             sha: process.env.HEAD_SHA,
-            state: approved ? 'success' : 'failure',
+            state: approved ? 'success' : 'pending',
             context: 'codeowners/approvals',
             description: approved
               ? 'All required code owners approved'

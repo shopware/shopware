@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class GuestCustomerRegisterEvent extends CustomerRegisterEvent implements FlowEventAware
 {

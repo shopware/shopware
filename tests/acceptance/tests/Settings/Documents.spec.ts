@@ -6,7 +6,6 @@ test(
     async ({
         ShopAdmin,
         TestDataService,
-        DefaultSalesChannel,
         AdminDocumentListing,
         AdminDocumentDetail,
         AdminOrderDetail,
@@ -17,8 +16,9 @@ test(
         CreateDocument,
     }) => {
         const product = await TestDataService.createBasicProduct();
+        const customer = await TestDataService.createCustomer();
 
-        const order = await TestDataService.createOrder([{ product, quantity: 1 }], DefaultSalesChannel.customer);
+        const order = await TestDataService.createOrder([{ product, quantity: 1 }], customer);
 
         await test.step('Go to documents settings page and activate documents in customer accounts', async () => {
             await ShopAdmin.goesTo(AdminDocumentListing.url());
@@ -40,19 +40,20 @@ test(
             await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'documents'));
 
             const documentRow = AdminOrderDetail.getDocumentRow(0);
+            const markAsSent = AdminOrderDetail.page.locator('.sw-order-document-card__context-button-mark-sent');
 
             await ShopAdmin.expects(documentRow.row).toBeVisible();
             await documentRow.contextMenuButton.click();
 
-            await ShopAdmin.expects(AdminOrderDetail.contextMenu).toBeVisible();
-            await AdminOrderDetail.contextMenuMarkAsSent.click();
+            await ShopAdmin.expects(markAsSent).toBeVisible();
+            await markAsSent.click();
 
-            await ShopAdmin.expects(AdminOrderDetail.contextMenu).not.toBeVisible();
+            await ShopAdmin.expects(markAsSent).not.toBeVisible();
             await ShopAdmin.expects(documentRow.sentCheckmark).toBeVisible();
         });
 
         await test.step('Log into customer account and check the order document', async () => {
-            await ShopCustomer.attemptsTo(Login());
+            await ShopCustomer.attemptsTo(Login(customer));
             await ShopCustomer.goesTo(StorefrontAccountOrder.url());
 
             await ShopCustomer.expects(StorefrontAccountOrder.orderExpandButton).toBeVisible();

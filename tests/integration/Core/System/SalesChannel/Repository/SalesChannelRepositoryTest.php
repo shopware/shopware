@@ -178,6 +178,7 @@ class SalesChannelRepositoryTest extends TestCase
             'navigationCategoryId' => $this->getValidCategoryId(),
             'countryId' => $this->getValidCountryId(),
             'accessKey' => $id,
+            'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
         ];
 

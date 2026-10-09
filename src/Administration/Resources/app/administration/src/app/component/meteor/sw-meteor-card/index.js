@@ -27,9 +27,7 @@ import './sw-meteor-card.scss';
 export default {
     template,
 
-    inject: [
-        'feature',
-    ],
+    inject: ['feature'],
 
     props: {
         title: {

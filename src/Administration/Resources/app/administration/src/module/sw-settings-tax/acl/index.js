@@ -30,26 +30,15 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'tax_rule:update',
                 'tax_rule:delete',
             ],
-            dependencies: [
-                'tax.viewer',
-            ],
+            dependencies: ['tax.viewer'],
         },
         creator: {
-            privileges: [
-                'tax:create',
-            ],
-            dependencies: [
-                'tax.viewer',
-                'tax.editor',
-            ],
+            privileges: ['tax:create'],
+            dependencies: ['tax.viewer', 'tax.editor'],
         },
         deleter: {
-            privileges: [
-                'tax:delete',
-            ],
-            dependencies: [
-                'tax.viewer',
-            ],
+            privileges: ['tax:delete'],
+            dependencies: ['tax.viewer'],
         },
     },
 });

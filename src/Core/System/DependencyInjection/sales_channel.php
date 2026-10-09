@@ -4,6 +4,7 @@ namespace Shopware\Core\System\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
@@ -51,6 +52,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTyp
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
+use Shopware\Core\System\SalesChannel\Capability\SalesChannelTypeCapabilityRegistry;
 use Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedBaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
@@ -58,6 +60,7 @@ use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTask;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTaskHandler;
 use Shopware\Core\System\SalesChannel\Context\ContextFactory;
+use Shopware\Core\System\SalesChannel\Context\InvalidationRaceAwareCache;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer;
@@ -255,7 +258,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(BaseSalesChannelContextFactory::class)
         ->args([
             service('sales_channel.repository'),
-            service('currency.repository'),
             service('customer_group.repository'),
             service('country.repository'),
             service('tax.repository'),
@@ -277,6 +279,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->decorate(BaseSalesChannelContextFactory::class)
         ->args([
             service(CachedBaseSalesChannelContextFactory::class . '.inner'),
+            service(InvalidationRaceAwareCache::class),
+        ]);
+
+    $services->set(InvalidationRaceAwareCache::class)
+        ->args([
             service('cache.object'),
         ]);
 
@@ -285,13 +292,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(CachedSalesChannelContextFactory::class . '.inner'),
-            service('cache.object'),
+            service(InvalidationRaceAwareCache::class),
         ]);
 
     $services->set(SalesChannelContextService::class)
         ->args([
             service(SalesChannelContextFactory::class),
-            service(CartRuleLoader::class),
+            service(CartCalculator::class),
             service(SalesChannelContextPersister::class),
             service(CartService::class),
             service('event_dispatcher'),
@@ -313,7 +320,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextFactory::class),
             service(SalesChannelContextPersister::class),
             service(CartService::class),
-            service(CartRuleLoader::class),
+            service(CartCalculator::class),
             service(CartPersister::class),
             service('event_dispatcher'),
             service(RequestStack::class),
@@ -331,7 +338,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SalesChannelContextSwitcher::class)
         ->args([
             service(ContextSwitchRoute::class),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(ContextSwitchRoute::class)
         ->public()
@@ -340,10 +348,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextPersister::class),
             service('event_dispatcher'),
             service(SalesChannelContextService::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ContextRoute::class)
-        ->public();
+        ->public()
+        ->args([
+            service(ExtensionDispatcher::class),
+        ]);
 
     $services->set(SalesChannelDefinitionInstanceRegistry::class)
         ->public()
@@ -408,8 +420,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SalesChannelValidator::class)
         ->args([
             service(Connection::class),
+            service(SalesChannelTypeCapabilityRegistry::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(SalesChannelTypeCapabilityRegistry::class)
+        ->args([
+            tagged_iterator('shopware.sales_channel.type_capabilities'),
+        ]);
 
     $services->set(SalesChannelTypeValidator::class)
         ->tag('kernel.event_subscriber');
@@ -431,6 +449,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(AppContextGateway::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ContextGatewayCommandValidator::class)
@@ -497,7 +516,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.context.gateway.command');
 
     $services->set(SalesChannelMaintenanceIpAllowlistSyncSubscriber::class)
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     // Telemetry: shared sales_channel_type label resolver (cart calculation, order placed metrics)
     $services->set(SalesChannelTypeResolver::class);

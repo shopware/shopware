@@ -20,10 +20,10 @@ nightlies and the release gate. Change one and you change all three contexts.
 |---|---|
 | `php.yml` | lint, phpstan, rector, bc-checker, openapi-lint, PHPUnit `unit` and `migration` suites, license-check, composer-audit, composer-prefer-lowest |
 | `integration.yml` | PHPUnit integration shards, dynamic matrix |
-| `integration-major.yml` | the same with `FEATURE_ALL: major` |
+| `integration-major.yml` | the same, plus Jest, with the upcoming major flag enabled (`V6_8_0_0=1`) |
 | `admin.yml` | ESLint, Stylelint and Jest for the Administration |
 | `storefront.yml` | ESLint, Stylelint, snippet and Twig lints, Jest and Vitest |
-| `acceptance.yml` | Playwright acceptance runs |
+| `acceptance.yml` | Playwright acceptance runs, reused by the label-triggered `acceptance-major.yml` PR entry point |
 | `lint-actions.yml` | actionlint, yamlfmt, zizmor, and the `.github/bin/js` tests |
 
 Composition, rather than duplication, is how the arms are built:
@@ -42,13 +42,27 @@ Three mechanisms decide how much runs:
 - **Profile** — `''` (PR), `nightly`, or `release`, passed into
   `generate-phpunit-matrix.php` / `generate-acceptance-matrix.php`. Only
   `nightly` widens the matrix. The matrix is generated at runtime and consumed as
-  `strategy: ${{ fromJson(...) }}`.
-- **Major arms** — opt in on a PR with the `major-php` or `major-acceptance`
-  label, or the `major-tests` umbrella. `01-pr-issue-labeler.yml` applies
-  `major-php` automatically when the diff touches major feature flags. Nightly
-  and manual runs ignore the labels.
+  `matrix: ${{ fromJson(...) }}` — the expression must stay on `matrix:`, since
+  zizmor cannot audit a file whose whole `strategy:` block is an expression.
+- **Major arms** — opt in on a PR with the `major-php`, `major-js`, or
+  `major-acceptance` label, or the `major-tests` umbrella. `01-pr-issue-labeler.yml`
+  applies the relevant PHP and Administration JS labels automatically when the diff
+  touches major feature flags, and `major-acceptance` when acceptance specs change.
+  This detector retains its same-repository PR restriction; fork PRs can opt in manually.
+  Nightly and manual runs ignore the labels. The
+  upcoming major flag is set directly in `integration-major.yml`, `acceptance.yml`,
+  and the migration suite in `php.yml`; update those three workflow settings when
+  the target major changes. `FEATURE_ALL` is not used for major CI.
+  The migration suite also sets the matching Composer root version; feature flags do not select migration namespaces.
 - **`markdown-only-changes`** — a first job in each heavy workflow that
   short-circuits docs-only PRs.
+
+The `major/<version>` and `major/<version>-cleanup` labels are bookkeeping, not a
+fourth mechanism: they record which unreleased major a PR affects and gate nothing.
+`major-label.yml` derives them from the feature registry. Do not confuse them with the hyphenated
+`major-php` / `major-js` test-lane labels above, and never fold them into
+`milestone/*` — a change for 6.8 ships in a 6.7.x minor, so the two answer different
+questions.
 
 PHPUnit runs through three composite actions rather than one, so each phase gets
 its own timing in the job UI: `phpunit-prepare` (PHP, database, webserver, test
@@ -62,6 +76,25 @@ live in [`.github/aw/README.md`](aw/README.md).
 
 Locally: `composer lint:actions` runs the workflow linters,
 `cd .github/bin/js && node --test` runs the automation-script tests.
+
+## Every workflow also runs in shopware-private
+
+`sync.yml` force-pushes trunk and every maintenance branch to
+`shopware/shopware-private`, so every workflow file lands there and fires on that
+repository's own pushes, pull requests, issues and schedules. Decide which side a
+new or changed workflow belongs on, and make the decision explicit:
+
+- **Both repositories** — the octo-sts identity has to allow the mirror. The
+  policies live in
+  [`shopware/.github`](https://github.com/shopware/.github/tree/main/.github/chainguard);
+  `subject_pattern: repo:shopware/shopware(-private)?:.*` is the convention
+  (`ShopwareBackport`, `ShopwareDownstream`, `ShopwareNightly`).
+- **Public repository only** — guard the job with
+  `if: github.repository == 'shopware/shopware'`. Without it the mirrored run
+  fails at octo-sts with `Failed to get a token`, and any script that resolves an
+  issue or PR number against `shopware/shopware` acts on an unrelated item.
+
+No linter can decide this: the subject pattern lives in another repository.
 
 ## Fix it at the lowest layer that covers everyone
 
@@ -127,7 +160,7 @@ grows a branch worth getting wrong, move it out:
 
 - **JavaScript/TypeScript** → `.github/bin/js/<name>.ts` with a sibling
   `<name>.test.ts`; `node --test` runs them from `lint-actions.yml`. See
-  `auto-label-major-php.ts` for the shape. Do not use Python.
+  `auto-label-major-tests.ts` for the shape. Do not use Python.
 - **PHP** → `.github/bin/<name>.php` with a PHPUnit test.
 - Logic repeated across workflows → a composite action under `.github/actions/`.
 - Start every non-trivial Bash `run:` block with `set -euo pipefail`.

@@ -22,9 +22,7 @@ export default {
         'acl',
     ],
 
-    mixins: [
-        Mixin.getByName('sw-settings-list'),
-    ],
+    mixins: [Mixin.getByName('sw-settings-list')],
 
     data() {
         return {
@@ -91,10 +89,6 @@ export default {
 
             criteria.addFilter(Criteria.equalsAny('id', this.queryIds));
             criteria.addSorting(Criteria.sort('name', 'ASC'));
-
-            if (this.term) {
-                criteria.setTerm(this.term);
-            }
 
             return criteria;
         },

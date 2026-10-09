@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
 {
     public function testRefund(): void
@@ -44,9 +44,9 @@ class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
         static::assertSame(hash_hmac('sha256', $body, $appSecret), $request->getHeaderLine('shopware-shop-signature'));
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
         $content = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);

@@ -13,5 +13,5 @@ const featureConfigPath = resolve(
     '../../../../Core/Framework/Resources/config/packages/feature.yaml',
 );
 
-global.activeFeatureFlags =
-    process.env.FEATURE_ALL === 'major' ? getMajorFeatureFlags(parse(readFileSync(featureConfigPath, 'utf8'))) : [];
+// Major CI lanes set their version flag directly; FEATURE_ALL enables every flag.
+global.activeFeatureFlags = getMajorFeatureFlags(parse(readFileSync(featureConfigPath, 'utf8')), process.env);

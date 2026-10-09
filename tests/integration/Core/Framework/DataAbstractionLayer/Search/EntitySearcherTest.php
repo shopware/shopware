@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -216,6 +217,32 @@ class EntitySearcherTest extends TestCase
         static::assertSame(1, $result->getPage());
     }
 
+    public function testNextPagesCountIsBoundedByTheLookaheadWindow(): void
+    {
+        $ids = new IdsCollection();
+        $products = [];
+
+        foreach (range(1, 8) as $number) {
+            $productNumber = 'next-pages-' . $number;
+            $products[] = (new ProductBuilder($ids, $productNumber))->price(100)->build();
+        }
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create($products, $context);
+
+        $criteria = new Criteria(array_values($ids->getList(array_map(
+            static fn (int $number): string => 'next-pages-' . $number,
+            range(1, 8)
+        ))));
+        $criteria->setLimit(1);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
+
+        $result = $this->productRepository->search($criteria, $context);
+
+        static::assertCount(1, $result->getEntities());
+        static::assertSame(7, $result->getTotal());
+    }
+
     public function testSortingAndTotalCountWithManyAssociation(): void
     {
         $redId = Uuid::randomHex();
@@ -329,6 +356,210 @@ class EntitySearcherTest extends TestCase
         static::assertSame(1, $result->getPage());
         static::assertSame(6, $result->getTotal());
         static::assertCount(6, $result->getEntities());
+    }
+
+    /**
+     * @param array{offset: int, limit: int|null, expectedEntities: int} $pagination
+     */
+    #[DataProvider('lastPagePaginationProvider')]
+    public function testExactTotalCountShortCircuitsOnTheLastPage(array $pagination): void
+    {
+        $context = Context::createDefaultContext();
+
+        $totalMatching = 3;
+        $productNumbers = [];
+        $products = [];
+        for ($i = 0; $i < $totalMatching; ++$i) {
+            $productNumbers[] = 'short-circuit-' . $i;
+            $products[] = [
+                'id' => Uuid::randomHex(),
+                'productNumber' => 'short-circuit-' . $i,
+                'name' => 'short circuit product ' . $i,
+                'stock' => 10,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+            ];
+        }
+        $this->productRepository->create($products, $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.productNumber', $productNumbers));
+        $criteria->addSorting(new FieldSorting('product.productNumber'));
+        $criteria->setOffset($pagination['offset']);
+        $criteria->setLimit($pagination['limit']);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->productRepository->search($criteria, $context);
+
+        static::assertSame($totalMatching, $result->getTotal());
+        static::assertCount($pagination['expectedEntities'], $result->getEntities());
+    }
+
+    /**
+     * @return iterable<string, array{array{offset: int, limit: int|null, expectedEntities: int}}>
+     */
+    public static function lastPagePaginationProvider(): iterable
+    {
+        // Partial last page (offset 2 + 1 remaining item = 3 total).
+        yield 'partial last page' => [['offset' => 2, 'limit' => 2, 'expectedEntities' => 1]];
+        // First and only (partial) page.
+        yield 'single partial page' => [['offset' => 0, 'limit' => 25, 'expectedEntities' => 3]];
+        // No limit at all.
+        yield 'no limit' => [['offset' => 0, 'limit' => null, 'expectedEntities' => 3]];
+        // Full page with more pages remaining: total still requires the wrapped COUNT(*).
+        yield 'first of several full pages' => [['offset' => 0, 'limit' => 1, 'expectedEntities' => 1]];
+        // Full page that is exactly the last page.
+        yield 'exactly full last page' => [['offset' => 2, 'limit' => 1, 'expectedEntities' => 1]];
+        // Empty page past the end: total cannot be derived from the page and falls back to the wrapped COUNT(*).
+        yield 'empty page past the end' => [['offset' => 5, 'limit' => 1, 'expectedEntities' => 0]];
+    }
+
+    /**
+     * @param array<int, int> $expectedTotals
+     */
+    #[DataProvider('totalCountProvider')]
+    public function testTotalCountsEntitiesWithAToManyFilter(?int $limit, int $matchingProducts, int $expectedEntities, array $expectedTotals, int $offset = 0): void
+    {
+        $ids = $this->createProductsWithTwoMatchingTagsEach($matchingProducts);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.id', array_values($ids->prefixed('product-'))));
+        $criteria->addFilter(new ContainsFilter('product.tags.name', 'limit-one'));
+        $criteria->addSorting(new FieldSorting('product.id'));
+        $criteria->setLimit($limit);
+        $criteria->setOffset($offset);
+
+        $expectedData = null;
+        foreach ($expectedTotals as $totalCountMode => $expectedTotal) {
+            $searchCriteria = clone $criteria;
+            $searchCriteria->setTotalCountMode($totalCountMode);
+            $result = $this->productRepository->searchIds($searchCriteria, Context::createDefaultContext());
+
+            static::assertSame($expectedTotal, $result->getTotal(), 'Count mode ' . $totalCountMode);
+            static::assertCount($expectedEntities, $result->getIds());
+            static::assertNotContains($ids->get('product-excluded'), $result->getIds());
+            $expectedData ??= $result->getData();
+            static::assertSame($expectedData, $result->getData(), 'Count mode ' . $totalCountMode);
+        }
+    }
+
+    /**
+     * @param array<int, int> $expectedTotals
+     */
+    #[DataProvider('totalCountProvider')]
+    public function testTotalCountsEntitiesWithASearchTerm(?int $limit, int $matchingProducts, int $expectedEntities, array $expectedTotals, int $offset = 0): void
+    {
+        $ids = $this->createProductsWithTwoMatchingTagsEach($matchingProducts);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.id', array_values($ids->prefixed('product-'))));
+        $criteria->setTerm('limit one total');
+        $criteria->addSorting(new FieldSorting('product.id'));
+        $criteria->setLimit($limit);
+        $criteria->setOffset($offset);
+
+        $expectedData = null;
+        foreach ($expectedTotals as $totalCountMode => $expectedTotal) {
+            $searchCriteria = clone $criteria;
+            $searchCriteria->setTotalCountMode($totalCountMode);
+            $result = $this->productRepository->searchIds($searchCriteria, Context::createDefaultContext());
+
+            static::assertSame($expectedTotal, $result->getTotal(), 'Count mode ' . $totalCountMode);
+            static::assertCount($expectedEntities, $result->getIds());
+            static::assertNotContains($ids->get('product-excluded'), $result->getIds());
+            $expectedData ??= $result->getData();
+            static::assertSame($expectedData, $result->getData(), 'Count mode ' . $totalCountMode);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{limit: int|null, matchingProducts: int, expectedEntities: int, expectedTotals: array<int, int>, offset?: int}>
+     */
+    public static function totalCountProvider(): iterable
+    {
+        yield 'a single result per page' => [
+            'limit' => 1,
+            'matchingProducts' => 2,
+            'expectedEntities' => 1,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 1,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 2,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 2,
+            ],
+        ];
+        yield 'a full page' => [
+            'limit' => 2,
+            'matchingProducts' => 2,
+            'expectedEntities' => 2,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 2,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 2,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 2,
+            ],
+        ];
+        yield 'without a limit' => [
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedEntities' => 2,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 2,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 2,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 2,
+            ],
+        ];
+        yield 'without a limit after an offset' => [
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedEntities' => 1,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 1,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 2,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 2,
+            ],
+            'offset' => 1,
+        ];
+        yield 'without a limit past the end' => [
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedEntities' => 0,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 0,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 2,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 2,
+            ],
+            'offset' => 3,
+        ];
+        yield 'a partial page' => [
+            'limit' => 3,
+            'matchingProducts' => 2,
+            'expectedEntities' => 2,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 2,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 2,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 2,
+            ],
+        ];
+        yield 'lookahead capped below eight matches' => [
+            'limit' => 1,
+            'matchingProducts' => 8,
+            'expectedEntities' => 1,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 1,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 8,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 7,
+            ],
+        ];
+        yield 'lookahead capped below fourteen matches' => [
+            'limit' => 2,
+            'matchingProducts' => 14,
+            'expectedEntities' => 2,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 2,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 14,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 13,
+            ],
+        ];
     }
 
     public function testJsonListEqualsAnyFilter(): void
@@ -585,7 +816,7 @@ class EntitySearcherTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertIsArray($result->getIds());
-        static::assertNotEmpty($result->getIds());
+        static::assertNotCount(0, $result->getIds());
 
         foreach ($result->getIds() as $resultIds) {
             static::assertIsArray($resultIds);
@@ -627,5 +858,23 @@ class EntitySearcherTest extends TestCase
         );
 
         static::assertSame(0, $result->getTotal());
+    }
+
+    private function createProductsWithTwoMatchingTagsEach(int $matchingProducts): IdsCollection
+    {
+        $ids = new IdsCollection();
+        $products = [];
+
+        foreach (range(1, $matchingProducts) as $number) {
+            $products[] = (new ProductBuilder($ids, 'product-' . $number))->name('limit one total')->price(100)
+                ->tag('limit-one-' . $number . '-a')->tag('limit-one-' . $number . '-b')->build();
+        }
+
+        $products[] = (new ProductBuilder($ids, 'product-excluded'))->name('unrelated item')->price(100)
+            ->tag('unrelated-a')->tag('unrelated-b')->build();
+
+        $this->productRepository->create($products, Context::createDefaultContext());
+
+        return $ids;
     }
 }

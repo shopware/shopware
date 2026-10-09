@@ -88,4 +88,9 @@ class MailSentEventTest extends TestCase
             'text/html' => 'This is a html text',
         ], $event->getContents());
     }
+
+    public function testAvailableDataDescribesTheFlowPayload(): void
+    {
+        static::assertSame(['subject', 'contents', 'recipients'], array_keys(MailSentEvent::getAvailableData()->toArray()));
+    }
 }

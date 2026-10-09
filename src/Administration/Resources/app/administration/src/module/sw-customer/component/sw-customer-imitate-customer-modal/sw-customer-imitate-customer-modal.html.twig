@@ -2,12 +2,13 @@
 {% block sw_customer_imitate_customer_modal %}
 <sw-modal
     :title="modalTitle"
+    :is-loading="isLoading"
     class="sw-customer-imitate-customer-modal"
     @modal-close="onCancel"
 >
     {% block sw_customer_imitate_customer_modal_alert %}
     <mt-banner
-        v-if="hasSalesChannelDomains"
+        v-if="!isLoading && hasSalesChannelDomains"
         variant="attention"
     >
         <i18n-t
@@ -22,7 +23,7 @@
     </mt-banner>
 
     <mt-banner
-        v-else
+        v-else-if="!isLoading"
         variant="info"
     >
         {{ $t('sw-customer.imitateCustomerModal.modalInfoNoDomains') }}
@@ -31,7 +32,7 @@
 
     {% block sw_customer_imitate_customer_modal_description %}
     <div
-        v-if="hasSalesChannelDomains"
+        v-if="!isLoading && hasSalesChannelDomains"
         class="imitate-customer-modal-description"
     >
         {{ modalDescription }}
@@ -40,7 +41,7 @@
 
     {% block sw_customer_imitate_customer_modal_body %}
     <div
-        v-if="hasSalesChannelDomains"
+        v-if="!isLoading && hasSalesChannelDomains"
         class="imitate-customer-modal-container"
     >
         {% block sw_customer_imitate_customer_modal_sales_channel_domain_items %}

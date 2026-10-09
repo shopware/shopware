@@ -294,7 +294,7 @@ class ImportExportTest extends TestCase
         /** @var StaticEntityRepository<OrderCollection> */
         $repository = new StaticEntityRepository(
             [new EntitySearchResult(
-                OrderEntity::class,
+                OrderDefinition::ENTITY_NAME,
                 1,
                 new EntityCollection([(new OrderEntity())->assign(['id' => $orderId])]),
                 null,
@@ -421,7 +421,7 @@ class ImportExportTest extends TestCase
                     );
 
                     return new EntitySearchResult(
-                        ProductKeywordDictionaryEntity::class,
+                        ProductKeywordDictionaryDefinition::ENTITY_NAME,
                         1,
                         new EntityCollection([(new ProductKeywordDictionaryEntity())->assign(['id' => $dictId])]),
                         null,
@@ -557,7 +557,7 @@ class ImportExportTest extends TestCase
         /** @var StaticEntityRepository<OrderCollection> */
         $repository = new StaticEntityRepository(
             [new EntitySearchResult(
-                OrderEntity::class,
+                OrderDefinition::ENTITY_NAME,
                 1,
                 new EntityCollection([
                     (new OrderEntity())->assign(['id' => Uuid::randomHex(), 'language' => new LanguageEntity()]),

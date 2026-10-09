@@ -29,7 +29,10 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Seo\SeoUrlRoute\LandingPageStoreApiUrlRoute;
 use Shopware\Core\Content\Seo\SeoUrlRoute\ProductStoreApiUrlRoute;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
+use Shopware\Core\Content\Seo\SeoUrlRoute\StoreApiSeoUrlUpdateListener;
+use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateChangeSubscriber;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition;
+use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateIndexingHandler;
 use Shopware\Core\Content\Seo\SeoUrlTwigFactory;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Content\Seo\Validation\Constraint\ValidSeoPathInfoValidator;
@@ -37,6 +40,7 @@ use Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory;
 use Shopware\Core\Content\Seo\Validation\SeoUrlWriteValidator;
 use Shopware\Core\Framework\Adapter\Twig\Extension\BuildBreadcrumbExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\CategoryUrlExtension;
+use Shopware\Core\Framework\Adapter\Twig\Extension\EntitySeoUrlFunctionExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\MediaExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\RawUrlFunctionExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\SeoUrlFunctionExtension;
@@ -44,8 +48,10 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\SwSanitizeTwigFilter;
 use Shopware\Core\Framework\Adapter\Twig\Extension\TwigFeaturesWithInheritanceExtension;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -149,6 +155,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.repository'),
             service(RequestCriteriaBuilder::class),
             service(DefinitionInstanceRegistry::class),
+            service(EntityRouteResolver::class),
         ])
         ->call('setContainer', [
             service('service_container'),
@@ -169,6 +176,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('twig.extension');
 
+    $services->set(EntitySeoUrlFunctionExtension::class)
+        ->args([
+            service(EntityRouteResolver::class),
+        ])
+        ->tag('twig.extension');
+
     $services->set(TwigFeaturesWithInheritanceExtension::class)
         ->args([
             service(TemplateFinder::class),
@@ -180,7 +193,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('twig.extension.routing'),
             service(CategoryUrlGenerator::class),
         ])
-        ->tag('twig.extension');
+        ->tag('twig.extension')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(SeoUrlPlaceholderHandlerInterface::class, SeoUrlPlaceholderHandler::class)
         ->public()
@@ -220,6 +234,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service('sales_channel.seo_url.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(StoreApiSeoResolver::class)
@@ -228,6 +243,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefinitionInstanceRegistry::class),
             service(SalesChannelDefinitionInstanceRegistry::class),
             service(SeoUrlRouteRegistry::class),
+            service(EntityRouteResolver::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -239,7 +255,32 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SeoUrlPersister::class),
             service(Connection::class),
             service('sales_channel.repository'),
+            tagged_iterator('shopware.entity.seo_url.route'),
         ]);
+
+    $services->set(StoreApiSeoUrlUpdateListener::class)
+        ->args([
+            service(SeoUrlUpdater::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(SeoUrlTemplateChangeSubscriber::class)
+        ->args([
+            service(Connection::class),
+            service('messenger.default_bus'),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(SeoUrlTemplateIndexingHandler::class)
+        ->args([
+            service(SeoUrlUpdater::class),
+            service(IteratorFactory::class),
+            service(DefinitionInstanceRegistry::class),
+            service(SeoUrlRouteRegistry::class),
+            service('messenger.default_bus'),
+            tagged_iterator('shopware.entity.seo_url.route'),
+        ])
+        ->tag('messenger.message_handler');
 
     $services->set(BuildBreadcrumbExtension::class)
         ->args([
@@ -247,7 +288,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.category.repository'),
             service('category.repository'),
         ])
-        ->tag('twig.extension');
+        ->tag('twig.extension')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(SeoUrlTwigFactory::class);
 

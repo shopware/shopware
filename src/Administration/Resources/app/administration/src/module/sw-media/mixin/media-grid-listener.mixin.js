@@ -6,6 +6,8 @@ const { Mixin } = Shopware;
  * usage:
  *   - override selectableItems computed property and return array of entities that can be selected
  * @sw-package discovery
+ *
+ * Duplicated in `src/app/composables/use-media-grid-listener`; change both together.
  */
 Mixin.register('media-grid-listener', {
     emits: ['media-folder-change'],

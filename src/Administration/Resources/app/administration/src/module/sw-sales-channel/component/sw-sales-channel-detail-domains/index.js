@@ -5,7 +5,7 @@
 import template from './sw-sales-channel-detail-domains.html.twig';
 import './sw-sales-channel-detail-domains.scss';
 
-const { Mixin, Context } = Shopware;
+const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const { ShopwareError } = Shopware.Classes;
 
@@ -13,13 +13,9 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -59,6 +55,10 @@ export default {
     computed: {
         domainRepository() {
             return this.repositoryFactory.create(this.salesChannel.domains.entity, this.salesChannel.domains.source);
+        },
+
+        salesChannelIsHeadless() {
+            return this.salesChannel?.typeId === Defaults.apiSalesChannelTypeId;
         },
 
         currentDomainModalTitle() {
@@ -106,10 +106,7 @@ export default {
                 this.salesChannel.currencies?.getIds?.() ??
                 (this.salesChannel.currencies ?? []).map((currency) => currency.id);
 
-            [
-                this.salesChannel.currencyId,
-                this.currentDomain?.currencyId,
-            ].forEach((currencyId) => {
+            [this.salesChannel.currencyId, this.currentDomain?.currencyId].forEach((currencyId) => {
                 if (currencyId && !currencyIds.includes(currencyId)) {
                     currencyIds.push(currencyId);
                 }
@@ -160,6 +157,18 @@ export default {
             criteria.addFields('name', 'technicalName');
 
             return criteria;
+        },
+
+        isExternalStorefrontDisabled() {
+            if (!this.currentDomain.languageId) {
+                return false;
+            }
+
+            const usedLanguageIds = this.salesChannel.domains
+                .filter((domain) => domain.id !== this.currentDomain.id && domain.isExternalStorefront)
+                .map((domain) => domain.languageId);
+
+            return usedLanguageIds.includes(this.currentDomain.languageId);
         },
     },
 
@@ -417,6 +426,12 @@ export default {
 
         onLanguageSelect(id) {
             this.onOptionSelect('language', this.salesChannel.languages.get(id));
+
+            if (!this.currentDomain.isExternalStorefront || !this.isExternalStorefrontDisabled) {
+                return;
+            }
+
+            this.currentDomain.isExternalStorefront = false;
         },
 
         onOptionSelect(name, entity) {

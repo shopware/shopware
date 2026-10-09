@@ -11,15 +11,18 @@ const { chunk: chunkArray } = Shopware.Utils.array;
 export default {
     template,
 
-    inject: [
-        'orderDocumentApiService',
-        'repositoryFactory',
-        'syncService',
-    ],
+    inject: {
+        // @deprecated tag:v6.9.0 - orderDocumentApiService will be removed.
+        orderDocumentApiService: {},
+        repositoryFactory: {},
+        syncService: {},
+        feature: {},
+        documentV2ApiService: {
+            default: null,
+        },
+    },
 
-    mixins: [
-        Shopware.Mixin.getByName('notification'),
-    ],
+    mixins: [Shopware.Mixin.getByName('notification')],
 
     emits: [
         'changes-apply',
@@ -166,22 +169,10 @@ export default {
             const creditNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'credit_note');
             const deliveryNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'delivery_note');
             const documentGroups = [
-                [
-                    'invoice',
-                    invoiceDocuments,
-                ],
-                [
-                    'storno',
-                    stornoDocuments,
-                ],
-                [
-                    'credit_note',
-                    creditNoteDocuments,
-                ],
-                [
-                    'delivery_note',
-                    deliveryNoteDocuments,
-                ],
+                ['invoice', invoiceDocuments],
+                ['storno', stornoDocuments],
+                ['credit_note', creditNoteDocuments],
+                ['delivery_note', deliveryNoteDocuments],
             ];
 
             let totalRequested = 0;
@@ -189,10 +180,7 @@ export default {
             let totalSkipped = 0;
             const failedItems = [];
 
-            for (const [
-                documentType,
-                documents,
-            ] of documentGroups) {
+            for (const [documentType, documents] of documentGroups) {
                 if (documents.length <= 0) {
                     continue;
                 }
@@ -218,7 +206,14 @@ export default {
             );
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
         async createDocument(documentType, payload) {
+            if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                return this.createDocumentV2(documentType, payload);
+            }
+
             const requestedTotal = payload.length;
 
             if (payload.length <= this.requestsPerPayload) {
@@ -250,6 +245,79 @@ export default {
             };
         },
 
+        async createDocumentV2(documentType, payload) {
+            const requestedTotal = payload.length;
+            const failedItems = [];
+            let skipped = 0;
+            let completed = 0;
+
+            const forceDocumentCreation = payload[0]?.config?.forceDocumentCreation ?? true;
+            const orderIdsWithExistingDocument = forceDocumentCreation
+                ? new Set()
+                : await this.getOrderIdsWithExistingDocument(
+                      documentType,
+                      payload.map((item) => item.orderId),
+                  );
+
+            for (const item of payload) {
+                if (orderIdsWithExistingDocument.has(item.orderId)) {
+                    skipped += 1;
+                    completed += 1;
+                    this.document[documentType].isReached = Math.round((completed / requestedTotal) * 100);
+                    continue;
+                }
+
+                let response = null;
+                let latestError = null;
+
+                try {
+                    response = await this.documentV2ApiService.createDocument(
+                        item.orderId,
+                        documentType,
+                        item.config?.fileFormats,
+                        undefined,
+                        item.config?.documentDate,
+                        item.config?.documentComment,
+                        item.config?.custom?.deliveryDate,
+                    );
+                } catch (error) {
+                    latestError = error.response?.data?.errors?.pop();
+                }
+
+                if (!response) {
+                    failedItems.push({
+                        orderId: item.orderId,
+                        documentType,
+                        errorCode: latestError?.code,
+                        detail: latestError?.detail,
+                    });
+                }
+
+                completed += 1;
+                this.document[documentType].isReached = Math.round((completed / requestedTotal) * 100);
+            }
+
+            return {
+                requested: requestedTotal,
+                failed: failedItems.length,
+                skipped,
+                failedItems,
+            };
+        },
+
+        async getOrderIdsWithExistingDocument(documentType, orderIds) {
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equalsAny('orderId', orderIds));
+            criteria.addFilter(Criteria.equals('documentType.technicalName', documentType));
+
+            const documents = await this.documentRepository.search(criteria);
+
+            return new Set(documents.map((document) => document.orderId));
+        },
+
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
         getDocumentGenerationResult(response, documentType, requested) {
             const generatedDocuments = response?.data?.data;
 
@@ -268,22 +336,20 @@ export default {
             };
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
         getFailedDocumentGenerationItems(errors, documentType) {
-            return Object.entries(errors).map(
-                ([
-                    orderId,
-                    orderErrors,
-                ]) => {
-                    const error = Array.isArray(orderErrors) ? orderErrors[0] : orderErrors;
+            return Object.entries(errors).map(([orderId, orderErrors]) => {
+                const error = Array.isArray(orderErrors) ? orderErrors[0] : orderErrors;
 
-                    return {
-                        orderId,
-                        documentType,
-                        errorCode: error?.code,
-                        detail: error?.detail,
-                    };
-                },
-            );
+                return {
+                    orderId,
+                    documentType,
+                    errorCode: error?.code,
+                    detail: error?.detail,
+                };
+            });
         },
 
         async deleteDocuments() {

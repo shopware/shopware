@@ -81,13 +81,15 @@ class PdfRendererTest extends TestCase
         $document = $this->documentGenerator->generate($request, $this->context);
 
         $files = $this->loadDocumentFiles($document->getId());
-        static::assertCount(1, $files);
 
-        $file = $files->first();
-        static::assertInstanceOf(DocumentFileEntity::class, $file);
-        static::assertSame(DocumentFormat::PDF->value, $file->getDocumentFormat());
+        $formats = array_values($files->map(static fn (DocumentFileEntity $file) => $file->getDocumentFormat()));
+        sort($formats);
+        static::assertSame([DocumentFormat::HTML->value, DocumentFormat::PDF->value], $formats);
 
-        $bytes = $this->mediaService->loadFile($file->getMediaId(), $this->context);
+        $pdfFile = $files->filter(static fn (DocumentFileEntity $file) => $file->getDocumentFormat() === DocumentFormat::PDF->value)->first();
+        static::assertInstanceOf(DocumentFileEntity::class, $pdfFile);
+
+        $bytes = $this->mediaService->loadFile($pdfFile->getMediaId(), $this->context);
         static::assertNotEmpty($bytes);
         static::assertStringStartsWith('%PDF-', $bytes);
     }
@@ -150,13 +152,15 @@ class PdfRendererTest extends TestCase
         $document = $this->documentGenerator->generate($request, $this->context);
 
         $files = $this->loadDocumentFiles($document->getId());
-        static::assertCount(1, $files);
 
-        $file = $files->first();
-        static::assertInstanceOf(DocumentFileEntity::class, $file);
-        static::assertSame(DocumentFormat::PDF->value, $file->getDocumentFormat());
+        $formats = array_values($files->map(static fn (DocumentFileEntity $file) => $file->getDocumentFormat()));
+        sort($formats);
+        static::assertSame([DocumentFormat::HTML->value, DocumentFormat::PDF->value], $formats);
 
-        $bytes = $this->mediaService->loadFile($file->getMediaId(), $this->context);
+        $pdfFile = $files->filter(static fn (DocumentFileEntity $file) => $file->getDocumentFormat() === DocumentFormat::PDF->value)->first();
+        static::assertInstanceOf(DocumentFileEntity::class, $pdfFile);
+
+        $bytes = $this->mediaService->loadFile($pdfFile->getMediaId(), $this->context);
         static::assertNotEmpty($bytes);
         static::assertStringStartsWith('%PDF-', $bytes);
     }

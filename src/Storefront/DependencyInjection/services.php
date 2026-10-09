@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
-use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Order\OrderRestorer;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerGroupRegistrationSettingsRoute;
@@ -79,6 +79,7 @@ use Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand;
 use Shopware\Storefront\Framework\Cookie\AppCookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
+use Shopware\Storefront\Framework\Guard\DoubleSubmitGuard;
 use Shopware\Storefront\Framework\Media\StorefrontMediaUploader;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry;
 use Shopware\Storefront\Framework\Media\Validator\StorefrontMediaDocumentValidator;
@@ -103,6 +104,7 @@ use Shopware\Storefront\Framework\Routing\StorybookRouteScopeAllowList;
 use Shopware\Storefront\Framework\Routing\TemplateDataSubscriber;
 use Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacadeHookFactory;
 use Shopware\Storefront\Framework\Store\Subscriber\ExtensionThemeDetectionSubscriber;
+use Shopware\Storefront\Framework\Store\ThemeExtensionRemovalValidator;
 use Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
@@ -240,6 +242,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    $services->set(DoubleSubmitGuard::class)
+        ->args([
+            service('lock.factory'),
+            service('cache.double_submit'),
+            service('logger'),
+        ]);
+
     $services->set(StorefrontScriptResponseFactoryFacadeHookFactory::class)
         ->public()
         ->args([
@@ -253,6 +262,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber')
         ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set(ThemeExtensionRemovalValidator::class)
+        ->args([
+            service('theme.repository'),
+            service('sales_channel.repository'),
+        ])
+        ->tag('shopware.store.extension_removal_validator');
 
     $services->set(CachedDomainLoader::class)
         ->decorate(DomainLoader::class, null, -1000)
@@ -282,6 +298,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SeoResolver::class),
             param('shopware.routing.registered_api_prefixes'),
             service(DomainLoader::class),
+            param('shopware.routing.api_context_route_prefixes'),
         ]);
 
     $services->set(Router::class)
@@ -396,10 +413,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(StorefrontSubscriber::class)
         ->args([
-            service('request_stack'),
             service('router'),
             service(MaintenanceModeResolver::class),
-            service(SystemConfigService::class),
             service('event_dispatcher'),
         ])
         ->tag('kernel.event_subscriber');
@@ -613,7 +628,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(GenericPageLoader::class),
             service('event_dispatcher'),
             service(OrderRoute::class),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(AccountEditOrderPageLoader::class)
         ->args([
@@ -621,10 +637,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(OrderRoute::class),
             service(CheckoutGatewayRoute::class),
-            service(OrderConverter::class),
+            service(OrderRestorer::class),
             service(OrderService::class),
             service(Translator::class),
-            service(CartService::class),
         ]);
 
     $services->set(AccountLoginPageLoader::class)
@@ -726,7 +741,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // @deprecated tag:v6.8.0 Will be removed
     $services->set(CookieProviderInterface::class, CookieProvider::class)
-        ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0. Use the CookieGroupCollectEvent instead to introduce cookies.');
+        ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0. Use the CookieGroupCollectEvent instead to introduce cookies.')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     // @deprecated tag:v6.8.0 Will be removed
     $services->set(AppCookieProvider::class)
@@ -734,7 +750,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('.inner'),
         ])
-        ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0 without replacement');
+        ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0 without replacement')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(ResponseHeaderListener::class)
         ->tag('kernel.event_subscriber');

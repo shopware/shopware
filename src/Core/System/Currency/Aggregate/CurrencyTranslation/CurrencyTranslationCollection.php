@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CurrencyTranslationEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('fundamentals@framework')]
 class CurrencyTranslationCollection extends EntityCollection

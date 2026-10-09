@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Struct\Struct;
  * and build over the database or by the request when the media was uploaded or renamed
  *
  * @final
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class MediaLocationStruct extends Struct

@@ -249,10 +249,7 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
     });
 
     it('should be to edit and delete', async () => {
-        global.activeAclRoles = [
-            'newsletter_recipient.editor',
-            'newsletter_recipient.deleter',
-        ];
+        global.activeAclRoles = ['newsletter_recipient.editor', 'newsletter_recipient.deleter'];
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -369,10 +366,7 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
         );
 
         searchSpy.mockClear();
-        searchSpy.mockResolvedValueOnce([
-            mockNewsletterRecipient[1],
-            mockNewsletterRecipient[0],
-        ]);
+        searchSpy.mockResolvedValueOnce([mockNewsletterRecipient[1], mockNewsletterRecipient[0]]);
 
         await wrapper.find('.sw-data-grid__cell--1').trigger('click');
         await wrapper.setData({

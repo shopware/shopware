@@ -147,6 +147,7 @@ class TemplateLifecycleHandlerTest extends TestCase
         $appId = $this->ids->get('app1');
         $templateIds = [$this->ids->get('template1'), $this->ids->get('template2')];
         $this->templateRepository->addSearch($templateIds);
+        $this->templateLoader->expects($this->never())->method('getTemplatePathsForApp');
         $this->cacheClearer->expects($this->once())->method('clearHttpCache');
 
         $this->buildHandler([])->activate(new AppActivationContext($this->buildApp($appId), Context::createDefaultContext()));
@@ -162,6 +163,7 @@ class TemplateLifecycleHandlerTest extends TestCase
         $appId = $this->ids->get('app1');
         $templateIds = [$this->ids->get('template1'), $this->ids->get('template2')];
         $this->templateRepository->addSearch($templateIds);
+        $this->templateLoader->expects($this->never())->method('getTemplatePathsForApp');
         $this->cacheClearer->expects($this->once())->method('clearHttpCache');
 
         $this->buildHandler([])->deactivate(new AppActivationContext($this->buildApp($appId), Context::createDefaultContext()));

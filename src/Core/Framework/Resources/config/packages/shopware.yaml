@@ -4,6 +4,7 @@ parameters:
     env(PRODUCT_ANALYTICS_GATEWAY_URL): 'https://product-analytics-gateway.services.shopware.io'
     APP_URL: "%env(string:APP_URL)%"
     env(REDIS_PREFIX): ''
+    env(SHOPWARE_DISABLE_UPDATE_CHECK): ''
 
 shopware:
     http_cache:
@@ -154,6 +155,14 @@ shopware:
                         s_maxage: 1800
                         stale_while_revalidate: 86400
                         stale_if_error: 7200
+                    # The order of query parameters never changes the response. Sending this header
+                    # lets a client match a stored response against a differently ordered URL
+                    # instead of refetching it.
+                    # `HttpCacheKeyGenerator::getRequestUri()` and the reverse proxy configurations
+                    # Shopware documents do the same.
+                    # Do not add a `params=(...)` part without checking that the listed parameters really
+                    # have no effect on the response, see `ignored_url_parameters` above.
+                    no_vary_search: 'key-order'
 
             storefront.cacheable:
                 headers:
@@ -162,6 +171,8 @@ shopware:
                         max_age: 0
                         must_revalidate: true
                         s_maxage: 7200
+                    # See `store_api.cacheable` above for why `key-order` is safe for every area.
+                    no_vary_search: 'key-order'
 
         default_policies:
             storefront:
@@ -228,6 +239,13 @@ shopware:
 
     api:
         max_limit: 500
+        auth_code_ttl: 'PT5M'
+        oauth_clients: # public OAuth clients allowed to use the authorization code grant with PKCE
+            shopware-cli:
+                name: 'Shopware CLI'
+                redirect_uris:
+                    - 'http://127.0.0.1/callback'
+                    - 'http://[::1]/callback'
         api_browser:
             auth_required: true
         store:
@@ -248,6 +266,17 @@ shopware:
                     - limit: 20
                       interval: '60 seconds'
             guest_login:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 10
+                      interval: '10 seconds'
+                    - limit: 15
+                      interval: '30 seconds'
+                    - limit: 20
+                      interval: '60 seconds'
+            import_export_file_download:
                 enabled: true
                 policy: 'time_backoff'
                 reset: '24 hours'
@@ -393,7 +422,8 @@ shopware:
         transports: ["webhook", "async", "low_priority"]
 
     auto_update:
-        enabled: true
+        enabled: '%env(not:bool:default:defaults_bool_false:SHOPWARE_DISABLE_UPDATE_CHECK)%'
+        hide_module: '%env(bool:default:defaults_bool_false:SHOPWARE_AUTO_UPDATE_HIDE_MODULE)%'
 
     store:
         frw: false
@@ -405,6 +435,11 @@ shopware:
         scheduled_task:
             enabled: true
 
+    translation:
+        use_local_filesystem: false
+        scheduled_task:
+            enabled: true
+
     deployment:
         blue_green: '%env(bool:default:defaults_bool_true:BLUE_GREEN_DEPLOYMENT)%'
         cluster_setup: false
@@ -413,6 +448,8 @@ shopware:
         enable_url_upload_feature: true
         enable_url_validation: true
         url_upload_max_size: 0
+        url_upload_timeout: 0.0
+        external_link_timeout: 0.0
         remote_thumbnails:
             enable: false
             pattern: '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
@@ -589,6 +626,8 @@ shopware:
             CONTENT__MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED: notice
             CONTENT__NEWSLETTER_RECIPIENT_THROTTLED: notice
             CONTENT__PRODUCT_EXPORT_EMPTY: notice
+            CONTENT__LANDING_PAGE_NOT_FOUND: notice
+            CONTENT__IMPORT_FILE_HAS_UNEXPECTED_TYPE: notice
             ELASTICSEARCH_PRODUCT__CANNOT_CHANGE_CUSTOM_FIELD_TYPE: notice
             FRAMEWORK__APP_NOT_COMPATIBLE: notice
             FRAMEWORK__APP_INTEGRATION_NOT_FOUND: notice
@@ -603,6 +642,8 @@ shopware:
             FRAMEWORK__MISSING_REQUEST_PARAMETER: notice
             FRAMEWORK__INVALID_REQUEST_PARAMETER: notice
             FRAMEWORK__INVALID_TEMPLATE_SYNTAX: notice
+            FRAMEWORK__INVALID_CAPTCHA_VALUE: notice
+            FRAMEWORK__CUSTOM_ENTITY_NOT_FOUND: notice
             FRAMEWORK__RATE_LIMIT_EXCEEDED: notice
             FRAMEWORK__SALES_CHANNEL_NOT_FOUND: notice
             PRODUCT__CATEGORY_NOT_FOUND: notice
@@ -699,3 +740,8 @@ shopware:
     webhook:
         #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation
         failure_strategy: disable_on_threshold
+
+    app_system:
+        enable_url_validation: true
+        allow_unencrypted_traffic: false
+        allowed_private_ip_addresses: []

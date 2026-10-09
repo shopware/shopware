@@ -139,7 +139,6 @@ class LineItemViewTest extends TestCase
         $product->setUniqueIdentifier(Uuid::randomHex());
         $product->setProductNumber('SKU-1');
         $product->setEan('1234567890123');
-        $product->setPurchaseUnit(2.5);
 
         $lineItem = $this->createProductLineItem('p-1', 'Widget');
         $lineItem->setProduct($product);
@@ -148,21 +147,21 @@ class LineItemViewTest extends TestCase
 
         static::assertSame('SKU-1', $view->productNumber);
         static::assertSame('1234567890123', $view->ean);
-        static::assertSame(2.5, $view->basisQuantity);
     }
 
-    public function testListFromOrderDefaultsBasisQuantityWhenPurchaseUnitMissing(): void
+    public function testListFromOrderIgnoresPurchaseUnitForBasisQuantity(): void
     {
         $product = new ProductEntity();
         $product->setUniqueIdentifier(Uuid::randomHex());
-        $product->setProductNumber('SKU-NO-PU');
+        $product->setProductNumber('SKU-1');
+        $product->setPurchaseUnit(2.5);
 
         $lineItem = $this->createProductLineItem('p-1', 'Widget');
         $lineItem->setProduct($product);
 
         $view = LineItemView::listFromOrder($this->createOrder(CartPrice::TAX_STATE_NET, [$lineItem]))[0];
 
-        static::assertSame(LineItemView::DEFAULT_BASIS_QUANTITY, $view->basisQuantity);
+        static::assertSame(1.0, $view->basisQuantity);
     }
 
     public function testListFromOrderThrowsOnNegativeQuantityByDefault(): void

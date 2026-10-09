@@ -69,9 +69,10 @@ class ModuleLoader
         }
 
         $appModules = [];
+        $isAllowedForAllApps = $context->isAllowed('app.all');
 
         foreach ($apps as $app) {
-            if (!$context->isAllowed('app.all') && !$context->isAllowed('app.' . $app->getName())) {
+            if (!$isAllowedForAllApps && !$context->isAllowed('app.' . $app->getName())) {
                 continue;
             }
 

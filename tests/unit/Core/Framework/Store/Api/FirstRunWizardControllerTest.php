@@ -600,7 +600,7 @@ class FirstRunWizardControllerTest extends TestCase
     private function createPluginSearchResult(Context $context, array $pluginData): EntitySearchResult
     {
         return new EntitySearchResult(
-            PluginEntity::class,
+            'plugin',
             \count($pluginData),
             $this->createPluginCollection($pluginData),
             null,

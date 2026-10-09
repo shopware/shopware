@@ -96,17 +96,12 @@ async function createWrapper(options = {}) {
                 'mt-card': {
                     template:
                         '<div class="mt-card" :class="$attrs.class"><slot name="title"></slot><slot name="headerRight"></slot><slot name="action"></slot><slot></slot><slot name="grid"></slot></div>',
-                    props: [
-                        'positionIdentifier',
-                        'isLoading',
-                    ],
+                    props: ['positionIdentifier', 'isLoading'],
                 },
                 'mt-button': {
                     template:
                         '<button class="mt-button" v-bind="$attrs" :disabled="disabled" @click="$emit(\'click\')"><slot></slot></button>',
-                    emits: [
-                        'click',
-                    ],
+                    emits: ['click'],
                     props: [
                         'size',
                         'variant',
@@ -116,16 +111,14 @@ async function createWrapper(options = {}) {
                 },
                 'mt-icon': {
                     template: '<span class="mt-icon" :data-name="name"><slot></slot></span>',
-                    props: [
-                        'name',
-                        'size',
-                    ],
+                    props: ['name', 'size'],
                 },
                 'mt-textarea': {
                     template: `
                             <textarea
                                 class="mt-textarea"
                                 :value="modelValue"
+                                :disabled="disabled"
                                 @input="$emit('update:modelValue', $event.target.value)"
                             ></textarea>
                         `,
@@ -140,25 +133,19 @@ async function createWrapper(options = {}) {
                 'sw-modal': {
                     template:
                         '<div class="sw-modal" :class="$attrs.class"><h2>{{ title }}</h2><slot></slot><slot name="modal-footer"></slot></div>',
-                    emits: [
-                        'modal-close',
-                    ],
-                    props: [
-                        'title',
-                        'variant',
-                    ],
+                    emits: ['modal-close'],
+                    props: ['title', 'variant'],
                 },
                 'sw-code-editor': {
                     template: `
                             <textarea
                                 class="sw-code-editor"
                                 :value="value"
+                                :disabled="disabled"
                                 @input="$emit('update:value', $event.target.value)"
                             ></textarea>
                         `,
-                    emits: [
-                        'update:value',
-                    ],
+                    emits: ['update:value'],
                     props: [
                         'value',
                         'name',
@@ -166,17 +153,14 @@ async function createWrapper(options = {}) {
                         'softWraps',
                         'setFocus',
                         'label',
+                        'disabled',
                     ],
                 },
                 'router-link': RouterLinkStub,
                 'sw-label': {
                     template:
                         '<span class="sw-label" :data-appearance="appearance" :data-size="size" :data-variant="variant"><slot></slot></span>',
-                    props: [
-                        'appearance',
-                        'size',
-                        'variant',
-                    ],
+                    props: ['appearance', 'size', 'variant'],
                 },
                 'sw-data-grid': {
                     template: `
@@ -204,29 +188,24 @@ async function createWrapper(options = {}) {
                 'sw-context-menu-item': {
                     template:
                         '<button class="sw-context-menu-item" :disabled="disabled" @click="$emit(\'click\')"><slot></slot></button>',
-                    emits: [
-                        'click',
-                    ],
-                    props: [
-                        'disabled',
-                        'routerLink',
-                        'variant',
-                    ],
+                    emits: ['click'],
+                    props: ['disabled', 'routerLink', 'variant'],
                 },
                 'mt-empty-state': {
                     template: '<div class="mt-empty-state">{{ headline }}</div>',
-                    props: [
-                        'headline',
-                        'icon',
-                    ],
+                    props: ['headline', 'icon'],
                 },
             },
             provide: {
+                acl: {
+                    can: (permission) => global.activeAclRoles.includes(permission),
+                },
                 salesChannelFileApiService,
                 repositoryFactory: {
                     create: () => ({
                         create: () => ({
                             id: 'new-sales-channel-file-id',
+                            isNew: () => true,
                         }),
                     }),
                 },
@@ -253,15 +232,26 @@ async function createWrapper(options = {}) {
 }
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file', () => {
+    beforeEach(() => {
+        global.activeAclRoles = ['sales_channel.editor'];
+    });
+
+    afterEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('loads the selected file and generated preview', async () => {
         const { wrapper, salesChannelFileApiService } = await createWrapper();
 
         await flushPromises();
 
         expect(salesChannelFileApiService.detail).toHaveBeenCalledWith('agentic', 'sales-channel-id', 'llms.txt');
-        expect(salesChannelFileApiService.preview).toHaveBeenCalledWith('agentic', 'sales-channel-id', 'llms.txt', {
-            Framework: 'custom llms text',
-        });
+        expect(salesChannelFileApiService.preview).toHaveBeenCalledWith(
+            'agentic',
+            'sales-channel-id',
+            'llms.txt',
+            undefined,
+        );
         expect(wrapper.vm.file).toEqual(discoveredFiles[0]);
         expect(wrapper.text()).toContain('# Demo shop');
     });
@@ -316,6 +306,23 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
                 id: 'sales-channel-id',
             },
         });
+    });
+
+    it('disables file mutations for sales channel viewers', async () => {
+        global.activeAclRoles = ['sales_channel.viewer'];
+        const { wrapper } = await createWrapper();
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sales-channel-detail-agentic-file__state-action').attributes('disabled')).toBeDefined();
+        expect(wrapper.find('.mt-textarea').attributes('disabled')).toBeDefined();
+
+        await wrapper.find('.sw-sales-channel-detail-agentic-file__content-sources-toggle').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sales-channel-detail-agentic-file__source-button').exists()).toBe(false);
+        expect(wrapper.find('.sw-sales-channel-detail-agentic-file__source-name').element.tagName).toBe('SPAN');
+        expect(wrapper.find('.sw-context-menu-item').attributes('disabled')).toBeDefined();
     });
 
     it('opens a source override modal from the source column and stages edits for the global save', async () => {
@@ -392,7 +399,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
         expect(wrapper.find('.sw-sales-channel-detail-agentic-file__override-modal').exists()).toBe(false);
         expect(wrapper.vm.salesChannel.salesChannelFiles).toBeUndefined();
         expect(salesChannelFileApiService.preview).toHaveBeenCalledTimes(1);
-        expect(salesChannelFileApiService.preview).toHaveBeenLastCalledWith('agentic', 'sales-channel-id', 'AGENTS.md', {});
+        expect(salesChannelFileApiService.preview).toHaveBeenLastCalledWith(
+            'agentic',
+            'sales-channel-id',
+            'AGENTS.md',
+            undefined,
+        );
     });
 
     it('links the public path to the first configured sales channel domain', async () => {
@@ -487,10 +499,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
 
     it('supports route params for files in subfolders', async () => {
         const { wrapper } = await createWrapper({
-            routeFileName: [
-                '.well-known',
-                'agents.json',
-            ],
+            routeFileName: ['.well-known', 'agents.json'],
         });
 
         expect(wrapper.vm.routeFileName).toBe('.well-known/agents.json');

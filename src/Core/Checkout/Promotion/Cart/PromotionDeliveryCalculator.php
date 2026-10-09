@@ -40,6 +40,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class PromotionDeliveryCalculator
 {
     use PromotionCartInformationTrait;
+    use PromotionExclusionTrait;
 
     /**
      * @internal
@@ -69,11 +70,12 @@ class PromotionDeliveryCalculator
         $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->getTotalPriceAmount();
 
         // build exclusions list before reducing line items
-        $exclusions = $this->buildExclusions($discountLineItems, $toCalculate, $context);
+        $exclusions = $this->buildExclusions($discountLineItems);
+        $eligibility = [];
 
         // reduce discount lineItems if fixed price discounts are in collection
         $this->restorePriceDefinitions($discountLineItems);
-        $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems);
+        $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems, $toCalculate, $context);
 
         foreach ($checkedDiscountLineItems as $discountItem) {
             if ($notDiscountedDeliveriesValue <= 0.0) {
@@ -88,10 +90,21 @@ class PromotionDeliveryCalculator
                 continue;
             }
 
-            if (!$this->isRequirementValid($discountItem, $toCalculate, $context)) {
+            $isEligible = $this->isRequirementValid($discountItem, $toCalculate, $context);
+            $eligibility[$discountItem->getId()] = $isEligible;
+
+            if (!$isEligible) {
                 // hide the notEligibleErrors on automatic discounts
                 if (!$this->isAutomaticDiscount($discountItem)) {
-                    $this->addPromotionNotEligibleError($discountItem->getLabel() ?? $discountItem->getId(), $toCalculate);
+                    $name = $discountItem->getLabel() ?? $discountItem->getId();
+                    if ($context->getCustomer() === null && $discountItem->getPayloadValue('hasPersonaRestriction')) {
+                        $toCalculate->addErrors(new PromotionNotEligibleError($name, 'not-logged-in'));
+                    } else {
+                        $ruleIds = \is_array($discountItem->getPayloadValue('conditionRuleIds'))
+                            ? array_values($discountItem->getPayloadValue('conditionRuleIds'))
+                            : [];
+                        $toCalculate->addErrors(new PromotionNotEligibleError($name, null, $ruleIds));
+                    }
                 }
 
                 continue;
@@ -102,9 +115,7 @@ class PromotionDeliveryCalculator
                 continue;
             }
 
-            $promotionId = $discountItem->getPayloadValue('promotionId');
-
-            if (\array_key_exists($promotionId, $exclusions)) {
+            if ($this->isExcluded($discountItem, $discountLineItems, $exclusions, $eligibility, $toCalculate, $context)) {
                 $toCalculate->addErrors(new PromotionNotEligibleError($discountItem->getDescription() ?? $discountItem->getId()));
 
                 continue;
@@ -157,56 +168,14 @@ class PromotionDeliveryCalculator
     }
 
     /**
-     * This function builds a complete list of promotions
-     * that are excluded somehow.
-     * The validation which one to take will be done later.
-     *
-     * @return array<mixed, bool>
-     */
-    private function buildExclusions(LineItemCollection $discountLineItems, Cart $toCalculate, SalesChannelContext $context): array
-    {
-        // array that holds all excluded promotion ids.
-        // if a promotion has exclusions they are added on the stack
-        $exclusions = [];
-
-        foreach ($discountLineItems as $discountItem) {
-            // if we dont have a scope
-            // then skip it, it might not belong to us
-            if (!$discountItem->hasPayloadValue('discountScope')) {
-                continue;
-            }
-
-            // if promotion is on exclusions stack it is ignored
-            if ($discountItem->hasPayloadValue('promotionId')) {
-                $promotionId = $discountItem->getPayloadValue('promotionId');
-
-                // if promotion is on exclusions stack it is ignored
-                // this avoids cycles that both promotions exclude each other
-                if (isset($exclusions[$promotionId])) {
-                    continue;
-                }
-            }
-
-            // add all exclusions to the stack
-            foreach ($discountItem->getPayloadValue('exclusions') as $id) {
-                // check if the promotion is active by its conditions
-                if ($this->isRequirementValid($discountItem, $toCalculate, $context)) {
-                    $exclusions[$id] = true;
-                }
-            }
-        }
-
-        return $exclusions;
-    }
-
-    /**
      * function reduces discountLineItems if a fixed price lineItem is in collection.
      * If fixed price discount lineItems are in collection:
      * a collection with only one lineItem is returned.
      * if there are more than one fixed price lineItems the lowest fixed price discount lineItem is returned
+     * fixed price lineItems that do not apply to the current cart are ignored when picking that lowest one
      * if no fixed price discount lineItems are in collection all discounts are returned
      */
-    private function reduceDiscountLineItemsIfFixedPresent(LineItemCollection $discountLineItems): LineItemCollection
+    private function reduceDiscountLineItemsIfFixedPresent(LineItemCollection $discountLineItems, Cart $toCalculate, SalesChannelContext $context): LineItemCollection
     {
         // filter all discountLineItems by scope delivery and type fixed price
         $fixedPricesDiscountLineItems = $discountLineItems->filter(static function (LineItem $discountLineItem) {
@@ -218,14 +187,19 @@ class PromotionDeliveryCalculator
                 return false;
             }
 
-            if ($discountLineItem->getPayloadValue('discountType') === PromotionDiscountEntity::TYPE_FIXED_UNIT) {
-                return true;
-            }
-
-            return false;
+            return $discountLineItem->getPayloadValue('discountType') === PromotionDiscountEntity::TYPE_FIXED_UNIT;
         });
 
         // if there are no fixed price lineItems we may return all discount line items and calculate them
+        if ($fixedPricesDiscountLineItems->count() === 0) {
+            return $discountLineItems;
+        }
+
+        $fixedPricesDiscountLineItems = $fixedPricesDiscountLineItems->filter(
+            fn (LineItem $discountLineItem) => $this->isRequirementValid($discountLineItem, $toCalculate, $context)
+        );
+
+        // none of them applies, so the remaining discounts keep their chance and the calculation loop reports the errors
         if ($fixedPricesDiscountLineItems->count() === 0) {
             return $discountLineItems;
         }

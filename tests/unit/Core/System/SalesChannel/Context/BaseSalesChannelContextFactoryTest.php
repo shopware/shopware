@@ -57,7 +57,7 @@ use Shopware\Core\Test\TestDefaults;
  *
  * @phpstan-import-type ContextOptions from BaseSalesChannelContextFactory
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(BaseSalesChannelContextFactory::class)]
 class BaseSalesChannelContextFactoryTest extends TestCase
 {
@@ -72,13 +72,12 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         false|array $fetchDataResult,
         false|string $fetchParentLanguageResult,
         array $entitySearchResult,
-        ?\Exception $expectedException = null
+        ?\Exception $expectedException = null,
     ): void {
         if ($expectedException !== null) {
             $this->expectExceptionObject($expectedException);
         }
 
-        $currencyRepository = StaticEntityRepository::of(CurrencyCollection::class, [new CurrencyCollection($entitySearchResult[CurrencyDefinition::ENTITY_NAME] ?? [])]);
         $customerGroupRepository = StaticEntityRepository::of(CustomerGroupCollection::class, [new CustomerGroupCollection($entitySearchResult[CustomerGroupDefinition::ENTITY_NAME] ?? [])]);
         $countryRepository = StaticEntityRepository::of(CountryCollection::class, [new CountryCollection($entitySearchResult[CountryDefinition::ENTITY_NAME] ?? [])]);
         $taxRepository = StaticEntityRepository::of(TaxCollection::class, [new TaxCollection($entitySearchResult[TaxDefinition::ENTITY_NAME] ?? [])]);
@@ -113,7 +112,6 @@ class BaseSalesChannelContextFactoryTest extends TestCase
 
         $factory = new BaseSalesChannelContextFactory(
             $salesChannelRepository,
-            $currencyRepository,
             $customerGroupRepository,
             $countryRepository,
             $taxRepository,
@@ -125,7 +123,12 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             $languageRepository,
         );
 
-        $factory->create(TestDefaults::SALES_CHANNEL, $options);
+        $context = $factory->create(TestDefaults::SALES_CHANNEL, $options);
+        $salesChannel = $context->getSalesChannel();
+
+        static::assertSame($salesChannel->getCurrencyId(), $salesChannel->getCurrency()?->getId());
+        static::assertSame($options[SalesChannelContextService::CURRENCY_ID] ?? $salesChannel->getCurrencyId(), $context->getCurrencyId());
+        static::assertSame($context->getCurrentCustomerGroup(), $salesChannel->getCustomerGroup());
     }
 
     /**
@@ -160,7 +163,8 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         $salesChannelEntity->setCustomerGroupId($customerGroupId);
         $salesChannelEntity->setPaymentMethodId($paymentMethodId);
         $salesChannelEntity->setShippingMethodId($shippingMethodId);
-        $salesChannelEntity->setCurrencyId(Defaults::CURRENCY);
+        $salesChannelEntity->setCurrencyId($currencyId);
+        $salesChannelEntity->setCountryId($countryId);
         $salesChannelEntity->setMeasurementUnits(MeasurementUnits::createDefaultUnits());
         $domains = new SalesChannelDomainCollection();
         $domain = new SalesChannelDomainEntity();
@@ -176,6 +180,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         $currency->setItemRounding($rounding);
         $currency->setId($currencyId);
         $currency->setFactor(1);
+        $salesChannelEntity->setCurrencies(new CurrencyCollection([$currency]));
 
         $country = new CountryEntity();
         $country->setUniqueIdentifier($countryId);
@@ -187,9 +192,11 @@ class BaseSalesChannelContextFactoryTest extends TestCase
 
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setUniqueIdentifier($paymentMethodId);
+        $paymentMethod->setId($paymentMethodId);
 
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setUniqueIdentifier($shippingMethodId);
+        $shippingMethod->setId($shippingMethodId);
         $salesChannelEntity->setShippingMethod($shippingMethod);
 
         $customerGroup = new CustomerGroupEntity();
@@ -277,7 +284,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             'expectedException' => SalesChannelException::invalidCurrencyId(),
         ];
 
-        yield 'currency not found' => [
+        yield 'currency not available in sales channel' => [
             'options' => [
                 SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
                 SalesChannelContextService::CURRENCY_ID => '3ebb5fe2e29a4d70aa5854ce7ce3e20b',
@@ -297,7 +304,11 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             'expectedException' => SalesChannelException::currencyNotFound('3ebb5fe2e29a4d70aa5854ce7ce3e20b'),
         ];
 
-        yield 'currency not set in options and not in sales channel' => [
+        $salesChannelWithoutCurrency = new SalesChannelEntity();
+        $salesChannelWithoutCurrency->setUniqueIdentifier(TestDefaults::SALES_CHANNEL);
+        $salesChannelWithoutCurrency->setCurrencyId('b7d2554b0ce847cd82f3ac9bd1c0dfca');
+
+        yield 'default currency not loaded' => [
             'options' => [
                 SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
             ],
@@ -310,7 +321,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             'fetchParentLanguageResult' => false,
             'entitySearchResult' => [
                 SalesChannelDefinition::ENTITY_NAME => [
-                    TestDefaults::SALES_CHANNEL => $salesChannelEntity,
+                    TestDefaults::SALES_CHANNEL => $salesChannelWithoutCurrency,
                 ],
             ],
             'expectedException' => SalesChannelException::currencyNotFound('b7d2554b0ce847cd82f3ac9bd1c0dfca'),
@@ -672,6 +683,48 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             LanguageDefinition::ENTITY_NAME => [
                 Defaults::LANGUAGE_SYSTEM => $language,
             ],
+        ];
+
+        $otherCurrencyId = Uuid::randomHex();
+        $otherCurrency = clone $currency;
+        $otherCurrency->setUniqueIdentifier($otherCurrencyId);
+        $otherCurrency->setId($otherCurrencyId);
+
+        $salesChannelWithOtherCurrency = clone $salesChannelEntity;
+        $salesChannelWithOtherCurrency->setCurrencies(new CurrencyCollection([$currency, $otherCurrency]));
+
+        yield 'create base context with currency differing from sales channel default' => [
+            'options' => [
+                SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+                SalesChannelContextService::CURRENCY_ID => $otherCurrencyId,
+                SalesChannelContextService::COUNTRY_ID => $countryId,
+            ],
+            'fetchDataResult' => $successfulFetchDataResult,
+            'fetchParentLanguageResult' => false,
+            'entitySearchResult' => [
+                SalesChannelDefinition::ENTITY_NAME => [
+                    TestDefaults::SALES_CHANNEL => $salesChannelWithOtherCurrency,
+                ],
+            ] + $successfulEntitySearchResult,
+            'expectedException' => null,
+        ];
+
+        $salesChannelWithoutDefaultCurrency = clone $salesChannelWithOtherCurrency;
+        $salesChannelWithoutDefaultCurrency->setCurrencies(new CurrencyCollection([$otherCurrency]));
+
+        yield 'default currency missing while an assigned alternative is selected' => [
+            'options' => [
+                SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+                SalesChannelContextService::CURRENCY_ID => $otherCurrencyId,
+            ],
+            'fetchDataResult' => $successfulFetchDataResult,
+            'fetchParentLanguageResult' => false,
+            'entitySearchResult' => [
+                SalesChannelDefinition::ENTITY_NAME => [
+                    TestDefaults::SALES_CHANNEL => $salesChannelWithoutDefaultCurrency,
+                ],
+            ] + $successfulEntitySearchResult,
+            'expectedException' => SalesChannelException::currencyNotFound($currencyId),
         ];
 
         yield 'create base context with original context' => [

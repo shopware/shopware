@@ -68,6 +68,8 @@ class StoreApiMcpServerControllerTest extends TestCase
             'id' => 1,
         ], \JSON_THROW_ON_ERROR);
 
+        $this->rateLimiter->expects($this->atLeastOnce())->method('ensureAccepted');
+
         $psrRequest = new ServerRequest('POST', '/store-api/_mcp', ['Content-Type' => 'application/json'], $body);
         $controller = $this->buildController($psrRequest, new HttpFoundationFactory());
 
@@ -115,6 +117,7 @@ class StoreApiMcpServerControllerTest extends TestCase
         $rateLimitException = new RateLimitExceededException((new \DateTimeImmutable('2026-01-01 00:01:00'))->getTimestamp());
 
         $this->rateLimiter
+            ->expects($this->once())
             ->method('ensureAccepted')
             ->willThrowException($rateLimitException);
 
@@ -154,6 +157,8 @@ class StoreApiMcpServerControllerTest extends TestCase
             'id' => 1,
         ], \JSON_THROW_ON_ERROR);
 
+        $this->rateLimiter->expects($this->atLeastOnce())->method('ensureAccepted');
+
         $sessionRegistry = $this->createMock(McpSessionRegistry::class);
         $sessionRegistry->expects($this->once())
             ->method('register')
@@ -176,6 +181,8 @@ class StoreApiMcpServerControllerTest extends TestCase
 
     public function testDoesNotRegisterSessionWhenResponseHasNoSessionHeader(): void
     {
+        $this->rateLimiter->expects($this->atLeastOnce())->method('ensureAccepted');
+
         $sessionRegistry = $this->createMock(McpSessionRegistry::class);
         $sessionRegistry->expects($this->never())->method('register');
 
@@ -198,6 +205,8 @@ class StoreApiMcpServerControllerTest extends TestCase
 
     public function testHandleReturnsNotFoundWhenServerIsNull(): void
     {
+        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+
         $controller = new StoreApiMcpServerController(
             null,
             new McpHttpTransportFactory(
@@ -216,6 +225,8 @@ class StoreApiMcpServerControllerTest extends TestCase
 
     public function testHandleReturnsNotFoundWhenTransportFactoryIsUnavailable(): void
     {
+        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+
         // A transport factory built without the PhpMcp bundle factories reports itself unavailable.
         $unavailable = new McpHttpTransportFactory(
             null,
@@ -237,6 +248,8 @@ class StoreApiMcpServerControllerTest extends TestCase
 
     public function testFlushesPendingToolsListChangedForActiveSession(): void
     {
+        $this->rateLimiter->expects($this->atLeastOnce())->method('ensureAccepted');
+
         $sessionId = Uuid::v4()->toRfc4122();
 
         $notifier = $this->createMock(McpListChangedNotifier::class);
@@ -263,6 +276,8 @@ class StoreApiMcpServerControllerTest extends TestCase
 
     public function testDoesNotFlushWhenNoPendingNotification(): void
     {
+        $this->rateLimiter->expects($this->atLeastOnce())->method('ensureAccepted');
+
         $notifier = $this->createMock(McpListChangedNotifier::class);
         $notifier->expects($this->never())->method('notifySession');
 
@@ -281,6 +296,8 @@ class StoreApiMcpServerControllerTest extends TestCase
 
     public function testDoesNotFlushWhenSessionHeaderMissing(): void
     {
+        $this->rateLimiter->expects($this->atLeastOnce())->method('ensureAccepted');
+
         $notifier = $this->createMock(McpListChangedNotifier::class);
         $notifier->expects($this->never())->method('notifySession');
 

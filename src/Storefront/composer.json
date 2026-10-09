@@ -38,7 +38,7 @@
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/psr7": "^2.4",
         "league/flysystem": "^3.13.0",
-        "mcp/sdk": "^0.7.0",
+        "mcp/sdk": "^0.8.1",
         "meyfa/php-svg": "^0.16.1",
         "psr/clock": "^1.0.0",
         "psr/log": "^3.0.0",
@@ -72,6 +72,6 @@
         "symfony/validator": "~7.4.0",
         "twig/intl-extra": "^3.26.0",
         "twig/string-extra": "^3.24.0",
-        "twig/twig": "^3.26.0"
+        "twig/twig": "^3.29.0"
     }
 }

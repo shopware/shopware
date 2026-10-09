@@ -85,4 +85,25 @@ class MailBeforeValidateEventTest extends TestCase
             ],
         ], $event->getLogData());
     }
+
+    public function testDataAndTemplateDataCanBeAmended(): void
+    {
+        $event = new MailBeforeValidateEvent(['foo' => 'bar'], Context::createDefaultContext());
+
+        $event->addData('baz', 'qux');
+        $event->setTemplateData(['template' => 'data']);
+        $event->addTemplateData('extra', 'value');
+
+        static::assertSame(['foo' => 'bar', 'baz' => 'qux'], $event->getData());
+        static::assertSame(['template' => 'data', 'extra' => 'value'], $event->getTemplateData());
+
+        $event->setData(['replaced' => true]);
+
+        static::assertSame(['replaced' => true], $event->getData());
+    }
+
+    public function testAvailableDataDescribesTheFlowPayload(): void
+    {
+        static::assertSame(['data', 'templateData'], array_keys(MailBeforeValidateEvent::getAvailableData()->toArray()));
+    }
 }

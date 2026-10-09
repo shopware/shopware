@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection;
 
+use Shopware\Core\Framework\Notification\Api\NotificationController;
 use Shopware\Core\Framework\Notification\NotificationBulkEntityExtension;
 use Shopware\Core\Framework\Notification\NotificationDefinition;
 use Shopware\Core\Framework\Notification\NotificationService;
@@ -20,6 +21,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('notification.repository'),
         ]);
+
+    $services->set(NotificationController::class)
+        ->public()
+        ->args([
+            service('shopware.rate_limiter'),
+            service(NotificationService::class),
+        ])
+        ->call('setContainer', [service('service_container')]);
 
     $services->set(NotificationDefinition::class)
         ->tag('shopware.entity.definition');

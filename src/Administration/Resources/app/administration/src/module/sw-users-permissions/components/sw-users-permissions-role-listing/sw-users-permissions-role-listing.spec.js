@@ -39,6 +39,7 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFu
                     },
                 },
                 mocks: {
+                    $t: (key, values) => (values?.name ? `${key} ${values.name}` : key),
                     $route: {
                         meta: {
                             $module: {
@@ -103,10 +104,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
     it('should disable all context menu items', async () => {
         await wrapper.setData({
-            roles: [
-                {},
-                {},
-            ],
+            roles: [{}, {}],
         });
 
         const contextMenuItemEdit = wrapper.find('.sw-users-permissions-role-listing__context-menu-edit');
@@ -120,10 +118,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         wrapper = await createWrapper(['users_and_permissions.editor']);
         await wrapper.vm.$nextTick();
         await wrapper.setData({
-            roles: [
-                {},
-                {},
-            ],
+            roles: [{}, {}],
         });
 
         const contextMenuItemEdit = wrapper.find('.sw-users-permissions-role-listing__context-menu-edit');
@@ -137,10 +132,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         wrapper = await createWrapper(['users_and_permissions.deleter']);
         await wrapper.vm.$nextTick();
         await wrapper.setData({
-            roles: [
-                {},
-                {},
-            ],
+            roles: [{}, {}],
         });
 
         const contextMenuItemEdit = wrapper.find('.sw-users-permissions-role-listing__context-menu-edit');
@@ -160,10 +152,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
     it('should open password confirm modal', async () => {
         const deleteFunction = jest.fn().mockReturnValue(Promise.resolve());
         wrapper = await createWrapper(
-            [
-                'users_and_permissions.deleter',
-                'users_and_permissions.editor',
-            ],
+            ['users_and_permissions.deleter', 'users_and_permissions.editor'],
             { isSso: false },
             deleteFunction,
         );
@@ -194,10 +183,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
     it('should delete role without pw confirmation', async () => {
         const deleteFunction = jest.fn().mockReturnValue(Promise.resolve());
         wrapper = await createWrapper(
-            [
-                'users_and_permissions.deleter',
-                'users_and_permissions.editor',
-            ],
+            ['users_and_permissions.deleter', 'users_and_permissions.editor'],
             { isSso: true },
             deleteFunction,
         );
@@ -222,5 +208,32 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         await flushPromises();
 
         expect(deleteFunction).toHaveBeenCalled();
+    });
+
+    it('should show the name of the clicked role in the delete confirmation', async () => {
+        wrapper = await createWrapper(['users_and_permissions.deleter', 'users_and_permissions.editor']);
+
+        await wrapper.setData({
+            roles: [
+                {
+                    id: 'firstRoleId',
+                    name: 'First role',
+                },
+                {
+                    id: 'secondRoleId',
+                    name: 'Second role',
+                },
+            ],
+        });
+        await flushPromises();
+
+        const contextMenuItemsDelete = wrapper.findAll('.sw-users-permissions-role-listing__context-menu-delete');
+        await contextMenuItemsDelete.at(1).trigger('click');
+        await flushPromises();
+
+        const confirmDeleteTexts = wrapper.findAll('.sw-users-permissions-role-listing__confirm-delete-text');
+
+        expect(confirmDeleteTexts).toHaveLength(1);
+        expect(confirmDeleteTexts.at(0).text()).toContain('Second role');
     });
 });

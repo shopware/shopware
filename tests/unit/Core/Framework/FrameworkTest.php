@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -9,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Adapter\Cache\StampedeProtectionConfigurator;
+use Shopware\Core\Framework\Adapter\Database\ReplicaConnectionResetter;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
@@ -51,12 +53,12 @@ class FrameworkTest extends TestCase
         static::assertTrue($container->hasDefinition(CacheClearer::class));
 
         $passes = $container->getCompilerPassConfig()->getBeforeOptimizationPasses();
-        static::assertNotEmpty(array_filter($passes, static fn ($pass) => $pass instanceof FeatureFlagCompilerPass));
-        static::assertNotEmpty(array_filter($passes, static fn ($pass) => $pass instanceof EntityCompilerPass));
-        static::assertNotEmpty(array_filter($passes, static fn ($pass) => $pass instanceof McpToolDiscoveryCompilerPass));
+        static::assertNotCount(0, array_filter($passes, static fn ($pass) => $pass instanceof FeatureFlagCompilerPass));
+        static::assertNotCount(0, array_filter($passes, static fn ($pass) => $pass instanceof EntityCompilerPass));
+        static::assertNotCount(0, array_filter($passes, static fn ($pass) => $pass instanceof McpToolDiscoveryCompilerPass));
 
         static::assertFalse($container->hasDefinition(AclTestController::class));
-        static::assertEmpty(array_filter($passes, static fn ($pass) => $pass instanceof DisableRateLimiterCompilerPass));
+        static::assertCount(0, array_filter($passes, static fn ($pass) => $pass instanceof DisableRateLimiterCompilerPass));
     }
 
     public function testBuildRegistersTestServicesInTestEnvironment(): void
@@ -66,8 +68,8 @@ class FrameworkTest extends TestCase
         static::assertTrue($container->hasDefinition(AclTestController::class));
 
         $passes = $container->getCompilerPassConfig()->getBeforeOptimizationPasses();
-        static::assertNotEmpty(array_filter($passes, static fn ($pass) => $pass instanceof DisableRateLimiterCompilerPass));
-        static::assertNotEmpty(array_filter($passes, static fn ($pass) => $pass instanceof ContainerVisibilityCompilerPass));
+        static::assertNotCount(0, array_filter($passes, static fn ($pass) => $pass instanceof DisableRateLimiterCompilerPass));
+        static::assertNotCount(0, array_filter($passes, static fn ($pass) => $pass instanceof ContainerVisibilityCompilerPass));
     }
 
     #[TestDox('boot registers the feature flags and applies the runtime configuration')]
@@ -83,6 +85,7 @@ class FrameworkTest extends TestCase
 
         $container->set(FeatureFlagRegistry::class, $registry);
         $container->set(StampedeProtectionConfigurator::class, $stampedeProtectionConfigurator);
+        $container->set(ReplicaConnectionResetter::class, new ReplicaConnectionResetter(static::createStub(Connection::class)));
         $container->set(DefinitionInstanceRegistry::class, static::createStub(DefinitionInstanceRegistry::class));
         $container->set(SalesChannelDefinitionInstanceRegistry::class, static::createStub(SalesChannelDefinitionInstanceRegistry::class));
         $container->setParameter('kernel.cache_dir', '/tmp');

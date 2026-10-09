@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -161,6 +162,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'id' => $salesChannelId,
             'languages' => new EntityCollection([$language]),
         ]);
+        $salesChannel->internalSetEntityData('sales_channel', new FieldVisibility([]));
         $salesChannels = new EntityCollection([$salesChannel]);
         $salesChannelRepository = $this->createMock(EntityRepository::class);
         $salesChannelRepository->expects($this->once())
@@ -201,6 +203,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'id' => $salesChannelId,
             'languages' => new EntityCollection([]),
         ]);
+        $salesChannel->internalSetEntityData('sales_channel', new FieldVisibility([]));
         $salesChannels = new EntityCollection([$salesChannel]);
         $salesChannelRepository = $this->createMock(EntityRepository::class);
         $salesChannelRepository->expects($this->once())
@@ -291,6 +294,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'languages' => new EntityCollection([$language]),
             'customers' => new EntityCollection([$customerRef]),
         ]);
+        $salesChannel->internalSetEntityData('sales_channel', new FieldVisibility([]));
         $salesChannels = new EntityCollection([$salesChannel]);
         $salesChannelRepository = $this->createMock(EntityRepository::class);
         $salesChannelRepository->expects($this->once())
@@ -331,6 +335,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'languages' => new EntityCollection([]),
             'customers' => new EntityCollection([$customerRef]),
         ]);
+        $salesChannel->internalSetEntityData('sales_channel', new FieldVisibility([]));
         $salesChannels = new EntityCollection([$salesChannel]);
         $salesChannelRepository = $this->createMock(EntityRepository::class);
         $salesChannelRepository->expects($this->once())
@@ -384,6 +389,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'id' => $salesChannelId,
             'languages' => new EntityCollection([$language]),
         ]);
+        $salesChannel->internalSetEntityData('sales_channel', new FieldVisibility([]));
         $salesChannelRepository = $this->createMock(EntityRepository::class);
         $salesChannelRepository->expects($this->once())
             ->method('search')
@@ -427,6 +433,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'id' => $salesChannelId,
             'languages' => new EntityCollection([$language]),
         ]);
+        $salesChannel->internalSetEntityData('sales_channel', new FieldVisibility([]));
         $salesChannelRepository = $this->createMock(EntityRepository::class);
         $salesChannelRepository->expects($this->once())
             ->method('search')
@@ -464,6 +471,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             'languages' => new EntityCollection([new PartialEntity(['id' => $languageId])]),
             'customers' => new EntityCollection([new PartialEntity(['id' => $otherCustomerId])]),
         ]);
+        $salesChannel->internalSetEntityData('sales_channel', new FieldVisibility([]));
         $salesChannelRepository = $this->createMock(EntityRepository::class);
         $salesChannelRepository->expects($this->once())
             ->method('search')

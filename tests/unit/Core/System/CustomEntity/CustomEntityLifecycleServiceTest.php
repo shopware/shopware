@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityCollection;
 use Shopware\Core\System\CustomEntity\CustomEntityEntity;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
@@ -48,7 +49,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $adminUiXmlSchemaValidator = new AdminUiXmlSchemaValidator();
         $customEntityEnrichmentService = new CustomEntityEnrichmentService($adminUiXmlSchemaValidator);
 
-        $customEntityXmlSchemaValidator = new CustomEntityXmlSchemaValidator();
+        $customEntityXmlSchemaValidator = new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator());
 
         $customEntityLifecycleService = new CustomEntityLifecycleService(
             $customEntityPersister,
@@ -79,7 +80,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $adminUiXmlSchemaValidator = new AdminUiXmlSchemaValidator();
         $customEntityEnrichmentService = new CustomEntityEnrichmentService($adminUiXmlSchemaValidator);
 
-        $customEntityXmlSchemaValidator = new CustomEntityXmlSchemaValidator();
+        $customEntityXmlSchemaValidator = new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator());
 
         $customEntityLifecycleService = new CustomEntityLifecycleService(
             $customEntityPersister,
@@ -114,7 +115,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $adminUiXmlSchemaValidator = new AdminUiXmlSchemaValidator();
         $customEntityEnrichmentService = new CustomEntityEnrichmentService($adminUiXmlSchemaValidator);
 
-        $customEntityXmlSchemaValidator = new CustomEntityXmlSchemaValidator();
+        $customEntityXmlSchemaValidator = new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator());
 
         $customEntityLifecycleService = new CustomEntityLifecycleService(
             $customEntityPersister,
@@ -386,7 +387,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
             static::createStub(CustomEntityPersister::class),
             $customEntitySchemaUpdater ?? static::createStub(CustomEntitySchemaUpdater::class),
             new CustomEntityEnrichmentService(new AdminUiXmlSchemaValidator()),
-            new CustomEntityXmlSchemaValidator(),
+            new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator()),
             new StaticSourceResolver([]),
             $connection,
             $customEntityRepository ?? $this->createCustomEntityRepository(),

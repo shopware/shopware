@@ -19,6 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class CategoryTranslationDefinition extends EntityTranslationDefinition
 {
@@ -65,9 +68,9 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
             (new StringField('external_link', 'externalLink'))->addFlags(new ApiAware()),
             (new BoolField('link_new_tab', 'linkNewTab'))->addFlags(new ApiAware()),
             (new LongTextField('description', 'description'))->addFlags(new ApiAware(), new AllowHtml()),
-            (new LongTextField('meta_title', 'metaTitle'))->addFlags(new ApiAware()),
-            (new LongTextField('meta_description', 'metaDescription'))->addFlags(new ApiAware()),
-            (new LongTextField('keywords', 'keywords'))->addFlags(new ApiAware()),
+            (new StringField('meta_title', 'metaTitle'))->addFlags(new ApiAware()),
+            (new StringField('meta_description', 'metaDescription'))->addFlags(new ApiAware()),
+            (new StringField('keywords', 'keywords'))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }

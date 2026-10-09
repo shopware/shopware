@@ -12,10 +12,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     emits: ['modal-save'],
 
@@ -82,7 +79,7 @@ export default {
         },
 
         loadCurrencies() {
-            return this.currencyRepository.search(new Criteria(1, 25), Shopware.Context.api).then((currencies) => {
+            return this.currencyRepository.search(new Criteria(1, 500), Shopware.Context.api).then((currencies) => {
                 this.currencies = currencies;
             });
         },
@@ -106,12 +103,7 @@ export default {
         },
 
         changeBaseItem(item) {
-            if (
-                ![
-                    'customerTax',
-                    'companyTax',
-                ].includes(this.taxFreeType)
-            ) {
+            if (!['customerTax', 'companyTax'].includes(this.taxFreeType)) {
                 return;
             }
             this.country[this.taxFreeType] = item;

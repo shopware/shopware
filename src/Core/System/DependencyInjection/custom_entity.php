@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\System\CustomEntity\Api\CustomEntityApiController;
 use Shopware\Core\System\CustomEntity\CustomEntityDefinition;
 use Shopware\Core\System\CustomEntity\CustomEntityRegistrar;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomEntity\Schema\SchemaUpdater;
@@ -40,7 +41,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomEntityDefinition::class)
         ->tag('shopware.entity.definition');
 
-    $services->set(SchemaUpdater::class);
+    $services->set(CustomEntityNameValidator::class);
+
+    $services->set(SchemaUpdater::class)
+        ->args([
+            service(CustomEntityNameValidator::class),
+        ]);
 
     $services->set(CustomEntitySchemaUpdater::class)
         ->public()
@@ -63,6 +69,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('service_container'),
         ]);
 
-    $services->set(CustomEntityXmlSchemaValidator::class);
+    $services->set(CustomEntityXmlSchemaValidator::class)
+        ->args([
+            service(CustomEntityNameValidator::class),
+        ]);
     $services->set(AdminUiXmlSchemaValidator::class);
 };

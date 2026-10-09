@@ -72,10 +72,12 @@
                                 "format": "int64"
                             },
                             "calculatedTaxes": {
-                                "type": "object"
+                                "type": "array",
+                                "$ref": "#/components/schemas/CalculatedPrice/properties/calculatedTaxes"
                             },
                             "taxRules": {
-                                "type": "object"
+                                "type": "array",
+                                "$ref": "#/components/schemas/CalculatedPrice/properties/taxRules"
                             },
                             "referencePrice": {
                                 "type": "object"

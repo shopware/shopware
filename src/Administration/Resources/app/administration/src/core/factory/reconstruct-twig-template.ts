@@ -47,9 +47,15 @@ export type TwigToken = {
  * `{% block %}` tokens, and collapses unsupported control-flow tags
  * (`{% if %}`, `{% for %}`, …) to empty strings.
  *
+ * Nested blocks are scoped to `componentName`, the component the override targets. The fragment is
+ * compiled at runtime and never passes the setup transform that stamps this attribute onto `<sw-block>`.
+ *
+ * @example
+ * reconstructInnerTemplate('sw-product-detail', tokens); // '<sw-block name="inner" sw-internal-component-name="sw-product-detail">…'
+ *
  * @private
  */
-export default function reconstructInnerTemplate(tokens: TwigToken[]): string {
+export default function reconstructInnerTemplate(componentName: string, tokens: TwigToken[]): string {
     return tokens
         .map((token) => {
             if (token.type === 'raw') {
@@ -62,8 +68,8 @@ export default function reconstructInnerTemplate(tokens: TwigToken[]): string {
                 }
 
                 if (token.token?.blockName !== undefined) {
-                    const innerContent = reconstructInnerTemplate(token.token.output ?? []);
-                    return `<sw-block name="${token.token.blockName}">${innerContent}</sw-block>`;
+                    const innerContent = reconstructInnerTemplate(componentName, token.token.output ?? []);
+                    return `<sw-block name="${token.token.blockName}" sw-internal-component-name="${componentName}">${innerContent}</sw-block>`;
                 }
             }
 

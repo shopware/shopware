@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Struct\Collection;
  * @internal
  *
  * @extends Collection<MessageTypeStatsEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class MessageTypeStatsCollection extends Collection

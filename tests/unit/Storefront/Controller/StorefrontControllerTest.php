@@ -46,7 +46,7 @@ use Twig\Error\SyntaxError;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(StorefrontController::class)]
 class StorefrontControllerTest extends TestCase
 {

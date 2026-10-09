@@ -10,15 +10,14 @@ const createWrapper = async (customOptions) => {
 };
 
 describe('src/module/sw-media/component/sw-media-display-options', () => {
-    it('should default to created at ascending without v6.8.0.0 feature flag', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy ascending media sort default.
+    it.deprecated('v6.8.0.0')('should default to created at ascending', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.sortingConCat).toBe('createdAt:asc');
     });
 
-    it('should default to created at descending with v6.8.0.0 feature flag', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
-
+    it.activeFeatureFlags(['v6.8.0.0'])('should default to created at descending', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.sortingConCat).toBe('createdAt:desc');

@@ -1,0 +1,6 @@
+{% block sw_mixin_callback_method %}
+    <div class="sw-mixin-callback-method">
+        <mt-datepicker v-if="isBetween" v-model:value="betweenValue.from" />
+        <mt-datepicker v-if="isBetween" v-model:value="betweenValue.to" />
+    </div>
+{% endblock %}

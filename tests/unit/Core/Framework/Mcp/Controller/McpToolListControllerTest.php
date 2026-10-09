@@ -104,7 +104,7 @@ class McpToolListControllerTest extends TestCase
     {
         $page = new Page([self::makeTool('MyApp-my-tool')], null);
 
-        $provider = $this->createMock(AppMcpPrivilegeProvider::class);
+        $provider = static::createStub(AppMcpPrivilegeProvider::class);
         $provider->method('getAppToolPrivileges')->willReturn([
             'MyApp-my-tool' => ['product:read', 'order:read'],
         ]);

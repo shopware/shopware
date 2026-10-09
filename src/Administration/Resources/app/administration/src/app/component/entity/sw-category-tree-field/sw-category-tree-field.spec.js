@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const categoryData = [
@@ -92,13 +92,10 @@ async function createWrapper(props = {}) {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated'),
                 'sw-tree': await wrapTestComponent('sw-tree'),
                 'sw-tree-item': await wrapTestComponent('sw-tree-item'),
                 'sw-loader': true,
                 'sw-color-badge': true,
-                'mt-floating-ui': true,
                 'sw-skeleton': true,
                 'sw-vnode-renderer': true,
                 'sw-context-button': true,
@@ -145,6 +142,37 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
             checked: true,
             data: { translated: { name: 'some-data' } },
         });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
+    });
+
+    it('should toggle the dropdown with the expand indicator', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const indicator = wrapper.get('.sw-category-tree-field__expand-indicator');
+        expect(indicator.classes()).toContain('is--collapsed');
+
+        await indicator.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(true);
+        expect(wrapper.get('.sw-category-tree-field__expand-indicator').classes()).not.toContain('is--collapsed');
+        expect(document.activeElement).toBe(wrapper.get('.sw-category-tree__input-field').element);
+
+        await wrapper.get('.sw-category-tree-field__expand-indicator').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
+        expect(wrapper.get('.sw-category-tree-field__expand-indicator').classes()).toContain('is--collapsed');
+    });
+
+    it('should not open the dropdown with the expand indicator when disabled', async () => {
+        const wrapper = await createWrapper({ disabled: true });
+        await flushPromises();
+
+        await wrapper.get('.sw-category-tree-field__expand-indicator').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
@@ -280,11 +308,12 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        const items = await wrapper.findAll('.sw-tree-item');
+        const documentBody = new DOMWrapper(document.body);
+        const items = documentBody.findAll('.sw-tree-item');
         expect(items).toHaveLength(categoryData.length);
 
-        const checkboxes = await wrapper.findAll('.mt-field--checkbox');
-        const disabledCheckboxes = await wrapper.findAll('.mt-field--checkbox.is--disabled');
+        const checkboxes = documentBody.findAll('.mt-field--checkbox');
+        const disabledCheckboxes = documentBody.findAll('.mt-field--checkbox.is--disabled');
 
         expect(checkboxes).toHaveLength(categoryData.length);
         expect(disabledCheckboxes).toHaveLength(1);

@@ -27,7 +27,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RemoveWishlistProductRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute;
-use Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute;
+use Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
@@ -96,6 +96,7 @@ use Shopware\Storefront\Controller\VerificationHashController;
 use Shopware\Storefront\Controller\WellKnownController;
 use Shopware\Storefront\Controller\WishlistController;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
+use Shopware\Storefront\Framework\Guard\DoubleSubmitGuard;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
@@ -163,7 +164,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SetPaymentOrderRoute::class),
             service(HandlePaymentMethodRoute::class),
             service('event_dispatcher'),
-            service(AccountOrderDetailPageLoader::class),
+            service(AccountOrderDetailPageLoader::class)->nullOnInvalid(),
             service(OrderRoute::class),
             service(SalesChannelContextService::class),
             service(SystemConfigService::class),
@@ -358,6 +359,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel_domain.repository'),
             service(HeaderPageletLoader::class),
             service(FooterPageletLoader::class),
+            service(DoubleSubmitGuard::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

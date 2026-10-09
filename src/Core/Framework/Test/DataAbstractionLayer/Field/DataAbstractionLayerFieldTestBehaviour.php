@@ -58,32 +58,33 @@ trait DataAbstractionLayerFieldTestBehaviour
     protected function registerDefinition(string ...$definitionClasses): EntityDefinition
     {
         $ret = null;
+        $container = static::getContainer();
 
         foreach ($definitionClasses as $definitionClass) {
-            if (static::getContainer()->has($definitionClass)) {
+            if ($container->has($definitionClass)) {
                 /** @var EntityDefinition $definition */
-                $definition = static::getContainer()->get($definitionClass);
+                $definition = $container->get($definitionClass);
             } else {
                 $this->addedDefinitions[] = $definitionClass;
                 $definition = new $definitionClass();
 
                 $repoId = $definition->getEntityName() . '.repository';
-                if (!static::getContainer()->has($repoId)) {
+                if (!$container->has($repoId)) {
                     $repository = new EntityRepository(
                         $definition,
-                        static::getContainer()->get(EntityReaderInterface::class),
-                        static::getContainer()->get(VersionManager::class),
-                        static::getContainer()->get(EntitySearcherInterface::class),
-                        static::getContainer()->get(EntityAggregatorInterface::class),
-                        static::getContainer()->get('event_dispatcher'),
-                        static::getContainer()->get(EntityLoadedEventFactory::class)
+                        $container->get(EntityReaderInterface::class),
+                        $container->get(VersionManager::class),
+                        $container->get(EntitySearcherInterface::class),
+                        $container->get(EntityAggregatorInterface::class),
+                        $container->get('event_dispatcher'),
+                        $container->get(EntityLoadedEventFactory::class)
                     );
 
-                    static::getContainer()->set($repoId, $repository);
+                    $container->set($repoId, $repository);
                 }
             }
 
-            static::getContainer()->get(DefinitionInstanceRegistry::class)->register($definition);
+            $container->get(DefinitionInstanceRegistry::class)->register($definition);
 
             if ($ret === null) {
                 $ret = $definition;
@@ -149,22 +150,24 @@ trait DataAbstractionLayerFieldTestBehaviour
      */
     private function removeExtension(string ...$extensionsClasses): void
     {
+        $container = static::getContainer();
+
         foreach ($extensionsClasses as $extensionsClass) {
             $extension = new $extensionsClass();
             TestCase::assertArrayHasKey($extensionsClass, $this->extensionDefinitionMap, \sprintf('Trying to remove not registered extension "%s".', $extensionsClass));
 
             $definitionClass = $this->extensionDefinitionMap[$extensionsClass];
-            if (static::getContainer()->has($definitionClass)) {
+            if ($container->has($definitionClass)) {
                 /** @var EntityDefinition $definition */
-                $definition = static::getContainer()->get($definitionClass);
+                $definition = $container->get($definitionClass);
 
                 $definition->removeExtension($extension);
 
                 $salesChannelDefinitionId = $this->getSalesChannelDefinitionServiceId($definitionClass);
 
-                if (static::getContainer()->has($salesChannelDefinitionId)) {
+                if ($container->has($salesChannelDefinitionId)) {
                     /** @var EntityDefinition $definition */
-                    $definition = static::getContainer()->get($salesChannelDefinitionId);
+                    $definition = $container->get($salesChannelDefinitionId);
 
                     $definition->removeExtension($extension);
                 }
@@ -177,10 +180,11 @@ trait DataAbstractionLayerFieldTestBehaviour
      */
     private function removeDefinitions(string ...$definitionClasses): void
     {
+        $registry = static::getContainer()->get(DefinitionInstanceRegistry::class);
+
         foreach ($definitionClasses as $definitionClass) {
             $definition = new $definitionClass();
 
-            $registry = static::getContainer()->get(DefinitionInstanceRegistry::class);
             \Closure::bind(function () use ($definition): void {
                 unset(
                     $this->definitions[$definition->getEntityName()],
@@ -200,10 +204,11 @@ trait DataAbstractionLayerFieldTestBehaviour
      */
     private function removeSalesChannelDefinitions(string ...$definitionClasses): void
     {
+        $registry = static::getContainer()->get(SalesChannelDefinitionInstanceRegistry::class);
+
         foreach ($definitionClasses as $definitionClass) {
             $definition = new $definitionClass();
 
-            $registry = static::getContainer()->get(SalesChannelDefinitionInstanceRegistry::class);
             \Closure::bind(function () use ($definition): void {
                 unset(
                     $this->definitions[$definition->getEntityName()],
@@ -230,16 +235,18 @@ trait DataAbstractionLayerFieldTestBehaviour
      */
     private function registerDefinitionExtensions(array $extensionsClasses, string $definitionClass, EntityDefinition $definition): void
     {
+        $container = static::getContainer();
+
         foreach ($extensionsClasses as $extensionsClass) {
             $this->addedExtensions[] = $extensionsClass;
             $this->extensionDefinitionMap[$extensionsClass] = $definitionClass;
 
-            if (static::getContainer()->has($extensionsClass)) {
+            if ($container->has($extensionsClass)) {
                 /** @var EntityExtension $extension */
-                $extension = static::getContainer()->get($extensionsClass);
+                $extension = $container->get($extensionsClass);
             } else {
                 $extension = new $extensionsClass();
-                static::getContainer()->set($extensionsClass, $extension);
+                $container->set($extensionsClass, $extension);
             }
 
             $definition->addExtension($extension);

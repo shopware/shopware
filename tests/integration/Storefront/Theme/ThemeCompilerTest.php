@@ -92,7 +92,7 @@ class ThemeCompilerTest extends TestCase
             static::getContainer()->get(ThemeFilesystemResolver::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             static::getContainer()->get(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             $this->themePathBuilder,
             static::getContainer()->get(ScssPhpCompiler::class),
         );
@@ -147,7 +147,7 @@ class ThemeCompilerTest extends TestCase
 
     public function testDBException(): void
     {
-        $configService = $this->getConfigurationServiceDbException(
+        $configurationService = $this->getConfigurationServiceDbException(
             [
                 new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
             ]
@@ -161,7 +161,7 @@ class ThemeCompilerTest extends TestCase
 
         $event = new ThemeCompilerEnrichScssVariablesEvent([], TestDefaults::SALES_CHANNEL, Context::createDefaultContext());
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configurationService, $storefrontPluginRegistry);
         $exception = null;
         try {
             $subscriber->enrichExtensionVars($event);
@@ -188,7 +188,7 @@ class ThemeCompilerTest extends TestCase
             mkdir($testFolder);
         }
 
-        $resolver = $this->createMock(ThemeFileResolver::class);
+        $resolver = static::createStub(ThemeFileResolver::class);
         $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection(), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
 
         $config = new StorefrontPluginConfiguration('test');
@@ -205,10 +205,10 @@ class ThemeCompilerTest extends TestCase
             $resolver,
             true,
             static::getContainer()->get('event_dispatcher'),
-            $this->createMock(ThemeFilesystemResolver::class),
+            static::createStub(ThemeFilesystemResolver::class),
             [],
-            $this->createMock(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(CacheInvalidator::class),
+            static::createStub(LoggerInterface::class),
             $this->themePathBuilder,
             static::getContainer()->get(ScssPhpCompiler::class),
         );
@@ -238,7 +238,7 @@ class ThemeCompilerTest extends TestCase
 
     public function testOutputsPluginCss(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/noThemeCustomCss');
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/SwagNoThemeCustomCss');
 
         $testScss = <<<PHP_EOL
 .test-selector-plugin {
@@ -271,7 +271,7 @@ PHP_EOL;
 }
 PHP_EOL;
 
-        $configService = $this->getConfigurationService(
+        $configurationService = $this->getConfigurationService(
             [
                 new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
             ]
@@ -283,7 +283,7 @@ PHP_EOL;
             ]
         );
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configurationService, $storefrontPluginRegistry);
 
         $this->eventDispatcher->addSubscriber($subscriber);
 
@@ -467,7 +467,7 @@ PHP_EOL;
      */
     private function getStorefrontPluginRegistry(array $plugins): StorefrontPluginRegistry
     {
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel
             ->method('getBundles')
             ->willReturn($plugins);

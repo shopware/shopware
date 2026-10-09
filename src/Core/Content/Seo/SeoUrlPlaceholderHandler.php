@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Seo;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -45,13 +46,31 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
     public function replace(string $content, string $host, SalesChannelContext $context): string
     {
         return Profiler::trace('seo-url-replacer', function () use ($content, $host, $context) {
+            // Cheap literal pre-check before running the regex engine over the whole response body.
+            // The placeholder is a fixed marker with no regex meta-characters, so its literal presence
+            // is a necessary condition for any match. Avoids two full-body regex passes on responses
+            // without placeholders (e.g. JSON/AJAX responses routed through the same replacer).
+            if (!str_contains($content, self::DOMAIN_PLACEHOLDER)) {
+                return $content;
+            }
+
             $matches = [];
 
             if (preg_match_all('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', $content, $matches)) {
                 $mapping = $this->createDefaultMapping($matches[0]);
                 $seoMapping = $this->createSeoMapping($context, $mapping);
                 foreach ($seoMapping as $key => $value) {
-                    $seoMapping[$key] = $host . '/' . ltrim($value, '/');
+                    if ($context->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_API) {
+                        $seoMapping[$key] = $host . '/' . ltrim($value, '/');
+
+                        continue;
+                    }
+
+                    $externalStorefrontDomain = $this->getExternalStorefrontDomain($context);
+                    if ($externalStorefrontDomain === null) {
+                        continue;
+                    }
+                    $seoMapping[$key] = rtrim($externalStorefrontDomain, '/') . '/' . ltrim($value, '/');
                 }
 
                 return (string) \preg_replace_callback('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', static fn (array $match) => $seoMapping[$match[0]], $content);
@@ -59,6 +78,19 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 
             return $content;
         });
+    }
+
+    private function getExternalStorefrontDomain(SalesChannelContext $context): ?string
+    {
+        foreach ($context->getSalesChannel()->getDomains() ?? [] as $domain) {
+            if (!$domain->getIsExternalStorefront() || $domain->getLanguageId() !== $context->getLanguageId()) {
+                continue;
+            }
+
+            return $domain->getUrl();
+        }
+
+        return null;
     }
 
     /**

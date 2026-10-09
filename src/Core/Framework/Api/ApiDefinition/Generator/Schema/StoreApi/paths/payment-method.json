@@ -43,6 +43,11 @@
                                             "onlyAvailable": {
                                                 "description": "List only available",
                                                 "type": "boolean"
+                                            },
+                                            "orderId": {
+                                                "description": "Evaluates the availability for this order of the current customer instead of the current session. The availability filter is only applied together with `onlyAvailable`.",
+                                                "type": "string",
+                                                "pattern": "^[0-9a-f]{32}$"
                                             }
                                         },
                                         "type": "object"
@@ -55,6 +60,14 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/PaymentMethodListResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -73,11 +86,29 @@
                 "parameters": [
                     {
                         "x-parameter-group": "criteria"
+                    },
+                    {
+                        "name": "orderId",
+                        "in": "query",
+                        "description": "Evaluates the availability for this order of the current customer instead of the current session. The availability filter is only applied together with `onlyAvailable`.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/PaymentMethodListResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [

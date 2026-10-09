@@ -7,32 +7,11 @@ import fs from 'fs';
 import path from 'path';
 import cliProgress from 'cli-progress';
 import colors from 'picocolors';
+import { globSync } from 'glob';
+import { extractDataSetIds } from './extract-data-set-ids';
+import { isDataSetSourceFile } from '../public-api-source-files';
 
-/**
- * Recursively get all files from a directory
- */
-function getAllFiles(dirPath: string, arrayOfFiles: string[] = []): string[] {
-    const files = fs.readdirSync(dirPath);
-
-    // Ensure arrayOfFiles is initialized
-    arrayOfFiles = arrayOfFiles || [];
-
-    files.forEach((file) => {
-        if (fs.statSync(`${dirPath}/${file}`).isDirectory()) {
-            // If the file is a directory, recursively get its files
-            arrayOfFiles = getAllFiles(`${dirPath}/${file}`, arrayOfFiles);
-        } else {
-            arrayOfFiles.push(path.join(dirPath, '/', file));
-        }
-    });
-
-    return arrayOfFiles;
-}
-
-// Get all HTML Twig template files from the specified directory
-const srcFiles = getAllFiles(path.join(__dirname, '../../src')).filter(file => {
-    return file.match(/^.*(?<!\.spec|vue2)(?<!\/acl\/index)(?<!\.d)\.(js|ts)$/);
-});
+const srcFiles = globSync(`${path.join(__dirname, '../../src')}/**/*.*`).filter(isDataSetSourceFile);
 
 console.log(colors.blue('Gathering data sets...\n'));
 
@@ -40,30 +19,22 @@ console.log(colors.blue('Gathering data sets...\n'));
 const pb = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
 pb.start(srcFiles.length, 0);
 
-let result: string[] = [];
-srcFiles.forEach((file) => {
-    // Increment the progress bar for each file processed
+const result = srcFiles.flatMap((file) => {
     pb.increment();
 
-    const fileContent = fs.readFileSync(file, { encoding: 'utf-8' });
-    if (!fileContent.includes('.publishData(')) {
-        return;
-    }
-
-    // Find all position identifiers in the file and add them to the result
-    // May the regex god be with us: https://regex101.com/r/BM083Q/1
-    [...fileContent.matchAll(/\.publishData\(\{[^}]*?\bid\s*:\s*['"]([^'"]+)['"]/gm)].map((match) => match[1]).forEach((match) => {
-        result.push(match);
-    });
-})
+    return extractDataSetIds(fs.readFileSync(file, { encoding: 'utf-8' }));
+});
 
 // Stop the progress bar
 pb.stop();
+
+// Sorted, so the generated file does not depend on the order the file system hands the sources back
+const sortedDataSetIds = result.sort((a, b) => a.localeCompare(b));
 
 // Define the output file path for the result
 const outputFile = path.join(__dirname, '../../src/meta/data-sets.json');
 
 console.log(colors.blueBright(`\nWriting to ${outputFile}`));
-fs.writeFileSync(outputFile, JSON.stringify(result));
+fs.writeFileSync(outputFile, JSON.stringify(sortedDataSetIds));
 
 console.log(colors.green('\nAll done!'));

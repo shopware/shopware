@@ -23,9 +23,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: ['modal-close'],
 
-    mixins: [
-        Shopware.Mixin.getByName('notification'),
-    ],
+    mixins: [Shopware.Mixin.getByName('notification')],
 
     props: {
         page: {
@@ -176,6 +174,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.page.type === 'product_detail';
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
@@ -190,6 +189,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         isModalLoading() {
             return this.isLoading || this.isLoadingProducts;
+        },
+
+        allowedCategoryTypes() {
+            return ['page'];
         },
     },
 

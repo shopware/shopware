@@ -18,7 +18,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('framework')]
 #[CoversClass(PaymentTokenRegisteredValidator::class)]
 class PaymentTokenRegisteredValidatorTest extends TestCase
 {
@@ -57,19 +57,19 @@ class PaymentTokenRegisteredValidatorTest extends TestCase
 
         // null value
         $validator->validate(null, new PaymentTokenRegistered());
-        static::assertEmpty($this->context->getViolations());
+        static::assertCount(0, $this->context->getViolations());
 
         // empty string value
         $validator->validate('', new PaymentTokenRegistered());
-        static::assertEmpty($this->context->getViolations());
+        static::assertCount(0, $this->context->getViolations());
 
         // integer value
         $validator->validate(1, new PaymentTokenRegistered());
-        static::assertEmpty($this->context->getViolations());
+        static::assertCount(0, $this->context->getViolations());
 
         // bool value
         $validator->validate(true, new PaymentTokenRegistered());
-        static::assertEmpty($this->context->getViolations());
+        static::assertCount(0, $this->context->getViolations());
     }
 
     public function testRegisteredTokenProducesNoViolation(): void
@@ -84,7 +84,7 @@ class PaymentTokenRegisteredValidatorTest extends TestCase
 
         $validator->validate('token-id-123', new PaymentTokenRegistered());
 
-        static::assertEmpty($this->context->getViolations());
+        static::assertCount(0, $this->context->getViolations());
     }
 
     public function testUnregisteredTokenAddsViolation(): void

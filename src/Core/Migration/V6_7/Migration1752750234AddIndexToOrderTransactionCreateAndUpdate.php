@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Util\Database\TableHelper;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 class Migration1752750234AddIndexToOrderTransactionCreateAndUpdate extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -21,7 +21,7 @@ class Migration1752750234AddIndexToOrderTransactionCreateAndUpdate extends Migra
     public function update(Connection $connection): void
     {
         if (!TableHelper::indexExists($connection, 'order_transaction', 'idx.order_transaction_created_updated')) {
-            $connection->executeStatement('CREATE INDEX `idx.order_transaction_created_updated` ON `order_transaction` (`created_at`, `updated_at`)');
+            $this->executeDdlStatement($connection, 'CREATE INDEX `idx.order_transaction_created_updated` ON `order_transaction` (`created_at`, `updated_at`)');
         }
     }
 }

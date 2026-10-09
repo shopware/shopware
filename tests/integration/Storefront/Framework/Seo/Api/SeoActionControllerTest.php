@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
 use Shopware\Core\Content\Seo\SeoException;
+use Shopware\Core\Content\Seo\SeoUrlRoute\ProductStoreApiUrlRoute;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Feature;
@@ -175,14 +176,15 @@ class SeoActionControllerTest extends TestCase
 
     public function testPreviewWithBrokenTemplate(): void
     {
-        $this->createStorefrontSalesChannelContext(TestDefaults::SALES_CHANNEL, 'test');
-        $this->createTestProduct();
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+        $this->createTestProduct($salesChannelId);
 
         $data = [
             'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
             'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
             'template' => '{{ product.undefinedProperty }}',
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'salesChannelId' => $salesChannelId,
         ];
         $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/preview', $data);
 
@@ -223,6 +225,95 @@ class SeoActionControllerTest extends TestCase
 
         $urls = array_column($data, 'seoPathInfo');
         static::assertContains('B/', $urls);
+    }
+
+    public function testPreviewForHeadlessStoreApiRoute(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannelContext([
+            'id' => $salesChannelId,
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            'name' => 'test',
+            'domains' => [
+                [
+                    'url' => 'https://foo.bar',
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'isExternalStorefront' => true,
+                ],
+            ],
+        ]);
+
+        $this->createTestProduct($salesChannelId);
+
+        $data = [
+            'routeName' => ProductStoreApiUrlRoute::ROUTE_NAME,
+            'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
+            'template' => '{{ product.name }}',
+            'salesChannelId' => $salesChannelId,
+        ];
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/preview', $data);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('https://foo.bar/test', $data[0]['seoPathInfo']);
+    }
+
+    public function testPreviewForHeadlessStoreApiRouteWithEmptyTemplateIsNotInvalid(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannelContext(['id' => $salesChannelId, 'typeId' => Defaults::SALES_CHANNEL_TYPE_API, 'name' => 'test']);
+
+        $data = [
+            'routeName' => ProductStoreApiUrlRoute::ROUTE_NAME,
+            'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
+            'template' => '',
+            'salesChannelId' => $salesChannelId,
+        ];
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/preview', $data);
+
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+    }
+
+    public function testPreviewForHeadlessStoreApiRouteWithFullUrlButNoEntities(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannelContext(['id' => $salesChannelId, 'typeId' => Defaults::SALES_CHANNEL_TYPE_API, 'name' => 'test']);
+
+        $data = [
+            'routeName' => ProductStoreApiUrlRoute::ROUTE_NAME,
+            'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
+            'template' => 'https://foo.bar/{{ product.name }}',
+            'salesChannelId' => $salesChannelId,
+        ];
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/preview', $data);
+
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+    }
+
+    public function testGetSeoContextForHeadlessStoreApiRoute(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannelContext(['id' => $salesChannelId, 'typeId' => Defaults::SALES_CHANNEL_TYPE_API, 'name' => 'test']);
+
+        $this->createTestProduct($salesChannelId);
+
+        // The store-api route name resolves to the product definition via the tagged entity routes; no entityName needed.
+        $data = ['routeName' => ProductStoreApiUrlRoute::ROUTE_NAME];
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/context', $data);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNotNull($data['product'] ?? null);
     }
 
     public function testUnknownRoute(): void
@@ -489,19 +580,31 @@ class SeoActionControllerTest extends TestCase
     public function testUpdateDefaultCanonicalForHeadlessBehavesCorrectly(): void
     {
         $salesChannelId = Uuid::randomHex();
-        $this->createSalesChannelContext(['id' => $salesChannelId, 'typeId' => Defaults::SALES_CHANNEL_TYPE_API, 'name' => 'test']);
+        $this->createSalesChannelContext([
+            'id' => $salesChannelId,
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            'name' => 'test',
+            'domains' => [
+                [
+                    'url' => 'https://foo.bar',
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'isExternalStorefront' => true,
+                ],
+            ],
+        ]);
 
         $id = $this->createTestProduct($salesChannelId);
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
 
-        static::assertCount(0, $seoUrls);
+        static::assertCount(1, $seoUrls);
 
-        $newSeoPathInfo = 'my-awesome-seo-path';
         $seoUrl = [
             'foreignKey' => $id,
-            'seoPathInfo' => $newSeoPathInfo,
-            'pathInfo' => '/detail/' . $id,
+            'seoPathInfo' => 'my-awesome-seo-path',
+            'pathInfo' => '/store-api/product/' . $id,
             'salesChannelId' => $salesChannelId,
             'isModified' => true,
             'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
@@ -514,7 +617,7 @@ class SeoActionControllerTest extends TestCase
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
 
-        static::assertCount(0, $seoUrls);
+        static::assertCount(1, $seoUrls);
 
         $productUpdate = [
             'id' => $id,
@@ -524,7 +627,7 @@ class SeoActionControllerTest extends TestCase
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
 
-        static::assertCount(0, $seoUrls);
+        static::assertCount(1, $seoUrls);
     }
 
     public function testPreviewWithPrepareCriteriaMethodActiveProductFiltering(): void

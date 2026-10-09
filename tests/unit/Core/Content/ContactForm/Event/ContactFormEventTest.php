@@ -39,4 +39,19 @@ class ContactFormEventTest extends TestCase
         static::assertArrayHasKey('contactFormData', $flow->data());
         static::assertSame(['foo' => 'bar', 'bar' => 'baz'], $flow->data()['contactFormData']);
     }
+
+    public function testExposesItsPayload(): void
+    {
+        $context = Context::createDefaultContext();
+        $recipients = new MailRecipientStruct(['foo' => 'bar']);
+
+        $event = new ContactFormEvent($context, 'sales-channel-id', $recipients, new DataBag(['subject' => 'question']));
+
+        static::assertSame(ContactFormEvent::EVENT_NAME, $event->getName());
+        static::assertSame($context, $event->getContext());
+        static::assertSame($recipients, $event->getMailStruct());
+        static::assertSame('sales-channel-id', $event->getSalesChannelId());
+        static::assertSame(['subject' => 'question'], $event->getContactFormData());
+        static::assertSame(['contactFormData'], array_keys(ContactFormEvent::getAvailableData()->toArray()));
+    }
 }

@@ -82,7 +82,7 @@ abstract class AbstractAdminIndexer
     /**
      * @param array<string> $ids
      *
-     * @return array<string, array{id: string, text: string, textBoosted?: string, completion?: list<string>}>
+     * @return array<string, array{id: string, text: string, textBoosted?: string, completion?: list<string>, ...<string, mixed>}>
      */
     abstract public function fetch(array $ids): array;
 

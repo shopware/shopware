@@ -207,12 +207,26 @@ class IncrementSqlStorageTest extends TestCase
             Uuid::randomHex() => 5,
         ];
 
-        static::assertEmpty($this->storage->list());
+        static::assertCount(0, $this->storage->list());
 
         foreach ($states as $id => $value) {
             $this->storage->set($id, $value);
         }
 
         static::assertSame($states, $this->storage->list());
+    }
+
+    public function testIncreaseToAtLeastDoesNotLowerExistingState(): void
+    {
+        $configurationId = Uuid::randomHex();
+
+        $this->storage->increaseToAtLeast($configurationId, 10);
+        static::assertSame([$configurationId => 10], $this->storage->list());
+
+        $this->storage->increaseToAtLeast($configurationId, 8);
+        static::assertSame([$configurationId => 10], $this->storage->list());
+
+        $this->storage->increaseToAtLeast($configurationId, 15);
+        static::assertSame([$configurationId => 15], $this->storage->list());
     }
 }

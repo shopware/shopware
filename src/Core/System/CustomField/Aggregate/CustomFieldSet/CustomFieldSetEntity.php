@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationCollection;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class CustomFieldSetEntity extends Entity
 {

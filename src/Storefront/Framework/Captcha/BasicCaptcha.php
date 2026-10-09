@@ -45,7 +45,31 @@ class BasicCaptcha extends AbstractCaptcha
             && $activeCaptchas[self::CAPTCHA_NAME]['isActive'];
     }
 
-    public function isValid(Request $request, array $captchaConfig): bool
+    public function validate(Request $request, array $captchaConfig): ConstraintViolationList
+    {
+        if ($this->checkCaptcha($request)) {
+            return new ConstraintViolationList();
+        }
+
+        return $this->createViolations();
+    }
+
+    public function shouldBreak(): bool
+    {
+        return false;
+    }
+
+    public function getName(): string
+    {
+        return self::CAPTCHA_NAME;
+    }
+
+    public function getViolations(): ConstraintViolationList
+    {
+        return $this->createViolations();
+    }
+
+    private function checkCaptcha(Request $request): bool
     {
         $basicCaptchaValue = $request->request->get(self::CAPTCHA_REQUEST_PARAMETER);
 
@@ -64,17 +88,7 @@ class BasicCaptcha extends AbstractCaptcha
         return strtolower((string) $basicCaptchaValue) === strtolower((string) $captchaSession);
     }
 
-    public function shouldBreak(): bool
-    {
-        return false;
-    }
-
-    public function getName(): string
-    {
-        return self::CAPTCHA_NAME;
-    }
-
-    public function getViolations(): ConstraintViolationList
+    private function createViolations(): ConstraintViolationList
     {
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation(

@@ -8,7 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -46,13 +46,13 @@ class CategoryIndexerTest extends TestCase
 
     private CategoryIndexer $indexer;
 
-    private Connection&MockObject $connectionMock;
+    private Connection&Stub $connectionMock;
 
     private MessageBusInterface $messageBus;
 
     protected function setUp(): void
     {
-        $this->connectionMock = $this->createMock(Connection::class);
+        $this->connectionMock = static::createStub(Connection::class);
         $this->messageBus = self::getContainer()->get('messenger.default_bus');
 
         $this->indexer = new CategoryIndexer(
@@ -229,9 +229,9 @@ class CategoryIndexerTest extends TestCase
      */
     private function prepareFetchChildrenMethod(array $uuids): void
     {
-        $result = $this->createMock(Result::class);
+        $result = static::createStub(Result::class);
         $result->method('fetchFirstColumn')->willReturn($uuids);
-        $query = $this->createMock(QueryBuilder::class);
+        $query = static::createStub(QueryBuilder::class);
         $query->method('executeQuery')->willReturn($result);
         $this->connectionMock->method('createQueryBuilder')->willReturn($query);
     }

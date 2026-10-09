@@ -1338,32 +1338,43 @@ class EntityAggregatorTest extends TestCase
         if (Feature::isActive('v6.8.0.0')) {
             static::expectExceptionObject(DataAbstractionLayerException::invalidIdentifier('`taxRate`'));
         } else {
-            static::expectExceptionObject(new \InvalidArgumentException('Backtick not allowed in identifier'));
+            static::expectExceptionObject(new \InvalidArgumentException('Backtick, question mark, colon, or control character not allowed in identifier'));
         }
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 
-    public function testAggregationNameWithDisallowedName(): void
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function provideDisallowedAggregationNames(): \Generator
+    {
+        yield 'question mark' => ['foo?foo'];
+        yield 'control character' => ["foo\nfoo"];
+    }
+
+    #[DataProvider('provideDisallowedAggregationNames')]
+    public function testAggregationNameWithDisallowedName(string $name): void
     {
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
-        $criteria->addAggregation(new SumAggregation('foo?foo', 'taxRate'));
+        $criteria->addAggregation(new SumAggregation($name, 'taxRate'));
 
-        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
+        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName($name));
 
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 
-    public function testAggregationNameWithDisallowedNameNested(): void
+    #[DataProvider('provideDisallowedAggregationNames')]
+    public function testAggregationNameWithDisallowedNameNested(string $name): void
     {
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
 
-        $criteria->addAggregation(new BucketAggregation('bla', 'test', new SumAggregation('foo?foo', 'taxRate')));
+        $criteria->addAggregation(new BucketAggregation('bla', 'test', new SumAggregation($name, 'taxRate')));
 
-        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
+        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName($name));
 
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }

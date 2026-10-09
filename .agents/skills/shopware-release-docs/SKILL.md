@@ -37,5 +37,6 @@ State the change and its impact, not the reasoning behind it, the internals of h
 ## Formatting
 
 - Put a blank line before and after every heading, and between paragraphs.
-- Put the entry under the matching category heading of the upcoming version section, and add that heading if it is missing.
+- Put the entry under the matching category heading of the upcoming version section, and add that heading only if the section does not have it yet.
+- Never repeat a heading inside one version section: no second `## Features` under the same `# X.Y.Z.P`, and no entry title the section already documents. The `release-info/section` check rejects a repetition the pull request adds.
 - Keep code snippets to the shortest form a developer can copy.

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\Configuration;
 use Shopware\Core\Framework\Log\Package;
@@ -12,6 +13,7 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\BooleanNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\IntegerNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\ScalarNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\StringNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\VariableNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
@@ -51,6 +53,86 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(BooleanNodeDefinition::class, $node);
     }
 
+    public function testFeatureCanDeclareItsParentMajor(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'v6.8.0.0'],
+                    ['name' => 'JSON_LD_DATA', 'major' => 'v6.8.0.0'],
+                ],
+            ],
+        ]]);
+
+        static::assertArrayNotHasKey('major', $config['feature']['flags']['v6.8.0.0']);
+        static::assertSame('v6.8.0.0', $config['feature']['flags']['JSON_LD_DATA']['major']);
+    }
+
+    #[TestWith([true])]
+    #[TestWith([false])]
+    public function testFeatureRejectsBooleanMajor(bool $major): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'FEATURE_NEXT_123', 'major' => $major],
+                ],
+            ],
+        ]]);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidParentMajorDataProvider(): iterable
+    {
+        yield 'incomplete version' => ['v6.8.0'];
+        yield 'patch version' => ['v6.8.1.0'];
+        yield 'environment variable name' => ['V6_8_0_0'];
+    }
+
+    #[DataProvider('invalidParentMajorDataProvider')]
+    public function testFeatureRejectsInvalidParentMajor(string $major): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'JSON_LD_DATA', 'major' => $major],
+                ],
+            ],
+        ]]);
+    }
+
+    public function testFeatureCannotBeItsOwnParentMajor(): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'v6.8.0.0', 'major' => 'v6.8.0.0'],
+                ],
+            ],
+        ]]);
+    }
+
+    public function testMajorVersionFlagCannotBeAnotherMajorSubFeature(): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'v6.9.0.0', 'major' => 'v6.8.0.0'],
+                ],
+            ],
+        ]]);
+    }
+
     public function testCdnPathCacheBusterDefaultsToTrue(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [['cdn' => []]]);
@@ -78,6 +160,9 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(ArrayNodeDefinition::class, $children['excluded_locales']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $children['plugin_mapping']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $children['languages']);
+        static::assertInstanceOf(BooleanNodeDefinition::class, $children['use_local_filesystem']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['scheduled_task']);
+        static::assertInstanceOf(BooleanNodeDefinition::class, $children['scheduled_task']->getChildNodeDefinitions()['enabled']);
     }
 
     public function testTranslationConfigRejectsInvalidListType(): void
@@ -97,6 +182,65 @@ class ConfigurationTest extends TestCase
         ]);
     }
 
+    #[DataProvider('validNoVarySearchProvider')]
+    public function testNoVarySearchConfigTreeNode(string $value): void
+    {
+        $config = $this->processNoVarySearch($value);
+
+        static::assertSame($value, $config['http_cache']['policies']['my_policy']['headers']['no_vary_search']);
+    }
+
+    /**
+     * @return iterable<string, array{0: string}>
+     */
+    public static function validNoVarySearchProvider(): iterable
+    {
+        yield 'key order' => ['key-order'];
+        yield 'params list' => ['key-order, params=("utm_source" "gclid")'];
+        yield 'all params with except' => ['params, except=("q")'];
+    }
+
+    public function testNoVarySearchDefaultsToNull(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'http_cache' => [
+                    'policies' => [
+                        'my_policy' => ['headers' => ['cache_control' => ['public' => true]]],
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertNull($config['http_cache']['policies']['my_policy']['headers']['no_vary_search']);
+    }
+
+    /**
+     * @param mixed $value
+     */
+    #[DataProvider('invalidNoVarySearchProvider')]
+    public function testNoVarySearchConfigRejectsInvalidValues($value, string $given): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException(\sprintf(
+            'Invalid configuration for path "shopware.http_cache.policies.my_policy.headers.no_vary_search": '
+            . 'The "no_vary_search" option must be a single line of printable ASCII, %s given.',
+            $given
+        )));
+
+        $this->processNoVarySearch($value);
+    }
+
+    /**
+     * @return iterable<string, array{0: mixed, 1: string}>
+     */
+    public static function invalidNoVarySearchProvider(): iterable
+    {
+        // a header value must never be able to smuggle a second header
+        yield 'header injection via CRLF' => ["key-order\r\nX-Injected: 1", '"key-order\r\nX-Injected: 1"'];
+        yield 'newline' => ["key-order\n", '"key-order\n"'];
+        yield 'empty string' => ['', '""'];
+    }
+
     public function testTranslationConfigDefaultsToNull(): void
     {
         $configuration = new Configuration();
@@ -106,10 +250,18 @@ class ConfigurationTest extends TestCase
         static::assertSame([
             'repository_url' => null,
             'metadata_url' => null,
+            'community_translations_url' => null,
+            'documentation_url_snippet_key' => null,
+            'completeness_threshold' => null,
             'plugins' => null,
             'excluded_locales' => null,
+            'pseudo_locales' => null,
             'plugin_mapping' => null,
             'languages' => null,
+            'use_local_filesystem' => false,
+            'scheduled_task' => [
+                'enabled' => true,
+            ],
         ], $config['translation']);
     }
 
@@ -169,7 +321,7 @@ class ConfigurationTest extends TestCase
 
         static::assertArrayHasKey('major', $nodes);
         $node = $nodes['major'];
-        static::assertInstanceOf(BooleanNodeDefinition::class, $node);
+        static::assertInstanceOf(StringNodeDefinition::class, $node);
 
         static::assertArrayHasKey('toggleable', $nodes);
         $node = $nodes['toggleable'];
@@ -314,6 +466,58 @@ class ConfigurationTest extends TestCase
 
         static::assertArrayHasKey('relevant_keyword_count', $nodes);
         static::assertInstanceOf(IntegerNodeDefinition::class, $nodes['relevant_keyword_count']);
+    }
+
+    public function testWebhookDoesNotAcceptNetworkPolicy(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'webhook' => [
+                    'allow_unencrypted_traffic' => true,
+                ],
+            ],
+        ]);
+    }
+
+    public function testAppSystemNetworkPolicyDefaultsAreSecure(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), []);
+
+        static::assertTrue($config['app_system']['enable_url_validation']);
+        static::assertFalse($config['app_system']['allow_unencrypted_traffic']);
+        static::assertSame([], $config['app_system']['allowed_private_ip_addresses']);
+    }
+
+    public function testAppSystemNetworkPolicyCanBeConfigured(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'app_system' => [
+                    'enable_url_validation' => false,
+                    'allow_unencrypted_traffic' => true,
+                    'allowed_private_ip_addresses' => ['10.0.0.10', 'fd00::1'],
+                ],
+            ],
+        ]);
+
+        static::assertFalse($config['app_system']['enable_url_validation']);
+        static::assertTrue($config['app_system']['allow_unencrypted_traffic']);
+        static::assertSame(['10.0.0.10', 'fd00::1'], $config['app_system']['allowed_private_ip_addresses']);
+    }
+
+    public function testAppSystemNetworkPolicyRejectsInvalidAllowedIpAddress(): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.app_system.allowed_private_ip_addresses.0": ""not-an-ip"" is not a valid IP address.'));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'app_system' => [
+                    'allowed_private_ip_addresses' => ['not-an-ip'],
+                ],
+            ],
+        ]);
     }
 
     public function testFilesystemVisibilityOverrideKeepsConfiguredAdapter(): void
@@ -533,6 +737,24 @@ class ConfigurationTest extends TestCase
         static::assertFalse($systemConfigs['system_config'][$salesChannelId]['core.listing.allowBuyInListing']);
     }
 
+    public function testEmptyArraySystemConfigValue(): void
+    {
+        $configuration = new Configuration();
+        $salesChannelId = Uuid::randomHex();
+
+        $config = (new Processor())->processConfiguration($configuration, [
+            'shopware' => [
+                'system_config' => [
+                    'default' => ['foo.ids' => ['global-id']],
+                    $salesChannelId => ['foo.ids' => []],
+                ],
+            ],
+        ]);
+
+        static::assertSame(['global-id'], $config['system_config']['default']['foo.ids']);
+        static::assertSame([], $config['system_config'][$salesChannelId]['foo.ids']);
+    }
+
     public function testInvalidSystemConfigKeys(): void
     {
         $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.system_config": Key must be "default" or a valid UUID'));
@@ -547,6 +769,29 @@ class ConfigurationTest extends TestCase
                     ],
                     'foobar' => [
                         'core.listing.allowBuyInListing' => false,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return array<string, mixed>
+     */
+    private function processNoVarySearch($value): array
+    {
+        return (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'http_cache' => [
+                    'policies' => [
+                        'my_policy' => [
+                            'headers' => [
+                                'cache_control' => ['public' => true],
+                                'no_vary_search' => $value,
+                            ],
+                        ],
                     ],
                 ],
             ],

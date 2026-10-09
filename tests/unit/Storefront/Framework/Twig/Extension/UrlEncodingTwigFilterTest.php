@@ -17,7 +17,7 @@ use Twig\TwigFilter;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(UrlEncodingTwigFilter::class)]
 class UrlEncodingTwigFilterTest extends TestCase
 {

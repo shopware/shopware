@@ -5,9 +5,9 @@
     padding: 20px;
     max-width: $content-width;
     margin: 0 auto 20px;
-    background-color: $color-module-purple-50;
-    border: 1px solid $color-module-purple-900;
-    border-radius: $border-radius-default;
+    background-color: var(--color-background-accent-default);
+    border: 1px solid var(--color-border-accent-default);
+    border-radius: var(--border-radius-xs);
 
     .mt-icon {
         flex-shrink: 0;
@@ -16,12 +16,12 @@
     }
 
     .icon--regular-link-horizontal {
-        color: $color-module-purple-900;
+        color: var(--color-icon-accent-default);
     }
 
     p {
         color: var(--color-text-primary-default);
         font-size: var(--font-size-xs);
-        line-height: 22px;
+        line-height: var(--font-line-height-xs);
     }
 }

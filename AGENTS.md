@@ -49,9 +49,10 @@ This repo ships Agent Skills under `.agents/skills/`, with `.claude/skills` as a
 ### Definition of Done — mandatory for every change
 
 Before you commit or hand work back:
-- **Behaviour change ⇒ tests are required.** Admin JS/TS/Vue → follow `shopware-admin-js`; PHP → `shopware-phpunit-tests`. Style-only, snippet/translation, and docs-only changes do not need tests; still add one when it is useful and follows an established pattern.
+- **Behaviour change ⇒ tests are required.** Admin JS/TS/Vue → follow `shopware-admin-js`; PHP → `shopware-phpunit-tests`. Twig-only template changes follow the rule below. Style-only, snippet/translation, and docs-only changes do not need tests; still add one when it is useful and follows an established pattern.
+- **Twig-only template changes ⇒ never add PHP integration tests just to render or assert Twig output.** A direct render without a Storefront request can cache empty request-dependent Twig globals in the shared test kernel and break unrelated later tests. Run the Storefront Twig lint; use browser/acceptance coverage when the rendered behaviour needs testing.
 - **Writing a PR title or description? → follow `shopware-pr-hygiene`** — the Shopware PR template is required, not a generic one.
-- **Behavioural change, feature, deprecation, or config change? → check `shopware-release-docs`** for RELEASE_INFO / UPGRADE entries.
+- **Behavioural change, feature, deprecation, or config change? → check `shopware-release-docs`** for RELEASE_INFO / UPGRADE entries. Put a blank line before and after every heading in those files; the Markdown renderer otherwise glues the heading to the previous paragraph.
 - **Touching `.github/workflows/`, `.github/actions/`, or `.github/bin/`? → follow [`.github/AGENTS.md`](.github/AGENTS.md)** — a CI job must never report success without proving the work ran.
 - **Commit with a conventional message incl. scope**, e.g. `feat(administration): …`.
 - **After review feedback or CI failures**, create a follow-up commit; do not amend or force-push unless explicitly asked.
@@ -84,6 +85,12 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 ## Coding Guidelines
 
 **MANDATORY**: All code must follow the guidelines in `coding-guidelines/`.
+
+## Snippets & Translations
+
+German snippets differ in register between the two UIs. The Administration addresses the user informally ("Du"), the Storefront formally ("Sie"). Keep each domain consistent when adding or editing `de` snippets.
+
+Snippet files are named by language, not locale: `en.json` / `de.json` in the Administration, `storefront.en.json` / `storefront.de.json` in the Storefront. Locale-specific names such as `en-GB.json` or `storefront.de-DE.json` are the legacy scheme; do not create them, and do not use them in tests, fixtures, or examples unless the test deliberately covers the legacy loader.
 
 ## File Linting
 

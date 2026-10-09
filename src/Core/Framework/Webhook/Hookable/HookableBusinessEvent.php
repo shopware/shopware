@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\FrameworkException;
@@ -48,6 +49,10 @@ class HookableBusinessEvent implements Hookable
     public function isAllowed(string $appId, AclPrivilegeCollection $permissions): bool
     {
         foreach ($this->flowEventAware->getAvailableData()->toArray() as $dataType) {
+            if ($dataType[EventDataCollection::HIDDEN_FROM_WEBHOOK] ?? false) {
+                continue;
+            }
+
             if (!$this->checkPermissionsForDataType($dataType, $permissions)) {
                 return false;
             }

@@ -13,11 +13,7 @@ const { Criteria } = Shopware.Data;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'acl',
-        'feature',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'feature', 'repositoryFactory'],
 
     data(): {
         isLoading: boolean;
@@ -40,6 +36,14 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        searchType(): string {
+            if (this.$route.name === 'sw.flow.index.templates') {
+                return 'flow_template';
+            }
+
+            return 'flow';
+        },
+
         flowRepository(): Repository<'flow'> {
             return this.repositoryFactory.create('flow');
         },

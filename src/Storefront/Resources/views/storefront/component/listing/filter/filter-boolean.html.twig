@@ -12,6 +12,7 @@
     {% block component_filter_boolean_panel_item %}
         <div class="filter-boolean filter-panel-item"
              role="listitem"
+             aria-busy="true"
              data-filter-boolean="true"
              data-filter-boolean-options="{{ filterBooleanOptions|json_encode }}">
             {% block component_filter_boolean_container %}
@@ -20,7 +21,9 @@
                         <input type="checkbox"
                                class="filter-boolean-input form-check-input"
                                id="{{ name }}"
-                               name="{{ name }}">
+                               name="{{ name }}"
+                               disabled
+                               data-filter-loading>
                     {% endblock %}
 
                     {% block component_filter_boolean_label %}

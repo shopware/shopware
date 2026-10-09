@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Shared input handed to all data providers during one generation run.
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  *
  * @codeCoverageIgnore
  */

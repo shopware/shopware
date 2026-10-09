@@ -19,9 +19,7 @@ export default Shopware.Component.wrapComponentConfig({
         'mt-tabs-original': MtTabs,
     },
 
-    emits: [
-        'new-item-active',
-    ],
+    emits: ['new-item-active'],
 
     props: {
         positionIdentifier: {
@@ -56,6 +54,12 @@ export default Shopware.Component.wrapComponentConfig({
             default: false,
         },
 
+        vertical: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         items: {
             type: Array as PropType<TabItem[]>,
             required: true,
@@ -71,6 +75,13 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        meteorAttributes(): Record<string, unknown> {
+            const attributes = { ...this.$attrs };
+            delete attributes['position-identifier'];
+
+            return attributes;
+        },
+
         tabExtensions(): TabItemEntry[] {
             return Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? [];
         },

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\DocumentV2\Subscriber;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -17,9 +17,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Mirrors typed `document_base_config` columns and the deprecated `config`
  * JSON blob on every write, so legacy v1 readers (JSON-only) and new v2
  * readers (column-first) observe equivalent state without coordinating.
- * Active until the JSON column is dropped in v6.8.
+ * Active until the JSON column is dropped in v6.9.
  *
  * @internal
+ *
+ * @deprecated tag:v6.9.0 reason:remove-subscriber - Removed together with the legacy `config` JSON blob when v1 is removed.
  */
 #[Package('after-sales')]
 class DocumentBaseConfigSyncSubscriber implements EventSubscriberInterface

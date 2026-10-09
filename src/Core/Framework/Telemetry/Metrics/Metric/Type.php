@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @phpstan-type MetricTypeValues = 'histogram'|'gauge'|'counter'|'updown_counter'
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 enum Type: string

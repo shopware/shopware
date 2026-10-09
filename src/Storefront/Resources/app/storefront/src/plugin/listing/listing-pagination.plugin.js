@@ -36,10 +36,13 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
         });
     }
 
+    /**
+     * @param {PointerEvent} event
+     */
     onChangePage(event) {
         event.preventDefault();
 
-        this.tempValue = event.currentTarget.dataset.page;
+        this.tempValue = this._getPageNumber(event.currentTarget.dataset.page);
         this._saveFocusState(event.currentTarget);
 
         this._pageChanged = true;
@@ -120,13 +123,20 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
         return [];
     }
 
+    /**
+     * @param {Object} params
+     * @returns {boolean}
+     */
     setValuesFromUrl(params) {
         let stateChanged = false;
         this.tempValue = 1;
 
-        if (params.p && parseInt(params.p) !== parseInt(this.tempValue)) {
-            this.tempValue = parseInt(params.p);
-            stateChanged = true;
+        if (params.p) {
+            const pageNumber = this._getPageNumber(params.p);
+            if (pageNumber !== this.tempValue) {
+                this.tempValue = pageNumber;
+                stateChanged = true;
+            }
         }
 
         return stateChanged;
@@ -134,15 +144,30 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
 
     /**
      * Update the canonical URL with the new page number.
-     * @param newPageNumber
+     * @param {number} newPageNumber
      * @private
      */
     _updateCanonicalUrl(newPageNumber) {
         const canonicalMetaTag = document.querySelector('link[rel="canonical"]');
         if (canonicalMetaTag?.href) {
             const canonicalUrl = new URL(canonicalMetaTag.href);
-            canonicalUrl.searchParams.set('p', newPageNumber);
+            if (newPageNumber > 1) {
+                canonicalUrl.searchParams.set('p', newPageNumber);
+            } else {
+                canonicalUrl.searchParams.delete('p');
+            }
             canonicalMetaTag.href = canonicalUrl.href;
-        }        
+        }
+    }
+
+    /**
+     * @param {string} page
+     * @returns {number}
+     * @private
+     */
+    _getPageNumber(page) {
+        const pageNumber = parseInt(page, 10);
+
+        return Number.isInteger(pageNumber) ? pageNumber : 1;
     }
 }

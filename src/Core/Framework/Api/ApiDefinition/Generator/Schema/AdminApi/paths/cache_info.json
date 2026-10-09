@@ -16,6 +16,12 @@
                         "content": {
                             "application\/json": {
                                 "schema": {
+                                    "required": [
+                                        "environment",
+                                        "httpCache",
+                                        "cacheAdapter",
+                                        "indexers"
+                                    ],
                                     "properties": {
                                         "environment": {
                                             "description": "The active environment.",
@@ -28,6 +34,16 @@
                                         "cacheAdapter": {
                                             "description": "The active cache adapter.",
                                             "type": "string"
+                                        },
+                                        "indexers": {
+                                            "description": "Normal-refresh indexers and their optional child updaters.",
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
                                         }
                                     },
                                     "type": "object"

@@ -72,6 +72,15 @@ class CartPersister extends AbstractCartPersister
         return $cart;
     }
 
+    public function exists(string $token, SalesChannelContext $context): bool
+    {
+        return (bool) $this->connection->fetchOne(
+            '#cart-persister::exists
+            SELECT 1 FROM cart WHERE `token` = :token',
+            ['token' => $token]
+        );
+    }
+
     /**
      * @throws InvalidUuidException
      */
@@ -88,8 +97,11 @@ class CartPersister extends AbstractCartPersister
         $this->eventDispatcher->dispatch($event);
 
         if (!$event->shouldBePersisted()) {
-            $this->delete($cart->getToken(), $context);
-            $cart->setPersisted(false);
+            // skipping the persistence means the stored cart stays untouched, it must not be deleted
+            if (!$cart->getBehavior()?->hasPermission(CheckoutPermissions::SKIP_CART_PERSISTENCE)) {
+                $this->delete($cart->getToken(), $context);
+                $cart->setPersisted(false);
+            }
 
             return;
         }

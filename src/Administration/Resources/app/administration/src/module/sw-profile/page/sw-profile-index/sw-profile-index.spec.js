@@ -4,8 +4,11 @@
  * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
+import { nextTick } from 'vue';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import TimezoneService from 'src/core/service/timezone.service';
+import useTheme, { USER_THEME_CONFIG_KEY } from 'src/app/composables/use-theme';
+import useModuleIconColors, { USER_MODULE_ICON_COLORS_CONFIG_KEY } from 'src/app/composables/use-module-icon-colors';
 import 'src/module/sw-profile/store/sw-profile.store';
 
 async function createWrapper(
@@ -13,7 +16,12 @@ async function createWrapper(
     isSso = { isSso: false },
     saveFunction = () => Promise.resolve({}),
     loginService = { loginByUsername: () => Promise.resolve({}), logout: () => {} },
-    { featureActive = false, routeName = 'sw.profile.index.general', routerPush = jest.fn() } = {},
+    {
+        featureActive = false,
+        routeName = 'sw.profile.index.general',
+        routerPush = jest.fn(),
+        changeset = [{ changes: { id: '1337' } }],
+    } = {},
 ) {
     return mount(await wrapTestComponent('sw-profile-index', { sync: true }), {
         global: {
@@ -41,17 +49,12 @@ async function createWrapper(
                 'sw-tabs': {
                     name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot /></div>',
-                    props: [
-                        'positionIdentifier',
-                    ],
+                    props: ['positionIdentifier'],
                 },
                 'sw-tabs-item': {
                     name: 'sw-tabs-item',
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: [
-                        'route',
-                        'title',
-                    ],
+                    props: ['route', 'title'],
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',
@@ -112,7 +115,7 @@ async function createWrapper(
                                 }),
                             search: () => Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [], 0)),
                             getSyncChangeset: () => ({
-                                changeset: [{ changes: { id: '1337' } }],
+                                changeset,
                             }),
                             save: () => Promise.resolve(),
                         };
@@ -283,9 +286,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
     });
 
     it('should be able to save own user', async () => {
-        const wrapper = await createWrapper([
-            'user.update_profile',
-        ]);
+        const wrapper = await createWrapper(['user.update_profile']);
         await flushPromises();
 
         await wrapper.setData({
@@ -412,6 +413,106 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         await flushPromises();
 
         expect(updateFunction).toHaveBeenCalled();
+    });
+
+    describe('theme selection', () => {
+        afterEach(async () => {
+            useTheme().setTheme('system');
+            await nextTick();
+
+            localStorage.removeItem('mt-theme');
+        });
+
+        it('should apply and persist the chosen theme on save', async () => {
+            const wrapper = await createWrapper(
+                ['user.update_profile'],
+                { isSso: true },
+                jest.fn(() => Promise.resolve({})),
+            );
+            await flushPromises();
+
+            wrapper.vm.onChangeUserTheme('dark');
+
+            const saveButton = wrapper.find('.sw-profile__save-action');
+            await saveButton.trigger('click');
+            await flushPromises();
+
+            expect(useTheme().theme.value).toBe('dark');
+            expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+            expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
+                [USER_THEME_CONFIG_KEY]: { theme: 'dark' },
+            });
+        });
+
+        it('should save the theme applied by the appearance shortcut while the page is open', async () => {
+            const wrapper = await createWrapper(
+                ['user.update_profile'],
+                { isSso: true },
+                jest.fn(() => Promise.resolve({})),
+            );
+            await flushPromises();
+
+            await useTheme().saveUserTheme('dark');
+            await flushPromises();
+
+            expect(wrapper.vm.userTheme).toBe('dark');
+
+            await wrapper.find('.sw-profile__save-action').trigger('click');
+            await flushPromises();
+
+            expect(useTheme().theme.value).toBe('dark');
+            expect(Shopware.Service('userConfigService').upsert).toHaveBeenNthCalledWith(2, {
+                [USER_THEME_CONFIG_KEY]: { theme: 'dark' },
+            });
+        });
+
+        it('should not persist the theme before saving', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            wrapper.vm.onChangeUserTheme('dark');
+            await flushPromises();
+
+            expect(useTheme().theme.value).toBe('system');
+            expect(Shopware.Service('userConfigService').upsert).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('module icon colors', () => {
+        afterEach(() => {
+            useModuleIconColors().enabled.value = false;
+        });
+
+        it('should apply and persist the chosen preference on save', async () => {
+            const wrapper = await createWrapper(
+                ['user.update_profile'],
+                { isSso: true },
+                jest.fn(() => Promise.resolve({})),
+            );
+            await flushPromises();
+
+            wrapper.vm.onChangeUserModuleIconColors(true);
+
+            const saveButton = wrapper.find('.sw-profile__save-action');
+            await saveButton.trigger('click');
+            await flushPromises();
+
+            expect(useModuleIconColors().enabled.value).toBe(true);
+            expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
+                [USER_MODULE_ICON_COLORS_CONFIG_KEY]: { enabled: true },
+            });
+        });
+
+        it('should not persist the preference before saving', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            wrapper.vm.onChangeUserModuleIconColors(true);
+            await flushPromises();
+
+            expect(useModuleIconColors().enabled.value).toBe(false);
+            expect(Shopware.Service('userConfigService').upsert).not.toHaveBeenCalled();
+        });
     });
 
     it('should save minSearchTermLength and userSearchPreferences', async () => {
@@ -592,6 +693,38 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         wrapper.vm.saveUser({});
         await flushPromises();
 
+        expect(loginByUsername).not.toHaveBeenCalled();
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should skip updateUser but still save theme when the user has no changes (non-user:editor path)', async () => {
+        const loginByUsername = jest.fn(() => Promise.resolve({}));
+        const loginService = { loginByUsername, logout: jest.fn() };
+        const updateUser = jest.fn(() => Promise.resolve({}));
+
+        const wrapper = await createWrapper([], { isSso: false }, updateUser, loginService, { changeset: [] });
+        await flushPromises();
+
+        await wrapper.setData({
+            newPassword: null,
+            user: {
+                id: '87923',
+                username: 'admin',
+                localeId: '1337',
+                email: 'foo@bar.baz',
+            },
+        });
+
+        wrapper.vm.updateCurrentUser = jest.fn(async () => {});
+        wrapper.vm.saveUserTheme = jest.fn(async () => {});
+
+        wrapper.vm.saveUser({});
+        await flushPromises();
+
+        expect(updateUser).not.toHaveBeenCalled();
+        expect(wrapper.vm.updateCurrentUser).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.saveUserTheme).toHaveBeenCalledTimes(1);
         expect(loginByUsername).not.toHaveBeenCalled();
         expect(wrapper.vm.isSaveSuccessful).toBe(true);
         expect(wrapper.vm.isLoading).toBe(false);

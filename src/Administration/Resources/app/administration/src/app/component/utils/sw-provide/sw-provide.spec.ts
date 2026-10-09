@@ -38,10 +38,7 @@ describe('src/app/component/base/sw-provide', () => {
             components: {
                 'child-component': {
                     template: '<div>{{ foo }} {{ bar }}</div>',
-                    inject: [
-                        'foo',
-                        'bar',
-                    ],
+                    inject: ['foo', 'bar'],
                 },
             },
         });
@@ -80,10 +77,7 @@ describe('src/app/component/base/sw-provide', () => {
             components: {
                 'child-component': {
                     template: '<div>{{ fooBar }} {{ barFoo }}</div>',
-                    inject: [
-                        'fooBar',
-                        'barFoo',
-                    ],
+                    inject: ['fooBar', 'barFoo'],
                 },
             },
         });

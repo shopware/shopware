@@ -986,9 +986,6 @@ class UnusedMediaPurgerTest extends TestCase
             'Media' => $mediaDefinition = $this->getMediaDefinition([]),
         ]);
 
-        $id1 = Uuid::randomHex();
-        $id2 = Uuid::randomHex();
-
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
@@ -999,17 +996,12 @@ class UnusedMediaPurgerTest extends TestCase
         );
 
         $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
-        $purger->deleteNotUsedMedia(null, null, null, 'product');
 
-        static::assertSame(
-            [
-                [
-                    ['id' => $id1],
-                    ['id' => $id2],
-                ],
-            ],
-            $repo->deletes
-        );
+        try {
+            $purger->deleteNotUsedMedia(null, null, null, 'product');
+        } finally {
+            static::assertSame([], $repo->deletes);
+        }
     }
 
     public function testDeleteNotUsedMediaAppliesFolderRestrictionToCriteriaIfPresent(): void

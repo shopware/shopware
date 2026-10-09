@@ -15,6 +15,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  * checks the source and flags themes via $extension->setIsTheme(true) - without Core depending on Storefront.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 final class ExtensionLoadedEvent extends Event

@@ -11,12 +11,15 @@ on:
 
 permissions:
   contents: read
-  id-token: write
+
+env:
+  V6_8_0_0: '1'
 
 jobs:
-  phpunit-major-matrix:
-    # On PRs the whole matrix only runs when the `major-php` (or umbrella `major-tests`) label is present; nightly (workflow_call) and manual runs are unaffected.
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-tests')
+  phpunit-matrix:
+    # A label event only counts when the label just added is a major label: without that, any later label
+    # (domain, milestone, waiting-on) re-runs the whole suite. phpunit-major needs this job, so it skips with it.
+    if: (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-tests')) && (github.event.action != 'labeled' || contains(fromJSON('["major-php", "major-js", "major-tests"]'), github.event.label.name))
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
@@ -34,14 +37,16 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
   phpunit-major:
-    name: "${{ matrix.test.testsuite }}${{ matrix.test.path }}"
+    name: "${{ matrix.test.testsuite }}${{ matrix.test.path }} (major)"
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-tests')
     needs:
-      - phpunit-major-matrix
+      - phpunit-matrix
     runs-on: ubuntu-24.04
-    strategy: ${{ fromJson(needs.phpunit-major-matrix.outputs.matrix) }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.phpunit-matrix.outputs.matrix) }}
     env:
       APP_ENV: test
-      FEATURE_ALL: major
       DATABASE_URL: mysql://root@127.0.0.1:3306/root
       REDIS_URL: redis://localhost:6379
       APP_URL: http://localhost:8000
@@ -49,7 +54,7 @@ jobs:
       OPENSEARCH_URL: 127.0.0.1:9200
       ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      PUPPETEER_SKIP_DOWNLOAD: "true"
       COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
     services:
@@ -89,7 +94,7 @@ jobs:
           test-testsuite: ${{ matrix.test.testsuite }}
           # no codecov-upload step: the major run's signal is the gate, not Test Analytics
       - name: Upload junit report for the failure tracking issue
-        if: failure() && github.event_name == 'schedule'
+        if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: junit-phpunit-major-${{ strategy.job-index }}
@@ -99,14 +104,17 @@ jobs:
           overwrite: true
 
   jest-admin-major:
-    name: "Jest Admin"
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')
+    name: "Jest Admin (major)"
+    # same label-event filter as phpunit-matrix
+    if: (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')) && (github.event.action != 'labeled' || contains(fromJSON('["major-php", "major-js", "major-tests"]'), github.event.label.name))
     runs-on: ubuntu-24.04
     env:
       NODE_VERSION: 'lts/*'
       JEST_MAX_WORKERS: 100%
-
     steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
@@ -114,7 +122,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Setup Node
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -124,7 +132,7 @@ jobs:
         run: npm --prefix src/Administration/Resources/app/administration ci
 
       - name: Run Jest Admin with major features
-        run: composer admin:unit:major
+        run: composer admin:unit
 
       - name: Upload Jest results
         if: always()
@@ -137,14 +145,15 @@ jobs:
   # single required/monitorable status for the whole major matrix
   integration-major-check:
     # Skip cleanly on unlabeled PRs so they don't get a confusing status; otherwise aggregate the matrix result.
-    if: always() && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests'))
+    # same label-event filter as the arms, so it skips with them
+    if: always() && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')) && (github.event.action != 'labeled' || contains(fromJSON('["major-php", "major-js", "major-tests"]'), github.event.label.name))
     needs:
       - phpunit-major
       - jest-admin-major
     runs-on: Ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed
-        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
+        uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
         with:
           jobs: ${{ toJSON(needs) }}
           allowed-skips: >-

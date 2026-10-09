@@ -17,7 +17,7 @@
 "{%- if price.referencePrice is not null -%}
     {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}
 {%- endif -%}",{#- -#}
-"{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}",{#- -#}
+"{{ entitySeoUrl('product', product.id) }}",{#- -#}
 "{% if product.cover is not null %}{{ product.cover.media.url }}{% endif %}",{#- -#}
 "{%- if product.availableStock >= product.minPurchase and product.deliveryTime -%}
     {{ "detail.deliveryTimeAvailable"|trans({'%name%': product.deliveryTime.translation('name')}) }}{#- -#}
@@ -30,7 +30,7 @@
 ,{#- -#}
 "{% if product.purchaseUnit and product.unit %}{{ product.purchaseUnit }} {{ product.unit.shortCode }}{% endif %}",{#- -#}
 "{% if product.referenceUnit and product.unit %}{{ product.referenceUnit }} {{ product.unit.shortCode }}{% endif %}",{#- -#}
-"{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}",{#- -#}
+"{{ entitySeoUrl('product', product.id) }}",{#- -#}
 {%- if product.media|length > 1 -%}
     "{%- for mediaAssociation in product.media|slice(0, 5) -%}
         {{ mediaAssociation.media.url }}

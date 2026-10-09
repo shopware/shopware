@@ -73,7 +73,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CartService::class),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(StampedeProtectionConfigurator::class)
         ->public()
@@ -203,6 +204,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_listener', ['event' => InvalidateProductCache::class, 'method' => 'invalidateProduct', 'priority' => 2001])
         ->tag('kernel.event_listener', ['event' => EntityDeleteEvent::class, 'method' => 'invalidateProductCrossSellingBeforeDeletion', 'priority' => 2001])
         ->tag('kernel.event_listener', ['event' => EntityWrittenContainerEvent::class, 'method' => 'invalidateCmsPageIds', 'priority' => 2001])
+        ->tag('kernel.event_listener', ['event' => EntityWrittenContainerEvent::class, 'method' => 'invalidateCategoryRouteByCategoryTranslationChanges', 'priority' => 2001])
         ->tag('kernel.event_listener', ['event' => EntityWrittenContainerEvent::class, 'method' => 'invalidateProductCrossSelling', 'priority' => 2001])
         ->tag('kernel.event_listener', ['event' => EntityWrittenContainerEvent::class, 'method' => 'invalidateCurrencyRoute', 'priority' => 2002])
         ->tag('kernel.event_listener', ['event' => EntityWrittenContainerEvent::class, 'method' => 'invalidateLanguageRoute', 'priority' => 2003])
@@ -284,7 +286,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.http_cache.reverse_proxy.enabled'),
             service('event_dispatcher'),
         ])
-        ->tag('kernel.event_listener', ['event' => BeforeSendResponseEvent::class]);
+        ->tag('kernel.event_listener', ['event' => BeforeSendResponseEvent::class])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(ReverseProxyCache::class)
         ->args([

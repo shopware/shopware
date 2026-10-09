@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<DeliveryTimeEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class DeliveryTimeCollection extends EntityCollection

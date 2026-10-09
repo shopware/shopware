@@ -8,8 +8,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -62,6 +64,36 @@ class ProductCategoryDenormalizerTest extends TestCase
             \count($categoryIds),
             $this->getCountRowsInProductCategoryTree($productFixture['variant-testable-product'], $categoryIds)
         );
+    }
+
+    public function testFullIndexIncludesParentCategoriesInTheProductCategoryTree(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $rootCategoryId = Uuid::randomHex();
+        $childCategoryId = Uuid::randomHex();
+        static::getContainer()->get('category.repository')->create([
+            ['id' => $rootCategoryId, 'name' => 'Root'],
+            ['id' => $childCategoryId, 'parentId' => $rootCategoryId, 'name' => 'Child'],
+        ], $context);
+
+        $productId = Uuid::randomHex();
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'productNumber' => $productId,
+                'stock' => 1,
+                'name' => 'Product',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false]],
+                'tax' => ['name' => 'Tax', 'taxRate' => 19],
+                'categories' => [['id' => $childCategoryId]],
+            ],
+        ], $context);
+
+        static::getContainer()->get(EntityIndexerRegistry::class)->index(false);
+
+        static::assertSame(1, $this->getCountRowsInProductCategoryTree($productId, [$rootCategoryId]));
     }
 
     /**

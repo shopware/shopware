@@ -12,6 +12,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminIndexingBehavior;
 use Shopware\Elasticsearch\Admin\AdminSearchIndexingMessage;
@@ -30,8 +32,10 @@ use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -74,6 +78,36 @@ class AdminSearchRegistryTest extends TestCase
         $indexers = $registry->getIndexers();
 
         static::assertSame(['promotion' => $this->indexer], $indexers);
+    }
+
+    public function testIndexerLookupIsResolvedOnceFromTheTaggedIterator(): void
+    {
+        $consumed = 0;
+        $indexer = $this->indexer;
+
+        $registry = new AdminSearchRegistry(
+            new RewindableGenerator(static function () use (&$consumed, $indexer): \Generator {
+                ++$consumed;
+
+                yield 'promotion' => $indexer;
+            }, 1),
+            static::createStub(Connection::class),
+            static::createStub(MessageBusInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(Client::class),
+            new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger()),
+            static::createStub(LoggerInterface::class),
+            [],
+            [],
+            'test',
+            new NativeClock()
+        );
+
+        static::assertTrue($registry->hasIndexer('promotion'));
+        static::assertSame($this->indexer, $registry->getIndexer('promotion'));
+        static::assertTrue($registry->hasIndexer('promotion'));
+
+        static::assertSame(1, $consumed);
     }
 
     public function testUpdateMapping(): void
@@ -191,6 +225,55 @@ class AdminSearchRegistryTest extends TestCase
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger());
         $registry = new AdminSearchRegistry(
             ['promotion' => $this->indexer],
+            static::createStub(Connection::class),
+            static::createStub(MessageBusInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            $client,
+            $searchHelper,
+            static::createStub(LoggerInterface::class),
+            [],
+            [],
+            'test',
+            new NativeClock()
+        );
+
+        $registry->iterate(new AdminIndexingBehavior(false));
+    }
+
+    public function testIterateSwapsRemainingAliasesWhenAnEarlierOneIsMissing(): void
+    {
+        $this->indexer->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getEntity')->willReturn('promotion');
+
+        $secondIndexer = static::createStub(AbstractAdminIndexer::class);
+        $secondIndexer->method('getName')->willReturn('order-listing');
+        $secondIndexer->method('getEntity')->willReturn('order');
+
+        $client = static::createStub(Client::class);
+        $indices = $this->createMock(IndicesNamespace::class);
+        // only the second indexer already has an alias, so the first one takes the "alias is missing" branch
+        $indices
+            ->method('existsAlias')
+            ->willReturnCallback(static fn (array $arguments): bool => $arguments['name'] === 'sw-admin-order-listing');
+        $indices
+            ->method('getAlias')
+            ->willReturn([
+                'sw-admin-order-listing_12345' => [
+                    'aliases' => [
+                        'sw-admin-order-listing' => [],
+                    ],
+                ],
+            ]);
+        $indices
+            ->expects($this->once())
+            ->method('delete')
+            ->with(['index' => 'sw-admin-order-listing_12345']);
+
+        $client->method('indices')->willReturn($indices);
+
+        $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger());
+        $registry = new AdminSearchRegistry(
+            ['promotion' => $this->indexer, 'order' => $secondIndexer],
             static::createStub(Connection::class),
             static::createStub(MessageBusInterface::class),
             static::createStub(EventDispatcherInterface::class),
@@ -404,6 +487,64 @@ class AdminSearchRegistryTest extends TestCase
                 ),
             ], Context::createDefaultContext()),
         ]), []));
+    }
+
+    public function testRefreshQueuesEveryAffectedIndexerForSalesChannelSources(): void
+    {
+        $this->indexer->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getEntity')->willReturn('promotion');
+        $this->indexer->method('getUpdatedIds')->willReturn(['c1a28776116d4431a2208eb2960ec340']);
+
+        $secondIndexer = static::createStub(AbstractAdminIndexer::class);
+        $secondIndexer->method('getName')->willReturn('order-listing');
+        $secondIndexer->method('getEntity')->willReturn('order');
+        $secondIndexer->method('getUpdatedIds')->willReturn(['a1a28776116d4431a2208eb2960ec341']);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllKeyValue')->willReturn([
+            'sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345',
+            'sw-admin-order-listing' => 'sw-admin-order-listing_12345',
+        ]);
+
+        $dispatched = [];
+        $queue = $this->createMock(MessageBusInterface::class);
+        $queue
+            ->expects($this->exactly(2))
+            ->method('dispatch')
+            ->willReturnCallback(function (object $message) use (&$dispatched): Envelope {
+                static::assertInstanceOf(AdminSearchIndexingMessage::class, $message);
+                $dispatched[] = $message->getEntity();
+
+                return new Envelope($message);
+            });
+
+        $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger());
+        $registry = new AdminSearchRegistry(
+            ['promotion' => $this->indexer, 'order' => $secondIndexer],
+            $connection,
+            $queue,
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(Client::class),
+            $searchHelper,
+            static::createStub(LoggerInterface::class),
+            [],
+            [],
+            'test',
+            new NativeClock()
+        );
+
+        $context = Context::createDefaultContext(new SalesChannelApiSource(TestDefaults::SALES_CHANNEL));
+
+        $registry->refresh(new EntityWrittenContainerEvent($context, new NestedEventCollection([
+            new EntityWrittenEvent('promotion', [
+                new EntityWriteResult('c1a28776116d4431a2208eb2960ec340', [], 'promotion', EntityWriteResult::OPERATION_INSERT),
+            ], $context),
+            new EntityWrittenEvent('order', [
+                new EntityWriteResult('a1a28776116d4431a2208eb2960ec341', [], 'order', EntityWriteResult::OPERATION_INSERT),
+            ], $context),
+        ]), []));
+
+        static::assertSame(['promotion', 'order'], $dispatched);
     }
 
     public function testInvokeDeletesWhenToRemoveIdsProvided(): void

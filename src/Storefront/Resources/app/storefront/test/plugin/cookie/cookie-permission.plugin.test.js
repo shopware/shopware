@@ -1,4 +1,5 @@
 import FormValidation from "src/helper/form-validation.helper";
+import DeviceDetection from "src/helper/device-detection.helper";
 import CookieStorage from "src/helper/storage/cookie-storage.helper";
 import CookiePermissionPlugin from "src/plugin/cookie/cookie-permission.plugin";
 
@@ -133,6 +134,21 @@ describe("CookiePermissionPlugin tests", () => {
 		expect(cookiePermissionPlugin.$emitter.publish).toHaveBeenCalledWith(
 			"removeBodyPadding",
 		);
+	});
+
+	test("does not prevent touchstart on the deny button", () => {
+		const isTouchDeviceSpy = jest.spyOn(DeviceDetection, "isTouchDevice").mockReturnValue(true);
+		const handleDenyButtonSpy = jest.spyOn(CookiePermissionPlugin.prototype, "_handleDenyButton");
+		cookiePermissionPlugin = new CookiePermissionPlugin(cookieBarElement);
+
+		const touchStartEvent = new Event("touchstart", { bubbles: true, cancelable: true });
+		cookiePermissionPlugin._button.dispatchEvent(touchStartEvent);
+
+		expect(handleDenyButtonSpy).not.toHaveBeenCalled();
+		expect(touchStartEvent.defaultPrevented).toBe(false);
+
+		handleDenyButtonSpy.mockRestore();
+		isTouchDeviceSpy.mockRestore();
 	});
 
 	test("sets body padding based on cookie bar height", () => {
@@ -628,7 +644,7 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 		// consent. '_GRECAPTCHA' is a technically-required cookie that is not removed
 		// on revoke, while 'cookie-preference' is. The validator must not trust the
 		// stale '_GRECAPTCHA' cookie, otherwise the form submits without a token and
-		// fails server-side with a 500 (CaptchaException).
+		// is rejected server-side as a failed captcha.
 		CookieStorage.getItem.mockImplementation((cookieName) => {
 			if (cookieName === "cookie-preference") return null; // Consent revoked
 			if (cookieName === "_GRECAPTCHA") return "1"; // Stale cookie remains

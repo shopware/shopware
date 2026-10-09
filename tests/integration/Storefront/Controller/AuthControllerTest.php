@@ -120,8 +120,7 @@ class AuthControllerTest extends TestCase
         $browser = $this->login();
         $session = $this->getSession();
 
-        // Get the sales channel ID that was used for login
-        $loginSalesChannelId = $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $loginSalesChannelId = $this->getStorefrontSalesChannelId();
 
         // Get the token for the login channel - should be stored in channel-specific key
         $loginChannelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $loginSalesChannelId;
@@ -151,7 +150,7 @@ class AuthControllerTest extends TestCase
         $session = $this->getSession();
 
         $contextToken = $session->get('sw-context-token');
-        $salesChannelId = $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $salesChannelId = $this->getStorefrontSalesChannelId();
 
         // Make another request on the same channel
         $browser->request('GET', '/');
@@ -370,7 +369,7 @@ class AuthControllerTest extends TestCase
         static::getContainer()->get(AuthController::class)->login($request, $requestDataBag, $salesChannelContextNew);
         $flashBag = $session->getFlashBag();
 
-        static::assertNotEmpty($infoFlash = $flashBag->get('danger'));
+        static::assertNotCount(0, $infoFlash = $flashBag->get('danger'));
         static::assertSame(static::getContainer()->get('translator')->trans('checkout.product-not-found', ['%s%' => 'Test product']), $infoFlash[0]);
     }
 
@@ -791,6 +790,17 @@ class AuthControllerTest extends TestCase
         static::getContainer()->get('product.repository')->create([$product], $context);
     }
 
+    private function getStorefrontSalesChannelId(): string
+    {
+        $salesChannelId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(sales_channel_id)) FROM sales_channel_domain WHERE url = :url',
+            ['url' => EnvironmentHelper::getVariable('APP_URL')]
+        );
+        static::assertIsString($salesChannelId);
+
+        return $salesChannelId;
+    }
+
     private function login(): KernelBrowser
     {
         $customer = $this->createCustomer();
@@ -879,14 +889,14 @@ class AuthControllerTest extends TestCase
 
     private function getAuthController(?AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute = null): AuthController
     {
-        $sendPasswordRecoveryMailRoute ??= $this->createMock(AbstractSendPasswordRecoveryMailRoute::class);
+        $sendPasswordRecoveryMailRoute ??= static::createStub(AbstractSendPasswordRecoveryMailRoute::class);
 
         $controller = new AuthController(
             static::getContainer()->get(AccountLoginPageLoader::class),
             $sendPasswordRecoveryMailRoute,
             static::getContainer()->get(ResetPasswordRoute::class),
             static::getContainer()->get(LoginRoute::class),
-            $this->createMock(AbstractLogoutRoute::class),
+            static::createStub(AbstractLogoutRoute::class),
             static::getContainer()->get(ImitateCustomerRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
             static::getContainer()->get(AccountRecoverPasswordPageLoader::class),

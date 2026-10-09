@@ -8,9 +8,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
-use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Permission\PermissionsConsent;
-use Shopware\Core\Service\Requirement\ServiceConsentRequirement;
+use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\Subscriber\PermissionsSubscriber;
 
 /**
@@ -27,7 +26,7 @@ class PermissionsSubscriberTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testSyncConsentRequirementOnGrant(): void
+    public function testReevaluatesServicesOnGrant(): void
     {
         $consent = new PermissionsConsent(
             identifier: 'test-identifier',
@@ -37,16 +36,16 @@ class PermissionsSubscriberTest extends TestCase
         );
         $event = new PermissionsGrantedEvent($consent, $this->context);
 
-        $manager = $this->createMock(LifecycleManager::class);
-        $manager
+        $serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $serviceLifecycle
             ->expects($this->once())
-            ->method('reevaluateRequirement')
-            ->with(ServiceConsentRequirement::NAME, $this->context);
+            ->method('reevaluateInstalled')
+            ->with($this->context);
 
-        (new PermissionsSubscriber($manager))->syncConsentRequirement($event);
+        (new PermissionsSubscriber($serviceLifecycle))->reevaluateServices($event);
     }
 
-    public function testSyncConsentRequirementOnRevoke(): void
+    public function testReevaluatesServicesOnRevoke(): void
     {
         $consent = new PermissionsConsent(
             identifier: 'test-identifier',
@@ -56,13 +55,13 @@ class PermissionsSubscriberTest extends TestCase
         );
         $event = new PermissionsRevokedEvent($consent, $this->context);
 
-        $manager = $this->createMock(LifecycleManager::class);
-        $manager
+        $serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $serviceLifecycle
             ->expects($this->once())
-            ->method('reevaluateRequirement')
-            ->with(ServiceConsentRequirement::NAME, $this->context);
+            ->method('reevaluateInstalled')
+            ->with($this->context);
 
-        (new PermissionsSubscriber($manager))->syncConsentRequirement($event);
+        (new PermissionsSubscriber($serviceLifecycle))->reevaluateServices($event);
     }
 
     public function testSubscribedEvents(): void
@@ -71,7 +70,7 @@ class PermissionsSubscriberTest extends TestCase
 
         static::assertArrayHasKey(PermissionsGrantedEvent::class, $events);
         static::assertArrayHasKey(PermissionsRevokedEvent::class, $events);
-        static::assertSame('syncConsentRequirement', $events[PermissionsGrantedEvent::class]);
-        static::assertSame('syncConsentRequirement', $events[PermissionsRevokedEvent::class]);
+        static::assertSame('reevaluateServices', $events[PermissionsGrantedEvent::class]);
+        static::assertSame('reevaluateServices', $events[PermissionsRevokedEvent::class]);
     }
 }

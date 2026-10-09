@@ -30,7 +30,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ThemeDumpCommand::class)]
 class ThemeDumpCommandTest extends TestCase
 {

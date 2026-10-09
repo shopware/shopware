@@ -113,8 +113,10 @@ use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway;
+use Shopware\Core\Framework\App\Privileges\AppCapability;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -237,15 +239,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LineItemFactoryRegistry::class),
             service('event_dispatcher'),
             service(CartLocker::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartLoadRoute::class)
         ->public()
         ->args([
-            service(CartPersister::class),
-            service(CartFactory::class),
             service(CartCalculator::class),
             service(TaxProviderProcessor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartDeleteRoute::class)
@@ -254,6 +256,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CartPersister::class),
             service('event_dispatcher'),
             service(CartLocker::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartItemRemoveRoute::class)
@@ -263,6 +266,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CartCalculator::class),
             service(CartPersister::class),
             service(CartLocker::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartItemAddRoute::class)
@@ -274,6 +278,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LineItemFactoryRegistry::class),
             service('shopware.rate_limiter'),
             service(CartLocker::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartOrderRoute::class)
@@ -298,6 +303,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shipping_method.repository'),
             service(CartRuleLoader::class),
             service(CheckoutGatewayRoute::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductShippingCostRoute::class)
@@ -306,6 +312,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductGateway::class),
             service('shipping_method.repository'),
             service(Processor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(QuantityPriceCalculator::class)
@@ -365,6 +372,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TaxAdjustment::class),
             service(TaxProviderRegistry::class),
             service(TaxProviderPayloadService::class),
+            service(AppCapability::class),
         ]);
 
     $services->set(TaxProviderRegistry::class)
@@ -396,6 +404,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PaymentMethodRoute::class),
             service(ShippingMethodRoute::class),
             service(AppCheckoutGateway::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CheckoutGatewayCommandRegistry::class)
@@ -530,6 +539,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('custom_field.repository'),
             service(LanguageLocaleCodeProvider::class),
+            service(DefinitionInstanceRegistry::class),
         ]);
 
     $services->set(TransactionProcessor::class);
@@ -568,6 +578,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Processor::class),
             service(CartRuleLoader::class),
             service(PromotionItemBuilder::class),
+            service(LineItemFactoryRegistry::class),
         ]);
 
     $services->set(CartRuleLoader::class)

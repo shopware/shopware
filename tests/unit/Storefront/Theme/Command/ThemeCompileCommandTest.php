@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\Command\ThemeCompileCommand;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
 use Shopware\Storefront\Theme\ThemeService;
@@ -17,7 +18,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ThemeCompileCommand::class)]
 class ThemeCompileCommandTest extends TestCase
 {
@@ -306,6 +307,26 @@ class ThemeCompileCommandTest extends TestCase
             '--skip-themes' => [$themeId],
         ]);
         static::assertSame(1, $commandTester->getStatusCode());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed together with the `--no-cleanup` option
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testItStillAcceptsTheDeprecatedNoCleanupOption(): void
+    {
+        $themeService = static::createMock(ThemeService::class);
+        $themeService->expects($this->once())->method('compileTheme');
+
+        $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
+        $themeProvider->expects($this->once())
+            ->method('load')
+            ->willReturn(['sales-channel-id' => 'theme-id']);
+
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
+
+        $commandTester->execute(['--no-cleanup' => true]);
+        $commandTester->assertCommandIsSuccessful();
     }
 
     /**

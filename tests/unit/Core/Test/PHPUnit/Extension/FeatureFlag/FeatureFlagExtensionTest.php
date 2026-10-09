@@ -39,11 +39,15 @@ class FeatureFlagExtensionTest extends TestCase
         string $exceptionClass,
         string $exceptionMessage
     ): void {
+        $namespacesBefore = FeatureFlagExtension::getTestNamespaces();
+
         $this->expectExceptionObject(new $exceptionClass($exceptionMessage));
 
-        FeatureFlagExtension::addTestNamespace($namespace);
-
-        static::assertNotContains($namespace, FeatureFlagExtension::getTestNamespaces());
+        try {
+            FeatureFlagExtension::addTestNamespace($namespace);
+        } finally {
+            static::assertSame($namespacesBefore, FeatureFlagExtension::getTestNamespaces());
+        }
     }
 
     /**

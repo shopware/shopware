@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -106,7 +107,7 @@ class CheckoutControllerTest extends TestCase
     {
         return [
             ["  Hello, \nthis is a customer comment!  ", "Hello, \nthis is a customer comment!"],
-            ['<script>alert("hello")</script>', 'alert("hello")'],
+            ['<script>alert("hello")</script>', ''],
             ['<h1>Hello</h1><br><br>This is a Test! ', 'HelloThis is a Test!'],
             ['  ', null],
             ['', null],
@@ -555,6 +556,39 @@ class CheckoutControllerTest extends TestCase
         static::assertCount(1, $crawler->filterXPath('//button[@id="addPromotion"]'));
     }
 
+    public function testCartJsonLoadsTheCartOnce(): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
+        $productId = Uuid::randomHex();
+        $this->createProductOnDatabase($productId, 'test.123', $browserSalesChannelId);
+
+        $browser->request('POST', '/checkout/product/add-by-number', ['number' => 'test.123']);
+
+        $loadedCarts = [];
+        $tracker = static function (CartLoadedEvent $event) use (&$loadedCarts): void {
+            $loadedCarts[] = $event->getCart()->getToken();
+        };
+
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $dispatcher->addListener(CartLoadedEvent::class, $tracker);
+
+        try {
+            $browser->request('GET', '/checkout/cart.json');
+        } finally {
+            $dispatcher->removeListener(CartLoadedEvent::class, $tracker);
+        }
+
+        static::assertCount(1, $loadedCarts);
+
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $response['lineItems']);
+        static::assertIsString($response['hash']);
+        static::assertNotSame('', $response['hash']);
+    }
+
     public function testCheckoutConfirmPageLoadedHookScriptsAreExecuted(): void
     {
         $contextToken = Uuid::randomHex();
@@ -693,7 +727,7 @@ class CheckoutControllerTest extends TestCase
 
         $response = static::getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testCheckoutOffcanvasRendersOptionalPromotionField(): void

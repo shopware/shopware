@@ -82,6 +82,7 @@ use Shopware\Elasticsearch\Framework\Indexing\IndexManager;
 use Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider;
 use Shopware\Elasticsearch\Framework\Indexing\IndexMappingUpdater;
 use Shopware\Elasticsearch\Framework\Subscriber\InvalidateExpiredCacheSubscriber;
+use Shopware\Elasticsearch\Framework\SystemInstallListener;
 use Shopware\Elasticsearch\Framework\SystemUpdateListener;
 use Shopware\Elasticsearch\NestedFieldQueryBuilder;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
@@ -323,7 +324,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(SearchKeywordReplacement::class . '.inner'),
             service(ElasticsearchHelper::class),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(ProductSearchBuilder::class)
         ->decorate(ProductSearchBuilderInterface::class, null, -50000)
@@ -389,6 +391,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AbstractTokenQueryBuilder::class),
             service(ElasticsearchTokenizer::class),
         ]);
+
+    // @deprecated tag:v6.8.0 Will be removed
+    $services->alias(
+        'Shopware\Elasticsearch\Product\SearchConfigLoader',
+        SearchConfigLoader::class,
+    )->deprecate('shopware/elasticsearch', '6.7.2.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.8.0. Use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader instead.');
 
     $services->set(AbstractFieldQueryBuilder::class, FieldQueryBuilder::class)
         ->args([
@@ -528,6 +536,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ElasticsearchHelper::class),
             service(ElasticsearchRegistry::class),
             service(Client::class),
+            service(AbstractKeyValueStorage::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -562,6 +571,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AdminSearchRegistry::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(SystemInstallListener::class)
+        ->args([
+            service(ElasticsearchIndexer::class),
+        ])
+        ->tag('kernel.event_listener');
 
     $services->set(SystemUpdateListener::class)
         ->args([
@@ -787,7 +802,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(AbstractKeyValueStorage::class),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(AdminElasticsearchEntitySearcher::class)
         ->decorate(EntitySearcherInterface::class, null, 500)

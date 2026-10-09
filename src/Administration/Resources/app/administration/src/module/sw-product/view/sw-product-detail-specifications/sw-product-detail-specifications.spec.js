@@ -380,9 +380,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         const wrapper = await createWrapper();
         const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.Store.get('swProductDetail').modeSettings = [
-            ...modeSettings.filter((item) => item !== 'measurement'),
-        ];
+        Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'measurement')];
 
         await nextTick();
 
@@ -423,9 +421,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         const wrapper = await createWrapper();
         const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.Store.get('swProductDetail').modeSettings = [
-            ...modeSettings.filter((item) => item !== 'properties'),
-        ];
+        Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'properties')];
         await nextTick();
 
         expect(wrapper.find('sw-product-properties-stub').attributes().style).toBe('display: none;');
@@ -483,9 +479,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             },
         };
 
-        Shopware.Store.get('swProductDetail').modeSettings = [
-            ...modeSettings.filter((item) => item !== 'properties'),
-        ];
+        Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'properties')];
         await nextTick();
 
         expect(wrapper.find('sw-product-properties-stub').attributes().style).toBe('display: none;');
@@ -496,10 +490,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
 
         Shopware.Store.get('swProductDetail').customFieldSets = [
             {
-                customFields: [
-                    1,
-                    2,
-                ],
+                customFields: [1, 2],
             },
         ];
 
@@ -550,9 +541,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             },
         };
 
-        Shopware.Store.get('swProductDetail').modeSettings = [
-            ...modeSettings.filter((item) => item !== 'custom_fields'),
-        ];
+        Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'custom_fields')];
 
         expect(wrapper.find('.sw-product-detail-specification__custom-fields').attributes().style).toBe('display: none;');
     });
@@ -576,9 +565,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             isNew: () => false,
-            states: [
-                'is-physical',
-            ],
+            states: ['is-physical'],
         };
 
         await wrapper.vm.$nextTick();
@@ -595,9 +582,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             isNew: () => false,
-            states: [
-                'is-download',
-            ],
+            states: ['is-download'],
         };
 
         await wrapper.vm.$nextTick();
@@ -612,9 +597,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             isNew: () => false,
-            states: [
-                'is-download',
-            ],
+            states: ['is-download'],
         };
 
         await wrapper.vm.$nextTick();
@@ -646,10 +629,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                         },
                     }),
                     parentProduct: {},
-                    customFieldSets: createCustomFieldSets([
-                        createTranslatedTextField(),
-                        createTranslatedCheckboxField(),
-                    ]),
+                    customFieldSets: createCustomFieldSets([createTranslatedTextField(), createTranslatedCheckboxField()]),
                 });
 
                 const wrapper = await createWrapper([], {
@@ -696,10 +676,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                         translatedCustomFields: {},
                     }),
                     parentProduct: {},
-                    customFieldSets: createCustomFieldSets([
-                        createTranslatedTextField(),
-                        createTranslatedCheckboxField(),
-                    ]),
+                    customFieldSets: createCustomFieldSets([createTranslatedTextField(), createTranslatedCheckboxField()]),
                 });
 
                 const wrapper = await createWrapper([], {

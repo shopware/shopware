@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\StructCollection;
 
 /**
  * @extends StructCollection<HreflangStruct>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class HreflangCollection extends StructCollection

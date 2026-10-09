@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 
 #[Package('framework')]
 class Tokenizer implements TokenizerInterface
@@ -13,10 +14,12 @@ class Tokenizer implements TokenizerInterface
      * @param string[] $preservedChars
      *
      * @internal
-     *
-     *  @deprecated tag:v6.8.0 - Property `$tokenMinimumLength` will be removed
      */
     public function __construct(
+        private readonly HtmlSanitizer $htmlSanitizer,
+        /**
+         * @deprecated tag:v6.8.0 - Property `$tokenMinimumLength` will be removed
+         */
         private readonly int $tokenMinimumLength,
         private readonly array $preservedChars = ['-', '_', '+', '.', '@']
     ) {
@@ -33,7 +36,7 @@ class Tokenizer implements TokenizerInterface
 
         $string = mb_strtolower(html_entity_decode($string), 'UTF-8');
         $string = str_replace('<', ' <', $string);
-        $string = strip_tags($string);
+        $string = $this->htmlSanitizer->stripTags($string);
 
         $allowChars = '';
 

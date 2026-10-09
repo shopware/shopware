@@ -21,16 +21,20 @@
 
             <div class="sw-meteor-page__head-area-global-actions">
                 <sw-app-topbar-button />
+
+                <sw-help-center-v2 />
+
                 {% block sw_meteor_page_notification_center %}
                 <sw-notification-center />
                 {% endblock %}
 
-                <sw-help-center-v2 />
-
                 <sw-app-topbar-sidebar />
             </div>
 
-            <div class="sw-meteor-page__smart-bar">
+            <div
+                v-if="!hideSmartBar"
+                class="sw-meteor-page__smart-bar"
+            >
                 <div class="sw-meteor-page__smart-bar-navigation">
                     <slot name="smart-bar-back">
                         {% block sw_meteor_page_navigation %}
@@ -50,7 +54,7 @@
                                 <mt-icon
                                     v-if="hasIcon"
                                     :name="module.icon"
-                                    :color="pageColor"
+                                    color="var(--color-icon-primary-default)"
                                 />
                                 {% endblock %}
                             </slot>

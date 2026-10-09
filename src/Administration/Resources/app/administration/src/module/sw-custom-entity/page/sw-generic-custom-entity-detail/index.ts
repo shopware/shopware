@@ -34,10 +34,7 @@ export default Shopware.Component.wrapComponentConfig({
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     data(): GenericCustomEntityDetailData {
         return {
@@ -50,8 +47,8 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        customEntityDataId(): string | null {
-            return (this.$route.params?.id as null | string)?.toLowerCase() ?? null;
+        customEntityDataId(): EntityKey<'generic_custom_entity'> | null {
+            return ((this.$route.params?.id as null | string)?.toLowerCase() as EntityKey<'generic_custom_entity'>) ?? null;
         },
 
         customEntityName(): string | string[] {
@@ -212,19 +209,13 @@ export default Shopware.Component.wrapComponentConfig({
             this.isSaveSuccessful = false;
         },
 
-        onChangeLanguage(languageId: string): void {
+        onChangeLanguage(languageId: EntityKey<'language'>): void {
             Shopware.Store.get('context').setApiLanguageId(languageId);
             void this.loadData();
         },
 
         getFieldTranslation(namespace: string, name: string, suffix = '', checkExistence = false): string {
-            const snippetKey = [
-                this.customEntityName,
-                namespace,
-                name,
-            ]
-                .join('.')
-                .concat(suffix);
+            const snippetKey = [this.customEntityName, namespace, name].join('.').concat(suffix);
             if (checkExistence && !this.$te(snippetKey)) {
                 return '';
             }
@@ -248,7 +239,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.customEntityProperties?.[field]?.type || '';
         },
 
-        updateCmsPageId(cmsPageId: string | null): void {
+        updateCmsPageId(cmsPageId: EntityKey<'cms_page'> | null): void {
             if (!this.customEntityData) {
                 return;
             }
@@ -304,7 +295,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.customEntityData.swOgDescription = swOgDescription;
         },
 
-        updateOgImageId(swOgImageId: string | null) {
+        updateOgImageId(swOgImageId: EntityKey<'media'> | null) {
             if (!this.customEntityData) {
                 return;
             }

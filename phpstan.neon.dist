@@ -28,10 +28,6 @@ parameters:
         - src/**/node_modules/*
         - tests/**/node_modules/*
 
-        # @todo NEXT-22697 - Remove when re-enabling cms-aware
-        - src/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentService.php
-        - tests/integration/Core/System/CustomEntity/Xml/Config/CmsAwareAndAdminUiTest.php
-
         # PHPStan rule test files
         - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
 
@@ -60,11 +56,6 @@ parameters:
                 - tests/migration/**/*Test.php
                 - tests/integration/**/*Test.php
                 - tests/integration/**/*TestCase.php
-
-        - # ignore errors caused by static::markTestSkipped
-            message: '#Unreachable statement - code above always terminates.#'
-            paths:
-                - tests/**/*Test.php
 
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
         # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773
@@ -95,7 +86,6 @@ parameters:
         -
            message: '#.* has no route scope defined.*#'
            paths:
-            - **/*Test.php
             - src/Core/Installer
 
         -
@@ -117,8 +107,9 @@ parameters:
             message: '#Access to protected property *#'
             path: src/*/*Hydrator.php
 
-        - # Invalid trait usage
-            message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"
+        - # Exception is thrown in trait
+            message: '#Expected domain exception class Shopware\\Core\\.*, got Shopware\\Core\\Framework\\FrameworkException#'
+            identifier: shopware.domainException
             paths:
                 - src/Core/Checkout/Cart/Error/Error.php
                 - src/Core/Content/ProductExport/Error/Error.php
@@ -141,6 +132,20 @@ parameters:
 
         - identifier: typePerfect.noArrayAccessOnObject
           path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
+
+        # NoReflectionInUnitTestsRule: the only state these tests can check is private to a third-party class
+        - # Symfony keeps the transport's authenticators private and EsmtpTransportFactory is final; without it
+          # nothing proves that the OAuth authenticator is wired
+            identifier: shopware.reflectionInUnitTest
+            path: tests/unit/Core/Content/Mail/Transport/SmtpOauthTransportFactoryDecoratorTest.php
+        - # Composer's InstalledVersions reads every vendor's installed.php; only its private static switch lets the
+          # test reach the shopware/core branch, which is the one production installations take
+            identifier: shopware.reflectionInUnitTest
+            path: tests/unit/Core/Installer/InstallerKernelTest.php
+        - # the OpenSearch client exposes neither its transport nor its options, so base_uri and the TLS settings
+          # are only visible through the client's private configuration
+            identifier: shopware.reflectionInUnitTest
+            path: tests/unit/Elasticsearch/Framework/ClientFactoryTest.php
 
         # DefaultsTest explicitly tests that the default values are not changed
         - identifier: staticMethod.alreadyNarrowedType
@@ -218,7 +223,9 @@ parameters:
             message: "#Offset 'source' might not exist on array{status: string, code: #"
             path: tests
 
-        - # Will be fixed with PHPStan update (temporary ignore)
-            message: '#Parameter \#1 \$addresses of method Shopware\\Core\\Content\\Mail\\Service\\MailFactory::.*Addresses\(\) expects#'
+        - # @deprecated tag:v6.8.0 - Should be fixed, once the parent class changes
+            message: '#Parameter .* expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*>, Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*> given#'
             identifier: argument.type
-            path: src/Core/Content/Mail/Service/MailFactory.php
+        -
+            message: '#Method .* should return Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*> but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*>#'
+            identifier: return.type

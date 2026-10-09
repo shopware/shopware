@@ -10,17 +10,17 @@ const existingLandingPageMock = {
     cmsPageId: '67890',
 };
 
-const categoriesMock: Record<string, Partial<EntitySchema.Entities['category']>> = {
+const categoriesMock: Record<string, Partial<Entity<'category'>>> = {
     'without-parent': {
-        id: '12345',
+        id: '12345' as EntityKey<'category'>,
     },
     'with-parent': {
-        id: '67890',
-        parentId: 'parent',
+        id: '67890' as EntityKey<'category'>,
+        parentId: 'parent' as EntityKey<'category'>,
     },
     parent: {
-        id: '111213',
-        footerSalesChannels: [{ typeId: '12345' }] as EntitySchema.EntityCollection<'sales_channel'>,
+        id: '111213' as EntityKey<'category'>,
+        footerSalesChannels: [{ typeId: '12345' }] as EntityCollection<'sales_channel'>,
     },
 };
 
@@ -34,7 +34,7 @@ const landingPageRepositoryMock = {
 } as unknown as Repository<'landing_page'>;
 
 const categoryRepositoryMock = {
-    get: jest.fn((id: string) => Promise.resolve({ ...categoriesMock[id] })),
+    get: jest.fn((id: EntityKey<'category'>) => Promise.resolve({ ...categoriesMock[id] })),
 } as unknown as Repository<'category'>;
 
 describe('sw-category.store', () => {
@@ -57,7 +57,7 @@ describe('sw-category.store', () => {
         const swCategoryDetailStore = Shopware.Store.get('swCategoryDetail');
 
         await swCategoryDetailStore.loadActiveLandingPage({
-            id: 'create',
+            id: 'create' as EntityKey<'landing_page'>,
             repository: landingPageRepositoryMock,
             apiContext: apiContextMock,
         });
@@ -71,7 +71,7 @@ describe('sw-category.store', () => {
         const swCategoryDetailStore = Shopware.Store.get('swCategoryDetail');
 
         await swCategoryDetailStore.loadActiveLandingPage({
-            id: '67890',
+            id: '67890' as EntityKey<'landing_page'>,
             repository: landingPageRepositoryMock,
             apiContext: apiContextMock,
         });
@@ -85,7 +85,7 @@ describe('sw-category.store', () => {
         const swCategoryDetailStore = Shopware.Store.get('swCategoryDetail');
 
         await swCategoryDetailStore.loadActiveCategory({
-            id: 'without-parent',
+            id: 'without-parent' as EntityKey<'category'>,
             repository: categoryRepositoryMock,
             apiContext: apiContextMock,
         });
@@ -100,7 +100,7 @@ describe('sw-category.store', () => {
         const swCategoryDetailStore = Shopware.Store.get('swCategoryDetail');
 
         await swCategoryDetailStore.loadActiveCategory({
-            id: 'with-parent',
+            id: 'with-parent' as EntityKey<'category'>,
             repository: categoryRepositoryMock,
             apiContext: apiContextMock,
         });

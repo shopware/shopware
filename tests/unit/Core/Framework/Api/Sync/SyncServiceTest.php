@@ -12,7 +12,9 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
+use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncService;
+use Shopware\Core\Framework\Api\Sync\Telemetry\SyncMetricsInstrumentor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -76,7 +78,8 @@ class SyncServiceTest extends TestCase
             static::createStub(EntitySearcherInterface::class),
             static::createStub(RequestCriteriaBuilder::class),
             static::createStub(AclCriteriaValidator::class),
-            static::createStub(SyncFkResolver::class)
+            static::createStub(SyncFkResolver::class),
+            $this->createSyncMetricsStub(),
         );
 
         $upsert = new SyncOperation('foo', 'product', SyncOperation::ACTION_UPSERT, [
@@ -148,7 +151,8 @@ class SyncServiceTest extends TestCase
                 100
             ),
             static::createStub(AclCriteriaValidator::class),
-            static::createStub(SyncFkResolver::class)
+            static::createStub(SyncFkResolver::class),
+            $this->createSyncMetricsStub(),
         );
 
         $service->sync($operations, Context::createCLIContext(), new SyncBehavior());
@@ -184,7 +188,8 @@ class SyncServiceTest extends TestCase
             $searcher,
             $criteriaBuilder,
             $criteriaValidator,
-            static::createStub(SyncFkResolver::class)
+            static::createStub(SyncFkResolver::class),
+            $this->createSyncMetricsStub(),
         );
 
         $this->expectExceptionObject(ApiException::missingPrivileges(['product:read']));
@@ -243,7 +248,8 @@ class SyncServiceTest extends TestCase
             static::createStub(EntitySearcherInterface::class),
             static::createStub(RequestCriteriaBuilder::class),
             static::createStub(AclCriteriaValidator::class),
-            static::createStub(SyncFkResolver::class)
+            static::createStub(SyncFkResolver::class),
+            $this->createSyncMetricsStub(),
         );
 
         $service->sync(
@@ -324,7 +330,8 @@ class SyncServiceTest extends TestCase
             $searcher,
             $criteriaBuilder,
             static::createStub(AclCriteriaValidator::class),
-            static::createStub(SyncFkResolver::class)
+            static::createStub(SyncFkResolver::class),
+            $this->createSyncMetricsStub(),
         );
 
         $delete = new SyncOperation(
@@ -338,5 +345,15 @@ class SyncServiceTest extends TestCase
         $behavior = new SyncBehavior('disable-indexing', ['product.indexer']);
 
         $service->sync([$delete], Context::createDefaultContext(), $behavior);
+    }
+
+    private function createSyncMetricsStub(): SyncMetricsInstrumentor
+    {
+        $syncMetrics = static::createStub(SyncMetricsInstrumentor::class);
+        $syncMetrics
+            ->method('measure')
+            ->willReturnCallback(static fn (array $operations, SyncBehavior $behavior, \Closure $callback): SyncResult => $callback());
+
+        return $syncMetrics;
     }
 }

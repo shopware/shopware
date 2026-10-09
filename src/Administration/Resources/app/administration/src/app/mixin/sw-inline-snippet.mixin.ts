@@ -6,6 +6,8 @@ import { defineComponent } from 'vue';
 
 /**
  * @private
+ *
+ * Duplicated in `src/app/composables/use-inline-snippet`; change both together.
  */
 export default Shopware.Mixin.register(
     'sw-inline-snippet',

@@ -32,11 +32,7 @@ export default {
         'cmsPageTypeService',
     ],
 
-    mixins: [
-        Mixin.getByName('cms-state'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('cms-state'), Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -161,9 +157,7 @@ export default {
         },
 
         cmsStageClasses() {
-            return [
-                `is--${this.currentDeviceView}`,
-            ];
+            return [`is--${this.currentDeviceView}`];
         },
 
         cmsPageTypeSettings() {
@@ -304,6 +298,12 @@ export default {
         ]),
     },
 
+    watch: {
+        '$route.params.id'() {
+            this.createdComponent();
+        },
+    },
+
     created() {
         this.createdComponent();
     },
@@ -323,7 +323,6 @@ export default {
                 path: 'page',
                 scope: this,
             });
-            Shopware.Store.get('adminMenu').collapseSidebar();
             this.resetRelatedStores();
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
@@ -332,9 +331,7 @@ export default {
             if (this.$route.params.id) {
                 this.pageId = this.$route.params.id.toLowerCase();
                 this.isLoading = true;
-                Shopware.Store.get('shopwareApps').selectedIds = [
-                    this.pageId,
-                ];
+                Shopware.Store.get('shopwareApps').selectedIds = [this.pageId];
 
                 this.loadPage(this.pageId);
             }
@@ -366,10 +363,7 @@ export default {
 
             return this.defaultFolderRepository
                 .search(criteria, {
-                    cacheKey: [
-                        'media-default-folder',
-                        this.cmsPageState.pageEntityName,
-                    ],
+                    cacheKey: ['media-default-folder', this.cmsPageState.pageEntityName],
                 })
                 .then((searchResult) => {
                     const defaultFolder = searchResult.first();
@@ -517,8 +511,17 @@ export default {
                 return true;
             }
 
+            if (this.page.sections.length !== this.pageOrigin.sections.length) {
+                return true;
+            }
+
             for (let i = 0; i < this.page.sections.length; i += 1) {
                 const section = this.page.sections[i];
+                const originSection = this.pageOrigin.sections.get(section.id);
+
+                if (!originSection || section.blocks.length !== originSection.blocks.length) {
+                    return true;
+                }
 
                 if (section._isDirty) {
                     return true;
@@ -526,6 +529,11 @@ export default {
 
                 for (let j = 0; j < section.blocks.length; j += 1) {
                     const block = section.blocks[j];
+                    const originBlock = originSection.blocks.get(block.id);
+
+                    if (!originBlock) {
+                        return true;
+                    }
 
                     if (block._isDirty) {
                         return true;
@@ -533,7 +541,12 @@ export default {
 
                     for (let k = 0; k < block.slots.length; k += 1) {
                         const slot = block.slots[k];
-                        const originSlot = this.pageOrigin.sections.get(section.id).blocks.get(block.id).slots.get(slot.id);
+                        const originSlot = originBlock.slots.get(slot.id);
+
+                        if (!originSlot) {
+                            return true;
+                        }
+
                         const slotDiff = getObjectDiff(originSlot, slot);
 
                         if (slot._isDirty || !isEmpty(slotDiff)) {
@@ -1176,13 +1189,7 @@ export default {
             const productListId = response['core.cms.default_product_cms_page'];
             const isLiveVersion = this.page.versionId === Shopware.Context.api.liveVersionId;
 
-            if (
-                isLiveVersion &&
-                [
-                    productDetailId,
-                    productListId,
-                ].includes(this.pageId)
-            ) {
+            if (isLiveVersion && [productDetailId, productListId].includes(this.pageId)) {
                 this.isDefaultLayout = true;
             }
         },
@@ -1221,11 +1228,7 @@ export default {
         },
 
         resetRelatedStores() {
-            const stores = [
-                'cmsPage',
-                'swCategoryDetail',
-                'swProductDetail',
-            ];
+            const stores = ['cmsPage', 'swCategoryDetail', 'swProductDetail'];
 
             stores.forEach((name) => {
                 try {

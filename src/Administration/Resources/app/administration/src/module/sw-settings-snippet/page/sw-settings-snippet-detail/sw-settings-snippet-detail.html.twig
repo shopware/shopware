@@ -4,19 +4,27 @@
     {% block sw_settings_snippet_detail_smart_bar %}
     <template #smart-bar-back>
         <router-link
-            class="smart-bar__back-btn"
+            v-slot="{ href, navigate }"
             :to="backPath"
-            :style="{ 'color': moduleData.color }"
+            custom
         >
-            <mt-icon
-                name="regular-chevron-left"
-                size="16px"
-            />
-            <mt-icon
-                v-if="moduleData && moduleData.icon"
-                :name="moduleData.icon"
-                size="16px"
-            />
+            <!-- Rendered as a real link so open-in-new-tab and middle click keep working. -->
+            <mt-button
+                is="a"
+                class="smart-bar__back-btn"
+                variant="secondary"
+                size="default"
+                square
+                :href="href"
+                :aria-label="$t('global.sw-page.backButton')"
+                :title="$t('global.sw-page.backButton')"
+                @click="navigate"
+            >
+                <mt-icon
+                    name="solid-long-arrow-left"
+                    size="12px"
+                />
+            </mt-button>
         </router-link>
     </template>
     {% endblock %}

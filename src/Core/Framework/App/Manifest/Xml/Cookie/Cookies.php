@@ -17,8 +17,6 @@ class Cookies extends XmlElement
     private const VALUE_TAG = 'value';
     private const EXPIRATION_TAG = 'expiration';
     private const ENTRIES_TAG = 'entries';
-    private const ACTIVE_PAYMENT_METHOD_TAG = 'active-payment-method';
-    private const ACTIVE_PAYMENT_METHODS_KEY = 'active_payment_methods';
 
     /**
      * @var list<array<string, mixed>>
@@ -68,10 +66,6 @@ class Cookies extends XmlElement
 
             if ($child->tagName === self::ENTRIES_TAG) {
                 $cookie[self::ENTRIES_TAG] = self::parse($child)['cookies'];
-            }
-
-            if ($child->tagName === self::ACTIVE_PAYMENT_METHOD_TAG) {
-                $cookie[self::ACTIVE_PAYMENT_METHODS_KEY][] = $child->nodeValue;
             }
         }
 

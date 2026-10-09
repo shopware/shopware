@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\OrderEvents;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -28,6 +27,11 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
      * @var array<string>
      */
     private array $promotionIds = [];
+
+    /**
+     * @var list<array{code: string, orderId: string}>
+     */
+    private array $deletedCodes = [];
 
     /**
      * @internal
@@ -64,19 +68,31 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
         }
 
         $sql = <<<'SQL'
-            SELECT LOWER(HEX(`promotion_id`)) FROM `order_line_item`
-            WHERE `promotion_id` IS NOT NULL AND `type` = :type AND `id` IN (:ids) AND `version_id` = :versionId;
+            SELECT LOWER(HEX(`promotion_id`)) as `promotion_id`, `payload`, LOWER(HEX(`order_id`)) as `order_id` FROM `order_line_item`
+            WHERE `promotion_id` IS NOT NULL AND `id` IN (:ids) AND `version_id` = :versionId;
         SQL;
 
-        $this->promotionIds = $this->connection->fetchFirstColumn(
+        /** @var list<array{promotion_id: string, payload: ?string, order_id: string}> $lineItems */
+        $lineItems = $this->connection->fetchAllAssociative(
             $sql,
             [
-                'type' => PromotionProcessor::LINE_ITEM_TYPE,
                 'ids' => Uuid::fromHexToBytesList($lineItemsIds),
                 'versionId' => Uuid::fromHexToBytes($event->getContext()->getVersionId()),
             ],
             ['ids' => ArrayParameterType::BINARY],
         );
+
+        $this->promotionIds = array_values(array_unique(array_column($lineItems, 'promotion_id')));
+
+        $this->deletedCodes = [];
+        foreach ($lineItems as $lineItem) {
+            $payload = json_decode((string) $lineItem['payload'], true);
+            $code = \is_array($payload) ? ($payload['code'] ?? '') : '';
+
+            if (\is_string($code) && $code !== '') {
+                $this->deletedCodes[] = ['code' => $code, 'orderId' => $lineItem['order_id']];
+            }
+        }
     }
 
     public function lineItemDeleted(EntityDeletedEvent $event): void
@@ -86,6 +102,12 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             $this->update($this->promotionIds, $event->getContext());
 
             $this->promotionIds = [];
+        }
+
+        if ($this->deletedCodes !== []) {
+            $this->releaseIndividualCodes($this->deletedCodes);
+
+            $this->deletedCodes = [];
         }
     }
 
@@ -97,10 +119,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
 
         $promotionIds = [];
         foreach ($event->getResults()->only(EntityWriteResult::OPERATION_INSERT, EntityWriteResult::OPERATION_UPDATE) as $writeResult) {
-            $type = $writeResult->getPayload()['type'] ?? null;
-            if ($type === PromotionProcessor::LINE_ITEM_TYPE) {
-                $promotionIds[] = $writeResult->getPayload()['promotionId'] ?? null;
-            }
+            $promotionIds[] = $writeResult->getPayload()['promotionId'] ?? null;
         }
 
         $this->update($promotionIds, $event->getContext());
@@ -117,6 +136,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             return;
         }
 
+        // promotion_id is ApiAware, so this counts every line item carrying one, not only the ones core writes
         $sql = <<<'SQL'
             SELECT LOWER(HEX(order_line_item.promotion_id)) as promotion_id,
                    COUNT(DISTINCT order_line_item.order_id) as total,
@@ -125,14 +145,14 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
                      LEFT JOIN order_customer
                                ON (order_customer.order_id = order_line_item.order_id
                                    AND order_customer.order_version_id = order_line_item.order_version_id)
-            WHERE order_line_item.promotion_id IN (:ids) AND order_line_item.version_id = :versionId AND order_line_item.type = :type
+            WHERE order_line_item.promotion_id IN (:ids) AND order_line_item.version_id = :versionId
             GROUP BY order_line_item.promotion_id, order_customer.customer_id
         SQL;
 
         /** @var list<array{promotion_id: string, total: numeric-string, customer_id: ?string}> $promotions */
         $promotions = $this->connection->fetchAllAssociative(
             $sql,
-            ['type' => PromotionProcessor::LINE_ITEM_TYPE, 'ids' => Uuid::fromHexToBytesList($ids), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => Uuid::fromHexToBytesList($ids), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => ArrayParameterType::BINARY]
         );
 
@@ -150,6 +170,29 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
                 'count' => (int) array_sum($totals),
                 'customerCount' => $totals !== [] ? json_encode($totals, \JSON_THROW_ON_ERROR) : null,
             ]);
+        }
+    }
+
+    /**
+     * Individual codes are marked as redeemed by a payload written to promotion_individual_code
+     * (see PromotionIndividualCodeRedeemer); the cart only accepts codes whose payload is NULL.
+     * Releasing the code again when its promotion line item is deleted from the order restores
+     * the behaviour of PromotionRedemptionUpdater::beforeDeletePromotionLineItems in 6.6,
+     * additionally scoped to codes actually redeemed by the order the line item belonged to.
+     *
+     * @param list<array{code: string, orderId: string}> $deletedCodes
+     */
+    private function releaseIndividualCodes(array $deletedCodes): void
+    {
+        $update = new RetryableQuery(
+            $this->connection,
+            $this->connection->prepare(
+                'UPDATE promotion_individual_code SET payload = NULL WHERE code = :code AND JSON_UNQUOTE(JSON_EXTRACT(payload, \'$.orderId\')) = :orderId'
+            )
+        );
+
+        foreach ($deletedCodes as $deletedCode) {
+            $update->execute($deletedCode);
         }
     }
 

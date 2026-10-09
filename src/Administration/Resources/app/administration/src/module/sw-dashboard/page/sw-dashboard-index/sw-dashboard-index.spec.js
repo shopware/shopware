@@ -23,7 +23,6 @@ async function createWrapper(privileges = []) {
                 'sw-error-summary': true,
                 'sw-context-menu-item': true,
                 'sw-context-button': true,
-                'sw-settings-services-dashboard-banner': true,
             },
             mocks: {
                 $t: jest.fn().mockImplementation((snippetPath, placeholders) => {

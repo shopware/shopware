@@ -14,7 +14,6 @@ use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
-use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -29,7 +28,6 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -58,9 +56,7 @@ class SendMailAction extends FlowAction implements DelayableAction
         private readonly LoggerInterface $logger,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $mailTemplateTypeRepository,
-        private readonly AbstractTranslator $translator,
         private readonly Connection $connection,
-        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly JsonEntityEncoder $jsonEntityEncoder,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
         private readonly bool $updateMailTemplate
@@ -103,7 +99,8 @@ class SendMailAction extends FlowAction implements DelayableAction
         }
 
         $eventConfig = $flow->getConfig();
-        if (empty($eventConfig['recipient'])) {
+        $recipient = $eventConfig['recipient'] ?? null;
+        if (!\is_array($recipient) || $recipient === []) {
             throw new MailEventConfigurationException('The recipient value in the flow action configuration is missing.', $flow::class);
         }
 
@@ -117,15 +114,13 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
-        $injectedTranslator = $this->injectTranslator($flow->getContext(), $flow->getData(MailAware::SALES_CHANNEL_ID));
-
         $data = new DataBag();
 
         /** @var MailRecipientStruct $mailStruct */
         $mailStruct = $flow->getData(MailAware::MAIL_STRUCT);
 
         $recipients = $this->getRecipients(
-            $eventConfig['recipient'],
+            $recipient,
             $mailStruct->getRecipients(),
             $flow->getData(FlowMailVariables::CONTACT_FORM_DATA, []),
             $flow->getData(FlowMailVariables::REVOCATION_REQUEST_FORM_DATA, []),
@@ -175,13 +170,13 @@ class SendMailAction extends FlowAction implements DelayableAction
             ...$flow->data(),
         ];
 
-        $this->send($data, $flow->getContext(), $templateData, $injectedTranslator);
+        $this->send($data, $flow->getContext(), $templateData);
     }
 
     /**
      * @param array<string, mixed> $templateData
      */
-    private function send(DataBag $data, Context $context, array $templateData, bool $injectedTranslator): void
+    private function send(DataBag $data, Context $context, array $templateData): void
     {
         try {
             $this->emailService->send(
@@ -197,10 +192,6 @@ class SendMailAction extends FlowAction implements DelayableAction
                 . "Template data: \n"
                 . json_encode($data->all(), \JSON_THROW_ON_ERROR) . "\n"
             );
-        }
-
-        if ($injectedTranslator) {
-            $this->translator->resetInjection();
         }
     }
 
@@ -272,26 +263,6 @@ class SendMailAction extends FlowAction implements DelayableAction
         return $this->mailTemplateRepository->search($criteria, $context)->getEntities()->first();
     }
 
-    private function injectTranslator(Context $context, ?string $salesChannelId): bool
-    {
-        if ($salesChannelId === null) {
-            return false;
-        }
-
-        if ($this->translator->getSnippetSetId() !== null) {
-            return false;
-        }
-
-        $this->translator->injectSettings(
-            $salesChannelId,
-            $context->getLanguageId(),
-            $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId()),
-            $context
-        );
-
-        return true;
-    }
-
     /**
      * @param array<string, mixed> $recipients
      * @param array<string, string> $mailStructRecipients
@@ -348,17 +319,19 @@ class SendMailAction extends FlowAction implements DelayableAction
      */
     private function setReplyTo(DataBag $data, array $eventConfig, array $contactFormData): void
     {
-        if (empty($eventConfig['replyTo']) || !\is_string($eventConfig['replyTo'])) {
+        $replyTo = $eventConfig['replyTo'] ?? null;
+        if (!\is_string($replyTo) || $replyTo === '') {
             return;
         }
 
-        if ($eventConfig['replyTo'] !== self::RECIPIENT_CONFIG_CONTACT_FORM_MAIL) {
-            $data->set('senderMail', $eventConfig['replyTo']);
+        if ($replyTo !== self::RECIPIENT_CONFIG_CONTACT_FORM_MAIL) {
+            $data->set('senderMail', $replyTo);
 
             return;
         }
 
-        if (empty($contactFormData['email']) || !\is_string($contactFormData['email'])) {
+        $contactFormEmail = $contactFormData['email'] ?? null;
+        if (!\is_string($contactFormEmail) || $contactFormEmail === '') {
             return;
         }
 
@@ -367,6 +340,6 @@ class SendMailAction extends FlowAction implements DelayableAction
             '{% if contactFormData.firstName is defined %}{{ contactFormData.firstName }}{% endif %} '
             . '{% if contactFormData.lastName is defined %}{{ contactFormData.lastName }}{% endif %}'
         );
-        $data->set('senderMail', $contactFormData['email']);
+        $data->set('senderMail', $contactFormEmail);
     }
 }

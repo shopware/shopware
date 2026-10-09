@@ -24,7 +24,5 @@ interface StoreApiSchemaMigrationScopeProviderInterface
      */
     public function getSchemaPaths(): array;
 
-    public function getAllowlistPath(): string;
-
     public function includesAllDefinitions(): bool;
 }

@@ -136,6 +136,7 @@ class InfoControllerTest extends TestCase
                 'enableHtmlSanitizer' => true,
                 'enableStagingMode' => false,
                 'disableExtensionManagement' => false,
+                'hideUpdateModule' => false,
                 'minSearchTermLength' => 2,
             ],
             'inAppPurchases' => [],
@@ -241,6 +242,7 @@ class InfoControllerTest extends TestCase
             'active' => true,
             'integrationId' => $ids->get('integration'),
             'type' => 'app',
+            'sourceType' => 'local',
             'baseUrl' => 'https://example.com',
             'permissions' => [
                 'create' => ['user'],
@@ -290,6 +292,71 @@ class InfoControllerTest extends TestCase
         static::assertSame($bundle, $bundles['PHPUnit']);
     }
 
+    public function testGetConfigWithServiceSourceType(): void
+    {
+        $ids = new IdsCollection();
+        $appRepository = static::getContainer()->get('app.repository');
+        $appRepository->create([
+            [
+                'name' => 'PHPUnitService',
+                'path' => '/foo/bar',
+                'active' => true,
+                'configurable' => false,
+                'version' => '1.0.0',
+                'label' => 'PHPUnitService',
+                'sourceType' => 'service',
+                // Service apps are self-managed; this excludes them from the automatic script
+                // refresh (ScriptLifecycleHandler::refresh) which would otherwise try to resolve
+                // the service filesystem and fail without a full source config.
+                'selfManaged' => true,
+                'integration' => [
+                    'id' => $ids->create('integration'),
+                    'label' => 'foo',
+                    'accessKey' => '123',
+                    'secretAccessKey' => '456',
+                ],
+                'aclRole' => [
+                    'name' => 'PHPUnitServiceRole',
+                    'privileges' => [
+                        'user:read',
+                    ],
+                ],
+                'baseAppUrl' => 'https://example.com',
+            ],
+        ], Context::createDefaultContext());
+
+        $bundle = [
+            'active' => true,
+            'integrationId' => $ids->get('integration'),
+            'type' => 'app',
+            'sourceType' => 'service',
+            'baseUrl' => 'https://example.com',
+            'permissions' => [
+                'read' => ['user'],
+            ],
+            'version' => '1.0.0',
+            'name' => 'PHPUnitService',
+        ];
+
+        $url = '/api/_info/config';
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, $url);
+
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
+
+        $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+
+        $bundles = $decodedResponse['bundles'];
+        static::assertIsArray($bundles);
+        static::assertArrayHasKey('PHPUnitService', $bundles);
+        static::assertIsArray($bundles['PHPUnitService']);
+        static::assertSame($bundle, $bundles['PHPUnitService']);
+    }
+
     public function testGetShopwareVersion(): void
     {
         $expected = [
@@ -306,7 +373,7 @@ class InfoControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
-        static::assertNotEmpty($version);
+        static::assertNotSame('', $version);
         static::assertStringStartsWith($version, $content);
     }
 
@@ -326,7 +393,7 @@ class InfoControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
-        static::assertNotEmpty($version);
+        static::assertNotSame('', $version);
         static::assertStringStartsWith($version, $content);
     }
 
@@ -357,6 +424,7 @@ class InfoControllerTest extends TestCase
                     ],
                     'contextToken' => [
                         'type' => 'string',
+                        'hiddenFromWebhook' => true,
                     ],
                 ],
                 'aware' => [
@@ -426,7 +494,7 @@ class InfoControllerTest extends TestCase
 
         foreach ($expected as $event) {
             $actualEvents = array_values(array_filter($response, static fn ($x) => $x['name'] === $event['name']));
-            static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
+            static::assertNotCount(0, $actualEvents, 'Event with name "' . $event['name'] . '" not found');
             sort($event['aware']);
             sort($actualEvents[0]['aware']);
             static::assertCount(1, $actualEvents);
@@ -461,7 +529,7 @@ class InfoControllerTest extends TestCase
 
         foreach ($expected as $action) {
             $actualActions = array_values(array_filter($response, static fn ($x) => $x['name'] === $action['name']));
-            static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
+            static::assertNotCount(0, $actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
             static::assertSame($action, $actualActions[0]);
         }
@@ -501,7 +569,7 @@ class InfoControllerTest extends TestCase
 
         foreach ($expected as $action) {
             $actualActions = array_values(array_filter($response, static fn ($x) => $x['name'] === $action['name']));
-            static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
+            static::assertNotCount(0, $actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
             static::assertSame($action, $actualActions[0]);
         }
@@ -571,7 +639,7 @@ class InfoControllerTest extends TestCase
                 return $x['name'] === $event['name'];
             }));
 
-            static::assertNotEmpty($actualEvent, 'Event with name "' . $event['name'] . '" not found');
+            static::assertNotCount(0, $actualEvent, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvent);
             static::assertSame($event, $actualEvent[0]);
         }

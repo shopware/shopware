@@ -27,9 +27,9 @@ Module.register('sw-product-stream', {
     description: 'sw-product-stream.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#57D9A3',
-    icon: 'regular-products',
-    favicon: 'icon-module-products.png',
+    color: 'var(--sw-color-module-green-default)',
+    icon: 'regular-layer-group',
+    favicon: 'icon-module-products.svg',
     entity: 'product_stream',
 
     routes: {
@@ -72,7 +72,7 @@ Module.register('sw-product-stream', {
             id: 'sw-product-stream',
             privilege: 'product_stream.viewer',
             parent: 'sw-catalogue',
-            color: '#57D9A3',
+            color: 'var(--sw-color-module-green-default)',
             position: 30,
         },
     ],

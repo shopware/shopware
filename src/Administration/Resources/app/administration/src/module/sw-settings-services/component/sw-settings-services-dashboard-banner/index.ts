@@ -2,6 +2,7 @@ import template from './sw-settings-services-dashboard-banner.html.twig';
 import './sw-settings-services-dashboard-banner.scss';
 
 /**
+ * @deprecated tag:v6.8.0 - Will be removed, the services banner is no longer shown on the dashboard.
  * @sw-package framework
  * @private
  */

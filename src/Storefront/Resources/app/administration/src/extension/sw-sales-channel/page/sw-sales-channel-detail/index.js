@@ -8,9 +8,7 @@ const { Component } = Shopware;
 Component.override('sw-sales-channel-detail', {
     template,
 
-    inject: [
-        'themeService',
-    ],
+    inject: ['themeService'],
 
     methods: {
         getLoadSalesChannelCriteria() {
@@ -41,6 +39,10 @@ Component.override('sw-sales-channel-detail', {
                 this.createNotificationError({
                     message: this.$t('sw-theme-manager.general.messageSaveError'),
                 });
+            } finally {
+                const themes = this.salesChannel.extensions?.themes;
+
+                themes?.splice(0, themes.length, ...(this.salesChannel.getOrigin().extensions?.themes ?? []));
             }
         },
     },

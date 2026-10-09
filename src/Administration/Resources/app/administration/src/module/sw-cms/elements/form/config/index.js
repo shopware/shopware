@@ -10,14 +10,9 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'feature',
-        'systemConfigApiService',
-    ],
+    inject: ['feature', 'systemConfigApiService'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {
@@ -78,10 +73,7 @@ export default {
         },
 
         requireConfigTab() {
-            return [
-                'contact',
-                'revocationRequest',
-            ].includes(this.element.config.type.value);
+            return ['contact', 'revocationRequest'].includes(this.element.config.type.value);
         },
     },
 

@@ -10,12 +10,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\Validator\ConstraintViolation;
 
 /**
  * @internal
@@ -39,7 +41,46 @@ class BasicCaptchaTest extends TestCase
 
         $captcha = new BasicCaptcha($requestStack, static::createStub(SystemConfigService::class));
 
-        static::assertSame($expected, $captcha->isValid(new Request(request: $request), []));
+        static::assertSame($expected, $captcha->validate(new Request(request: $request), [])->count() === 0);
+    }
+
+    #[TestDox('is not breaking and exposes its technical name')]
+    public function testShouldBreakAndName(): void
+    {
+        $captcha = new BasicCaptcha(new RequestStack(), static::createStub(SystemConfigService::class));
+
+        // The basic captcha is customer-solvable, so its failure is rendered, not a 403.
+        static::assertFalse($captcha->shouldBreak());
+        static::assertSame(BasicCaptcha::CAPTCHA_NAME, $captcha->getName());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid()/getViolations() methods
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    #[TestDox('deprecated isValid() and getViolations() still work')]
+    public function testDeprecatedMethods(): void
+    {
+        $requestStack = new RequestStack();
+        $sessionRequest = new Request();
+        $sessionRequest->setSession(new Session(new MockArraySessionStorage()));
+        $requestStack->push($sessionRequest);
+        $sessionRequest->getSession()->set('basic_captcha_session', 'valid-captcha-value');
+
+        $captcha = new BasicCaptcha($requestStack, static::createStub(SystemConfigService::class));
+
+        static::assertTrue($captcha->isValid(
+            new Request(request: [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'valid-captcha-value']),
+            []
+        ));
+        static::assertFalse($captcha->isValid(new Request(request: []), []));
+
+        $violations = $captcha->getViolations();
+        static::assertCount(1, $violations);
+        $violation = $violations->get(0);
+        static::assertInstanceOf(ConstraintViolation::class, $violation);
+        static::assertSame(BasicCaptcha::INVALID_CAPTCHA_CODE, $violation->getCode());
+        static::assertSame('/' . BasicCaptcha::CAPTCHA_REQUEST_PARAMETER, $violation->getPropertyPath());
     }
 
     #[DataProvider('supportsProvider')]

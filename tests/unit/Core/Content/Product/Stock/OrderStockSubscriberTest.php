@@ -66,6 +66,8 @@ class OrderStockSubscriberTest extends TestCase
     #[TestDox('subscribes to state machine transitions and entity write events')]
     public function testGetSubscribedEvents(): void
     {
+        $this->stockStorage->expects($this->never())->method('alter');
+
         $events = OrderStockSubscriber::getSubscribedEvents();
 
         static::assertArrayHasKey(StateMachineTransitionEvent::class, $events);

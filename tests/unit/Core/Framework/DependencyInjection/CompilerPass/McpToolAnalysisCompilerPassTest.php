@@ -205,7 +205,7 @@ class McpToolAnalysisCompilerPassTest extends TestCase
     private function createContainer(): ContainerBuilder
     {
         $container = new ContainerBuilder();
-        $container->register('mcp.server.builder');
+        $container->register('mcp.server.admin.builder');
         $container->setParameter('shopware.mcp.tool_dependencies', []);
         $container->setParameter('shopware.mcp.tool_privileges', []);
         $container->setParameter('shopware.mcp.tool_groups', []);

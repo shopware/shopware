@@ -17,4 +17,16 @@ class RefreshToken implements RefreshTokenEntityInterface
 {
     use EntityTrait;
     use RefreshTokenTrait;
+
+    private ?string $familyId = null;
+
+    public function getFamilyId(): ?string
+    {
+        return $this->familyId;
+    }
+
+    public function setFamilyId(string $familyId): void
+    {
+        $this->familyId = $familyId;
+    }
 }

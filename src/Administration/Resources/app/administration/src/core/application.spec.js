@@ -155,6 +155,101 @@ describe('core/application.js', () => {
         });
     });
 
+    describe('createApplicationRoot first run wizard handling', () => {
+        const originalEnvironment = Shopware.Context.app.environment;
+        const originalFirstRunWizard = Shopware.Context.app.firstRunWizard;
+        const originalView = Shopware.Application.view;
+
+        function mockContainers({ isLoggedIn, router }) {
+            const originalGetContainer = Shopware.Application.getContainer.bind(Shopware.Application);
+
+            return jest.spyOn(Shopware.Application, 'getContainer').mockImplementation((name) => {
+                if (name === 'init') {
+                    return { router: { getRouterInstance: () => router } };
+                }
+
+                if (name === 'service') {
+                    return { loginService: { isLoggedIn: () => isLoggedIn } };
+                }
+
+                return originalGetContainer(name);
+            });
+        }
+
+        afterEach(() => {
+            Shopware.Context.app.environment = originalEnvironment;
+            Shopware.Context.app.firstRunWizard = originalFirstRunWizard;
+            Shopware.Application.view = originalView;
+        });
+
+        it('should wait for the router to be ready before deciding on a first run wizard redirect', async () => {
+            Shopware.Context.app.environment = 'production';
+            Shopware.Context.app.firstRunWizard = true;
+            Shopware.Application.view = { init: jest.fn() };
+
+            const events = [];
+            const router = {
+                isReady: jest.fn(() => Promise.resolve().then(() => events.push('ready'))),
+                currentRoute: { value: { name: 'sw.first.run.wizard.index.paypal.credentials' } },
+                push: jest.fn(() => events.push('push')),
+            };
+
+            const getContainerSpy = mockContainers({ isLoggedIn: true, router });
+
+            await Shopware.Application.createApplicationRoot();
+
+            expect(router.isReady).toHaveBeenCalledTimes(1);
+            // isReady must resolve before the redirect decision is made
+            expect(events).toEqual(['ready']);
+            // already on a wizard route -> must not be pushed back to the wizard start
+            expect(router.push).not.toHaveBeenCalled();
+
+            getContainerSpy.mockRestore();
+        });
+
+        it('should redirect into the first run wizard when the resolved route is outside the wizard', async () => {
+            Shopware.Context.app.environment = 'production';
+            Shopware.Context.app.firstRunWizard = true;
+            Shopware.Application.view = { init: jest.fn() };
+
+            const router = {
+                isReady: jest.fn(() => Promise.resolve()),
+                currentRoute: { value: { name: 'sw.dashboard.index' } },
+                push: jest.fn(),
+            };
+
+            const getContainerSpy = mockContainers({ isLoggedIn: true, router });
+
+            await Shopware.Application.createApplicationRoot();
+
+            expect(router.isReady).toHaveBeenCalledTimes(1);
+            expect(router.push).toHaveBeenCalledWith({ name: 'sw.first.run.wizard.index' });
+
+            getContainerSpy.mockRestore();
+        });
+
+        it('should not touch the router when the first run wizard is disabled', async () => {
+            Shopware.Context.app.environment = 'production';
+            Shopware.Context.app.firstRunWizard = false;
+            Shopware.Application.view = { init: jest.fn() };
+
+            const router = {
+                isReady: jest.fn(() => Promise.resolve()),
+                currentRoute: { value: { name: 'sw.dashboard.index' } },
+                push: jest.fn(),
+            };
+
+            const getContainerSpy = mockContainers({ isLoggedIn: true, router });
+
+            await Shopware.Application.createApplicationRoot();
+
+            expect(router.isReady).not.toHaveBeenCalled();
+            expect(router.push).not.toHaveBeenCalled();
+
+            getContainerSpy.mockRestore();
+        });
+    });
+
     it('should load plugins correctly in watch with all permissions', async () => {
         process.env.NODE_ENV = 'development';
 

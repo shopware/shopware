@@ -36,7 +36,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         private readonly OpenApiPathBuilder $pathBuilder,
         private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         array $bundles,
-        private readonly BundleSchemaPathCollection $bundleSchemaPathCollection
+        private readonly BundleSchemaPathCollection $bundleSchemaPathCollection,
+        private readonly ?OpenApiRouteDefaultsFilter $routeDefaultsFilter = null,
     ) {
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/AdminApi';
     }
@@ -109,7 +110,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $loader->loadOpenapiSpecification());
 
-        return $finalSpecs;
+        return $this->routeDefaultsFilter?->filter($finalSpecs, $api) ?? $finalSpecs;
     }
 
     /**

@@ -46,13 +46,16 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
         /** @var PromiseInterface $promise */
         $promise = ($middleware($handler))($request, []);
-        $promise->wait();
 
-        foreach ($this->fetchAllUserStoreTokens() as $token) {
-            static::assertNull($token['store_token']);
+        try {
+            $promise->wait();
+        } finally {
+            foreach ($this->fetchAllUserStoreTokens() as $token) {
+                static::assertNull($token['store_token']);
+            }
+
+            static::assertNull($this->systemConfigService->get('core.store.shopSecret'));
         }
-
-        static::assertNull($this->systemConfigService->get('core.store.shopSecret'));
     }
 
     private function setAllUserStoreTokens(string $storeToken): void

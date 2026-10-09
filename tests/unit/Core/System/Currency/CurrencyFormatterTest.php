@@ -19,17 +19,10 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 /**
  * @internal
  */
-#[Package('fundamentals@discovery')]
+#[Package('fundamentals@framework')]
 #[CoversClass(CurrencyFormatter::class)]
 class CurrencyFormatterTest extends TestCase
 {
-    private CurrencyFormatter $formatter;
-
-    protected function setUp(): void
-    {
-        $this->formatter = new CurrencyFormatter(static::createStub(LanguageLocaleCodeProvider::class));
-    }
-
     #[DataProvider('formattingParameterProvider')]
     public function testFormatCurrencyByLanguageWillUseProvidedDecimalPlaces(float $price, int $decimalPlaces, string $localeCode, string $expectedSeparator, string $currencyISO, string $expectedCurrencySymbol): void
     {
@@ -73,16 +66,6 @@ class CurrencyFormatterTest extends TestCase
         );
     }
 
-    public function testResetWillRemoveExistingFormatters(): void
-    {
-        $this->formatter->formatCurrencyByLanguage(19.9999, 'EUR', Uuid::randomHex(), $this->createContext(2));
-
-        static::assertNotEmpty((new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
-        $this->formatter->reset();
-
-        static::assertEmpty((new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
-    }
-
     /**
      * @return iterable<string, array{price: float, decimalPlaces: int, localeCode: non-empty-string, expectedSeparator: non-empty-string, currencyISO: non-empty-string, expectedCurrencySymbol: non-empty-string}>
      */
@@ -112,6 +95,34 @@ class CurrencyFormatterTest extends TestCase
             'currencyISO' => 'GBP',
             'expectedCurrencySymbol' => '£',
         ];
+    }
+
+    public function testResetDropsFormattersBuiltWithThePreviousDefaultLocale(): void
+    {
+        // An empty locale code makes ICU use the process default locale, which a long-running worker changes per request
+        $localeProvider = static::createStub(LanguageLocaleCodeProvider::class);
+        $localeProvider->method('getLocaleForLanguageId')->willReturn('');
+        $formatter = new CurrencyFormatter($localeProvider);
+        $context = $this->createContext(2);
+        $previousLocale = \Locale::getDefault();
+
+        $german = (new \NumberFormatter('de_DE', \NumberFormatter::CURRENCY))->formatCurrency(1234.5, 'EUR');
+        $english = (new \NumberFormatter('en_US', \NumberFormatter::CURRENCY))->formatCurrency(1234.5, 'EUR');
+        static::assertNotSame($german, $english);
+
+        try {
+            \Locale::setDefault('de_DE');
+            static::assertSame($german, $formatter->formatCurrencyByLanguage(1234.5, 'EUR', Uuid::randomHex(), $context));
+
+            \Locale::setDefault('en_US');
+            static::assertSame($german, $formatter->formatCurrencyByLanguage(1234.5, 'EUR', Uuid::randomHex(), $context));
+
+            $formatter->reset();
+
+            static::assertSame($english, $formatter->formatCurrencyByLanguage(1234.5, 'EUR', Uuid::randomHex(), $context));
+        } finally {
+            \Locale::setDefault($previousLocale);
+        }
     }
 
     private function createContext(int $decimals): Context

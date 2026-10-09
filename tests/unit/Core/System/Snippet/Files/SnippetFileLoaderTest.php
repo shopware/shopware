@@ -10,18 +10,13 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
-use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
-use Shopware\Core\Framework\Util\Filesystem as AppFilesystem;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -32,10 +27,13 @@ use Shopware\Core\System\Snippet\DataTransfer\Language\Language as LanguageDto;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection as LanguageDtoCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
+use Shopware\Core\System\Snippet\Files\FilesystemSnippetFile;
+use Shopware\Core\System\Snippet\Files\FilesystemStorefrontSnippets;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\RemoteSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
+use Shopware\Core\System\Snippet\Files\StorefrontSnippetStorage;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
@@ -61,6 +59,10 @@ class SnippetFileLoaderTest extends TestCase
 
     private Filesystem $filesystem;
 
+    private StorefrontSnippetStorage $storage;
+
+    private Filesystem $privateFilesystem;
+
     /**
      * @var StaticEntityRepository<LanguageCollection>
      */
@@ -79,6 +81,8 @@ class SnippetFileLoaderTest extends TestCase
     protected function setUp(): void
     {
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $this->storage = static::createStub(StorefrontSnippetStorage::class);
+        $this->privateFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->languageRepository = new StaticEntityRepository([], new LanguageDefinition());
         $this->localeRepository = new StaticEntityRepository([], new LocaleDefinition());
         $this->snippetSetRepository = new StaticEntityRepository([], new SnippetDefinition());
@@ -113,8 +117,8 @@ class SnippetFileLoaderTest extends TestCase
             $this->config,
             $this->getTranslationLoader(),
             $this->filesystem,
-            static::createStub(SourceResolver::class),
-            new NullLogger()
+            $this->storage,
+            $this->privateFilesystem,
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -180,8 +184,8 @@ class SnippetFileLoaderTest extends TestCase
             $this->config,
             $this->getTranslationLoader(),
             $this->filesystem,
-            static::createStub(SourceResolver::class),
-            new NullLogger()
+            $this->storage,
+            $this->privateFilesystem,
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -235,8 +239,8 @@ class SnippetFileLoaderTest extends TestCase
             $this->config,
             $this->getTranslationLoader(),
             $this->filesystem,
-            static::createStub(SourceResolver::class),
-            new NullLogger()
+            $this->storage,
+            $this->privateFilesystem,
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -265,152 +269,44 @@ class SnippetFileLoaderTest extends TestCase
         static::assertFalse($snippetFile->isBase());
     }
 
-    public function testLoadAppSnippets(): void
+    public function testLoadAppSnippetsPreservesMetadata(): void
     {
-        $snippetFile = new GenericSnippetFile(
-            'TestApp',
-            '/test/app/path',
-            'es-ES',
-            'Test Author',
-            false,
-            'TestApp',
-        );
-
-        $appSnippetFileLoader = $this->createMock(AppSnippetFileLoader::class);
-        $appSnippetFileLoader->expects($this->once())
-            ->method('loadSnippetFilesFromApp')
-            ->with('Test Author', '/test/app/path')
-            ->willReturn([$snippetFile]);
-
-        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
-        $activeAppsLoader->expects($this->once())
-            ->method('getActiveApps')
-            ->willReturn([
-                [
-                    'name' => 'TestApp',
-                    'author' => 'Test Author',
-                    'path' => '/test/app/path',
-                    'selfManaged' => false,
-                ],
-            ]);
+        $storage = $this->createMock(StorefrontSnippetStorage::class);
+        $storage->expects($this->once())->method('directory')
+            ->with('TestApp', '1.0.0')
+            ->willReturn(__DIR__ . '/_fixtures/AppWithStorefrontSnippets');
 
         $collection = new SnippetFileCollection();
+        $this->createAppSnippetLoader($storage)->loadSnippetFilesIntoCollection($collection);
 
-        $snippetFileLoader = new SnippetFileLoader(
-            static::createStub(Kernel::class),
-            static::createStub(Connection::class),
-            $appSnippetFileLoader,
-            $activeAppsLoader,
-            $this->config,
-            $this->getTranslationLoader(),
-            $this->filesystem,
-            static::createStub(SourceResolver::class),
-            new NullLogger()
-        );
-
-        $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
-
-        static::assertCount(1, $collection);
+        static::assertCount(2, $collection);
+        $file = $collection->getSnippetFilesByIso('en')[0];
+        static::assertInstanceOf(GenericSnippetFile::class, $file);
+        static::assertSame('TestApp', $file->getTechnicalName());
+        static::assertSame('Test Author', $file->getAuthor());
+        static::assertSame('storefront.en', $file->getName());
+        static::assertTrue($file->isBase());
+        static::assertFalse($collection->getSnippetFilesByIso('de')[0]->isBase());
     }
 
-    public function testLoadAppSnippetsResolvesSelfManagedAppsThroughSource(): void
+    public function testLoadAppSnippetsSkipsUnavailableApp(): void
     {
-        $snippetFile = new GenericSnippetFile(
-            'TestService',
-            '/resolved/service/path/Resources/snippet/storefront.es-ES.json',
-            'es-ES',
-            'Test Author',
-            false,
-            'TestService',
-        );
-
-        $appSnippetFileLoader = $this->createMock(AppSnippetFileLoader::class);
-        $appSnippetFileLoader->expects($this->once())
-            ->method('loadSnippetFilesFromApp')
-            ->with('Test Author', '/resolved/service/path', true)
-            ->willReturn([$snippetFile]);
-
-        $sourceResolver = $this->createMock(SourceResolver::class);
-        $sourceResolver->expects($this->once())
-            ->method('filesystemForAppName')
-            ->with('TestService')
-            ->willReturn(new AppFilesystem('/resolved/service/path'));
-
-        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
-        $activeAppsLoader->expects($this->once())
-            ->method('getActiveApps')
-            ->willReturn([
-                [
-                    'name' => 'TestService',
-                    'author' => 'Test Author',
-                    'path' => 'https://test-service.example.com',
-                    'selfManaged' => true,
-                ],
-            ]);
+        $storage = static::createStub(StorefrontSnippetStorage::class);
+        $storage->method('directory')->willReturn(null);
 
         $collection = new SnippetFileCollection();
+        $this->createAppSnippetLoader($storage)->loadSnippetFilesIntoCollection($collection);
 
-        $snippetFileLoader = new SnippetFileLoader(
-            static::createStub(Kernel::class),
-            static::createStub(Connection::class),
-            $appSnippetFileLoader,
-            $activeAppsLoader,
-            $this->config,
-            $this->getTranslationLoader(),
-            $this->filesystem,
-            $sourceResolver,
-            new NullLogger()
-        );
-
-        $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
-
-        static::assertCount(1, $collection);
-        static::assertSame('TestService', $collection->getSnippetFilesByIso('es-ES')[0]->getTechnicalName());
+        static::assertCount(0, $collection);
     }
 
-    public function testLoadAppSnippetsSkipsSelfManagedAppWhenSourceCannotBeResolved(): void
+    public function testLoadAppSnippetsDoesNotResolveInactiveApps(): void
     {
-        $appSnippetFileLoader = $this->createMock(AppSnippetFileLoader::class);
-        $appSnippetFileLoader->expects($this->never())
-            ->method('loadSnippetFilesFromApp');
-
-        $sourceResolver = $this->createMock(SourceResolver::class);
-        $sourceResolver->expects($this->once())
-            ->method('filesystemForAppName')
-            ->with('TestService')
-            ->willThrowException(AppException::notFoundByField('TestService', 'name'));
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('error');
-
-        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
-        $activeAppsLoader->expects($this->once())
-            ->method('getActiveApps')
-            ->willReturn([
-                [
-                    'name' => 'TestService',
-                    'author' => 'Test Author',
-                    'path' => 'https://test-service.example.com',
-                    'selfManaged' => true,
-                ],
-            ]);
+        $storage = $this->createMock(StorefrontSnippetStorage::class);
+        $storage->expects($this->never())->method('directory');
 
         $collection = new SnippetFileCollection();
-
-        $snippetFileLoader = new SnippetFileLoader(
-            static::createStub(Kernel::class),
-            static::createStub(Connection::class),
-            $appSnippetFileLoader,
-            $activeAppsLoader,
-            $this->config,
-            $this->getTranslationLoader(),
-            $this->filesystem,
-            $sourceResolver,
-            $logger
-        );
-
-        $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
+        $this->createAppSnippetLoader($storage, active: false)->loadSnippetFilesIntoCollection($collection);
 
         static::assertCount(0, $collection);
     }
@@ -440,8 +336,8 @@ class SnippetFileLoaderTest extends TestCase
             $this->config,
             $this->getTranslationLoader(),
             $this->filesystem,
-            static::createStub(SourceResolver::class),
-            new NullLogger()
+            $this->storage,
+            $this->privateFilesystem,
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -506,8 +402,8 @@ class SnippetFileLoaderTest extends TestCase
             $this->config,
             $loader,
             $this->filesystem,
-            static::createStub(SourceResolver::class),
-            new NullLogger()
+            $this->storage,
+            $this->privateFilesystem,
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -560,8 +456,8 @@ class SnippetFileLoaderTest extends TestCase
             $this->config,
             $this->getTranslationLoader(),
             $this->filesystem,
-            static::createStub(SourceResolver::class),
-            new NullLogger()
+            $this->storage,
+            $this->privateFilesystem,
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -594,8 +490,8 @@ class SnippetFileLoaderTest extends TestCase
             $this->config,
             $this->getTranslationLoader(),
             $this->filesystem,
-            static::createStub(SourceResolver::class),
-            new NullLogger()
+            $this->storage,
+            $this->privateFilesystem,
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -633,8 +529,8 @@ class SnippetFileLoaderTest extends TestCase
             $this->config,
             $loader,
             $this->filesystem,
-            static::createStub(SourceResolver::class),
-            new NullLogger()
+            $this->storage,
+            $this->privateFilesystem,
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -678,8 +574,8 @@ class SnippetFileLoaderTest extends TestCase
             $this->config,
             $loader,
             $this->filesystem,
-            static::createStub(SourceResolver::class),
-            new NullLogger()
+            $this->storage,
+            $this->privateFilesystem,
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -718,8 +614,8 @@ class SnippetFileLoaderTest extends TestCase
             $this->config,
             $loader,
             $this->filesystem,
-            static::createStub(SourceResolver::class),
-            new NullLogger()
+            $this->storage,
+            $this->privateFilesystem,
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -752,14 +648,93 @@ class SnippetFileLoaderTest extends TestCase
             $this->config,
             $translationLoader,
             $this->filesystem,
-            static::createStub(SourceResolver::class),
-            new NullLogger()
+            $this->storage,
+            $this->privateFilesystem,
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
 
         // Should be empty because the invalid path structure was skipped
         static::assertCount(0, $collection);
+    }
+
+    public function testLoadSnippetsPlacedInThePrivateFilesystem(): void
+    {
+        $this->privateFilesystem->write('snippets/storefront/MyIntegration/storefront.de.json', '{}');
+        $this->privateFilesystem->write('snippets/storefront/MyIntegration/storefront.de.base.json', '{}');
+        $this->privateFilesystem->write('snippets/storefront/MyIntegration/notes.json', '{}');
+        $this->privateFilesystem->write('snippets/storefront/MyIntegration/readme.txt', 'ignored');
+        $this->privateFilesystem->write('snippets/storefront/my-integration.en.json', '{}');
+        $this->privateFilesystem->write('snippets/storefront/notes.json', '{}');
+
+        $collection = new SnippetFileCollection();
+        $this->createSnippetFileLoader($this->getKernel([]))->loadSnippetFilesIntoCollection($collection);
+
+        static::assertCount(3, $collection);
+
+        $files = $collection->getSnippetFilesByIso('de');
+        static::assertCount(2, $files);
+        foreach ($files as $file) {
+            static::assertInstanceOf(FilesystemSnippetFile::class, $file);
+            static::assertSame('storefront.de', $file->getName());
+            static::assertSame('de', $file->getIso());
+            static::assertSame('MyIntegration', $file->getAuthor());
+            static::assertSame('MyIntegration', $file->getTechnicalName());
+        }
+
+        $rootFiles = $collection->getSnippetFilesByIso('en');
+        static::assertCount(1, $rootFiles);
+        static::assertInstanceOf(FilesystemSnippetFile::class, $rootFiles[0]);
+        static::assertSame('my-integration.en', $rootFiles[0]->getName());
+        static::assertSame(FilesystemStorefrontSnippets::ROOT_AUTHOR, $rootFiles[0]->getAuthor());
+        static::assertSame('my-integration', $rootFiles[0]->getTechnicalName());
+
+        $paths = array_column($collection->toArray(), 'path');
+        sort($paths);
+        static::assertSame(
+            [
+                'snippets/storefront/MyIntegration/storefront.de.base.json',
+                'snippets/storefront/MyIntegration/storefront.de.json',
+                'snippets/storefront/my-integration.en.json',
+            ],
+            $paths,
+        );
+        static::assertTrue($collection->getBaseFileByIso('de')->isBase());
+    }
+
+    public function testSnippetsFromThePrivateFilesystemLoseAgainstShippedSnippets(): void
+    {
+        $this->privateFilesystem->write('snippets/storefront/MyIntegration/storefront.de.json', '{}');
+
+        $collection = new SnippetFileCollection();
+        $this->createSnippetFileLoader($this->getKernel([
+            'ShopwareBundleWithSnippets' => new ShopwareBundleWithSnippets(),
+        ]))->loadSnippetFilesIntoCollection($collection);
+
+        $files = $collection->getSnippetFilesByIso('de');
+
+        static::assertCount(2, $files);
+        static::assertInstanceOf(FilesystemSnippetFile::class, $files[0]);
+        static::assertInstanceOf(GenericSnippetFile::class, $files[1]);
+    }
+
+    private function createSnippetFileLoader(Kernel $kernel): SnippetFileLoader
+    {
+        return new SnippetFileLoader(
+            $kernel,
+            static::createStub(Connection::class),
+            static::createStub(AppSnippetFileLoader::class),
+            new ActiveAppsLoader(
+                static::createStub(Connection::class),
+                static::createStub(AppLoader::class),
+                '/'
+            ),
+            $this->config,
+            $this->getTranslationLoader(),
+            $this->filesystem,
+            $this->storage,
+            $this->privateFilesystem,
+        );
     }
 
     /**
@@ -777,6 +752,26 @@ class SnippetFileLoaderTest extends TestCase
         $pluginLoader->method('getPluginInstances')->willReturn($pluginCollection);
 
         return new MockedKernel($bundles, $pluginLoader);
+    }
+
+    private function createAppSnippetLoader(StorefrontSnippetStorage $storage, bool $active = true): SnippetFileLoader
+    {
+        $activeApps = static::createStub(ActiveAppsLoader::class);
+        $activeApps->method('getActiveApps')->willReturn($active ? [
+            ['name' => 'TestApp', 'author' => 'Test Author', 'path' => 'https://test-app.example.com', 'selfManaged' => true, 'version' => '1.0.0'],
+        ] : []);
+
+        return new SnippetFileLoader(
+            $this->getKernel([]),
+            static::createStub(Connection::class),
+            new AppSnippetFileLoader(__DIR__),
+            $activeApps,
+            $this->config,
+            $this->getTranslationLoader(),
+            $this->filesystem,
+            $storage,
+            $this->privateFilesystem,
+        );
     }
 
     private function getTranslationLoader(): TranslationLoader

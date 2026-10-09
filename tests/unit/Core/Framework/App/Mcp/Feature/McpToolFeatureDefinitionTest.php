@@ -73,6 +73,18 @@ class McpToolFeatureDefinitionTest extends TestCase
         ], $configs);
     }
 
+    public function testTheSystemLocaleGetsTheClosestDeclaredTranslation(): void
+    {
+        $configs = $this->definition->fromApp(
+            static::createStub(Manifest::class),
+            new Filesystem(__DIR__ . '/../../_fixtures'),
+            'de-AT',
+        );
+
+        static::assertSame('Bestellungen synchronisieren', $configs[0]->label->forLocale('de-AT'));
+        static::assertSame('Importiert neue Bestellungen aus dem ERP', $configs[0]->description->forLocale('de-AT'));
+    }
+
     public function testAToolMayRequirePrivilegesTheAppIsGranted(): void
     {
         $this->expectNotToPerformAssertions();

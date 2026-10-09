@@ -54,8 +54,14 @@ class McpToolFeatureDefinition extends AppFeatureDefinition
                 $element->getAttribute('url'),
                 self::parseRequiredPrivileges($element),
                 self::parseInputSchema($element),
-                new TranslatedString(XmlParserUtils::parseTranslations($element, 'label')),
-                new TranslatedString(XmlParserUtils::parseTranslations($element, 'description')),
+                new TranslatedString(XmlParserUtils::ensureTranslationForLocale(
+                    XmlParserUtils::parseTranslations($element, 'label'),
+                    $defaultLocale,
+                )),
+                new TranslatedString(XmlParserUtils::ensureTranslationForLocale(
+                    XmlParserUtils::parseTranslations($element, 'description'),
+                    $defaultLocale,
+                )),
             );
         }
 

@@ -1,6 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test.only(
+test(
     'As a customer, I want to fill out and submit the contact form.',
     { tag: ['@Form', '@Contact', '@Storefront'] },
     async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, DefaultSalesChannel }) => {

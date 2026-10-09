@@ -58,4 +58,16 @@ class SeoUrlTwigFactoryTest extends TestCase
 
         $fs->remove($tmpDir);
     }
+
+    public function testSlugifyEscaperRendersNullAsEmptyString(): void
+    {
+        $slugify = new Slugify();
+        $twig = (new SeoUrlTwigFactory())->createTwigEnvironment($slugify, [new SlugifyExtension($slugify)], '');
+
+        $template = $twig->createTemplate(
+            '{% autoescape \'' . SeoUrlGenerator::ESCAPE_SLUGIFY . '\' %}{{ product.name }}/{{ product.metaDescription }}{% endautoescape %}'
+        );
+
+        static::assertSame('hello-world/', $template->render(['product' => ['name' => 'Hello World', 'metaDescription' => null]]));
+    }
 }

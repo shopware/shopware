@@ -68,7 +68,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
             ],
             $config->getThemeJson()
         );
-        static::assertEmpty($config->getThemeConfig());
+        static::assertSame([], $config->getThemeConfig());
         static::assertTrue($config->getIsTheme());
         static::assertCount(3, $config->getStyleFiles());
         static::assertCount(2, $config->getScriptFiles());

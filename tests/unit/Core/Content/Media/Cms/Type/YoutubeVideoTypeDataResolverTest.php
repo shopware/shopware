@@ -170,8 +170,8 @@ class YoutubeVideoTypeDataResolverTest extends TestCase
 
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
-        static::assertEmpty($imageStruct->getMediaId());
-        static::assertEmpty($imageStruct->getMedia());
+        static::assertNull($imageStruct->getMediaId());
+        static::assertNull($imageStruct->getMedia());
     }
 
     public function testEnrichWithPreviewMediaOnly(): void

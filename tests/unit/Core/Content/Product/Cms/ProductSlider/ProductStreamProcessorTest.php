@@ -504,7 +504,9 @@ class ProductStreamProcessorTest extends TestCase
 
         $slider = $slot->getData();
         static::assertInstanceOf(ProductSliderStruct::class, $slider);
-        static::assertEmpty($slider->getProducts());
+        $products = $slider->getProducts();
+        static::assertNotNull($products);
+        static::assertCount(0, $products);
     }
 
     public function testEnrichKeepsUngroupedVariantsWhenStreamDisplaysVariantsDirectly(): void

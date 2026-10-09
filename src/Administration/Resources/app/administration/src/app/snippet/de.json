@@ -818,6 +818,7 @@
         "lineItemTotalPriceRule": "Positionssumme (Menge × Preis)",
         "lineItemWithQuantityRule": "Position mit Menge",
         "lineItemPerItemQuantityRule": "Menge pro Position",
+        "daysSinceOrderPlacedRule": "Zeit seit Bestelldatum",
         "orderTagRule": "Bestellung mit Tag",
         "orderTrackingCodeRule": "Sendungsnummer",
         "orderDeliveryStatusRule": "Lieferstatus",

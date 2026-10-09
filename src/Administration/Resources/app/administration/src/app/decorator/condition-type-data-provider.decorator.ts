@@ -746,6 +746,13 @@ export const CONDITIONS: ConditionDefinition[] = [
         group: GROUPS.ITEM,
     },
     {
+        type: 'daysSinceOrderPlaced',
+        component: COMPONENTS.GENERIC,
+        label: 'global.sw-condition.condition.daysSinceOrderPlacedRule',
+        scopes: [SCOPES.FLOW],
+        group: GROUPS.ORDER,
+    },
+    {
         type: 'orderTag',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.orderTagRule',

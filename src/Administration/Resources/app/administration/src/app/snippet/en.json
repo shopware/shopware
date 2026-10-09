@@ -818,6 +818,7 @@
         "lineItemTotalPriceRule": "Item total (qty × price)",
         "lineItemWithQuantityRule": "Item with quantity",
         "lineItemPerItemQuantityRule": "Quantity per item",
+        "daysSinceOrderPlacedRule": "Time since order was placed",
         "orderTagRule": "Order with tag",
         "orderTrackingCodeRule": "Tracking code",
         "orderDeliveryStatusRule": "Delivery status",

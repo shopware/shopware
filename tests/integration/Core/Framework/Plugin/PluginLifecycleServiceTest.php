@@ -46,6 +46,7 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use SwagTestPlugin\Migration\Migration1536761533TestMigration;
 use SwagTestPlugin\SwagTestPlugin;
 use Symfony\Component\Clock\NativeClock;
@@ -89,11 +90,6 @@ class PluginLifecycleServiceTest extends TestCase
     private string $iso = 'sv-SE';
 
     private string $fixturePath;
-
-    /**
-     * @var array<array{string, callable}>
-     */
-    private array $registeredListeners = [];
 
     protected function setUp(): void
     {
@@ -146,14 +142,6 @@ class PluginLifecycleServiceTest extends TestCase
         if (isset($_SERVER['TEST_KEEP_MIGRATIONS'])) {
             unset($_SERVER['TEST_KEEP_MIGRATIONS']);
         }
-
-        $dispatcher = $this->container->get('event_dispatcher');
-
-        foreach ($this->registeredListeners as [$eventName, $listener]) {
-            $dispatcher->removeListener($eventName, $listener);
-        }
-
-        $this->registeredListeners = [];
     }
 
     public function testInstallPlugin(): void
@@ -549,7 +537,7 @@ class PluginLifecycleServiceTest extends TestCase
             throw $expectedException;
         };
 
-        $this->addTestListener(PluginPostInstallEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(PluginPostInstallEvent::class, $listener);
 
         try {
             $this->pluginLifecycleService->installPlugin($plugin, $this->context);
@@ -913,14 +901,5 @@ class PluginLifecycleServiceTest extends TestCase
     private function getTestPlugin(Context $context): PluginEntity
     {
         return $this->pluginService->getPluginByName(self::PLUGIN_NAME, $context);
-    }
-
-    private function addTestListener(string $eventName, callable $listener): void
-    {
-        $dispatcher = $this->container->get('event_dispatcher');
-
-        $dispatcher->addListener($eventName, $listener);
-
-        $this->registeredListeners[] = [$eventName, $listener];
     }
 }

@@ -466,7 +466,7 @@ class SeoUrlTest extends TestCase
             ->addFilter(new EqualsFilter('isCanonical', null));
 
         $products = $productRepo->search($criteria, Context::createDefaultContext())->getEntities();
-        static::assertNotEmpty($products);
+        static::assertNotCount(0, $products);
 
         /** @var ProductEntity $product */
         $product = $products->first();

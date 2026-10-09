@@ -92,12 +92,12 @@ class StoreApiSeoResolverTest extends TestCase
             $response
         );
 
-        static::assertEmpty($productEntity->getSeoUrls());
+        static::assertCount(0, $productEntity->getSeoUrls() ?? []);
 
         $storeApiSeoResolver = $this->createStoreApiSeoResolver();
         $storeApiSeoResolver->addSeoInformation($event);
 
-        static::assertNotEmpty($productEntity->getSeoUrls());
+        static::assertNotCount(0, $productEntity->getSeoUrls() ?? []);
     }
 
     public function testAddSeoWithRepeatedEntity(): void
@@ -143,12 +143,12 @@ class StoreApiSeoResolverTest extends TestCase
             $response
         );
 
-        static::assertEmpty($productEntity->getSeoUrls());
+        static::assertCount(0, $productEntity->getSeoUrls() ?? []);
 
         $storeApiSeoResolver = $this->createStoreApiSeoResolver(['random', 'cross-selling-product']);
         $storeApiSeoResolver->addSeoInformation($event);
 
-        static::assertNotEmpty($productEntity->getSeoUrls());
+        static::assertNotCount(0, $productEntity->getSeoUrls() ?? []);
 
         $crossSellingProduct1 = $productEntity->getCrossSellings()?->get('cross-item-1');
 
@@ -198,12 +198,12 @@ class StoreApiSeoResolverTest extends TestCase
             $response
         );
 
-        static::assertEmpty($product->getSeoUrls());
+        static::assertCount(0, $product->getSeoUrls() ?? []);
 
         $storeApiSeoResolver = $this->createStoreApiSeoResolver();
         $storeApiSeoResolver->addSeoInformation($event);
 
-        static::assertNotEmpty($product->getSeoUrls());
+        static::assertNotCount(0, $product->getSeoUrls() ?? []);
     }
 
     public function testAddSeoInformationForSearchResultNestedInStructVars(): void
@@ -242,12 +242,12 @@ class StoreApiSeoResolverTest extends TestCase
             new ProductListResponse($searchResult)
         );
 
-        static::assertEmpty($product->getSeoUrls());
+        static::assertCount(0, $product->getSeoUrls() ?? []);
 
         $storeApiSeoResolver = $this->createStoreApiSeoResolver();
         $storeApiSeoResolver->addSeoInformation($event);
 
-        static::assertNotEmpty($product->getSeoUrls());
+        static::assertNotCount(0, $product->getSeoUrls() ?? []);
     }
 
     #[DoesNotPerformAssertions]
@@ -387,7 +387,7 @@ class StoreApiSeoResolverTest extends TestCase
 
         static::assertInstanceOf(Criteria::class, $capturedCriteria);
         static::assertSame($expectedRouteNames, $this->getRouteNameFilterValues($capturedCriteria));
-        static::assertNotEmpty($productEntity->getSeoUrls());
+        static::assertNotCount(0, $productEntity->getSeoUrls() ?? []);
     }
 
     private function createProductListResponseEvent(SalesChannelProductEntity $productEntity, SalesChannelContext $context): ResponseEvent

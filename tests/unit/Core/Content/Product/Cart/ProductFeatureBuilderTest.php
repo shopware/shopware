@@ -148,7 +148,6 @@ class ProductFeatureBuilderTest extends TestCase
 
         $this->productFeatureBuilder->add([$lineItem], $data, $this->salesChannelContext);
 
-        static::assertNotEmpty($lineItem->getPayload()['features']);
         static::assertSame([
             [
                 'label' => 'color',

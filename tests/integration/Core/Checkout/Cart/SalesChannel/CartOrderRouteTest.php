@@ -339,11 +339,12 @@ class CartOrderRouteTest extends TestCase
         static::assertNotFalse($response->getContent());
 
         $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEmpty($data['lineItems']);
+        static::assertCount(0, $data['lineItems']);
 
         $response = $this->addProductToCart('p2');
         $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertNotEmpty($token);
+        static::assertIsString($token);
+        static::assertNotSame('', $token);
         $guestToken = $token;
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
@@ -435,7 +436,7 @@ class CartOrderRouteTest extends TestCase
 
         $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($response);
+        static::assertNotCount(0, $response);
         static::assertArrayHasKey('price', $response);
 
         $price = $response['price'];
@@ -631,7 +632,7 @@ class CartOrderRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
@@ -727,7 +728,8 @@ class CartOrderRouteTest extends TestCase
         }
 
         if ($contextToken === null) {
-            static::assertNotEmpty($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertIsString($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertNotSame('', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
             return;
         }

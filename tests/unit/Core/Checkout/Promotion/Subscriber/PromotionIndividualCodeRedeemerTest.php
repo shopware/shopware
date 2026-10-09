@@ -197,6 +197,6 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
 
         $redeemer->onOrderLineItemWritten($event);
 
-        static::assertEmpty($codeRepository->updates);
+        static::assertCount(0, $codeRepository->updates);
     }
 }

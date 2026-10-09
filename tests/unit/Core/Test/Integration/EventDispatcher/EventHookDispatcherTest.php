@@ -129,17 +129,17 @@ class EventHookDispatcherTest extends TestCase
         EventHookDispatcher::fromContainer(new Container());
     }
 
-    public function testResetCurrentClearsTheHooksOfTheLatestDispatcher(): void
+    public function testResetAllClearsTheHooksOfEveryLiveDispatcher(): void
     {
         $older = new EventHookDispatcher(new EventDispatcher());
         $older->on(Event::class, static function (): void {});
         $latest = new EventHookDispatcher(new EventDispatcher());
         $latest->on(Event::class, static function (): void {});
 
-        EventHookDispatcher::resetCurrent();
+        EventHookDispatcher::resetAll();
 
+        static::assertFalse($older->hasListeners(Event::class));
         static::assertFalse($latest->hasListeners(Event::class));
-        static::assertTrue($older->hasListeners(Event::class));
     }
 
     public function testResetClearsAllHooks(): void

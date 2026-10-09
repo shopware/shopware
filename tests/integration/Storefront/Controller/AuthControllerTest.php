@@ -364,7 +364,7 @@ class AuthControllerTest extends TestCase
         static::getContainer()->get(AuthController::class)->login($request, $requestDataBag, $salesChannelContextNew);
         $flashBag = $session->getFlashBag();
 
-        static::assertNotEmpty($infoFlash = $flashBag->get('danger'));
+        static::assertNotCount(0, $infoFlash = $flashBag->get('danger'));
         static::assertSame(static::getContainer()->get('translator')->trans('checkout.product-not-found', ['%s%' => 'Test product']), $infoFlash[0]);
     }
 

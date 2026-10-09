@@ -129,7 +129,7 @@ class RedisIncrementerTest extends TestCase
 
         $incrementer->reset('test');
 
-        static::assertEmpty($incrementer->list('test'));
+        static::assertCount(0, $incrementer->list('test'));
     }
 
     /**

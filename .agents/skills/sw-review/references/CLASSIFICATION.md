@@ -20,6 +20,7 @@ Default down when uncertain.
 - `docs`: UPGRADE, changelog, README, docblock.
 - `supply_chain`: dependency or build-tool risk.
 - `privacy`: PII, GDPR, regional data rules.
+- `scope`: the change does not belong in the platform (workaround for a misconfigured setup, option for one hosting variant, symptom fix at the wrong layer).
 
 ## Decision And Risk
 
@@ -63,7 +64,7 @@ Category owners:
 | ------------------------------------------------------------------------- | -------------- |
 | `security`, `privacy`, `supply_chain`                                     | `security`     |
 | `correctness`, `tests`, `maintainability`, `performance`, `compatibility` | `architecture` |
-| `docs`                                                                    | `open-source`  |
+| `docs`, `scope`                                                           | `maintainer`   |
 
 `code-style` and `ux` can concur, but do not own a category.
 

@@ -9,6 +9,7 @@ on:
       - ".github/aw/**"
       - ".github/dependabot.yml"
       - ".gitattributes"
+      - ".agents/skills/sw-review/**"
   workflow_dispatch:
 
 permissions:
@@ -45,3 +46,21 @@ jobs:
             echo "::error::gh aw compile output differs from the committed files. Run 'gh aw compile' with the pinned version and commit the result."
             exit 1
           fi
+
+  review-routing:
+    name: sw-review routing cases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Deterministic classification of real PR diffs (no LLM). The run script exits
+      # non-zero on any failed case; the grep proves it actually evaluated cases, so an
+      # empty fixture directory cannot pass silently.
+      - name: Run routing cases
+        run: |
+          set -euo pipefail
+          bash .agents/skills/sw-review/tests/routing/run.sh | tee routing.log
+          grep -E '^[1-9][0-9]*/[1-9][0-9]* routing cases passed$' routing.log

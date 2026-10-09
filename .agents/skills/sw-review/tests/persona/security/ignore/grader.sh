@@ -9,7 +9,7 @@ load_output
 check_schema_persona
 
 check "persona-attribution"   '.persona == "security"'
-check "no-findings"           '(.findings // []) | length == 0'
+require "no-findings"           '(.findings // []) | length == 0'
 check "decision-comment"      '.decision == "comment"'
 
 emit_result

@@ -1,0 +1,38 @@
+{
+  "persona": "maintainer",
+  "tier": "balanced",
+  "guides": [
+    "guides/platform-scope.md",
+    "guides/cache-and-asset-lifetime.md"
+  ],
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-guide-scope-18612",
+    "title": "fix(theme): theme:compile post directory cleanup",
+    "body": "Runs the unused theme directory cleanup after `theme:compile` and `theme:change`. The daily `theme.delete_files` scheduled task does not run reliably in some environments (theme compiled during a deploy step, admin worker without an open Administration), so old `theme/<hash>` directories pile up. Directories whose files are older than 24 hours are deleted. `--no-cleanup` keeps the previous behaviour.",
+    "labels": [
+      "external-contribution"
+    ],
+    "author": "synthetic",
+    "author_association": "CONTRIBUTOR",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/guide-scope-18612",
+    "additions": 412,
+    "deletions": 181,
+    "changed_files": 11
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "RELEASE_INFO-6.7.md",
+    "src/Storefront/DependencyInjection/theme.php",
+    "src/Storefront/Theme/Command/ThemeChangeCommand.php",
+    "src/Storefront/Theme/Command/ThemeCompileCommand.php",
+    "src/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandler.php",
+    "src/Storefront/Theme/UnusedThemeDirectoryDeleter.php",
+    "tests/integration/Storefront/Theme/Command/ThemeChangeCommandTest.php",
+    "tests/unit/Storefront/Theme/Command/ThemeChangeCommandTest.php",
+    "tests/unit/Storefront/Theme/Command/ThemeCompileCommandTest.php",
+    "tests/unit/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandlerTest.php",
+    "tests/unit/Storefront/Theme/UnusedThemeDirectoryDeleterTest.php"
+  ]
+}

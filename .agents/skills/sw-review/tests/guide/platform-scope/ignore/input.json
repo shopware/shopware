@@ -1,0 +1,27 @@
+{
+  "persona": "maintainer",
+  "tier": "balanced",
+  "guides": [
+    "guides/platform-scope.md",
+    "guides/scheduled-tasks-and-queue.md"
+  ],
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-guide-scope-ignore",
+    "title": "fix(core): retry mails rejected with a temporary SMTP error after a longer delay",
+    "body": "Some SMTP servers answer with a temporary 4xx code (greylisting, rate limits) and accept the mail only after a few minutes. The transport retry backoff (1s, 2s, 4s) is used up long before that, so those mails end in the failed transport. `SendMailHandler` now turns a 4xx answer into a `RecoverableMessageHandlingException` with a five-minute retry delay; permanent 5xx errors are rethrown unchanged.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/guide-scope-ignore",
+    "additions": 65,
+    "deletions": 1,
+    "changed_files": 2
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Core/Content/Mail/Message/SendMailHandler.php",
+    "tests/unit/Core/Content/Mail/Message/SendMailHandlerTest.php"
+  ]
+}

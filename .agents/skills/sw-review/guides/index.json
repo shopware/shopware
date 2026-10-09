@@ -1,0 +1,312 @@
+{
+  "$comment": "Router index for review guides. classify.sh selects a guide when ANY of: a signal in signals_any is present, a changed path matches a glob in paths_any, or an anchor regex in anchors_any hits a +/- line of a non-test file. always_for selects it for every PR that has the named signal class. Keep this file and the guide frontmatter in sync (guide slug = file name). Guide pairs are split by angle: migrations (mechanics) vs bc-data-and-config (data/config contracts); di-and-extension-points (designing new seams) vs bc-extension-points (changing existing ones); admin-bc-and-flags (flags, deprecation mechanics, registries) vs bc-admin (component API).",
+  "guides": [
+    {
+      "guide": "platform-scope",
+      "personas": [
+        "maintainer",
+        "architecture"
+      ],
+      "signals_any": [
+        "sync_path_change",
+        "config",
+        "scheduled_task",
+        "filesystem"
+      ],
+      "paths_any": [
+        "src/Core/Framework/Adapter/*",
+        "src/Storefront/Theme/*",
+        "src/Core/Content/Media/*",
+        "src/Core/Framework/MessageQueue/*"
+      ],
+      "anchors_any": [
+        "getenv\\(",
+        "%env\\(",
+        "ini_get\\(",
+        "is_writable\\(",
+        "function_exists\\(",
+        "class_exists\\("
+      ]
+    },
+    {
+      "guide": "bc-php",
+      "personas": [
+        "architecture",
+        "maintainer"
+      ],
+      "always_for": [
+        "php_src"
+      ],
+      "signals_any": [
+        "public_surface",
+        "deprecation",
+        "removal"
+      ],
+      "paths_any": [
+        "UPGRADE-*.md",
+        "RELEASE_INFO-*.md"
+      ],
+      "anchors_any": [
+        "triggerDeprecationOrThrow\\(",
+        "BCChange\\\\",
+        "@deprecated",
+        "<deprecated"
+      ]
+    },
+    {
+      "guide": "bc-storefront",
+      "personas": [
+        "architecture",
+        "ux",
+        "maintainer"
+      ],
+      "signals_any": [
+        "storefront_ui"
+      ],
+      "paths_any": [
+        "src/Storefront/Resources/views/*",
+        "src/Storefront/Resources/app/storefront/src/*"
+      ],
+      "anchors_any": [
+        "\\{% block ",
+        "sw_include",
+        "PluginManager\\.register",
+        "this\\.options"
+      ]
+    },
+    {
+      "guide": "bc-removal-before-major",
+      "personas": [
+        "maintainer",
+        "architecture"
+      ],
+      "signals_any": [
+        "removal"
+      ],
+      "paths_any": [],
+      "anchors_any": []
+    },
+    {
+      "guide": "cache-and-asset-lifetime",
+      "personas": [
+        "architecture",
+        "maintainer"
+      ],
+      "signals_any": [
+        "cache",
+        "filesystem"
+      ],
+      "paths_any": [
+        "src/Storefront/Theme/*",
+        "src/Core/Content/Media/*",
+        "src/Core/Framework/Adapter/Cache/*",
+        "src/Storefront/Framework/Cache/*"
+      ],
+      "anchors_any": [
+        "deleteDirectory\\(",
+        "FilesystemOperator",
+        "CacheInvalidator",
+        "HttpCache",
+        "Cache-Control",
+        "ETag",
+        "CacheTagCollector"
+      ]
+    },
+    {
+      "guide": "scheduled-tasks-and-queue",
+      "personas": [
+        "architecture",
+        "maintainer"
+      ],
+      "signals_any": [
+        "scheduled_task",
+        "sync_path_change"
+      ],
+      "paths_any": [
+        "src/*/ScheduledTask/*",
+        "src/Core/Framework/MessageQueue/*",
+        "src/*/MessageQueue/*"
+      ],
+      "anchors_any": [
+        "AsMessageHandler",
+        "ScheduledTask",
+        "MessageHandler",
+        "DelayStamp"
+      ]
+    },
+    {
+      "guide": "bc-extension-points",
+      "personas": [
+        "architecture",
+        "maintainer"
+      ],
+      "signals_any": [
+        "extension_point",
+        "di"
+      ],
+      "paths_any": [
+        "src/*/SalesChannel/*Route.php",
+        "src/*/Abstract*.php",
+        "src/*Event.php"
+      ],
+      "anchors_any": [
+        "getDecorated\\(",
+        "extends Event\\b",
+        "AbstractExtension",
+        "#\\[AsDecorator"
+      ]
+    },
+    {
+      "guide": "bc-admin",
+      "personas": [
+        "architecture",
+        "ux",
+        "maintainer"
+      ],
+      "signals_any": [
+        "admin_ui"
+      ],
+      "paths_any": [
+        "src/Administration/Resources/app/administration/src/*"
+      ],
+      "anchors_any": [
+        "swDefinePublic",
+        "swDefineOverride",
+        "Component\\.register",
+        "Component\\.extend",
+        "Component\\.override",
+        "\\$super"
+      ]
+    },
+    {
+      "guide": "bc-api-contracts",
+      "personas": [
+        "architecture",
+        "security",
+        "maintainer"
+      ],
+      "signals_any": [
+        "api_contract",
+        "acl_route"
+      ],
+      "paths_any": [
+        "src/Core/*/Api/*",
+        "src/*/SalesChannel/*",
+        "src/Core/Framework/Api/ApiDefinition/Generator/Schema/*"
+      ],
+      "anchors_any": [
+        "#\\[Route\\(",
+        "sw-context-token",
+        "sw-language-id",
+        "JsonResponse\\(",
+        "->headers->set\\("
+      ]
+    },
+    {
+      "guide": "bc-data-and-config",
+      "personas": [
+        "architecture",
+        "maintainer"
+      ],
+      "signals_any": [
+        "config"
+      ],
+      "paths_any": [
+        "src/*Definition.php",
+        "src/*/Resources/config/*",
+        "*config.xml",
+        "*feature.yaml",
+        "*shopware.yaml",
+        "*config-schema.json"
+      ],
+      "anchors_any": [
+        "new Required\\(",
+        "ApiAware",
+        "Feature::isActive\\(",
+        "new FkField\\(",
+        "new OneToManyAssociationField\\(",
+        "new ManyToManyAssociationField\\("
+      ],
+      "$comment": "Migration mechanics are the `migrations` guide; this one owns DAL definition, API-visible data shape, and config contracts."
+    },
+    {
+      "guide": "migrations",
+      "personas": [
+        "architecture"
+      ],
+      "signals_any": [
+        "migration"
+      ],
+      "paths_any": [
+        "src/Core/Migration/*"
+      ],
+      "anchors_any": [
+        "extends MigrationStep",
+        "updateDestructive\\("
+      ]
+    },
+    {
+      "guide": "di-and-extension-points",
+      "personas": [
+        "architecture"
+      ],
+      "signals_any": [
+        "di",
+        "extension_point"
+      ],
+      "paths_any": [],
+      "anchors_any": [
+        "ResetInterface",
+        "#\\[AsDecorator",
+        "decorates="
+      ]
+    },
+    {
+      "guide": "tests-for-behavior-change",
+      "personas": [
+        "architecture"
+      ],
+      "signals_any": [
+        "php_src_without_tests",
+        "fix_without_test"
+      ],
+      "paths_any": [],
+      "anchors_any": []
+    },
+    {
+      "guide": "release-docs",
+      "personas": [
+        "maintainer"
+      ],
+      "signals_any": [
+        "release_docs",
+        "public_surface",
+        "deprecation",
+        "config"
+      ],
+      "paths_any": [
+        "UPGRADE-*.md",
+        "RELEASE_INFO-*.md"
+      ],
+      "anchors_any": []
+    },
+    {
+      "guide": "admin-bc-and-flags",
+      "personas": [
+        "architecture",
+        "ux"
+      ],
+      "signals_any": [
+        "admin_ui"
+      ],
+      "paths_any": [
+        "src/Administration/Resources/app/administration/src/*"
+      ],
+      "anchors_any": [
+        "Feature\\.isActive\\(",
+        "@deprecated tag:",
+        "triggerDeprecationOrThrow"
+      ]
+    }
+  ]
+}

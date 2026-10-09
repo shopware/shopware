@@ -42,7 +42,7 @@ Optional cheap discovery worker:
 ## Persona Tiers
 
 - `code-style`: `cheap`.
-- `open-source`: `cheap`.
+- `maintainer`: `cheap`.
 - `ux`: `balanced`.
 - `security`: `balanced`.
 - `architecture`: `balanced`.
@@ -52,6 +52,12 @@ Escalate `security` to `strong` for auth, input, deps, secrets, tenant boundarie
 Escalate `architecture` to `strong` for migrations, public API, hot paths, destructive changes, DAL shape, or extension points.
 
 Use `strong-required` only for unclear blocking risk or high-impact public/security changes.
+
+Escalate `maintainer` to `balanced` when `platform-scope` or `bc-removal-before-major` is among its guides: scope and removal judgements are the costly misses.
+
+## Guides
+
+A guide is 30-60 lines (about 1k cached tokens). A worker reads every guide the router selected for its persona; there is no cap. Six guides cost about 1% of a measured run; dropping a matching guide is the expensive mistake.
 
 ## Budgets
 

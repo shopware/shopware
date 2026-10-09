@@ -1,0 +1,27 @@
+{
+  "persona": "maintainer",
+  "tier": "balanced",
+  "guides": [
+    "guides/bc-removal-before-major.md"
+  ],
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-guide-removal-catch",
+    "title": "feat(storefront)!: remove deprecated sw_cover_url Twig function",
+    "body": "Removes the `sw_cover_url` Twig function and `ProductCoverUrlExtension`, both deprecated for 6.8. Templates read `product.cover.media.url` directly. The replacement is documented in UPGRADE-6.8.md.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/guide-removal-catch",
+    "additions": 4,
+    "deletions": 40,
+    "changed_files": 3
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "UPGRADE-6.8.md",
+    "src/Storefront/DependencyInjection/services.php",
+    "src/Storefront/Framework/Twig/Extension/ProductCoverUrlExtension.php"
+  ]
+}

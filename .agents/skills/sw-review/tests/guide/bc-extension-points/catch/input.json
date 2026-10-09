@@ -1,0 +1,43 @@
+{
+  "persona": "architecture",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-bc-extension-points-catch",
+    "title": "feat(store-api): add a delivery estimate route for products",
+    "body": "Adds `GET /store-api/product/{productId}/delivery-estimate`. Plugins can decorate `AbstractProductDeliveryEstimateRoute` to change the estimate. The route is added to the PHPStan route list.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/bc-extension-points-catch",
+    "additions": 107,
+    "deletions": 0,
+    "changed_files": 5
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Core/Content/Product/SalesChannel/DeliveryEstimate/AbstractProductDeliveryEstimateRoute.php",
+    "src/Core/Content/Product/SalesChannel/DeliveryEstimate/ProductDeliveryEstimateRoute.php",
+    "src/Core/Content/Product/SalesChannel/DeliveryEstimate/ProductDeliveryEstimateRouteResponse.php",
+    "src/Core/Content/DependencyInjection/product.php",
+    "src/Core/DevOps/StaticAnalyze/PHPStan/store-api-route-extensions.neon"
+  ],
+  "guides": [
+    "guides/bc-extension-points.md"
+  ],
+  "change_profile": {
+    "signals": [
+      "acl_route",
+      "api_contract",
+      "di",
+      "extension_point",
+      "php_src",
+      "php_src_without_tests",
+      "public_surface"
+    ],
+    "guides": [
+      "bc-extension-points"
+    ]
+  }
+}

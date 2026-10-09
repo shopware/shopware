@@ -1,0 +1,37 @@
+{
+  "persona": "maintainer",
+  "tier": "balanced",
+  "guides": [
+    "guides/platform-scope.md",
+    "guides/cache-and-asset-lifetime.md"
+  ],
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-guide-scope-20493",
+    "title": "fix: serve private downloads without presigned redirects",
+    "body": "Import/export files, private media and digital product downloads are now delivered through Shopware instead of redirecting the browser to a presigned object-storage URL. In one hosting setup the private storage endpoint is reachable by Shopware but not by the browser, so the redirect fails there. The existing `private_local_download_strategy` setting decides how the file is delivered.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/guide-scope-20493",
+    "additions": 318,
+    "deletions": 192,
+    "changed_files": 12
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "RELEASE_INFO-6.7.md",
+    "src/Core/Content/DependencyInjection/import_export.php",
+    "src/Core/Content/DependencyInjection/media.php",
+    "src/Core/Content/ImportExport/Service/DownloadService.php",
+    "src/Core/Content/Media/Api/MediaDownloadController.php",
+    "src/Core/Content/Media/File/DownloadResponseGenerator.php",
+    "src/Core/Content/Media/File/PrivateFileDownloadResponseGenerator.php",
+    "tests/integration/Core/Content/ImportExport/Service/DownloadServiceTest.php",
+    "tests/unit/Core/Content/ImportExport/Service/DownloadServiceTest.php",
+    "tests/unit/Core/Content/Media/Api/MediaDownloadControllerTest.php",
+    "tests/unit/Core/Content/Media/File/DownloadResponseGeneratorTest.php",
+    "tests/unit/Core/Content/Media/File/PrivateFileDownloadResponseGeneratorTest.php"
+  ]
+}

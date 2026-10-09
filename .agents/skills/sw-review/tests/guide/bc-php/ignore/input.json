@@ -1,0 +1,41 @@
+{
+  "persona": "architecture",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-bc-php-ignore",
+    "title": "feat(checkout): pass the rounding config to LineItemQuantitySplitter::split()",
+    "body": "Split line item taxes are rounded with an explicit rounding config in 6.8. `split()` gets a fourth argument, announced with `#[NewRequiredParameter]`; calls without it trigger a deprecation warning until 6.8. Core callers pass the argument. RELEASE_INFO and UPGRADE entries are included.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/bc-php-ignore",
+    "additions": 42,
+    "deletions": 5,
+    "changed_files": 6
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Core/Checkout/Cart/LineItem/LineItemQuantitySplitter.php",
+    "src/Core/Checkout/DependencyInjection/cart.php",
+    "src/Core/Checkout/Promotion/Cart/PromotionCalculator.php",
+    "src/Core/Checkout/Cart/LineItem/Group/LineItemGroupBuilder.php",
+    "UPGRADE-6.8.md",
+    "RELEASE_INFO-6.7.md"
+  ],
+  "guides": [
+    "guides/bc-php.md"
+  ],
+  "change_profile": {
+    "signals": [
+      "deprecation",
+      "php_src",
+      "php_src_without_tests",
+      "release_docs"
+    ],
+    "guides": [
+      "bc-php"
+    ]
+  }
+}

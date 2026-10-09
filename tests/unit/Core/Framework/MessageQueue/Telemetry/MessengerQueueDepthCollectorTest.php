@@ -186,5 +186,4 @@ class MessengerQueueDepthCollectorTest extends TestCase
             }
         };
     }
-
 }

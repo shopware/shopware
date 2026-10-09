@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Log\Package;
  * vocabulary can still grow freely and may be opened up later if plugins need it.
  *
  * @internal
- *
- * @codeCoverageIgnore - value holder
  */
 #[Package('framework')]
 abstract class OperationResult

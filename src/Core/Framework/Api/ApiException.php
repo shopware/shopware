@@ -69,6 +69,7 @@ class ApiException extends HttpException
     public const INVALID_SCHEMA_FOR_DEFINITION = 'FRAMEWORK__API_INVALID_SCHEMA_FOR_DEFINITION';
     public const API_DEFINITION_GENERATOR_NOT_FOUND = 'FRAMEWORK__API_DEFINITION_GENERATOR_NOT_FOUND';
     public const API_EXPECTATION_NOT_SUPPORTED = 'FRAMEWORK__API_EXPECTATION_NOT_SUPPORTED';
+    public const API_VERSION_ENTITY_MISMATCH = 'FRAMEWORK__API_VERSION_ENTITY_MISMATCH';
 
     /**
      * @param list<array{pointer: string, entity: string}> $exceptions
@@ -310,6 +311,16 @@ class ApiException extends HttpException
             self::API_INVALID_VERSION_ID,
             'versionId {{ versionId }} is not a valid uuid.',
             ['versionId' => $versionId]
+        );
+    }
+
+    public static function versionEntityMismatch(string $versionId, string $entity): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_VERSION_ENTITY_MISMATCH,
+            'Version {{ versionId }} is not a version of entity "{{ entity }}".',
+            ['versionId' => $versionId, 'entity' => $entity]
         );
     }
 

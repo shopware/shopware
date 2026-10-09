@@ -24,13 +24,16 @@ final class EventHookDispatcher implements EventDispatcherInterface
     private array $hooks = [];
 
     /**
-     * @var \WeakReference<self>|null
+     * Every dispatcher built in this process, so a reset reaches the shared kernel's dispatcher even after a test
+     * booted a kernel of its own.
+     *
+     * @var list<\WeakReference<self>>
      */
-    private static ?\WeakReference $current = null;
+    private static array $instances = [];
 
     public function __construct(private readonly EventDispatcherInterface $inner)
     {
-        self::$current = \WeakReference::create($this);
+        self::$instances[] = \WeakReference::create($this);
     }
 
     public static function fromContainer(ContainerInterface $container): self
@@ -44,11 +47,22 @@ final class EventHookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * Clears the hooks of the dispatcher of the current kernel, if one was built.
+     * Clears the hooks of every live dispatcher and forgets the collected ones.
      */
-    public static function resetCurrent(): void
+    public static function resetAll(): void
     {
-        self::$current?->get()?->reset();
+        $live = [];
+        foreach (self::$instances as $reference) {
+            $dispatcher = $reference->get();
+            if ($dispatcher === null) {
+                continue;
+            }
+
+            $dispatcher->reset();
+            $live[] = $reference;
+        }
+
+        self::$instances = $live;
     }
 
     public function on(string $eventName, callable $hook, bool $once = false): void

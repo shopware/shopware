@@ -38,6 +38,6 @@ class ResetEventHooksSubscriber implements PreparationStartedSubscriber
 
     public function notify(PreparationStarted $event): void
     {
-        EventHookDispatcher::resetCurrent();
+        EventHookDispatcher::resetAll();
     }
 }

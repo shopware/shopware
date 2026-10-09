@@ -13,6 +13,13 @@ import Axios from 'axios';
 self.onmessage = onMessage;
 self.onconnect = onconnect;
 
+/**
+ * The worker has its own axios 0.x dependency, outside the Administration HTTP client: `axios` resolves to
+ * 0.x today and to 1.x once the alias is dropped.
+ *
+ * @deprecated tag:v6.8.0 - Verify this client against axios 1.x and move the cancellation to
+ * `AbortController`, which axios 1.x prefers over `CancelToken`.
+ */
 const { CancelToken } = Axios;
 let isRunning = false;
 let loginService;

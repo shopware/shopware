@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -47,7 +48,7 @@ class ContactFormServiceTest extends TestCase
 
         $validationEventName = 'framework.validation.contact_form.create';
 
-        $this->addEventListener(static::getContainer()->get('event_dispatcher'), $validationEventName, $validationListenerClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on($validationEventName, $validationListenerClosure);
 
         $systemConfig = static::getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', true);

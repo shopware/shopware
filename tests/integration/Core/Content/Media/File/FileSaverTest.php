@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
@@ -825,14 +826,12 @@ SVG;
 
     public function testWhitelistEvent(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $eventDidRun = false;
         $listenerClosure = static function () use (&$eventDidRun): void {
             $eventDidRun = true;
         };
 
-        $this->addEventListener($dispatcher, MediaFileExtensionWhitelistEvent::class, $listenerClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MediaFileExtensionWhitelistEvent::class, $listenerClosure);
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
         static::assertIsString($tempFile);
@@ -867,8 +866,6 @@ SVG;
                 unlink($tempFile);
             }
         }
-
-        $dispatcher->removeListener(MediaFileExtensionWhitelistEvent::class, $listenerClosure);
 
         static::assertTrue($eventDidRun, 'The media_whitelist.before_filter event did not run');
     }

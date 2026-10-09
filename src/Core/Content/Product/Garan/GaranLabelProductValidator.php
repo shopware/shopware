@@ -18,6 +18,8 @@ class GaranLabelProductValidator implements EventSubscriberInterface
 {
     public const VIOLATION_CODE = 'INVALID_GARAN_GUARANTEE_MONTHS';
 
+    public const TERMS_URL_VIOLATION_CODE = 'INVALID_GARAN_GUARANTEE_TERMS_URL';
+
     /**
      * The statutory guarantee already covers the first 24 months, so a commercial guarantee only
      * says something beyond them: 30 is the lowest half-year value that qualifies.
@@ -58,18 +60,9 @@ class GaranLabelProductValidator implements EventSubscriberInterface
             }
 
             $payload = $command->getPayload();
+            $guaranteeMonths = $payload['guarantee_months'] ?? null;
 
-            if (!\array_key_exists('guarantee_months', $payload)) {
-                continue;
-            }
-
-            $guaranteeMonths = $payload['guarantee_months'];
-
-            if ($guaranteeMonths === null) {
-                continue;
-            }
-
-            if (!\is_int($guaranteeMonths) || !self::isValidDuration($guaranteeMonths)) {
+            if ($guaranteeMonths !== null && (!\is_int($guaranteeMonths) || !self::isValidDuration($guaranteeMonths))) {
                 $violations->add(new ConstraintViolation(
                     'The GARAN guarantee duration must be empty or a half-year value between 30 and 600 months.',
                     'The GARAN guarantee duration must be empty or a half-year value between 30 and 600 months.',
@@ -79,6 +72,22 @@ class GaranLabelProductValidator implements EventSubscriberInterface
                     $guaranteeMonths,
                     null,
                     self::VIOLATION_CODE
+                ));
+            }
+
+            $termsUrl = $payload['guarantee_terms_url'] ?? null;
+
+            // rendered as a link, so no `javascript:` or other schemes
+            if ($termsUrl !== null && (!\is_string($termsUrl) || preg_match('~^https?://\S+$~iD', $termsUrl) !== 1)) {
+                $violations->add(new ConstraintViolation(
+                    'The GARAN guarantee terms URL must be empty or an http(s) URL.',
+                    'The GARAN guarantee terms URL must be empty or an http(s) URL.',
+                    [],
+                    null,
+                    $command->getPath() . '/guaranteeTermsUrl',
+                    $termsUrl,
+                    null,
+                    self::TERMS_URL_VIOLATION_CODE
                 ));
             }
         }

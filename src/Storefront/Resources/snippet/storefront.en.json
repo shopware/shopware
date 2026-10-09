@@ -627,6 +627,7 @@
   "detail": {
     "garanLabelShowLink": "Show GARAN label",
     "garanLabelHideLink": "Hide GARAN label",
+    "garanTermsLink": "Guarantee terms",
     "ordernumberLabel": "Product number:",
     "productNumberLabel": "Product number:",
     "addProduct": "Add to shopping cart",

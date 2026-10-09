@@ -62,7 +62,9 @@ class ProductListingPartialLoadingTest extends TestCase
         static::assertNull($translated['description'] ?? null, 'description must not be loaded');
         static::assertNull($translated['keywords'] ?? null, 'keywords must not be loaded');
         // ... but the teaser and everything else (incl. customFields) load as usual.
-        static::assertNotEmpty($translated['descriptionTeaser'] ?? null);
+        $descriptionTeaser = $translated['descriptionTeaser'] ?? null;
+        static::assertIsString($descriptionTeaser);
+        static::assertNotSame('', $descriptionTeaser);
         static::assertSame(['probe' => 'value'], $translated['customFields'] ?? null, 'customFields must still load');
 
         // Typed getters work because it stays a real SalesChannelProductEntity.
@@ -77,8 +79,12 @@ class ProductListingPartialLoadingTest extends TestCase
         // No config set: reduced loading is opt-in, so full entities incl. description are loaded.
         $product = $this->loadListing()->getEntities()->get($this->ids->get('product0'));
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertNotEmpty($product->getTranslation('description'));
-        static::assertNotEmpty($product->getTranslation('descriptionTeaser'));
+        $description = $product->getTranslation('description');
+        static::assertIsString($description);
+        static::assertNotSame('', $description);
+        $descriptionTeaser = $product->getTranslation('descriptionTeaser');
+        static::assertIsString($descriptionTeaser);
+        static::assertNotSame('', $descriptionTeaser);
     }
 
     public function testListingLoadsAllDataWhenDisabled(): void
@@ -88,7 +94,9 @@ class ProductListingPartialLoadingTest extends TestCase
 
         $product = $this->loadListing()->getEntities()->get($this->ids->get('product0'));
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertNotEmpty($product->getTranslation('description'));
+        $description = $product->getTranslation('description');
+        static::assertIsString($description);
+        static::assertNotSame('', $description);
     }
 
     public function testExplicitCriteriaFieldsAreNotOverridden(): void
@@ -105,7 +113,9 @@ class ProductListingPartialLoadingTest extends TestCase
         static::assertInstanceOf(PartialEntity::class, $product);
         $translated = $product->get('translated');
         static::assertIsArray($translated);
-        static::assertNotEmpty($translated['description'] ?? null, 'explicitly requested description must stay loaded');
+        $description = $translated['description'] ?? null;
+        static::assertIsString($description, 'explicitly requested description must stay loaded');
+        static::assertNotSame('', $description, 'explicitly requested description must stay loaded');
     }
 
     public function testCoverMediaIsLoadedAsFullEntity(): void
@@ -133,7 +143,7 @@ class ProductListingPartialLoadingTest extends TestCase
 
         $media = $product->getCover()?->getMedia();
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertNotEmpty($media->getUrl());
+        static::assertNotSame('', $media->getUrl());
 
         $encoded = static::getContainer()->get(UrlEncodingTwigFilter::class)->encodeMediaUrl($media);
         static::assertIsString($encoded);

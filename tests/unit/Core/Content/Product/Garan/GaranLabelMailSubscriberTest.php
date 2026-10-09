@@ -8,8 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
+use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
 use Shopware\Core\Content\Product\Garan\GaranLabelInlineImage;
@@ -66,8 +70,8 @@ class GaranLabelMailSubscriberTest extends TestCase
 
         static::assertSame(
             [
-                'product-a' => ['cid' => 'cid:garan-label-nested-36.png', 'duration' => '3'],
-                'product-b' => ['cid' => 'cid:garan-label-nested-30.png', 'duration' => '2,5'],
+                'product-a' => ['cid' => 'cid:garan-label-nested-36.png', 'duration' => '3', 'termsUrl' => null],
+                'product-b' => ['cid' => 'cid:garan-label-nested-30.png', 'duration' => '2,5', 'termsUrl' => null],
             ],
             $event->getTemplateData()['garanLabels']
         );
@@ -99,7 +103,7 @@ class GaranLabelMailSubscriberTest extends TestCase
         ])->addLabels($event);
 
         static::assertSame(
-            ['product-id' => ['cid' => null, 'duration' => '50,5']],
+            ['product-id' => ['cid' => null, 'duration' => '50,5', 'termsUrl' => null]],
             $event->getTemplateData()['garanLabels'],
             'Legacy durations above the maximum have no image, the template falls back to the duration text'
         );
@@ -129,6 +133,61 @@ class GaranLabelMailSubscriberTest extends TestCase
         ])->addLabels($event);
 
         static::assertArrayHasKey('product-id', $event->getTemplateData()['garanLabels']);
+    }
+
+    public function testLinksTheTermsUrlOrElseThePublicTermsDocument(): void
+    {
+        $event = $this->createEvent(['with-url', 'with-document', 'with-private-document']);
+
+        $this->createSubscriber([
+            static function (Criteria $criteria): ProductCollection {
+                static::assertTrue($criteria->hasAssociation('guaranteeTermsMedia'));
+
+                return new ProductCollection([
+                    self::createProduct('with-url', guaranteeConfirmed: true, termsUrl: 'https://example.com/terms', termsMediaUrl: 'https://shop.example.com/terms.pdf'),
+                    self::createProduct('with-document', guaranteeConfirmed: true, termsMediaUrl: 'https://shop.example.com/terms.pdf'),
+                    self::createProduct('with-private-document', guaranteeConfirmed: true, termsMediaUrl: ''),
+                ]);
+            },
+        ])->addLabels($event);
+
+        static::assertSame(
+            [
+                'with-url' => 'https://example.com/terms',
+                'with-document' => 'https://shop.example.com/terms.pdf',
+                'with-private-document' => null,
+            ],
+            array_map(static fn (array $label): ?string => $label['termsUrl'], $event->getTemplateData()['garanLabels'])
+        );
+    }
+
+    public function testAttachesTheTermsDocumentsOfLabelledProductsOnce(): void
+    {
+        $mailSendConfig = new MailSendSubscriberConfig(false, mediaIds: ['admin-selected-media']);
+        $event = new MailBeforeValidateEvent(
+            [
+                'contentHtml' => self::TEMPLATE,
+                'attachmentsConfig' => new MailAttachmentsConfig(Context::createDefaultContext(), new MailTemplateEntity(), $mailSendConfig, [], null),
+            ],
+            Context::createDefaultContext(),
+            ['order' => self::createOrder(['product-a', 'product-b', 'unlabelled', 'without-file'])],
+        );
+
+        $withoutFile = self::createProduct('without-file', guaranteeConfirmed: true);
+        $emptyMedia = new MediaEntity();
+        $emptyMedia->setId('empty-media');
+        $withoutFile->setGuaranteeTermsMedia($emptyMedia);
+
+        $this->createSubscriber([
+            new ProductCollection([
+                self::createProduct('product-a', guaranteeConfirmed: true, termsMediaUrl: 'https://shop.example.com/terms.pdf', termsMediaId: 'terms-media'),
+                self::createProduct('product-b', guaranteeConfirmed: true, termsMediaUrl: 'https://shop.example.com/terms.pdf', termsMediaId: 'terms-media'),
+                self::createProduct('unlabelled', guaranteeConfirmed: false, termsMediaUrl: 'https://shop.example.com/other.pdf', termsMediaId: 'other-media'),
+                $withoutFile,
+            ]),
+        ])->addLabels($event);
+
+        static::assertSame(['admin-selected-media', 'terms-media'], $mailSendConfig->getMediaIds());
     }
 
     /**
@@ -273,8 +332,14 @@ class GaranLabelMailSubscriberTest extends TestCase
         return $order;
     }
 
-    private static function createProduct(string $id, bool $guaranteeConfirmed, int $guaranteeMonths = 36): ProductEntity
-    {
+    private static function createProduct(
+        string $id,
+        bool $guaranteeConfirmed,
+        int $guaranteeMonths = 36,
+        ?string $termsUrl = null,
+        ?string $termsMediaUrl = null,
+        string $termsMediaId = 'terms-media-id',
+    ): ProductEntity {
         $manufacturer = new ProductManufacturerEntity();
         $manufacturer->setId('manufacturer-id');
         $manufacturer->setName('ACME');
@@ -286,6 +351,17 @@ class GaranLabelMailSubscriberTest extends TestCase
         $product->setManufacturerNumber('ACME-123');
         $product->setGuaranteeMonths($guaranteeMonths);
         $product->setGuaranteeConfirmed($guaranteeConfirmed);
+        $product->setGuaranteeTermsUrl($termsUrl);
+
+        if ($termsMediaUrl !== null) {
+            $media = new MediaEntity();
+            $media->setId($termsMediaId);
+            $media->setUrl($termsMediaUrl);
+            $media->setPath('media/terms.pdf');
+
+            $product->setGuaranteeTermsMediaId($termsMediaId);
+            $product->setGuaranteeTermsMedia($media);
+        }
 
         return $product;
     }

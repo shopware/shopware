@@ -51,8 +51,14 @@ class McpResourceFeatureDefinition extends AppFeatureDefinition
                 $element->getAttribute('uri'),
                 $element->getAttribute('url'),
                 $element->hasAttribute('mime-type') ? $element->getAttribute('mime-type') : null,
-                new TranslatedString(XmlParserUtils::parseTranslations($element, 'label')),
-                new TranslatedString(XmlParserUtils::parseTranslations($element, 'description')),
+                new TranslatedString(XmlParserUtils::ensureTranslationForLocale(
+                    XmlParserUtils::parseTranslations($element, 'label'),
+                    $defaultLocale,
+                )),
+                new TranslatedString(XmlParserUtils::ensureTranslationForLocale(
+                    XmlParserUtils::parseTranslations($element, 'description'),
+                    $defaultLocale,
+                )),
             );
         }
 

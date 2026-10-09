@@ -49,8 +49,14 @@ class McpPromptFeatureDefinition extends AppFeatureDefinition
             $configs[] = new McpPromptConfig(
                 $element->getAttribute('name'),
                 $element->getAttribute('url'),
-                new TranslatedString(XmlParserUtils::parseTranslations($element, 'label')),
-                new TranslatedString(XmlParserUtils::parseTranslations($element, 'description')),
+                new TranslatedString(XmlParserUtils::ensureTranslationForLocale(
+                    XmlParserUtils::parseTranslations($element, 'label'),
+                    $defaultLocale,
+                )),
+                new TranslatedString(XmlParserUtils::ensureTranslationForLocale(
+                    XmlParserUtils::parseTranslations($element, 'description'),
+                    $defaultLocale,
+                )),
             );
         }
 

@@ -178,9 +178,6 @@ export default {
                 restrictedFields = [
                     'isCloseout',
                     'restockTime',
-                    'maxPurchase',
-                    'purchaseSteps',
-                    'minPurchase',
                     'shippingFree',
                 ];
             }

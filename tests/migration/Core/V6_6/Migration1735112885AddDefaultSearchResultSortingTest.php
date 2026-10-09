@@ -35,7 +35,7 @@ class Migration1735112885AddDefaultSearchResultSortingTest extends TestCase
 
     public function testMigration(): void
     {
-        static::assertEmpty($this->getConfig());
+        static::assertCount(0, $this->getConfig());
 
         $migration = new Migration1735112885AddDefaultSearchResultSorting();
         $migration->update($this->connection);

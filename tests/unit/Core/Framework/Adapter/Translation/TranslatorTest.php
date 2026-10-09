@@ -17,7 +17,8 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
@@ -83,9 +84,8 @@ class TranslatorTest extends TestCase
             static::createStub(CacheTagCollector::class),
         );
 
-        $item = new CacheItem();
-        $property = new \ReflectionProperty(CacheItem::class, 'isTaggable');
-        $property->setValue($item, true);
+        // Items handed out by a tag-aware pool accept tags, which the catalogue loader adds
+        $item = (new TagAwareAdapter(new ArrayAdapter()))->getItem('translation');
 
         $cache->expects($expectedCacheKey ? $this->once() : $this->never())->method('get')->willReturnCallback(static function (string $key, callable $callback) use ($expectedCacheKey, $item) {
             static::assertSame($expectedCacheKey, $key);
@@ -96,9 +96,6 @@ class TranslatorTest extends TestCase
         if ($injectSalesChannelId) {
             $translator->injectSettings($injectSalesChannelId, Uuid::randomHex(), 'en-GB', Context::createDefaultContext());
         }
-
-        $snippetSetIdProp = new \ReflectionProperty(Translator::class, 'snippetSetId');
-        $snippetSetIdProp->setValue($translator, $snippetSetId);
 
         // No snippet is added
         if ($expectedCacheKey === null) {

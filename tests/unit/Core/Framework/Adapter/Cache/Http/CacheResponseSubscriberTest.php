@@ -292,9 +292,9 @@ class CacheResponseSubscriberTest extends TestCase
 
         $cookies = $response->headers->getCookies();
         if ($currencyId === null) {
-            static::assertEmpty($cookies);
+            static::assertCount(0, $cookies);
         } else {
-            static::assertNotEmpty($cookies);
+            static::assertNotCount(0, $cookies);
             static::assertSame($currencyId, $cookies[0]->getValue());
         }
     }
@@ -354,7 +354,7 @@ class CacheResponseSubscriberTest extends TestCase
             $response
         ));
 
-        static::assertEmpty($response->headers->getCookies(), var_export($response->headers->getCookies(), true));
+        static::assertCount(0, $response->headers->getCookies(), var_export($response->headers->getCookies(), true));
         static::assertSame('no-cache, private', $response->headers->get('cache-control'));
     }
 
@@ -377,7 +377,7 @@ class CacheResponseSubscriberTest extends TestCase
             $response
         ));
 
-        static::assertEmpty($response->headers->getCookies(), var_export($response->headers->getCookies(), true));
+        static::assertCount(0, $response->headers->getCookies(), var_export($response->headers->getCookies(), true));
         static::assertFalse($response->headers->has('set-cookie'));
     }
 
@@ -571,7 +571,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         // Check cookies absence for non-storefront routes
         static::assertIsArray($routeScope);
-        static::assertEmpty($response->headers->getCookies(), 'Should not have cookies');
+        static::assertCount(0, $response->headers->getCookies(), 'Should not have cookies');
         static::assertFalse($response->headers->has(HttpCacheKeyGenerator::HEADER_DYNAMIC_CACHE_BYPASS));
     }
 

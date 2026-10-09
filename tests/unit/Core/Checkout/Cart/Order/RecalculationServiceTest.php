@@ -34,8 +34,12 @@ use Shopware\Core\Checkout\Cart\RuleLoaderResult;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
@@ -60,6 +64,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -358,6 +363,78 @@ class RecalculationServiceTest extends TestCase
         $recalculationService->addProductToOrder($order->getId(), $productEntity->getId(), 1, $this->context);
 
         static::assertSame(Defaults::LIVE_VERSION, $processor->versionId);
+    }
+
+    #[DataProvider('primaryTransactionStateProvider')]
+    public function testRecalculateKeepsThePrimaryTransactionOnlyWhileItAwaitsPayment(?string $primaryTransactionState, bool $keepsTransaction): void
+    {
+        $order = $this->orderEntity();
+        $order->setDeliveries(new OrderDeliveryCollection([$this->orderDeliveryEntity()]));
+
+        if ($primaryTransactionState !== null) {
+            $state = new StateMachineStateEntity();
+            $state->setId(Uuid::randomHex());
+            $state->setTechnicalName($primaryTransactionState);
+
+            $transaction = new OrderTransactionEntity();
+            $transaction->setId(Uuid::randomHex());
+            $transaction->setStateMachineState($state);
+
+            $order->setTransactions(new OrderTransactionCollection([$transaction]));
+            $order->setPrimaryOrderTransactionId($transaction->getId());
+        }
+
+        $entityRepository = static::createStub(EntityRepository::class);
+        $entityRepository->method('search')->willReturn(
+            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->context),
+        );
+        $entityRepository->method('upsert')->willReturn(
+            new EntityWrittenContainerEvent($this->context, new NestedEventCollection([]), [])
+        );
+
+        $includesTransactions = null;
+        $orderConverter = $this->orderConverterWithCart($this->getCart());
+        $orderConverter
+            ->method('convertToOrder')
+            ->willReturnCallback(static function (Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext) use (&$includesTransactions): array {
+                $includesTransactions = $conversionContext->shouldIncludeTransactions();
+
+                return ['lineItems' => [], 'deliveries' => []];
+            });
+
+        $processor = new CartCapturingProcessor();
+
+        $recalculationService = new RecalculationService(
+            $entityRepository,
+            $orderConverter,
+            static::createStub(CartService::class),
+            $entityRepository,
+            $entityRepository,
+            $entityRepository,
+            $entityRepository,
+            $entityRepository,
+            $processor,
+            $this->cartRuleLoader,
+            static::createStub(PromotionItemBuilder::class),
+            $this->lineItemFactoryRegistry()
+        );
+
+        $recalculationService->recalculate($order->getId(), $this->context);
+
+        static::assertNotNull($processor->behavior);
+        static::assertSame($keepsTransaction, $processor->behavior->hasPermission(CheckoutPermissions::KEEP_ORDER_TRANSACTION));
+        static::assertSame($keepsTransaction, $includesTransactions);
+    }
+
+    public static function primaryTransactionStateProvider(): \Generator
+    {
+        yield 'an open payment follows the new order total' => [OrderTransactionStates::STATE_OPEN, true];
+        yield 'a reminded payment follows the new order total' => [OrderTransactionStates::STATE_REMINDED, true];
+        yield 'a payment in progress keeps the amount the payment provider got' => [OrderTransactionStates::STATE_IN_PROGRESS, false];
+        yield 'an authorized payment keeps the authorized amount' => [OrderTransactionStates::STATE_AUTHORIZED, false];
+        yield 'a paid payment keeps the paid amount' => [OrderTransactionStates::STATE_PAID, false];
+        yield 'a cancelled payment is left alone' => [OrderTransactionStates::STATE_CANCELLED, false];
+        yield 'an order without a primary transaction is left alone' => [null, false];
     }
 
     public function testAddProductToOrderBuildsLineItemWithFactoryRegistry(): void
@@ -978,6 +1055,8 @@ class CartCapturingProcessor extends Processor
 {
     public ?Cart $cart = null;
 
+    public ?CartBehavior $behavior = null;
+
     public function __construct()
     {
     }
@@ -985,6 +1064,7 @@ class CartCapturingProcessor extends Processor
     public function process(Cart $original, SalesChannelContext $context, CartBehavior $behavior): Cart
     {
         $this->cart = $original;
+        $this->behavior = $behavior;
 
         return $original;
     }

@@ -70,7 +70,7 @@ gh aw generates an `agentics-maintenance.yml` workflow only when a workflow opts
 
 ## Pinning
 
-- **`gh aw` itself** — install via `gh extension install github/gh-aw --pin v0.89.21`. gh aw ships frequent releases — verify against `gh release list --repo github/gh-aw` before bumping, and re-run `gh aw compile` to refresh the lock-file.
+- **`gh aw` itself** — install via `gh extension install github/gh-aw --pin v0.89.21`. gh aw ships frequent releases — verify against `gh release list --repo github/gh-aw` before bumping, and re-run `gh aw compile` to refresh the lock-file. The same version is pinned in `.github/workflows/agentic-workflow-consistency.yml` (the `setup-cli` action); bump both together, or the consistency check fails on every PR.
 - **Engine model** — each workflow pins its model in its own `engine.model` frontmatter (the single source of truth; edit it there when bumping a model). `sw-triage` uses the repo-default Sonnet tier; `sw-bugfixer` escalates to the Opus tier because PR improvement runs need more capable code-fixing behavior. New workflows in this repo should use Sonnet unless there is a concrete reason to diverge.
 - **Actions** — gh aw action references, container pins, and dependency ignore rules are managed by `gh aw compile` through the generated lock files, `actions-lock.json`, and `.github/dependabot.yml`. Do not hand-edit generated pins.
 

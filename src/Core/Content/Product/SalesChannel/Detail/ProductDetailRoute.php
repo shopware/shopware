@@ -106,7 +106,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     {
         return Profiler::trace('product-detail-route', function () use ($productId, $request, $context, $criteria) {
             $requestedProductId = $productId;
-            [$mainVariantId, $parentProductId] = $this->checkVariantListingConfig($productId, $context);
+            [$mainVariantId, $parentProductId, $hasVariants] = $this->checkVariantListingConfig($productId, $context);
             $searchVariantId = $this->resolveSearchVariantId(
                 $requestedProductId,
                 $parentProductId,
@@ -124,6 +124,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $productId = $this->resolveCandidateProductId(
                 $requestedProductId,
                 $parentProductId,
+                $hasVariants,
                 $resolveVariantIdEvent->getResolvedVariantId(),
                 $context
             );
@@ -137,12 +138,12 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
 
             if (!$product instanceof SalesChannelProductEntity && $mainVariantId !== null && $this->isParentProductRequest($requestedProductId, $parentProductId)) {
-                $productId = $this->findBestVariant($requestedProductId, $context);
+                $productId = $this->findBestVariantOfParent($requestedProductId, $hasVariants, $context);
                 $criteria->setIds([$productId]);
                 $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
             }
 
-            if (!$product instanceof SalesChannelProductEntity || $this->isParentWithoutResolvedVariant($product, $resolveVariantIdEvent)) {
+            if (!$product instanceof SalesChannelProductEntity) {
                 throw ProductException::productNotFound($productId);
             }
 
@@ -246,19 +247,20 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     }
 
     /**
-     * @return array{0: string|null, 1: string|null}
+     * @return array{0: string|null, 1: string|null, 2: bool}
      */
     private function checkVariantListingConfig(string $productId, SalesChannelContext $context): array
     {
         if (!Uuid::isValid($productId)) {
-            return [null, null];
+            return [null, null, false];
         }
 
         $productData = $this->connection->fetchAssociative(
             '# product-detail-route::check-variant-listing-config
             SELECT
                 variant_listing_config as variantListingConfig,
-                parent_id as parentId
+                parent_id as parentId,
+                child_count as childCount
             FROM product
             WHERE id = :id
             AND version_id = :versionId',
@@ -269,7 +271,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         );
 
         if ($productData === false) {
-            return [null, null];
+            return [null, null, false];
         }
 
         $mainVariantId = null;
@@ -285,13 +287,13 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             }
         }
 
-        return [$mainVariantId, $productData['parentId'] ?? $productId];
+        return [$mainVariantId, $productData['parentId'] ?? $productId, (int) $productData['childCount'] > 0];
     }
 
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    private function findBestVariant(string $productId, SalesChannelContext $context): string
+    private function findBestVariant(string $productId, SalesChannelContext $context): ?string
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('product.parentId', $productId))
@@ -303,15 +305,16 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $criteria->setTitle('product-detail-route::find-best-variant');
         $variantId = $this->productRepository->searchIds($criteria, $context);
 
-        return $variantId->firstId() ?? $productId;
+        return $variantId->firstId();
     }
 
-    // the parent itself is only loaded when none of its variants could be resolved
-    private function isParentWithoutResolvedVariant(SalesChannelProductEntity $product, ResolveVariantIdEvent $event): bool
+    private function findBestVariantOfParent(string $productId, bool $hasVariants, SalesChannelContext $context): string
     {
-        return $product->getParentId() === null
-            && $product->getChildCount() > 0
-            && $product->getId() !== $event->getResolvedVariantId();
+        if (!$hasVariants) {
+            return $productId;
+        }
+
+        return $this->findBestVariant($productId, $context) ?? throw ProductException::productNotFound($productId);
     }
 
     private function findBestVariantByTerm(string $term, string $productId, SalesChannelContext $context): ?string
@@ -374,6 +377,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     private function resolveCandidateProductId(
         string $requestedProductId,
         ?string $parentProductId,
+        bool $hasVariants,
         ?string $resolvedVariantId,
         SalesChannelContext $context
     ): string {
@@ -385,7 +389,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             return $requestedProductId;
         }
 
-        return $this->findBestVariant($requestedProductId, $context);
+        return $this->findBestVariantOfParent($requestedProductId, $hasVariants, $context);
     }
 
     private function isParentProductRequest(string $requestedProductId, ?string $parentProductId): bool

@@ -185,6 +185,7 @@ class ProductDetailRouteTest extends TestCase
             ->willReturn([
                 'variantListingConfig' => null,
                 'parentId' => null,
+                'childCount' => 3,
             ]);
 
         $this->systemConfig->method('getBool')
@@ -244,6 +245,7 @@ class ProductDetailRouteTest extends TestCase
             ->willReturn([
                 'variantListingConfig' => '{"displayParent": false, "mainVariantId": "' . $mainVariantId . '"}',
                 'parentId' => null,
+                'childCount' => 3,
             ]);
 
         $this->systemConfig->method('getBool')->willReturn(false);
@@ -291,6 +293,7 @@ class ProductDetailRouteTest extends TestCase
             ->willReturn([
                 'variantListingConfig' => '{"displayParent": false, "mainVariantId": "2"}',
                 'parentId' => '2',
+                'childCount' => 0,
             ]);
 
         $productId = Uuid::randomHex();
@@ -337,6 +340,7 @@ class ProductDetailRouteTest extends TestCase
             ->willReturn([
                 'variantListingConfig' => '{"displayParent": false, "mainVariantId": "' . $mainVariantId . '"}',
                 'parentId' => null,
+                'childCount' => 3,
             ]);
 
         $productEntity = new SalesChannelProductEntity();
@@ -401,6 +405,7 @@ class ProductDetailRouteTest extends TestCase
             ->willReturn([
                 'variantListingConfig' => '{"displayParent": true, "mainVariantId": "2"}',
                 'parentId' => '2',
+                'childCount' => 0,
             ]);
 
         $variantId = Uuid::randomHex();
@@ -449,6 +454,7 @@ class ProductDetailRouteTest extends TestCase
             ->willReturn([
                 'variantListingConfig' => '{"displayParent": 1, "mainVariantId": null}', // Wrong displayParent type, should be boolean
                 'parentId' => '2',
+                'childCount' => 0,
             ]);
 
         $productId = Uuid::randomHex();
@@ -493,6 +499,7 @@ class ProductDetailRouteTest extends TestCase
             ->willReturn([
                 'variantListingConfig' => '{"displayParent": 1, "mainVariantId": "2"}',
                 'parentId' => '2',
+                'childCount' => 0,
             ]);
 
         $productId = Uuid::randomHex();
@@ -682,12 +689,31 @@ class ProductDetailRouteTest extends TestCase
         $connection->method('fetchAssociative')->willReturn([
             'variantListingConfig' => null,
             'parentId' => null,
+            'childCount' => 2,
         ]);
 
-        $parent = new SalesChannelProductEntity();
-        $parent->setId($parentId);
-        $parent->setChildCount(2);
-        $parent->internalSetEntityData('product', new FieldVisibility([]));
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->once())
+            ->method('searchIds')
+            ->willReturn(new IdSearchResult(0, [], new Criteria(), $this->context->getContext()));
+        $productRepository->expects($this->never())->method('search');
+
+        $this->expectExceptionObject(ProductException::productNotFound($parentId));
+
+        $this->buildRoute($productRepository, $connection)->load($parentId, new Request(), $this->context, new Criteria());
+    }
+
+    public function testLoadParentThrowsNotFoundWhenMainVariantAndAllOtherVariantsAreUnavailable(): void
+    {
+        $parentId = $this->idsCollection->create('parent');
+        $mainVariantId = $this->idsCollection->create('main-variant');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'variantListingConfig' => '{"displayParent": false, "mainVariantId": "' . $mainVariantId . '"}',
+            'parentId' => null,
+            'childCount' => 2,
+        ]);
 
         $productRepository = $this->createMock(SalesChannelRepository::class);
         $productRepository->expects($this->once())
@@ -695,12 +721,39 @@ class ProductDetailRouteTest extends TestCase
             ->willReturn(new IdSearchResult(0, [], new Criteria(), $this->context->getContext()));
         $productRepository->expects($this->once())
             ->method('search')
-            ->with(static::callback(static fn (Criteria $criteria): bool => $criteria->getIds() === [$parentId]))
-            ->willReturn(new EntitySearchResult('product', 1, new ProductCollection([$parent]), null, new Criteria(), $this->context->getContext()));
+            ->with(static::callback(static fn (Criteria $criteria): bool => $criteria->getIds() === [$mainVariantId]))
+            ->willReturn(new EntitySearchResult('product', 0, new ProductCollection(), null, new Criteria(), $this->context->getContext()));
 
         $this->expectExceptionObject(ProductException::productNotFound($parentId));
 
         $this->buildRoute($productRepository, $connection)->load($parentId, new Request(), $this->context, new Criteria());
+    }
+
+    public function testLoadProductWithoutVariantsDoesNotSearchVariants(): void
+    {
+        $productId = $this->idsCollection->create('product');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'variantListingConfig' => null,
+            'parentId' => null,
+            'childCount' => 0,
+        ]);
+
+        $product = new SalesChannelProductEntity();
+        $product->setId($productId);
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->never())->method('searchIds');
+        $productRepository->expects($this->once())
+            ->method('search')
+            ->with(static::callback(static fn (Criteria $criteria): bool => $criteria->getIds() === [$productId]))
+            ->willReturn(new EntitySearchResult('product', 1, new ProductCollection([$product]), null, new Criteria(), $this->context->getContext()));
+
+        $result = $this->buildRoute($productRepository, $connection)->load($productId, new Request(), $this->context, new Criteria());
+
+        static::assertSame($productId, $result->getProduct()->getId());
     }
 
     public function testLoadParentResolvedByEventIsNotRejected(): void
@@ -711,6 +764,7 @@ class ProductDetailRouteTest extends TestCase
         $connection->method('fetchAssociative')->willReturn([
             'variantListingConfig' => null,
             'parentId' => null,
+            'childCount' => 2,
         ]);
 
         $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($parentId): void {

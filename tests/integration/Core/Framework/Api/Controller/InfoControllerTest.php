@@ -32,8 +32,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Envelope;
@@ -172,35 +172,26 @@ class InfoControllerTest extends TestCase
 
     public function testGetConfigIncludesMimeTypesForEventAddedPrivateExtensions(): void
     {
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-        static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
-
-        $listener = static function (MediaFileExtensionWhitelistEvent $event): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MediaFileExtensionWhitelistEvent::class, static function (MediaFileExtensionWhitelistEvent $event): void {
             $extensions = $event->getWhitelist();
             $extensions[] = 'epub';
 
             $event->setWhitelist($extensions);
-        };
+        });
 
-        $eventDispatcher->addListener(MediaFileExtensionWhitelistEvent::class, $listener);
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/config');
 
-        try {
-            $client = $this->getBrowser();
-            $client->request(Request::METHOD_GET, '/api/_info/config');
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
 
-            $content = $client->getResponse()->getContent();
-            static::assertNotFalse($content);
-
-            $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-            static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-            static::assertContains('epub', $decodedResponse['settings']['private_allowed_extensions']);
-            static::assertSame(
-                ['application/epub+zip'],
-                $decodedResponse['settings']['private_allowed_mime_types_by_extension']['epub']
-            );
-        } finally {
-            $eventDispatcher->removeListener(MediaFileExtensionWhitelistEvent::class, $listener);
-        }
+        $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        static::assertContains('epub', $decodedResponse['settings']['private_allowed_extensions']);
+        static::assertSame(
+            ['application/epub+zip'],
+            $decodedResponse['settings']['private_allowed_mime_types_by_extension']['epub']
+        );
     }
 
     public function testGetConfigWithPermissions(): void
@@ -373,7 +364,7 @@ class InfoControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
-        static::assertNotEmpty($version);
+        static::assertNotSame('', $version);
         static::assertStringStartsWith($version, $content);
     }
 
@@ -393,7 +384,7 @@ class InfoControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
-        static::assertNotEmpty($version);
+        static::assertNotSame('', $version);
         static::assertStringStartsWith($version, $content);
     }
 
@@ -494,7 +485,7 @@ class InfoControllerTest extends TestCase
 
         foreach ($expected as $event) {
             $actualEvents = array_values(array_filter($response, static fn ($x) => $x['name'] === $event['name']));
-            static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
+            static::assertNotCount(0, $actualEvents, 'Event with name "' . $event['name'] . '" not found');
             sort($event['aware']);
             sort($actualEvents[0]['aware']);
             static::assertCount(1, $actualEvents);
@@ -529,7 +520,7 @@ class InfoControllerTest extends TestCase
 
         foreach ($expected as $action) {
             $actualActions = array_values(array_filter($response, static fn ($x) => $x['name'] === $action['name']));
-            static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
+            static::assertNotCount(0, $actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
             static::assertSame($action, $actualActions[0]);
         }
@@ -569,7 +560,7 @@ class InfoControllerTest extends TestCase
 
         foreach ($expected as $action) {
             $actualActions = array_values(array_filter($response, static fn ($x) => $x['name'] === $action['name']));
-            static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
+            static::assertNotCount(0, $actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
             static::assertSame($action, $actualActions[0]);
         }
@@ -639,7 +630,7 @@ class InfoControllerTest extends TestCase
                 return $x['name'] === $event['name'];
             }));
 
-            static::assertNotEmpty($actualEvent, 'Event with name "' . $event['name'] . '" not found');
+            static::assertNotCount(0, $actualEvent, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvent);
             static::assertSame($event, $actualEvent[0]);
         }

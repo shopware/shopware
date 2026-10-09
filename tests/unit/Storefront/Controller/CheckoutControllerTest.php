@@ -99,7 +99,7 @@ class CheckoutControllerTest extends TestCase
         $response = $this->controller->cartPage(new Request(), static::createStub(SalesChannelContext::class));
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testGetCartRedirectNotOnNoErrors(): void
@@ -116,7 +116,7 @@ class CheckoutControllerTest extends TestCase
         $response = $this->controller->cartPage($request, static::createStub(SalesChannelContext::class));
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testGetCartRedirectOnShippingErrors(): void
@@ -171,7 +171,7 @@ class CheckoutControllerTest extends TestCase
         $response = $this->controller->cartPage($request, static::createStub(SalesChannelContext::class));
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testGetCartJson(): void
@@ -226,7 +226,7 @@ class CheckoutControllerTest extends TestCase
         $response = $this->controller->confirmPage(new Request(), $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testConfirmPageRedirectNotOnNoErrors(): void
@@ -244,7 +244,7 @@ class CheckoutControllerTest extends TestCase
         $response = $this->controller->confirmPage($request, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testConfirmPageRedirectOnShippingErrors(): void
@@ -299,7 +299,7 @@ class CheckoutControllerTest extends TestCase
         $response = $this->controller->confirmPage($request, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testFinishPageNoCustomer(): void
@@ -364,7 +364,7 @@ class CheckoutControllerTest extends TestCase
         $response = $controller->finishPage(new Request(), $context, new RequestDataBag());
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testFinishPageNoGuestLogout(): void
@@ -385,7 +385,7 @@ class CheckoutControllerTest extends TestCase
         $response = $controller->finishPage(new Request(), $context, new RequestDataBag());
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testOrderNoCustomer(): void
@@ -616,7 +616,7 @@ class CheckoutControllerTest extends TestCase
         $response = $this->controller->info($request, $context);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testOffCanvas(): void
@@ -628,7 +628,7 @@ class CheckoutControllerTest extends TestCase
         $response = $this->controller->offcanvas($request, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testOffCanvasRedirectOnShippingErrors(): void
@@ -679,7 +679,7 @@ class CheckoutControllerTest extends TestCase
         $response = $this->controller->offcanvas($request, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     private function buildController(

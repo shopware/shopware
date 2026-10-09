@@ -44,7 +44,12 @@ export default {
         };
     },
 
-    emits: ['search', 'active-item-index-select', 'keyup-enter'],
+    emits: [
+        'search',
+        'active-item-index-select',
+        'keyup-enter',
+        'click-search-result',
+    ],
 
     shortcuts: {
         f: 'setFocus',
@@ -375,13 +380,13 @@ export default {
 
         onFocusInput() {
             this.isActive = true;
+            this.showModuleFiltersContainer = false;
 
             if (this.searchTerm === '#') {
                 this.showTypeContainer();
             }
 
             if (this.resultsSearchTrends?.length) {
-                this.showModuleFiltersContainer = false;
                 this.showResultsSearchTrends = true;
                 return;
             }
@@ -395,6 +400,11 @@ export default {
 
         onBlur() {
             this.isActive = false;
+        },
+
+        onClickSearchResult(entity, id, payload = {}) {
+            this.$emit('click-search-result', entity, id, payload);
+            this.closeSearchPanels();
         },
 
         showSearchBar() {
@@ -636,7 +646,7 @@ export default {
                     'sw-inheritance': true,
                 });
 
-                const data = response?.data[this.currentSearchType] ?? {
+                const data = response?.data?.[this.currentSearchType] ?? {
                     total: 0,
                     data: {},
                 };

@@ -88,7 +88,7 @@ export default {
         usedLocaleCriteria() {
             return new Criteria(1, null)
                 .addFilter(Criteria.not('and', [Criteria.equals('id', this.languageId)]))
-                .addAggregation(Criteria.terms('usedTranslationIds', 'language.translationCode.id', null, null, null));
+                .addAggregation(Criteria.terms('usedTranslationIds', 'language.translationCodeId', null, null, null));
         },
 
         allowSave() {

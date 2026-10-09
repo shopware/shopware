@@ -1,0 +1,20 @@
+{
+  "$comment": "PR #21173 fixed a sync-service symptom at the DAL layer (reviewer: fix where the problem is caused). A plain core bug fix with tests: only the always-on BC guide and release-docs apply; no scope, cache or queue guide may fire. Test files changed, so the tests guide loads too.",
+  "signals": [
+    "php_src",
+    "public_surface",
+    "tests_changed"
+  ],
+  "not_signals": [
+    "filesystem",
+    "cache",
+    "scheduled_task",
+    "sync_path_change",
+    "fix_without_test"
+  ],
+  "guides": [
+    "bc-php",
+    "release-docs",
+    "tests-for-behavior-change"
+  ]
+}

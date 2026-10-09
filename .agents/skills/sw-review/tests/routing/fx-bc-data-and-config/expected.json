@@ -1,0 +1,18 @@
+{
+  "$comment": "Guide fixture bc-data-and-config/catch: NOT NULL added in update() and new Required() on the DAL field; no tests.",
+  "signals": [
+    "migration",
+    "php_src",
+    "public_surface"
+  ],
+  "not_signals": [
+    "admin_ui",
+    "cache"
+  ],
+  "guides": [
+    "bc-php",
+    "bc-data-and-config",
+    "migrations",
+    "tests-for-behavior-change"
+  ]
+}

@@ -29,6 +29,18 @@ load_output() {
     fi
 }
 
+# require: like check, but a failed predicate zeroes the whole score. Use it for the
+# planted expectation of a case (the finding a catch case must produce, the finding an
+# ignore case must not produce), so a run cannot pass on schema checks alone.
+declare -i _REQUIRED_FAILED=0
+require() {
+    local before=$_PASSED
+    check "$1" "$2"
+    if (( _PASSED == before )); then
+        _REQUIRED_FAILED=1
+    fi
+}
+
 check() {
     local name="$1"
     local expr="$2"
@@ -72,10 +84,11 @@ personas_skipped_includes() {
 
 emit_result() {
     local score
-    if (( _TOTAL == 0 )); then
+    if (( _TOTAL == 0 )) || (( _REQUIRED_FAILED == 1 )); then
         score="0.00"
     else
-        score=$(awk "BEGIN {printf \"%.2f\", $_PASSED/$_TOTAL}")
+        # LC_ALL=C: a German locale prints "1,00", which jq rejects as a number.
+        score=$(LC_ALL=C awk "BEGIN {printf \"%.2f\", $_PASSED/$_TOTAL}")
     fi
 
     local checks_arr

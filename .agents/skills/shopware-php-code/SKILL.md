@@ -48,7 +48,7 @@ Prefer the existing Shopware extension point over a new abstraction.
 - For private implementation cleanup reminders, do not add method-level deprecations. Use a short inline `// @deprecated tag:vX.Y.Z - ...` comment near the branch or code that should be removed later, with enough detail to simplify the future cleanup.
 - When adding a temporary BC/deprecation branch for future feature-flagged behavior, guard it with the relevant `Feature::isActive(...)` check so the new path already exists, can be toggled, and the deprecated branch can be removed directly when the flag is removed.
 - If a deprecated API remains for BC, add or keep dedicated legacy tests that are easy to remove with the deprecation. Guard them for the relevant major feature flag when needed.
-- For any developer-facing deprecation or upcoming BC break, document both the currently available replacement and the future break/removal: use `RELEASE_INFO-6.<minor>.md` to explain the new replacement, why the old behavior/API is deprecated, and who is affected; use `UPGRADE-6.<next-major>.md` to explain what will break or be removed and the concrete migration steps.
+- For any developer-facing deprecation or upcoming BC break, document both the currently available replacement and the future break/removal: use `RELEASE_INFO-6.<current minor line>.md` to explain the new replacement and who is affected; use `UPGRADE-6.<next major>.md` to explain what will break or be removed and the concrete migration steps. Write both entries in the pull request that introduces the deprecation.
 - If both REST/Admin/Store API contracts and PHP-level APIs or extension points are affected, document them as separate entries in the relevant sections, for example API for REST routes and Core for services, interfaces, abstract classes, decorators, or extension points.
 - In both release notes and upgrade guides, write from the perspective of extension authors, API consumers, operators, or other outside users. Include whether adjacent APIs remain unchanged when that distinction prevents migration mistakes.
 
@@ -60,7 +60,7 @@ Prefer the existing Shopware extension point over a new abstraction.
 ## Detailed Guidelines
 
 - Read `coding-guidelines/core/internal.md` and `coding-guidelines/core/final-and-internal.md` when marking PHP API surface as internal, final, or supported for extension.
-- When creating or migrating Store API routes, follow `coding-guidelines/core/extendability.md`: new routes use extension events, not abstract route classes; existing public contracts remain subject to backward compatibility.
+- When creating or migrating Store API routes, follow `coding-guidelines/core/decorator-pattern.md` and `adr/2026-09-24-replace-abstract-route-classes-with-extension-events.md`: new routes use extension events, not abstract route classes; existing public contracts remain subject to backward compatibility.
 - Read `coding-guidelines/core/extendability.md` when adding or changing extension points; read `coding-guidelines/core/decorator-pattern.md` when working on a supported service decorator contract.
 - Read `coding-guidelines/core/database-migations.md` when adding or changing migrations.
 - Read `coding-guidelines/core/feature-flags.md` when adding feature-flagged behavior, deprecations, or BC branches.

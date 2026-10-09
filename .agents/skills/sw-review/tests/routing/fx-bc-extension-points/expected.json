@@ -1,0 +1,19 @@
+{
+  "$comment": "Guide fixture bc-extension-points/catch: a new Store API route built on an abstract route class with getDecorated() and a service alias.",
+  "signals": [
+    "extension_point",
+    "api_contract",
+    "di",
+    "php_src"
+  ],
+  "not_signals": [
+    "migration"
+  ],
+  "guides": [
+    "bc-php",
+    "bc-extension-points",
+    "bc-api-contracts",
+    "di-and-extension-points",
+    "tests-for-behavior-change"
+  ]
+}

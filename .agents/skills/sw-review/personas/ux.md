@@ -26,7 +26,7 @@ Absence rule: only flag what this PR adds or changes.
 - Auth/ACL/secrets → `security`;
 - DI/layering → `architecture`;
 - PHP naming/idioms → `code-style`;
-- UPGRADE/deprecations → `open-source`.
+- UPGRADE/deprecations → `maintainer`.
 
 ## Severity Anchors
 

@@ -1,0 +1,6 @@
+{
+  "$comment": "Synthetic (from tests/guide/bc-php/catch): a public method of a non-internal cart service is renamed without a deprecation path and no test changes. The class carries @internal only on its constructor, which must not hide the public surface.",
+  "signals": ["php_src", "public_surface", "removal", "php_src_without_tests"],
+  "not_signals": ["migration", "scheduled_task", "filesystem", "cache", "admin_ui", "storefront_ui"],
+  "guides": ["bc-php", "bc-removal-before-major", "tests-for-behavior-change", "release-docs"]
+}

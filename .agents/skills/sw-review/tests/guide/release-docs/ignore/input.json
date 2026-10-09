@@ -1,0 +1,37 @@
+{
+  "persona": "maintainer",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-release-docs-ignore",
+    "title": "fix(checkout): prevent division by zero for products with purchase steps 0",
+    "body": "Products imported with `purchaseSteps: 0` crashed the cart with a DivisionByZeroError when the stock limit was reached. The processor now treats steps below 1 as 1. A unit test covers the case. No release info: this is a bug fix without a contract change.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/release-docs-ignore",
+    "additions": 41,
+    "deletions": 1,
+    "changed_files": 2
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Core/Content/Product/Cart/ProductCartProcessor.php",
+    "tests/unit/Core/Checkout/Cart/ProductCartProcessorTest.php"
+  ],
+  "guides": [
+    "guides/release-docs.md"
+  ],
+  "change_profile": {
+    "signals": [
+      "php_src"
+    ],
+    "metadata": {
+      "fixes_issue": true
+    },
+    "guides": [
+      "release-docs"
+    ]
+  }
+}

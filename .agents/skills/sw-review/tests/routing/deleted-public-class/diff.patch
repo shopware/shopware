@@ -1,0 +1,21 @@
+diff --git a/src/Core/Checkout/Cart/Price/ReferencePriceCalculator.php b/src/Core/Checkout/Cart/Price/ReferencePriceCalculator.php
+deleted file mode 100644
+index 1111111..0000000
+--- a/src/Core/Checkout/Cart/Price/ReferencePriceCalculator.php
++++ /dev/null
+@@ -1,15 +0,0 @@
+-<?php declare(strict_types=1);
+-
+-namespace Shopware\Core\Checkout\Cart\Price;
+-
+-use Shopware\Core\Framework\Log\Package;
+-
+-#[Package('checkout')]
+-class ReferencePriceCalculator
+-{
+-    public function calculate(float $price, float $quantity): float
+-    {
+-        return $price / $quantity;
+-    }
+-}
+-

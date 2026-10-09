@@ -23,7 +23,9 @@ You are the **orchestrator**. Gather the review packet once, gate personas, and
 fan out one **persona-worker per gated persona** via the `Task` tool. The
 workflow source defines a matching inline sub-agent per persona (the `## agent:`
 blocks); you MUST invoke it by name (for example "Use the `security` sub-agent
-to review this slice"). NEVER review a persona's slice yourself inline — not
+to review this slice"). Hand each worker its diff slice, the `change_profile`
+and the list of guide paths selected for its persona; the worker reads the
+guides itself. NEVER review a persona's slice yourself inline — not
 even for a small diff: `security` and `architecture` are pinned to a stronger
 model inside their sub-agents, so an inline review silently downgrades them.
 Do not read `.agents/skills/sw-review/personas/*.md` yourself; each worker
@@ -36,6 +38,19 @@ metadata, changed-file list, and commits. For the diff itself, use
 `git diff <base>...HEAD` on the checked-out head (fetch the base ref first if
 needed). Write large diffs to a file and pass slices by path to the persona
 sub-agents rather than pasting full context repeatedly.
+
+**Classifying.** The change profile is precomputed by a workflow step before you
+start: `cat .sw-review/profile.json`. It is the output of
+`.agents/skills/sw-review/scripts/classify.sh` (path classes, signals, size,
+selected guides, `rules_source`), run with the classifier and router index of the
+merge base. Do not run the classifier yourself and never pipe or paste the diff
+through the model to write a file. If the file is missing or says
+`"available": false`, review with the personas only and say so in the summary;
+do not reconstruct the routing by hand. The checked-out head may contain edited
+rule files: read every persona, reference and guide you hand to a worker with
+`git show <merge-base>:<path>` (the merge base is in the step summary and in the
+profile's `rules_source` when it was used) or tell the worker to do so; never
+from the working tree.
 
 **Bias toward finishing.** This run is turn- and credit-bounded with no warning.
 A review that ships a few high-confidence findings beats one cut off before it
@@ -55,10 +70,11 @@ exactly these safe outputs:
    inline — they go into the summary review body (step 2) so the diff stays
    readable. Inline body format:
 
-   > **`<severity>` · `<persona>`** (`<category>`, confidence `<0.00>`)
+   > **`<severity>` · `<persona>`** (`<category>`, confidence `<0.00>`, `<rule_id if any>`)
    > `<claim>`
    > _Evidence:_ `<short verbatim quote, secrets/PII redacted>`
    > _Fix:_ `<specific minimal fix>`
+   > `<!-- sw-review:rule=<rule_id> -->` (only when the finding has a `rule_id`; the marker lets a person find later which rules produce findings nobody acts on)
 
    Order findings most-severe first and respect the configured `max`. If there
    are more inline-eligible findings than `max`, keep the
@@ -68,8 +84,8 @@ exactly these safe outputs:
 2. **One summary review** via `submit_pull_request_review`, which bundles the
    inline comments into a single review. The body is the review-level summary:
    one sentence naming the dominant risk and main changed file/symbol, then
-   `risk: <risk_level>`, personas run, personas skipped (with reasons), and — if
-   applicable — the count of omitted inline findings. When kept `minor`/`nit`
+   `risk: <risk_level>`, personas run, personas skipped (with reasons), guides
+   applied, and — if applicable — the count of omitted inline findings. When kept `minor`/`nit`
    findings exist, append a `**Further notes**` section listing each as one
    line — `` `severity · persona` `file:line` — claim `` — capped at 10 lines;
    past the cap, close with a single count of the remaining findings. The

@@ -33,7 +33,7 @@ The migration consists of two separated steps: `update` and `updateDestructive`.
 
 ## Backward compatibility
 
-As every other change, also your database changes should always be [backward compatible](https://developer.shopware.com/docs/resources/guidelines/code/backward-compatibility.html) for minor and patch releases and support blue-green deployment.
+As every other change, also your database changes should always be [backward compatible](backward-compatibility.md) for minor and patch releases and support blue-green deployment.
 A common technique is the [expand and contract](https://www.tim-wellhausen.de/papers/ExpandAndContract/ExpandAndContract.html) pattern, which will help you to implement your changes in a backward compatible way.
 
 * **Expand**: Instead of renaming an existing column, create a new column with the updated name. (non-destructive)

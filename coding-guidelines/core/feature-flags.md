@@ -1,16 +1,19 @@
 ## Introduction
+
 Feature flags enable the developer to create new code which is hidden behind the flag and merge it into the trunk branch, even when the code is not finalized.
-We use this functionality to merge breaks into the trunk early, without them already being switched active. To learn more about breaking changes and backward compability take a look to our [Backward Compatibility Guide](https://developer.shopware.com/docs/resources/guidelines/code/backward-compatibility.html)
+We use this functionality to merge breaks into the trunk early, without them already being switched active. To learn more about breaking changes and backward compability take a look to our [Backward Compatibility Guide](backward-compatibility.md)
 
 Related ADRs: [Feature flags for major versions](../../adr/2022-01-20-feature-flags-for-major-versions.md) and [Major feature flag inheritance](../../adr/2026-09-25-major-feature-flag-inheritance.md).
 
 ### Activating the flag
+
 To switch flags on and off you can use the ***.env*** to configure each feature flag. Using dots inside an env variable are not allowed, so we use underscore instead:
 ```
 V6_5_0_0=1
 ```
 
 ### Activating whole groups of flags
+
 Any truthy `FEATURE_ALL` value enables every registered feature. To activate only one major and its
 sub-features, set the version flag directly, for example `V6_8_0_0=1`. Explicit environment values
 and persisted toggles for individual features win over both `FEATURE_ALL` and the parent major.
@@ -28,7 +31,7 @@ Omit `major` unless the flag is a sub-feature; in that case, set it to the paren
 ## Major CI
 
 `FEATURE_ALL=1` does not describe a release state: it also activates unrelated experimental
-features. Major CI sets the upcoming version flag directly (`V6_8_0_0=1`) in
+features. Major CI sets the upcoming version flag directly (for example `V6_8_0_0=1`) in
 `integration-major.yml`, the major arm of `acceptance.yml`, and the migration suite in `php.yml`.
 Update these three workflow settings when the target major changes.
 The migration suite also sets its Composer root version to that major. Migration namespace
@@ -39,9 +42,10 @@ The unit suite is the exception: its bootstrap activates every registered flag r
 [Using flags in tests](#using-flags-in-tests).
 
 ## Using flags in PHP
+
 The feature flag can be used in PHP to make specific code parts only executable when the flag is active.
 
-Version-shaped feature flag IDs use four parts, such as `v6.8.0.0`. Pass that full ID to `Feature` methods. The three-part release label in `@deprecated tag:v6.8.0` is not a feature flag ID; PHPStan rejects it in feature checks.
+Version-shaped feature flag IDs use four parts, for example `v6.8.0.0`. Pass that full ID to `Feature` methods. The three-part release label, for example in `@deprecated tag:v6.8.0`, is not a feature flag ID; PHPStan rejects it in feature checks. The `version` of a `BCChange` attribute uses the same three-part label, for example `#[ClassMoved(version: 'v6.8.0', ...)]`.
 
 ### Using flags for services
 
@@ -57,6 +61,7 @@ The compiler pass removes the service definition when the flag is active. `shopw
 Symfony service aliases cannot be tagged. For an alias scheduled for removal, add an adjacent `// @deprecated tag:vX.Y.Z` comment and list its ID under the matching `vX.Y.Z.0` key in `FeatureFlagCompilerPass::ALIASES_TO_REMOVE`. The compiler pass removes listed aliases when the flag is active, and PHPStan checks that annotated aliases are listed under the correct flag. Keep `->deprecate(...)` for Symfony's deprecation notice; its version argument is when the deprecation was introduced, not the removal version.
 
 ### Using flags in methods
+
 When there is no option via the container you can use additional helper functions:
 ```php
 use Shopware\Core\Framework\Feature;
@@ -214,6 +219,7 @@ Do not retain a compatibility subclass or duplicate the implementation. `class_a
 PHPStan validates the attribute, runtime alias, optional service alias, and canonical Core references.
 
 ### Using flags in tests
+
 In unit tests, current major feature flags are active by default. Test legacy/off behavior by disabling the relevant flag with the `#[DisabledFeatures]` attribute instead of calling `Feature::fake()` just to activate the current major flag.
 
 `#[DisabledFeatures]` only works in the unit suite: the feature-flag test extension processes `Shopware\Tests\Unit\` (plus namespaces registered via `FeatureFlagExtension::addTestNamespace()`). In integration tests the flag state comes from the job configuration (the version flag in each major lane), the attribute has no effect, and the test runner rejects it — a test carrying it fails the run. When an integration test must not run under a specific flag state, skip it at runtime with `Feature::skipTestIfActive()` / `Feature::skipTestIfInActive()`.
@@ -231,9 +237,9 @@ class ProductTest
 }
 ```
 
-While two majors are in flight, pin a test to the older one by disabling the newer major: `#[DisabledFeatures(['v6.9.0.0'])]` asserts the 6.8 state, `#[DisabledFeatures(['v6.8.0.0', 'v6.9.0.0'])]` the state before either major.
+While two majors are in flight, pin a test to the older one by disabling the newer major. For example, with 6.8 and 6.9 in flight, `#[DisabledFeatures(['v6.9.0.0'])]` asserts the 6.8 state, `#[DisabledFeatures(['v6.8.0.0', 'v6.9.0.0'])]` the state before either major.
 
-In integration tests, the suite may run multiple times with different feature-flag states. Keep using `Feature::skipTestIfActive()` or `Feature::skipTestIfInActive()` when a scenario only makes sense for one state of a flag. This can also be used in the `setUp()` method. That is also how an integration test pins itself to a single major — `Feature::skipTestIfActive('v6.9.0.0', $this)` keeps it out of the 6.9 lane.
+In integration tests, the suite may run multiple times with different feature-flag states. Keep using `Feature::skipTestIfActive()` or `Feature::skipTestIfInActive()` when a scenario only makes sense for one state of a flag. This can also be used in the `setUp()` method. That is also how an integration test pins itself to a single major; for example, `Feature::skipTestIfActive('v6.9.0.0', $this)` keeps it out of the 6.9 lane.
 
 ```php
 use Shopware\Core\Framework\Feature;
@@ -250,9 +256,11 @@ class ProductTest
 ```
 
 ## Using flags in the administration
+
 Also in the JavaScript code of the administration the flags can be used in various ways.
 
 ### Using flags for modules
+
 You can also hide complete admin modules behind a flag:
 ```javascript
 
@@ -263,6 +271,7 @@ Module.register('sw-awesome', {
 ```
 
 ### Using flags in JavaScript
+
 To use a flag in a VueJS component you can inject the feature service and use it.
 
 ```
@@ -274,6 +283,7 @@ featureIsActive(flag) {
 ```
 
 ### Using flags in templates
+
 When you want to toggle different parts of the template you can use the flag in a VueJs condition if you injected the service in the module:
 ```html
 <sw-field type="text" v-if="feature.isActive('v6.5.0.0')"></sw-field>
@@ -281,7 +291,7 @@ When you want to toggle different parts of the template you can use the flag in 
 
 ### Using flags in config.xml
 
-When you want to toggle config input fields in config.xml like [basicInformatation.xml](https://gitlab.shopware.com/shopware/6/product/platform/-/blob/trunk/src/Core/System/Resources/config/basicInformation.xml), you can add a `flag` element like this:
+When you want to toggle config input fields in config.xml like [basicInformation.xml](https://github.com/shopware/shopware/blob/trunk/src/Core/System/Resources/config/basicInformation.xml), you can add a `flag` element like this:
 
 ```xml
 <input-field type="bool" flag="v6.5.0.0">
@@ -293,9 +303,11 @@ When you want to toggle config input fields in config.xml like [basicInformatati
 ```
 
 ## Using flags in the storefront
+
 In the Storefront it works nearly similar to the admin.
 
 ### Using flags in storefront JavaScript
+
 ```
 import Feature from 'src/helper/feature.helper';
 ...
@@ -307,6 +319,7 @@ data() {
 ```
 
 ### Using flags in storefront templates
+
 ```
 {% if feature('v6.5.0.0') %}
     <span>Feature is active</span>
@@ -315,14 +328,17 @@ data() {
 
 
 ## Using flags in plugins
+
 Feature flags can also be used in plugins. Among other things, by adding your own flags, but also the use of the major feature flag is an intended use case.
 
 ### Major feature flag
-As mentioned before, we use the major feature flags (`v6.5.0.0`, `v6.6.0.0`) to signal breaks within the code ahead of time. This is an incredible help in the preparation of the next major release, as otherwise all breaks would have to be made within a short period of time.
+
+As mentioned before, we use the major feature flags (for example `v6.5.0.0`, `v6.6.0.0`) to signal breaks within the code ahead of time. This is an incredible help in the preparation of the next major release, as otherwise all breaks would have to be made within a short period of time.
 
 This procedure can also be applied to plugins, which also use this flag and internally query it to either prepare the plugin for the next major or to support multiple Shopware major versions with one plugin version. Since each major feature flag remains after the corresponding release, they can be used as an alternative version switch to the php equivalent `version_compare`.
 
 ### Own plugin flags
+
 <alert-box type="warning">This is internal only and we may break this behaviour at any time!</alert-box>
 
 When you need to implement a feature flag for a plugin you can't edit the feature.yaml or provide an override for it,

@@ -106,22 +106,232 @@ tasks:
       graders:
           - { type: deterministic, run: bash grader.sh, weight: 1.0 }
 
-    - name: persona-open-source-catch
+    - name: persona-maintainer-catch
       instruction: *skill_runner
       workspace:
-          - { src: persona/open-source/catch/input.json, dest: input.json }
-          - { src: persona/open-source/catch/diff.patch, dest: diff.patch }
-          - { src: persona/open-source/catch/grader.sh, dest: grader.sh }
+          - { src: persona/maintainer/catch/input.json, dest: input.json }
+          - { src: persona/maintainer/catch/diff.patch, dest: diff.patch }
+          - { src: persona/maintainer/catch/grader.sh, dest: grader.sh }
           - *lib
       graders:
           - { type: deterministic, run: bash grader.sh, weight: 1.0 }
 
-    - name: persona-open-source-ignore
+    - name: persona-maintainer-ignore
       instruction: *skill_runner
       workspace:
-          - { src: persona/open-source/ignore/input.json, dest: input.json }
-          - { src: persona/open-source/ignore/diff.patch, dest: diff.patch }
-          - { src: persona/open-source/ignore/grader.sh, dest: grader.sh }
+          - { src: persona/maintainer/ignore/input.json, dest: input.json }
+          - { src: persona/maintainer/ignore/diff.patch, dest: diff.patch }
+          - { src: persona/maintainer/ignore/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-bc-storefront-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/bc-storefront/catch/input.json, dest: input.json }
+          - { src: guide/bc-storefront/catch/diff.patch, dest: diff.patch }
+          - { src: guide/bc-storefront/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-bc-storefront-ignore
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/bc-storefront/ignore/input.json, dest: input.json }
+          - { src: guide/bc-storefront/ignore/diff.patch, dest: diff.patch }
+          - { src: guide/bc-storefront/ignore/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-bc-admin-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/bc-admin/catch/input.json, dest: input.json }
+          - { src: guide/bc-admin/catch/diff.patch, dest: diff.patch }
+          - { src: guide/bc-admin/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-bc-api-contracts-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/bc-api-contracts/catch/input.json, dest: input.json }
+          - { src: guide/bc-api-contracts/catch/diff.patch, dest: diff.patch }
+          - { src: guide/bc-api-contracts/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-bc-php-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/bc-php/catch/input.json, dest: input.json }
+          - { src: guide/bc-php/catch/diff.patch, dest: diff.patch }
+          - { src: guide/bc-php/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-bc-php-ignore
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/bc-php/ignore/input.json, dest: input.json }
+          - { src: guide/bc-php/ignore/diff.patch, dest: diff.patch }
+          - { src: guide/bc-php/ignore/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-bc-extension-points-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/bc-extension-points/catch/input.json, dest: input.json }
+          - { src: guide/bc-extension-points/catch/diff.patch, dest: diff.patch }
+          - { src: guide/bc-extension-points/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-bc-data-and-config-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/bc-data-and-config/catch/input.json, dest: input.json }
+          - { src: guide/bc-data-and-config/catch/diff.patch, dest: diff.patch }
+          - { src: guide/bc-data-and-config/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-platform-scope-catch-18612
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/platform-scope/catch-18612/input.json, dest: input.json }
+          - { src: guide/platform-scope/catch-18612/diff.patch, dest: diff.patch }
+          - { src: guide/platform-scope/catch-18612/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-platform-scope-catch-20493
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/platform-scope/catch-20493/input.json, dest: input.json }
+          - { src: guide/platform-scope/catch-20493/diff.patch, dest: diff.patch }
+          - { src: guide/platform-scope/catch-20493/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-platform-scope-ignore
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/platform-scope/ignore/input.json, dest: input.json }
+          - { src: guide/platform-scope/ignore/diff.patch, dest: diff.patch }
+          - { src: guide/platform-scope/ignore/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-cache-and-asset-lifetime-catch-18612
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/cache-and-asset-lifetime/catch-18612/input.json, dest: input.json }
+          - { src: guide/cache-and-asset-lifetime/catch-18612/diff.patch, dest: diff.patch }
+          - { src: guide/cache-and-asset-lifetime/catch-18612/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-scheduled-tasks-and-queue-ignore
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/scheduled-tasks-and-queue/ignore/input.json, dest: input.json }
+          - { src: guide/scheduled-tasks-and-queue/ignore/diff.patch, dest: diff.patch }
+          - { src: guide/scheduled-tasks-and-queue/ignore/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-bc-removal-before-major-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/bc-removal-before-major/catch/input.json, dest: input.json }
+          - { src: guide/bc-removal-before-major/catch/diff.patch, dest: diff.patch }
+          - { src: guide/bc-removal-before-major/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-migrations-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/migrations/catch/input.json, dest: input.json }
+          - { src: guide/migrations/catch/diff.patch, dest: diff.patch }
+          - { src: guide/migrations/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-migrations-ignore
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/migrations/ignore/input.json, dest: input.json }
+          - { src: guide/migrations/ignore/diff.patch, dest: diff.patch }
+          - { src: guide/migrations/ignore/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-tests-for-behavior-change-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/tests-for-behavior-change/catch/input.json, dest: input.json }
+          - { src: guide/tests-for-behavior-change/catch/diff.patch, dest: diff.patch }
+          - { src: guide/tests-for-behavior-change/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-release-docs-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/release-docs/catch/input.json, dest: input.json }
+          - { src: guide/release-docs/catch/diff.patch, dest: diff.patch }
+          - { src: guide/release-docs/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-release-docs-ignore
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/release-docs/ignore/input.json, dest: input.json }
+          - { src: guide/release-docs/ignore/diff.patch, dest: diff.patch }
+          - { src: guide/release-docs/ignore/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-di-and-extension-points-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/di-and-extension-points/catch/input.json, dest: input.json }
+          - { src: guide/di-and-extension-points/catch/diff.patch, dest: diff.patch }
+          - { src: guide/di-and-extension-points/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: guide-admin-bc-and-flags-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/admin-bc-and-flags/catch/input.json, dest: input.json }
+          - { src: guide/admin-bc-and-flags/catch/diff.patch, dest: diff.patch }
+          - { src: guide/admin-bc-and-flags/catch/grader.sh, dest: grader.sh }
           - *lib
       graders:
           - { type: deterministic, run: bash grader.sh, weight: 1.0 }

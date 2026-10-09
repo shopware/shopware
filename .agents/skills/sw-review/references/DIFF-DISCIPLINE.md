@@ -32,6 +32,7 @@ Use file-scoped diff or `Read` around the changed area when needed.
 | ---------- | ----------------: | ----------------------------------------------------------------------- |
 | Per file   | 400 changed lines | skim first hunk/header, no per-line findings unless obvious             |
 | PR lines   |              5000 | throttle personas, max 5 findings, set decision to `needs_human_review` |
+| Guides     |   no cap on count | every matching guide loads; past the PR caps, keep the guides of the throttled personas only |
 | PR files   |               200 | same as PR lines                                                        |
 | Shell time |            ~3 min | stop and declare gaps                                                   |
 

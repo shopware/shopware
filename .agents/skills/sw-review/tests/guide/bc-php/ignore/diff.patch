@@ -1,0 +1,139 @@
+diff --git a/src/Core/Checkout/Cart/LineItem/LineItemQuantitySplitter.php b/src/Core/Checkout/Cart/LineItem/LineItemQuantitySplitter.php
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/Checkout/Cart/LineItem/LineItemQuantitySplitter.php
++++ b/src/Core/Checkout/Cart/LineItem/LineItemQuantitySplitter.php
+@@ -3,11 +3,14 @@
+ namespace Shopware\Core\Checkout\Cart\LineItem;
+ 
+ use Shopware\Core\Checkout\Cart\CartException;
++use Shopware\Core\Checkout\Cart\Price\CashRounding;
+ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
++use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
++use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
+ use Shopware\Core\Framework\Feature;
+ use Shopware\Core\Framework\Log\Package;
+ use Shopware\Core\System\SalesChannel\SalesChannelContext;
+@@ -18,8 +21,10 @@
+     /**
+      * @internal
+      */
+-    public function __construct(private readonly QuantityPriceCalculator $quantityPriceCalculator)
+-    {
++    public function __construct(
++        private readonly QuantityPriceCalculator $quantityPriceCalculator,
++        private readonly CashRounding $priceRounding,
++    ) {
+     }
+ 
+     /**
+@@ -28,8 +33,24 @@
+      *
+      * @throws CartException
+      */
++    #[NewRequiredParameter(
++        version: 'v6.8.0',
++        parameterName: 'rounding',
++        parameterType: CashRoundingConfig::class,
++        description: 'Pass the rounding config used for the split taxes.',
++    )]
+     public function split(LineItem $item, int $quantity, SalesChannelContext $context): LineItem
+     {
++        $rounding = \func_num_args() > 3 ? \func_get_arg(3) : null;
++        if (!$rounding instanceof CashRoundingConfig) {
++            Feature::triggerDeprecationOrThrow(
++                'v6.8.0.0',
++                'Calling LineItemQuantitySplitter::split() without the fourth argument $rounding is deprecated. Pass a CashRoundingConfig, for example $context->getItemRounding().',
++            );
++
++            $rounding = $context->getItemRounding();
++        }
++
+         if ($item->getQuantity() === $quantity) {
+             return clone $item;
+         }
+@@ -53,7 +74,12 @@
+         if (Feature::isActive('v6.8.0.0')) {
+             $taxes = new CalculatedTaxCollection();
+             foreach ($lineItemPrice->getCalculatedTaxes() as $tax) {
+-                $taxes->add(new CalculatedTax($tax->getTax() / $item->getQuantity() * $quantity, $tax->getTaxRate(), $tax->getPrice() / $item->getQuantity() * $quantity, $tax->getLabel()));
++                $taxes->add(new CalculatedTax(
++                    $this->priceRounding->mathRound($tax->getTax() / $item->getQuantity() * $quantity, $rounding),
++                    $tax->getTaxRate(),
++                    $tax->getPrice() / $item->getQuantity() * $quantity,
++                    $tax->getLabel(),
++                ));
+             }
+ 
+             $price = new CalculatedPrice(
+diff --git a/src/Core/Checkout/DependencyInjection/cart.php b/src/Core/Checkout/DependencyInjection/cart.php
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/Checkout/DependencyInjection/cart.php
++++ b/src/Core/Checkout/DependencyInjection/cart.php
+@@ -611,6 +611,7 @@
+     $services->set(LineItemQuantitySplitter::class)
+         ->args([
+             service(QuantityPriceCalculator::class),
++            service(CashRounding::class),
+         ]);
+ 
+     $services->set(PriceDefinitionFactory::class);
+diff --git a/src/Core/Checkout/Promotion/Cart/PromotionCalculator.php b/src/Core/Checkout/Promotion/Cart/PromotionCalculator.php
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/Checkout/Promotion/Cart/PromotionCalculator.php
++++ b/src/Core/Checkout/Promotion/Cart/PromotionCalculator.php
+@@ -248,7 +248,7 @@
+         foreach ($calculatedCart->getLineItems() as $split) {
+             $isStackable = $split->isStackable();
+             $split->setStackable(true);
+-            $splitItems[$split->getId()] = $this->lineItemQuantitySplitter->split($split, $shouldSplit ? 1 : $split->getQuantity(), $context);
++            $splitItems[$split->getId()] = $this->lineItemQuantitySplitter->split($split, $shouldSplit ? 1 : $split->getQuantity(), $context, $context->getItemRounding());
+             $split->setStackable($isStackable);
+         }
+ 
+diff --git a/src/Core/Checkout/Cart/LineItem/Group/LineItemGroupBuilder.php b/src/Core/Checkout/Cart/LineItem/Group/LineItemGroupBuilder.php
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/Checkout/Cart/LineItem/Group/LineItemGroupBuilder.php
++++ b/src/Core/Checkout/Cart/LineItem/Group/LineItemGroupBuilder.php
+@@ -180,7 +180,7 @@
+ 
+             $item->setStackable(true);
+ 
+-            $tmpItem = $this->quantitySplitter->split($item, 1, $context);
++            $tmpItem = $this->quantitySplitter->split($item, 1, $context, $context->getItemRounding());
+ 
+             for ($i = 1; $i <= $item->getQuantity(); ++$i) {
+                 $items[] = $tmpItem;
+diff --git a/UPGRADE-6.8.md b/UPGRADE-6.8.md
+index aaaaaaa..bbbbbbb 100644
+--- a/UPGRADE-6.8.md
++++ b/UPGRADE-6.8.md
+@@ -1,4 +1,10 @@
+ # 6.8.0.0
++
++# Core
++
++## `LineItemQuantitySplitter::split()` requires a rounding config
++
++`Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter::split()` gets the new required parameter `CashRoundingConfig $rounding`. Split line item taxes are rounded with this config. Calls without it trigger a deprecation warning in 6.7 and throw in 6.8. Pass `$context->getItemRounding()` as the fourth argument to keep the current behaviour. Classes that extend the splitter and override `split()` read the argument with `func_get_arg(3)` until 6.8.
+ 
+ # New System Requirements and Dependency Updates
+ 
+diff --git a/RELEASE_INFO-6.7.md b/RELEASE_INFO-6.7.md
+index aaaaaaa..bbbbbbb 100644
+--- a/RELEASE_INFO-6.7.md
++++ b/RELEASE_INFO-6.7.md
+@@ -59,6 +59,10 @@
+ ```
+ 
+ ## Core
++
++### `LineItemQuantitySplitter::split()` accepts a rounding config
++
++`LineItemQuantitySplitter::split()` accepts a `CashRoundingConfig` as fourth argument. It becomes required with 6.8; calls without it trigger a deprecation warning. Extensions that call `split()` pass `$context->getItemRounding()` now. Extensions that only use the cart are not affected.
+ 
+ ### Homepage hreflang links restored for existing `HreflangLoaderParameter` callers
+ 

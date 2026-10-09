@@ -1,0 +1,2 @@
+src/Administration/Resources/app/administration/src/app/component/media/sw-media-field/index.js
+src/Administration/Resources/app/administration/src/app/component/media/sw-media-field/sw-media-field.html.twig

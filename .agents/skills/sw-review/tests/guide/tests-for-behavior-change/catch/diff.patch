@@ -1,0 +1,24 @@
+diff --git a/src/Core/Content/Product/Cart/ProductCartProcessor.php b/src/Core/Content/Product/Cart/ProductCartProcessor.php
+index 806ec01..73bd1c9 100644
+--- a/src/Core/Content/Product/Cart/ProductCartProcessor.php
++++ b/src/Core/Content/Product/Cart/ProductCartProcessor.php
+@@ -261,7 +261,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
+         if ($item->getQuantityInformation() !== null) {
+             $minPurchase = $item->getQuantityInformation()->getMinPurchase();
+             $available = $item->getQuantityInformation()->getMaxPurchase() ?? 0;
+-            $steps = $item->getQuantityInformation()->getPurchaseSteps() ?? 1;
++            $steps = max(1, $item->getQuantityInformation()->getPurchaseSteps() ?? 1);
+         }
+ 
+         if ($available < $minPurchase) {
+@@ -568,6 +568,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
+ 
+     private function fixQuantity(int $min, int $current, int $steps): int
+     {
++        if ($steps < 1 || $current < $min) {
++            return $min;
++        }
++
+         return (int) (floor(($current - $min) / $steps) * $steps + $min);
+     }
+ 

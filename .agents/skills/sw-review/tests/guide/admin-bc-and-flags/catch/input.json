@@ -1,0 +1,35 @@
+{
+  "persona": "ux",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-admin-bc-and-flags-catch",
+    "title": "feat(administration): show the customer group request banner only to editors",
+    "body": "With 6.8 the customer group registration banner on the customer detail page is shown only for active customers, and with the accessibility tweaks only to users who can edit customers. The unused extension section above the content is removed; the position identifier list is regenerated.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/admin-bc-and-flags-catch",
+    "additions": 17,
+    "deletions": 6,
+    "changed_files": 3
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Administration/Resources/app/administration/src/meta/position-identifiers.json",
+    "src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-detail/index.js",
+    "src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-detail/sw-customer-detail.html.twig"
+  ],
+  "guides": [
+    "guides/admin-bc-and-flags.md"
+  ],
+  "change_profile": {
+    "signals": [
+      "admin_ui"
+    ],
+    "guides": [
+      "admin-bc-and-flags"
+    ]
+  }
+}

@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
@@ -77,6 +78,7 @@ class ProductReviewSaveRouteTest extends TestCase
         $this->browser->request('POST', $this->getUrl(), [
             'title' => 'Lorem ipsum dolor sit amet',
             'content' => $content,
+            'points' => 5,
         ]);
 
         $response = $this->browser->getResponse();
@@ -97,6 +99,7 @@ class ProductReviewSaveRouteTest extends TestCase
         $this->browser->request('POST', $this->getUrl(), [
             'title' => 'Lorem ipsum dolor sit amet',
             'content' => '<script>alert("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")</script>',
+            'points' => 5,
         ]);
 
         $response = $this->browser->getResponse();
@@ -111,6 +114,67 @@ class ProductReviewSaveRouteTest extends TestCase
         $this->assertReviewCount(0);
     }
 
+    /**
+     * @param array<string, mixed> $points
+     */
+    #[DataProvider('provideMissingPoints')]
+    public function testCreateRequiresPoints(array $points): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $this->login($this->browser);
+
+        $this->browser->request(
+            'POST',
+            $this->getUrl(),
+            server: ['CONTENT_TYPE' => 'application/json'],
+            content: json_encode([
+                'title' => 'Lorem ipsum dolor sit amet',
+                'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+                ...$points,
+            ], \JSON_THROW_ON_ERROR)
+        );
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($response->getContent(), true));
+
+        $errors = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['errors'];
+
+        static::assertCount(1, $errors);
+        static::assertSame('VIOLATION::IS_BLANK_ERROR', $errors[0]['code']);
+        static::assertSame('/points', $errors[0]['source']['pointer']);
+
+        $this->assertReviewCount(0);
+    }
+
+    public function testCreateWithoutPointsSavesTheReviewBeforeTheMajor(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $this->login($this->browser);
+
+        $this->browser->request('POST', $this->getUrl(), [
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+        ]);
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
+
+        $this->assertReviewCount(1);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function provideMissingPoints(): iterable
+    {
+        yield 'points omitted' => [[]];
+        yield 'points null' => [['points' => null]];
+    }
+
     public function testUpdate(): void
     {
         $this->login($this->browser);
@@ -122,6 +186,7 @@ class ProductReviewSaveRouteTest extends TestCase
         $this->browser->request('POST', $this->getUrl(), [
             'title' => 'Lorem ipsum dolor sit amet',
             'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+            'points' => 5,
         ]);
 
         $response = $this->browser->getResponse();
@@ -134,6 +199,7 @@ class ProductReviewSaveRouteTest extends TestCase
             'id' => $id,
             'title' => 'Lorem ipsum dolor sit amet',
             'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+            'points' => 5,
         ]);
         $this->assertReviewCount(1);
     }
@@ -152,6 +218,10 @@ class ProductReviewSaveRouteTest extends TestCase
 
         static::assertSame($response['errors'][0]['source']['pointer'], '/title');
         static::assertSame($response['errors'][1]['source']['pointer'], '/content');
+
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertSame($response['errors'][2]['source']['pointer'], '/points');
+        }
     }
 
     public function testCustomerValidation(): void
@@ -167,6 +237,7 @@ class ProductReviewSaveRouteTest extends TestCase
             'id' => $id,
             'title' => 'Lorem ipsum dolor sit amet',
             'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+            'points' => 5,
         ]);
 
         // Re-login as another user
@@ -177,6 +248,7 @@ class ProductReviewSaveRouteTest extends TestCase
             'id' => $id,
             'title' => 'Lorem ipsum dolor sit amet',
             'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+            'points' => 5,
         ]);
 
         $response = $this->browser->getResponse();

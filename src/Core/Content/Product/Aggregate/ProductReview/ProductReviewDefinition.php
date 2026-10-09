@@ -19,12 +19,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRouteTest
  */
 #[Package('after-sales')]
 class ProductReviewDefinition extends EntityDefinition
@@ -63,6 +66,15 @@ class ProductReviewDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
+        $externalUser = (new StringField('external_user', 'externalUser'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('External user name.');
+        $points = (new FloatField('points', 'points'))->addFlags(new ApiAware())->setDescription('A floating point number given to rate a product.');
+
+        // @deprecated tag:v6.8.0 - externalUser and points will be required unconditionally
+        if (Feature::isActive('v6.8.0.0')) {
+            $externalUser->addFlags(new Required());
+            $points->addFlags(new Required());
+        }
+
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the product\'s review.'),
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the product.'),
@@ -70,11 +82,11 @@ class ProductReviewDefinition extends EntityDefinition
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setDescription('Unique identity of the customer.'),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the sales channel.'),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the language.'),
-            (new StringField('external_user', 'externalUser'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('External user name.'),
+            $externalUser,
             (new StringField('external_email', 'externalEmail'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('External user email address.'),
             (new StringField('title', 'title'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING))->setDescription('Title of product review.'),
             (new LongTextField('content', 'content'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING))->setDescription('Short description or subject of the project review.'),
-            (new FloatField('points', 'points'))->addFlags(new ApiAware())->setDescription('A floating point number given to rate a product.'),
+            $points,
             (new BoolField('status', 'status'))->addFlags(new ApiAware())->setDescription('When status is set, the rating is made visible.'),
             (new LongTextField('comment', 'comment'))->addFlags(new ApiAware())->setDescription('Detailed review about the product.'),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),

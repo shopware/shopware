@@ -366,6 +366,7 @@ SQL;
             'points' => $points,
             'content' => 'Lorem',
             'title' => $title,
+            'externalUser' => 'Test',
         ];
 
         $this->reviewRepository->upsert([$data], $this->salesChannel->getContext());

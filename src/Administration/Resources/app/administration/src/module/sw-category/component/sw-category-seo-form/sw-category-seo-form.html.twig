@@ -10,7 +10,18 @@
         :help-text="$t('sw-landing-page.base.seo.helpTextMetaTitle')"
         :placeholder="$t('sw-category.base.seo.placeholderMetaTitle')"
         @update:model-value="category.metaTitle = $event"
-    />
+    >
+        {% block sw_category_seo_form_meta_title_hint %}
+        <template #hint>
+            <span
+                class="sw-category-seo-form__recommended-length"
+                :class="getRecommendedLengthClass(metaTitleLength, recommendedMetaTitleLength)"
+            >
+                {{ getRecommendedLengthHint(metaTitleLength, recommendedMetaTitleLength) }}
+            </span>
+        </template>
+        {% endblock %}
+    </mt-text-field>
     {% endblock %}
 
     {% block sw_category_seo_form_meta_description %}
@@ -21,7 +32,18 @@
         :label="$t('sw-category.base.seo.labelMetaDescription')"
         :help-text="$t('sw-landing-page.base.seo.helpTextMetaDescription')"
         :placeholder="$t('sw-category.base.seo.placeholderMetaDescription')"
-    />
+    >
+        {% block sw_category_seo_form_meta_description_hint %}
+        <template #hint>
+            <span
+                class="sw-category-seo-form__recommended-length"
+                :class="getRecommendedLengthClass(metaDescriptionLength, recommendedMetaDescriptionLength)"
+            >
+                {{ getRecommendedLengthHint(metaDescriptionLength, recommendedMetaDescriptionLength) }}
+            </span>
+        </template>
+        {% endblock %}
+    </mt-textarea>
     {% endblock %}
 
     {% block sw_category_seo_form_keywords %}

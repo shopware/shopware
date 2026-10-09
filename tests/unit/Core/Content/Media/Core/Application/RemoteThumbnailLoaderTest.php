@@ -362,12 +362,20 @@ class RemoteThumbnailLoaderTest extends TestCase
             ['configuration_id' => $ids->get('mediaFolderConfigurationId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '400', 'height' => '400'],
         ];
 
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturnOnConsecutiveCalls($thumbnailSizes, [[
+        $folderConfigurations = [[
             'folder_id' => $ids->get('mediaFolderId'),
             'configuration_id' => $ids->get('mediaFolderConfigurationId'),
             'create_thumbnails' => '1',
-        ]]);
+        ]];
+
+        $queryCount = 0;
+        $connection = $this->createMock(Connection::class);
+        // Each lookup of the thumbnail sizes issues two queries: sizes first, then folder configurations
+        $connection->expects($this->exactly(4))
+            ->method('fetchAllAssociative')
+            ->willReturnCallback(static function () use (&$queryCount, $thumbnailSizes, $folderConfigurations): array {
+                return ++$queryCount % 2 === 1 ? $thumbnailSizes : $folderConfigurations;
+            });
 
         $entity = (new PartialEntity())->assign([
             'id' => $ids->get('media'),
@@ -387,11 +395,15 @@ class RemoteThumbnailLoaderTest extends TestCase
             '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
         );
 
+        // The second load reuses the memoized sizes, only the load after the reset queries again
         $loader->load([$entity]);
-        static::assertNotEmpty((new \ReflectionProperty(RemoteThumbnailLoader::class, 'mediaFolderThumbnailSizes'))->getValue($loader));
-
+        $loader->load([$entity]);
         $loader->reset();
-        static::assertEmpty((new \ReflectionProperty(RemoteThumbnailLoader::class, 'mediaFolderThumbnailSizes'))->getValue($loader));
+        $loader->load([$entity]);
+
+        $thumbnails = $entity->get('thumbnails');
+        static::assertInstanceOf(MediaThumbnailCollection::class, $thumbnails);
+        static::assertCount(2, $thumbnails);
     }
 
     public function testExtensionSkipThumbnail(): void

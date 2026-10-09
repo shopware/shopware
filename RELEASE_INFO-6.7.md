@@ -581,6 +581,10 @@ Check your Administration extensions for these changes:
 - The search input of `mt-select` gets the field's `name`, or a generated id, as its `id` and opts out of browser autofill.
 - Text-entry fields forward the `autocomplete` attribute to the native input.
 
+### Order quantities of digital products can be set in the Administration
+
+The deliverability card of digital products has a new "Allow multiple units per order" switch. Turn it on to set `minPurchase`, `purchaseSteps` and `maxPurchase`, or off to limit the digital product to one unit per order. Bulk edit no longer hides these fields for digital products.
+
 ## Storefront
 
 ### Legacy theme.json translations keep working and can be migrated with a command

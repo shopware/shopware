@@ -890,6 +890,11 @@ Headless sales channels without an external storefront domain for the requested 
 ### Concurrent sitemap generation is skipped gracefully again
 
 `sitemap:generate` (without `--force`) no longer aborts with `CONTENT__SITEMAP_ALREADY_LOCKED` when another process is currently generating the sitemap of the same sales channel and language — the affected channel is skipped with an error message and the command continues, as originally intended. The generation lock throws `Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException` again (now extending `SitemapException`, error code and HTTP status 400 unchanged), so existing `catch (AlreadyLockedException)` blocks — including those in plugins — work as they did before the sitemap exceptions were consolidated into `SitemapException`.
+### Customer group registration SEO URLs for headless sales channels
+
+Customer groups with an activated registration form now also get SEO URLs for headless (API type) registration sales channels, for every language that has a domain flagged as external storefront (see "SEO URLs for headless sales channels" in 6.7.14.0). The rows are written with the route name `store-api.customer-group-registration.config` (the Store API route a headless frontend calls to render the registration form) — separate from the storefront's `frontend.account.customer-group-registration.page` — and can be resolved by headless frontends via `GET /store-api/seo-url`. Headless sales channels without an external storefront domain keep getting no rows; storefront sales channels are unaffected.
+
+Known limitation: the rows are only (re)generated when the customer group itself is written. Toggling the external storefront flag of a domain (or adding/removing domains) does not create or delete rows until the customer group is saved again — the same limitation the storefront SEO URLs have for newly added domains. Re-save the affected customer groups after changing domains.
 
 ### Customer imports validate customer number patterns
 

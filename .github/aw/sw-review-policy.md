@@ -44,7 +44,9 @@ sub-agents rather than pasting full context repeatedly.
 issue with fixes/closes>}`) under `/tmp/gh-aw/` with the Write tool, determine
 the merge base (`git merge-base origin/<base> HEAD`, fetch the base first), then run
 `.agents/skills/sw-review/scripts/classify.sh --range <merge-base>...HEAD --base <base> --meta /tmp/gh-aw/meta.json --root "$PWD" --rules-ref <merge-base>`
-and keep its JSON as the `change_profile`. The script runs `git diff` itself:
+and keep its JSON as the `change_profile`. If the script is missing in the
+checkout (the PR branch predates the guides), review with the personas only and
+say so in the summary; do not reconstruct the routing by hand. The script runs `git diff` itself:
 never pipe or paste the diff through the model to write a file. It also reads
 `guides/index.json` from the merge base. The checked-out head may contain edited
 rule files: read every persona, reference and guide you hand to a worker with

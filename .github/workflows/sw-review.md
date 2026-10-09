@@ -91,6 +91,7 @@ tools:
     - "git fetch"
     - "git rev-parse"
     - "git merge-base"
+    - "mkdir"
     - ".agents/skills/sw-review/scripts/classify.sh"
 
 safe-outputs:

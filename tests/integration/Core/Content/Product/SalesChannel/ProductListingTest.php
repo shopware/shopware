@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndexingMessage;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
@@ -146,6 +148,25 @@ class ProductListingTest extends TestCase
 
     public function testListingWithProductStream(): void
     {
+        $streamId = $this->createTestProductStreamEntity($this->categoryStreamId);
+        $this->indexProductStreamMapping($streamId);
+        $request = new Request();
+
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), $this->salesChannelId);
+
+        $listing = static::getContainer()
+            ->get(ProductListingRoute::class)
+            ->load($this->categoryStreamId, $request, $context, new Criteria())
+            ->getResult();
+
+        static::assertSame(7, $listing->getTotal());
+        static::assertFalse($listing->getEntities()->has($this->productIdWidth100));
+        static::assertTrue($listing->getEntities()->has($this->productIdWidth150));
+    }
+
+    public function testListingWithProductStreamWithoutIndexedMapping(): void
+    {
         $this->createTestProductStreamEntity($this->categoryStreamId);
         $request = new Request();
 
@@ -164,7 +185,8 @@ class ProductListingTest extends TestCase
 
     public function testListingWithProductStreamAndAdditionalCriteria(): void
     {
-        $this->createTestProductStreamEntity($this->categoryStreamId);
+        $streamId = $this->createTestProductStreamEntity($this->categoryStreamId);
+        $this->indexProductStreamMapping($streamId);
         $request = new Request();
 
         $context = static::getContainer()->get(SalesChannelContextFactory::class)
@@ -425,7 +447,7 @@ class ProductListingTest extends TestCase
         static::getContainer()->get('property_group.repository')->create($data, Context::createDefaultContext());
     }
 
-    private function createTestProductStreamEntity(string $categoryStreamId): void
+    private function createTestProductStreamEntity(string $categoryStreamId): string
     {
         $streamId = Uuid::randomHex();
 
@@ -461,6 +483,15 @@ class ProductListingTest extends TestCase
 
         static::getContainer()->get('category.repository')
             ->create([['id' => $categoryStreamId, 'productStreamId' => $streamId, 'name' => 'test', 'parentId' => null, 'productAssignmentType' => 'product_stream']], Context::createDefaultContext());
+
+        return $streamId;
+    }
+
+    private function indexProductStreamMapping(string $streamId): void
+    {
+        static::getContainer()->get(ProductStreamUpdater::class)->handle(
+            new ProductStreamMappingIndexingMessage($streamId, null, $this->context)
+        );
     }
 
     /**

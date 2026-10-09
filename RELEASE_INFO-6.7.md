@@ -60,6 +60,10 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Homepage hreflang links restored for existing `HreflangLoaderParameter` callers
+
+When `HreflangLoaderParameter` is constructed without the `$homepage` argument, `isHomepage()` again detects the homepage from the `frontend.home.page` route name, so homepage hreflang links are generated for these callers. This fallback is deprecated and will be removed in 6.8. If you construct `HreflangLoaderParameter` yourself, pass `$homepage` explicitly.
+
 ### Snippets can be provided through the private filesystem
 
 Administration and storefront snippets are now also loaded from the private filesystem (`shopware.filesystem.private`, by default `files/`):

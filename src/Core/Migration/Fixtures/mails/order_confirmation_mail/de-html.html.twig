@@ -83,6 +83,9 @@
                                     {% else %}
                                         GARAN-Kennzeichnung: gewerbliche Haltbarkeitsgarantie von {{ garanLabel.duration }} Jahren
                                     {% endif %}
+                                    {% if garanLabel.termsUrl %}
+                                        <div><a href="{{ garanLabel.termsUrl }}" target="_blank">Garantiebedingungen</a></div>
+                                    {% endif %}
                                 </div>
                             {% endif %}
                         {% endif %}

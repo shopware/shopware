@@ -3,7 +3,7 @@
     {% block sw_media_field_label %}
     <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
     <label
-        v-if="showLabel"
+        v-if="showLabel()"
         class="sw-media-field__label"
     >
         <slot name="label">

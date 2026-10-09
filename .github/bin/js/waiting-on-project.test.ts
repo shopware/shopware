@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import {
     applyProjectChanges,
     buildFieldMutation,
+    fetchProject,
     parseTeamProjects,
     planProjectChanges,
     type ProjectItem,
@@ -167,4 +168,71 @@ test('applyProjectChanges sets the fields on the item it just added and carries 
     assert.deepEqual(failed, ['item ITEM_BROKEN']);
     assert.equal(errors.length, 1);
     assert.deepEqual(calls.slice(1).map((variables) => variables.itemId ?? variables.contentId), ['PR_1', 'ITEM_NEW']);
+});
+
+const pullRequestNode = (id: string, pullRequestId: string) => ({
+    id,
+    content: { id: pullRequestId, repository: { nameWithOwner: 'shopware/shopware' } },
+    fieldValues: { nodes: [] },
+});
+
+const schemaPage = {
+    organization: {
+        projectV2: {
+            id: 'PROJECT',
+            fields: {
+                nodes: [
+                    { id: 'F_WAITING', name: 'Waiting on', dataType: 'SINGLE_SELECT', options: [] },
+                    { id: 'F_REASON', name: 'Reason', dataType: 'SINGLE_SELECT', options: [] },
+                    { id: 'F_SINCE', name: 'Waiting since', dataType: 'DATE' },
+                ],
+            },
+        },
+    },
+};
+
+test('fetchProject reads a page item by item when the page fails, and skips the unreadable item', async () => {
+    const warnings: string[] = [];
+    const github = {
+        async graphql<T>(query: string, variables: Record<string, unknown>): Promise<T> {
+            if (query.includes('fields(first: 50)')) {
+                return schemaPage as T;
+            }
+            if (query.includes('node(id: $id)')) {
+                if (variables.id === 'ITEM_BAD') {
+                    throw new Error('Something went wrong\nrequest id');
+                }
+                return { node: pullRequestNode(variables.id as string, `PR_${variables.id}`) } as T;
+            }
+            if (query.includes('fieldValues')) {
+                throw new Error('Something went wrong');
+            }
+
+            return { organization: { projectV2: { items: { pageInfo: { hasNextPage: false, endCursor: null }, nodes: [{ id: 'ITEM_1' }, { id: 'ITEM_BAD' }, { id: 'ITEM_2' }] } } } } as T;
+        },
+    };
+
+    const { items } = await fetchProject(github, { warning: (message) => warnings.push(message) }, 'shopware', 69, 'shopware/shopware');
+
+    assert.deepEqual(items.map((candidate) => candidate.id), ['ITEM_1', 'ITEM_2']);
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0], /ITEM_BAD.*Something went wrong/);
+});
+
+test('fetchProject does not read item by item while the pages succeed', async () => {
+    const queries: string[] = [];
+    const github = {
+        async graphql<T>(query: string): Promise<T> {
+            queries.push(query);
+
+            return (query.includes('fields(first: 50)')
+                ? schemaPage
+                : { organization: { projectV2: { items: { pageInfo: { hasNextPage: false, endCursor: null }, nodes: [pullRequestNode('ITEM_1', 'PR_1')] } } } }) as T;
+        },
+    };
+
+    const { items } = await fetchProject(github, { warning: () => assert.fail('no warning expected') }, 'shopware', 69, 'shopware/shopware');
+
+    assert.equal(items.length, 1);
+    assert.equal(queries.length, 2);
 });

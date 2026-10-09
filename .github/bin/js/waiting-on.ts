@@ -786,7 +786,7 @@ export async function reportWaitingOn({ github, core, context }: { github: Graph
         for (const target of targets) {
             // A team's project missing a field must not keep the other projects from their sync.
             try {
-                const { schema, items } = await fetchProject(project.github, owner, target.number, `${owner}/${repo}`);
+                const { schema, items } = await fetchProject(project.github, core, owner, target.number, `${owner}/${repo}`);
                 const projectChanges = planProjectChanges(target.rows, items, { archive: target.archive });
 
                 failedItems.push(...(dryRun ? [] : await applyProjectChanges(project.github, core, schema, projectChanges)));

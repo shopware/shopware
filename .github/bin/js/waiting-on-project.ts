@@ -163,8 +163,19 @@ export function toProjectItems(nodes: ItemNode[], nameWithOwner: string): Projec
     return items;
 }
 
-const PROJECT_QUERY = `
-    query($owner: String!, $number: Int!, $after: String) {
+const ITEM_FIELDS = `
+    id
+    content { ... on PullRequest { id repository { nameWithOwner } } }
+    fieldValues(first: 20) {
+        nodes {
+            ... on ProjectV2ItemFieldSingleSelectValue { name field { ... on ProjectV2FieldCommon { name } } }
+            ... on ProjectV2ItemFieldDateValue { date field { ... on ProjectV2FieldCommon { name } } }
+        }
+    }
+`;
+
+const SCHEMA_QUERY = `
+    query($owner: String!, $number: Int!) {
         organization(login: $owner) {
             projectV2(number: $number) {
                 id
@@ -174,21 +185,30 @@ const PROJECT_QUERY = `
                         ... on ProjectV2SingleSelectField { options { id name } }
                     }
                 }
+            }
+        }
+    }
+`;
+
+const itemsQuery = (nodeFields: string) => `
+    query($owner: String!, $number: Int!, $after: String) {
+        organization(login: $owner) {
+            projectV2(number: $number) {
                 items(first: 100, after: $after) {
                     pageInfo { hasNextPage endCursor }
-                    nodes {
-                        id
-                        content { ... on PullRequest { id repository { nameWithOwner } } }
-                        fieldValues(first: 20) {
-                            nodes {
-                                ... on ProjectV2ItemFieldSingleSelectValue { name field { ... on ProjectV2FieldCommon { name } } }
-                                ... on ProjectV2ItemFieldDateValue { date field { ... on ProjectV2FieldCommon { name } } }
-                            }
-                        }
-                    }
+                    nodes { ${nodeFields} }
                 }
             }
         }
+    }
+`;
+
+const ITEMS_QUERY = itemsQuery(ITEM_FIELDS);
+const ITEM_IDS_QUERY = itemsQuery('id');
+
+const ITEM_QUERY = `
+    query($id: ID!) {
+        node(id: $id) { ... on ProjectV2Item { ${ITEM_FIELDS} } }
     }
 `;
 
@@ -202,34 +222,60 @@ type Core = {
     error(message: string): void;
 };
 
-type ProjectPage = {
-    organization: {
-        projectV2: {
-            id: string;
-            fields: { nodes: Field[] };
-            items: { pageInfo: { hasNextPage: boolean; endCursor: string | null }; nodes: ItemNode[] };
-        } | null;
-    };
+type SchemaPage = {
+    organization: { projectV2: { id: string; fields: { nodes: Field[] } } | null };
 };
 
-export async function fetchProject(github: ProjectClient, owner: string, number: number, nameWithOwner: string): Promise<{ schema: ProjectSchema; items: ProjectItem[] }> {
+type ItemsPage<Node> = {
+    organization: { projectV2: { items: { pageInfo: { hasNextPage: boolean; endCursor: string | null }; nodes: Node[] } } };
+};
+
+/**
+ * One item whose content the token cannot read makes GitHub fail the whole page with a
+ * generic "Something went wrong". Such a page is read again item by item, and the items that
+ * still fail are skipped with a warning, so one bad item cannot take the sync down.
+ */
+async function readPageItemByItem(github: ProjectClient, core: Pick<Core, 'warning'>, owner: string, number: number, after: string | undefined): Promise<{ pageInfo: { hasNextPage: boolean; endCursor: string | null }; nodes: ItemNode[] }> {
+    const { pageInfo, nodes: ids } = (await github.graphql<ItemsPage<{ id: string }>>(ITEM_IDS_QUERY, { owner, number, after })).organization.projectV2.items;
+    const nodes: ItemNode[] = [];
+
+    for (const { id } of ids) {
+        try {
+            const { node } = await github.graphql<{ node: ItemNode | null }>(ITEM_QUERY, { id });
+            if (node !== null) {
+                nodes.push(node);
+            }
+        } catch (error) {
+            core.warning(`Skipped project item ${id}, it cannot be read: ${error instanceof Error ? error.message.split('\n')[0] : String(error)}`);
+        }
+    }
+
+    return { pageInfo, nodes };
+}
+
+export async function fetchProject(github: ProjectClient, core: Pick<Core, 'warning'>, owner: string, number: number, nameWithOwner: string): Promise<{ schema: ProjectSchema; items: ProjectItem[] }> {
+    const project = (await github.graphql<SchemaPage>(SCHEMA_QUERY, { owner, number })).organization.projectV2;
+    if (project === null) {
+        throw new Error(`Project ${owner}/${number} does not exist or the token cannot read it.`);
+    }
+
+    const schema = resolveSchema(project.id, project.fields.nodes.filter((field) => field.id !== undefined));
     const items: ProjectItem[] = [];
-    let schema: ProjectSchema | undefined;
     let after: string | undefined = undefined;
 
     do {
-        const result: ProjectPage = await github.graphql(PROJECT_QUERY, { owner, number, after });
-        const project = result.organization.projectV2;
-        if (project === null) {
-            throw new Error(`Project ${owner}/${number} does not exist or the token cannot read it.`);
+        let page: { pageInfo: { hasNextPage: boolean; endCursor: string | null }; nodes: ItemNode[] };
+        try {
+            page = (await github.graphql<ItemsPage<ItemNode>>(ITEMS_QUERY, { owner, number, after })).organization.projectV2.items;
+        } catch {
+            page = await readPageItemByItem(github, core, owner, number, after);
         }
 
-        schema ??= resolveSchema(project.id, project.fields.nodes.filter((field) => field.id !== undefined));
-        items.push(...toProjectItems(project.items.nodes, nameWithOwner));
-        after = project.items.pageInfo.hasNextPage ? project.items.pageInfo.endCursor ?? undefined : undefined;
+        items.push(...toProjectItems(page.nodes, nameWithOwner));
+        after = page.pageInfo.hasNextPage ? page.pageInfo.endCursor ?? undefined : undefined;
     } while (after);
 
-    return { schema: schema!, items };
+    return { schema, items };
 }
 
 /**

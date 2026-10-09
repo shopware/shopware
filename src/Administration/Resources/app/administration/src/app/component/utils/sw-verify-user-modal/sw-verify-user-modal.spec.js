@@ -4,16 +4,17 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper({ isSso = false, isSsoRejects = false } = {}) {
-    const loginService = {
-        verifyUserToken: jest.fn(() => Promise.resolve('verified-token')),
-        getBearerAuthentication: jest.fn(() => ({ access: 'old-token' })),
-        setBearerAuthentication: jest.fn(),
-    };
-    const ssoSettingsService = {
-        isSso: jest.fn(() => (isSsoRejects ? Promise.reject(new Error('offline')) : Promise.resolve({ isSso }))),
-    };
+const loginService = {
+    verifyUserToken: jest.fn(() => Promise.resolve('verified-token')),
+    getBearerAuthentication: jest.fn(() => ({ access: 'old-token' })),
+    setBearerAuthentication: jest.fn(),
+};
 
+const ssoSettingsService = {
+    isSso: jest.fn(() => Promise.resolve({ isSso: false })),
+};
+
+async function createWrapper() {
     const wrapper = mount(await wrapTestComponent('sw-verify-user-modal', { sync: true }), {
         global: {
             provide: {
@@ -24,7 +25,7 @@ async function createWrapper({ isSso = false, isSsoRejects = false } = {}) {
     });
     await flushPromises();
 
-    return { wrapper, loginService, ssoSettingsService };
+    return wrapper;
 }
 
 describe('src/app/component/utils/sw-verify-user-modal', () => {
@@ -32,11 +33,11 @@ describe('src/app/component/utils/sw-verify-user-modal', () => {
 
     afterEach(() => {
         wrapper?.unmount();
+        jest.clearAllMocks();
     });
 
     it('asks for the password and emits the verified context for a non-SSO session', async () => {
-        let loginService;
-        ({ wrapper, loginService } = await createWrapper());
+        wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-modal').exists()).toBe(true);
         expect(wrapper.emitted('verified')).toBeUndefined();
@@ -52,8 +53,9 @@ describe('src/app/component/utils/sw-verify-user-modal', () => {
     });
 
     it('skips the password prompt and emits the current context for an SSO session', async () => {
-        let loginService;
-        ({ wrapper, loginService } = await createWrapper({ isSso: true }));
+        ssoSettingsService.isSso.mockResolvedValueOnce({ isSso: true });
+
+        wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-modal').exists()).toBe(false);
         expect(loginService.verifyUserToken).not.toHaveBeenCalled();
@@ -63,7 +65,9 @@ describe('src/app/component/utils/sw-verify-user-modal', () => {
     });
 
     it('falls back to the password prompt when the SSO lookup fails', async () => {
-        ({ wrapper } = await createWrapper({ isSsoRejects: true }));
+        ssoSettingsService.isSso.mockRejectedValueOnce(new Error('offline'));
+
+        wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-modal').exists()).toBe(true);
         expect(wrapper.emitted('verified')).toBeUndefined();

@@ -70,7 +70,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         /**
          * getGreetingTimeKey reads through the existing dictionary and returns a localtime aware
-         * `$tc ()` compatible String. The timebased dictionary keys look like `5h` or `11h` or `16h`
+         * `$t()` compatible String. The timebased dictionary keys look like `5h` or `11h` or `16h`
          * and contains an array with different greeting messages.
          * @param {String} type either 'daytimeHeadline' or 'daytimeWelcomeText'
          * @returns {String}

@@ -27,7 +27,7 @@ const BASE_FIELD_FALLBACK = {
  * <sw-cms-inherit-wrapper
  *     :element="element"
  *     field="backgroundColor"
- *     :label="$tc('sw-cms.elements.image.labelBackgroundColor')"
+ *     :label="$t('sw-cms.elements.image.labelBackgroundColor')"
  * >
  *     <template #default={ isInherited }>
  *         <mt-colorpicker

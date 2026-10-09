@@ -5,14 +5,14 @@
         :title="$t('sw-settings-cache.modal.title')"
         @modal-close="closeModal"
     >
-        {{ $tc('sw-settings-cache.modal.message') }}
+        {{ $t('sw-settings-cache.modal.message') }}
 
         <template #modal-footer>
             <mt-button
                 @click="closeModal"
                 size="small"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
 
             <mt-button
@@ -21,7 +21,7 @@
                 ref="button"
                 size="small"
             >
-                {{ $tc('sw-settings-cache.modal.actions.clear') }}
+                {{ $t('sw-settings-cache.modal.actions.clear') }}
             </mt-button>
         </template>
     </sw-modal>

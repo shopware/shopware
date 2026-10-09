@@ -815,6 +815,33 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             expect(rootComponent.config.globalProperties.$swLegacyBlockElse).toBeDefined();
         });
 
+        it('should use the translation wrappers for components, the root instance and Shopware.Snippet', () => {
+            const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+            vueAdapter.i18n.global.mergeLocaleMessage(vueAdapter.i18n.global.locale.value, {
+                'sw-vue-adapter-test': {
+                    items: 'no items | one item for {name} | {count} items for {name}',
+                },
+            });
+            const key = 'sw-vue-adapter-test.items';
+            const { $t, $tc } = rootComponent.config.globalProperties;
+
+            expect($t).not.toBe(vueAdapter.i18n.global.t);
+            expect(rootComponent.$t).toBe($t);
+            expect(rootComponent.$tc).toBe($tc);
+            /* eslint-disable sw-core-rules/no-tc-translation */
+            expect($t(key, 1, { name: 'Ada' })).toBe('one item for Ada');
+            expect($tc(key, { name: 'Ada' }, 2)).toBe('2 items for Ada');
+            expect(Shopware.Snippet.t(key, 3, { name: 'Ada' })).toBe('3 items for Ada');
+            expect(Shopware.Snippet.tc(key, { name: 'Ada' }, 2)).toBe('2 items for Ada');
+            /* eslint-enable sw-core-rules/no-tc-translation */
+            expect(warnSpy).toHaveBeenCalledWith(
+                '[Deprecation]',
+                expect.stringContaining(`Replace Shopware.Snippet.tc('${key}') with Shopware.Snippet.t('${key}').`),
+            );
+
+            warnSpy.mockRestore();
+        });
+
         it('should scope legacy block helpers by component instance', () => {
             const vmOne = { $: { uid: 1 } };
             const vmTwo = { $: { uid: 2 } };

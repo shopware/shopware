@@ -30,13 +30,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
@@ -140,6 +143,11 @@ class ApiController extends AbstractController
             throw ApiException::definitionNotFound($e);
         }
 
+        $missing = $this->validateAclPermissions($context, $entityDefinition, AclRoleDefinition::PRIVILEGE_READ);
+        if ($missing) {
+            throw ApiException::missingPrivileges([$missing]);
+        }
+
         $versionId = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): string => $this->definitionRegistry->getRepository($entityDefinition->getEntityName())->createVersion($id, $context, $versionName, $versionId));
 
         return new JsonResponse([
@@ -165,6 +173,17 @@ class ApiController extends AbstractController
         }
 
         $entityDefinition = $this->getEntityDefinition($entity);
+
+        $missing = $this->validateAclPermissions($context, $entityDefinition, AclRoleDefinition::PRIVILEGE_UPDATE);
+        if ($missing) {
+            throw ApiException::missingPrivileges([$missing]);
+        }
+
+        // reject a version of another entity
+        if ($this->isEntityMismatch($versionId, $entityDefinition, $context)) {
+            throw ApiException::versionEntityMismatch($versionId, $entityDefinition->getEntityName());
+        }
+
         $repository = $this->definitionRegistry->getRepository($entityDefinition->getEntityName());
 
         // change scope to be able to update write protected fields
@@ -199,6 +218,11 @@ class ApiController extends AbstractController
             $entityDefinition = $this->definitionRegistry->getByEntityName($this->urlToSnakeCase($entity));
         } catch (DefinitionNotFoundException $e) {
             throw ApiException::definitionNotFound($e);
+        }
+
+        $missing = $this->validateAclPermissions($context, $entityDefinition, AclRoleDefinition::PRIVILEGE_DELETE);
+        if ($missing) {
+            throw ApiException::missingPrivileges([$missing]);
         }
 
         $versionContext = $context->createWithVersionId($versionId);
@@ -461,6 +485,32 @@ class ApiController extends AbstractController
         }
 
         $repository->delete(array_map(static fn (string $id): array => ['id' => $id], $ids), $context);
+    }
+
+    /**
+     * A version always contains changes of the entity it was created for.
+     * If it only contains changes of other entities, it was created for another entity.
+     * A version without changes, the live version and entities without versions are no mismatch,
+     * the merge rejects them with a more specific error.
+     */
+    private function isEntityMismatch(string $versionId, EntityDefinition $definition, Context $context): bool
+    {
+        if ($versionId === Defaults::LIVE_VERSION || !$definition->isVersionAware()) {
+            return false;
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('commit.versionId', $versionId));
+        $criteria->addAggregation(new TermsAggregation('entities', 'entityName'));
+
+        $entities = $this->definitionRegistry
+            ->getRepository(VersionCommitDataDefinition::ENTITY_NAME)
+            ->aggregate($criteria, $context)
+            ->get('entities');
+        \assert($entities instanceof TermsResult);
+        $entityNames = $entities->getKeys();
+
+        return $entityNames !== [] && !\in_array($definition->getEntityName(), $entityNames, true);
     }
 
     /**

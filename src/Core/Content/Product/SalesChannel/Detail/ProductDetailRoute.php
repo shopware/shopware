@@ -306,10 +306,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         return $variantId->firstId() ?? $productId;
     }
 
-    /**
-     * The parent itself is only loaded when no variant could be resolved, e.g. because all variants are inactive.
-     * Such a parent cannot be bought, so it is treated like an inactive product.
-     */
+    // the parent itself is only loaded when none of its variants could be resolved
     private function isParentWithoutResolvedVariant(SalesChannelProductEntity $product, ResolveVariantIdEvent $event): bool
     {
         return $product->getParentId() === null

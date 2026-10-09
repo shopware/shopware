@@ -713,7 +713,6 @@ class ProductDetailRouteTest extends TestCase
             'parentId' => null,
         ]);
 
-        // a subscriber explicitly resolves the parent itself
         $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($parentId): void {
             $event->setResolvedVariantId($parentId);
         });

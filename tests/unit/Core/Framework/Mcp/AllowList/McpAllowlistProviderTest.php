@@ -253,7 +253,6 @@ class McpAllowlistProviderTest extends TestCase
     public function testCopilotIntersectsIntegrationAndUserAllowlists(): void
     {
         $appUserId = Uuid::randomHex();
-        $appUserIdBytes = Uuid::fromHexToBytes($appUserId);
 
         $connection = static::createStub(Connection::class);
         // Integration allowlist: tools A + B

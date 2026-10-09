@@ -78,6 +78,7 @@ shopware:
         description: "Automatic promotions cannot be removed anymore and are therefore no longer tracked as blocked after removal."
       - name: METEOR_TEXT_EDITOR
         default: false
+        major: v6.8.0.0
         toggleable: true
         description: "Enables the Meteor text editor in the administration."
       - name: JSON_LD_DATA

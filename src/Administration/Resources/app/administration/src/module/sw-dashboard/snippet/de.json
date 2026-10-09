@@ -65,6 +65,17 @@
       "feedback": "Feedback geben",
       "feedbackLink": "https://feedback.shopware.com"
     },
+    "agenticCommerceCard": {
+      "headline": "Erreiche Kunden, die mit KI einkaufen",
+      "text": "Mache Deinen Katalog mit Agentic Commerce für KI-Agenten und Shopping-Assistenten verfügbar.",
+      "install": "Agentic Commerce installieren",
+      "dismiss": "Agentic-Commerce-Hinweis schließen",
+      "storeLoginRequired": {
+        "title": "Shopware Account",
+        "message": "Verbinde Deinen Shopware Account, um Agentic Commerce herunterzuladen.",
+        "login": "Anmelden"
+      }
+    },
     "todayStats": {
       "headline": "Statistik des Tages",
       "orders": "Bestellungen",

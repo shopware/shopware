@@ -11,6 +11,7 @@ async function createWrapper(privileges = []) {
                 'sw-card-view': await wrapTestComponent('sw-card-view'),
                 'sw-external-link': true,
                 'sw-dashboard-statistics': true,
+                'sw-dashboard-agentic-commerce-card': true,
                 'sw-help-text': true,
                 'sw-extension-component-section': true,
                 'sw-search-bar': true,

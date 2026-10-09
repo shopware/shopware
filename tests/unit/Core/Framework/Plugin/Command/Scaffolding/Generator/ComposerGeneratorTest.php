@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ComposerGenerat
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @internal
@@ -21,7 +23,24 @@ class ComposerGeneratorTest extends TestCase
     {
         $generator = new ComposerGenerator();
 
-        static::assertNull($generator->getCommandOption());
+        static::assertFalse($generator->hasCommandOption());
+        static::assertEmpty($generator->getCommandOptionName());
+        static::assertEmpty($generator->getCommandOptionDescription());
+        static::assertSame('', $generator->getCommandOptionTitle());
+        static::assertSame('', $generator->getCommandOptionDescriptionLong());
+    }
+
+    public function testAddScaffoldConfigDoesNothing(): void
+    {
+        $configuration = new PluginScaffoldConfiguration('TestPlugin', 'My\\Namespace', '/path/to/directory');
+
+        (new ComposerGenerator())->addScaffoldConfig(
+            $configuration,
+            static::createStub(InputInterface::class),
+            static::createStub(OutputInterface::class),
+        );
+
+        static::assertSame([], $configuration->options);
     }
 
     public function testGenerateStubs(): void

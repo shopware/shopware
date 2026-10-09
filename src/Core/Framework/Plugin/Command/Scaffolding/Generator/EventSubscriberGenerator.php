@@ -17,7 +17,9 @@ class EventSubscriberGenerator implements ScaffoldingGenerator
     use HasCommandOption;
 
     public const OPTION_NAME = 'create-event-subscriber';
+    private const OPTION_TITLE = 'Event Subscriber';
     private const OPTION_DESCRIPTION = 'Create an example event subscriber';
+    private const OPTION_DESCRIPTION_LONG = 'An event subscriber is a class that defines methods for listening to one or more events in Shopware. Use one when your plugin needs to react to events already dispatched by Shopware, such as after an entity has been loaded or written.';
     private const CLI_QUESTION = 'Do you want to create an example event subscriber?';
 
     private string $servicesPhpEntry = <<<'EOL'

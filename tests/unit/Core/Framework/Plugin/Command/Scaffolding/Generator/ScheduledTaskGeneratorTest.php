@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScheduledTaskGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
@@ -24,55 +22,43 @@ class ScheduledTaskGeneratorTest extends TestCase
         $generator = new ScheduledTaskGenerator();
 
         $option = $generator->getCommandOption();
-
-        static::assertNotSame('', $option->getName());
-        static::assertNotSame('', $option->getDescription());
-        static::assertFalse($option->acceptValue());
+        static::assertNotEmpty($option->getName());
+        static::assertNotEmpty($option->getDescription());
+        static::assertSame('Scheduled Task', $generator->getCommandOptionTitle());
+        static::assertNotEmpty($generator->getCommandOptionDescriptionLong());
     }
 
     #[DataProvider('addScaffoldConfigProvider')]
-    public function testAddScaffoldConfig(
-        bool $getOptionResponse,
-        bool $confirmResponse,
-        bool $expectedHasOption
-    ): void {
+    public function testAddScaffoldConfig(bool $optionAlreadySet, string $answer, bool $expectedHasOption): void
+    {
         $configuration = $this->getConfig();
 
-        $input = static::createStub(InputInterface::class);
-        $input->method('getOption')->willReturn($getOptionResponse);
-
-        $io = static::createStub(SymfonyStyle::class);
-        $io->method('confirm')->willReturn($confirmResponse);
-
-        (new ScheduledTaskGenerator())
-            ->addScaffoldConfig($configuration, $input, $io);
+        (new ScheduledTaskGenerator())->addScaffoldConfig(
+            $configuration,
+            ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
+            ScaffoldConsole::output(),
+        );
 
         static::assertSame($expectedHasOption, $configuration->hasOption(ScheduledTaskGenerator::OPTION_NAME));
     }
 
     public static function addScaffoldConfigProvider(): \Generator
     {
-        yield 'with command option and with confirm' => [
-            'getOptionResponse' => true,
-            'confirmResponse' => true,
+        yield 'cli option stores the scaffold option' => [
+            'optionAlreadySet' => true,
+            'answer' => '',
             'expectedHasOption' => true,
         ];
 
-        yield 'with command option and without confirm' => [
-            'getOptionResponse' => true,
-            'confirmResponse' => false,
+        yield 'answering yes stores the scaffold option' => [
+            'optionAlreadySet' => false,
+            'answer' => 'y',
             'expectedHasOption' => true,
         ];
 
-        yield 'without command option and with confirm' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'expectedHasOption' => true,
-        ];
-
-        yield 'without command option and without confirm' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => false,
+        yield 'answering no skips the scaffold option' => [
+            'optionAlreadySet' => false,
+            'answer' => 'n',
             'expectedHasOption' => false,
         ];
     }
@@ -112,6 +98,7 @@ class ScheduledTaskGeneratorTest extends TestCase
             'expected' => [
                 'src/Resources/config/services.php',
                 'src/ScheduledTask/ExampleTask.php',
+                'src/ScheduledTask/ExampleTaskHandler.php',
             ],
         ];
     }

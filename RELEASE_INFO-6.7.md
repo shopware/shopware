@@ -700,6 +700,15 @@ If you override `buy-widget-price`, `block-price`, `price-unit` or `badges`: `is
 The nested GARAN label is now a button that shows the full label. On line items it opens a modal loaded from the new route `frontend.product.garan-label` (template `storefront/component/product/garan-label-modal.html.twig`); on the product detail page it expands the full label.
 
 If you override `component_line_item_garan_label`, `buy_widget_garan_label_preview` or `buy_widget_garan_label_full`, take over the new button and link markup.
+### The image gallery renders every spatial media type
+
+`cms-element-image-gallery.html.twig` now shows every media for which `isSpatial()` is true in the spatial viewer, and derives the slider options for spatial slides from its own items instead of `page.product.media`, so static galleries get them as well. The AR button and the QR code modal are only rendered for spatial objects.
+
+To pass different options to the viewer, override the new blocks `element_image_gallery_inner_item_spatial_canvas_viewer`, `element_image_gallery_inner_single_spatial_canvas_viewer` and `element_image_gallery_inner_zoom_modal_slider_item_zoom_container_spatial_canvas_viewer`. To build the viewer from something other than a model URL, override `SpatialBaseViewerPlugin::createQuickView()`; returning `null` leaves the canvas empty.
+
+The zoom modal no longer waits for images without a source before it opens.
+
+These additions are experimental and become stable with 6.8.0.
 
 ## App system
 

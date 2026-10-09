@@ -109,7 +109,7 @@ A test that needs an event has two legitimate shapes. Prefer them in this order:
 
 Whichever shape, keep these conditions:
 
-- **Capture in the hook, assert after the code under test ran.** Never put an assertion inside the hook; `NoAssertionInEventHookRule` reports one. Code that catches and logs exceptions around a dispatch (`SendMailAction` around `MailSentEvent`, flow actions, message handlers) swallows the assertion failure and the test stays green. The reference incident is #21105.
+- **Capture in the hook, assert after the code under test ran.** Never put an assertion inside the hook; `NoAssertionInEventHookRule` reports one. Code that catches and logs exceptions around a dispatch (`SendMailAction` around `MailSentEvent`, flow actions, message handlers) swallows the assertion failure and the test stays green. The reference incident is #21105. `fail()` included: it fails the test it is called in, and a listener is not the test. For "nothing was dispatched", give the code under test a `CollectingEventDispatcher` and assert on `getEvents()` after the call instead of a sentinel listener.
 - **Assert that the hook fired.** A captured value that stays `null` must fail the test (`assertNotNull`, `assertCount`), otherwise a renamed event or a changed dispatch path passes silently.
 - **A hook that changes behaviour (alters the event, stops propagation, throws) is a last resort.** It means the test depends on listener order. Say so in a comment, and prefer a test-only service registered in `services_test.php` when the same intervention is needed in more than one test.
 - **`subscribe()` for a whole subscriber only when the test is about that subscriber's wiring.** For one event, `on()` with a closure reads better.

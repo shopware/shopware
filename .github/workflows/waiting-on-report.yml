@@ -15,10 +15,9 @@ name: Waiting-on report
 # Teams listed in WAITING_ON_SLACK_CHANNELS get a Slack reminder about external pull requests
 # that have been waiting on us for too long; see .github/bin/js/waiting-on-slack.ts.
 #
-# waiting-on-update.yml applies the same rules to a single pull request as soon as it changes;
-# this sweep catches what only time changes. A daily sweep rather than only events, for two reasons: the state changes as time
-# passes and not only when something happens, and a fork pull request event carries a
-# read-only token that could not write a label later on anyway.
+# waiting-on-update.yml applies the same rules to one pull request as soon as it changes. A
+# daily sweep is still needed: the state also changes as time passes, and the Slack reminders
+# are sent from here.
 
 on:
   schedule:

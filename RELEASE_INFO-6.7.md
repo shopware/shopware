@@ -483,6 +483,12 @@ The meta title and meta description fields of the category SEO form show how man
 
 Extensions can customize the hints through the new Twig blocks `sw_category_seo_form_meta_title_hint` and `sw_category_seo_form_meta_description_hint`.
 
+### Product SEO form shows the recommended meta length
+
+The meta title and meta description fields of the product SEO form show how many characters they contain against the recommended length of 56 and 155 characters named in their help texts, and highlight the hint when the recommendation is exceeded. Inherited values are counted as well.
+
+Extensions can customize the hints through the new Twig blocks `sw_product_seo_form_meta_title_hint` and `sw_product_seo_form_meta_description_hint`.
+
 ### Admin list and card empty states use `mt-empty-state`
 
 The prominent empty states of the Administration render `mt-empty-state` instead of `sw-empty-state`, plain text or illustration markup. List pages whose empty state means "nothing exists yet" offer their create action in its `button` slot, and the customer group, flow and rule lists hide their listing while the empty state shows, so blocks nested inside those listings no longer render.

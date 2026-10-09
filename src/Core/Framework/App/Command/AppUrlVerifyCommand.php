@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
+use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Url\AppUrlVerificationPrinter;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
@@ -38,7 +39,10 @@ class AppUrlVerifyCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $shopId = $this->shopIdProvider->getShopId();
-        $state = $this->appUrlVerifier->forceVerify($shopId);
+        $appUrl = $shopId->getFingerprint(AppUrl::IDENTIFIER);
+        \assert($appUrl !== null);
+
+        $state = $this->appUrlVerifier->forceVerify($appUrl);
 
         $this->printer->print($io, $state, true);
 

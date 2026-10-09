@@ -870,6 +870,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppManager::class),
             service(ShopIdProvider::class),
             service('logger'),
+            service(AppUrlVerifier::class),
+            env('APP_URL'),
         ])
         ->tag('shopware.app_url_changed_resolver', ['priority' => -100]);
 
@@ -879,6 +881,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppManager::class),
             service(ShopIdProvider::class),
             service('logger'),
+            service(AppUrlVerifier::class),
+            env('APP_URL'),
         ])
         ->tag('shopware.app_url_changed_resolver', ['priority' => 100]);
 

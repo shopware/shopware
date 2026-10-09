@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
+use Shopware\Core\Framework\App\Exception\AppUrlFailedVerificationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeStrategyNotFoundException;
@@ -74,6 +75,7 @@ class AppException extends HttpException
     final public const INVALID_SHOP_ID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION';
     final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
     final public const APP_URL_INVALID = 'FRAMEWORK__APP_URL_INVALID';
+    final public const APP_URL_FAILED_VERIFICATION = 'FRAMEWORK__APP_URL_FAILED_VERIFICATION';
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
     final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
     final public const RE_REGISTRATION_FAILED = 'FRAMEWORK__APP_RE_REGISTRATION_FAILED';
@@ -636,6 +638,16 @@ class AppException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::APP_URL_INVALID,
             'APP_URL is invalid: ' . $reason
+        );
+    }
+
+    public static function appUrlFailedVerification(string $appUrl, string $reason): self
+    {
+        return new AppUrlFailedVerificationException(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::APP_URL_FAILED_VERIFICATION,
+            'APP_URL "{{ appUrl }}" is incorrect or does not reach this installation ({{ reason }})',
+            ['appUrl' => $appUrl, 'reason' => $reason]
         );
     }
 

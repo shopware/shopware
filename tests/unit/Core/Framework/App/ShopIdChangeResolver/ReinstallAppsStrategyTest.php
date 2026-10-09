@@ -13,6 +13,9 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
+use Shopware\Core\Framework\App\Url\VerificationState;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -33,7 +36,9 @@ class ReinstallAppsStrategyTest extends TestCase
             $appRepository,
             static::createStub(AppManager::class),
             static::createStub(ShopIdProvider::class),
-            new NullLogger()
+            new NullLogger(),
+            static::createStub(AppUrlVerifier::class),
+            'https://new.example.com',
         );
 
         static::assertSame(ReinstallAppsStrategy::STRATEGY_NAME, $strategy->getName());
@@ -58,18 +63,48 @@ class ReinstallAppsStrategyTest extends TestCase
                 self::assertSame($context, $passedContext);
             });
 
+        $verifier = $this->createMock(AppUrlVerifier::class);
+        $verifier->expects($this->once())
+            ->method('forceVerify')
+            ->with('https://new.example.com')
+            ->willReturn(new VerificationState(VerificationStatus::PASS, 1, new \DateTimeImmutable()));
+
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
 
         $strategy = new ReinstallAppsStrategy(
             $appRepository,
             $appManager,
             $shopIdProvider,
-            new NullLogger()
+            new NullLogger(),
+            $verifier,
+            'https://new.example.com',
         );
 
         $strategy->resolve($context);
 
         static::assertSame(['app-one', 'app-two'], $calledApps);
+    }
+
+    public function testKeepsTheShopIdWhenTheNewAppUrlFailsVerification(): void
+    {
+        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider->expects($this->never())->method('deleteShopId');
+
+        $appManager = $this->createMock(AppManager::class);
+        $appManager->expects($this->never())->method('reregister');
+
+        $strategy = new ReinstallAppsStrategy(
+            new StaticEntityRepository([]),
+            $appManager,
+            $shopIdProvider,
+            new NullLogger(),
+            self::verifierReturning(VerificationStatus::HARD_FAIL, 'Unexpected response'),
+            'https://new.example.com',
+        );
+
+        $this->expectExceptionObject(AppException::appUrlFailedVerification('https://new.example.com', 'Unexpected response'));
+
+        $strategy->resolve(Context::createDefaultContext());
     }
 
     public function testContinuesWithRemainingAppsAndReportsFailuresTogether(): void
@@ -99,7 +134,9 @@ class ReinstallAppsStrategyTest extends TestCase
             $appRepository,
             $appManager,
             $shopIdProvider,
-            new Logger('test', [$logger])
+            new Logger('test', [$logger]),
+            self::verifierReturning(VerificationStatus::PASS),
+            'https://new.example.com',
         );
 
         $this->expectExceptionObject(AppException::reinstallAppsFailed(['app-one']));
@@ -113,5 +150,13 @@ class ReinstallAppsStrategyTest extends TestCase
             static::assertSame('app-one', $records[0]->context['appName']);
             static::assertSame($exception, $records[0]->context['exception']);
         }
+    }
+
+    private static function verifierReturning(VerificationStatus $status, ?string $info = null): AppUrlVerifier
+    {
+        $verifier = static::createStub(AppUrlVerifier::class);
+        $verifier->method('forceVerify')->willReturn(new VerificationState($status, 1, new \DateTimeImmutable(), $info));
+
+        return $verifier;
     }
 }

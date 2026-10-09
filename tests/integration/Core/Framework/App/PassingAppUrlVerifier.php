@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App;
 
-use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
@@ -18,7 +17,7 @@ class PassingAppUrlVerifier extends AppUrlVerifier
     {
     }
 
-    public function forceVerify(ShopId $shopId): VerificationState
+    public function forceVerify(string $appUrl): VerificationState
     {
         return new VerificationState(VerificationStatus::PASS, 1, new \DateTimeImmutable());
     }

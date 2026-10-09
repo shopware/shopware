@@ -600,10 +600,7 @@ class AppRegistrationServiceTest extends TestCase
 
         $this->handshakeFactoryMock->expects($this->never())->method('create');
 
-        $this->expectExceptionObject(AppException::registrationFailed(
-            'test',
-            'APP_URL "https://shopware.swag" is incorrect or does not reach this installation (Failed to connect to APP_URL: timeout)',
-        ));
+        $this->expectExceptionObject(AppException::appUrlFailedVerification('https://shopware.swag', 'Failed to connect to APP_URL: timeout'));
 
         $this->appRegistrationService
             ->reRegisterWithAppHeldSecret($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext(), 'app-held-secret');

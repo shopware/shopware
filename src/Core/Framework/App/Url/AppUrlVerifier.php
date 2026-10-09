@@ -6,8 +6,6 @@ use Psr\Cache\CacheItemPoolInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
-use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Lock\Exception\ExceptionInterface as LockException;
@@ -63,14 +61,11 @@ class AppUrlVerifier implements ResetInterface
      * Verify the shops APP_URL in any environment, ignoring the stored result of previous verification attempts.
      * A pass is reused until the service is reset.
      */
-    public function forceVerify(ShopId $shopId): VerificationState
+    public function forceVerify(string $appUrl): VerificationState
     {
         if ($this->pass !== null) {
             return $this->pass;
         }
-
-        $appUrl = $shopId->getFingerprint(AppUrl::IDENTIFIER);
-        \assert($appUrl !== null);
 
         $lock = $this->lockFactory->createLock('app-url-verification-force', 10);
 
@@ -99,14 +94,11 @@ class AppUrlVerifier implements ResetInterface
      *
      * Note: for non-prod environments we skip the verification entirely
      */
-    public function verify(ShopId $shopId): bool
+    public function verify(string $appUrl): bool
     {
         if ($this->appEnv !== 'prod') {
             return true;
         }
-
-        $appUrl = $shopId->getFingerprint(AppUrl::IDENTIFIER);
-        \assert($appUrl !== null);
 
         $lock = $this->lockFactory->createLock('app-url-verification', 10);
 

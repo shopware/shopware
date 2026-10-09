@@ -18,8 +18,8 @@ Pos. {{ loop.index }}
 {% if lineItem.payload.productNumber is defined %}
 Product number {{ lineItem.payload.productNumber|u.wordwrap(80) }},
 {% endif %}
-{% if nestedItem.cover is defined and nestedItem.cover is not null %}
-Image {{ lineItem.cover.alt }},
+{% if lineItem.cover is defined and lineItem.cover is not null %}
+Image {{ lineItem.cover.url }}{% if lineItem.cover.alt %} ({{ lineItem.cover.alt }}){% endif %},
 {% endif %}
 Description {{ lineItem.label|u.wordwrap(80) }},
 {% if lineItem.payload.options is defined and lineItem.payload.options|length >= 1 %}

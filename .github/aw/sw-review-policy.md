@@ -39,19 +39,18 @@ metadata, changed-file list, and commits. For the diff itself, use
 needed). Write large diffs to a file and pass slices by path to the persona
 sub-agents rather than pasting full context repeatedly.
 
-**Classifying.** Write only `meta.json` (`{"fork": <head repo differs>,
-"author_association": "...", "labels": [...], "fixes_issue": <PR body links an
-issue with fixes/closes>}`) under `/tmp/gh-aw/` with the Write tool, determine
-the merge base (`git merge-base origin/<base> HEAD`, fetch the base first), then run
-`.agents/skills/sw-review/scripts/classify.sh --range <merge-base>...HEAD --base <base> --meta /tmp/gh-aw/meta.json --root "$PWD" --rules-ref <merge-base>`
-and keep its JSON as the `change_profile`. If the script is missing in the
-checkout (the PR branch predates the guides), review with the personas only and
-say so in the summary; do not reconstruct the routing by hand. The script runs `git diff` itself:
-never pipe or paste the diff through the model to write a file. It also reads
-`guides/index.json` from the merge base. The checked-out head may contain edited
+**Classifying.** The change profile is precomputed by a workflow step before you
+start: `cat .sw-review/profile.json`. It is the output of
+`.agents/skills/sw-review/scripts/classify.sh` (path classes, signals, size,
+selected guides, `rules_source`), run with the classifier and router index of the
+merge base. Do not run the classifier yourself and never pipe or paste the diff
+through the model to write a file. If the file is missing or says
+`"available": false`, review with the personas only and say so in the summary;
+do not reconstruct the routing by hand. The checked-out head may contain edited
 rule files: read every persona, reference and guide you hand to a worker with
-`git show <merge-base>:<path>` or tell the worker to do so; never from the
-working tree.
+`git show <merge-base>:<path>` (the merge base is in the step summary and in the
+profile's `rules_source` when it was used) or tell the worker to do so; never
+from the working tree.
 
 **Bias toward finishing.** This run is turn- and credit-bounded with no warning.
 A review that ships a few high-confidence findings beats one cut off before it

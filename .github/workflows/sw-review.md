@@ -56,6 +56,17 @@ checkout:
   ref: ${{ github.event.pull_request.head.sha || format('refs/pull/{0}/head', github.event.issue.number || github.event.inputs.pr_number) }}
   fetch-depth: 0
 
+# Deterministic classification runs here, outside the agent sandbox: the sandbox cannot
+# execute repository scripts or redirect output. The agent reads the result with `cat`.
+steps:
+  - name: Compute the sw-review change profile
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number || github.event.inputs.pr_number }}
+      GH_TOKEN: ${{ github.token }}
+    run: |
+      set -euo pipefail
+      .agents/skills/sw-review/scripts/ci-profile.sh .sw-review/profile.json
+
 engine:
   id: claude
   model: claude-sonnet-5-5   # orchestrator/default; security & architecture personas escalate to opus below (COST.md strong tier)

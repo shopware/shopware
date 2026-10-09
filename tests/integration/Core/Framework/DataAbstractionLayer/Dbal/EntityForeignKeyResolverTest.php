@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -159,6 +160,33 @@ class EntityForeignKeyResolverTest extends TestCase
         static::assertContains($ids->get('position2'), $affected['order_delivery_position']);
     }
 
+    public function testNestedCascadesIncludeEveryLevelOfATree(): void
+    {
+        $ids = $this->createCategoryTree();
+
+        $affected = static::getContainer()->get(EntityForeignKeyResolver::class)
+            ->getAffectedDeletes(static::getContainer()->get(CategoryDefinition::class), [['id' => $ids->get('root')]], Context::createDefaultContext());
+
+        static::assertArrayHasKey('category', $affected);
+        static::assertEqualsCanonicalizing(
+            [$ids->get('level-1'), $ids->get('level-2'), $ids->get('level-3')],
+            $affected['category']
+        );
+    }
+
+    public function testDeletingATreeReportsEveryLevelAsDeleted(): void
+    {
+        $ids = $this->createCategoryTree();
+
+        $event = static::getContainer()->get('category.repository')
+            ->delete([['id' => $ids->get('root')]], Context::createDefaultContext());
+
+        static::assertEqualsCanonicalizing(
+            [$ids->get('root'), $ids->get('level-1'), $ids->get('level-2'), $ids->get('level-3')],
+            $event->getDeletedPrimaryKeys('category')
+        );
+    }
+
     public function testOnlyIncludesAffectedDeleteRestrictionsWithDirectRelation(): void
     {
         $ids = new IdsCollection();
@@ -210,6 +238,35 @@ class EntityForeignKeyResolverTest extends TestCase
         $productRepository->delete([$deleteIds], $context);
 
         static::assertNull($productRepository->searchIds(new Criteria([$ids->get('product')]), $context)->firstId());
+    }
+
+    private function createCategoryTree(): IdsCollection
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('category.repository')->create([
+            [
+                'id' => $ids->get('root'),
+                'name' => 'root',
+                'children' => [
+                    [
+                        'id' => $ids->get('level-1'),
+                        'name' => 'level 1',
+                        'children' => [
+                            [
+                                'id' => $ids->get('level-2'),
+                                'name' => 'level 2',
+                                'children' => [
+                                    ['id' => $ids->get('level-3'), 'name' => 'level 3'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        return $ids;
     }
 
     private function getStateId(string $state, string $machine): string

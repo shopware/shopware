@@ -212,7 +212,22 @@ class EntityForeignKeyResolver implements ResetInterface
 
             $affected = $this->fetchAssociation($ids, $definition, $association, $class, $context, $restrictDeleteOnlyFirstLevel, $visited);
 
-            $result = array_merge($result, $affected);
+            $result = self::mergeAffected($result, $affected);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array<string, list<mixed>> $result
+     * @param array<string, list<mixed>> $affected
+     *
+     * @return array<string, list<mixed>>
+     */
+    private static function mergeAffected(array $result, array $affected): array
+    {
+        foreach ($affected as $entity => $keys) {
+            $result[$entity] = array_values(array_unique([...$result[$entity] ?? [], ...$keys], \SORT_REGULAR));
         }
 
         return $result;
@@ -388,7 +403,7 @@ class EntityForeignKeyResolver implements ResetInterface
         // call recursion for nested cascades
         $nested = $this->fetch($association->getReferenceDefinition(), $affected, $class, $context, $restrictDeleteOnlyFirstLevel, $visited);
 
-        return array_merge($formatted, $nested);
+        return self::mergeAffected($formatted, $nested);
     }
 
     /**

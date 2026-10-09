@@ -1,6 +1,7 @@
 import FormCountryStateSelectPlugin from 'src/plugin/forms/form-country-state-select.plugin';
 import FormFieldTogglePlugin from 'src/plugin/forms/form-field-toggle.plugin';
 import FormValidation from 'src/helper/form-validation.helper';
+import Feature from 'src/helper/feature.helper';
 
 /**
  * @package content
@@ -29,6 +30,7 @@ describe('Form country state select plugin', () => {
     }
 
     beforeEach(() => {
+        window.Feature = Feature;
         document.body.innerHTML = template;
 
         window.validationMessages = {

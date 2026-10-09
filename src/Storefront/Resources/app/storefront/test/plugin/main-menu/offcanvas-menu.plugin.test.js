@@ -1,4 +1,5 @@
 import OffCanvasMenuPlugin from 'src/plugin/main-menu/offcanvas-menu.plugin';
+import Feature from 'src/helper/feature.helper';
 
 describe('OffCanvasMenuPlugin tests', () => {
     let plugin;
@@ -52,6 +53,7 @@ describe('OffCanvasMenuPlugin tests', () => {
     `;
 
     beforeEach(() => {
+        window.Feature = Feature;
         global.fetch = jest.fn((url) => {
             if (url.endsWith('navigationId=0188fd3e4ffb7079959622b2785167eb')) {
                 return Promise.resolve({

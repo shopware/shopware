@@ -3,6 +3,10 @@
  */
 
 import * as bootstrap from 'bootstrap';
+import Feature from 'src/helper/feature.helper';
+
+// FormHandler reads the flag while its class is evaluated, before any test beforeEach runs.
+window.Feature = Feature;
 
 // log rejections so that they are not printed to stderr as a fallback
 process.on('unhandledRejection', (reason) => {

@@ -1,4 +1,5 @@
 import BasicCaptchaPlugin from 'src/plugin/captcha/basic-captcha.plugin';
+import Feature from 'src/helper/feature.helper';
 import FormValidation from 'src/helper/form-validation.helper';
 
 describe('BasicCaptchaPlugin tests', () => {
@@ -6,6 +7,7 @@ describe('BasicCaptchaPlugin tests', () => {
     let captchaElement;
 
     beforeEach(async () => {
+        window.Feature = Feature;
         document.body.innerHTML = `
             <form>
                 <div id="basic-captcha">

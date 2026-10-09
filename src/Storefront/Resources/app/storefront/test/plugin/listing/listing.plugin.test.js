@@ -1,4 +1,5 @@
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
+import Feature from 'src/helper/feature.helper';
 import ListingPaginationPlugin from 'src/plugin/listing/listing-pagination.plugin';
 
 describe('ListingPlugin tests', () => {
@@ -7,6 +8,7 @@ describe('ListingPlugin tests', () => {
     const spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
+        window.Feature = Feature;
         document.body.innerHTML = `
             <!-- Filter panel -->
             <div class="cms-element-sidebar-filter">

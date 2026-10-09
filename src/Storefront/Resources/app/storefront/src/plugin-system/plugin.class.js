@@ -186,4 +186,39 @@ export default class Plugin {
         return pluginName;
     }
 
+    /**
+     * Deprecate an option of the plugin.
+     *
+     * @param {string} key
+     * @param {string} majorFlag
+     * @param {string} hint
+     *
+     * @protected
+     */
+    _deprecateOption(key, majorFlag, hint = '') {
+        const message = `The option "${key}" of plugin "${this._pluginName}" is deprecated and will be removed in ${majorFlag}. ${hint}`.trim();
+        let value = this.options[key];
+
+        // If a different value is passed then the current default value, trigger the deprecation.
+        // e.g. when passing option via data attribute
+        if (JSON.stringify(value) !== JSON.stringify(this.constructor.options?.[key])) {
+            window.Feature.triggerDeprecationOrThrow(majorFlag, message);
+        }
+        Object.defineProperty(this.options, key, {
+            configurable: true,
+            enumerable: false,
+            get() {
+                // Trigger the deprecation when the option is accessed.
+                // e.g. this.options.myOption
+                window.Feature.triggerDeprecationOrThrow(majorFlag, message);
+                return value;
+            },
+            set(newValue) {
+                // Trigger the deprecation when the option is set.
+                // e.g. this.options.myOption = 'new value';
+                window.Feature.triggerDeprecationOrThrow(majorFlag, message);
+                value = newValue;
+            },
+        });
+    }
 }

@@ -7,8 +7,10 @@ import editedSelectorTemplate from './form-submit-loader-edited-form-selector.pl
 import skipLoadingIndicatorTemplate from './form-submit-loader-without-loading-spinner.plugin.template.html';
 import dontSkipLoadingIndicatorTemplate from './form-submit-loader-with-loading-spinner.plugin.template.html';
 import FormSubmitLoader from "../../../src/plugin/forms/form-submit-loader.plugin";
+import Feature from 'src/helper/feature.helper';
 
 function setUpFormLoader(formSelector) {
+    window.Feature = Feature;
     Storage.clear();
 
     const form = document.querySelector(formSelector);

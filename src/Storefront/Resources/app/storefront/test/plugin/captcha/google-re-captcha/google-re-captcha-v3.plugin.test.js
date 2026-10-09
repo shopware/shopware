@@ -1,4 +1,5 @@
 import GoogleReCaptchaV3Plugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin';
+import Feature from 'src/helper/feature.helper';
 import FormHandler from 'src/plugin/forms/form-handler.plugin';
 import FormValidation from 'src/helper/form-validation.helper';
 
@@ -9,6 +10,7 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
     let mockRecaptchaScriptElement; // Added for the mock script
 
     beforeEach(() => {
+        window.Feature = Feature;
         window.grecaptcha = {
             ready: jest.fn(callback => callback()),
             execute: jest.fn(() => Promise.resolve('mockExecuteToken')),

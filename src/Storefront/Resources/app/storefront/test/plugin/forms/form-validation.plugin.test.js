@@ -1,4 +1,5 @@
 import FormValidationPlugin from 'src/plugin/forms/form-validation.plugin';
+import Feature from 'src/helper/feature.helper';
 
 /**
  * @package content
@@ -21,6 +22,7 @@ describe('FormValidationPlugin tests', () => {
     }
 
     beforeEach(() => {
+        window.Feature = Feature;
         document.body.innerHTML = template;
 
         formValidationPlugin = createPlugin();

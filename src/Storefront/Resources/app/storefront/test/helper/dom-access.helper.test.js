@@ -1,5 +1,6 @@
 import DomAccess from 'src/helper/dom-access.helper';
 import template from './dom-access.helper.template.html';
+import Feature from 'src/helper/feature.helper';
 
 /**
  * @deprecated tag:v6.8.0 - DomAccess Helper will be removed.
@@ -8,6 +9,7 @@ import template from './dom-access.helper.template.html';
 describe('dom-access.helper', () => {
     beforeEach(() => {
         document.body.innerHTML = template;
+        window.Feature = Feature;
     });
 
     describe('isNode', () => {

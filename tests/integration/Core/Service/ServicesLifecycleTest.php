@@ -24,6 +24,7 @@ use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -391,9 +392,8 @@ class ServicesLifecycleTest extends TestCase
         $one = $this->assertInstalled(self::ONE, '1.0.0');
         $two = $this->assertInstalled(self::TWO, '1.2.0');
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
         $permissionEvents = 0;
-        $this->addEventListener($dispatcher, AppPermissionsUpdated::class, static function () use (&$permissionEvents): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppPermissionsUpdated::class, static function () use (&$permissionEvents): void {
             ++$permissionEvents;
         });
 

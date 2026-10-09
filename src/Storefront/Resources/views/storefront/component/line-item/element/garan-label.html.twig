@@ -1,23 +1,32 @@
 {% block component_line_item_garan_label %}
+    {% set productId = displayMode === 'order' ? lineItem.productId : lineItem.referencedId %}
+    {% set garanLabel = null %}
+
     {% if lineItem.payload.garanLabel is defined %}
         {% set garanGuarantee = (lineItem.payload.garanLabel.guaranteeMonths ?? null)|sw_garan_label_duration %}
 
         {% if garanGuarantee %}
-            <div class="line-item-garan-label">
+            {% set garanLabel %}
                 {% sw_include '@Framework/garan/nested-label.svg.twig' with {
                     guarantee: garanGuarantee
                 } %}
-            </div>
+            {% endset %}
         {% endif %}
     {% else %}
         {# carts and orders from before the label was stored on the line item #}
-        {% set productId = displayMode === 'order' ? lineItem.productId : lineItem.referencedId %}
         {% set garanLabel = productId|sw_garan_label_nested(context.context) %}
+    {% endif %}
 
-        {% if garanLabel %}
-            <div class="line-item-garan-label">
+    {% if garanLabel %}
+        <div class="line-item-garan-label">
+            <button type="button"
+                    class="garan-label-button"
+                    aria-label="{{ 'detail.garanLabelTitle'|trans|striptags }}"
+                    aria-haspopup="dialog"
+                    data-ajax-modal="true"
+                    data-url="{{ path('frontend.product.garan-label', { productId: productId }) }}">
                 {{ garanLabel|raw }}
-            </div>
-        {% endif %}
+            </button>
+        </div>
     {% endif %}
 {% endblock %}

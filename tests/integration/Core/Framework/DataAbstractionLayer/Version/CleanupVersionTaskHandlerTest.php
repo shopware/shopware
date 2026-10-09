@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -69,9 +70,9 @@ class CleanupVersionTaskHandlerTest extends TestCase
         $date->modify('-31 days');
         $this->createVersion($ids->create('protected-version'), $date);
 
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-        $eventDispatcher->addListener(CleanupVersionEvent::class, static function (CleanupVersionEvent $event) use ($ids, $date): void {
-            static::assertTrue($date <= $event->getCleanupTime());
+        $cleanupTime = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CleanupVersionEvent::class, static function (CleanupVersionEvent $event) use ($ids, &$cleanupTime): void {
+            $cleanupTime = $event->getCleanupTime();
             $event->addProtectedVersionId('invalid-version-id');
             $event->addProtectedVersionId($ids->get('protected-version'));
             $event->addProtectedVersionId($ids->get('protected-version'));
@@ -79,6 +80,8 @@ class CleanupVersionTaskHandlerTest extends TestCase
 
         $this->handler->run();
 
+        static::assertInstanceOf(\DateTimeInterface::class, $cleanupTime);
+        static::assertTrue($date <= $cleanupTime);
         static::assertSame(
             [$ids->get('protected-version')],
             static::getContainer()->get(Connection::class)->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM version')

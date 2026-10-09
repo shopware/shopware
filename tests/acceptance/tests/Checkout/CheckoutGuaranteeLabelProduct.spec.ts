@@ -40,6 +40,9 @@ const testLegalGuaranteeNotice = (showTosCheckbox: boolean) =>
 
                 return `https://europa.eu/youreurope/${slug}`;
             };
+            const garanLabelInfoLanguage = getLanguageCode(getLocale()).split('-')[0]?.toLowerCase() === 'de' ? 'de' : 'en';
+            const garanLabelInfoUrl = `https://europa.eu/youreurope/citizens/consumers/shopping/commercial-guarantee-durability/index_${garanLabelInfoLanguage}.htm`;
+            const garanLabelModal = StorefrontProductDetail.page.locator('.js-pseudo-modal .modal.show');
             const product = await TestDataService.createBasicProduct({
                 name: 'GARAN-Label-Checkout-Product',
                 manufacturerId: manufacturer.id,
@@ -70,9 +73,31 @@ const testLegalGuaranteeNotice = (showTosCheckbox: boolean) =>
                 await ShopCustomer.expects(StorefrontProductDetail.hideGaranLabelButton).toBeVisible();
             });
 
-            await test.step('Nested GARAN label is visible on cart and checkout line items.', async () => {
+            await test.step('Nested GARAN label on the product detail page expands the full label itself.', async () => {
+                await ShopCustomer.presses(StorefrontProductDetail.hideGaranLabelButton);
+                await ShopCustomer.expects(StorefrontProductDetail.garanFullLabel).not.toBeVisible();
+
+                await ShopCustomer.presses(StorefrontProductDetail.garanNestedLabel.getByRole('button'));
+
+                await ShopCustomer.expects(StorefrontProductDetail.garanFullLabel).toBeVisible();
+                await ShopCustomer.expects(StorefrontProductDetail.hideGaranLabelButton).toBeFocused();
+                await ShopCustomer.expects(StorefrontProductDetail.garanFullLabel.getByRole('link')).toHaveAttribute(
+                    'href',
+                    garanLabelInfoUrl,
+                );
+            });
+
+            await test.step('Nested GARAN label on cart and checkout line items opens the full label.', async () => {
                 await ShopCustomer.attemptsTo(AddProductToCart(product));
                 await ShopCustomer.expects(StorefrontProductDetail.offCanvasLineItemGaranLabel).toBeVisible();
+
+                await ShopCustomer.presses(StorefrontProductDetail.offCanvasLineItemGaranLabel.getByRole('button'));
+                await ShopCustomer.expects(garanLabelModal).toBeFocused();
+                await ShopCustomer.expects(garanLabelModal).toContainText('GARAN-ACME');
+                await ShopCustomer.expects(garanLabelModal).toContainText('ACME-36');
+                await ShopCustomer.expects(garanLabelModal.getByRole('link')).toHaveAttribute('href', garanLabelInfoUrl);
+                await ShopCustomer.presses(garanLabelModal.locator('.btn-close'));
+                await ShopCustomer.expects(garanLabelModal).not.toBeVisible();
 
                 await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
                 await ShopCustomer.expects(StorefrontCheckoutConfirm.lineItemGaranLabel).toBeVisible();
@@ -121,11 +146,14 @@ const testLegalGuaranteeNotice = (showTosCheckbox: boolean) =>
                 orderNumber = await StorefrontCheckoutFinish.getOrderNumber();
             });
 
-            await test.step('Nested GARAN label is visible on account order detail.', async () => {
+            await test.step('Nested GARAN label on account order detail opens the full label.', async () => {
                 await ShopCustomer.goesTo(StorefrontAccountOrder.url());
                 const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber, product.productNumber);
                 await ShopCustomer.presses(orderLocators.orderDetailButton);
                 await ShopCustomer.expects(orderLocators.lineItemGaranLabel).toBeVisible();
+
+                await ShopCustomer.presses(orderLocators.lineItemGaranLabel.getByRole('button'));
+                await ShopCustomer.expects(garanLabelModal).toContainText('ACME-36');
             });
 
             await test.step('Account order detail keeps the GARAN label the order was placed with.', async () => {

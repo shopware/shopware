@@ -97,10 +97,11 @@ class AdminSearchControllerTest extends TestCase
         $content = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         $data = $content['data'];
 
-        static::assertNotEmpty($data['promotion']);
+        static::assertIsArray($data['promotion']);
 
         static::assertSame(1, $data['promotion']['total']);
-        static::assertNotEmpty($data['promotion']['data']);
+        static::assertIsArray($data['promotion']['data']);
+        static::assertNotCount(0, $data['promotion']['data']);
         static::assertSame('promotion-listing', $data['promotion']['indexer']);
         static::assertSame('sw-admin-promotion-listing', $data['promotion']['index']);
     }

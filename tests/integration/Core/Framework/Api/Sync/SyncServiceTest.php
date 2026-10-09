@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -175,8 +176,6 @@ class SyncServiceTest extends TestCase
 
         $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $createListener = $this->createMock(CallableClass::class);
 
         $createListener->expects($this->once())
@@ -187,10 +186,10 @@ class SyncServiceTest extends TestCase
         $deleteListener->expects($this->exactly(3))
             ->method('__invoke');
 
-        $this->addEventListener($dispatcher, EntityWrittenContainerEvent::class, $createListener);
-        $this->addEventListener($dispatcher, 'tax.deleted', $deleteListener);
-        $this->addEventListener($dispatcher, 'country.deleted', $deleteListener);
-        $this->addEventListener($dispatcher, 'country_translation.deleted', $deleteListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityWrittenContainerEvent::class, $createListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on('tax.deleted', $deleteListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on('country.deleted', $deleteListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on('country_translation.deleted', $deleteListener);
 
         $operations = [
             new SyncOperation('manufacturers', 'product_manufacturer', SyncOperation::ACTION_UPSERT, [
@@ -235,14 +234,12 @@ class SyncServiceTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $listener = $this->createMock(CallableClass::class);
 
         $listener->expects($this->once())
             ->method('__invoke');
 
-        $this->addEventListener($dispatcher, EntityWrittenContainerEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityWrittenContainerEvent::class, $listener);
 
         $operations = [
             new SyncOperation('write', 'product_manufacturer', SyncOperation::ACTION_UPSERT, [

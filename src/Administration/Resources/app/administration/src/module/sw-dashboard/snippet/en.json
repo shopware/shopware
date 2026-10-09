@@ -65,6 +65,17 @@
       "feedback": "Give feedback",
       "feedbackLink": "https://feedback.shopware.com"
     },
+    "agenticCommerceCard": {
+      "headline": "Reach customers shopping with AI",
+      "text": "Make your catalog available to AI agents and shopping assistants with Agentic Commerce.",
+      "install": "Get Agentic Commerce",
+      "dismiss": "Dismiss Agentic Commerce notice",
+      "storeLoginRequired": {
+        "title": "Shopware Account",
+        "message": "Connect your Shopware Account to download Agentic Commerce.",
+        "login": "Login"
+      }
+    },
     "todayStats": {
       "headline": "Today's statistics",
       "orders": "Orders",

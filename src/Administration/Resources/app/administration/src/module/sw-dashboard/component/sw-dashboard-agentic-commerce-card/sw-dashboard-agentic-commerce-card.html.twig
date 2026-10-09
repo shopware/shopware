@@ -1,0 +1,61 @@
+{% block sw_dashboard_agentic_commerce_card %}
+<mt-card
+    v-if="isVisible"
+    class="sw-dashboard-agentic-commerce-card"
+    position-identifier="sw-dashboard-agentic-commerce-card"
+>
+    {% block sw_dashboard_agentic_commerce_card_content %}
+    <div class="sw-dashboard-agentic-commerce-card__content">
+        {% block sw_dashboard_agentic_commerce_card_icon %}
+        <img
+            class="sw-dashboard-agentic-commerce-card__icon"
+            :src="iconSource"
+            alt=""
+            aria-hidden="true"
+        >
+        {% endblock %}
+
+        {% block sw_dashboard_agentic_commerce_card_text %}
+        <div class="sw-dashboard-agentic-commerce-card__text">
+            <h2 class="sw-dashboard-agentic-commerce-card__headline">
+                {{ $t('sw-dashboard.agenticCommerceCard.headline') }}
+            </h2>
+            <p class="sw-dashboard-agentic-commerce-card__description">
+                {{ $t('sw-dashboard.agenticCommerceCard.text') }}
+            </p>
+        </div>
+        {% endblock %}
+
+        {% block sw_dashboard_agentic_commerce_card_actions %}
+        <div class="sw-dashboard-agentic-commerce-card__actions">
+            <mt-button
+                class="sw-dashboard-agentic-commerce-card__install"
+                size="small"
+                variant="secondary"
+                :is-loading="isLoading"
+                :disabled="isLoading || isDismissing"
+                @click="installAgenticCommerce"
+            >
+                {{ $t('sw-dashboard.agenticCommerceCard.install') }}
+            </mt-button>
+
+            <mt-button
+                class="sw-dashboard-agentic-commerce-card__dismiss"
+                size="small"
+                variant="tertiary"
+                square
+                :disabled="isLoading || isDismissing"
+                :aria-label="$t('sw-dashboard.agenticCommerceCard.dismiss')"
+                @click="dismissCard"
+            >
+                <mt-icon
+                    name="regular-times-s"
+                    size="var(--scale-size-10)"
+                />
+            </mt-button>
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</mt-card>
+{% endblock %}

@@ -1,12 +1,11 @@
 {% block sw_order_leave_page_modal %}
 <sw-modal
-    :title="$t('sw-order.leavePageModal.headline')"
+    :title="$t('global.default.warning')"
     variant="small"
     @modal-close="onCancel"
 >
-
     {% block sw_order_leave_page_modal_content %}
-    {{ $t('sw-order.leavePageModal.description') }}
+    <p>{{ $t('sw-order.leavePageModal.description') }}</p>
     {% endblock %}
 
     <template #modal-footer>

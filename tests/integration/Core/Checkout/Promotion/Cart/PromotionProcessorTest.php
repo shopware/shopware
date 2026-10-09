@@ -66,7 +66,7 @@ class PromotionProcessorTest extends TestCase
         $criteria = new Criteria([$promotionId]);
         $criteria->addAssociation('discounts');
 
-        $promotion = $this->promotionRepository->search($criteria, $context->getContext())->first();
+        $promotion = $this->promotionRepository->search($criteria, $context->getContext())->getEntities()->first();
         static::assertInstanceOf(PromotionEntity::class, $promotion);
 
         $discounts = $promotion->getDiscounts();

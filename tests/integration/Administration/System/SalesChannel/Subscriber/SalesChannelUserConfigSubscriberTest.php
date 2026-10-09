@@ -8,6 +8,7 @@ use Shopware\Administration\System\SalesChannel\Subscriber\SalesChannelUserConfi
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -16,6 +17,7 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 /**
  * @internal
  */
+#[Package('discovery')]
 class SalesChannelUserConfigSubscriberTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

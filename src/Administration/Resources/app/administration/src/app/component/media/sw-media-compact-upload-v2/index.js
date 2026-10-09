@@ -8,10 +8,7 @@ import './sw-media-compact-upload-v2.scss';
 export default {
     template,
 
-    emits: [
-        'delete-item',
-        'selection-change',
-    ],
+    emits: ['delete-item', 'selection-change'],
 
     props: {
         allowMultiSelect: {
@@ -37,24 +34,15 @@ export default {
         variant: {
             type: String,
             required: false,
-            validValues: [
-                'compact',
-                'regular',
-            ],
+            validValues: ['compact', 'regular'],
             validator(value) {
-                return [
-                    'compact',
-                    'regular',
-                ].includes(value);
+                return ['compact', 'regular'].includes(value);
             },
             default: 'regular',
         },
 
         source: {
-            type: [
-                String,
-                Object,
-            ],
+            type: [String, Object],
             required: false,
             default: '',
         },
@@ -107,7 +95,7 @@ export default {
 
         removeFileButtonLabel() {
             if (this.removeButtonLabel === '') {
-                return this.$t('global.sw-product-image.context.buttonRemove');
+                return this.$t('global.default.remove');
             }
 
             return this.removeButtonLabel;

@@ -3,7 +3,9 @@
 namespace Shopware\Core\Content\Sitemap\Service;
 
 use League\Flysystem\FilesystemOperator;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Sitemap\Struct\Sitemap;
+use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Asset\Package;
@@ -16,7 +18,8 @@ class SitemapLister implements SitemapListerInterface
      */
     public function __construct(
         private readonly FilesystemOperator $filesystem,
-        private readonly Package $package
+        private readonly Package $package,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -32,6 +35,10 @@ class SitemapLister implements SitemapListerInterface
         /** @var SalesChannelDomainCollection $domains */
         $domains = $salesChannelContext->getSalesChannel()->getDomains();
 
+        // domains of headless sales channels point at the external storefront, which does not serve the
+        // sitemap files - they are always linked via the asset package (the host the files live on) instead
+        $isHeadless = $salesChannelContext->getSalesChannel()->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API;
+
         foreach ($files as $file) {
             if ($file->isDir()) {
                 continue;
@@ -41,15 +48,15 @@ class SitemapLister implements SitemapListerInterface
 
             $exploded = explode('-', $filename);
 
-            if (isset($exploded[1]) && $domains->has($exploded[1])) {
+            if (!$isHeadless && isset($exploded[1]) && $domains->has($exploded[1])) {
                 $domain = $domains->get($exploded[1]);
 
-                $sitemaps[] = new Sitemap($domain->getUrl() . '/' . $file->path(), 0, new \DateTime('@' . ($file->lastModified() ?? time())));
+                $sitemaps[] = new Sitemap($domain->getUrl() . '/' . $file->path(), 0, new \DateTime('@' . ($file->lastModified() ?? $this->clock->now()->getTimestamp())));
 
                 continue;
             }
 
-            $sitemaps[] = new Sitemap($this->package->getUrl($file->path()), 0, new \DateTime('@' . ($file->lastModified() ?? time())));
+            $sitemaps[] = new Sitemap($this->package->getUrl($file->path()), 0, new \DateTime('@' . ($file->lastModified() ?? $this->clock->now()->getTimestamp())));
         }
 
         return $sitemaps;

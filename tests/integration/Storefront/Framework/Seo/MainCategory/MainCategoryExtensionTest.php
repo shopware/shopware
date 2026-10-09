@@ -53,11 +53,11 @@ class MainCategoryExtensionTest extends TestCase
         $criteria->addAssociation('mainCategories');
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
 
         static::assertNotNull($product->getMainCategories());
         static::assertInstanceOf(MainCategoryCollection::class, $product->getMainCategories());
-        static::assertEmpty($product->getMainCategories());
+        static::assertCount(0, $product->getMainCategories());
 
         // update main category
         $categories = $this->categoryRepository->searchIds(new Criteria(), Context::createDefaultContext());

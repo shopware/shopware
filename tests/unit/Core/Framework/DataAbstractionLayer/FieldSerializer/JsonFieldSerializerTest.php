@@ -12,15 +12,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\DateFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\DateTimeFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IntFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Validation;
@@ -28,6 +31,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(JsonFieldSerializer::class)]
 class JsonFieldSerializerTest extends TestCase
 {
@@ -37,17 +41,19 @@ class JsonFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $this->definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $validator = Validation::createValidator();
         $this->serializer = new JsonFieldSerializer($validator, $this->definitionRegistry);
         $dateSerializer = new DateFieldSerializer($validator, $this->definitionRegistry);
         $dateTimeSerializer = new DateTimeFieldSerializer($validator, $this->definitionRegistry);
+        $intSerializer = new IntFieldSerializer($validator, $this->definitionRegistry);
 
         $this->definitionRegistry
             ->method('getSerializer')
             ->willReturnCallback(fn (string $class) => match ($class) {
                 DateFieldSerializer::class => $dateSerializer,
                 DateTimeFieldSerializer::class => $dateTimeSerializer,
+                IntFieldSerializer::class => $intSerializer,
                 JsonFieldSerializer::class => $this->serializer,
                 default => throw new \LogicException(\sprintf('Unexpected serializer "%s".', $class)),
             });
@@ -189,6 +195,26 @@ class JsonFieldSerializerTest extends TestCase
 
         static::assertSame($insertTime->format(Defaults::STORAGE_DATE_TIME_FORMAT), $decoded['child']['childDateTime']);
         static::assertSame($insertTime->format(Defaults::STORAGE_DATE_FORMAT), $decoded['child']['childDate']);
+    }
+
+    public function testAllowsAdditionalPropertiesAlongsideMappedFields(): void
+    {
+        $field = new JsonField(
+            'data',
+            'data',
+            [new IntField('position', 'position')],
+            allowAdditionalProperties: true
+        );
+        $field->compile($this->definitionRegistry);
+
+        $encoded = $this->serializer->encode(
+            $field,
+            EntityExistence::createEmpty(),
+            new KeyValuePair('data', ['position' => 10, 'extensionConfiguration' => ['enabled' => true]], true),
+            $this->createWriteParameterBag()
+        )->current();
+
+        static::assertSame(Json::encode(['position' => 10, 'extensionConfiguration' => ['enabled' => true]]), $encoded);
     }
 
     private function createWriteParameterBag(): WriteParameterBag

@@ -6,14 +6,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestKernel;
-use Shopware\Core\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Finder\Finder;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @internal
@@ -21,7 +20,35 @@ use Symfony\Component\Finder\Finder;
 #[Package('framework')]
 class ServiceDefinitionTest extends TestCase
 {
-    use KernelTestBehaviour;
+    private TestKernel $kernel;
+
+    protected function setUp(): void
+    {
+        $classLoader = require __DIR__ . '/../../../../vendor/autoload.php';
+
+        $kernelClass = KernelFactory::$kernelClass;
+        KernelFactory::$kernelClass = ServiceDefinitionTestKernel::class;
+        try {
+            $kernel = KernelFactory::create(
+                environment: 'prod',
+                debug: true,
+                classLoader: $classLoader,
+                pluginLoader: new StaticKernelPluginLoader($classLoader)
+            );
+        } finally {
+            KernelFactory::$kernelClass = $kernelClass;
+        }
+        static::assertInstanceOf(TestKernel::class, $kernel);
+        $this->kernel = $kernel;
+        $this->kernel->boot();
+    }
+
+    protected function tearDown(): void
+    {
+        if (isset($this->kernel)) {
+            $this->kernel->shutdown();
+        }
+    }
 
     public function testEverythingIsInstantiatable(): void
     {
@@ -32,70 +59,34 @@ class ServiceDefinitionTest extends TestCase
             'shopware.cache.invalidator.storage.redis_adapter',  // causes redis connect
         ];
 
-        $classLoader = require __DIR__ . '/../../../../vendor/autoload.php';
+        $container = $this->kernel->getContainer();
+        static::assertInstanceOf(Container::class, $container);
 
-        KernelFactory::$kernelClass = TestKernel::class;
-        $separateKernel = KernelFactory::create(
-            environment: 'test',
-            debug: true,
-            classLoader: $classLoader,
-            pluginLoader: new StaticKernelPluginLoader($classLoader)
-        );
-        static::assertInstanceOf(TestKernel::class, $separateKernel);
-        $separateKernel->boot();
-
-        $testContainer = $separateKernel->getContainer()->get('test.service_container');
-
-        static::assertInstanceOf(TestContainer::class, $testContainer);
-
-        $services = array_filter($testContainer->getServiceIds(), static fn (string $serviceId) => !\in_array($serviceId, $excludes, true));
+        $services = array_filter($container->getServiceIds(), static fn (string $serviceId) => !\in_array($serviceId, $excludes, true));
         $errors = [];
         foreach ($services as $serviceId) {
             try {
-                $testContainer->get($serviceId);
+                $container->get($serviceId);
             } catch (\Throwable $t) {
                 $errors[] = $serviceId . ':' . $t->getMessage();
             }
         }
 
         static::assertCount(0, $errors, 'Found invalid services: ' . print_r($errors, true));
-        // Cleanup and reset kernel class
-        $separateKernel->shutdown();
-        KernelFactory::$kernelClass = Kernel::class;
-    }
-
-    public function testServiceDefinitionNaming(): void
-    {
-        $basePath = __DIR__ . '/../../../../src';
-
-        $finder = (new Finder())->in($basePath)->files()->path('~DependencyInjection/[^/]+\.xml$~');
-        static::assertTrue($finder->hasResults(), 'No service definition files found. Check the base path.');
-
-        $errors = [];
-        foreach ($finder->getIterator() as $file) {
-            $content = $file->getContents();
-
-            $parameterErrors = $this->checkServiceParameterOrder($content);
-            $argumentErrors = $this->checkArgumentOrder($content);
-
-            $errors[$file->getRelativePathname()] = array_merge($parameterErrors, $argumentErrors);
-        }
-
-        $errors = array_filter($errors);
-        $errorMessage = 'Found some issues in the following files:' . \PHP_EOL . \PHP_EOL . print_r($errors, true);
-
-        static::assertCount(0, $errors, $errorMessage);
     }
 
     public function testContainerLintCommand(): void
     {
-        $command = static::getContainer()->get('console.command.container_lint');
-        $command->setApplication(new Application(KernelLifecycleManager::getKernel()));
+        $command = $this->kernel->getContainer()->get('console.command.container_lint');
+        $command->setApplication(new Application($this->kernel));
         $commandTester = new CommandTester($command);
 
         set_error_handler(static fn (): bool => true, \E_USER_DEPRECATED);
-        $commandTester->execute([]);
-        restore_error_handler();
+        try {
+            $commandTester->execute([]);
+        } finally {
+            restore_error_handler();
+        }
 
         static::assertSame(
             0,
@@ -103,79 +94,37 @@ class ServiceDefinitionTest extends TestCase
             "\"bin/console lint:container\" returned errors:\n" . $commandTester->getDisplay()
         );
     }
+}
 
-    /**
-     * @return array<string>
-     */
-    private function checkArgumentOrder(string $content): array
+/**
+ * @internal
+ *
+ * Runs with production service definitions: the test environment loads services_test.php
+ * (formerly services_test.xml), whose replacement services can hide invalid production wiring.
+ * The production environment has no test.service_container, so this compiler pass makes
+ * Shopware services public before Symfony removes or inlines them, allowing direct instantiation
+ * and container linting without replacing their production arguments or factories.
+ */
+#[Package('framework')]
+class ServiceDefinitionTestKernel extends TestKernel implements CompilerPassInterface
+{
+    public function process(ContainerBuilder $container): void
     {
-        $matches = [];
-        $result = preg_match_all(
-            '/<argument (?!type="[^"]+").*id="(?<id>[^"]+)".*>/',
-            $content,
-            $matches,
-            \PREG_OFFSET_CAPTURE | \PREG_SET_ORDER
-        );
+        foreach ($container->getDefinitions() as $id => $definition) {
+            if ($definition->isAbstract() || str_starts_with($id, '.')) {
+                continue;
+            }
 
-        if (!$result || $matches === []) {
-            return [];
+            if (str_starts_with($definition->getClass() ?? '', 'Shopware\\') || str_starts_with($id, 'shopware.') || $id === 'console.command.container_lint') {
+                $definition->setPublic(true);
+            }
         }
-
-        $errors = [];
-        foreach ($matches as $match) {
-            $fullMatch = $match[0];
-            $position = $fullMatch[1];
-            static::assertTrue($position > 1);
-            $errors[] = \sprintf(
-                '%s:%d - invalid order (type should be first)',
-                $match['id'][0],
-                $this->getLineNumber($content, $position)
-            );
-        }
-
-        return $errors;
     }
 
-    /**
-     * @return list<string>
-     */
-    private function checkServiceParameterOrder(string $content): array
+    protected function build(ContainerBuilder $container): void
     {
-        $matches = [];
-        $result = preg_match_all(
-            '<service\s+(?=.*class="(?<class>[^"]+)")(?=.*id="\k{class}").*>',
-            $content,
-            $matches,
-            \PREG_OFFSET_CAPTURE | \PREG_SET_ORDER
-        );
-
-        // only continue if a Shopware service definition doesn't start with class followed by id
-        if (!$result || $matches === []) {
-            return [];
-        }
-
-        $errors = [];
-        foreach ($matches as $match) {
-            $fullMatch = $match[0];
-            $position = $fullMatch[1];
-            static::assertTrue($position > 1);
-            $errors[] = \sprintf(
-                '%s:%d - parameter class and id are identical. class parameter should be removed',
-                $match['class'][0],
-                $this->getLineNumber($content, $position)
-            );
-        }
-
-        return $errors;
-    }
-
-    /**
-     * @param int<1, max> $position
-     */
-    private function getLineNumber(string $content, int $position): int
-    {
-        [$before] = str_split($content, $position);
-
-        return mb_strlen($before) - mb_strlen(str_replace(\PHP_EOL, '', $before)) + 1;
+        parent::build($container);
+        // Keep Shopware services accessible without retaining unused vendor definitions.
+        $container->addCompilerPass($this, PassConfig::TYPE_BEFORE_REMOVING);
     }
 }

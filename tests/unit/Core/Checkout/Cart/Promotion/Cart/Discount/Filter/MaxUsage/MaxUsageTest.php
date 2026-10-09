@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(MaxUsage::class)]
 #[Package('checkout')]
+#[CoversClass(MaxUsage::class)]
 class MaxUsageTest extends TestCase
 {
     /**

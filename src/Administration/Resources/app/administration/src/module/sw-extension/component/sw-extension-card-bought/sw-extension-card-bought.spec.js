@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 
@@ -17,6 +19,57 @@ const httpClient = {
     get: jest.fn(),
     delete: jest.fn(),
 };
+
+const translateSnippet = jest.fn((snippet, values = {}) => {
+    if (values?.date) {
+        return `${snippet} ${values.date}`;
+    }
+
+    return snippet;
+});
+
+const defaultExtension = {
+    id: 555,
+    name: 'Test extension',
+    label: 'Test extension label',
+    languages: [],
+    rating: null,
+    numberOfRatings: 0,
+    installedAt: null,
+    storeLicense: {
+        variant: 'rent',
+        paymentText: 'Current subscription billing text',
+        discountInformation: null,
+    },
+    storeExtension: null,
+    permissions: {},
+    images: [],
+    icon: null,
+    iconRaw: null,
+    active: false,
+    source: 'store',
+    type: 'app',
+};
+
+function createExtension(overrides = {}) {
+    let storeLicense = { ...defaultExtension.storeLicense };
+
+    if (overrides.storeLicense !== undefined) {
+        storeLicense =
+            overrides.storeLicense === null
+                ? null
+                : {
+                      ...defaultExtension.storeLicense,
+                      ...overrides.storeLicense,
+                  };
+    }
+
+    return {
+        ...defaultExtension,
+        ...overrides,
+        storeLicense,
+    };
+}
 
 Shopware.Application.getContainer('init').httpClient = httpClient;
 
@@ -52,18 +105,9 @@ async function createWrapper(extension) {
     return mount(await wrapTestComponent('sw-extension-card-bought', { sync: true }), {
         global: {
             mocks: {
-                $t: (v1, v2, v3) =>
-                    v1 || v2
-                        ? v1
-                        : JSON.stringify([
-                              v1,
-                              v2,
-                              v3,
-                          ]),
+                $t: translateSnippet,
             },
-            mixins: [
-                Shopware.Mixin.getByName('sw-extension-error'),
-            ],
+            mixins: [Shopware.Mixin.getByName('sw-extension-error')],
             stubs: {
                 'sw-meteor-card': await wrapTestComponent('sw-meteor-card', { sync: true }),
 
@@ -153,6 +197,8 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
     beforeEach(() => {
         setActivePinia(createPinia());
+        Shopware.Context.app.systemCurrencyISOCode = null;
+        translateSnippet.mockClear();
 
         if (Shopware.Store.get('context')) {
             Shopware.Store.unregister('context');
@@ -176,6 +222,10 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                 },
             }),
         });
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('should display the extension information', async () => {
@@ -395,12 +445,38 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         await wrapper.get('.sw-extension-card-base__remove-link').trigger('click');
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(true);
 
-        await wrapper
-            .findByText('button', 'sw-extension-store.component.sw-extension-removal-modal.labelCancel')
-            .trigger('click');
+        await wrapper.findByText('.sw-extension-removal-modal button', 'global.default.remove').trigger('click');
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(false);
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(0);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not offer to cancel the subscription when it is already cancelled', async () => {
+        const wrapper = await createWrapper({
+            ...defaultExtension,
+            installedAt: null,
+            source: 'local',
+            storeLicense: {
+                variants: [{}],
+                variant: 'rent',
+                expirationDate: '2025-08-01T03:30:35+01:00',
+            },
+        });
+
+        expect(wrapper.find('.sw-extension-card-base__cancel-and-remove-link').exists()).toBe(false);
+
+        await wrapper.get('.sw-extension-card-base__remove-link').trigger('click');
+
+        expect(wrapper.get('.sw-extension-removal-modal__bold-paragraph').text()).toBe(
+            'sw-extension-store.component.sw-extension-removal-modal.alertRemove',
+        );
+        expect(
+            wrapper.findByText(
+                '.sw-extension-removal-modal button',
+                'sw-extension-store.component.sw-extension-removal-modal.labelCancel',
+            ),
+        ).toBeNull();
+        expect(wrapper.findByText('.sw-extension-removal-modal button', 'global.default.remove')).not.toBeNull();
     });
 
     it('should try to cancel the extension subscription on remove attempt when it has no expiry date', async () => {
@@ -517,6 +593,126 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         );
     });
 
+    it('should display trial month price information with a formatted full charging date', async () => {
+        jest.spyOn(Shopware.Utils.format, 'date').mockImplementation(() => '11/20/2025');
+
+        const wrapper = await createWrapper(
+            createExtension({
+                storeLicense: {
+                    variant: 'rent',
+                    paymentText: 'Trial month active until 2025-11-20, then €23.75/month',
+                    discountInformation: {
+                        discountedPrice: 0,
+                        firstDateOfFullCharging: '2025-11-20T00:00:00+00:00',
+                    },
+                },
+            }),
+        );
+
+        await flushPromises();
+
+        expect(wrapper.get('.sw-extension-card-bought__info-price').text()).toBe(
+            'Trial month active until 11/20/2025, then €23.75/month',
+        );
+        expect(Shopware.Utils.format.date).toHaveBeenCalledWith('2025-11-20T00:00:00+00:00', {
+            month: '2-digit',
+            day: '2-digit',
+            year: 'numeric',
+            hour: undefined,
+            minute: undefined,
+        });
+    });
+
+    it('should display discounted price information with a formatted full charging date', async () => {
+        jest.spyOn(Shopware.Utils.format, 'date').mockImplementation(() => '02/13/2021');
+
+        const wrapper = await createWrapper(
+            createExtension({
+                storeLicense: {
+                    variant: 'rent',
+                    paymentText: '€30/month until 2021-02-13, then €35/month',
+                    discountInformation: {
+                        discountedPrice: 30,
+                        firstDateOfFullCharging: '2021-02-13T00:00:00+00:00',
+                    },
+                },
+            }),
+        );
+
+        await flushPromises();
+
+        expect(wrapper.get('.sw-extension-card-bought__info-price').text()).toBe(
+            '€30/month until 02/13/2021, then €35/month',
+        );
+        expect(Shopware.Utils.format.date).toHaveBeenCalledWith('2021-02-13T00:00:00+00:00', {
+            month: '2-digit',
+            day: '2-digit',
+            year: 'numeric',
+            hour: undefined,
+            minute: undefined,
+        });
+    });
+
+    it('should keep the store payment text when no full charging date is available', async () => {
+        const wrapper = await createWrapper(
+            createExtension({
+                storeLicense: {
+                    variant: 'rent',
+                    paymentText: 'Current subscription billing text',
+                    discountInformation: null,
+                },
+            }),
+        );
+
+        await flushPromises();
+
+        expect(wrapper.get('.sw-extension-card-bought__info-price').text()).toBe('Current subscription billing text');
+    });
+
+    it('should ask for confirmation before deactivating a rented extension', async () => {
+        const deactivateExtension = jest
+            .spyOn(Shopware.Service('shopwareExtensionService'), 'deactivateExtension')
+            .mockResolvedValue();
+        const wrapper = await createWrapper(createExtension({ storeLicense: { expirationDate: null } }));
+
+        await wrapper.vm.changeExtensionStatus();
+        await flushPromises();
+
+        const modal = wrapper.find('sw-extension-deactivation-modal-stub');
+        expect(modal.exists()).toBe(true);
+        expect(modal.attributes('extension-name')).toBe('Test extension label');
+        expect(modal.attributes('is-licensed')).toBe('true');
+        expect(deactivateExtension).not.toHaveBeenCalled();
+    });
+
+    it('should deactivate a rented extension with a cancelled subscription right away', async () => {
+        const deactivateExtension = jest
+            .spyOn(Shopware.Service('shopwareExtensionService'), 'deactivateExtension')
+            .mockResolvedValue();
+        const wrapper = await createWrapper(
+            createExtension({ storeLicense: { expirationDate: '2026-12-01T00:00:00.000+00:00' } }),
+        );
+
+        await wrapper.vm.changeExtensionStatus();
+        await flushPromises();
+
+        expect(wrapper.find('sw-extension-deactivation-modal-stub').exists()).toBe(false);
+        expect(deactivateExtension).toHaveBeenCalledWith('Test extension', 'app');
+    });
+
+    it('should deactivate an extension without a rent license right away', async () => {
+        const deactivateExtension = jest
+            .spyOn(Shopware.Service('shopwareExtensionService'), 'deactivateExtension')
+            .mockResolvedValue();
+        const wrapper = await createWrapper(createExtension({ storeLicense: { variant: 'buy' } }));
+
+        await wrapper.vm.changeExtensionStatus();
+        await flushPromises();
+
+        expect(wrapper.find('sw-extension-deactivation-modal-stub').exists()).toBe(false);
+        expect(deactivateExtension).toHaveBeenCalledWith('Test extension', 'app');
+    });
+
     describe('test display of rent and trail phase information', () => {
         it.each([
             {
@@ -558,27 +754,22 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                 expectedIcon: 'solid-exclamation-circle',
             },
         ])('$testCaseName', async ({ storeLicense, expectedTextSnippet, expectedIcon }) => {
-            const wrapper = await createWrapper({
-                id: 555,
-                name: 'Test extension',
-                label: 'Test extension label',
-                languages: [],
-                rating: null,
-                numberOfRatings: 0,
-                installedAt: null,
-                storeLicense: storeLicense,
-                storeExtension: null,
-                permissions: {},
-                images: [],
-                icon: null,
-                iconRaw: null,
-                active: false,
-                source: 'store',
-                type: 'app',
-            });
+            jest.spyOn(Shopware.Utils.format, 'date').mockImplementation(() => '06/08/2021');
+
+            const wrapper = await createWrapper(createExtension({ storeLicense }));
 
             const infoSubscriptionExpiry = wrapper.get('.sw-extension-card-bought__info-subscription-expiry');
-            expect(infoSubscriptionExpiry.text()).toBe(expectedTextSnippet);
+            expect(infoSubscriptionExpiry.text()).toBe(`${expectedTextSnippet} 06/08/2021`);
+            expect(translateSnippet).toHaveBeenCalledWith(expectedTextSnippet, {
+                date: '06/08/2021',
+            });
+            expect(Shopware.Utils.format.date).toHaveBeenCalledWith(storeLicense.expirationDate, {
+                month: '2-digit',
+                day: '2-digit',
+                year: 'numeric',
+                hour: undefined,
+                minute: undefined,
+            });
 
             const icon = infoSubscriptionExpiry.findComponent('.mt-icon');
 

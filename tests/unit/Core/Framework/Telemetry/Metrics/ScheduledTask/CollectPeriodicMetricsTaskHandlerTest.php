@@ -41,8 +41,8 @@ class CollectPeriodicMetricsTaskHandlerTest extends TestCase
             }));
 
         $handler = new CollectPeriodicMetricsTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $meter,
             [$collector1, $collector2],
         );
@@ -66,7 +66,7 @@ class CollectPeriodicMetricsTaskHandlerTest extends TestCase
         $logger->expects($this->once())->method('error')->with(static::stringContains('DB timeout'));
 
         $handler = new CollectPeriodicMetricsTaskHandler(
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $logger,
             $meter,
             [$failingCollector, $workingCollector],
@@ -97,7 +97,7 @@ class CollectPeriodicMetricsTaskHandlerTest extends TestCase
         $logger->expects($this->once())->method('error')->with(static::stringContains('generator fail'));
 
         $handler = new CollectPeriodicMetricsTaskHandler(
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $logger,
             $meter,
             [$failingCollector, $workingCollector],

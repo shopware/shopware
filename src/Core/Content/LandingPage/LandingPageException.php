@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\LandingPage;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class LandingPageException extends HttpException
 {

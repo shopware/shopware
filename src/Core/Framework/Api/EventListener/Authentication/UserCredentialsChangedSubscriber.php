@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\OAuth\AuthCodeRepository;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -23,7 +25,9 @@ class UserCredentialsChangedSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly RefreshTokenRepository $refreshTokenRepository,
-        private readonly Connection $connection
+        private readonly AuthCodeRepository $authCodeRepository,
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -41,7 +45,7 @@ class UserCredentialsChangedSubscriber implements EventSubscriberInterface
 
         foreach ($payloads as $payload) {
             if ($this->userCredentialsChanged($payload)) {
-                $this->refreshTokenRepository->revokeRefreshTokensForUser($payload['id']);
+                $this->revokeUserTokens($payload['id']);
                 $this->updateLastUpdatedPasswordTimestamp($payload['id']);
             }
         }
@@ -52,7 +56,7 @@ class UserCredentialsChangedSubscriber implements EventSubscriberInterface
         $ids = $event->getIds();
 
         foreach ($ids as $id) {
-            $this->refreshTokenRepository->revokeRefreshTokensForUser($id);
+            $this->revokeUserTokens($id);
         }
     }
 
@@ -61,15 +65,21 @@ class UserCredentialsChangedSubscriber implements EventSubscriberInterface
      */
     private function userCredentialsChanged(array $payload): bool
     {
-        return isset($payload['password']);
+        return isset($payload['password']) || (\array_key_exists('active', $payload) && $payload['active'] === false);
     }
 
     private function updateLastUpdatedPasswordTimestamp(string $userId): void
     {
         $this->connection->update('user', [
-            'last_updated_password_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'last_updated_password_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ], [
             'id' => Uuid::fromHexToBytes($userId),
         ]);
+    }
+
+    private function revokeUserTokens(string $userId): void
+    {
+        $this->refreshTokenRepository->revokeRefreshTokensForUser($userId);
+        $this->authCodeRepository->revokeAuthCodesForUser($userId);
     }
 }

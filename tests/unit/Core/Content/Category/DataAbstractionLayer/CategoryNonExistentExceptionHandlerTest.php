@@ -10,10 +10,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryNonExistentExceptionHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CategoryNonExistentExceptionHandler::class)]
 class CategoryNonExistentExceptionHandlerTest extends TestCase
 {

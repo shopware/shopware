@@ -58,10 +58,7 @@ async function createWrapper(privileges = [], isBasedItem = true) {
                         template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
                     },
                     'sw-data-grid': {
-                        props: [
-                            'dataSource',
-                            'columns',
-                        ],
+                        props: ['dataSource', 'columns'],
                         template: `
                     <div class="sw-data-grid-stub">
                     <template v-for="item in dataSource">

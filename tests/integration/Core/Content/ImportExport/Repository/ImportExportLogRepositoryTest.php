@@ -189,7 +189,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         foreach ($data as $expect) {
             $id = $expect['id'];
-            $result = $this->logRepository->search(new Criteria([$id]), $this->context);
+            $result = $this->logRepository->search(new Criteria([$id]), $this->context)->getEntities();
             /** @var ImportExportLogEntity $ImportExportLog */
             $ImportExportLog = $result->get($id);
             static::assertCount(1, $result);
@@ -210,7 +210,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->create(array_values($data), $this->context);
 
-        $result = $this->logRepository->search(new Criteria([Uuid::randomHex()]), $this->context);
+        $result = $this->logRepository->search(new Criteria([Uuid::randomHex()]), $this->context)->getEntities();
         static::assertCount(0, $result);
     }
 

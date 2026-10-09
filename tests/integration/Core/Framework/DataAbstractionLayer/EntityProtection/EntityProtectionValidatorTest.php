@@ -3,11 +3,11 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\EntityProtection;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\EntityProtection\_fixtures\PluginProtectionExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\EntityProtection\_fixtures\SystemConfigExtension;
@@ -24,6 +24,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityProtectionValidatorTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -38,7 +39,6 @@ class EntityProtectionValidatorTest extends TestCase
     }
 
     #[DataProvider('blockedApiRequest')]
-    #[Group('slow')]
     public function testItBlocksApiAccess(string $method, string $url): void
     {
         $this->getBrowser()

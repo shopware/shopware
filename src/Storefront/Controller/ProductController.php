@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\Garan\AbstractGaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\AbstractProductPurchaseLimitRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
@@ -21,6 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Page\Product\ProductPageLoadedHook;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
@@ -34,8 +36,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
+#[Package('inventory')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
-#[Package('framework')]
 class ProductController extends StorefrontController
 {
     /**
@@ -49,12 +51,13 @@ class ProductController extends StorefrontController
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         private readonly AbstractProductReviewLoader $productReviewLoader,
         private readonly AbstractProductPurchaseLimitRoute $productPurchaseLimitRoute,
+        private readonly AbstractGaranLabelRoute $garanLabelRoute,
     ) {
     }
 
     #[Route(
         path: '/detail/{productId}',
-        name: 'frontend.detail.page',
+        name: ProductPageSeoUrlRoute::ROUTE_NAME,
         defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
         methods: [Request::METHOD_GET]
     )]
@@ -68,7 +71,7 @@ class ProductController extends StorefrontController
             '@Storefront/storefront/page/content/product-detail.html.twig',
             [
                 'page' => $page,
-                'redirectTo' => 'frontend.detail.page',
+                'redirectTo' => ProductPageSeoUrlRoute::ROUTE_NAME,
             ]
         );
     }
@@ -116,7 +119,7 @@ class ProductController extends StorefrontController
 
         $url = $this->seoUrlPlaceholderHandler->replace(
             $this->seoUrlPlaceholderHandler->generate(
-                'frontend.detail.page',
+                ProductPageSeoUrlRoute::ROUTE_NAME,
                 ['productId' => $productId]
             ),
             $host,
@@ -252,5 +255,22 @@ class ProductController extends StorefrontController
             'purchaseSteps' => $result->getPurchaseSteps(),
             'maxPurchase' => $result->getMaxPurchase(),
         ]);
+    }
+
+    #[Route(
+        path: '/product/{productId}/garan-label',
+        name: 'frontend.product.garan-label',
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_GET]
+    )]
+    public function garanLabel(string $productId, SalesChannelContext $context): Response
+    {
+        try {
+            $garanLabel = $this->garanLabelRoute->load($productId, $context)->getObject()->get('svg');
+        } catch (ProductNotFoundException) {
+            $garanLabel = null;
+        }
+
+        return $this->renderStorefront('@Storefront/storefront/component/product/garan-label-modal.html.twig', ['garanLabel' => $garanLabel]);
     }
 }

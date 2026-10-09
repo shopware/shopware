@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Subscriber\CmsVersionMergeSubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeVersionMergeEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CmsVersionMergeSubscriber::class)]
 class CmsVersionMergeSubscriberTest extends TestCase
 {

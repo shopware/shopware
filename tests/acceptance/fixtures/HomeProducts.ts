@@ -10,6 +10,8 @@ export const test = base.extend<FixtureTypes & HomeProducts>({
     HomeProduct: async ({ TestDataService, CheckVisibilityInHome }, use) => {
         const product = await TestDataService.createBasicProduct();
 
+        await TestDataService.clearCaches();
+
         await CheckVisibilityInHome(product.name)();
 
         await use(product);
@@ -20,10 +22,16 @@ export const test = base.extend<FixtureTypes & HomeProducts>({
         const product2 = await TestDataService.createBasicProduct();
         const product3 = await TestDataService.createBasicProduct();
 
+        await TestDataService.clearCaches();
+
         await CheckVisibilityInHome(product1.name)();
         await CheckVisibilityInHome(product2.name)();
         await CheckVisibilityInHome(product3.name)();
 
-        await use([product1, product2, product3]);
+        await use([
+            product1,
+            product2,
+            product3,
+        ]);
     },
 });

@@ -3,12 +3,14 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Extension\DownloadRouteExtension;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -20,8 +22,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class DownloadRoute extends AbstractDownloadRoute
 {
     /**
@@ -31,7 +33,8 @@ class DownloadRoute extends AbstractDownloadRoute
      */
     public function __construct(
         private readonly EntityRepository $downloadRepository,
-        private readonly DownloadResponseGenerator $downloadResponseGenerator
+        private readonly DownloadResponseGenerator $downloadResponseGenerator,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -50,6 +53,15 @@ class DownloadRoute extends AbstractDownloadRoute
         methods: [Request::METHOD_GET]
     )]
     public function load(Request $request, SalesChannelContext $context): Response
+    {
+        return $this->extensions->publish(
+            name: DownloadRouteExtension::NAME,
+            extension: new DownloadRouteExtension($request, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Request $request, SalesChannelContext $context): Response
     {
         $customer = $context->getCustomer();
         $downloadId = $request->attributes->get('downloadId');

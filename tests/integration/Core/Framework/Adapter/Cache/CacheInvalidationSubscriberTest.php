@@ -12,11 +12,13 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\Backtrace\Frame;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -24,6 +26,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('framework')]
 class CacheInvalidationSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -47,22 +50,23 @@ class CacheInvalidationSubscriberTest extends TestCase
             ->getMock();
 
         $cacheInvalidator = new CacheInvalidator(
-            [$this->createMock(TagAwareAdapterInterface::class)],
-            $this->createMock(RedisInvalidatorStorage::class),
+            [static::createStub(TagAwareAdapterInterface::class)],
+            static::createStub(RedisInvalidatorStorage::class),
             new EventDispatcher(),
             $this->logger,
             new RequestStack([new Request()]),
-            $this->createMock(TagAwareAdapterInterface::class),
+            static::createStub(TagAwareAdapterInterface::class),
             false,
             false,
             true,
-            $this->backtraceCollector
+            $this->backtraceCollector,
+            new NativeClock(),
         );
 
         $this->cacheInvalidationSubscriber = new CacheInvalidationSubscriber(
             $cacheInvalidator,
             static::getContainer()->get(Connection::class),
-            true
+            true,
         );
     }
 
@@ -108,6 +112,8 @@ class CacheInvalidationSubscriberTest extends TestCase
 
     public function testItDoesNotInvalidateCacheIfNoPropertyIsDeleted(): void
     {
+        $this->backtraceCollector->expects($this->never())->method(static::anything());
+
         $this->insertDefaultPropertyGroup();
 
         $groupRepository = static::getContainer()->get('property_group.repository');

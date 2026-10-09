@@ -7,13 +7,18 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\Language\LanguageCollection;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
-#[McpResource(uri: 'shopware://languages', name: 'shopware-languages', description: 'All configured languages with locale codes.')]
 #[Package('framework')]
+#[McpResource(
+    uri: 'shopware://languages',
+    name: 'shopware-languages',
+    description: 'All configured languages with locale codes.'
+)]
 class LanguageListResource
 {
     /**
@@ -48,7 +53,7 @@ class LanguageListResource
         return [
             'uri' => 'shopware://languages',
             'mimeType' => 'application/json',
-            'text' => json_encode($languages, \JSON_THROW_ON_ERROR),
+            'text' => Json::encode($languages),
         ];
     }
 }

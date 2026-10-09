@@ -4,10 +4,12 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Lifecycle;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginInstallCommand;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
@@ -26,6 +28,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PluginInstallCommand::class)]
 class PluginInstallCommandTest extends TestCase
 {
@@ -33,7 +36,7 @@ class PluginInstallCommandTest extends TestCase
 
     private MockObject&PluginLifecycleService $pluginLifecycleService;
 
-    private MockObject&CacheClearer $cacheClearer;
+    private CacheClearer&Stub $cacheClearer;
 
     private PluginCollection $plugins;
 
@@ -43,10 +46,9 @@ class PluginInstallCommandTest extends TestCase
     {
         $this->projectDir = __DIR__ . '/_fixtures/project';
         $this->pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
-        $this->cacheClearer = $this->createMock(CacheClearer::class);
+        $this->cacheClearer = static::createStub(CacheClearer::class);
         $this->plugins = new PluginCollection();
 
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepository */
         $pluginRepository = new StaticEntityRepository([
             fn (Criteria $criteria, Context $context): PluginCollection => $this->plugins,
         ]);
@@ -70,7 +72,7 @@ class PluginInstallCommandTest extends TestCase
         $this->plugins->fill([$dependentPlugin, $independentPlugin, $basePlugin]);
 
         $installedPlugins = [];
-        $installContext = $this->createMock(InstallContext::class);
+        $installContext = static::createStub(InstallContext::class);
 
         $this->pluginLifecycleService
             ->expects($this->exactly(3))
@@ -87,6 +89,32 @@ class PluginInstallCommandTest extends TestCase
         ], ['interactive' => false]));
 
         static::assertSame(['BasePlugin', 'DependentPlugin', 'IndependentPlugin'], $installedPlugins);
+    }
+
+    public function testInstallSortsStorePluginBeforePluginRequiringItsStoreAlias(): void
+    {
+        $dependentPlugin = $this->createPluginEntity('StoreDependentPlugin', 'a-vendor/store-dependent-plugin');
+        $storePlugin = $this->createPluginEntity('StoreDependencyPlugin', 'store.shopware.com/store-dependency-plugin');
+        $this->plugins->fill([$dependentPlugin, $storePlugin]);
+
+        $installedPlugins = [];
+        $installContext = static::createStub(InstallContext::class);
+
+        $this->pluginLifecycleService
+            ->expects($this->exactly(2))
+            ->method('installPlugin')
+            ->willReturnCallback(function (PluginEntity $plugin, Context $context) use (&$installedPlugins, $installContext): InstallContext {
+                $installedPlugins[] = $plugin->getName();
+                $plugin->setInstalledAt(new \DateTimeImmutable());
+
+                return $installContext;
+            });
+
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([
+            'plugins' => ['StoreDependentPlugin', 'StoreDependencyPlugin'],
+        ], ['interactive' => false]));
+
+        static::assertSame(['StoreDependencyPlugin', 'StoreDependentPlugin'], $installedPlugins);
     }
 
     public function testInstallFailsWhenPluginComposerJsonIsMissingDuringRequirementSorting(): void
@@ -129,7 +157,7 @@ class PluginInstallCommandTest extends TestCase
             ->expects($this->once())
             ->method('activatePlugin')
             ->with($plugin, static::isInstanceOf(Context::class))
-            ->willReturn($this->createMock(ActivateContext::class));
+            ->willReturn(static::createStub(ActivateContext::class));
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute([
             'plugins' => ['InstalledPlugin'],
@@ -150,13 +178,13 @@ class PluginInstallCommandTest extends TestCase
             ->willReturnCallback(function (PluginEntity $plugin, Context $context): InstallContext {
                 $plugin->setInstalledAt(new \DateTimeImmutable());
 
-                return $this->createMock(InstallContext::class);
+                return $this->createStub(InstallContext::class);
             });
         $this->pluginLifecycleService
             ->expects($this->once())
             ->method('activatePlugin')
             ->with($plugin, static::isInstanceOf(Context::class), false, false)
-            ->willReturn($this->createMock(ActivateContext::class));
+            ->willReturn(static::createStub(ActivateContext::class));
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute([
             'plugins' => ['NewPlugin'],
@@ -181,7 +209,7 @@ class PluginInstallCommandTest extends TestCase
                 $calls[] = 'uninstall';
                 $plugin->setInstalledAt(null);
 
-                return $this->createMock(UninstallContext::class);
+                return $this->createStub(UninstallContext::class);
             });
         $this->pluginLifecycleService
             ->expects($this->once())
@@ -191,7 +219,7 @@ class PluginInstallCommandTest extends TestCase
                 $calls[] = 'install';
                 $plugin->setInstalledAt(new \DateTimeImmutable());
 
-                return $this->createMock(InstallContext::class);
+                return $this->createStub(InstallContext::class);
             });
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute([
@@ -213,7 +241,7 @@ class PluginInstallCommandTest extends TestCase
             ->willReturnCallback(function (PluginEntity $plugin, Context $context): InstallContext {
                 $plugin->setInstalledAt(new \DateTimeImmutable());
 
-                return $this->createMock(InstallContext::class);
+                return $this->createStub(InstallContext::class);
             });
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute([

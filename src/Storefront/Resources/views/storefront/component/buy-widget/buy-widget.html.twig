@@ -300,5 +300,76 @@
                 </div>
             {% endif %}
         {% endblock %}
+
+        {% block buy_widget_garan_label %}
+            {% set garanGuaranteeMonths = product.guaranteeMonths %}
+            {% set garanGuarantee = garanGuaranteeMonths|sw_garan_label_duration %}
+            {% set garanManufacturer = product.manufacturer.translated.name ?? product.manufacturer.name ?? null %}
+            {% set garanModelIdentifier = product.manufacturerNumber %}
+
+            {% if product.guaranteeConfirmed and garanGuarantee and garanManufacturer and garanModelIdentifier %}
+                {% block buy_widget_garan_label_wrapper %}
+                    <div class="product-detail-garan-label-wrapper" data-garan-label-toggle="true">
+                        {% block buy_widget_garan_label_preview %}
+                            <div class="product-detail-garan-label">
+                                <button type="button"
+                                        class="garan-label-button"
+                                        aria-label="{{ 'detail.garanLabelTitle'|trans|striptags }}">
+                                    {% sw_include '@Framework/garan/nested-label.svg.twig' with {
+                                        guarantee: garanGuarantee
+                                    } only %}
+                                </button>
+                            </div>
+                        {% endblock %}
+
+                        {% block buy_widget_garan_label_full %}
+                            <div class="product-detail-garan-label-full d-none">
+                                <a href="{{ context.languageId|sw_garan_label_link }}"
+                                   target="_blank"
+                                   rel="noopener">
+                                    {% sw_include '@Framework/garan/label.svg.twig' with {
+                                        manufacturer: garanManufacturer,
+                                        productNumber: garanModelIdentifier,
+                                        guarantee: garanGuarantee
+                                    } only %}
+                                    <span class="visually-hidden">{{ 'detail.garanLabelYourEuropeLink'|trans|sw_sanitize }}</span>
+                                </a>
+                            </div>
+                        {% endblock %}
+
+                        {% block buy_widget_garan_label_show_link %}
+                            <button type="button"
+                                    class="product-detail-garan-label-show-link"
+                                    data-garan-label-toggle-trigger="true"
+                                    data-garan-label-show-text="{{ 'detail.garanLabelShowLink'|trans|striptags }}"
+                                    data-garan-label-hide-text="{{ 'detail.garanLabelHideLink'|trans|striptags }}">
+                                <span class="product-detail-garan-label-show-link-text">
+                                    {{ 'detail.garanLabelShowLink'|trans|sw_sanitize }}
+                                </span>
+                                <span class="product-detail-garan-label-show-link-icon-show">
+                                    {% sw_icon 'expand' style { pack: 'solid', size: 'xs' } %}
+                                </span>
+                                <span class="product-detail-garan-label-show-link-icon-hide d-none">
+                                    {% sw_icon 'collapse' style { pack: 'solid', size: 'xs' } %}
+                                </span>
+                            </button>
+                        {% endblock %}
+
+                        {% block buy_widget_garan_label_terms_link %}
+                            {% set garanTermsUrl = product.guaranteeTermsUrl ?: (product.guaranteeTermsMedia.url ?? null) %}
+
+                            {% if garanTermsUrl %}
+                                <a href="{{ garanTermsUrl }}"
+                                   class="product-detail-garan-terms-link d-block mb-3"
+                                   target="_blank"
+                                   rel="noopener">
+                                    {{ 'detail.garanTermsLink'|trans|sw_sanitize }}
+                                </a>
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            {% endif %}
+        {% endblock %}
     </div>
 {% endblock %}

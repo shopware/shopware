@@ -15,7 +15,10 @@ const documentEndpoints: Record<DocumentTypes, string> = {
     zugferd_embedded_credit_note: '_action/order/document/zugferd_embedded_credit_note/create',
 };
 
-const typesRequiringInvoice: DocumentTypes[] = ['credit_note', 'cancellation_invoice'];
+const typesRequiringInvoice: DocumentTypes[] = [
+    'credit_note',
+    'cancellation_invoice',
+];
 
 export const CreateDocument = base.extend<{ CreateDocument: CreateDocumentTask }, FixtureTypes>({
     CreateDocument: async ({ AdminApiContext, ShopAdmin }, use) => {
@@ -23,9 +26,11 @@ export const CreateDocument = base.extend<{ CreateDocument: CreateDocumentTask }
             return async function CreateDocument() {
                 const { orderId, type, referencedDocumentId } = options;
 
-                const documentPayload: Record<string, unknown>[] = [{
-                    orderId: orderId,
-                }];
+                const documentPayload: Record<string, unknown>[] = [
+                    {
+                        orderId: orderId,
+                    },
+                ];
 
                 if (typesRequiringInvoice.includes(type) && referencedDocumentId) {
                     documentPayload[0].referencedDocumentId = referencedDocumentId;

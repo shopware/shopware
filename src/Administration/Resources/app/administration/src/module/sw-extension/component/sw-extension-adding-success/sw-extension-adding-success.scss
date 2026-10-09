@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-extension-adding-success {
     text-align: center;
 
@@ -8,12 +6,12 @@
     }
 
     h3 {
-        font-size: $font-size-m;
+        font-size: var(--font-size-m);
         margin-bottom: 0.5em;
     }
 
     p {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         line-height: 1.5;
         color: var(--color-text-secondary-default);
     }

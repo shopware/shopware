@@ -28,6 +28,7 @@ use Shopware\Tests\Integration\Core\Framework\Sso\Helper\FakeTokenGenerator;
 use Shopware\Tests\Integration\Core\Framework\Sso\Helper\FakeUserInstaller;
 use Shopware\Tests\Unit\Core\Framework\Sso\TokenService\_fixtures\JwksIds;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
@@ -185,7 +186,8 @@ class ShopwareRefreshTokenGrantTypeTest extends TestCase
         $shopwareRefreshTokenGrantType = new ShopwareRefreshTokenGrantType(
             $this->getContainer()->get(RefreshTokenRepository::class),
             $this->getContainer()->get(UserService::class),
-            $this->createExternalTokenService()
+            $this->createExternalTokenService(),
+            new NativeClock()
         );
 
         $shopwareRefreshTokenGrantType->setClientRepository($this->getContainer()->get(ClientRepository::class));
@@ -256,7 +258,7 @@ class ShopwareRefreshTokenGrantTypeTest extends TestCase
     {
         $shopwarePasswordGrantType = new ShopwarePasswordGrantType(
             $this->getContainer()->get(UserRepository::class),
-            new RefreshTokenRepository($this->getContainer()->get(Connection::class)),
+            new RefreshTokenRepository($this->getContainer()->get(Connection::class), new NativeClock()),
             $this->getContainer()->get(UserService::class)
         );
 
@@ -274,7 +276,7 @@ class ShopwareRefreshTokenGrantTypeTest extends TestCase
     {
         $idToken = (new FakeTokenGenerator())->setEmail('user@example.com')->generate(JwksIds::KEY_ID_ONE);
 
-        $responseInterface = $this->createMock(ResponseInterface::class);
+        $responseInterface = static::createStub(ResponseInterface::class);
         $responseInterface->method('getContent')->willReturn(
             \json_encode(
                 [
@@ -288,7 +290,7 @@ class ShopwareRefreshTokenGrantTypeTest extends TestCase
             )
         );
 
-        $client = $this->createMock(HttpClientInterface::class);
+        $client = static::createStub(HttpClientInterface::class);
         $client->method('request')->willReturn($responseInterface);
 
         $loginConfig = new LoginConfigService(
@@ -298,14 +300,13 @@ class ShopwareRefreshTokenGrantTypeTest extends TestCase
                 'client_secret' => 'client_secret',
                 'redirect_uri' => 'http://redirect.uri',
                 'base_url' => 'http://base.uri',
-                'session_key' => 'session_key',
                 'authorize_path' => '/authorize',
                 'token_path' => '/token',
                 'jwks_path' => '/jwks.json',
                 'scope' => 'scope',
                 'register_url' => 'https://register.url',
             ],
-            $this->createMock(RouterInterface::class)
+            static::createStub(RouterInterface::class)
         );
 
         return new ExternalTokenService($client, $loginConfig);

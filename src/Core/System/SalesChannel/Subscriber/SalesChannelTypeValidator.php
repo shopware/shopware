@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\SalesChannel\Subscriber;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -33,12 +32,8 @@ class SalesChannelTypeValidator implements EventSubscriberInterface
 
     public function preWriteValidateEvent(PreWriteValidationEvent $event): void
     {
-        foreach ($event->getCommands() as $command) {
-            if (!$command instanceof DeleteCommand || $command->getEntityName() !== SalesChannelTypeDefinition::ENTITY_NAME) {
-                continue;
-            }
-
-            $id = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
+        foreach ($event->getDeletedPrimaryKeys(SalesChannelTypeDefinition::ENTITY_NAME) as $primaryKey) {
+            $id = Uuid::fromBytesToHex($primaryKey['id']);
 
             if (\array_key_exists($id, self::PROTECTED_SALES_CHANNEL_TYPE_IDS)) {
                 $event->getExceptions()->add(new DefaultSalesChannelTypeCannotBeDeleted($id));

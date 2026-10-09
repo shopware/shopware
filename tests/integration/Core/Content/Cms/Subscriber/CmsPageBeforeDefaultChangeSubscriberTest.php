@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -74,7 +75,11 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
     #[DataProvider('invalidDefaultCmsPageDataProvider')]
     public function testSetInvalidDefaultThrow(string $invalidCmsPageId, ?string $salesChannelId): void
     {
-        $this->expectException(PageNotFoundException::class);
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectExceptionObject(CmsException::pageNotFound($invalidCmsPageId));
+        } else {
+            $this->expectExceptionObject(new PageNotFoundException($invalidCmsPageId));
+        }
         $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $invalidCmsPageId, $salesChannelId);
     }
 

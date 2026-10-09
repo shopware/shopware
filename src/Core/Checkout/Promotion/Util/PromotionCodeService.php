@@ -155,6 +155,12 @@ class PromotionCodeService
             throw PromotionException::invalidCodePattern($pattern);
         }
 
+        $codePattern = [
+            'prefix' => $codePattern['prefix'],
+            'replacement' => $codePattern['replacement'],
+            'suffix' => $codePattern['suffix'],
+        ];
+
         $codePattern['replacementString'] = str_replace('%', '', $codePattern['replacement']);
         $codePattern['replacementArray'] = str_split($codePattern['replacementString']);
 

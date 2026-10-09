@@ -3,8 +3,11 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr\CallLike;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -13,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @implements Rule<MethodCall>
+ * @implements Rule<CallLike>
  *
  * @internal
  */
@@ -22,15 +25,15 @@ class NoExpectExceptionMessageRule implements Rule
 {
     public function getNodeType(): string
     {
-        return MethodCall::class;
+        return CallLike::class;
     }
 
     /**
-     * @param MethodCall $node
+     * @param CallLike $node
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$scope->getClassReflection() || !TestRuleHelper::isTestClass($scope->getClassReflection())) {
+        if (!$node instanceof MethodCall && !$node instanceof StaticCall) {
             return [];
         }
 
@@ -38,8 +41,35 @@ class NoExpectExceptionMessageRule implements Rule
             return [];
         }
 
-        if (!(new ObjectType(TestCase::class))->isSuperTypeOf($scope->getType($node->var))->yes()) {
+        // Catches the call only when it sits inside a TestCase subclass.
+        $classReflection = $scope->getClassReflection();
+        if ($classReflection === null || !TestRuleHelper::isTestClass($classReflection)) {
             return [];
+        }
+
+        // Instance-call form ($this->expectExceptionMessage(), $other->expectExceptionMessage()):
+        // require the receiver to be a TestCase, so a same-named method on an unrelated object
+        // inside a test class is not flagged.
+        if ($node instanceof MethodCall) {
+            if (!(new ObjectType(TestCase::class))->isSuperTypeOf($scope->getType($node->var))->yes()) {
+                return [];
+            }
+        }
+
+        // Static-call form (static::, self::, parent::, ParentTest::expectExceptionMessage()):
+        // accept the late-static-binding keywords (already gated by the surrounding-TestCase
+        // check above) and any class name that resolves to TestCase or a subclass.
+        if ($node instanceof StaticCall) {
+            if (!$node->class instanceof Name) {
+                return [];
+            }
+
+            $className = $node->class->toLowerString();
+            if (!\in_array($className, ['self', 'static', 'parent'], true)
+                && !(new ObjectType(TestCase::class))->isSuperTypeOf(new ObjectType((string) $node->class))->yes()
+            ) {
+                return [];
+            }
         }
 
         return [

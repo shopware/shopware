@@ -7,10 +7,12 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryC
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Extension\ResetPasswordRouteExtension;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -32,8 +34,8 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ResetPasswordRoute extends AbstractResetPasswordRoute
 {
     /**
@@ -51,6 +53,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
         private readonly RateLimiter $rateLimiter,
         private readonly DataValidationFactoryInterface $passwordValidationFactory,
         private readonly ClockInterface $clock,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -61,6 +64,15 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
     #[Route(path: '/store-api/account/recovery-password-confirm', name: 'store-api.account.recovery.password', methods: ['POST'])]
     public function resetPassword(RequestDataBag $data, SalesChannelContext $context): SuccessResponse
+    {
+        return $this->extensions->publish(
+            name: ResetPasswordRouteExtension::NAME,
+            extension: new ResetPasswordRouteExtension($data, $context),
+            function: $this->_resetPassword(...),
+        );
+    }
+
+    private function _resetPassword(RequestDataBag $data, SalesChannelContext $context): SuccessResponse
     {
         $this->validateResetPassword($data, $context);
 
@@ -101,6 +113,10 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             'legacyPassword' => null,
             'legacyEncoder' => null,
         ];
+
+        if ($customer->getDoubleOptInRegistration() && $customer->getDoubleOptInConfirmDate() === null) {
+            $customerData['doubleOptInConfirmDate'] = $this->clock->now();
+        }
 
         $this->customerRepository->update([$customerData], $context->getContext());
         $this->deleteRecoveryForCustomer($customerRecovery, $context->getContext());

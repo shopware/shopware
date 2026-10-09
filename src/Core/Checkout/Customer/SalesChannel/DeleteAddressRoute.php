@@ -5,7 +5,9 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Extension\DeleteAddressRouteExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -15,8 +17,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class DeleteAddressRoute extends AbstractDeleteAddressRoute
 {
     use CustomerAddressValidationTrait;
@@ -26,7 +28,7 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
      *
      * @internal
      */
-    public function __construct(private readonly EntityRepository $addressRepository)
+    public function __construct(private readonly EntityRepository $addressRepository, private readonly ExtensionDispatcher $extensions)
     {
     }
 
@@ -45,6 +47,15 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
         methods: [Request::METHOD_DELETE]
     )]
     public function delete(string $addressId, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
+    {
+        return $this->extensions->publish(
+            name: DeleteAddressRouteExtension::NAME,
+            extension: new DeleteAddressRouteExtension($addressId, $context, $customer),
+            function: $this->_delete(...),
+        );
+    }
+
+    private function _delete(string $addressId, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
         $this->validateAddress($addressId, $context, $customer);
 

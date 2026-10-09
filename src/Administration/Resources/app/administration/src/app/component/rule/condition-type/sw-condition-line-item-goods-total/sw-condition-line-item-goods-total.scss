@@ -17,10 +17,11 @@
         grid-template-columns: 1fr auto;
         border: 1px solid var(--color-border-primary-default);
         border-radius: var(--border-radius-button);
+        background: var(--color-background-primary-default);
     }
 
     &__filter {
-        padding: var(--scale-size-4);
+        padding: var(--scale-size-6);
 
         .mt-button {
             height: 100%;

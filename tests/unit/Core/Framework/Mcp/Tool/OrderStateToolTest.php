@@ -319,7 +319,7 @@ class OrderStateToolTest extends TestCase
         }
 
         if ($connection === null) {
-            $connection = $this->createMock(Connection::class);
+            $connection = static::createStub(Connection::class);
             $connection->method('transactional')->willReturnCallback(fn (callable $fn) => $fn());
         }
 

@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Framework\Plugin\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Console\OutputFormatTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -18,17 +19,20 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @phpstan-import-type PluginInfo from KernelPluginLoader
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'plugin:list',
     description: 'Lists all plugins',
 )]
-#[Package('framework')]
 class PluginListCommand extends Command
 {
+    use OutputFormatTrait;
+
     /**
      * @internal
      *
@@ -46,8 +50,10 @@ class PluginListCommand extends Command
      */
     protected function configure(): void
     {
-        $this->addOption('json', null, InputOption::VALUE_NONE, 'Return result as json of plugin entities')
-            ->addOption('filter', 'f', InputOption::VALUE_REQUIRED, 'Filter the plugin list to a given term');
+        $this->addFormatOption([self::FORMAT_TABLE, self::FORMAT_JSON]);
+        /** @deprecated tag:v6.8.0 - Use `--format json` instead */
+        $this->addOption('json', null, InputOption::VALUE_NONE, '[DEPRECATED] Use `--format json` instead.');
+        $this->addOption('filter', 'f', InputOption::VALUE_REQUIRED, 'Filter the plugin list to a given term');
     }
 
     /**
@@ -55,8 +61,21 @@ class PluginListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
+
+        if ($input->getOption('json')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--json" option of the "plugin:list" command is deprecated and will be removed in v6.8.0. Use "--format json" instead.'
+            );
+            $input->setOption('format', self::FORMAT_JSON);
+        }
+
+        $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_JSON]);
+        if ($format === null) {
+            return self::INVALID;
+        }
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
@@ -73,7 +92,7 @@ class PluginListCommand extends Command
 
         $plugins = $this->pluginRepo->search($criteria, $context)->getEntities();
 
-        if ($input->getOption('json')) {
+        if ($format === self::FORMAT_JSON) {
             $output->write(json_encode($plugins, \JSON_THROW_ON_ERROR));
 
             return self::SUCCESS;
@@ -105,7 +124,7 @@ class PluginListCommand extends Command
                 $plugin->getComposerName() ?? '',
                 $plugin->getVersion(),
                 $pluginUpgradeable,
-                $plugin->getAuthor(),
+                mb_strimwidth($plugin->getAuthor() ?? '', 0, 40, '...'),
                 $pluginInstalled ? 'Yes' : 'No',
                 $pluginActive ? 'Yes' : 'No',
                 $pluginUpgradeable ? 'Yes' : 'No',

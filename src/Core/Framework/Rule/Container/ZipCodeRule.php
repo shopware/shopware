@@ -5,11 +5,9 @@ namespace Shopware\Core\Framework\Rule\Container;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Util\FloatComparator;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 #[Package('fundamentals@after-sales')]
 abstract class ZipCodeRule extends Rule
@@ -27,25 +25,14 @@ abstract class ZipCodeRule extends Rule
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice(choices: [
-                    self::OPERATOR_EQ,
-                    self::OPERATOR_NEQ,
-                    self::OPERATOR_EMPTY,
-                    self::OPERATOR_GTE,
-                    self::OPERATOR_LTE,
-                    self::OPERATOR_GT,
-                    self::OPERATOR_LT,
-                ]),
-            ],
+            'operator' => RuleConstraints::numericOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['zipCodes'] = [new NotBlank(), new ArrayOfType('string')];
+        $constraints['zipCodes'] = RuleConstraints::stringArray();
 
         return $constraints;
     }

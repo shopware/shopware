@@ -11,16 +11,18 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PrefixFilesystem::class)]
 class PrefixFilesystemTest extends TestCase
 {
     public function testPrefix(): void
     {
-        $generator = $this->createMock(TemporaryUrlGenerator::class);
+        $generator = static::createStub(TemporaryUrlGenerator::class);
         $generator->method('temporaryUrl')->willReturn('http://example.com/temporary-url');
 
         $fs = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://example.com'], null, null, $generator);

@@ -62,7 +62,7 @@ class StateMachineResourceTest extends TestCase
             $context,
         );
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($searchResult);
 
         $resource = new StateMachineResource($repository);

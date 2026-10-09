@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Parameter;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Parameters;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Parameters::class)]
 class ParametersTest extends TestCase
 {
@@ -30,6 +32,9 @@ XML));
         static::assertSame('orderNumber', $parameters->getParameters()[2]->getName());
     }
 
+    /**
+     * @param non-empty-string $xml
+     */
     private static function loadElement(string $xml): \DOMElement
     {
         $document = new \DOMDocument();

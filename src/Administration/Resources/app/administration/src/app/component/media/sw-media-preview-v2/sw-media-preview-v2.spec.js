@@ -136,7 +136,7 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
             'video/quicktime': 'icons-multicolor-file-thumbnail-mov',
             'video/mp4': 'icons-multicolor-file-thumbnail-mp4',
             'text/csv': 'icons-multicolor-file-thumbnail-csv',
-            'text/plain': 'icons-multicolor-file-thumbnail-csv',
+            'text/plain': 'icons-multicolor-file-thumbnail-txt',
             'image/gif': 'icons-multicolor-file-thumbnail-gif',
             'image/jpeg': 'icons-multicolor-file-thumbnail-jpg',
             'image/svg+xml': 'icons-multicolor-file-thumbnail-svg',

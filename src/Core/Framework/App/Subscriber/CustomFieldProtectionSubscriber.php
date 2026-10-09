@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
+use Shopware\Tests\Integration\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriberTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
@@ -20,6 +21,10 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @codeCoverageIgnore
+ *
+ * @see CustomFieldProtectionSubscriberTest
  */
 #[Package('framework')]
 class CustomFieldProtectionSubscriber implements EventSubscriberInterface
@@ -51,8 +56,8 @@ class CustomFieldProtectionSubscriber implements EventSubscriberInterface
         $integrationId = $this->getIntegrationId($context);
         $violationList = new ConstraintViolationList();
 
-        foreach ($event->getCommands() as $command) {
-            if ($command->getEntityName() !== CustomFieldSetDefinition::ENTITY_NAME || $command instanceof InsertCommand) {
+        foreach ($event->getCommandsForEntity(CustomFieldSetDefinition::ENTITY_NAME) as $command) {
+            if ($command instanceof InsertCommand) {
                 continue;
             }
 

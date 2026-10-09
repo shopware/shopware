@@ -13,6 +13,9 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class OrderAddressEntity extends Entity
 {
@@ -57,6 +60,8 @@ class OrderAddressEntity extends Entity
     protected ?CountryStateEntity $countryState = null;
 
     protected ?OrderEntity $order = null;
+
+    protected ?OrderEntity $billingAddressOrder = null;
 
     protected ?SalutationEntity $salutation = null;
 
@@ -262,6 +267,16 @@ class OrderAddressEntity extends Entity
     public function setOrder(OrderEntity $order): void
     {
         $this->order = $order;
+    }
+
+    public function getBillingAddressOrder(): ?OrderEntity
+    {
+        return $this->billingAddressOrder;
+    }
+
+    public function setBillingAddressOrder(?OrderEntity $billingAddressOrder): void
+    {
+        $this->billingAddressOrder = $billingAddressOrder;
     }
 
     public function getSalutation(): ?SalutationEntity

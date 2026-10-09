@@ -8,14 +8,17 @@ use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRouteResponse;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\CookieController;
+use Shopware\Tests\Unit\Storefront\Controller\Stub\CookieControllerStub;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CookieController::class)]
 class CookieControllerTest extends TestCase
 {
@@ -35,13 +38,13 @@ class CookieControllerTest extends TestCase
             ->with($request, $salesChannelContext)
             ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash', 'test-language-id'));
 
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $controller = new CookieControllerStub($cookieRoute);
 
         $response = $controller->offcanvas($request, $salesChannelContext);
 
-        static::assertSame('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', $controller->renderStorefrontView);
-        static::assertArrayHasKey('cookieGroups', $controller->renderStorefrontParameters);
-        static::assertNotEmpty($controller->renderStorefrontParameters['cookieGroups']);
+        static::assertSame('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', $controller->recorder()->renderStorefrontView);
+        static::assertArrayHasKey('cookieGroups', $controller->recorder()->renderStorefrontParameters);
+        static::assertNotEmpty($controller->recorder()->renderStorefrontParameters['cookieGroups']);
         static::assertSame('noindex,follow', $response->headers->get('x-robots-tag'));
     }
 
@@ -56,7 +59,7 @@ class CookieControllerTest extends TestCase
             ->with($request, $salesChannelContext)
             ->willThrowException(new \RuntimeException('Cookie route failed'));
 
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $controller = new CookieControllerStub($cookieRoute);
 
         $this->expectExceptionObject(new \RuntimeException('Cookie route failed'));
 
@@ -79,13 +82,13 @@ class CookieControllerTest extends TestCase
             ->with($request, $salesChannelContext)
             ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash', 'test-language-id'));
 
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $controller = new CookieControllerStub($cookieRoute);
 
         $response = $controller->permission($request, $salesChannelContext);
 
-        static::assertSame('@Storefront/storefront/layout/cookie/cookie-permission.html.twig', $controller->renderStorefrontView);
-        static::assertArrayHasKey('cookieGroups', $controller->renderStorefrontParameters);
-        static::assertNotEmpty($controller->renderStorefrontParameters['cookieGroups']);
+        static::assertSame('@Storefront/storefront/layout/cookie/cookie-permission.html.twig', $controller->recorder()->renderStorefrontView);
+        static::assertArrayHasKey('cookieGroups', $controller->recorder()->renderStorefrontParameters);
+        static::assertNotEmpty($controller->recorder()->renderStorefrontParameters['cookieGroups']);
         static::assertSame('noindex,follow', $response->headers->get('x-robots-tag'));
     }
 
@@ -99,16 +102,16 @@ class CookieControllerTest extends TestCase
         $cookieGroup->description = 'Test description';
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
-        $cookieRoute = $this->createMock(AbstractCookieRoute::class);
+        $cookieRoute = static::createStub(AbstractCookieRoute::class);
         $cookieRoute->method('getCookieGroups')
             ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash', 'test-language-id'));
 
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $controller = new CookieControllerStub($cookieRoute);
 
         $controller->offcanvas($request, $salesChannelContext);
 
         // Verify the exact same collection is passed to the template (no transformation)
-        $passedGroups = $controller->renderStorefrontParameters['cookieGroups'];
+        $passedGroups = $controller->recorder()->renderStorefrontParameters['cookieGroups'];
         static::assertSame($cookieGroups, $passedGroups);
         static::assertSame($cookieGroup, $passedGroups->first());
     }
@@ -118,16 +121,16 @@ class CookieControllerTest extends TestCase
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $cookieRoute = $this->createMock(AbstractCookieRoute::class);
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $cookieRoute = static::createStub(AbstractCookieRoute::class);
+        $controller = new CookieControllerStub($cookieRoute);
 
         $response = $controller->cookieConsentOffcanvas($request, $salesChannelContext);
 
-        static::assertSame('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', $controller->renderStorefrontView);
-        static::assertArrayHasKey('featureName', $controller->renderStorefrontParameters);
-        static::assertArrayHasKey('cookieName', $controller->renderStorefrontParameters);
-        static::assertSame('wishlist', $controller->renderStorefrontParameters['featureName']);
-        static::assertSame('wishlist-enabled', $controller->renderStorefrontParameters['cookieName']);
+        static::assertSame('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', $controller->recorder()->renderStorefrontView);
+        static::assertArrayHasKey('featureName', $controller->recorder()->renderStorefrontParameters);
+        static::assertArrayHasKey('cookieName', $controller->recorder()->renderStorefrontParameters);
+        static::assertSame('wishlist', $controller->recorder()->renderStorefrontParameters['featureName']);
+        static::assertSame('wishlist-enabled', $controller->recorder()->renderStorefrontParameters['cookieName']);
     }
 
     public function testCookieConsentOffcanvasWithCustomParameters(): void
@@ -135,16 +138,16 @@ class CookieControllerTest extends TestCase
         $request = new Request(['featureName' => 'customFeature', 'cookieName' => 'custom-cookie']);
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $cookieRoute = $this->createMock(AbstractCookieRoute::class);
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $cookieRoute = static::createStub(AbstractCookieRoute::class);
+        $controller = new CookieControllerStub($cookieRoute);
 
         $response = $controller->cookieConsentOffcanvas($request, $salesChannelContext);
 
-        static::assertSame('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', $controller->renderStorefrontView);
-        static::assertArrayHasKey('featureName', $controller->renderStorefrontParameters);
-        static::assertArrayHasKey('cookieName', $controller->renderStorefrontParameters);
-        static::assertSame('customFeature', $controller->renderStorefrontParameters['featureName']);
-        static::assertSame('custom-cookie', $controller->renderStorefrontParameters['cookieName']);
+        static::assertSame('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', $controller->recorder()->renderStorefrontView);
+        static::assertArrayHasKey('featureName', $controller->recorder()->renderStorefrontParameters);
+        static::assertArrayHasKey('cookieName', $controller->recorder()->renderStorefrontParameters);
+        static::assertSame('customFeature', $controller->recorder()->renderStorefrontParameters['featureName']);
+        static::assertSame('custom-cookie', $controller->recorder()->renderStorefrontParameters['cookieName']);
     }
 
     public function testGroupsCallsCookieRouteAndReturnsData(): void
@@ -162,7 +165,7 @@ class CookieControllerTest extends TestCase
             ->with($request, $salesChannelContext)
             ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash', 'test-language-id'));
 
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $controller = new CookieControllerStub($cookieRoute);
 
         // Override the json method to capture the data being passed to it
         $jsonData = null;
@@ -192,40 +195,10 @@ class CookieControllerTest extends TestCase
             ->with($request, $salesChannelContext)
             ->willThrowException(new \RuntimeException('Cookie route failed'));
 
-        $controller = new CookieControllerTestClass($cookieRoute);
+        $controller = new CookieControllerStub($cookieRoute);
 
         $this->expectExceptionObject(new \RuntimeException('Cookie route failed'));
 
         $controller->groups($request, $salesChannelContext);
-    }
-}
-
-/**
- * @internal
- */
-class CookieControllerTestClass extends CookieController
-{
-    use StorefrontControllerMockTrait;
-
-    /**
-     * @var callable|null
-     */
-    public $jsonCallback;
-
-    /**
-     * @param array<string, string> $headers
-     * @param array<string, mixed> $context
-     */
-    protected function json(mixed $data, int $status = 200, array $headers = [], array $context = []): JsonResponse
-    {
-        if ($this->jsonCallback !== null) {
-            if (\is_object($data) && method_exists($data, 'all')) {
-                $data = $data->all();
-            }
-
-            return ($this->jsonCallback)($data);
-        }
-
-        return new JsonResponse($data, $status, $headers);
     }
 }

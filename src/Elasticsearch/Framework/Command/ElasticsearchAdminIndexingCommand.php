@@ -2,7 +2,6 @@
 
 namespace Shopware\Elasticsearch\Framework\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminIndexingBehavior;
@@ -12,16 +11,17 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[AsCommand(
     name: 'es:admin:index',
     description: 'Index the elasticsearch for the admin search',
 )]
-#[Package('inventory')]
 final class ElasticsearchAdminIndexingCommand extends Command implements EventSubscriberInterface
 {
     use ConsoleProgressTrait;
@@ -47,7 +47,7 @@ final class ElasticsearchAdminIndexingCommand extends Command implements EventSu
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->io = $input->getOption('no-progress') ? null : new ShopwareStyle($input, $output);
+        $this->io = $input->getOption('no-progress') ? null : new SymfonyStyle($input, $output);
 
         $skip = \is_string($input->getOption('skip')) ? explode(',', $input->getOption('skip')) : [];
         $only = \is_string($input->getOption('only')) ? explode(',', $input->getOption('only')) : [];

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,6 +16,7 @@ use Shopware\Core\Migration\V6_7\Migration1739197440ChangeCmsBlockDefaultMargin;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(Migration1739197440ChangeCmsBlockDefaultMargin::class)]
 class Migration1739197440ChangeCmsBlockDefaultMarginTest extends TestCase
 {

@@ -120,6 +120,29 @@ class IncrementRedisStorage extends AbstractIncrementStorage
         $this->redis->set($this->getKey($configurationId), $value);
     }
 
+    public function increaseToAtLeast(string $configurationId, int $value): void
+    {
+        $key = $this->getKey($configurationId);
+        $lock = $this->lockFactory->createLock('number-range-' . $configurationId);
+        if (!$lock->acquire(true)) {
+            return;
+        }
+
+        try {
+            $currentValue = $this->redis->get($key);
+            $currentValue = $currentValue === false || $currentValue === null ? 0 : (int) $currentValue;
+
+            $increment = $value - $currentValue;
+            if ($increment <= 0) {
+                return;
+            }
+
+            $this->redis->incrBy($key, $increment); // @phpstan-ignore-line - because multiple redis implementations phpStan doesn't like this
+        } finally {
+            $lock->release();
+        }
+    }
+
     public function getDecorated(): AbstractIncrementStorage
     {
         throw new DecorationPatternException(self::class);

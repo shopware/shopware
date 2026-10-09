@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-container {
     display: grid;
     width: 100%;
@@ -14,7 +12,7 @@
     }
 
     h1 {
-        font-size: $font-size-xl;
+        font-size: var(--font-size-xl);
     }
 
     h2 {
@@ -22,18 +20,18 @@
     }
 
     h3 {
-        font-size: $font-size-l;
+        font-size: var(--font-size-l);
     }
 
     h4,
     h5,
     h6 {
-        font-size: $font-size-m;
+        font-size: var(--font-size-m);
     }
 
     p {
-        font-size: $font-size-xs;
-        line-height: $line-height-sm;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-s);
         color: var(--color-text-primary-default);
     }
 }

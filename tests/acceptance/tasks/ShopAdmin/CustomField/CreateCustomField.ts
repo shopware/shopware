@@ -10,7 +10,18 @@ export const CreateCustomField = base.extend<{ CreateCustomField: Task }, Fixtur
                 if (satisfies(InstanceMeta.version, '<6.7')) {
                     await AdminCustomFieldDetail.customFieldTypeSelectionList.selectOption(customFieldTypeText);
                 } else {
-                    await (await AdminCustomFieldDetail.getSelectFieldListitem(AdminCustomFieldDetail.customFieldTypeSelectionList, customFieldTypeText)).click();
+                    // Meteor < 5.8 does not link the label to the select input, so its accessible name falls back to the placeholder.
+                    const dialog = AdminCustomFieldDetail.newCustomFieldDialog;
+                    const customFieldTypeSelectionList = dialog
+                        .getByRole('textbox', { name: 'Type', exact: true })
+                        .or(dialog.getByRole('textbox', { name: 'Select...' }));
+
+                    await (
+                        await AdminCustomFieldDetail.getSelectFieldListitem(
+                            customFieldTypeSelectionList,
+                            customFieldTypeText,
+                        )
+                    ).click();
                 }
                 await AdminCustomFieldDetail.customFieldTechnicalNameInput.fill(customFieldName);
                 await AdminCustomFieldDetail.customFieldLabelEnglishGBInput.fill(customFieldName);

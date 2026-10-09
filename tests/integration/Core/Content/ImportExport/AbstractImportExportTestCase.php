@@ -255,7 +255,7 @@ abstract class AbstractImportExportTestCase extends TestCase
     }
 
     /**
-     * @param list<array{key: string, mappedKey: string}>|array<Mapping> $mappings
+     * @param list<array{key: string, mappedKey: string, useDefaultValue?: bool, defaultValue?: string, requiredByUser?: bool, position?: int}>|array<Mapping> $mappings
      */
     protected function updateProfileMapping(string $profileId, array $mappings): void
     {

@@ -8,6 +8,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
     let wrapper = null;
 
     beforeEach(async () => {
+        jest.restoreAllMocks();
         Shopware.Store.get('context').api.languageId = '123456789';
 
         wrapper = mount(await wrapTestComponent('sw-language-switch', { sync: true }), {
@@ -38,6 +39,15 @@ describe('src/app/component/structure/sw-language-switch', () => {
         wrapper.vm.onInput('456');
 
         expect(Shopware.Store.get('context').api.languageId).toBe('456');
+    });
+
+    it('uses cached entity select options for active languages', () => {
+        const languageSelect = wrapper.get('sw-entity-single-select-stub');
+
+        expect(languageSelect.attributes('entity')).toBe('language');
+        expect(languageSelect.attributes('cache-key')).toContain('shared-data');
+        expect(languageSelect.attributes('cache-key')).toContain('active-languages');
+        expect(languageSelect.attributes('cache-ttl')).toBe('300000');
     });
 
     it('should open a modal with a warning if abortChangesFunction is set', async () => {

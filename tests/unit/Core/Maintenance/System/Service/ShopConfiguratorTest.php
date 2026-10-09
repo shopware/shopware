@@ -8,15 +8,17 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
-use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ShopConfigurator::class)]
 class ShopConfiguratorTest extends TestCase
 {
@@ -30,7 +32,7 @@ class ShopConfiguratorTest extends TestCase
     {
         $this->connection = $this->createMock(Connection::class);
         $this->eventDispatcher = new CollectingEventDispatcher();
-        $this->shopConfigurator = new ShopConfigurator($this->connection, $this->eventDispatcher);
+        $this->shopConfigurator = new ShopConfigurator($this->connection, $this->eventDispatcher, new NativeClock());
     }
 
     public function testUpdateBasicInformation(): void
@@ -81,10 +83,11 @@ class ShopConfiguratorTest extends TestCase
             return false;
         });
 
-        $this->shopConfigurator->setDefaultLanguage('vi-VN');
-
-        static::assertCount(1, $this->eventDispatcher->getEvents());
-        static::assertInstanceOf(SystemLanguageChangeEvent::class, $this->eventDispatcher->getEvents()[0]);
+        try {
+            $this->shopConfigurator->setDefaultLanguage('vi-VN');
+        } finally {
+            static::assertCount(0, $this->eventDispatcher->getEvents());
+        }
     }
 
     public function testSetDefaultLanguageMatchCurrentLocale(): void
@@ -197,11 +200,7 @@ class ShopConfiguratorTest extends TestCase
             $languageId
         );
 
-        $methodReturns = array_values(array_filter([$expectedMissingTranslations, $expectedStateTranslations], static fn (array $item) => $item !== []));
-
-        $methodCalls = \count($methodReturns);
-
-        $this->connection->expects($this->atLeast($methodCalls))->method('fetchAllKeyValue')->willReturnOnConsecutiveCalls($expectedStateTranslations, $expectedMissingTranslations);
+        $this->connection->expects($this->exactly(2))->method('fetchAllKeyValue')->willReturnOnConsecutiveCalls($expectedStateTranslations, $expectedMissingTranslations);
 
         $this->connection->expects($this->exactly($expectedInsertCall))->method('insert')->willReturnCallback($insertCallback);
         $this->shopConfigurator->setDefaultLanguage('de_DE');

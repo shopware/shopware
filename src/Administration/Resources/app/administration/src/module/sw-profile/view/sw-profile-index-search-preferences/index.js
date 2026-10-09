@@ -10,14 +10,9 @@ const { Module, Store, Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'searchPreferencesService',
-        'searchRankingService',
-    ],
+    inject: ['searchPreferencesService', 'searchRankingService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -109,10 +104,7 @@ export default {
 
     methods: {
         async createdComponent() {
-            await Promise.all([
-                this.getMinSearchTermLength(),
-                this.getDataSource(),
-            ]);
+            await Promise.all([this.getMinSearchTermLength(), this.getDataSource()]);
 
             this.updateDataSource();
             this.addEventListeners();

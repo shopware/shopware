@@ -5,17 +5,22 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Search;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Extension\ProductSearchRouteExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute;
+use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteResponse;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -43,6 +48,9 @@ class ProductSearchRouteTest extends TestCase
 
     public function testGetDecoratedShouldThrowException(): void
     {
+        $this->searchBuilder->expects($this->never())->method('build');
+        $this->listingLoader->expects($this->never())->method('load');
+
         static::expectException(DecorationPatternException::class);
 
         $this->getProductSearchRoute()->getDecorated();
@@ -74,7 +82,7 @@ class ProductSearchRouteTest extends TestCase
                 Context::createDefaultContext()
             ));
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $this->getProductSearchRoute()->load(
@@ -105,7 +113,7 @@ class ProductSearchRouteTest extends TestCase
                 Context::createDefaultContext()
             ));
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $this->getProductSearchRoute()->load(
@@ -117,11 +125,39 @@ class ProductSearchRouteTest extends TestCase
         static::assertTrue($criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
     }
 
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $criteria = new Criteria();
+        $response = static::createStub(ProductSearchRouteResponse::class);
+
+        $this->searchBuilder->expects($this->never())->method('build');
+        $this->listingLoader->expects($this->never())->method('load');
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('product-search-route.load.pre', static function (ProductSearchRouteExtension $extension) use ($request, $context, $criteria, $response): void {
+            static::assertSame(['request' => $request, 'context' => $context, 'criteria' => $criteria], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ProductSearchRoute(
+            $this->searchBuilder,
+            $this->listingLoader,
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($request, $context, $criteria));
+    }
+
     private function getProductSearchRoute(): ProductSearchRoute
     {
         return new ProductSearchRoute(
             $this->searchBuilder,
-            $this->listingLoader
+            $this->listingLoader,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
     }
 }

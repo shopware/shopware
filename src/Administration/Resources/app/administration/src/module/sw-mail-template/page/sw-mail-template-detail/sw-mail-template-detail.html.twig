@@ -42,7 +42,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $t('sw-mail-template.detail.buttonSave') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -634,7 +634,7 @@
 
                     <mt-button
                         variant="secondary"
-                        :disabled="!triggerEvent || !acl.can('api_send_email')"
+                        :disabled="!triggerEvent || !acl.can('mail_templates.editor')"
                         @click="onClickShowPreview"
                     >
                         {{ $t('sw-mail-template.detail.previewModalTitle') }}

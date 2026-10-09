@@ -23,7 +23,6 @@ class LocalesReadinessCheckTest extends TestCase
 {
     public function testItChecksLocales(): void
     {
-        /** @var StaticEntityRepository<LocaleCollection> $localeRepository */
         $localeRepository = new StaticEntityRepository(
             [
                 new LocaleCollection([

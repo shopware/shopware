@@ -51,7 +51,7 @@ class IsCompanyCustomerRuleTest extends TestCase
 
     private function matchRuleWithCustomer(IsCompanyRule $isCompanyRule, ?CustomerEntity $customer, bool $isMatchExpected): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')
             ->willReturn($customer);
 

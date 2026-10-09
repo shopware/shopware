@@ -21,8 +21,8 @@ export default class SpatialGallerySliderViewerPlugin extends SpatialBaseViewerP
     async init() {
         const modalWrapper = document.querySelector('.zoom-modal-wrapper');
         const modal = modalWrapper?.querySelector('.zoom-modal');
-        modal?.addEventListener('hidden.bs.modal', () => {
-            this.dive?.start();
+        modal?.addEventListener('hidden.bs.modal', async () => {
+            await this.dive?.startAsync();
         });
         modal?.addEventListener('shown.bs.modal', () => {
             this.dive?.stop();
@@ -55,7 +55,7 @@ export default class SpatialGallerySliderViewerPlugin extends SpatialBaseViewerP
             this.setReady(true);
 
             // start rendering when on the correct slide
-            this.spatialProductSliderRenderUtil?.initRender();
+            await this.spatialProductSliderRenderUtil?.initRender();
         }
     }
 }

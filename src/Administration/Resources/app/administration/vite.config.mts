@@ -17,6 +17,8 @@ import AssetPlugin from './build/vite-plugins/asset-plugin';
 import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
 import ImageDeprecationPlugin from './build/vite-plugins/image-deprecation';
 import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postprocess-plugin';
+import ShopwareSetupPlugin from './build/vite-plugins/shopware-setup';
+import VirtualShopwareModulesPlugin from './build/vite-plugins/virtual-shopware-modules';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
 
@@ -49,7 +51,9 @@ export default defineConfig(({ command }) => {
     const isProd = command === 'build';
     const isDev = !isProd;
     const base = isProd ? '/bundles/administration/administration' : undefined;
-    const useSourceMap = isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
+    const useSourceMap =
+        (isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||
+        (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
     const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1' && !isInsideDockerContainer();
 
     if (isProd) {
@@ -100,6 +104,13 @@ export default defineConfig(({ command }) => {
                 AssetPathPlugin(),
                 ImageDeprecationPlugin(__dirname),
                 AssetCssPostprocessPlugin('/bundles/administration/administration/assets/'),
+                ShopwareSetupPlugin({
+                    administrationRoot: __dirname,
+                }),
+                VirtualShopwareModulesPlugin({
+                    administrationRoot: __dirname,
+                    consumer: 'host',
+                }),
 
                 // Twig.JS loads node modules, so we need to polyfill them
                 nodePolyfills({
@@ -136,6 +147,10 @@ export default defineConfig(({ command }) => {
                                 featureFlags: JSON.stringify(featureFlags),
                                 serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
                                 analyticsGatewayUrl: process.env.PRODUCT_ANALYTICS_GATEWAY_URL,
+                                hideUpdateModule: [
+                                    '1',
+                                    'true',
+                                ].includes(process.env.SHOPWARE_AUTO_UPDATE_HIDE_MODULE ?? ''),
                                 pageLoadingScreen,
                             },
                         },
@@ -188,6 +203,10 @@ export default defineConfig(({ command }) => {
                 'flatpickr/**/*',
                 'date-fns-tz',
             ],
+            // DIVE ships Vite-only import queries (`?raw`, `?url`) in its published build.
+            // esbuild cannot resolve those while pre-bundling, so the dependency has to stay
+            // in Vite's own pipeline.
+            exclude: ['@shopware-ag/dive'],
             // This avoids full-page reload but the browser can't process more requests in parallel
             holdUntilCrawlEnd: true,
             esbuildOptions: {

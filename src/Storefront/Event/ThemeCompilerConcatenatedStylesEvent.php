@@ -5,7 +5,10 @@ namespace Shopware\Storefront\Event;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('framework')]
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('discovery')]
 class ThemeCompilerConcatenatedStylesEvent extends Event
 {
     public function __construct(

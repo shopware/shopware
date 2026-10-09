@@ -5,6 +5,9 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Discount\Composi
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionItem;
 use Shopware\Core\Framework\Log\Package;
@@ -12,8 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(DiscountCompositionBuilder::class)]
 #[Package('checkout')]
+#[CoversClass(DiscountCompositionBuilder::class)]
 class DiscountCompositionBuilderTest extends TestCase
 {
     /**
@@ -44,5 +47,26 @@ class DiscountCompositionBuilderTest extends TestCase
         static::assertSame('B', $aggregated[1]->getId());
         static::assertSame(6, $aggregated[1]->getQuantity());
         static::assertSame(12.0, $aggregated[1]->getDiscountValue());
+    }
+
+    #[Group('promotions')]
+    public function testAdjustCompositionItemValuesForNegativeTargetPrice(): void
+    {
+        $targetPrice = new CalculatedPrice(
+            -20,
+            -20,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
+        );
+
+        $items = [
+            new DiscountCompositionItem('A', 1, 10),
+            new DiscountCompositionItem('B', 1, 30),
+        ];
+
+        $adjusted = (new DiscountCompositionBuilder())->adjustCompositionItemValues($targetPrice, $items);
+
+        static::assertSame(5.0, $adjusted[0]->getDiscountValue());
+        static::assertSame(15.0, $adjusted[1]->getDiscountValue());
     }
 }

@@ -3,20 +3,20 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use setasign\Fpdi\FpdiException;
 use setasign\Fpdi\Tfpdf\Fpdi;
-use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileNameBuilder;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -38,7 +38,6 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[Package('after-sales')]
-#[Group('slow')]
 class DocumentMergerTest extends TestCase
 {
     use DocumentTrait;
@@ -102,14 +101,15 @@ class DocumentMergerTest extends TestCase
         $expectedBlob = 'expected blob';
 
         $mockFpdi = $this->getMockBuilder(Fpdi::class)->onlyMethods(['Output'])->getMock();
-        $mockFpdi->expects($this->once())->method('OutPut')->willReturn($expectedBlob);
+        $mockFpdi->expects($this->once())->method('Output')->willReturn($expectedBlob);
 
         $documentMerger = new DocumentMerger(
             $this->documentRepository,
             static::getContainer()->get(MediaService::class),
             $this->documentGenerator,
             $mockFpdi,
-            $this->createMock(Filesystem::class),
+            static::createStub(Filesystem::class),
+            static::getContainer()->get(DocumentFileNameBuilder::class),
         );
 
         $doc1 = Uuid::randomHex();
@@ -143,7 +143,7 @@ class DocumentMergerTest extends TestCase
 
     public function testMergeWithoutStaticMedia(): void
     {
-        $mockGenerator = $this->getMockBuilder(DocumentGenerator::class)->disableOriginalConstructor()->onlyMethods(['generate'])->getMock();
+        $mockGenerator = $this->createMock(DocumentGenerator::class);
         $mockGenerator->expects($this->once())->method('generate')->willReturn(new DocumentGenerationResult());
 
         $documentMerger = new DocumentMerger(
@@ -151,7 +151,8 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(MediaService::class),
             $mockGenerator,
             static::getContainer()->get('pdf.merger'),
-            $this->createMock(Filesystem::class),
+            static::createStub(Filesystem::class),
+            static::getContainer()->get(DocumentFileNameBuilder::class),
         );
 
         $documentId = Uuid::randomHex();
@@ -202,8 +203,8 @@ class DocumentMergerTest extends TestCase
 
         $mockFpdi = $this->getMockBuilder(Fpdi::class)->onlyMethods(['Output', 'setSourceFile', 'importPage'])->getMock();
 
-        $mockFpdi->expects($this->any())->method('setSourceFile')->willReturn($numDocs);
-        $mockFpdi->expects($this->any())->method('importPage')->willReturn('');
+        $mockFpdi->method('setSourceFile')->willReturn($numDocs);
+        $mockFpdi->method('importPage')->willReturn('');
 
         // Only use merge when merging more than 1 documents
         if ($numDocs > 1 && $withMedia) {
@@ -217,7 +218,8 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(MediaService::class),
             $this->documentGenerator,
             $mockFpdi,
-            $this->createMock(Filesystem::class),
+            static::createStub(Filesystem::class),
+            static::getContainer()->get(DocumentFileNameBuilder::class),
         );
 
         $result = $documentMerger->merge($docIds, $this->context);
@@ -261,6 +263,10 @@ class DocumentMergerTest extends TestCase
                 static::assertInstanceOf(RenderedDocument::class, $mergeResult);
                 static::assertSame('Dummy output', $mergeResult->getContent());
                 static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $mergeResult->getContentType());
+                static::assertSame(
+                    DeliveryNoteRenderer::TYPE . '_' . (new \DateTimeImmutable())->format('Y-m-d') . '.pdf',
+                    $mergeResult->getName()
+                );
             },
         ];
 
@@ -281,6 +287,10 @@ class DocumentMergerTest extends TestCase
                 static::assertInstanceOf(RenderedDocument::class, $mergeResult);
                 static::assertSame('Dummy output', $mergeResult->getContent());
                 static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $mergeResult->getContentType());
+                static::assertSame(
+                    DeliveryNoteRenderer::TYPE . '_' . (new \DateTimeImmutable())->format('Y-m-d') . '.pdf',
+                    $mergeResult->getName()
+                );
             },
         ];
     }
@@ -334,7 +344,7 @@ class DocumentMergerTest extends TestCase
         }
 
         // force zip creation
-        $mockFpdi = $this->createMock(Fpdi::class);
+        $mockFpdi = static::createStub(Fpdi::class);
         $mockFpdi->method('setSourceFile')
             ->willThrowException(new FpdiException('PDF merge failed'));
 
@@ -344,6 +354,7 @@ class DocumentMergerTest extends TestCase
             $this->documentGenerator,
             $mockFpdi,
             $filesystem,
+            static::getContainer()->get(DocumentFileNameBuilder::class),
         );
 
         $result = $documentMerger->merge($docIds, $this->context);
@@ -351,6 +362,10 @@ class DocumentMergerTest extends TestCase
         static::assertNotNull($result);
         static::assertSame('zip', $result->getFileExtension());
         static::assertSame('application/zip', $result->getContentType());
+        static::assertSame(
+            DeliveryNoteRenderer::TYPE . '_' . (new \DateTimeImmutable())->format('Y-m-d') . '.zip',
+            $result->getName()
+        );
 
         // save content to a temporary zip file
         $filesystem = static::getContainer()->get('filesystem');
@@ -363,7 +378,7 @@ class DocumentMergerTest extends TestCase
 
         $order = static::getContainer()
             ->get('order.repository')
-            ->search(new Criteria([$this->orderId]), $this->context)
+            ->search(new Criteria([$this->orderId]), $this->context)->getEntities()
             ->first();
         static::assertNotNull($order);
         static::assertInstanceOf(OrderEntity::class, $order);

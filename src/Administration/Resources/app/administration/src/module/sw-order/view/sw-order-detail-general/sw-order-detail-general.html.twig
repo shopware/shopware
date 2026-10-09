@@ -4,7 +4,7 @@
     <mt-card
         class="sw-order-detail-base__general-info"
         position-identifier="sw-order-detail-general-info"
-        :title="$t('sw-order.detailBase.cardTitleGeneralInfo')"
+        :title="$t('global.default.info')"
     >
         {% block sw_order_detail_general_info %}
         <sw-order-general-info
@@ -27,7 +27,6 @@
         :is-loading="loading.recalculation"
         :title="$t('sw-order.detailBase.cardTitleLineItems')"
     >
-
         {% block sw_order_detail_general_line_items_card_rows %}
         <template #grid>
             <sw-container type="row">
@@ -40,111 +39,112 @@
                     @item-delete="recalculateAndReload"
                     @item-edit="recalculateAndReload"
                     @existing-item-edit="saveAndRecalculate"
-                    @item-cancel="recalculateAndReload"
+                    @item-cancel="discardLineItemEdit"
                 />
                 {% endblock %}
 
                 {% block sw_order_detail_general_line_items_summary %}
-                <sw-card-section
-                    divider="top"
-                    slim
-                >
-                    <sw-description-list
-                        class="sw-order-detail__summary"
-                        grid="1fr 1fr"
-                    >
-
+                <div class="sw-order-detail-general__line-item-grid-card-footer">
+                    <div class="sw-order-detail-general__summary">
                         {% block sw_order_detail_general_line_items_summary_entries %}
                         {% block sw_order_detail_general_line_items_summary_amount %}
-                        <dt>{{ $t('sw-order.detailBase.summaryLabelAmount') }}</dt>
-                        <dd>{{ currencyFilter(order.positionPrice, currency.isoCode, order.totalRounding.decimals) }}</dd>
+                        <div class="sw-order-detail-general__summary-row">
+                            <span>{{ $t('sw-order.detailBase.summaryLabelAmount') }}</span>
+                            <span>{{ currencyFilter(order.positionPrice, currency.isoCode, order.totalRounding.decimals) }}</span>
+                        </div>
                         {% endblock %}
 
                         {% block sw_order_detail_general_line_items_summary_shipping_cost %}
-                        <template v-if="delivery">
-                            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-                            <dt
-                                @click="$refs.editShippingCosts.onClick()"
-                            >
-                                {{ $t('sw-order.detailBase.summaryLabelShippingCosts') }}
-                            </dt>
-                            <dd>
-                                <sw-order-saveable-field
-                                    ref="editShippingCosts"
-                                    v-tooltip="{
-                                        showDelay: 300,
-                                        message: shippingCostsDetail,
-                                        disabled: taxStatus === 'tax-free'
-                                    }"
-                                    type="number"
-                                    :editable="acl.can('order.editor')"
-                                    :step="1"
-                                    :min="0"
-                                    :value="delivery.shippingCosts.totalPrice"
-                                    @value-change="onShippingChargeEdited"
-                                    @update:value="onShippingChargeUpdated"
-                                >
-                                    {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.isoCode, order.totalRounding.decimals) }}
-                                </sw-order-saveable-field>
-                            </dd>
-                        </template>
-
-                        <template
-                            v-for="(delivery, index) in deliveryDiscounts"
-                            :key="index"
+                        <div
+                            v-if="delivery"
+                            class="sw-order-detail-general__summary-row"
                         >
-                            <dt>
-                                {{ $t('sw-order.detailBase.discountLabelShippingCosts') }}
-                            </dt>
-                            <dd>
+                            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+                            <span @click="$refs.editShippingCosts.onClick()">
+                                {{ $t('sw-order.detailBase.summaryLabelShippingCosts') }}
+                            </span>
+
+                            <sw-order-saveable-field
+                                ref="editShippingCosts"
+                                v-tooltip="{
+                                    showDelay: 300,
+                                    message: shippingCostsDetail,
+                                    disabled: taxStatus === 'tax-free'
+                                }"
+                                type="number"
+                                :editable="acl.can('order.editor')"
+                                :step="1"
+                                :min="0"
+                                :value="delivery.shippingCosts.totalPrice"
+                                @value-change="onShippingChargeEdited"
+                                @update:value="onShippingChargeUpdated"
+                            >
                                 {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.isoCode, order.totalRounding.decimals) }}
-                            </dd>
-                        </template>
+                            </sw-order-saveable-field>
+                        </div>
+
+                        <div
+                            v-for="(deliveryDiscount, index) in deliveryDiscounts"
+                            :key="index"
+                            class="sw-order-detail-general__summary-row"
+                        >
+                            <span>{{ $t('sw-order.detailBase.discountLabelShippingCosts') }}</span>
+                            <span>{{ currencyFilter(deliveryDiscount.shippingCosts.totalPrice, currency.isoCode, order.totalRounding.decimals) }}</span>
+                        </div>
                         {% endblock %}
 
                         {% block sw_order_detail_general_line_items_summary_amount_without_tax %}
-                        <template v-if="taxStatus !== 'tax-free'">
-                            <dt><strong>{{ $t('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
-                            <dd><strong>{{ currencyFilter(order.amountNet, currency.isoCode, order.totalRounding.decimals) }}</strong></dd>
-                        </template>
+                        <div
+                            v-if="taxStatus !== 'tax-free'"
+                            class="sw-order-detail-general__summary-row sw-order-detail-general__summary-row--divider sw-order-detail-general__summary-row--subtotal"
+                        >
+                            <span>{{ $t('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</span>
+                            <span>{{ currencyFilter(order.amountNet, currency.isoCode, order.totalRounding.decimals) }}</span>
+                        </div>
                         {% endblock %}
 
                         {% block sw_order_detail_general_line_items_summary_taxes %}
                         <template v-if="taxStatus !== 'tax-free'">
-                            <template
+                            <div
                                 v-for="(calculatedTax, index) in sortedCalculatedTaxes"
                                 :key="index"
+                                class="sw-order-detail-general__summary-row"
                             >
-                                <dt>
-                                    {{ $t('sw-order.detailBase.summaryLabelTaxes', { taxRate: calculatedTax.taxRate }, 1) }}
-                                </dt>
-                                <dd>
-                                    {{ currencyFilter(calculatedTax.tax, currency.isoCode, order.totalRounding.decimals) }}
-                                </dd>
-                            </template>
+                                <span>{{ $t('sw-order.detailBase.summaryLabelTaxes', { taxRate: calculatedTax.taxRate }, 1) }}</span>
+                                <span>{{ currencyFilter(calculatedTax.tax, currency.isoCode, order.totalRounding.decimals) }}</span>
+                            </div>
                         </template>
                         {% endblock %}
 
                         {% block sw_order_detail_general_line_items_summary_amount_total %}
                         <template v-if="taxStatus !== 'tax-free'">
-                            <dt><strong>{{ $t('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
-                            <dd><strong>{{ currencyFilter(orderTotal, currency.isoCode, order.totalRounding.decimals) }}</strong></dd>
-                            <template v-if="displayRounded">
-                                <dt><strong>{{ $t('sw-order.detailBase.summaryLabelAmountTotalRounded') }}</strong></dt>
-                                <dd><strong>{{ currencyFilter(order.price.totalPrice, currency.isoCode, order.totalRounding.decimals) }}</strong></dd>
-                            </template>
+                            <div class="sw-order-detail-general__summary-row sw-order-detail-general__summary-row--divider sw-order-detail-general__summary-row--total">
+                                <span>{{ $t('sw-order.detailBase.summaryLabelAmountTotal') }}</span>
+                                <span>{{ currencyFilter(orderTotal, currency.isoCode, order.totalRounding.decimals) }}</span>
+                            </div>
+
+                            <div
+                                v-if="displayRounded"
+                                class="sw-order-detail-general__summary-row sw-order-detail-general__summary-row--total"
+                            >
+                                <span>{{ $t('sw-order.detailBase.summaryLabelAmountTotalRounded') }}</span>
+                                <span>{{ currencyFilter(order.price.totalPrice, currency.isoCode, order.totalRounding.decimals) }}</span>
+                            </div>
                         </template>
                         {% endblock %}
 
                         {% block sw_order_detail_general_line_items_summary_amount_free_tax %}
-                        <template v-if="taxStatus === 'tax-free'">
-                            <dt><strong>{{ $t('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
-                            <dd><strong>{{ currencyFilter(order.price.totalPrice, currency.isoCode, order.totalRounding.decimals) }}</strong></dd>
-                        </template>
+                        <div
+                            v-if="taxStatus === 'tax-free'"
+                            class="sw-order-detail-general__summary-row sw-order-detail-general__summary-row--divider sw-order-detail-general__summary-row--total"
+                        >
+                            <span>{{ $t('sw-order.detailBase.summaryLabelAmount') }}</span>
+                            <span>{{ currencyFilter(order.price.totalPrice, currency.isoCode, order.totalRounding.decimals) }}</span>
+                        </div>
                         {% endblock %}
-                    {% endblock %}
-                    </sw-description-list>
-                </sw-card-section>
+                        {% endblock %}
+                    </div>
+                </div>
                 {% endblock %}
             </sw-container>
         </template>

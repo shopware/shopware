@@ -9,9 +9,10 @@
         {% block sw_order_address_modal_content %}
         <sw-customer-address-form
             :address="currentAddress"
-            :customer="customer"
+            :customer="customer || orderCustomer"
         >
             <sw-customer-address-form-options
+                v-if="customer?.id"
                 :address="currentAddress"
                 :customer="customer"
                 :custom-field-sets="customerAddressCustomFieldSets"
@@ -61,7 +62,10 @@
         @update:value="onAddressChange"
     >
         <template #before-item-list>
-            <ul class="sw-select-result__item-list">
+            <ul
+                v-if="customer?.id"
+                class="sw-select-result__item-list"
+            >
                 <li
                     class="sw-select-result sw-select-result__add-new-address"
                     role="button"

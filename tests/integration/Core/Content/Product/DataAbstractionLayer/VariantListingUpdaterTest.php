@@ -8,12 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class VariantListingUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -136,6 +138,54 @@ class VariantListingUpdaterTest extends TestCase
 
         static::assertSame($expectedRed, $displayByNumber['vl-updater-a']);
         static::assertSame($expectedGreen, $displayByNumber['vl-updater-b']);
+
+        $draftVersionId = Uuid::randomHex();
+        $draftVersionBytes = Uuid::fromHexToBytes($draftVersionId);
+
+        $this->connection->executeStatement(
+            'INSERT INTO product (id, version_id, parent_id, parent_version_id, product_number, stock, variant_listing_config, display_group)
+                SELECT id, :draftVersion, parent_id, IF(parent_id IS NULL, NULL, :draftVersion), product_number, stock, variant_listing_config, display_group
+                FROM product
+                WHERE id = :parentId AND version_id = :liveVersion',
+            [
+                'parentId' => $parentId,
+                'draftVersion' => $draftVersionBytes,
+                'liveVersion' => $liveVersion,
+            ]
+        );
+        $this->connection->executeStatement(
+            'INSERT INTO product (id, version_id, parent_id, parent_version_id, product_number, stock, variant_listing_config, display_group)
+                SELECT id, :draftVersion, parent_id, :draftVersion, product_number, stock, variant_listing_config, display_group
+                FROM product
+                WHERE id IN (:ids) AND version_id = :liveVersion',
+            [
+                'ids' => [$variantAId, $variantBId],
+                'draftVersion' => $draftVersionBytes,
+                'liveVersion' => $liveVersion,
+            ],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+        $this->connection->insert('product_option', [
+            'product_id' => $variantAId,
+            'product_version_id' => $draftVersionBytes,
+            'property_group_option_id' => $optionGreenBytes,
+        ]);
+        $this->connection->insert('product_option', [
+            'product_id' => $variantBId,
+            'product_version_id' => $draftVersionBytes,
+            'property_group_option_id' => $optionRedBytes,
+        ]);
+
+        $this->updater->update([$parentHex], Context::createDefaultContext()->createWithVersionId($draftVersionId));
+
+        $draftDisplayByNumber = $this->connection->fetchAllKeyValue(
+            'SELECT product_number, display_group FROM product WHERE id IN (:ids) AND version_id = :version ORDER BY product_number ASC',
+            ['ids' => [$variantAId, $variantBId], 'version' => $draftVersionBytes],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        static::assertSame($expectedGreen, $draftDisplayByNumber['vl-updater-a']);
+        static::assertSame($expectedRed, $draftDisplayByNumber['vl-updater-b']);
 
         $this->cleanupVariantListingFixture(
             [$variantAId, $variantBId, $parentId],

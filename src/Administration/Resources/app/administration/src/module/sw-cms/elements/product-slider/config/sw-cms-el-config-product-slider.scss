@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-cms-el-config-product-slider {
     .sw-cms-el-config-product-slider__tabs {
         .sw-cms-el-config-product-slider__tab-content {
@@ -52,7 +50,7 @@
     }
 
     .sw-cms-el-config-product-slider__product-stream-preview-link {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         text-decoration: none;
 
         &.is--disabled {

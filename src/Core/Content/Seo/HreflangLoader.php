@@ -32,12 +32,16 @@ class HreflangLoader implements HreflangLoaderInterface
 
         $domains = $this->fetchSalesChannelDomains($salesChannelContext->getSalesChannelId());
 
-        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-        if ($parameter->getRoute() === 'frontend.home.page') {
+        if ($parameter->isHomepage()) {
             return $this->getHreflangForHomepage($domains, $salesChannelContext->getSalesChannel()->getHreflangDefaultDomainId());
         }
 
         $pathInfo = $this->router->generate($parameter->getRoute(), $parameter->getRouteParameters(), RouterInterface::ABSOLUTE_PATH);
+
+        $basePath = $parameter->getBasePath();
+        if ($basePath !== '' && str_starts_with($pathInfo, $basePath)) {
+            $pathInfo = mb_substr($pathInfo, mb_strlen($basePath));
+        }
 
         $languageToDomainMapping = $this->getLanguageToDomainMapping($domains);
         $seoUrls = $this->fetchSeoUrls($pathInfo, $salesChannelContext->getSalesChannelId(), array_keys($languageToDomainMapping));
@@ -112,9 +116,9 @@ class HreflangLoader implements HreflangLoaderInterface
     }
 
     /**
-     * @param list<array{languageId: string, id: string, url: string, locale: string}> $domains
+     * @param list<array{languageId: string, id: string, url: string, locale: string, onlyLocale: bool}> $domains
      *
-     * @return array<string, list<array{languageId: string, id: string, url: string, locale: string}>>
+     * @return array<string, list<array{languageId: string, id: string, url: string, locale: string, onlyLocale: bool}>>
      */
     private function getLanguageToDomainMapping(array $domains): array
     {

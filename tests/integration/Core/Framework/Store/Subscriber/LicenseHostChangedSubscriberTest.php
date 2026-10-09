@@ -33,7 +33,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
         /** @var EntityRepository<UserCollection> $userRepository */
         $userRepository = static::getContainer()->get('user.repository');
 
-        $user = $userRepository->search(new Criteria(), $context)->first();
+        $user = $userRepository->search(new Criteria(), $context)->getEntities()->first();
         static::assertInstanceOf(UserEntity::class, $user);
 
         // We create two new admin users

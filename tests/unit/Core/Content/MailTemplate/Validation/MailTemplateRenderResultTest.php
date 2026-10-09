@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(MailTemplateRenderResult::class)]
 #[Package('after-sales')]
+#[CoversClass(MailTemplateRenderResult::class)]
 class MailTemplateRenderResultTest extends TestCase
 {
     /**

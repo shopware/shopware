@@ -44,6 +44,10 @@ class LineItemInProductStreamRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('streamIds', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchesOneOfProductStream($lineItem)) {
                 return true;
             }

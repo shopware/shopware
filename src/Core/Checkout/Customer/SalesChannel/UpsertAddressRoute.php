@@ -6,11 +6,13 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
+use Shopware\Core\Checkout\Customer\Extension\UpsertAddressRouteExtension;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -33,10 +35,11 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class UpsertAddressRoute extends AbstractUpsertAddressRoute
 {
+    use CustomerAddressDataNormalizerTrait;
     use CustomerAddressValidationTrait;
 
     /**
@@ -55,6 +58,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         private readonly SystemConfigService $systemConfigService,
         private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper,
         private readonly EntityRepository $salutationRepository,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -83,6 +87,19 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         methods: [Request::METHOD_PATCH]
     )]
     public function upsert(
+        ?string $addressId,
+        RequestDataBag $data,
+        SalesChannelContext $context,
+        CustomerEntity $customer
+    ): UpsertAddressRouteResponse {
+        return $this->extensions->publish(
+            name: UpsertAddressRouteExtension::NAME,
+            extension: new UpsertAddressRouteExtension($addressId, $data, $context, $customer),
+            function: $this->_upsert(...),
+        );
+    }
+
+    private function _upsert(
         ?string $addressId,
         RequestDataBag $data,
         SalesChannelContext $context,
@@ -120,6 +137,8 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             'additionalAddressLine1' => $data->get('additionalAddressLine1'),
             'additionalAddressLine2' => $data->get('additionalAddressLine2'),
         ];
+
+        $addressData = $this->trimAddressFields($addressData);
 
         if ($data->get('customFields') instanceof RequestDataBag) {
             $addressData['customFields'] = $this->storeApiCustomFieldMapper->map(

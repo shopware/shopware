@@ -10,9 +10,11 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\CollectionBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\EntityBusinessEvent;
+use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\HiddenEntityBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\NestedEntityBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ScalarBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\StructuredArrayObjectBusinessEvent;
@@ -29,6 +31,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HookableBusinessEvent::class)]
 class HookableBusinessEventTest extends TestCase
 {
@@ -38,8 +41,8 @@ class HookableBusinessEventTest extends TestCase
         $event = HookableBusinessEvent::fromBusinessEvent(
             $scalarEvent,
             new BusinessEventEncoder(
-                $this->createMock(JsonEntityEncoder::class),
-                $this->createMock(DefinitionInstanceRegistry::class)
+                static::createStub(JsonEntityEncoder::class),
+                static::createStub(DefinitionInstanceRegistry::class)
             )
         );
 
@@ -52,7 +55,7 @@ class HookableBusinessEventTest extends TestCase
     {
         $event = HookableBusinessEvent::fromBusinessEvent(
             $rootEvent,
-            $this->createMock(BusinessEventEncoder::class)
+            static::createStub(BusinessEventEncoder::class)
         );
 
         static::assertTrue($event->isAllowed(Uuid::randomHex(), new AclPrivilegeCollection([])));
@@ -71,12 +74,26 @@ class HookableBusinessEventTest extends TestCase
         ];
     }
 
+    public function testHiddenFromWebhookEntityDoesNotRequirePrivilege(): void
+    {
+        $tax = new TaxEntity();
+        $tax->setId('tax-id');
+
+        $event = HookableBusinessEvent::fromBusinessEvent(
+            new HiddenEntityBusinessEvent($tax),
+            static::createStub(BusinessEventEncoder::class)
+        );
+
+        // the entity is hidden from webhooks, so its read privilege is not enforced either
+        static::assertTrue($event->isAllowed(Uuid::randomHex(), new AclPrivilegeCollection([])));
+    }
+
     #[DataProvider('getEventsWithPermissions')]
     public function testIsAllowedForEntityBasedEvents(FlowEventAware $rootEvent): void
     {
         $event = HookableBusinessEvent::fromBusinessEvent(
             $rootEvent,
-            $this->createMock(BusinessEventEncoder::class)
+            static::createStub(BusinessEventEncoder::class)
         );
 
         $allowedPermissions = new AclPrivilegeCollection([

@@ -21,10 +21,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'feature',
-        'repositoryFactory',
-    ],
+    inject: ['feature', 'repositoryFactory'],
 
     // Grant access to some variables to the child form render components
     provide() {
@@ -36,16 +33,9 @@ export default {
         };
     },
 
-    emits: [
-        'process-finish',
-        'save',
-        'change-active-selection',
-    ],
+    emits: ['process-finish', 'save', 'change-active-selection'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('placeholder')],
 
     props: {
         sets: {
@@ -65,18 +55,12 @@ export default {
             type: String,
             required: false,
             default: 'tabs',
-            validValues: [
-                'tabs',
-                'media-collapse',
-            ],
+            validValues: ['tabs', 'media-collapse'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'tabs',
-                    'media-collapse',
-                ].includes(value);
+                return ['tabs', 'media-collapse'].includes(value);
             },
         },
         disabled: {
@@ -110,6 +94,7 @@ export default {
             tabWaitsAttempts: 0,
             refreshVisibleSets: false,
             translatedInheritanceLoadKey: null,
+            activeCustomFieldSetTab: null,
         };
     },
 
@@ -135,6 +120,19 @@ export default {
             return this.sortSets(this.sets);
         },
 
+        customFieldSetTabs() {
+            return this.visibleCustomFieldSets.map((set) => {
+                return {
+                    label: this.getTabLabel(set),
+                    name: set.id,
+                };
+            });
+        },
+
+        activeCustomFieldSetTabName() {
+            return this.activeCustomFieldSetTab ?? this.visibleCustomFieldSets[0]?.id ?? '';
+        },
+
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
@@ -144,7 +142,7 @@ export default {
 
             criteria.addFilter(Criteria.equals('relations.entityName', this.entity.getEntityName()));
             criteria.addFilter(Criteria.equals('global', 0));
-            criteria.addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+            criteria.addSorting(Criteria.sort('position', 'ASC'));
 
             return criteria;
         },
@@ -284,11 +282,7 @@ export default {
         },
 
         getTranslatedInheritanceLoadKey() {
-            return [
-                this.entity.getEntityName(),
-                this.entity.id,
-                this.translatedInheritanceSourceLanguageId,
-            ].join(':');
+            return [this.entity.getEntityName(), this.entity.id, this.translatedInheritanceSourceLanguageId].join(':');
         },
 
         getTranslatedInheritanceContext() {
@@ -521,7 +515,7 @@ export default {
         customFieldSetCriteriaById() {
             const criteria = new Criteria(1, 1);
 
-            criteria.getAssociation('customFields').addSorting(Criteria.naturalSorting('config.customFieldPosition'));
+            criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition', 'ASC'));
 
             return criteria;
         },
@@ -565,11 +559,27 @@ export default {
         },
 
         resetTabs() {
+            const firstVisibleCustomFieldSet = this.visibleCustomFieldSets[0];
+
+            if (!firstVisibleCustomFieldSet) {
+                return;
+            }
+
+            if (this.variant !== 'tabs') {
+                return;
+            }
+
+            this.setActiveCustomFieldSetTab(firstVisibleCustomFieldSet.id);
+
+            if (this.feature.isActive('v6.8.0.0')) {
+                return;
+            }
+
             if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
                 // Reset state of tab component if custom field selection changes
                 this.$refs.tabComponent.mountedComponent();
                 this.$refs.tabComponent.setActiveItem({
-                    name: this.visibleCustomFieldSets[0].id,
+                    name: firstVisibleCustomFieldSet.id,
                 });
             }
         },
@@ -592,8 +602,20 @@ export default {
             return set.name;
         },
 
+        setActiveCustomFieldSetTab(setId) {
+            this.activeCustomFieldSetTab = setId;
+
+            if (!this.visibleCustomFieldSets.some((set) => set.id === setId)) {
+                return;
+            }
+
+            this.loadCustomFieldSet(setId);
+        },
+
         onChangeCustomFieldSets(value, updateFn) {
-            if (!this.$refs.tabComponent && (this.visibleCustomFieldSets.length > 0 || value)) {
+            if (this.feature.isActive('v6.8.0.0') && this.variant === 'tabs') {
+                this.resetTabs();
+            } else if (!this.$refs.tabComponent && (this.visibleCustomFieldSets.length > 0 || value)) {
                 // when rendered initially we wait for the tabcomponent to load so we can activate the first item
                 this.waitForTabComponent();
             } else {

@@ -26,6 +26,12 @@ describe('pseudo-modal.util tests', () => {
             document.body.appendChild(html);
         });
 
+        window.focusHandler = {
+            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
+        };
+
         jest.useFakeTimers();
         pseudoModal = initialModal();
     });
@@ -82,6 +88,34 @@ describe('pseudo-modal.util tests', () => {
 
         // Ensure the modal with "show" class is not present after close
         expect(document.querySelector('.modal.fade.show')).toBeFalsy();
+    });
+
+    test('it moves the focus into the modal when another focus-trap pulled it out while opening', () => {
+        const offcanvasButton = document.createElement('button');
+        document.body.appendChild(offcanvasButton);
+
+        // Simulates the focus-trap of an open offcanvas
+        document.addEventListener('focusin', () => offcanvasButton.focus(), { once: true });
+
+        pseudoModal.open();
+        jest.runAllTimers();
+
+        expect(document.activeElement).toBe(pseudoModal.getModal());
+    });
+
+    test('it makes a wrapper left over from an earlier modal interactive again', () => {
+        const leftOverWrapper = document.createElement('div');
+        leftOverWrapper.classList.add('js-pseudo-modal');
+        leftOverWrapper.inert = true;
+        leftOverWrapper.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(leftOverWrapper);
+
+        pseudoModal.open();
+        jest.runAllTimers();
+
+        expect(pseudoModal.getModal().parentElement).toBe(leftOverWrapper);
+        expect(leftOverWrapper.inert).toBe(false);
+        expect(leftOverWrapper.hasAttribute('aria-hidden')).toBe(false);
     });
 
     test('it has title template placeholder in modal header', () => {

@@ -72,6 +72,10 @@ Shopware.Component.register('sw-bulk-edit-save-modal', () => import('./component
 Shopware.Component.register('sw-bulk-edit-save-modal-confirm', () => import('./component/sw-bulk-edit-save-modal-confirm'));
 Shopware.Component.register('sw-bulk-edit-save-modal-process', () => import('./component/sw-bulk-edit-save-modal-process'));
 Shopware.Component.register('sw-bulk-edit-save-modal-success', () => import('./component/sw-bulk-edit-save-modal-success'));
+Shopware.Component.register(
+    'sw-bulk-edit-document-generation-failed-list',
+    () => import('./component/sw-bulk-edit-document-generation-failed-list'),
+);
 Shopware.Component.register('sw-bulk-edit-save-modal-error', () => import('./component/sw-bulk-edit-save-modal-error'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
@@ -81,7 +85,7 @@ const { Module } = Shopware;
 Module.register('sw-bulk-edit', {
     type: 'core',
     name: 'bulk-edit',
-    title: 'sw-bulk-edit.general.mainMenuTitle',
+    title: 'global.default.bulkEdit',
     description: 'sw-bulk-edit.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

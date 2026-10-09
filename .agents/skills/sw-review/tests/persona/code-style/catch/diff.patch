@@ -1,0 +1,21 @@
+diff --git a/src/Core/System/User/Service/UserManager.php b/src/Core/System/User/Service/UserManager.php
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/System/User/Service/UserManager.php
++++ b/src/Core/System/User/Service/UserManager.php
+@@ -64,4 +64,16 @@ class UserManager
+     {
+         return $this->userRepository->search($criteria, $context)->first();
+     }
++
++    public function findBenutzerByEmail(string $email): ?UserEntity
++    {
++        $criteria = new Criteria();
++        $criteria->addFilter(new EqualsFilter('email', $email));
++
++        $benutzer = $this->userRepository->search($criteria, $this->context)->first();
++
++        // hole den ersten benutzer
++
++        return $benutzer;
++    }
+ }

@@ -1,5 +1,3 @@
-$sw-media-quickinfo-color-second-headline: var(--color-text-primary-default);
-
 .sw-media-quickinfo-multiple {
     .sw-media-sidebar__quickaction--disabled {
         opacity: 0.5;
@@ -14,5 +12,5 @@ $sw-media-quickinfo-color-second-headline: var(--color-text-primary-default);
 .sw-media-quickinfo-multiple .sw-media-quickinfo-multiple__second-headline {
     display: block;
     margin: 0 0 20px;
-    color: $sw-media-quickinfo-color-second-headline;
+    color: var(--color-text-primary-default);
 }

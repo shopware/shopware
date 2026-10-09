@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Store\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\Clock;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 final readonly class FrwState
 {

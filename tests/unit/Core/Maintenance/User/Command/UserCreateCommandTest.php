@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\User\Command\UserCreateCommand;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -47,13 +48,13 @@ class UserCreateCommandTest extends TestCase
 
     private function getCommandTester(): CommandTester
     {
-        return new CommandTester(new UserCreateCommand(new UserProvisioner($this->createConnection())));
+        return new CommandTester(new UserCreateCommand(new UserProvisioner($this->createConnection(), new NativeClock())));
     }
 
     private function createConnection(): Connection
     {
-        $connection = $this->createMock(Connection::class);
-        $builder = $this->createMock(QueryBuilder::class);
+        $connection = static::createStub(Connection::class);
+        $builder = static::createStub(QueryBuilder::class);
         $builder->method('select')->willReturnSelf();
         $builder->method('from')->willReturnSelf();
         $builder->method('where')->willReturnSelf();

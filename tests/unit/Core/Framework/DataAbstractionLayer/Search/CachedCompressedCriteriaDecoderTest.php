@@ -7,10 +7,12 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CachedCompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CachedCompressedCriteriaDecoder::class)]
 class CachedCompressedCriteriaDecoderTest extends TestCase
 {

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Struct;
  *
  * Name and description can be provided as snippet keys or directly translated text.
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CookieEntry extends Struct
 {
     public ?string $value;

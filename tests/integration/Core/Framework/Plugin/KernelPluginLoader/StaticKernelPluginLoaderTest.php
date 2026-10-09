@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Plugin\KernelPluginLoader;
 use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginException;
@@ -20,6 +21,7 @@ use Symfony\Component\DependencyInjection\Definition;
 /**
  * @internal
  */
+#[Package('framework')]
 class StaticKernelPluginLoaderTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;
@@ -29,8 +31,8 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader = $this->createKernelPluginLoaderWithPlugins([]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        static::assertEmpty($loader->getPluginInfos());
-        static::assertEmpty($loader->getPluginInstances()->all());
+        static::assertCount(0, $loader->getPluginInfos());
+        static::assertCount(0, $loader->getPluginInstances()->all());
     }
 
     public function testNoKernelPluginsWithoutInit(): void
@@ -39,7 +41,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader = $this->createKernelPluginLoaderWithPlugins([$activePluginData]);
 
         static::assertCount(1, $loader->getPluginInfos());
-        static::assertEmpty($loader->getPluginInstances()->all());
+        static::assertCount(0, $loader->getPluginInstances()->all());
     }
 
     public function testKernelPluginsAfterInit(): void
@@ -118,7 +120,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
         $class = $activePluginData['baseClass'];
         $kernelPlugin = $loader->getPluginInstances()->get($class);
-        static::assertNotEmpty($kernelPlugin);
+        static::assertNotNull($kernelPlugin);
         static::assertSame($kernelPlugin, $loader->getPluginInstance($class));
     }
 
@@ -132,7 +134,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
         $class = $pluginData['baseClass'];
         $kernelPlugin = $loader->getPluginInstances()->get($class);
-        static::assertNotEmpty($kernelPlugin);
+        static::assertNotNull($kernelPlugin);
         static::assertNull($loader->getPluginInstance($class));
     }
 
@@ -171,7 +173,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
         $bundles = iterator_to_array($loader->getBundles());
 
-        static::assertEmpty($bundles);
+        static::assertCount(0, $bundles);
     }
 
     public function testGetBundlesNoPlugins(): void
@@ -327,7 +329,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
     public function testExpectExceptionExternalPath(): void
     {
-        $classLoader = $this->createMock(ClassLoader::class);
+        $classLoader = static::createStub(ClassLoader::class);
 
         $plugin = $this->getInstalledInactivePlugin();
         $plugin->setPath('/custom/plugins/TestPlugin');

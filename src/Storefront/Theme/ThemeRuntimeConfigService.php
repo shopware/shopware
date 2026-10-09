@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -12,7 +13,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeRuntimeConfigService
 {
     /**
@@ -35,6 +36,7 @@ class ThemeRuntimeConfigService
         private readonly StorefrontPluginRegistry $pluginRegistry,
         private readonly ThemeMergedConfigBuilder $mergedConfigBuilder,
         private readonly ThemeRuntimeConfigStorage $storage,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -134,13 +136,13 @@ class ThemeRuntimeConfigService
 
         $runtimeConfig = ThemeRuntimeConfig::fromArray([
             'themeId' => $themeId,
-            'technicalName' => $themeConfig->getTechnicalName(),
+            'technicalName' => $this->storage->getOwnThemeTechnicalName($themeId),
             'resolvedConfig' => $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $context),
             'viewInheritance' => $themeConfig->getViewInheritance(),
             'scriptFiles' => $scriptFiles,
             'iconSets' => $this->prepareIconSets($themeConfig),
             'importMap' => $importMap,
-            'updatedAt' => new \DateTime(),
+            'updatedAt' => $this->clock->now(),
         ]);
 
         $this->storage->save($runtimeConfig);
@@ -153,7 +155,7 @@ class ThemeRuntimeConfigService
                 'themeId' => $copyId,
                 'technicalName' => null,
                 'resolvedConfig' => $this->mergedConfigBuilder->getPlainThemeConfiguration($copyId, $context),
-                'updatedAt' => new \DateTime(),
+                'updatedAt' => $this->clock->now(),
             ]);
 
             $this->storage->save($copyConfig);
@@ -214,7 +216,7 @@ class ThemeRuntimeConfigService
         $mergedConfig = $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $context);
         $updatedRuntimeConfig = $runtimeConfig->with([
             'resolvedConfig' => $mergedConfig,
-            'updatedAt' => new \DateTime(),
+            'updatedAt' => $this->clock->now(),
         ]);
 
         $this->storage->save($updatedRuntimeConfig);

@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(PercentageTaxRuleBuilder::class)]
 #[Package('checkout')]
+#[CoversClass(PercentageTaxRuleBuilder::class)]
 class PercentageTaxRuleBuilderTest extends TestCase
 {
     #[DataProvider('getCaseTestMatchValues')]

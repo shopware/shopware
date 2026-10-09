@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Framework\Log\Package;
@@ -10,29 +11,33 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(FlowMailVariables::class)]
 #[Package('after-sales')]
+#[CoversClass(FlowMailVariables::class)]
 class FlowMailVariablesTest extends TestCase
 {
-    public function testVariablesAreStillTheSame(): void
+    #[DataProvider('provideVariables')]
+    public function testVariablesAreStillTheSame(string $expected, string $actual): void
     {
-        $flowVariables = new \ReflectionClass(FlowMailVariables::class);
-        $message = 'The variable value is a public api for mail templates, you cant change it';
+        static::assertSame($expected, $actual, 'The variable value is a public api for mail templates, you cant change it');
+    }
 
-        static::assertSame('url', $flowVariables->getConstant('URL'), $message);
-        static::assertSame('templateData', $flowVariables->getConstant('TEMPLATE_DATA'), $message);
-        static::assertSame('subject', $flowVariables->getConstant('SUBJECT'), $message);
-        static::assertSame('shopName', $flowVariables->getConstant('SHOP_NAME'), $message);
-        static::assertSame('reviewFormData', $flowVariables->getConstant('REVIEW_FORM_DATA'), $message);
-        static::assertSame('resetUrl', $flowVariables->getConstant('RESET_URL'), $message);
-        static::assertSame('recipients', $flowVariables->getConstant('RECIPIENTS'), $message);
-        static::assertSame('name', $flowVariables->getConstant('EVENT_NAME'), $message);
-        static::assertSame('mediaId', $flowVariables->getConstant('MEDIA_ID'), $message);
-        static::assertSame('email', $flowVariables->getConstant('EMAIL'), $message);
-        static::assertSame('contactFormData', $flowVariables->getConstant('CONTACT_FORM_DATA'), $message);
-        static::assertSame('contents', $flowVariables->getConstant('CONTENTS'), $message);
-        static::assertSame('contextToken', $flowVariables->getConstant('CONTEXT_TOKEN'), $message);
-        static::assertSame('confirmUrl', $flowVariables->getConstant('CONFIRM_URL'), $message);
-        static::assertSame('data', $flowVariables->getConstant('DATA'), $message);
+    public static function provideVariables(): \Generator
+    {
+        yield 'URL' => ['url', FlowMailVariables::URL];
+        yield 'TEMPLATE_DATA' => ['templateData', FlowMailVariables::TEMPLATE_DATA];
+        yield 'SUBJECT' => ['subject', FlowMailVariables::SUBJECT];
+        yield 'SHOP_NAME' => ['shopName', FlowMailVariables::SHOP_NAME];
+        yield 'REVIEW_FORM_DATA' => ['reviewFormData', FlowMailVariables::REVIEW_FORM_DATA];
+        yield 'RESET_URL' => ['resetUrl', FlowMailVariables::RESET_URL];
+        yield 'RECIPIENTS' => ['recipients', FlowMailVariables::RECIPIENTS];
+        yield 'EVENT_NAME' => ['name', FlowMailVariables::EVENT_NAME];
+        yield 'MEDIA_ID' => ['mediaId', FlowMailVariables::MEDIA_ID];
+        yield 'EMAIL' => ['email', FlowMailVariables::EMAIL];
+        yield 'REVOCATION_REQUEST_FORM_DATA' => ['revocationRequestFormData', FlowMailVariables::REVOCATION_REQUEST_FORM_DATA];
+        yield 'CONTACT_FORM_DATA' => ['contactFormData', FlowMailVariables::CONTACT_FORM_DATA];
+        yield 'CONTENTS' => ['contents', FlowMailVariables::CONTENTS];
+        yield 'CONTEXT_TOKEN' => ['contextToken', FlowMailVariables::CONTEXT_TOKEN];
+        yield 'CONFIRM_URL' => ['confirmUrl', FlowMailVariables::CONFIRM_URL];
+        yield 'DATA' => ['data', FlowMailVariables::DATA];
     }
 }

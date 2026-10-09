@@ -14,6 +14,7 @@ export default {
     md5,
     fileSize,
     toISODate,
+    localeName,
 };
 
 /* @private */
@@ -198,4 +199,32 @@ export function toISODate(dateObj: Date, useTime = true): string {
     const isoDate = dateObj.toISOString();
 
     return useTime ? isoDate : isoDate.split('T')[0];
+}
+
+/**
+ * Formats a BCP 47 locale code as "Native language (UI language, region in UI language)",
+ * e.g. `fr-FR` rendered for a German UI becomes "Français (Französisch, Frankreich)".
+ * Falls back to the raw code when the browser cannot resolve it.
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function localeName(code: string, uiLocale?: string): string {
+    const displayLocale = uiLocale ?? Shopware.Store.get('session').currentLocale ?? 'en-GB';
+
+    try {
+        const { language, region } = new Intl.Locale(code);
+
+        const rawNativeName = new Intl.DisplayNames([code], { type: 'language' }).of(language) ?? language;
+        // Some languages spell their own name in lower case, but the label starts a sentence
+        const nativeName = rawNativeName.charAt(0).toLocaleUpperCase(code) + rawNativeName.slice(1);
+        const uiName = new Intl.DisplayNames([displayLocale], { type: 'language' }).of(language) ?? language;
+        const regionName = region ? new Intl.DisplayNames([displayLocale], { type: 'region' }).of(region) : undefined;
+
+        return regionName ? `${nativeName} (${uiName}, ${regionName})` : `${nativeName} (${uiName})`;
+    } catch (e) {
+        if (!(e instanceof RangeError)) {
+            throw e;
+        }
+
+        return code;
+    }
 }

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFa
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -30,6 +31,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('framework')]
 class SalesChannelRepositoryFacadeTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -53,7 +55,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
     {
         $result = $this->createFacade()->search('product', []);
 
-        static::assertCount(3, $result);
+        static::assertCount(3, $result->getEntities());
     }
 
     public function testSearchFilter(): void
@@ -67,8 +69,8 @@ class SalesChannelRepositoryFacadeTest extends TestCase
             ]
         );
 
-        static::assertCount(1, $result);
-        static::assertContains($this->ids->get('p3'), $result->getIds());
+        static::assertCount(1, $result->getEntities());
+        static::assertContains($this->ids->get('p3'), $result->getEntities()->getIds());
     }
 
     public function testSearchRead(): void
@@ -80,8 +82,8 @@ class SalesChannelRepositoryFacadeTest extends TestCase
             ]
         );
 
-        static::assertCount(1, $result);
-        static::assertContains($this->ids->get('p1'), $result->getIds());
+        static::assertCount(1, $result->getEntities());
+        static::assertContains($this->ids->get('p1'), $result->getEntities()->getIds());
     }
 
     public function testSearchAggregation(): void
@@ -95,7 +97,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
             ]
         );
 
-        static::assertCount(3, $result);
+        static::assertCount(3, $result->getEntities());
         $agg = $result->getAggregations()->get('sum');
         static::assertInstanceOf(SumResult::class, $agg);
         static::assertSame(1.0, $agg->getSum());
@@ -110,7 +112,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
             ]
         );
 
-        $actual = $result->getIds();
+        $actual = $result->getEntities()->getIds();
 
         $expected = $actual;
         sort($expected);

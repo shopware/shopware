@@ -69,9 +69,15 @@ class ChangeEmailRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+    }
+
+    protected function tearDown(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->delete('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
     }
 
     public function testEmptyRequest(): void
@@ -177,7 +183,7 @@ class ChangeEmailRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('customerId', $this->customerId));
-        $ids = $customerRecoveryRepository->search($criteria, Context::createDefaultContext());
+        $ids = $customerRecoveryRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
         static::assertSame('test@fooware.de', $response['email']);
         static::assertCount(0, $ids);
@@ -186,6 +192,12 @@ class ChangeEmailRouteTest extends TestCase
     public function testChangeSuccessWithSameEmailOnDiffSalesChannel(): void
     {
         static::getContainer()->get(SystemConfigService::class)->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', true);
+        $this->customerRepository->update([
+            [
+                'id' => $this->customerId,
+                'boundSalesChannelId' => $this->ids->get('sales-channel'),
+            ],
+        ], Context::createDefaultContext());
 
         $newEmail = 'test@fooware.de';
 
@@ -252,7 +264,7 @@ class ChangeEmailRouteTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame(400, $this->browser->getResponse()->getStatusCode());
-        static::assertNotEmpty($response['errors']);
+        static::assertNotCount(0, $response['errors']);
         static::assertSame('VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE', $response['errors'][0]['code']);
 
         $this->browser
@@ -341,7 +353,7 @@ class ChangeEmailRouteTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
-            'customerNumber' => '12345',
+            'customerNumber' => $customerId,
         ];
 
         $this->customerRepository->create([$customer], Context::createDefaultContext());
@@ -356,11 +368,11 @@ class ChangeEmailRouteTest extends TestCase
 
         $customer = [
             'id' => $customerId,
-            'number' => '1337',
+            'number' => $customerId,
             'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
-            'customerNumber' => '1337',
+            'customerNumber' => $customerId,
             'email' => $email,
             'password' => 'shopware',
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,

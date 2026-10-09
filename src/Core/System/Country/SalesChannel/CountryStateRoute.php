@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -14,13 +15,14 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\Event\CountryStateCriteriaEvent;
+use Shopware\Core\System\Country\Extension\CountryStateRouteExtension;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('fundamentals@discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CountryStateRoute extends AbstractCountryStateRoute
 {
     final public const ALL_TAG = 'country-state-route';
@@ -34,6 +36,7 @@ class CountryStateRoute extends AbstractCountryStateRoute
         private readonly EntityRepository $countryStateRepository,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -50,6 +53,20 @@ class CountryStateRoute extends AbstractCountryStateRoute
     )]
     public function load(string $countryId, Request $request, Criteria $criteria, SalesChannelContext $context): CountryStateRouteResponse
     {
+        return $this->extensions->publish(
+            name: CountryStateRouteExtension::NAME,
+            extension: new CountryStateRouteExtension($countryId, $request, $criteria, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    protected function getDecorated(): AbstractCountryStateRoute
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
+    private function _load(string $countryId, Request $request, Criteria $criteria, SalesChannelContext $context): CountryStateRouteResponse
+    {
         $this->cacheTagCollector->addTag(self::buildName($countryId), self::ALL_TAG);
 
         $criteria->addFilter(
@@ -63,10 +80,5 @@ class CountryStateRoute extends AbstractCountryStateRoute
         $countryStates = $this->countryStateRepository->search($criteria, $context->getContext());
 
         return new CountryStateRouteResponse($countryStates);
-    }
-
-    protected function getDecorated(): AbstractCountryStateRoute
-    {
-        throw new DecorationPatternException(self::class);
     }
 }

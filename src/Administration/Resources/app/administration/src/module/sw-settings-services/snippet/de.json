@@ -37,6 +37,7 @@
       "status-inactive": "Inaktiv",
       "updated-at-label": "Zuletzt aktualisiert: {updatedAt}",
       "version": "Version: {version}",
+      "cannot-remove-or-deactivate": "Kann nicht entfernt oder deaktiviert werden",
       "deactivate-modal": {
         "warning": "Bist Du sicher, dass Du „{serviceName}“ deaktivieren möchtest?",
         "consequences": "Dadurch verlierst Du sofort den Zugriff auf den Service und alle zugehörigen Prozesse."
@@ -52,13 +53,15 @@
     "revoke-permissions-modal": {
       "title": "Berechtigungen widerrufen",
       "p-1": "Bist Du sicher, dass Du die Berechtigungen widerrufen möchtest?",
-      "p-2": "Dadurch werden bestimmte Shopware Services deaktiviert und alle damit verbundenen Funktionen gehen verloren.",
+      "p-2": "Dadurch werden Berechtigungen nur für Services widerrufen, die die allgemeine Services-Zustimmung verwenden. Diese Services können deaktiviert werden und zugehörige Funktionen verlieren.",
+      "p-3": "Die folgenden Services sind mit dem Shopware Account verbunden und behalten ihre erforderlichen Berechtigungen:",
       "label-button-revoke-permissions": "Berechtigungen widerrufen"
     },
     "deactivate-modal": {
       "title": "Shopware Services deaktivieren",
       "p-1": "Bist Du sicher, dass Du die Shopware Services deaktivieren möchtest?",
-      "p-2": "Dadurch verlierst Du den Zugriff auf alle aktuellen und zukünftigen Shopware Services. Wir würden gerne wissen, was Dir an den Shopware Services nicht gefällt. Gib uns Feedback, damit wir die Services künftig verbessern können!",
+      "p-2": "Dadurch werden nur Services deaktiviert, die die allgemeine Services-Zustimmung verwenden. Mit dem Shopware Account verbundene Services bleiben aktiv.",
+      "p-3": "Die folgenden Services sind mit dem Shopware Account verbunden und bleiben aktiv:",
       "label-feedback-link": "Feedback geben"
     },
     "dashboard-banner": {

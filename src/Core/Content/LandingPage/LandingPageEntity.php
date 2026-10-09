@@ -8,6 +8,8 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
@@ -43,7 +45,7 @@ class LandingPageEntity extends Entity
     protected ?string $url = null;
 
     /**
-     * @var ?array<string, mixed>
+     * @var array<string, array<string, array<string, mixed>>|null>|null
      */
     protected ?array $slotConfig = null;
 
@@ -160,7 +162,7 @@ class LandingPageEntity extends Entity
     }
 
     /**
-     * @return ?array<string, mixed>
+     * @return array<string, array<string, array<string, mixed>>|null>|null
      */
     public function getSlotConfig(): ?array
     {
@@ -168,10 +170,18 @@ class LandingPageEntity extends Entity
     }
 
     /**
-     * @param ?array<string, mixed> $slotConfig
+     * @param array<string, array<string, array<string, mixed>>|null>|null $slotConfig
      */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'slotConfig', newType: 'array', description: 'The parameter becomes required and non-nullable.')]
     public function setSlotConfig(?array $slotConfig): void
     {
+        if ($slotConfig === null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                '$slotConfig will be mandatory in future implementation'
+            );
+        }
+
         $this->slotConfig = $slotConfig;
     }
 

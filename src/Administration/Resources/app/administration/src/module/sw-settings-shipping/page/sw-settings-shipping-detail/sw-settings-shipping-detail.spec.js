@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import IdCollection from 'test/_helper_/id.collection';
 
 /**
  * @sw-package checkout
@@ -6,7 +7,7 @@ import { mount } from '@vue/test-utils';
 
 let repositoryFactoryMock;
 
-async function createWrapper(privileges = [], props = {}) {
+async function createWrapper(privileges = [], props = {}, serviceOverrides = {}) {
     const shippingMethod = {};
     shippingMethod.technicalName = 'shipping_standard';
     shippingMethod.getEntityName = () => 'shipping_method';
@@ -54,14 +55,21 @@ async function createWrapper(privileges = [], props = {}) {
                     feature: {
                         isActive: () => true,
                     },
+                    ...serviceOverrides,
                 },
                 stubs: {
                     'sw-page': {
-                        template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
+                        template:
+                            '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot><slot name="sidebar"></slot></div>',
                     },
                     'sw-button-process': true,
                     'sw-sidebar': true,
-                    'sw-sidebar-media-item': true,
+                    'sw-sidebar-media-item': {
+                        template: '<div />',
+                        methods: {
+                            getList: () => {},
+                        },
+                    },
                     'sw-card-view': true,
                     'sw-container': true,
                     'sw-text-field': {
@@ -133,9 +141,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
     });
 
     it('should have all fields enabled', async () => {
-        const wrapper = await createWrapper([
-            'shipping.editor',
-        ]);
+        const wrapper = await createWrapper(['shipping.editor']);
         await wrapper.setData({
             isProcessLoading: false,
         });
@@ -226,5 +232,211 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
     it('should initialize shipping price with quantityStart=0 after creating component', async () => {
         const wrapper = await createWrapper([]);
         expect(wrapper.vm.shippingMethod.quantityStart).toBe(0);
+    });
+
+    describe('saving shipping price matrices', () => {
+        const repositoryFactory = Shopware.Service('repositoryFactory');
+        const { clientMock, responses } = global.repositoryFactoryMock;
+        let wrapper;
+        let ids;
+
+        beforeEach(() => {
+            ids = new IdCollection();
+            clientMock.resetHistory();
+        });
+
+        afterEach(() => {
+            wrapper?.unmount();
+        });
+
+        async function loadShippingMethod() {
+            const shippingId = ids.get('shipping');
+            const priceId = ids.get('original-price');
+            const apiResourcePath = Shopware.Context.api.apiResourcePath ?? '';
+            const relationships = {};
+            const extensionRelationships = {};
+
+            Object.entries(Shopware.EntityDefinition.get('shipping_method').getToManyAssociations()).forEach(
+                ([name, field]) => {
+                    const associations = field.flags.extension ? extensionRelationships : relationships;
+                    associations[name] = {
+                        data: [],
+                        links: { related: `${apiResourcePath}/shipping-method/${shippingId}/${name}` },
+                    };
+                },
+            );
+            relationships.prices.data = [{ id: priceId, type: 'shipping_method_price' }];
+            relationships.extensions = { data: { id: shippingId, type: 'extension' } };
+
+            responses.addResponse({
+                method: 'POST',
+                url: '/search/shipping-method',
+                response: {
+                    data: [
+                        {
+                            id: shippingId,
+                            type: 'shipping_method',
+                            attributes: {
+                                name: 'Express',
+                                technicalName: 'express',
+                                active: true,
+                                extensions: {},
+                            },
+                            relationships,
+                        },
+                    ],
+                    included: [
+                        {
+                            id: priceId,
+                            type: 'shipping_method_price',
+                            attributes: {
+                                shippingMethodId: shippingId,
+                                calculation: 1,
+                                quantityStart: 0,
+                                quantityEnd: null,
+                                ruleId: null,
+                                currencyPrice: [
+                                    { currencyId: ids.get('currency'), gross: 10, net: 10, linked: false },
+                                ],
+                                extensions: {},
+                            },
+                            relationships: {},
+                        },
+                        {
+                            id: shippingId,
+                            type: 'extension',
+                            attributes: {},
+                            relationships: extensionRelationships,
+                        },
+                    ],
+                },
+            });
+            responses.addResponse({
+                method: 'POST',
+                url: '/search/currency',
+                response: { data: [] },
+            });
+            responses.addResponse({
+                method: 'POST',
+                url: '_action/sync',
+                response: {},
+            });
+            responses.addResponse({
+                method: 'DELETE',
+                url: `/shipping-method/${shippingId}/prices/${priceId}`,
+                response: {},
+            });
+            responses.addResponse({
+                method: 'PATCH',
+                url: `/shipping-method/${shippingId}`,
+                response: {},
+            });
+
+            wrapper = await createWrapper(['shipping.editor'], { shippingMethodId: shippingId }, { repositoryFactory });
+            await flushPromises();
+            clientMock.resetHistory();
+        }
+
+        it.each([45, 0])(
+            'should replace the last persisted matrix with cart-value prices costing %s in one request',
+            async (cost) => {
+                await loadShippingMethod();
+
+                const shippingMethod = wrapper.vm.shippingMethod;
+                const replacement = repositoryFactory.create('shipping_method_price').create();
+                Object.assign(replacement, {
+                    shippingMethodId: shippingMethod.id,
+                    calculation: 2,
+                    quantityStart: 0,
+                    currencyPrice: [{ currencyId: ids.get('currency'), gross: cost, net: cost, linked: false }],
+                });
+                shippingMethod.prices.remove(ids.get('original-price'));
+                shippingMethod.prices.add(replacement);
+
+                await wrapper.vm.onSave();
+                await flushPromises();
+
+                expect(clientMock.history.delete.map((request) => request.url)).toEqual([]);
+                const saveRequests = clientMock.history.post.filter((request) => request.url === '_action/sync');
+                expect(saveRequests).toHaveLength(1);
+                expect(JSON.parse(saveRequests[0].data)).toEqual([
+                    {
+                        entity: 'shipping_method_price',
+                        action: 'delete',
+                        payload: [{ id: ids.get('original-price') }],
+                    },
+                    {
+                        key: 'write',
+                        entity: 'shipping_method',
+                        action: 'upsert',
+                        payload: [
+                            {
+                                id: shippingMethod.id,
+                                prices: [
+                                    {
+                                        id: replacement.id,
+                                        shippingMethodId: shippingMethod.id,
+                                        calculation: 2,
+                                        quantityStart: 0,
+                                        currencyPrice: [
+                                            { currencyId: ids.get('currency'), gross: cost, net: cost, linked: false },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ]);
+                expect(wrapper.vm.isSaveSuccessful).toBe(true);
+            },
+        );
+
+        it('should show the validation error when saving an active shipping method without any prices', async () => {
+            await loadShippingMethod();
+            const detail = `The shipping method ${ids.get('shipping')} is active and must therefore have at least one price with currency values.`;
+            responses.addResponse({
+                method: 'POST',
+                url: '_action/sync',
+                status: 400,
+                response: {
+                    errors: [
+                        {
+                            code: 'active_shipping_method_without_price',
+                            status: '400',
+                            detail,
+                            source: { pointer: '/prices' },
+                        },
+                    ],
+                },
+            });
+            const notificationSpy = jest.spyOn(wrapper.vm, 'createNotificationError');
+            const warningSpy = jest.spyOn(console, 'warn').mockImplementation();
+            wrapper.vm.shippingMethod.prices.remove(ids.get('original-price'));
+
+            await expect(wrapper.vm.onSave()).rejects.toMatchObject({
+                response: {
+                    status: 400,
+                    data: { errors: [expect.objectContaining({ code: 'active_shipping_method_without_price' })] },
+                },
+            });
+
+            expect(clientMock.history.delete.map((request) => request.url)).toEqual([]);
+            const saveRequests = clientMock.history.post.filter((request) => request.url === '_action/sync');
+            expect(saveRequests).toHaveLength(1);
+            expect(JSON.parse(saveRequests[0].data)).toEqual([
+                {
+                    entity: 'shipping_method_price',
+                    action: 'delete',
+                    payload: [{ id: ids.get('original-price') }],
+                },
+            ]);
+            expect(notificationSpy).toHaveBeenCalledWith({
+                title: 'global.default.error',
+                message: expect.stringContaining(detail),
+            });
+            expect(wrapper.vm.isSaveSuccessful).toBe(false);
+            expect(wrapper.vm.isProcessLoading).toBe(false);
+            warningSpy.mockRestore();
+        });
     });
 });

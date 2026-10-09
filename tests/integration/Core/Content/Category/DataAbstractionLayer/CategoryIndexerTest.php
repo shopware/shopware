@@ -8,8 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -24,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -33,6 +33,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
+#[Package('discovery')]
 class CategoryIndexerTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -45,13 +46,13 @@ class CategoryIndexerTest extends TestCase
 
     private CategoryIndexer $indexer;
 
-    private Connection&MockObject $connectionMock;
+    private Connection&Stub $connectionMock;
 
     private MessageBusInterface $messageBus;
 
     protected function setUp(): void
     {
-        $this->connectionMock = $this->createMock(Connection::class);
+        $this->connectionMock = static::createStub(Connection::class);
         $this->messageBus = self::getContainer()->get('messenger.default_bus');
 
         $this->indexer = new CategoryIndexer(
@@ -66,7 +67,6 @@ class CategoryIndexerTest extends TestCase
         );
     }
 
-    #[Group('slow')]
     public function testUpdateDoesNotReturnTooBigMessage(): void
     {
         $uuids = $this->getUuids(self::AMOUNT_OF_UUIDS_NEEDED_TO_TRIGGER_MESSAGE_SIZE_RESTRICTION);
@@ -156,7 +156,7 @@ class CategoryIndexerTest extends TestCase
         }
 
         static::assertNotNull($message);
-        static::assertEqualsCanonicalizing($expectedSkips, $message->getSkip());
+        static::assertEqualsCanonicalizing(array_values($expectedSkips), array_values($message->getSkip()));
     }
 
     /**
@@ -185,6 +185,13 @@ class CategoryIndexerTest extends TestCase
             'translationPayload' => null,
             'categoryOperation' => EntityWriteResult::OPERATION_UPDATE,
             'expectedSkips' => [],
+        ];
+
+        yield 'category: active state change - at least update seo url' => [
+            'categoryPayload' => ['active' => true],
+            'translationPayload' => null,
+            'categoryOperation' => EntityWriteResult::OPERATION_UPDATE,
+            'expectedSkips' => [CategoryIndexer::BREADCRUMB_UPDATER, CategoryIndexer::CHILD_COUNT_UPDATER, CategoryIndexer::TREE_UPDATER],
         ];
 
         // INSERT always runs all updaters
@@ -222,9 +229,9 @@ class CategoryIndexerTest extends TestCase
      */
     private function prepareFetchChildrenMethod(array $uuids): void
     {
-        $result = $this->createMock(Result::class);
+        $result = static::createStub(Result::class);
         $result->method('fetchFirstColumn')->willReturn($uuids);
-        $query = $this->createMock(QueryBuilder::class);
+        $query = static::createStub(QueryBuilder::class);
         $query->method('executeQuery')->willReturn($result);
         $this->connectionMock->method('createQueryBuilder')->willReturn($query);
     }

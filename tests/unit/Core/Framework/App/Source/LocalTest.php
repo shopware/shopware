@@ -38,7 +38,7 @@ class LocalTest extends TestCase
 
     public function testSupportsManifestOnDisk(): void
     {
-        $manifest = static::createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $manifest->method('getPath')->willReturn(__FILE__);
 
         $source = new Local('/');
@@ -59,7 +59,7 @@ class LocalTest extends TestCase
 
     public function testDoesNotSupportManifestNotOnDisk(): void
     {
-        $manifest = static::createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $manifest->method('getPath')->willReturn('/not/existing/path');
 
         $source = new Local('/');
@@ -81,7 +81,7 @@ class LocalTest extends TestCase
         yield 'app' => [$appFactory];
 
         $appFactory = static function (TestCase $testCase): Manifest {
-            $manifest = $testCase->createMock(Manifest::class);
+            $manifest = $testCase->createStub(Manifest::class);
 
             $metadata = Metadata::fromArray([
                 'name' => 'TestApp',

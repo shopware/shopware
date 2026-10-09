@@ -4,8 +4,12 @@ namespace Shopware\Core\Framework\RateLimiter\Exception;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiterException;
+use Symfony\Component\Clock\Clock;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class RateLimitExceededException extends RateLimiterException
 {
@@ -15,7 +19,7 @@ class RateLimitExceededException extends RateLimiterException
         private readonly int $retryAfter,
         ?\Throwable $e = null
     ) {
-        $this->now = time();
+        $this->now = Clock::get()->now()->getTimestamp();
 
         parent::__construct(
             Response::HTTP_TOO_MANY_REQUESTS,

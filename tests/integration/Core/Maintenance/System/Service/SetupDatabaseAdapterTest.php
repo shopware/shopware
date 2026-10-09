@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Maintenance\System\Service;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
@@ -10,6 +11,7 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 /**
  * @internal
  */
+#[Package('framework')]
 class SetupDatabaseAdapterTest extends TestCase
 {
     public function testInitialize(): void

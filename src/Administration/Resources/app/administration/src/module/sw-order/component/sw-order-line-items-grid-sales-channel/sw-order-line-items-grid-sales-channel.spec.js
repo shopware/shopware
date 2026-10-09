@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';
@@ -236,6 +238,12 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
     it('only product item should have redirect link', async () => {
         const wrapper = await createWrapper({});
+        const deletedProductItem = {
+            ...mockItems[0],
+            id: null,
+            identifier: null,
+            referencedId: null,
+        };
 
         await wrapper.setProps({
             cart: {
@@ -264,6 +272,15 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         expect(creditLabel.findComponent('.router-link').exists()).toBeFalsy();
         expect(showProductButton3.attributes().disabled).toBeTruthy();
+
+        expect(wrapper.vm.getProductRoute(mockItems[0])).toEqual({
+            name: 'sw.product.detail',
+            params: {
+                id: '1',
+            },
+        });
+        expect(wrapper.vm.getProductRoute(deletedProductItem)).toBeNull();
+        expect(wrapper.vm.getProductRoute(mockItems[1])).toBeNull();
     });
 
     it('should not show tooltip if only items which have single tax', async () => {
@@ -429,15 +446,19 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid-sales-channel__add-product');
         await buttonAddItem.trigger('click');
+        await flushPromises();
 
         itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(itemRows).toHaveLength(1);
 
         const firstRow = itemRows.at(0);
-        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toBe('1');
+        expect(firstRow.classes()).toContain('is--inline-edit');
+        expect(firstRow.find('.sw-order-product-select').exists()).toBe(true);
+        expect(firstRow.find('.sw-data-grid__inline-edit-save').exists()).toBe(true);
         expect(firstRow.find('.sw-data-grid__cell--unitPrice').text()).toBe('...');
-        expect(firstRow.find('.sw-data-grid__cell--tax').text()).toBe('0 %');
         expect(firstRow.find('.sw-data-grid__cell--totalPrice').text()).toBe('...');
+        expect(wrapper.vm.cartLineItems[0].quantity).toBe(1);
+        expect(wrapper.vm.cartLineItems[0].priceDefinition.taxRules[0].taxRate).toBe(0);
     });
 
     it('should able to create new product line item', async () => {
@@ -543,15 +564,22 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         await wrapper.setProps({
             cart: {
                 token: 'token',
-                lineItems: [...mockItems],
+                // A local copy, because the inline edit mutates the item it is given
+                lineItems: [
+                    {
+                        ...structuredClone(mockItems[0]),
+                        priceDefinition: {
+                            isCalculated: true,
+                            taxRules: [{ taxRate: 20, percentage: 100 }],
+                            price: 200,
+                        },
+                    },
+                ],
             },
             isCustomerActive: true,
         });
-        const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid-sales-channel__add-product');
-        await buttonAddCreditItem.trigger('click');
 
-        const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        const firstRow = itemRows.at(0);
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
 
         await firstRow.find('.sw-data-grid__cell--quantity').trigger('dblclick');
 
@@ -561,8 +589,32 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         const buttonInlineCancel = wrapper.find('.sw-data-grid__inline-edit-cancel');
         await buttonInlineCancel.trigger('click');
+        await flushPromises();
 
-        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toBe('1');
+        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(1);
+        expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantity').text()).toBe('1');
+    });
+
+    it('should discard a newly added item when its inline editing is cancelled', async () => {
+        const wrapper = await createWrapper({});
+        Shopware.Store.get('swOrder').setCartToken('token');
+        await wrapper.setProps({
+            cart: {
+                token: 'token',
+                lineItems: [],
+            },
+            isCustomerActive: true,
+        });
+
+        await wrapper.find('.sw-order-line-items-grid-sales-channel__add-product').trigger('click');
+        await flushPromises();
+
+        expect(Shopware.Store.get('swOrder').cart.lineItems).toHaveLength(1);
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__inline-edit-cancel').trigger('click');
+        await flushPromises();
+
+        expect(Shopware.Store.get('swOrder').cart.lineItems).toHaveLength(0);
     });
 
     it('should able to delete items', async () => {
@@ -621,5 +673,52 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         expect(wrapper.emitted('on-save-item')[0][0].label).toBe('Credit item');
         expect(wrapper.emitted('on-save-item')[0][0].priceDefinition.price).toBe(-100);
+    });
+
+    it('removes a newly added item from the selection when its inline editing is cancelled', async () => {
+        const wrapper = await createWrapper();
+        const orderStore = Shopware.Store.get('swOrder');
+        orderStore.setCartToken('token');
+        orderStore.setCartLineItems([{ ...mockItems[1] }]);
+        await wrapper.setProps({ cart: orderStore.cart, isCustomerActive: true });
+
+        await wrapper.find('.sw-order-line-items-grid-sales-channel__add-product').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--selection input').setChecked(true);
+        expect(wrapper.find('.sw-data-grid__bulk').exists()).toBe(true);
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__inline-edit-cancel').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-data-grid__bulk').exists()).toBe(false);
+    });
+
+    it('keeps only the items that are still in the reloaded cart selected after a new item is saved', async () => {
+        const wrapper = await createWrapper();
+        const orderStore = Shopware.Store.get('swOrder');
+        const existingItem = { ...mockItems[1] };
+        orderStore.setCartToken('token');
+        orderStore.setCartLineItems([existingItem]);
+        await wrapper.setProps({ cart: orderStore.cart, isCustomerActive: true });
+
+        await wrapper.find('.sw-order-line-items-grid-sales-channel__add-product').trigger('click');
+        await flushPromises();
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--label input').setValue('Product 1');
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--selection input').setChecked(true);
+        await wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--selection input').setChecked(true);
+        expect(wrapper.find('.sw-data-grid__bulk-selected-count').text()).toBe('2');
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__inline-edit-save').trigger('click');
+        await flushPromises();
+        expect(wrapper.emitted('on-save-item')).toHaveLength(1);
+
+        orderStore.setCart({ ...orderStore.cart, lineItems: [{ ...mockItems[0], id: 'persisted-item' }, existingItem] });
+        await wrapper.setProps({ cart: orderStore.cart });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-data-grid__bulk-selected-count').text()).toBe('1');
+        expect(wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--selection input').element.checked).toBe(true);
     });
 });

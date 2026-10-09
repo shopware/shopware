@@ -15,6 +15,8 @@ import './sw-notifications.scss';
 export default {
     template,
 
+    mixins: [Shopware.Mixin.getByName('notification-translation')],
+
     inject: ['feature'],
 
     props: {
@@ -26,10 +28,7 @@ export default {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'topRight',
-                    'bottomRight',
-                ].includes(value);
+                return ['topRight', 'bottomRight'].includes(value);
             },
         },
         notificationsGap: {

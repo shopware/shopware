@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\AdminUi\XmlEle
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Detail;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Detail::class)]
 class DetailTest extends TestCase
 {

@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1777535833McpToolResultCache extends MigrationStep
@@ -32,9 +30,5 @@ class Migration1777535833McpToolResultCache extends MigrationStep
                 KEY `idx_mcp_tool_result_session` (`session_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

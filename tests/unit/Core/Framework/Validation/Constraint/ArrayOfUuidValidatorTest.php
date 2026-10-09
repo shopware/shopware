@@ -7,6 +7,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Validation\Constraint;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\FrameworkException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuidValidator;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Validation\Constraint\Uuid;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ArrayOfUuidValidator::class)]
 class ArrayOfUuidValidatorTest extends TestCase
 {

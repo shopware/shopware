@@ -9,6 +9,7 @@ use Shopware\Core\Content\ProductExport\Provider\AbstractAgenticCommerceProductE
 use Shopware\Core\Content\ProductExport\Provider\AgenticCommerceProductExportProviderRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -17,6 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[CoversClass(AgenticCommerceProductExportProviderRegistry::class)]
 class AgenticCommerceProductExportProviderRegistryTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetByTechnicalNameReturnsMatchingProvider(): void
     {
         $firstProvider = $this->createProvider('google');
@@ -32,6 +34,7 @@ class AgenticCommerceProductExportProviderRegistryTest extends TestCase
         static::assertSame($matchingProvider, $registry->getByTechnicalName('open-ai'));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetByTechnicalNameReturnsNullWhenProviderDoesNotExist(): void
     {
         $registry = new AgenticCommerceProductExportProviderRegistry([

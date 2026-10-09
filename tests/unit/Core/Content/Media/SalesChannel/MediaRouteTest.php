@@ -3,44 +3,50 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Extension\MediaRouteExtension;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
+use Shopware\Core\Content\Media\SalesChannel\MediaRouteResponse;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(MediaRoute::class)]
 class MediaRouteTest extends TestCase
 {
     /**
-     * @var EntityRepository<MediaCollection>&MockObject
+     * @var EntityRepository<MediaCollection>&Stub
      */
-    private EntityRepository&MockObject $mediaRepository;
+    private EntityRepository&Stub $mediaRepository;
 
-    private CacheTagCollector&MockObject $cacheTagCollector;
+    private CacheTagCollector&Stub $cacheTagCollector;
 
     private MediaRoute $mediaRoute;
 
     protected function setUp(): void
     {
-        $this->mediaRepository = $this->createMock(EntityRepository::class);
-        $this->cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $this->mediaRepository = static::createStub(EntityRepository::class);
+        $this->cacheTagCollector = static::createStub(CacheTagCollector::class);
         $this->mediaRoute = new MediaRoute(
             $this->mediaRepository,
             $this->cacheTagCollector,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
     }
 
@@ -73,17 +79,21 @@ class MediaRouteTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $this->mediaRepository
+        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository
             ->expects($this->once())
             ->method('search')
             ->willReturn($mediaEntitySearchResult);
 
-        $this->cacheTagCollector
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector
             ->expects($this->once())
             ->method('addTag')
             ->with('media-testMediaId1', 'media-testMediaId2');
 
-        $response = $this->mediaRoute->load($request, $salesChannelContext);
+        $mediaRoute = new MediaRoute($mediaRepository, $cacheTagCollector, new ExtensionDispatcher(new EventDispatcher()));
+
+        $response = $mediaRoute->load($request, $salesChannelContext);
         $mediaCollection = $response->getMediaCollection();
         $firstMediaEntity = $mediaCollection->first();
 
@@ -106,5 +116,28 @@ class MediaRouteTest extends TestCase
         $request = new Request([], ['ids' => '']);
 
         $this->mediaRoute->load($request, $salesChannelContext);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $response = static::createStub(MediaRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('media-route.load.pre', static function (MediaRouteExtension $extension) use ($request, $context, $response): void {
+            static::assertSame(['request' => $request, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new MediaRoute(
+            static::createStub(EntityRepository::class),
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($request, $context));
     }
 }

@@ -6,17 +6,19 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Redis\RedisStub;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RedisInvalidatorStorage::class)]
 class RedisInvalidatorStorageTest extends TestCase
 {
     public function testStorage(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = static::createStub(LoggerInterface::class);
         $storage = new RedisInvalidatorStorage(new RedisStub(), $logger);
 
         static::assertSame($storage->loadAndDelete(), []);
@@ -24,6 +26,29 @@ class RedisInvalidatorStorageTest extends TestCase
         $storage->store(['foo', 'bar']);
 
         static::assertSame(['bar', 'foo'], $storage->loadAndDelete());
+        static::assertSame([], $storage->loadAndDelete());
+    }
+
+    public function testStoreIgnoresTagKeys(): void
+    {
+        $logger = static::createStub(LoggerInterface::class);
+        $storage = new RedisInvalidatorStorage(new RedisStub(), $logger);
+
+        $storage->store([
+            'abcdef0123456789abcdef0123456789' => 'cms-page-example',
+            'fedcba9876543210fedcba9876543210' => 'product-example',
+        ]);
+
+        static::assertSame(['cms-page-example', 'product-example'], $storage->loadAndDelete());
+    }
+
+    public function testStoreWithoutTags(): void
+    {
+        $logger = static::createStub(LoggerInterface::class);
+        $storage = new RedisInvalidatorStorage(new RedisStub(), $logger);
+
+        $storage->store([]);
+
         static::assertSame([], $storage->loadAndDelete());
     }
 

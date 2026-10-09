@@ -1,18 +1,13 @@
-/**
- * @internal
- * @sw-package framework
- */
 import template from './sw-user-sso-access-key-create-modal.html.twig';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @sw-package framework
+ */
 export default {
     template,
 
-    emits: [
-        'access-key-modal-create:cancel',
-        'access-key-modal-create:save',
-        'access-key-modal-create:generate',
-    ],
+    emits: ['access-key-modal-create:cancel', 'access-key-modal-create:save', 'access-key-modal-create:generate'],
 
     props: {
         isLoading: {
@@ -37,11 +32,7 @@ export default {
 
         mode: {
             validator(value) {
-                return [
-                    'view',
-                    'edit',
-                    'create',
-                ].includes(value);
+                return ['view', 'edit', 'create'].includes(value);
             },
         },
     },

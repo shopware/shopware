@@ -6,13 +6,16 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\ImportExport\Exception\DeleteDefaultProfileException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Content\ImportExport\DataAbstractionLayer\SystemDefaultValidatorTest
  */
 #[Package('fundamentals@after-sales')]
 class SystemDefaultValidator implements EventSubscriberInterface
@@ -35,16 +38,7 @@ class SystemDefaultValidator implements EventSubscriberInterface
      */
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        $ids = [];
-        $writeCommands = $event->getCommands();
-
-        foreach ($writeCommands as $command) {
-            if ($command->getEntityName() === ImportExportProfileDefinition::ENTITY_NAME
-                && $command instanceof DeleteCommand
-            ) {
-                $ids[] = $command->getPrimaryKey()['id'];
-            }
-        }
+        $ids = array_column($event->getDeletedPrimaryKeys(ImportExportProfileDefinition::ENTITY_NAME), 'id');
 
         $filteredIds = $this->filterSystemDefaults($ids);
         if ($filteredIds !== []) {

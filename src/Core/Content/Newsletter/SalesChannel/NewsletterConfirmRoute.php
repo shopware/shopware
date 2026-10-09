@@ -6,11 +6,13 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
+use Shopware\Core\Content\Newsletter\Extension\NewsletterConfirmRouteExtension;
 use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -29,8 +31,8 @@ use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('after-sales')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
 {
     /**
@@ -43,6 +45,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
         private readonly DataValidator $validator,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ClockInterface $clock,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -69,17 +72,22 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
             )
         );
 
-        $response = $this->confirmWithResponse($dataBag, $context);
+        $this->confirmWithResponse($dataBag, $context);
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new NoContentResponse();
-        }
-
-        return $response;
+        return new NoContentResponse();
     }
 
     #[Route(path: '/store-api/newsletter/confirm', name: 'store-api.newsletter.confirm', methods: ['POST'])]
     public function confirmWithResponse(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
+    {
+        return $this->extensions->publish(
+            name: NewsletterConfirmRouteExtension::NAME,
+            extension: new NewsletterConfirmRouteExtension($dataBag, $context),
+            function: $this->_confirmWithResponse(...),
+        );
+    }
+
+    private function _confirmWithResponse(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
     {
         $recipient = $this->getNewsletterRecipient('hash', $dataBag->get('hash', ''), $context->getContext());
 

@@ -26,17 +26,15 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
  * Rows are updated in place rather than deleted and recreated, because a `webhook_delivery`
  * row's id is its delivery order and recreating would give it a new one.
  *
- * Behaviour is exercised end-to-end by
- * `tests/integration/Core/Framework/Webhook/Command/WebhookDrainToAsyncCommandTest.php`,
- * which produces real outbox rows via `WebhookManager` and runs the command against them.
- * A unit-level rewrite would just restate the mock setup.
- *
  * @internal
  *
  * @deprecated tag:v6.8.0 - Removed together with the `WEBHOOKS_REWORK` flag in 6.8.
  *
  * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommandTest
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'webhook:drain-to-async',
     description: 'Re-publish leftover webhook deliveries to the async transport after disabling WEBHOOKS_REWORK',
@@ -55,7 +53,6 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
         expected to deduplicate via <info>X-Shopware-Event-Id</info>.
         HELP,
 )]
-#[Package('framework')]
 final readonly class WebhookDrainToAsyncCommand
 {
     private const BATCH_SIZE = 1000;
@@ -72,6 +69,11 @@ final readonly class WebhookDrainToAsyncCommand
         #[Option(description: 'Skip the interactive confirmation prompt', shortcut: 'f')]
         bool $force = false,
     ): int {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The webhook:drain-to-async command is deprecated and will be removed in v6.8.0.0.',
+        );
+
         if (Feature::isActive('WEBHOOKS_REWORK')) {
             $io->error('WEBHOOKS_REWORK is active. This drain is only for after the flag is off — running it now would race the rework consumer.');
 

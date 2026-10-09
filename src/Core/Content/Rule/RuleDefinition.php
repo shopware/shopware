@@ -43,6 +43,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@after-sales')]
 class RuleDefinition extends EntityDefinition
 {

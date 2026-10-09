@@ -11,16 +11,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing'), Mixin.getByName('placeholder')],
 
     data() {
         return {
@@ -121,6 +114,7 @@ export default {
             this.showDeleteModal = false;
 
             return this.numberRangeRepository.delete(id).then(() => {
+                this.invalidateNumberRangeCaches();
                 this.getList();
             });
         },
@@ -132,6 +126,7 @@ export default {
         onInlineEditSave(promise, numberRange) {
             promise
                 .then(() => {
+                    this.invalidateNumberRangeCaches();
                     this.createNotificationSuccess({
                         message: this.$t(
                             'sw-settings-number-range.detail.messageSaveSuccess',
@@ -148,6 +143,12 @@ export default {
                         message: this.$t('sw-settings-number-range.detail.messageSaveError'),
                     });
                 });
+        },
+
+        invalidateNumberRangeCaches() {
+            Shopware.Service('cacheService').invalidateCaches({
+                cacheKey: ['shared-data', 'number-range-ids'],
+            });
         },
     },
 };

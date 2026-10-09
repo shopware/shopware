@@ -7,7 +7,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('framework')]
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('inventory')]
 class ProductPageLoadedEvent extends PageLoadedEvent
 {
     public function __construct(

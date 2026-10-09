@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu
+set -euo pipefail
 
 if [ -n "${DEBUG:-}" ]; then
     set -x
@@ -30,13 +30,25 @@ print_usage() {
 
 draft_release_payload() {
   local platform_tag; export platform_tag="${1}"
+  local release_notes_file="${platform_tag}_release_notes.md"
 
-  jq -nc '{
+  if ! php ./.github/bin/generate-release-notes.php --output-file "${release_notes_file}" "${platform_tag#v}" 1>&2; then
+    # Allow to fail in dry-run mode
+    if [ -n "${DRY_RUN:-}" ]; then
+      echo "DRY_RUN: release notes generation failed for '${platform_tag}', using placeholder body" 1>&2
+      printf '_Release notes could not be generated in dry-run mode._\n' > "${release_notes_file}"
+    else
+      return 1
+    fi
+  fi
+
+  jq --rawfile body "${release_notes_file}" -nc '{
     tag_name: env.platform_tag,
     name: "Release \(env.platform_tag)",
     draft: true,
     prerelease: false,
-    generate_release_notes: true
+    generate_release_notes: false,
+    body: $body
   }'
 }
 

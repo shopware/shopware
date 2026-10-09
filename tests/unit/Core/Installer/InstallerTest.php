@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Installer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Installer;
 use Symfony\Bundle\FrameworkBundle\DependencyInjection\FrameworkExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -11,6 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Installer::class)]
 class InstallerTest extends TestCase
 {
@@ -129,7 +131,7 @@ class InstallerTest extends TestCase
         foreach ($this->supportedLanguages as $iso => $language) {
             static::assertArrayHasKey($iso, $this->preselection, \sprintf('Language "%s" does not have a preselection', $iso));
             static::assertArrayHasKey('currency', $this->preselection[$iso], \sprintf('Language "%s" does not have a currency preselection', $iso));
-            static::assertNotEmpty($this->preselection[$iso]['currency'], \sprintf('Language "%s" has an empty currency preselection', $iso));
+            static::assertNotSame('', $this->preselection[$iso]['currency'], \sprintf('Language "%s" has an empty currency preselection', $iso));
         }
     }
 }

@@ -14,11 +14,13 @@ use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponseFactory;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ReloadDataResponseFactory::class)]
 class ReloadDataResponseFactoryTest extends TestCase
 {

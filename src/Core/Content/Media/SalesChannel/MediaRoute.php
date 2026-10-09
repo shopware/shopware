@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\SalesChannel;
 
+use Shopware\Core\Content\Media\Extension\MediaRouteExtension;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -18,8 +20,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class MediaRoute extends AbstractMediaRoute
 {
     /**
@@ -30,6 +32,7 @@ class MediaRoute extends AbstractMediaRoute
     public function __construct(
         private readonly EntityRepository $mediaRepository,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -51,8 +54,17 @@ class MediaRoute extends AbstractMediaRoute
     )]
     public function load(Request $request, SalesChannelContext $context): MediaRouteResponse
     {
+        return $this->extensions->publish(
+            name: MediaRouteExtension::NAME,
+            extension: new MediaRouteExtension($request, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Request $request, SalesChannelContext $context): MediaRouteResponse
+    {
         $ids = RequestParamHelper::get($request, 'ids', []);
-        if (empty($ids)) {
+        if (!\is_array($ids) || $ids === []) {
             throw MediaException::emptyMediaId();
         }
 

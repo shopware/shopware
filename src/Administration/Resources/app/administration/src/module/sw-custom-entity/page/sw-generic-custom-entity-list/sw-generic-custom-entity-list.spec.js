@@ -72,10 +72,7 @@ async function createWrapper(query = {}) {
                     },
                     'sw-search-bar': {
                         template: '<div class="sw-search-bar"></div>',
-                        props: [
-                            'initial-search-type',
-                            'initial-search',
-                        ],
+                        props: ['initial-search-type', 'initial-search'],
                     },
                     'sw-entity-listing': {
                         template: '<div class="sw-entity-listing"></div>',
@@ -104,7 +101,7 @@ async function createWrapper(query = {}) {
                         },
                         meta: {
                             $module: {
-                                icon: 'solid-content',
+                                icon: 'regular-content',
                             },
                         },
                         query,

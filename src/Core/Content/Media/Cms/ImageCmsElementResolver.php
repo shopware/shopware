@@ -152,7 +152,7 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
                     return;
                 }
 
-                $mappedMedia = $searchResult->get($media);
+                $mappedMedia = $searchResult->getEntities()->get($media);
                 if (!$mappedMedia instanceof MediaEntity) {
                     return;
                 }
@@ -169,7 +169,7 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
                 return;
             }
 
-            $media = $searchResult->get($config->getStringValue());
+            $media = $searchResult->getEntities()->get($config->getStringValue());
             if (!$media instanceof MediaEntity) {
                 return;
             }

@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(ExceptionLogger::class)]
 #[Package('checkout')]
+#[CoversClass(ExceptionLogger::class)]
 class ExceptionLoggerTest extends TestCase
 {
     #[DataProvider('loggerProvider')]

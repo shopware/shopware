@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
@@ -27,6 +28,7 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePlugin\SimplePlug
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeCompilerPluginConfigurationTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -122,7 +124,7 @@ SCSS;
 
     public function testHandlesDatabaseException(): void
     {
-        $configService = $this->getConfigurationServiceDbException([
+        $configurationService = $this->getConfigurationServiceDbException([
             new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
         ]);
 
@@ -136,7 +138,7 @@ SCSS;
             Context::createDefaultContext()
         );
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configurationService, $storefrontPluginRegistry);
 
         $subscriber->enrichExtensionVars($event);
 
@@ -167,7 +169,7 @@ SCSS;
      */
     private function getStorefrontPluginRegistry(array $plugins): StorefrontPluginRegistry
     {
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel
             ->method('getBundles')
             ->willReturn($plugins);

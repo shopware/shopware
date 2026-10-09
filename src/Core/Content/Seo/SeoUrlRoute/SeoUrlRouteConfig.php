@@ -2,17 +2,24 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
+use Shopware\Core\Content\Seo\Exception\SeoUrlRouteConfigException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('inventory')]
 class SeoUrlRouteConfig
 {
+    /**
+     * @param array<string, string> $routeParameters
+     */
     public function __construct(
         private readonly EntityDefinition $definition,
         private readonly string $routeName,
         private string $template,
-        private bool $skipInvalid = true
+        private bool $skipInvalid = true,
+        private readonly ?string $primaryKeyParameterKey = null,
+        private readonly ?string $targetRouteName = null,
+        private readonly array $routeParameters = [],
     ) {
     }
 
@@ -24,6 +31,11 @@ class SeoUrlRouteConfig
     public function getRouteName(): string
     {
         return $this->routeName;
+    }
+
+    public function getTargetRouteName(): string
+    {
+        return $this->targetRouteName ?? $this->routeName;
     }
 
     public function getTemplate(): string
@@ -44,5 +56,17 @@ class SeoUrlRouteConfig
     public function setSkipInvalid(bool $skipInvalid): void
     {
         $this->skipInvalid = $skipInvalid;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getPrimaryKeyParameter(string $primaryKey): array
+    {
+        if ($this->primaryKeyParameterKey === null) {
+            throw SeoUrlRouteConfigException::routeConfigMissingParameterKeyForPrimaryKey($this->definition->getEntityName());
+        }
+
+        return [...$this->routeParameters, $this->primaryKeyParameterKey => $primaryKey];
     }
 }

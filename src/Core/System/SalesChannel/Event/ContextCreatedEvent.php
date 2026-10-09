@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * This event can be used to react to the creation of a new context.
  * It must be used very carefully, as it practically effects every part of Shopware.
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 final class ContextCreatedEvent

@@ -11,12 +11,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\RangeAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\RangeResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class RangeAggregationTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -32,26 +34,6 @@ class RangeAggregationTest extends TestCase
     {
         $this->repository = static::getContainer()->get('product.repository');
         $this->context = Context::createDefaultContext();
-    }
-
-    /**
-     * @return iterable<string, mixed>
-     */
-    public static function buildRangeKeyDataProvider(): iterable
-    {
-        yield 'empty from and empty to' => [null, null, '*-*'];
-        yield 'empty from and to' => [null, 10, '*-10'];
-        yield 'from and empty to' => [10, null, '10-*'];
-    }
-
-    #[DataProvider('buildRangeKeyDataProvider')]
-    public function testBuildRangeKey(?float $from, ?float $to, string $expectedKey): void
-    {
-        $method = new \ReflectionMethod(RangeAggregation::class, 'buildRangeKey');
-
-        $aggregation = new RangeAggregation('test', 'test', []);
-
-        static::assertSame($expectedKey, $method->invoke($aggregation, $from, $to));
     }
 
     /**

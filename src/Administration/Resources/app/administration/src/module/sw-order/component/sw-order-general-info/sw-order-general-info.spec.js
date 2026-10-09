@@ -24,6 +24,9 @@ const orderMock = {
     createdBy: null,
     orderCustomer: {
         customerId: 'orderID',
+        customer: {
+            id: 'orderID',
+        },
         firstName: 'John',
         lastName: 'Doe',
         email: 'john@doe.dev',
@@ -81,6 +84,9 @@ const orderMock = {
     ],
 };
 
+orderMock.primaryOrderTransaction = orderMock.transactions[0];
+orderMock.primaryOrderDelivery = orderMock.deliveries[0];
+
 orderMock.transactions.last = () => ({
     stateMachineState: {
         translated: {
@@ -107,10 +113,10 @@ orderMock.deliveries.last = () => ({
     },
 });
 
-async function createWrapper() {
+async function createWrapper(order = orderMock) {
     return mount(await wrapTestComponent('sw-order-general-info', { sync: true }), {
         props: {
-            order: orderMock,
+            order,
             isLoading: false,
         },
         global: {
@@ -135,9 +141,6 @@ async function createWrapper() {
                         return { data: {} };
                     },
                 },
-                feature: {
-                    isActive: () => true,
-                },
                 repositoryFactory: {
                     create(entityName) {
                         if (entityName !== 'order') {
@@ -150,7 +153,7 @@ async function createWrapper() {
 
                         return {
                             search: () =>
-                                Promise.resolve(new EntityCollection('', 'order', Shopware.Context.api, null, [orderMock])),
+                                Promise.resolve(new EntityCollection('', 'order', Shopware.Context.api, null, [order])),
                             delete: deleteFn,
                             assign: assignFn,
                         };
@@ -193,6 +196,26 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         expect(summary.exists()).toBeTruthy();
         expect(link.exists()).toBeTruthy();
         expect(summary.text()).toContain('10000');
+        expect(summary.text()).toContain('John Doe');
+        expect(summary.text()).toContain('john@doe.dev');
+    });
+
+    it('should not link to the customer when the customer was deleted', async () => {
+        const order = {
+            ...orderMock,
+            orderCustomer: {
+                ...orderMock.orderCustomer,
+                customer: null,
+            },
+        };
+
+        wrapper = await createWrapper(order);
+        await flushPromises();
+
+        const summary = wrapper.find('.sw-order-general-info__summary-main-header');
+        const link = wrapper.find('.sw-order-general-info__summary-main-header-link');
+
+        expect(link.exists()).toBeFalsy();
         expect(summary.text()).toContain('John Doe');
         expect(summary.text()).toContain('john@doe.dev');
     });

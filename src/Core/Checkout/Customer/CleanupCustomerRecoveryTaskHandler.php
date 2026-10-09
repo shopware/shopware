@@ -16,8 +16,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: CleanupCustomerRecoveryTask::class)]
 #[Package('checkout')]
+#[AsMessageHandler(handles: CleanupCustomerRecoveryTask::class)]
 final class CleanupCustomerRecoveryTaskHandler extends ScheduledTaskHandler
 {
     private const BATCH_SIZE = 1000;

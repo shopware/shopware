@@ -8,9 +8,7 @@ import './sw-extension-adding-failed.scss';
 export default {
     template,
 
-    inject: [
-        'shopwareExtensionService',
-    ],
+    inject: ['shopwareExtensionService'],
 
     emits: ['close'],
 
@@ -50,8 +48,13 @@ export default {
             });
         },
 
-        isRent() {
-            return this.extension?.storeLicense?.variant === this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT;
+        hasActiveRentLicense() {
+            const storeLicense = this.extension?.storeLicense;
+
+            return (
+                storeLicense?.variant === this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT &&
+                storeLicense.expirationDate === null
+            );
         },
 
         headline() {

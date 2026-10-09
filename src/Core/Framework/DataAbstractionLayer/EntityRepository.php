@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
@@ -48,6 +49,9 @@ class EntityRepository
         private readonly EntityAggregatorInterface $aggregator,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityLoadedEventFactory $eventFactory,
+        // wired into every container-built repository by EntityCompilerPass; null only for hand-built
+        // repositories (tests), which then run uninstrumented
+        private readonly ?DalSearchInstrumentor $dalSearchInstrumentor = null,
     ) {
     }
 
@@ -61,20 +65,26 @@ class EntityRepository
      */
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
-        if (!$criteria->getTitle()) {
-            return $this->_search($criteria, $context);
-        }
+        $searchFn = fn (): EntitySearchResult => $this->profile($criteria, fn (): EntitySearchResult => $this->_search($criteria, $context));
 
-        return Profiler::trace($criteria->getTitle(), fn () => $this->_search($criteria, $context), 'repository');
+        return $this->dalSearchInstrumentor?->measure(
+            DalSearchInstrumentor::OPERATION_SEARCH,
+            $this->definition,
+            $criteria,
+            $searchFn,
+        ) ?? $searchFn();
     }
 
     public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
     {
-        if (!$criteria->getTitle()) {
-            return $this->_aggregate($criteria, $context);
-        }
+        $aggregateFn = fn (): AggregationResultCollection => $this->profile($criteria, fn (): AggregationResultCollection => $this->_aggregate($criteria, $context));
 
-        return Profiler::trace($criteria->getTitle(), fn () => $this->_aggregate($criteria, $context), 'repository');
+        return $this->dalSearchInstrumentor?->measure(
+            DalSearchInstrumentor::OPERATION_AGGREGATE,
+            $this->definition,
+            $criteria,
+            $aggregateFn,
+        ) ?? $aggregateFn();
     }
 
     /**
@@ -86,11 +96,14 @@ class EntityRepository
      */
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
-        if (!$criteria->getTitle()) {
-            return $this->_searchIds($criteria, $context);
-        }
+        $searchIdsFn = fn (): IdSearchResult => $this->profile($criteria, fn (): IdSearchResult => $this->_searchIds($criteria, $context));
 
-        return Profiler::trace($criteria->getTitle(), fn () => $this->_searchIds($criteria, $context), 'repository');
+        return $this->dalSearchInstrumentor?->measure(
+            DalSearchInstrumentor::OPERATION_SEARCH_IDS,
+            $this->definition,
+            $criteria,
+            $searchIdsFn,
+        ) ?? $searchIdsFn();
     }
 
     /**
@@ -102,7 +115,7 @@ class EntityRepository
 
         $affected = $this->versionManager->update($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch($event);
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         return $event;
     }
@@ -116,7 +129,7 @@ class EntityRepository
 
         $affected = $this->versionManager->upsert($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch($event);
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         return $event;
     }
@@ -130,7 +143,7 @@ class EntityRepository
 
         $affected = $this->versionManager->insert($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch($event);
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         return $event;
     }
@@ -153,7 +166,7 @@ class EntityRepository
             }
         }
 
-        $this->eventDispatcher->dispatch($event);
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         return $event;
     }
@@ -198,9 +211,26 @@ class EntityRepository
         );
 
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, [], true);
-        $this->eventDispatcher->dispatch($event);
+        $context->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         return $event;
+    }
+
+    /**
+     * Wraps a read operation in a profiler span (title-gated). Is separate from metrics, so
+     * sub-operations of a search are visible in the profiler without emitting a duplicate metric sample.
+     *
+     * @template TReturn
+     *
+     * @param \Closure(): TReturn $fn
+     *
+     * @return TReturn
+     */
+    private function profile(Criteria $criteria, \Closure $fn): mixed
+    {
+        $title = $criteria->getTitle();
+
+        return $title === null ? $fn() : Profiler::trace($title, $fn, 'repository');
     }
 
     /**
@@ -233,7 +263,8 @@ class EntityRepository
         $criteria = clone $criteria;
         $aggregations = null;
         if ($criteria->getAggregations()) {
-            $aggregations = $this->aggregate($criteria, $context);
+            // nested sub-operation: profiled (span) but not metered; keep in sync with SalesChannelRepository
+            $aggregations = $this->profile($criteria, fn (): AggregationResultCollection => $this->_aggregate($criteria, $context));
         }
 
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
@@ -245,7 +276,8 @@ class EntityRepository
             return new EntitySearchResult($this->definition->getEntityName(), $entities->count(), $entities, $aggregations, $criteria, $context);
         }
 
-        $ids = $this->searchIds($criteria, $context);
+        // nested sub-operation: profiled (span) but not metered; keep in sync with SalesChannelRepository
+        $ids = $this->profile($criteria, fn (): IdSearchResult => $this->_searchIds($criteria, $context));
 
         if ($ids->getIds() === []) {
             /** @var TEntityCollection $collection */

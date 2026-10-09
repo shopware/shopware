@@ -12,7 +12,9 @@ use Shopware\Core\Framework\Webhook\Webhook;
 /**
  * @internal
  *
- * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\Webhook\Service\WebhookLoaderTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Service\WebhookLoaderTest
  */
 #[Package('framework')]
 class WebhookLoader

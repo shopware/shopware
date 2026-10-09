@@ -16,6 +16,7 @@ final class PlatformRequest
      * Context headers
      */
     public const HEADER_CONTEXT_TOKEN = 'sw-context-token';
+    public const HEADER_CONTEXT_SOURCE = 'sw-context-source';
     public const HEADER_ACCESS_KEY = 'sw-access-key';
     public const HEADER_LANGUAGE_ID = 'sw-language-id';
     public const HEADER_CURRENCY_ID = 'sw-currency-id';
@@ -34,6 +35,12 @@ final class PlatformRequest
     public const HEADER_MEASUREMENT_WEIGHT_UNIT = 'sw-measurement-weight-unit';
 
     public const HEADER_MEASUREMENT_LENGTH_UNIT = 'sw-measurement-length-unit';
+
+    /**
+     * MCP Streamable HTTP transport headers (Model Context Protocol)
+     */
+    public const HEADER_MCP_SESSION_ID = 'mcp-session-id';
+    public const HEADER_MCP_PROTOCOL_VERSION = 'mcp-protocol-version';
 
     /**
      * API Expectation headers to check requirements are fulfilled
@@ -65,17 +72,34 @@ final class PlatformRequest
     public const ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT = 'sw-sales-channel-context';
     public const ATTRIBUTE_SALES_CHANNEL_ID = 'sw-sales-channel-id';
     public const ATTRIBUTE_IMITATING_USER_ID = 'sw-imitating-user-id';
+    public const ATTRIBUTE_CRITERIA = 'sw-criteria';
+
+    /**
+     * Order-based state of a route that opted in with {@see self::ATTRIBUTE_ALLOW_ORDER_RESTORATION}.
+     * The value resolvers inject it for that route, the canonical context attributes above stay the session state.
+     */
+    public const ATTRIBUTE_EFFECTIVE_CONTEXT_OBJECT = 'sw-effective-context';
+    public const ATTRIBUTE_EFFECTIVE_SALES_CHANNEL_CONTEXT_OBJECT = 'sw-effective-sales-channel-context';
+    public const ATTRIBUTE_EFFECTIVE_CART_OBJECT = 'sw-effective-cart';
 
     public const ATTRIBUTE_ACL = '_acl';
     public const ATTRIBUTE_CAPTCHA = '_captcha';
     public const ATTRIBUTE_ROUTE_SCOPE = '_routeScope';
     public const ATTRIBUTE_ENTITY = '_entity';
+    public const ATTRIBUTE_OPENAPI = '_openapi';
     public const ATTRIBUTE_NO_STORE = '_noStore';
     public const ATTRIBUTE_HTTP_CACHE = '_httpCache';
     public const ATTRIBUTE_CONTEXT_TOKEN_REQUIRED = '_contextTokenRequired';
     public const ATTRIBUTE_LOGIN_REQUIRED = '_loginRequired';
     public const ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST = '_loginRequiredAllowGuest';
     public const ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE = 'allow_maintenance';
+
+    public const ATTRIBUTE_CLEAR_SITE_DATA = '_clearSiteData';
+
+    /**
+     * Opts a read-only Store API route in to being evaluated against an existing order, given as `orderId`
+     */
+    public const ATTRIBUTE_ALLOW_ORDER_RESTORATION = '_allowOrderRestoration';
 
     public const ATTRIBUTE_INTERNAL_ROUTE_PARAMS = [
         self::ATTRIBUTE_CAPTCHA,
@@ -87,6 +111,7 @@ final class PlatformRequest
         self::ATTRIBUTE_LOGIN_REQUIRED,
         self::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST,
         self::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE,
+        self::ATTRIBUTE_ALLOW_ORDER_RESTORATION,
     ];
 
     /**

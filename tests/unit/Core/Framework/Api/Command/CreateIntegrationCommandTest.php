@@ -7,12 +7,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Command\CreateIntegrationCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Dotenv\Dotenv;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CreateIntegrationCommand::class)]
 class CreateIntegrationCommandTest extends TestCase
 {
@@ -58,7 +60,7 @@ class CreateIntegrationCommandTest extends TestCase
         static::assertSame($adminOption, $admin);
 
         $output = $cmd->getDisplay();
-        static::assertNotEmpty($output);
+        static::assertNotSame('', $output);
 
         $parsedEnv = (new Dotenv())->parse($output);
         static::assertCount(2, $parsedEnv);
@@ -100,7 +102,7 @@ class CreateIntegrationCommandTest extends TestCase
         static::assertFalse($admin);
 
         $output = $cmd->getDisplay();
-        static::assertNotEmpty($output);
+        static::assertNotSame('', $output);
 
         $parsedEnv = (new Dotenv())->parse($output);
         static::assertCount(2, $parsedEnv);

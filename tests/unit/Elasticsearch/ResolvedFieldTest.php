@@ -13,9 +13,9 @@ use Shopware\Elasticsearch\TranslatedResolvedField;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ResolvedField::class)]
 #[CoversClass(TranslatedResolvedField::class)]
-#[Package('inventory')]
 class ResolvedFieldTest extends TestCase
 {
     public function testResolvedFieldGetters(): void

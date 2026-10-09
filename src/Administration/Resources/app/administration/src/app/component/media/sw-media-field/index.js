@@ -16,20 +16,14 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: ['update:value'],
 
     props: {
         // need to be "value" instead of "modelValue" because of the compat build
         value: {
-            type: [
-                String,
-                null,
-            ],
+            type: [String, null],
             required: false,
             default: null,
         },
@@ -98,7 +92,7 @@ export default {
             }
 
             const inModal = !!this.$el.closest('.mt-modal');
-            return inModal ? { targetSelector: '.mt-modal__content-inner' } : {};
+            return inModal ? { targetSelector: '.mt-modal' } : {};
         },
 
         mediaFieldClasses() {
@@ -223,7 +217,7 @@ export default {
         },
 
         showLabel() {
-            return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();
+            return !!this.label || !!this.$slots.label;
         },
 
         onPageChange({ page, limit }) {

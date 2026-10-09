@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Migration\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Command\CreateMigrationCommand;
 use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -14,6 +15,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CreateMigrationCommand::class)]
 class CreateMigrationCommandTest extends TestCase
 {

@@ -6,7 +6,6 @@ use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchStartEvent;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -16,13 +15,14 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'media:delete-unused',
     description: 'Deletes all media files which are not used in any entity',
 )]
-#[Package('discovery')]
 class DeleteNotUsedMediaCommand extends Command
 {
     /**
@@ -53,7 +53,7 @@ class DeleteNotUsedMediaCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         if ($input->getOption('report') && $input->getOption('dry-run')) {
             $io->error('The options --report and --dry-run cannot be used together, pick one or the other.');
@@ -89,7 +89,7 @@ class DeleteNotUsedMediaCommand extends Command
             private int $totalMediaDeletionCandidates = 0;
 
             public function __construct(
-                private readonly ShopwareStyle $io,
+                private readonly SymfonyStyle $io,
                 private readonly int $limit,
             ) {
             }
@@ -174,7 +174,7 @@ class DeleteNotUsedMediaCommand extends Command
     {
         $cursor = new Cursor($output);
 
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         $mediaBatches = $this->unusedMediaPurger->getNotUsedMedia(
             $input->getOption('limit') ? (int) $input->getOption('limit') : 50,

@@ -36,7 +36,7 @@ class MappingCollection extends Collection
     {
         $this->validateType($mapping);
         $mappingKey = $mapping->getKey();
-        if (empty($mappingKey)) {
+        if ($mappingKey === '') {
             // prevent collision with multiple not mapped mappings (key = '').
             // there is no direct lookup needed for these, but they should be stored and not overridden!
             $mappingKey = Uuid::randomHex();

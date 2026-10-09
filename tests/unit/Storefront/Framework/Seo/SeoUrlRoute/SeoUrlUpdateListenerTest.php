@@ -10,6 +10,7 @@ use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\LandingPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
@@ -19,6 +20,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlUpdateListener;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(SeoUrlUpdateListener::class)]
 class SeoUrlUpdateListenerTest extends TestCase
 {

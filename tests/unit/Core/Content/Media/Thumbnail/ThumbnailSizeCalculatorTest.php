@@ -10,12 +10,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @phpstan-import-type ImageSize from ThumbnailService
  */
+#[Package('discovery')]
 #[CoversClass(ThumbnailSizeCalculator::class)]
 class ThumbnailSizeCalculatorTest extends TestCase
 {
@@ -59,5 +61,30 @@ class ThumbnailSizeCalculatorTest extends TestCase
         yield 'tall image is constrained by square preferred size' => [['width' => 1000, 'height' => 1200], ['width' => 800, 'height' => 800], ['width' => 667, 'height' => 800]];
         yield 'panorama image is constrained by preferred width' => [['width' => 1560, 'height' => 723], ['width' => 730, 'height' => 500], ['width' => 730, 'height' => 338]];
         yield 'portrait panorama image is constrained by preferred height' => [['width' => 723, 'height' => 1560], ['width' => 730, 'height' => 500], ['width' => 232, 'height' => 500]];
+    }
+
+    /**
+     * @param ImageSize $imageSize
+     * @param int<1, max> $thumbnailWidth
+     * @param int<1, max> $thumbnailHeight
+     * @param ImageSize $expectedSize
+     */
+    #[DataProvider('validSizeProvider')]
+    public function testDetermineValidSize(array $imageSize, int $thumbnailWidth, int $thumbnailHeight, array $expectedSize): void
+    {
+        $thumbnailSizeCalculator = new ThumbnailSizeCalculator();
+
+        static::assertSame($expectedSize, $thumbnailSizeCalculator->determineValidSize($imageSize, $thumbnailWidth, $thumbnailHeight));
+    }
+
+    /**
+     * @return iterable<string, array{0: ImageSize, 1: int<1, max>, 2: int<1, max>, 3: ImageSize}>
+     */
+    public static function validSizeProvider(): iterable
+    {
+        yield 'thumbnail smaller than the image is used as-is' => [['width' => 800, 'height' => 600], 800, 300, ['width' => 800, 'height' => 300]];
+        yield 'image narrower than the thumbnail keeps its original size' => [['width' => 200, 'height' => 600], 800, 300, ['width' => 200, 'height' => 600]];
+        yield 'image shorter than the thumbnail keeps its original size' => [['width' => 800, 'height' => 200], 600, 300, ['width' => 800, 'height' => 200]];
+        yield 'thumbnail matching the image exactly is not treated as upscaling' => [['width' => 800, 'height' => 600], 800, 600, ['width' => 800, 'height' => 600]];
     }
 }

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -25,6 +26,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class TranslatedVersionsTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -289,7 +291,7 @@ class TranslatedVersionsTest extends TestCase
         /** @var ProductEntity $product */
         $product = static::getContainer()
             ->get('product.repository')
-            ->search(new Criteria([$id]), $context)->first();
+            ->search(new Criteria([$id]), $context)->getEntities()->first();
 
         static::assertTrue($context->considerInheritance());
         static::assertSame($name, $product->getTranslated()['name'], \sprintf(

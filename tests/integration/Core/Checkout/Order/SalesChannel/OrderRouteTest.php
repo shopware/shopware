@@ -50,7 +50,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('checkout')]
-#[Group('slow')]
 #[Group('store-api')]
 class OrderRouteTest extends TestCase
 {
@@ -132,7 +131,7 @@ class OrderRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create($contextToken, TestDefaults::SALES_CHANNEL);
@@ -403,8 +402,10 @@ class OrderRouteTest extends TestCase
         $eventDidRun = false;
         $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $htmlText);
+            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $htmlText);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
@@ -463,7 +464,7 @@ class OrderRouteTest extends TestCase
 
         $dispatcher->removeListener(MailSentEvent::class, $this->handleMailSentEvent(...));
 
-        static::assertSame(1, $this->mailSentEventCounter, 'The ‘mail.sent’ event was executed too often');
+        static::assertSame(0, $this->mailSentEventCounter, 'Resubmitting the unchanged payment method must not notify the customer');
     }
 
     public function testSetPaymentOrderWrongPayment(): void
@@ -570,6 +571,7 @@ class OrderRouteTest extends TestCase
     {
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
+        $transactionId = Uuid::randomHex();
         $salutation = $this->getValidSalutationId();
 
         $order = [
@@ -586,14 +588,15 @@ class OrderRouteTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'primaryOrderTransactionId' => $transactionId,
                 'transactions' => [
                     [
-                        'id' => Uuid::randomHex(),
+                        'id' => $transactionId,
                         'paymentMethodId' => $this->defaultPaymentMethodId,
                         'amount' => [
-                            'unitPrice' => 5.0,
-                            'totalPrice' => 15.0,
-                            'quantity' => 3,
+                            'unitPrice' => 10.0,
+                            'totalPrice' => 10.0,
+                            'quantity' => 1,
                             'calculatedTaxes' => [],
                             'taxRules' => [],
                         ],
@@ -716,7 +719,9 @@ class OrderRouteTest extends TestCase
     private function handleMailSentEvent(MailSentEvent $event): void
     {
         ++$this->mailSentEventCounter;
-        static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-        static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+        $htmlText = $event->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString('The payment for your order with Storefront is cancelled', $htmlText);
+        static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $htmlText);
     }
 }

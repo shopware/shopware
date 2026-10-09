@@ -30,7 +30,7 @@ $sw-label-pill-border-radius: 50px;
     }
 
     &.sw-label--dismissable:hover {
-        border-color: var(--color-border-brand-selected);
+        border-color: var(--color-border-brand-default);
         background: var(--color-background-brand-default);
 
         .sw-label__caption {
@@ -60,8 +60,8 @@ $sw-label-pill-border-radius: 50px;
         height: 100%;
         right: 10px;
         top: 0;
-        color: $color-darkgray-200;
-        background-color: $color-gray-50;
+        color: var(--color-icon-primary-default);
+        background-color: var(--color-background-secondary-default);
         border: 0 none;
         cursor: pointer;
         outline: none;
@@ -69,13 +69,13 @@ $sw-label-pill-border-radius: 50px;
 
     &.sw-label--ghost {
         background: transparent;
-        border-color: $color-gray-300;
+        border-color: var(--color-border-primary-default);
     }
 
     &.sw-label--appearance-badged {
         background: transparent;
         border: 0;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         padding: 4px 0;
         line-height: 22px;
 
@@ -107,9 +107,9 @@ $sw-label-pill-border-radius: 50px;
     &.sw-label--warning,
     &.sw-label--neutral {
         &.sw-label--small {
-            font-weight: $font-weight-semi-bold;
+            font-weight: var(--font-weight-semibold);
             line-height: 14px;
-            font-size: $font-size-xxs;
+            font-size: var(--font-size-2xs);
             padding: 0 5px;
             padding-left: 15px;
             height: 16px;
@@ -138,7 +138,7 @@ $sw-label-pill-border-radius: 50px;
     &.sw-label--success:not(&--appearance-badged) {
         @include sw-label-variant(
             var(--color-background-positive-default),
-            var(--color-text-positive-default),
+            var(--color-text-primary-default),
             var(--color-border-positive-default),
             var(--color-border-positive-default)
         );
@@ -156,7 +156,7 @@ $sw-label-pill-border-radius: 50px;
     &.sw-label--warning:not(&--appearance-badged) {
         @include sw-label-variant(
             var(--color-background-attention-default),
-            var(--color-text-attention-default),
+            var(--color-text-primary-default),
             var(--color-border-attention-default),
             var(--color-border-attention-default)
         );
@@ -173,17 +173,17 @@ $sw-label-pill-border-radius: 50px;
 
     &.sw-label--neutral-reversed:not(&--appearance-badged) {
         @include sw-label-variant(
-            var(--color-elevation-surface-floating),
-            var(--color-text-inverse-default),
-            var(--color-elevation-surface-floating),
-            var(--color-elevation-surface-floating)
+            var(--color-elevation-floating-default),
+            var(--color-text-primary-inverse),
+            var(--color-elevation-floating-default),
+            var(--color-elevation-floating-default)
         );
     }
 
     &.sw-label--primary:not(&--appearance-badged) {
         @include sw-label-variant(
             var(--color-interaction-primary-default),
-            var(--color-text-static-default),
+            var(--color-static-white),
             var(--color-interaction-primary-hover),
             var(--color-interaction-primary-default)
         );

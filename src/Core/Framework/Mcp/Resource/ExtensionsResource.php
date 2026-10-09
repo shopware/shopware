@@ -9,15 +9,19 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Lists optional MCP capability plugins that extend the core platform.
  * AI clients should read this resource when a requested tool is not available.
  *
  * @internal
  */
-#[McpResource(uri: 'shopware://extensions', name: 'shopware-extensions', description: 'Optional MCP capability plugins. Read this when a requested tool is not available to find the right extension and its install command.')]
 #[Package('framework')]
+#[McpResource(
+    uri: 'shopware://extensions',
+    name: 'shopware-extensions',
+    description: 'Optional MCP capability plugins. Read this when a requested tool is not available to find the right extension and its install command.'
+)]
 class ExtensionsResource
 {
     public function __construct(
@@ -62,7 +66,29 @@ class ExtensionsResource
     }
 
     /**
-     * @param array{name: string, type: string, install_command: string} $extension
+     * Returns the list of known optional MCP extensions.
+     *
+     * TODO: Replace with dynamic data from SBP (Shopware Plugin Store) API
+     *       so extensions are discovered automatically rather than hardcoded here.
+     *
+     * @return list<array{name: string, type: 'plugin'|'bundle'|'app', tool_prefix: string, description: string, install_command: string, documentation_url: string|null}>
+     */
+    protected function getKnownExtensions(): array
+    {
+        return [
+            [
+                'name' => 'SwagMcpMerchantAssistant',
+                'type' => 'plugin',
+                'tool_prefix' => 'merchant-',
+                'description' => 'Merchant workflow tools: order management, customer lookup, product creation, revenue and bestseller reports, storefront search, and cart/checkout.',
+                'install_command' => 'bin/console plugin:install --activate SwagMcpMerchantAssistant',
+                'documentation_url' => 'https://github.com/shopware/SwagMcpMerchantAssistant',
+            ],
+        ];
+    }
+
+    /**
+     * @param array{name: string, type: 'plugin'|'bundle'|'app', tool_prefix: string, description: string, install_command: string, documentation_url: string|null} $extension
      */
     private function resolveInstallCommand(array $extension, string $status): ?string
     {
@@ -77,7 +103,7 @@ class ExtensionsResource
     }
 
     /**
-     * @param list<array{name: string, type: string}> $extensions
+     * @param list<array{name: string, type: 'plugin'|'bundle'|'app', tool_prefix: string, description: string, install_command: string, documentation_url: string|null}> $extensions
      *
      * @return array<string, 'not_installed'|'installed'|'active'>
      */
@@ -103,16 +129,15 @@ class ExtensionsResource
         foreach ($extensions as $extension) {
             $rows = match ($extension['type']) {
                 'plugin' => $pluginRows,
-                'app' => $appRows, // @codeCoverageIgnore
-                default => [], // @codeCoverageIgnore
+                'app' => $appRows,
+                'bundle' => [],
             };
 
             $statuses[$extension['name']] = match ($extension['type']) {
                 'plugin', 'app' => isset($rows[$extension['name']])
                     ? ((bool) $rows[$extension['name']] ? 'active' : 'installed')
                     : 'not_installed',
-                'bundle' => isset($this->kernel->getBundles()[$extension['name']]) ? 'active' : 'not_installed', // @codeCoverageIgnore
-                default => 'not_installed', // @codeCoverageIgnore
+                'bundle' => isset($this->kernel->getBundles()[$extension['name']]) ? 'active' : 'not_installed',
             };
         }
 
@@ -120,7 +145,7 @@ class ExtensionsResource
     }
 
     /**
-     * @param list<array{name: string, type: string}> $extensions
+     * @param list<array{name: string, type: 'plugin'|'bundle'|'app', tool_prefix: string, description: string, install_command: string, documentation_url: string|null}> $extensions
      *
      * @return list<string>
      */
@@ -130,27 +155,5 @@ class ExtensionsResource
             array_filter($extensions, static fn (array $e) => $e['type'] === $type),
             'name',
         ));
-    }
-
-    /**
-     * Returns the list of known optional MCP extensions.
-     *
-     * TODO: Replace with dynamic data from SBP (Shopware Plugin Store) API
-     *       so extensions are discovered automatically rather than hardcoded here.
-     *
-     * @return list<array{name: string, type: 'plugin'|'bundle'|'app', tool_prefix: string, description: string, install_command: string, documentation_url: string|null}>
-     */
-    private function getKnownExtensions(): array
-    {
-        return [
-            [
-                'name' => 'SwagMcpMerchantAssistant',
-                'type' => 'plugin',
-                'tool_prefix' => 'merchant-',
-                'description' => 'Merchant workflow tools: order management, customer lookup, product creation, revenue and bestseller reports, storefront search, and cart/checkout.',
-                'install_command' => 'bin/console plugin:install --activate SwagMcpMerchantAssistant',
-                'documentation_url' => 'https://github.com/shopware/SwagMcpMerchantAssistant',
-            ],
-        ];
     }
 }

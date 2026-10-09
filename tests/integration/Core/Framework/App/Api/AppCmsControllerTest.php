@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Api;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
@@ -10,6 +11,7 @@ use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 /**
  * @internal
  */
+#[Package('framework')]
 class AppCmsControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;

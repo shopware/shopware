@@ -4,13 +4,16 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
-    const systemConfigApiService = {
-        getValues: jest.fn().mockResolvedValue({
+async function createWrapper(options = {}) {
+    const {
+        measurementUnits = Promise.resolve({
             'core.measurementUnits.system': 'metric',
             'core.measurementUnits.length': 'mm',
             'core.measurementUnits.weight': 'kg',
         }),
+    } = options;
+    const systemConfigApiService = {
+        getValues: jest.fn().mockReturnValue(measurementUnits),
     };
     const repositoryFactory = {
         create: () => ({
@@ -100,7 +103,42 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
 
     it('should prepare measurementUnits for salesChannel with values from system config', async () => {
         const { wrapper } = await createWrapper();
+        await flushPromises();
 
+        expect(wrapper.vm.salesChannel.measurementUnits).toEqual({
+            system: 'metric',
+            units: {
+                length: 'mm',
+                weight: 'kg',
+            },
+        });
+    });
+
+    it('should initialize empty measurement units while system defaults are loading', async () => {
+        let resolveMeasurementUnits;
+        const measurementUnits = new Promise((resolve) => {
+            resolveMeasurementUnits = resolve;
+        });
+
+        const { wrapper } = await createWrapper({ measurementUnits });
+
+        expect(wrapper.vm.isLoading).toBe(true);
+        expect(wrapper.vm.salesChannel.measurementUnits).toEqual({
+            system: null,
+            units: {
+                length: null,
+                weight: null,
+            },
+        });
+
+        resolveMeasurementUnits({
+            'core.measurementUnits.system': 'metric',
+            'core.measurementUnits.length': 'mm',
+            'core.measurementUnits.weight': 'kg',
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.isLoading).toBe(false);
         expect(wrapper.vm.salesChannel.measurementUnits).toEqual({
             system: 'metric',
             units: {

@@ -198,7 +198,7 @@ class SetOrderStateActionTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         $this->createOrder($customerId, ['deliveries' => $orderDeliveries, 'id' => $orderId]);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->first();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $order);
 
@@ -218,7 +218,7 @@ class SetOrderStateActionTest extends TestCase
 
         $criteria = new Criteria([$IdForShippingCosts]);
         $criteria->addAssociation('stateMachineState');
-        $oderDeliveryForShippingCosts = $this->orderDeliveryRepository->search($criteria, $context->getContext())->first();
+        $oderDeliveryForShippingCosts = $this->orderDeliveryRepository->search($criteria, $context->getContext())->getEntities()->first();
 
         static::assertInstanceOf(OrderDeliveryEntity::class, $oderDeliveryForShippingCosts);
         static::assertSame('shipped', $oderDeliveryForShippingCosts->getStateMachineState()?->getTechnicalName());

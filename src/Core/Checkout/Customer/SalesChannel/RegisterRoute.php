@@ -13,12 +13,14 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
+use Shopware\Core\Checkout\Customer\Extension\RegisterRouteExtension;
 use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
@@ -26,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -61,10 +64,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class RegisterRoute extends AbstractRegisterRoute
 {
+    use CustomerAddressDataNormalizerTrait;
+    use CustomerVatIdNormalizerTrait;
+
     /**
      * @internal
      *
@@ -88,7 +94,9 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly EntityRepository $salutationRepository,
         private readonly DataValidationFactoryInterface $passwordValidationFactory,
         private readonly DoubleOptInService $doubleOptInService,
+        private readonly CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater,
         private readonly ClockInterface $clock,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -103,6 +111,19 @@ class RegisterRoute extends AbstractRegisterRoute
         SalesChannelContext $context,
         bool $validateStorefrontUrl = true,
         ?DataValidationDefinition $additionalValidationDefinitions = null
+    ): CustomerResponse {
+        return $this->extensions->publish(
+            name: RegisterRouteExtension::NAME,
+            extension: new RegisterRouteExtension($data, $context, $validateStorefrontUrl, $additionalValidationDefinitions),
+            function: $this->_register(...),
+        );
+    }
+
+    private function _register(
+        RequestDataBag $data,
+        SalesChannelContext $context,
+        bool $validateStorefrontUrl,
+        ?DataValidationDefinition $additionalValidationDefinitions
     ): CustomerResponse {
         EmailIdnConverter::encodeDataBag($data);
 
@@ -195,6 +216,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $writeContext->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
 
         $this->customerRepository->create([$customer], $writeContext);
+        $this->customerNewsletterSalesChannelsUpdater->update([$customer['id']], true);
 
         $criteria = new Criteria([$customer['id']]);
 
@@ -288,7 +310,7 @@ class RegisterRoute extends AbstractRegisterRoute
             $definition->merge($additionalValidations);
         }
 
-        if ($validateStorefrontUrl) {
+        if ($validateStorefrontUrl && $this->doubleOptInService->isDoubleOptInEnabled($isGuest, $context)) {
             $definition
                 ->add('storefrontUrl', new NotBlank(), new Choice(choices: $this->getDomainUrls($context)));
         }
@@ -338,6 +360,15 @@ class RegisterRoute extends AbstractRegisterRoute
                 $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
                     countryId: $countryId
                 ));
+
+                $vatIds = $data->get('vatIds');
+                if ($vatIds instanceof DataBag) {
+                    $vatIds = $vatIds->all();
+                }
+
+                if (\is_array($vatIds) && $vatIds !== []) {
+                    $data->set('vatIds', $this->normalizeVatIds($vatIds));
+                }
             }
         }
 
@@ -499,6 +530,8 @@ class RegisterRoute extends AbstractRegisterRoute
             $mappedData['countryStateId'] = null;
         }
 
+        $mappedData = $this->trimAddressFields($mappedData);
+
         if ($addressData->get('customFields') instanceof RequestDataBag) {
             $mappedData['customFields'] = $this->customFieldMapper->map(CustomerAddressDefinition::ENTITY_NAME, $addressData->get('customFields'));
         }
@@ -548,7 +581,7 @@ class RegisterRoute extends AbstractRegisterRoute
     private function requiredVatIdField(string $countryId, SalesChannelContext $context): bool
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->get($countryId);
+            $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->getEntities()->get($countryId);
 
             if (!$country) {
                 throw CustomerException::countryNotFound($countryId);

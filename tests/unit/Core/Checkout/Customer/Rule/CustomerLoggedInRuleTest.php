@@ -60,7 +60,7 @@ class CustomerLoggedInRuleTest extends TestCase
     {
         $rule = new CustomerLoggedInRule();
 
-        $scope = $this->createMock(TestRuleScope::class);
+        $scope = static::createStub(TestRuleScope::class);
 
         $match = $rule->match($scope);
 

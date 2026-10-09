@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -12,9 +14,7 @@ async function createWrapper() {
               <slot></slot>
             </div>
         `,
-            mixins: [
-                Shopware.Mixin.getByName('position'),
-            ],
+            mixins: [Shopware.Mixin.getByName('position')],
             data() {
                 return {
                     name: 'sw-mock-field',
@@ -150,9 +150,7 @@ describe('src/app/mixin/position.mixin.ts', () => {
             },
         );
 
-        expect(result).toEqual([
-            { id: '1a', position: 1 },
-        ]);
+        expect(result).toEqual([{ id: '1a', position: 1 }]);
     });
 
     it('should not change the position value when item is first and direction is ASC', async () => {

@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Installer\Requirements\Struct;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RequirementCheck::class)]
 #[CoversClass(SystemCheck::class)]
 class SystemCheckTest extends TestCase

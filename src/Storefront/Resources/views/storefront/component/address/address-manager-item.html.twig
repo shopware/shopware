@@ -1,16 +1,19 @@
-<li class="col-12 col-lg-6 d-flex" data-address-id="{{ address.id }}" data-address-type="{{ type }}">
+{# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
+{% set addressType = addressType ?? type %}
+
+<li class="col-12 col-lg-6 d-flex" data-address-id="{{ address.id }}" data-address-type="{{ addressType }}">
     <div class="p-3 border address-manager-select-address flex-fill">
         <div class="row h-100">
             <div class="d-flex justify-content-between">
                 <div class="d-inline-flex gap-2">
                     <input
                         type="radio"
-                        name="{{ type }}"
+                        name="{{ addressType }}"
                         value="{{ address.id }}"
-                        id="{{ type }}-{{ address.id }}"
-                        data-address-type="{{ type }}"
+                        id="{{ addressType }}-{{ address.id }}"
+                        data-address-type="{{ addressType }}"
                         {% if address.id == activeAddressId %}checked{% endif %}
-                        {% if type === 'shipping' and not address.country.shippingAvailable %}disabled{% endif %}
+                        {% if addressType === 'shipping' and not address.country.shippingAvailable %}disabled{% endif %}
                         class="form-check-input col-auto"
                     />
 
@@ -43,20 +46,20 @@
                                         class="dropdown-item address-manager-modal-address-form"
                                         href="#"
                                         data-address-id="{{ address.id }}"
-                                        data-address-type="{{ type }}"
+                                        data-address-type="{{ addressType }}"
                                     >
                                         {{ 'global.default.edit'|trans|sw_sanitize }}
                                     </a>
                                 </li>
-                                {% if defaultAddressId !== address.id and not (type === 'shipping' and not address.country.shippingAvailable) %}
+                                {% if defaultAddressId !== address.id and not (addressType === 'shipping' and not address.country.shippingAvailable) %}
                                     <li>
                                         <a
                                             class="dropdown-item address-manager-modal-set-default-address"
                                             href="#"
                                             data-address-id="{{ address.id }}"
-                                            data-address-type="{{ type }}"
+                                            data-address-type="{{ addressType }}"
                                         >
-                                            {% if type === 'shipping' %}
+                                            {% if addressType === 'shipping' %}
                                                 {{ 'account.addressesSetAsDefaultShippingAction'|trans|sw_sanitize }}
                                             {% else %}
                                                 {{ 'account.addressesSetAsDefaultBillingAction'|trans|sw_sanitize }}

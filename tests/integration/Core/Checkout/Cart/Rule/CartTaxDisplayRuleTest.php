@@ -64,12 +64,12 @@ class CartTaxDisplayRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     public function testThatTaxStateMatches(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getTaxState')->willReturn('gross');
         $isGrossRule = new CartTaxDisplayRule('gross');
         $scope = new CheckoutRuleScope($salesChannelContext);
@@ -79,7 +79,7 @@ class CartTaxDisplayRuleTest extends TestCase
 
     public function testThatTaxStateNotMatches(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getTaxState')->willReturn('net');
         $isGrossRule = new CartTaxDisplayRule('gross');
         $scope = new CheckoutRuleScope($salesChannelContext);

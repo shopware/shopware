@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-bulk-edit-save-modal {
     &.sw-modal .sw-modal__footer {
         justify-content: space-between;
@@ -7,7 +5,7 @@
     }
 
     &__help-text {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         padding-bottom: 20px;
         text-align: left;
     }

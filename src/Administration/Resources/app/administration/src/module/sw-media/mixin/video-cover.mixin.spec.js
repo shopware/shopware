@@ -28,10 +28,7 @@ async function createWrapper(item = {}, mediaServiceFunctions = {}, aclFunctions
               <slot></slot>
             </div>
         `,
-            mixins: [
-                Shopware.Mixin.getByName('notification'),
-                Shopware.Mixin.getByName('video-cover'),
-            ],
+            mixins: [Shopware.Mixin.getByName('notification'), Shopware.Mixin.getByName('video-cover')],
             data() {
                 return {
                     item: defaultItem,

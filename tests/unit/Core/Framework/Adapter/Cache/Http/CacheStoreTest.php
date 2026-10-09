@@ -10,12 +10,14 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheKey;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
-use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +26,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CacheStore::class)]
 class CacheStoreTest extends TestCase
 {
@@ -31,35 +34,31 @@ class CacheStoreTest extends TestCase
     {
         $request = new Request();
 
-        $cache = $this->createMock(TagAwareAdapter::class);
-
-        $cache->expects($this->once())->method('hasItem')->willReturn(false);
-
-        $item = new CacheItem();
-
-        $cache->expects($this->once())->method('getItem')->willReturn($item);
-
-        $cache->expects($this->once())->method('save')->with($item);
+        $clock = new MockClock('2025-06-13 12:00:00');
+        $cache = new TagAwareAdapter(new ArrayAdapter(clock: $clock));
 
         $store = new CacheStore(
             $cache,
-            $this->createMock(CacheStateValidator::class),
+            static::createStub(CacheStateValidator::class),
             new EventDispatcher(),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(MaintenanceModeResolver::class),
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             false,
-            new CollectingMessageBus()
+            new CollectingMessageBus(),
+            $clock
         );
 
-        $store->lock($request);
+        static::assertTrue($store->lock($request));
+        static::assertTrue($store->isLocked($request));
+        static::assertIsString($store->lock($request), 'A held lock must not be acquired twice');
 
-        static::assertTrue($item->get());
+        $clock->sleep(2);
+        static::assertTrue($store->isLocked($request));
 
-        $value = (new \ReflectionProperty(CacheItem::class, 'expiry'))->getValue($item);
-
-        static::assertEqualsWithDelta(time() + 3, $value, 1);
+        $clock->sleep(1);
+        static::assertFalse($store->isLocked($request), 'The lock must expire three seconds after it was acquired');
     }
 
     #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
@@ -79,11 +78,12 @@ class CacheStoreTest extends TestCase
             $stateValidator,
             new EventDispatcher(),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(MaintenanceModeResolver::class),
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             false,
-            new CollectingMessageBus()
+            new CollectingMessageBus(),
+            new NativeClock()
         );
 
         $store->write($request, $response);
@@ -105,14 +105,15 @@ class CacheStoreTest extends TestCase
 
         $store = new CacheStore(
             $cache,
-            $this->createMock(CacheStateValidator::class),
+            static::createStub(CacheStateValidator::class),
             new EventDispatcher(),
             $keyGenerator,
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(MaintenanceModeResolver::class),
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             false,
-            new CollectingMessageBus()
+            new CollectingMessageBus(),
+            new NativeClock()
         );
 
         $store->write($request, $response);
@@ -145,7 +146,8 @@ class CacheStoreTest extends TestCase
             [],
             $collector,
             true,
-            new CollectingMessageBus()
+            new CollectingMessageBus(),
+            new NativeClock()
         );
 
         $key = $store->write($request, $response);
@@ -190,7 +192,8 @@ class CacheStoreTest extends TestCase
             [],
             $collector,
             true,
-            new CollectingMessageBus()
+            new CollectingMessageBus(),
+            new NativeClock()
         );
 
         $key = $store->write($request, $response);
@@ -236,7 +239,8 @@ class CacheStoreTest extends TestCase
             [],
             $collector,
             false,
-            new CollectingMessageBus()
+            new CollectingMessageBus(),
+            new NativeClock()
         );
 
         $key = $store->write($request, $response);
@@ -258,8 +262,8 @@ class CacheStoreTest extends TestCase
         $response->headers->set('date', date('Y-m-d H:i:s'));
         $response->setSharedMaxAge(7200);
 
-        $arrayAdapter = new ArrayAdapter();
-        $cache = new TagAwareAdapter($arrayAdapter);
+        $clock = new MockClock('2099-06-13 12:00:00');
+        $cache = new TagAwareAdapter(new ArrayAdapter(clock: $clock));
 
         $stateValidator = $this->createMock(CacheStateValidator::class);
         $stateValidator->expects($this->never())->method('isValid');
@@ -279,7 +283,8 @@ class CacheStoreTest extends TestCase
             [],
             $collector,
             false,
-            new CollectingMessageBus()
+            new CollectingMessageBus(),
+            $clock
         );
 
         $key = $store->write($request, $response);
@@ -290,13 +295,14 @@ class CacheStoreTest extends TestCase
         $cacheItem = $cache->getItem($key);
         static::assertTrue($cacheItem->isHit());
 
-        $expiry = \Closure::bind(function (string $key): float {
-            return $this->expiries[$key];
-        }, $arrayAdapter, $arrayAdapter)($key);
-        static::assertEqualsWithDelta(microtime(true) + 7200, $expiry, 1);
-
         $cacheData = CacheCompressor::uncompress($cacheItem);
         static::assertInstanceOf(Response::class, $cacheData);
+
+        $clock->sleep(7199);
+        static::assertTrue($cache->hasItem($key));
+
+        $clock->sleep(1);
+        static::assertFalse($cache->hasItem($key), 'The entry must expire after the shared max age');
     }
 
     #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
@@ -337,9 +343,10 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
-            $bus
+            $bus,
+            new NativeClock()
         );
 
         $result = $store->lookup($request);
@@ -386,9 +393,10 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
-            $bus
+            $bus,
+            new NativeClock()
         );
 
         $result = $store->lookup($request);
@@ -438,9 +446,10 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
-            $bus
+            $bus,
+            new NativeClock()
         );
 
         $result = $store->lookup($request);
@@ -489,9 +498,10 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
-            $bus
+            $bus,
+            new NativeClock()
         );
 
         $result = $store->lookup($request);
@@ -533,9 +543,10 @@ class CacheStoreTest extends TestCase
             $keyGenerator,
             $maintenanceResolver,
             [],
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             true,
-            $bus
+            $bus,
+            new NativeClock()
         );
 
         static::assertNull($store->lookup($request));

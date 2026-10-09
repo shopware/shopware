@@ -5,25 +5,31 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding\Generato
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EntityGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityGenerator::class)]
 class EntityGeneratorTest extends TestCase
 {
     public function testCommandOptions(): void
     {
-        $generator = new EntityGenerator();
+        $generator = new EntityGenerator(new MockClock());
 
-        static::assertTrue($generator->hasCommandOption());
-        static::assertNotEmpty($generator->getCommandOptionName());
-        static::assertNotEmpty($generator->getCommandOptionDescription());
+        $option = $generator->getCommandOption();
+
+        static::assertSame(EntityGenerator::OPTION_NAME, $option->getName());
+        static::assertNotSame('', $option->getDescription());
+        static::assertTrue($option->isValueRequired());
     }
 
     /**
@@ -41,14 +47,14 @@ class EntityGeneratorTest extends TestCase
     ): void {
         $configuration = $this->getConfig();
 
-        $input = $this->createMock(InputInterface::class);
+        $input = static::createStub(InputInterface::class);
         $input->method('getOption')->willReturn($getOptionResponse);
 
-        $io = $this->createMock(SymfonyStyle::class);
+        $io = static::createStub(SymfonyStyle::class);
         $io->method('confirm')->willReturn($confirmResponse);
         $io->method('ask')->willReturn($entitiesAnswerInput);
 
-        (new EntityGenerator())
+        (new EntityGenerator(new MockClock()))
             ->addScaffoldConfig($configuration, $input, $io);
 
         static::assertSame($expectedHasOption, $configuration->hasOption(EntityGenerator::OPTION_NAME));
@@ -217,13 +223,98 @@ class EntityGeneratorTest extends TestCase
     {
         $stubs = new StubCollection();
 
-        (new EntityGenerator(new \DateTimeImmutable('1988-01-01 00:00:00')))
+        (new EntityGenerator(new MockClock(new \DateTimeImmutable('1988-01-01 00:00:00'))))
             ->generateStubs($config, $stubs);
 
         static::assertCount(\count($expected), $stubs);
 
         foreach ($expected as $stub) {
             static::assertTrue($stubs->has($stub));
+        }
+    }
+
+    public function testGeneratesAttributeStyleEntity(): void
+    {
+        $stubs = new StubCollection();
+
+        (new EntityGenerator(new MockClock(new \DateTimeImmutable('1988-01-01 00:00:00'))))
+            ->generateStubs(
+                self::getConfig([EntityGenerator::OPTION_NAME => ['Test']]),
+                $stubs,
+            );
+
+        static::assertFalse($stubs->has('src/Core/Content/Test/TestDefinition.php'));
+
+        $expectedEntity = <<<'PHP'
+<?php declare(strict_types=1);
+
+namespace MyNamespace\Core\Content\Test;
+
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
+
+#[Entity('test', collectionClass: TestCollection::class)]
+class TestEntity extends EntityStruct
+{
+    #[PrimaryKey]
+    #[Field(type: FieldType::UUID, api: ['admin-api' => true, 'store-api' => false])]
+    public string $id;
+
+    #[Field(type: FieldType::STRING, api: ['admin-api' => true, 'store-api' => false])]
+    public ?string $name = null;
+
+    #[Field(type: FieldType::STRING, api: ['admin-api' => true, 'store-api' => false])]
+    public ?string $description = null;
+
+    #[Field(type: FieldType::BOOL, api: ['admin-api' => true, 'store-api' => false])]
+    public ?bool $active = null;
+}
+
+PHP;
+
+        $expectedServices = <<<'PHP'
+
+    $services->set(\MyNamespace\Core\Content\Test\TestEntity::class)
+        ->tag('shopware.entity');
+
+PHP;
+
+        static::assertSame($expectedEntity, $stubs->get('src/Core/Content/Test/TestEntity.php')?->getContent());
+        static::assertSame($expectedServices, $stubs->get('src/Resources/config/services.php')?->getContent());
+    }
+
+    public function testDoesNotGenerateMigrationWhenEntityMigrationAlreadyExists(): void
+    {
+        $filesystem = new Filesystem();
+        $directory = sys_get_temp_dir() . '/shopware-entity-generator-' . uniqid('', true);
+        $filesystem->dumpFile(
+            $directory . '/src/Migration/Migration123456789CreateTestTable.php',
+            '<?php'
+        );
+
+        try {
+            $stubs = new StubCollection();
+            $timestamp = (new \DateTimeImmutable('1988-01-01 00:00:00'))->getTimestamp();
+
+            (new EntityGenerator(new MockClock(new \DateTimeImmutable('1988-01-01 00:00:00'))))
+                ->generateStubs(
+                    new PluginScaffoldConfiguration(
+                        'TestPlugin',
+                        'MyNamespace',
+                        $directory,
+                        [EntityGenerator::OPTION_NAME => ['Test']],
+                    ),
+                    $stubs,
+                );
+
+            static::assertCount(3, $stubs);
+            static::assertTrue($stubs->has('src/Core/Content/Test/TestEntity.php'));
+            static::assertFalse($stubs->has('src/Migration/Migration' . $timestamp . 'CreateTestTable.php'));
+        } finally {
+            $filesystem->remove($directory);
         }
     }
 
@@ -254,10 +345,9 @@ class EntityGeneratorTest extends TestCase
         yield 'Option with entity, one stub' => [
             'config' => self::getConfig([EntityGenerator::OPTION_NAME => ['Test']]),
             'expected' => [
-                'src/Resources/config/services.xml',
+                'src/Resources/config/services.php',
                 'src/Migration/Migration' . $timeStamp . 'CreateTestTable.php',
                 'src/Core/Content/Test/TestEntity.php',
-                'src/Core/Content/Test/TestDefinition.php',
                 'src/Core/Content/Test/TestCollection.php',
             ],
         ];
@@ -265,14 +355,12 @@ class EntityGeneratorTest extends TestCase
         yield 'Option with entity, multiple stubs' => [
             'config' => self::getConfig([EntityGenerator::OPTION_NAME => ['Test1', 'Test2']]),
             'expected' => [
-                'src/Resources/config/services.xml',
+                'src/Resources/config/services.php',
                 'src/Migration/Migration' . $timeStamp . 'CreateTest1Table.php',
                 'src/Migration/Migration' . $timeStamp . 'CreateTest2Table.php',
                 'src/Core/Content/Test1/Test1Entity.php',
-                'src/Core/Content/Test1/Test1Definition.php',
                 'src/Core/Content/Test1/Test1Collection.php',
                 'src/Core/Content/Test2/Test2Entity.php',
-                'src/Core/Content/Test2/Test2Definition.php',
                 'src/Core/Content/Test2/Test2Collection.php',
             ],
         ];

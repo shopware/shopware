@@ -8,10 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ActiveAppsLoader::class)]
 class ActiveAppsLoaderTest extends TestCase
 {
@@ -27,12 +29,13 @@ class ActiveAppsLoaderTest extends TestCase
                     'path' => 'test',
                     'author' => 'test',
                     'self_managed' => 1,
+                    'version' => '1.2.3',
                 ],
             ]);
 
         $activeAppsLoader = new ActiveAppsLoader(
             $connection,
-            $this->createMock(AppLoader::class),
+            static::createStub(AppLoader::class),
             '/'
         );
 
@@ -42,6 +45,7 @@ class ActiveAppsLoaderTest extends TestCase
                 'path' => 'test',
                 'author' => 'test',
                 'selfManaged' => true,
+                'version' => '1.2.3',
             ],
         ];
 
@@ -64,7 +68,7 @@ class ActiveAppsLoaderTest extends TestCase
             ->method('fetchAllAssociative')
             ->willThrowException(new \Exception('test'));
 
-        $appLoader = $this->createMock(AppLoader::class);
+        $appLoader = static::createStub(AppLoader::class);
 
         $xmlFile = __DIR__ . '/_fixtures/manifest.xml';
 
@@ -86,6 +90,7 @@ class ActiveAppsLoaderTest extends TestCase
                 'path' => \basename(\dirname($xmlFile)),
                 'author' => 'shopware AG',
                 'selfManaged' => false,
+                'version' => '1.0.0',
             ],
         ];
 

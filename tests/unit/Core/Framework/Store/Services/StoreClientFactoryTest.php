@@ -2,19 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
-use Doctrine\DBAL\Connection;
-use GuzzleHttp\Client;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
+use GuzzleHttp\Promise\Create;
+use GuzzleHttp\Promise\PromiseInterface;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\MiddlewareInterface;
-use Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware;
 use Shopware\Core\Framework\Store\Services\StoreClientFactory;
-use Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -23,51 +20,72 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[CoversClass(StoreClientFactory::class)]
 class StoreClientFactoryTest extends TestCase
 {
-    public function testCreatesClientWithoutMiddlewares(): void
+    public function testCreatedClientSendsRequestsToTheConfiguredStoreApi(): void
     {
-        $expected = new Client($this->createConfig());
+        $recorder = new RecordingMiddleware();
 
         $factory = new StoreClientFactory(new StaticSystemConfigService(['core.store.apiUri' => 'http://shopware.swag']));
-        $client = $factory->create();
+        $response = $factory->create([$recorder])->request('GET', '/swplatform/licenses');
 
-        static::assertEquals($expected, $client);
+        static::assertSame(204, $response->getStatusCode());
+        static::assertCount(1, $recorder->requests);
+
+        $request = $recorder->requests[0];
+        static::assertSame('http://shopware.swag/swplatform/licenses', (string) $request->getUri());
+        static::assertSame('application/json', $request->getHeaderLine('Content-Type'));
+        static::assertSame('application/vnd.api+json,application/json', $request->getHeaderLine('Accept'));
     }
 
-    public function testCreatesClientWithMiddlewares(): void
+    public function testCreatedClientRunsEveryGivenMiddlewareInOrder(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $middlewares = [
-            new StoreSessionExpiredMiddleware($connection, new RequestStack()),
-            new ShopSecretInvalidMiddleware($connection, new StaticSystemConfigService()),
-        ];
-
-        $expected = new Client($this->createConfig($middlewares));
+        $first = new TaggingMiddleware('first');
+        $second = new TaggingMiddleware('second');
+        $recorder = new RecordingMiddleware();
 
         $factory = new StoreClientFactory(new StaticSystemConfigService(['core.store.apiUri' => 'http://shopware.swag']));
-        $client = $factory->create($middlewares);
+        // The first given middleware is the outermost one, so the recorder given last sees the tags of both others
+        $factory->create([$first, $second, $recorder])->request('GET', '/');
 
-        static::assertEquals($expected, $client);
+        static::assertCount(1, $recorder->requests);
+        static::assertSame(['first', 'second'], $recorder->requests[0]->getHeader('X-Tag'));
     }
+}
 
+/**
+ * Answers every request itself and records it, so no request leaves the test.
+ *
+ * @internal
+ */
+class RecordingMiddleware implements MiddlewareInterface
+{
     /**
-     * @param MiddlewareInterface[] $middlewares
-     *
-     * @return array{base_uri: string, headers: array<string, string>, handler: HandlerStack}
+     * @var list<RequestInterface>
      */
-    private function createConfig(array $middlewares = []): array
-    {
-        $handler = HandlerStack::create();
-        foreach ($middlewares as $middleware) {
-            $handler->push(Middleware::mapResponse($middleware));
-        }
+    public array $requests = [];
 
-        return [
-            'base_uri' => 'http://shopware.swag',
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/vnd.api+json,application/json',
-            ],
-            'handler' => $handler,
-        ];
+    public function __invoke(callable $handler): callable
+    {
+        return function (RequestInterface $request): PromiseInterface {
+            $this->requests[] = $request;
+
+            return Create::promiseFor(new Response(204));
+        };
+    }
+}
+
+/**
+ * @internal
+ */
+class TaggingMiddleware implements MiddlewareInterface
+{
+    public function __construct(private readonly string $tag)
+    {
+    }
+
+    public function __invoke(callable $handler): callable
+    {
+        return function (RequestInterface $request, array $options) use ($handler): PromiseInterface {
+            return $handler($request->withAddedHeader('X-Tag', $this->tag), $options);
+        };
     }
 }

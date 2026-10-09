@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\Translation\Translator;
 use Twig\Environment;
@@ -17,6 +18,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StringTemplateRenderer::class)]
 class StringTemplateRendererTest extends TestCase
 {
@@ -34,7 +36,7 @@ TWIG;
         $item->setLabel($label);
 
         $environment = new Environment(new ArrayLoader());
-        $translator = $this->createMock(Translator::class);
+        $translator = static::createStub(Translator::class);
         $translator
             ->method('trans')
             ->willReturnCallback(static function (string $id) {
@@ -73,7 +75,8 @@ TWIG;
         $renderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
 
         $this->expectException(AdapterException::class);
-        $this->expectExceptionMessageMatches('/Failed rendering Twig string template due syntax error: "Unexpected "}" in "[^"]+" at line 1."/');
+        // Twig 3.28 appends the column to syntax error messages, older versions stop at the line
+        $this->expectExceptionMessageMatches('/Failed rendering Twig string template due syntax error: "Unexpected "}" in "[^"]+" at line 1( column \d+)?."/');
         $renderer->render($template, [], $context);
     }
 }

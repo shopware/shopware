@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('fundamentals@after-sales')]
 class Migration1755497870RemoveLabelTranslationOfImportExportProfile extends MigrationStep
 {
     public function getCreationTimestamp(): int

@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\InputField;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(InputField::class)]
 class InputFieldTest extends TestCase
 {
@@ -121,6 +123,43 @@ XML));
         );
     }
 
+    public function testToArrayAddsTranslationsForTheDefaultLocale(): void
+    {
+        $inputField = InputField::fromXml(self::loadElement(<<<'XML'
+<input-field type="single-select">
+    <name>mailMethod</name>
+    <label>Mail method</label>
+    <label lang="de-DE">Versandart</label>
+    <place-holder>Choose a method</place-holder>
+    <helpText lang="de-DE">Gilt fuer alle Mails</helpText>
+    <options>
+        <option value="smtp">
+            <label>SMTP</label>
+            <label lang="de-DE">SMTP DE</label>
+        </option>
+    </options>
+</input-field>
+XML));
+
+        $result = $inputField->toArray('de-AT');
+
+        static::assertSame(['en-GB' => 'Mail method', 'de-DE' => 'Versandart', 'de-AT' => 'Versandart'], $result['label']);
+        static::assertSame(['en-GB' => 'Choose a method', 'de-AT' => 'Choose a method'], $result['placeHolder']);
+        static::assertSame(['de-DE' => 'Gilt fuer alle Mails', 'de-AT' => 'Gilt fuer alle Mails'], $result['helpText']);
+        static::assertSame(
+            [
+                [
+                    'value' => 'smtp',
+                    'label' => ['en-GB' => 'SMTP', 'de-DE' => 'SMTP DE', 'de-AT' => 'SMTP DE'],
+                ],
+            ],
+            $result['options']
+        );
+    }
+
+    /**
+     * @param non-empty-string $xml
+     */
     private static function loadElement(string $xml): \DOMElement
     {
         $document = new \DOMDocument();

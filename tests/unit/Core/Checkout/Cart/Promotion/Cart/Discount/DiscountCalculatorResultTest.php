@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(DiscountCalculatorResult::class)]
 #[Package('checkout')]
+#[CoversClass(DiscountCalculatorResult::class)]
 class DiscountCalculatorResultTest extends TestCase
 {
     /**

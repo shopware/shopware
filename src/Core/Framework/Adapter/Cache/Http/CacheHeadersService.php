@@ -39,12 +39,7 @@ class CacheHeadersService
         $response->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $context->getLanguageId());
         $response->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $context->getCurrencyId());
 
-        $newVaryArray = array_merge($response->getVary(), [
-            PlatformRequest::HEADER_ACCESS_KEY,
-            PlatformRequest::HEADER_LANGUAGE_ID,
-            PlatformRequest::HEADER_CURRENCY_ID,
-            HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
-        ]);
+        $newVaryArray = array_merge($response->getVary(), HttpCacheVariantHeaders::HEADERS);
         $newVaryArray = array_unique(array_map(static fn (string $v) => \trim($v), $newVaryArray));
 
         $response->setVary($newVaryArray);
@@ -86,7 +81,7 @@ class CacheHeadersService
     {
         $ruleAreas = $this->ruleResolver->resolveRuleAreas($request, $context);
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
             $ruleIds = $context->getRuleIdsByAreas($ruleAreas);
         } else {
             $ruleIds = $context->getRuleIds();
@@ -95,13 +90,15 @@ class CacheHeadersService
         $ruleIds = array_unique($ruleIds);
         sort($ruleIds);
 
+        // Must not depend on the route scope: storefront and Store API share the sw-cache-hash cookie on a domain,
+        // so a Store API client on a storefront page would otherwise overwrite the storefront's cookie on every call.
         $parts = [
             HttpCacheCookieEvent::RULE_IDS => $ruleIds,
             HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
             HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
-            HttpCacheCookieEvent::LANGUAGE_ID => $context->getLanguageId(),
             HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
             HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
+            HttpCacheCookieEvent::LANGUAGE_ID => $context->getLanguageId(),
         ];
 
         foreach ($this->cookies as $cookie) {
@@ -130,6 +127,34 @@ class CacheHeadersService
 
         if ($salesChannelContext->getCurrencyId() !== $salesChannelContext->getSalesChannel()->getCurrencyId()) {
             // cache hash is required for non-default currency
+            return true;
+        }
+
+        // Visitor can patch context with values that change the response for the cacheable routes
+        // (tax state, country, payment method, shipping method conditioned rules)
+        if ($salesChannelContext->getShippingLocation()->getCountry()->getId()
+            !== $salesChannelContext->getSalesChannel()->getCountryId()
+        ) {
+            return true;
+        }
+
+        if ($salesChannelContext->getPaymentMethod()->getId()
+            !== $salesChannelContext->getSalesChannel()->getPaymentMethodId()
+        ) {
+            return true;
+        }
+
+        if ($salesChannelContext->getShippingMethod()->getId()
+            !== $salesChannelContext->getSalesChannel()->getShippingMethodId()
+        ) {
+            return true;
+        }
+
+        // sw-language-id is part of the cache key, so only a persisted context language needs the hash.
+        // Storefront requests always carry the header, set from their domain.
+        if ($salesChannelContext->getLanguageId() !== $salesChannelContext->getSalesChannel()->getLanguageId()
+            && $salesChannelContext->getLanguageId() !== (string) $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID, '')
+        ) {
             return true;
         }
 

@@ -1,12 +1,47 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": [],
     "components": {
         "schemas": {
             "Document": {
-                "type": "object",
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "documentTypeId",
+                    "orderId",
+                    "config",
+                    "deepLinkCode"
+                ],
                 "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "documentTypeId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "referencedDocumentId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "orderId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "documentMediaFileId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "documentA11yMediaFileId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "orderVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
                     "config": {
                         "type": "object",
                         "properties": {
@@ -17,12 +52,62 @@
                                 "type": "string"
                             }
                         },
-                        "required": ["name", "title"]
+                        "required": [
+                            "name",
+                            "title"
+                        ]
+                    },
+                    "sent": {
+                        "type": "boolean"
+                    },
+                    "static": {
+                        "type": "boolean"
+                    },
+                    "deepLinkCode": {
+                        "type": "string"
+                    },
+                    "documentNumber": {
+                        "type": "string"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "documentType": {
+                        "$ref": "#/components/schemas/DocumentType"
+                    },
+                    "order": {
+                        "$ref": "#/components/schemas/Order"
+                    },
+                    "referencedDocument": {
+                        "$ref": "#/components/schemas/Document"
+                    },
+                    "dependentDocuments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Document"
+                        }
+                    },
+                    "documentMediaFile": {
+                        "$ref": "#/components/schemas/Media"
+                    },
+                    "documentA11yMediaFile": {
+                        "$ref": "#/components/schemas/Media"
                     },
                     "fileType": {
                         "type": "string"
                     }
-                }
+                },
+                "type": "object"
             }
         }
     }

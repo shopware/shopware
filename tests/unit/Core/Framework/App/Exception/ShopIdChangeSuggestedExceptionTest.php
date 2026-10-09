@@ -16,8 +16,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(ShopIdChangeSuggestedException::class)]
 #[Package('framework')]
+#[CoversClass(ShopIdChangeSuggestedException::class)]
 class ShopIdChangeSuggestedExceptionTest extends TestCase
 {
     public function testException(): void

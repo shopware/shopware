@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Twig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ThemeRuntimeConfig;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder;
@@ -11,6 +12,7 @@ use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeInheritanceBuilder::class)]
 class ThemeInheritanceBuilderTest extends TestCase
 {

@@ -50,7 +50,7 @@ type GatewayContext = {
 
 type GatewayUser = {
     shop_id: string;
-    id: string;
+    id: EntityKey<'user'>;
 };
 
 type GatewayEventRequest = {
@@ -76,8 +76,8 @@ type GatewayAnonymousEventRequest = {
 export interface TrackingClient {
     init(): void;
     track(eventName: string, eventPayload?: EventPayload): void;
-    identify(userId: string): void;
-    getUserId(): string | null;
+    identify(userId: EntityKey<'user'>): void;
+    getUserId(): EntityKey<'user'> | null;
     clearStorage(): void;
     flush(): Promise<void>;
     isInitialized: boolean;
@@ -95,7 +95,7 @@ export class GatewayClient implements TrackingClient {
     #retryAttempt: number;
     #retryTimer: ReturnType<typeof setTimeout> | null;
     #sessionId: number | null;
-    #userId: string | null;
+    #userId: EntityKey<'user'> | null;
 
     constructor(
         private readonly gateWayUrl: string,
@@ -152,7 +152,7 @@ export class GatewayClient implements TrackingClient {
         this.#scheduleFlush(FLUSH_INTERVAL_MS);
     }
 
-    identify(userId: string): void {
+    identify(userId: EntityKey<'user'>): void {
         this.#userId = userId;
 
         if (this.#queue.length > 0) {
@@ -160,7 +160,7 @@ export class GatewayClient implements TrackingClient {
         }
     }
 
-    getUserId(): string | null {
+    getUserId(): EntityKey<'user'> | null {
         return this.#userId;
     }
 
@@ -210,7 +210,7 @@ export class GatewayClient implements TrackingClient {
         void this.#sendJsonRequest(`${this.gateWayUrl}/v2/event/anonymous`, payload);
     }
 
-    deleteUser(shopId: string, userId: string) {
+    deleteUser(shopId: string, userId: EntityKey<'user'>) {
         void this.#sendJsonRequest(`${this.gateWayUrl}/v1/delete-user`, {
             shop_id: shopId,
             user_id: userId,

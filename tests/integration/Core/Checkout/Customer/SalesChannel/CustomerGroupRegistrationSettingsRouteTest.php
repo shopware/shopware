@@ -76,5 +76,34 @@ class CustomerGroupRegistrationSettingsRouteTest extends TestCase
 
         static::assertSame($this->ids->get('group'), $response['id']);
         static::assertSame('test', $response['registrationTitle']);
+        static::assertArrayHasKey('registrationOnlyCompanyRegistration', $response);
+        static::assertNull($response['registrationOnlyCompanyRegistration']);
+    }
+
+    public function testWithCompanyOnlyRegistrationEnabled(): void
+    {
+        $customerGroupRepository = static::getContainer()->get('customer_group.repository');
+        $customerGroupRepository->create([
+            [
+                'id' => $this->ids->create('company-group'),
+                'name' => 'foo',
+                'registrationActive' => true,
+                'registrationTitle' => 'test',
+                'registrationOnlyCompanyRegistration' => true,
+                'registrationSalesChannels' => [['id' => $this->getSalesChannelApiSalesChannelId()]],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/customer-group-registration/config/' . $this->ids->get('company-group')
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        static::assertArrayHasKey('registrationOnlyCompanyRegistration', $response);
+        static::assertTrue($response['registrationOnlyCompanyRegistration']);
     }
 }

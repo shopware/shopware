@@ -43,7 +43,7 @@ class WebhookTransportFactoryTest extends TestCase
         $transport = $factory->createTransport(
             'shopware-webhook://default',
             [],
-            $this->createMock(SerializerInterface::class)
+            static::createStub(SerializerInterface::class)
         );
 
         static::assertInstanceOf(WebhookTransport::class, $transport);
@@ -61,23 +61,23 @@ class WebhookTransportFactoryTest extends TestCase
         };
 
         $factory = new WebhookTransportFactory(
-            $this->createMock(WebhookOutboxStore::class),
+            static::createStub(WebhookOutboxStore::class),
             function () use ($calls): TransportInterface {
                 ++$calls->async;
 
-                return $this->createMock(TransportInterface::class);
+                return $this->createStub(TransportInterface::class);
             },
             function () use ($calls): MySQLWebhookReceiver {
                 ++$calls->receiver;
 
-                return $this->createMock(MySQLWebhookReceiver::class);
+                return $this->createStub(MySQLWebhookReceiver::class);
             },
         );
 
         static::assertSame(0, $calls->async, 'Async transport must not be resolved at construction time.');
         static::assertSame(0, $calls->receiver, 'Receiver must not be resolved at construction time.');
 
-        $factory->createTransport('shopware-webhook://default', [], $this->createMock(SerializerInterface::class));
+        $factory->createTransport('shopware-webhook://default', [], static::createStub(SerializerInterface::class));
 
         static::assertSame(1, $calls->async, 'Async transport should be resolved exactly once when createTransport() is called.');
         static::assertSame(1, $calls->receiver, 'Receiver should be resolved exactly once when createTransport() is called.');
@@ -85,11 +85,11 @@ class WebhookTransportFactoryTest extends TestCase
 
     private function createFactory(): WebhookTransportFactory
     {
-        $asyncTransport = $this->createMock(TransportInterface::class);
-        $receiver = $this->createMock(MySQLWebhookReceiver::class);
+        $asyncTransport = static::createStub(TransportInterface::class);
+        $receiver = static::createStub(MySQLWebhookReceiver::class);
 
         return new WebhookTransportFactory(
-            $this->createMock(WebhookOutboxStore::class),
+            static::createStub(WebhookOutboxStore::class),
             fn (): TransportInterface => $asyncTransport,
             fn (): MySQLWebhookReceiver => $receiver,
         );

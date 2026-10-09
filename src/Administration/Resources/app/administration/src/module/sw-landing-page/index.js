@@ -12,9 +12,9 @@ Module.register('sw-landing-page', {
     title: 'sw-landing-page.general.mainMenuItemIndex',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#57D9A3',
+    color: 'var(--sw-color-module-green-default)',
     icon: 'regular-products',
-    favicon: 'icon-module-products.png',
+    favicon: 'icon-module-products.svg',
     entity: 'landing_page',
 
     routes: {

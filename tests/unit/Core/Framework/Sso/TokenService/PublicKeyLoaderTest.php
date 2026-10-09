@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Unit\Core\Framework\Sso\TokenService\_fixtures\JwksIds;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
-use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -114,7 +113,7 @@ class PublicKeyLoaderTest extends TestCase
 
     private function createClient(bool $shouldBeCalled, string $data): HttpClientInterface
     {
-        $response = $this->createMock(ResponseInterface::class);
+        $response = static::createStub(ResponseInterface::class);
         $response->method('getContent')->willReturn($data);
 
         $client = $this->createMock(HttpClientInterface::class);
@@ -138,7 +137,7 @@ class PublicKeyLoaderTest extends TestCase
             'register_url' => 'https://register.url',
         ];
 
-        return new LoginConfigService($rawConfig, $this->createMock(RouterInterface::class));
+        return new LoginConfigService($rawConfig, static::createStub(RouterInterface::class));
     }
 
     private function createCache(?string $cached = null): AdapterInterface&CacheInterface
@@ -146,22 +145,7 @@ class PublicKeyLoaderTest extends TestCase
         $cache = new ArrayAdapter();
 
         if ($cached !== null) {
-            $createCacheItem = \Closure::bind(
-                static function ($cached) {
-                    $item = new CacheItem();
-                    $item->key = 'admin_sso_public_key_storage';
-                    $item->isHit = true;
-                    $item->value = $cached;
-                    $item->unpack();
-
-                    return $item;
-                },
-                null,
-                CacheItem::class
-            );
-
-            $cacheItem = $createCacheItem($cached);
-            $cache->save($cacheItem);
+            $cache->get('admin_sso_public_key_storage', static fn (): string => $cached);
         }
 
         return $cache;

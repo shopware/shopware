@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Product\Stock;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
@@ -16,6 +15,7 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -44,7 +44,6 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('inventory')]
-#[Group('slow')]
 class StockStorageTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -109,7 +108,7 @@ class StockStorageTest extends TestCase
         $this->productRepository->create([$product], $context);
         $this->addTaxDataToSalesChannel($this->context, $product['tax']);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -136,7 +135,7 @@ class StockStorageTest extends TestCase
         $this->productRepository->create([$product], $context);
         $this->addTaxDataToSalesChannel($this->context, $product['tax']);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getIsCloseout());
@@ -163,7 +162,7 @@ class StockStorageTest extends TestCase
         $this->productRepository->create([$product], $context);
         $this->addTaxDataToSalesChannel($this->context, $product['tax']);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -171,7 +170,7 @@ class StockStorageTest extends TestCase
 
         $this->productRepository->update([['id' => $id, 'stock' => 0]], $context);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getIsCloseout());
@@ -192,7 +191,7 @@ class StockStorageTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->get($productId);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -200,12 +199,95 @@ class StockStorageTest extends TestCase
 
         $this->productRepository->update([['id' => $productId, 'isCloseout' => null]], $context);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->get($productId);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertFalse($product->getIsCloseout());
         static::assertTrue($product->getAvailable());
         $this->assertStock(10, $product);
+    }
+
+    public function testVariantAvailabilityFollowsCloseoutChangeOfParent(): void
+    {
+        $parentId = $this->createProduct([
+            'stock' => 0,
+            'isCloseout' => true,
+        ]);
+        $variantId = $this->createProduct([
+            'parentId' => $parentId,
+            'stock' => 0,
+            'isCloseout' => null,
+        ]);
+
+        $context = Context::createDefaultContext();
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertFalse($variant->getAvailable());
+
+        $this->productRepository->update([['id' => $parentId, 'isCloseout' => false]], $context);
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertTrue($variant->getAvailable());
+
+        $this->productRepository->update([['id' => $parentId, 'isCloseout' => true]], $context);
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertFalse($variant->getAvailable());
+    }
+
+    public function testVariantAvailabilityFollowsMinPurchaseChangeOfParent(): void
+    {
+        $parentId = $this->createProduct([
+            'stock' => 0,
+            'isCloseout' => true,
+            'minPurchase' => 1,
+        ]);
+        $variantId = $this->createProduct([
+            'parentId' => $parentId,
+            'stock' => 1,
+            'isCloseout' => null,
+        ]);
+
+        $context = Context::createDefaultContext();
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertTrue($variant->getAvailable());
+
+        $this->productRepository->update([['id' => $parentId, 'minPurchase' => 2]], $context);
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertFalse($variant->getAvailable());
+    }
+
+    public function testVariantWithOwnCloseoutFollowsMinPurchaseChangeOfParent(): void
+    {
+        $parentId = $this->createProduct([
+            'stock' => 0,
+            'isCloseout' => false,
+            'minPurchase' => 1,
+        ]);
+        $variantId = $this->createProduct([
+            'parentId' => $parentId,
+            'stock' => 1,
+            'isCloseout' => true,
+        ]);
+
+        $context = Context::createDefaultContext();
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertTrue($variant->getAvailable());
+
+        $this->productRepository->update([['id' => $parentId, 'minPurchase' => 2]], $context);
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertFalse($variant->getAvailable());
     }
 
     public static function triggerProductNoLongerAvailableEventOnCreateProvider(): \Generator
@@ -225,7 +307,7 @@ class StockStorageTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->exactly($triggered))->method('__invoke');
 
         $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, $listener);
@@ -315,7 +397,7 @@ class StockStorageTest extends TestCase
         $this->productRepository->create([$product], $context);
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
 
         $listener->expects($this->exactly($triggered))->method('__invoke');
         $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, $listener);
@@ -329,7 +411,7 @@ class StockStorageTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -337,7 +419,7 @@ class StockStorageTest extends TestCase
 
         $this->orderProduct($id, 1);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -355,14 +437,14 @@ class StockStorageTest extends TestCase
         ]);
         $orderId = $this->orderProduct($productId, $orderQuantity);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         $this->assertStock($initialStock - $orderQuantity, $product);
 
         $this->transitionOrder($orderId, StateMachineTransitionActions::ACTION_CANCEL);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         $this->assertStock($initialStock, $product);
@@ -374,7 +456,7 @@ class StockStorageTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         $this->assertStock(5, $product);
@@ -382,7 +464,7 @@ class StockStorageTest extends TestCase
 
         $orderId = $this->orderProduct($id, 1);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -399,7 +481,7 @@ class StockStorageTest extends TestCase
 
         $this->transitionOrder($orderId, 'complete');
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -413,7 +495,7 @@ class StockStorageTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         $this->assertStock(5, $product);
@@ -433,7 +515,7 @@ class StockStorageTest extends TestCase
 
         static::assertSame(3, $count);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -443,7 +525,7 @@ class StockStorageTest extends TestCase
         $this->transitionOrder($orderId, 'process');
         $this->transitionOrder($orderId, 'complete');
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -457,14 +539,14 @@ class StockStorageTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         $this->assertStock(5, $product);
 
         $orderId = $this->orderProduct($id, 5);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertFalse($product->getAvailable());
@@ -473,7 +555,7 @@ class StockStorageTest extends TestCase
         $this->transitionOrder($orderId, 'process');
         $this->transitionOrder($orderId, 'complete');
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertFalse($product->getAvailable());
@@ -487,14 +569,14 @@ class StockStorageTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         $this->assertStock(5, $product);
 
         $orderId = $this->orderProduct($id, 5);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertFalse($product->getAvailable());
@@ -505,7 +587,7 @@ class StockStorageTest extends TestCase
         $criteria->addFilter(new EqualsFilter('referencedId', $id));
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $lineItem = $lineItemRepository->search($criteria, $context)->first();
+        $lineItem = $lineItemRepository->search($criteria, $context)->getEntities()->first();
         static::assertInstanceOf(OrderLineItemEntity::class, $lineItem);
 
         $update = [
@@ -537,7 +619,7 @@ class StockStorageTest extends TestCase
         ]);
         $orderId = $this->orderProduct($productId, 5);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertFalse($product->getAvailable());
         $this->assertStock(0, $product);
@@ -545,7 +627,7 @@ class StockStorageTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->first();
+        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->getEntities()->first();
         static::assertInstanceOf(OrderLineItemEntity::class, $orderLineItem);
 
         $this->lineItemRepository->delete([
@@ -554,7 +636,7 @@ class StockStorageTest extends TestCase
             ],
         ], $context);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
         $this->assertStock(5, $product);
@@ -572,10 +654,10 @@ class StockStorageTest extends TestCase
         ]);
         $orderId = $this->orderProduct($originalProductId, 1);
 
-        $originalProduct = $this->productRepository->search(new Criteria([$originalProductId]), $context)->first();
+        $originalProduct = $this->productRepository->search(new Criteria([$originalProductId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $originalProduct);
 
-        $newProduct = $this->productRepository->search(new Criteria([$newProductId]), $context)->first();
+        $newProduct = $this->productRepository->search(new Criteria([$newProductId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $newProduct);
         $this->assertStock(4, $originalProduct);
         $this->assertStock(5, $newProduct);
@@ -583,7 +665,7 @@ class StockStorageTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->first();
+        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->getEntities()->first();
         static::assertInstanceOf(OrderLineItemEntity::class, $orderLineItem);
 
         $this->lineItemRepository->update([
@@ -597,8 +679,8 @@ class StockStorageTest extends TestCase
             ],
         ], $context);
 
-        $newProduct = $this->productRepository->search(new Criteria([$newProductId]), $context)->first();
-        $originalProduct = $this->productRepository->search(new Criteria([$originalProductId]), $context)->first();
+        $newProduct = $this->productRepository->search(new Criteria([$newProductId]), $context)->getEntities()->first();
+        $originalProduct = $this->productRepository->search(new Criteria([$originalProductId]), $context)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $newProduct);
         static::assertInstanceOf(ProductEntity::class, $originalProduct);
@@ -622,10 +704,10 @@ class StockStorageTest extends TestCase
         $this->transitionOrder($orderId, 'process');
         $this->transitionOrder($orderId, 'complete');
 
-        $originalProduct = $this->productRepository->search(new Criteria([$originalProductId]), $context)->first();
+        $originalProduct = $this->productRepository->search(new Criteria([$originalProductId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $originalProduct);
 
-        $newProduct = $this->productRepository->search(new Criteria([$newProductId]), $context)->first();
+        $newProduct = $this->productRepository->search(new Criteria([$newProductId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $newProduct);
 
         static::assertSame(1, $originalProduct->getSales());
@@ -634,7 +716,7 @@ class StockStorageTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->first();
+        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->getEntities()->first();
         static::assertInstanceOf(OrderLineItemEntity::class, $orderLineItem);
 
         $this->lineItemRepository->update([
@@ -648,8 +730,8 @@ class StockStorageTest extends TestCase
             ],
         ], $context);
 
-        $newProduct = $this->productRepository->search(new Criteria([$newProductId]), $context)->first();
-        $originalProduct = $this->productRepository->search(new Criteria([$originalProductId]), $context)->first();
+        $newProduct = $this->productRepository->search(new Criteria([$newProductId]), $context)->getEntities()->first();
+        $originalProduct = $this->productRepository->search(new Criteria([$originalProductId]), $context)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $newProduct);
         static::assertInstanceOf(ProductEntity::class, $originalProduct);
@@ -668,7 +750,7 @@ class StockStorageTest extends TestCase
         $this->transitionOrder($orderId, 'process');
         $this->transitionOrder($orderId, 'complete');
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         $this->assertStock(4, $product);
         static::assertSame(1, $product->getSales());
@@ -676,7 +758,7 @@ class StockStorageTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->first();
+        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->getEntities()->first();
         static::assertInstanceOf(OrderLineItemEntity::class, $orderLineItem);
 
         $this->lineItemRepository->update([
@@ -686,7 +768,7 @@ class StockStorageTest extends TestCase
             ],
         ], $context);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
         // only not completed orders are considered by the stock indexer
         static::assertInstanceOf(ProductEntity::class, $product);
         $this->assertStock(3, $product);
@@ -702,19 +784,19 @@ class StockStorageTest extends TestCase
         ]);
         $orderId = $this->orderProduct($productId, 1);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         $this->assertStock(4, $product);
 
         $this->transitionOrder($orderId, 'cancel');
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         $this->assertStock(5, $product);
 
         $this->transitionOrder($orderId, 'reopen');
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         $this->assertStock(4, $product);
     }
@@ -732,14 +814,14 @@ class StockStorageTest extends TestCase
         $this->transitionOrder($orderId, 'process');
         $this->transitionOrder($orderId, 'complete');
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame(1, $product->getSales());
 
         $this->transitionOrder($orderId, 'reopen');
         $this->transitionOrder($orderId, 'cancel');
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame(0, $product->getSales());
     }
@@ -757,13 +839,13 @@ class StockStorageTest extends TestCase
         $this->transitionOrder($orderId, 'process');
         $this->transitionOrder($orderId, 'complete');
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame(1, $product->getSales());
 
         $this->transitionOrder($orderId, 'reopen');
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame(1, $product->getSales());
     }
@@ -789,7 +871,7 @@ class StockStorageTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -797,7 +879,7 @@ class StockStorageTest extends TestCase
 
         $orderId = $this->orderProduct($id, 1);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -805,7 +887,7 @@ class StockStorageTest extends TestCase
 
         $this->orderRepository->delete([['id' => $orderId]], $context);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -818,7 +900,7 @@ class StockStorageTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -826,7 +908,7 @@ class StockStorageTest extends TestCase
 
         $orderId = $this->orderProduct($id, 1);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -834,7 +916,7 @@ class StockStorageTest extends TestCase
 
         $this->transitionOrder($orderId, StateMachineTransitionActions::ACTION_CANCEL);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -842,7 +924,7 @@ class StockStorageTest extends TestCase
 
         $this->orderRepository->delete([['id' => $orderId]], $context);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
@@ -858,7 +940,7 @@ class StockStorageTest extends TestCase
             'isCloseout' => true,
         ]);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->get($productId);
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getIsCloseout());
         static::assertTrue($product->getAvailable());
@@ -871,7 +953,7 @@ class StockStorageTest extends TestCase
 
         $this->orderProduct($productId, 1);
 
-        $productAfterOrder = $this->productRepository->search(new Criteria([$productId]), $context)->get($productId);
+        $productAfterOrder = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->get($productId);
         static::assertInstanceOf(ProductEntity::class, $productAfterOrder);
 
         $updatedAtAfterOrder = $productAfterOrder->getUpdatedAt();
@@ -946,6 +1028,7 @@ class StockStorageTest extends TestCase
             'stock' => 5,
             'name' => 'Test',
             'isCloseout' => true,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],

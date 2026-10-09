@@ -7,11 +7,13 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBu
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class NamespaceHierarchyBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -72,6 +74,7 @@ class NamespaceHierarchyBuilderTest extends TestCase
             'Administration',
             'Framework',
             'Storefront',
+            'Content',
         ];
         // Remove not installed core bundles from hierarchy
         $coreHierarchy = array_intersect($coreHierarchy, array_keys(static::getContainer()->getParameter('kernel.bundles')));

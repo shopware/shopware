@@ -21,10 +21,16 @@ class EmailIdnTwigFilterTest extends TestCase
 
         static::assertCount(2, $filter->getFilters());
 
-        static::assertSame($filter->getFilters()[0]->getName(), 'decodeIdnEmail');
-        static::assertEquals(\Closure::fromCallable(EmailIdnConverter::decode(...)), $filter->getFilters()[0]->getCallable());
+        $decode = $filter->getFilters()[0];
+        static::assertSame('decodeIdnEmail', $decode->getName());
+        $decodeCallable = $decode->getCallable();
+        static::assertIsCallable($decodeCallable);
+        static::assertSame(EmailIdnConverter::decode('test@xn--mller-kva.de'), $decodeCallable('test@xn--mller-kva.de'));
 
-        static::assertSame($filter->getFilters()[1]->getName(), 'encodeIdnEmail');
-        static::assertEquals(\Closure::fromCallable(EmailIdnConverter::decode(...)), $filter->getFilters()[1]->getCallable());
+        $encode = $filter->getFilters()[1];
+        static::assertSame('encodeIdnEmail', $encode->getName());
+        $encodeCallable = $encode->getCallable();
+        static::assertIsCallable($encodeCallable);
+        static::assertSame(EmailIdnConverter::encode('test@müller.de'), $encodeCallable('test@müller.de'));
     }
 }

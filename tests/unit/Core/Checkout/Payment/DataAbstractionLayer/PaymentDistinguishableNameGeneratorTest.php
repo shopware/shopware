@@ -52,7 +52,6 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $plugin->getTranslations()?->add($pluginTranslation);
         $paymentMethod->setPlugin($plugin);
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
             static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('plugin'));
@@ -95,7 +94,6 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
 
         $paymentMethod->setPlugin($plugin);
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
             static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('plugin'));
@@ -123,7 +121,6 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
             static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('plugin'));
@@ -138,7 +135,7 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $generator = new PaymentDistinguishableNameGenerator($paymentRepository);
         $generator->generateDistinguishablePaymentNames(Context::createDefaultContext());
 
-        static::assertEmpty($paymentRepository->upserts);
+        static::assertCount(0, $paymentRepository->upserts);
     }
 
     public function testGenerateWithoutAppOrPlugin(): void
@@ -147,7 +144,6 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $paymentMethod->setId(Uuid::randomHex());
         $paymentMethod->setTranslations(new PaymentMethodTranslationCollection());
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
             static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('plugin'));
@@ -162,7 +158,7 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $generator = new PaymentDistinguishableNameGenerator($paymentRepository);
         $generator->generateDistinguishablePaymentNames(Context::createDefaultContext());
 
-        static::assertEmpty($paymentRepository->upserts);
+        static::assertCount(0, $paymentRepository->upserts);
     }
 
     public function testGenerateWithoutPluginLoaded(): void
@@ -177,7 +173,6 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $paymentMethod->getTranslations()?->add($paymentMethodTranslation);
         $paymentMethod->setPluginId(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
             static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('plugin'));
@@ -192,7 +187,7 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $generator = new PaymentDistinguishableNameGenerator($paymentRepository);
         $generator->generateDistinguishablePaymentNames(Context::createDefaultContext());
 
-        static::assertEmpty($paymentRepository->upserts);
+        static::assertCount(0, $paymentRepository->upserts);
     }
 
     public function testGenerateWithoutPluginTranslationsLoaded(): void
@@ -208,7 +203,6 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $paymentMethod->setPluginId(Uuid::randomHex());
         $paymentMethod->setPlugin(new PluginEntity());
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
             static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('plugin'));
@@ -223,7 +217,7 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $generator = new PaymentDistinguishableNameGenerator($paymentRepository);
         $generator->generateDistinguishablePaymentNames(Context::createDefaultContext());
 
-        static::assertEmpty($paymentRepository->upserts);
+        static::assertCount(0, $paymentRepository->upserts);
     }
 
     public function testGenerateApp(): void
@@ -249,7 +243,6 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $appPaymentMethod->setApp($app);
         $paymentMethod->setAppPaymentMethod($appPaymentMethod);
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
             static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('translations'));
@@ -292,7 +285,6 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $appPaymentMethod->setApp($app);
         $paymentMethod->setAppPaymentMethod($appPaymentMethod);
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
             static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('translations'));
@@ -331,7 +323,6 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $appPaymentMethod->setId(Uuid::randomHex());
         $paymentMethod->setAppPaymentMethod($appPaymentMethod);
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
             static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('translations'));
@@ -347,7 +338,7 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $generator = new PaymentDistinguishableNameGenerator($paymentRepository);
         $generator->generateDistinguishablePaymentNames(Context::createDefaultContext());
 
-        static::assertEmpty($paymentRepository->upserts);
+        static::assertCount(0, $paymentRepository->upserts);
     }
 
     public function testGenerateAppWithoutAppTranslationLoaded(): void
@@ -367,7 +358,6 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $appPaymentMethod->setApp($app);
         $paymentMethod->setAppPaymentMethod($appPaymentMethod);
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
             static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('translations'));
@@ -383,6 +373,6 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $generator = new PaymentDistinguishableNameGenerator($paymentRepository);
         $generator->generateDistinguishablePaymentNames(Context::createDefaultContext());
 
-        static::assertEmpty($paymentRepository->upserts);
+        static::assertCount(0, $paymentRepository->upserts);
     }
 }

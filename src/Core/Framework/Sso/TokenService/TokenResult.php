@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Sso\TokenService;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\SsoException;
+use Symfony\Component\Clock\Clock;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validation;
@@ -31,7 +32,7 @@ final readonly class TokenResult
 
     public function getExpiryDateTime(): \DateTimeImmutable
     {
-        return (new \DateTimeImmutable())->add(new \DateInterval('PT' . $this->expiresIn . 'S'));
+        return Clock::get()->now()->add(new \DateInterval('PT' . $this->expiresIn . 'S'));
     }
 
     public static function createFromResponse(string $token): self

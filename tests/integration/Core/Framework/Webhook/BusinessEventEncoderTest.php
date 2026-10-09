@@ -7,10 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\CollectionBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\EntityBusinessEvent;
+use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\HiddenEntityBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\InvalidAvailableDataBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\InvalidTypeBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\NestedEntityBusinessEvent;
@@ -26,6 +28,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 /**
  * @internal
  */
+#[Package('framework')]
 class BusinessEventEncoderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -64,6 +67,7 @@ class BusinessEventEncoderTest extends TestCase
         yield 'CollectionBusinessEvent' => [new CollectionBusinessEvent(new TaxCollection([$tax]))];
         yield 'ArrayBusinessEvent' => [new ArrayBusinessEvent(new TaxCollection([$tax]))];
         yield 'NestedEntityBusinessEvent' => [new NestedEntityBusinessEvent($tax)];
+        yield 'HiddenEntityBusinessEvent' => [new HiddenEntityBusinessEvent($tax)];
     }
 
     public function testInvalidType(): void
@@ -95,23 +99,8 @@ class BusinessEventEncoderTest extends TestCase
 
     public function testEncodeWithInvalidObjectOrData(): void
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            $this->expectException(\RuntimeException::class);
-            $this->businessEventEncoder->encode(new InvalidAvailableDataBusinessEvent());
-
-            return;
-        }
-
-        try {
-            $this->businessEventEncoder->encode(new InvalidTypeBusinessEvent());
-        } catch (WebhookException $exception) {
-            static::assertSame('Unknown EventDataType: invalid', $exception->getMessage());
-            static::assertSame(WebhookException::UNKNOWN_DATA_TYPE, $exception->getErrorCode());
-
-            return;
-        }
-
-        static::fail('Exception should have been thrown');
+        $this->expectExceptionObject(WebhookException::invalidDataMapping('invalid', InvalidTypeBusinessEvent::class));
+        $this->businessEventEncoder->encode(new InvalidTypeBusinessEvent());
     }
 
     public function testRegisteredBusinessEventsExposeWebhookPayloadGetters(): void

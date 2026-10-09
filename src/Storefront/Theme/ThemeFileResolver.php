@@ -9,7 +9,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeFileResolver
 {
     final public const SCRIPT_FILES = 'script';
@@ -424,12 +424,13 @@ class ThemeFileResolver
 
     private function convertPathsToAbsolute(StorefrontPluginConfiguration $themeConfig, FileCollection $files): void
     {
+        $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($themeConfig);
+
         foreach ($files->getElements() as $file) {
             if ($this->isInclude($file->getFilepath())) {
                 continue;
             }
 
-            $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($themeConfig);
             if ($fs->has('Resources', $file->getFilepath())) {
                 $file->setFilepath($fs->realpath('Resources', $file->getFilepath()));
             }

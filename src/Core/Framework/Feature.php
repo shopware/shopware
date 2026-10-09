@@ -4,14 +4,17 @@ namespace Shopware\Core\Framework;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
 /**
- * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, description?: string, active?: bool, static?: bool}
+ * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: string, description?: string, active?: bool, static?: bool, toggleable?: bool, type?: string}
  */
 #[Package('framework')]
+#[BecomesFinal(version: 'v6.8.0')]
 class Feature
 {
     final public const ALL_MAJOR = 'major';
@@ -22,7 +25,12 @@ class Feature
     public static bool $emitDeprecations = true;
 
     /**
-     * @var array<bool>
+     * @internal
+     */
+    public static ?Triggerer $triggerer = null;
+
+    /**
+     * @var array<string, true>
      */
     private static array $silent = [];
 
@@ -30,6 +38,14 @@ class Feature
      * @var array<string, FeatureFlagConfig>
      */
     private static array $registeredFeatures = [];
+
+    /**
+     * Memoization of normalizeName(). The transform is pure and deterministic, and the method is
+     * called on every Feature::isActive()/setActive()/... invocation (hundreds of times per request).
+     *
+     * @var array<string, string>
+     */
+    private static array $normalizedNames = [];
 
     public static function normalizeName(string $name): string
     {
@@ -40,7 +56,15 @@ class Feature
          * - SAAS_321
          * - v6.5.0.0 => v6_5_0_0
          */
-        return \strtoupper(\str_replace(['.', ':', '-'], '_', $name));
+        return self::$normalizedNames[$name] ??= \strtoupper(\str_replace(['.', ':', '-'], '_', $name));
+    }
+
+    /**
+     * @internal
+     */
+    public static function isMajorVersionFlag(string $name): bool
+    {
+        return (bool) \preg_match('/^V\d+_\d+_0_0$/', self::normalizeName($name));
     }
 
     /**
@@ -116,14 +140,9 @@ class Feature
     /**
      * Determines weather a feature is active or not.
      *
-     * A feature is either active by being in the environment (specified in the .env file for example)
-     * or by matching a FEATURE_ALL mode.
-     *
-     * With FEATURE_ALL you can activate either all minor or all major features.
-     * FEATURE_ALL=1, FEATURE_ALL=minor or any other truthy values except 'false' equals minor
-     * FEATURE_ALL=major puts it into major mode
-     *
-     * The specific feature configuration in the environment is always the highest priority, no matter the FEATURE_ALL configuration.
+     * An explicit environment or runtime value wins over FEATURE_ALL and an active parent major.
+     * Any truthy FEATURE_ALL value enables every registered feature. A feature whose `major`
+     * configuration names a version flag also becomes active when that version flag is active.
      */
     public static function isActive(string $feature): bool
     {
@@ -134,7 +153,7 @@ class Feature
             && !isset(self::$registeredFeatures[$feature])
             && $env !== 'prod'
         ) {
-            trigger_error('Unknown feature "' . $feature . '"', \E_USER_WARNING);
+            (self::$triggerer ??= new Triggerer())->error('Unknown feature "' . $feature . '"', \E_USER_WARNING);
         }
 
         // Specific configurations are higher priority then FEATURE_ALL
@@ -142,28 +161,23 @@ class Feature
             return self::getFeatureInEnv($feature);
         }
 
-        $featureAll = EnvironmentHelper::getVariable('FEATURE_ALL', '');
-
-        // If FEATURE_ALL has any truthy value
-        if (self::isTrue((string) $featureAll) && (self::$registeredFeatures === [] || \array_key_exists($feature, self::$registeredFeatures))) {
-            // If feature is not major and is have set active, return the active state
-            if (!self::getConfiguration($feature, 'major') && self::hasConfiguration($feature, 'active')) {
-                return self::getConfiguration($feature, 'active');
-            }
-
-            // Should only enable major flags
-            if ($featureAll === Feature::ALL_MAJOR) {
-                return self::getConfiguration($feature, 'major');
-            }
-
-            // Enable all minor flags
-            if (!self::getConfiguration($feature, 'major')) {
-                return true;
-            }
-        }
-
         if (self::hasConfiguration($feature, 'active')) {
             return self::getConfiguration($feature, 'active');
+        }
+
+        if (self::isTrue((string) EnvironmentHelper::getVariable('FEATURE_ALL', ''))
+            && (self::$registeredFeatures === [] || \array_key_exists($feature, self::$registeredFeatures))
+        ) {
+            return true;
+        }
+
+        $major = self::$registeredFeatures[$feature]['major'] ?? null;
+        if (\is_string($major)
+            && self::isMajorVersionFlag($major)
+            && isset(self::$registeredFeatures[self::normalizeName($major)])
+            && self::isActive($major)
+        ) {
+            return true;
         }
 
         if (!EnvironmentHelper::hasVariable($feature) && !EnvironmentHelper::hasVariable(\strtolower($feature))) {
@@ -264,14 +278,33 @@ class Feature
         }
     }
 
-    public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null): void
+    public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null, ?string $silentUntil = null): void
     {
-        if (!self::$emitDeprecations || !empty(self::$silent[$majorFlag])) {
+        if ($silentUntil !== null && !self::isActive($silentUntil)) {
             return;
         }
 
-        if (self::isActive($majorFlag) || (self::$registeredFeatures !== [] && !self::has($majorFlag))) {
-            throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
+        if (isset(self::$silent[$majorFlag])) {
+            return;
+        }
+
+        // A silenced deprecation may name a major flag that is not registered yet, so a removal can be announced
+        // before the major that carries it exists. Enforcing the flag here would reject that pending major.
+        $majorFlagPending = $silentUntil !== null && self::$registeredFeatures !== [] && !self::has($majorFlag);
+
+        if (!$majorFlagPending) {
+            if (self::isActive($majorFlag)) {
+                throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
+            }
+
+            if (self::$registeredFeatures !== [] && !self::has($majorFlag)) {
+                throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
+            }
+        }
+
+        // Suppress notices in production, but still enforce removal in major mode.
+        if (!self::$emitDeprecations) {
+            return;
         }
 
         if (\PHP_SAPI !== 'cli') {
@@ -284,12 +317,12 @@ class Feature
         }
 
         if ($introducedIn === null) {
-            trigger_deprecation('', '', $message);
+            (self::$triggerer ??= new Triggerer())->deprecation('', '', $message);
 
             return;
         }
 
-        trigger_deprecation('shopware/core', $introducedIn, $message);
+        (self::$triggerer ??= new Triggerer())->deprecation('shopware/core', $introducedIn, $message);
     }
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string
@@ -372,7 +405,6 @@ class Feature
         );
 
         // set defaults
-        $metaData['major'] = (bool) ($metaData['major'] ?? false);
         $metaData['default'] = (bool) ($metaData['default'] ?? false);
         $metaData['description'] = (string) ($metaData['description'] ?? '');
 

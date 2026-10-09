@@ -154,7 +154,7 @@
                                         :disabled="!acl.can('document.editor')"
                                         :router-link="{ name: 'sw.settings.document.detail', params: { id: item.id } }"
                                     >
-                                        {{ $t('sw-settings-document.list.contextMenuEdit') }}
+                                        {{ $t('global.default.edit') }}
                                     </sw-context-menu-item>
                                     {% endblock %}
 
@@ -165,7 +165,7 @@
                                         :disabled="!acl.can('document.deleter')"
                                         @click="onDelete(item.id)"
                                     >
-                                        {{ $t('sw-settings-document.list.buttonDelete') }}
+                                        {{ $t('global.default.delete') }}
                                     </sw-context-menu-item>
                                     {% endblock %}
                                 </sw-context-button>
@@ -203,7 +203,7 @@
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
-                                        {{ $t('sw-settings-document.list.buttonDelete') }}
+                                        {{ $t('global.default.delete') }}
                                     </mt-button>
                                     {% endblock %}
                                 </template>

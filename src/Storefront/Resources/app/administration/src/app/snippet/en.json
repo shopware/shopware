@@ -7,11 +7,14 @@
     "editContent": "Edit theme",
     "defaultTitle": "No theme assigned",
     "defaultAuthor": "Author",
+    "pendingAssignment": {
+      "description": "\"{pendingThemeName}\" is being compiled in the background and will replace \"{liveThemeName}\" automatically once it is ready.",
+      "descriptionNoLiveTheme": "\"{pendingThemeName}\" is being compiled in the background and will be applied automatically once it is ready."
+    },
     "modal": {
       "modalTitleChange": "Change theme",
       "textChangeTheme": "Do you really want to change the theme? This may alter the visualisation of your shop.",
-      "buttonChange": "Change theme",
-      "buttonCancel": "Cancel"
+      "buttonChange": "Change theme"
     }
   }
 }

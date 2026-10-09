@@ -1,19 +1,11 @@
-@import "~scss/variables";
 @import "~scss/mixins";
-
-$sw-media-sidebar-z-index: $z-index-sidebar;
-$sw-media-sidebar-font-size-headline: $font-size-m;
-$sw-media-sidebar-color-headline: var(--color-text-primary-default);
-$sw-media-sidebar-border-color-headline: var(--color-border-primary-default);
-$sw-media-sidebar-color-quick-action: var(--color-text-brand-default);
-$sw-media-sidebar-color-quick-action-danger: var(--color-icon-critical-default);
 
 .sw-media-sidebar {
     display: grid;
     height: 100%;
     width: 400px;
     grid-template-rows: auto 1fr;
-    border-left: 1px solid var(--color-border-primary-default);
+    border-left: 1px solid var(--color-border-secondary-default);
 
     @media screen and (max-width: 768px) {
         width: 300px;
@@ -28,10 +20,10 @@ $sw-media-sidebar-color-quick-action-danger: var(--color-icon-critical-default);
 
         padding: 25px;
         margin: 0;
-        font-size: $sw-media-sidebar-font-size-headline;
+        font-size: var(--font-size-m);
         font-weight: normal;
-        color: $sw-media-sidebar-color-headline;
-        border-bottom: 1px solid $sw-media-sidebar-border-color-headline;
+        color: var(--color-text-primary-default);
+        border-bottom: 1px solid var(--color-border-secondary-default);
     }
 
     .sw-media-sidebar__quickinfo-scroll-container {
@@ -95,22 +87,22 @@ $sw-media-sidebar-color-quick-action-danger: var(--color-icon-critical-default);
         margin-bottom: 16px;
 
         &:hover {
-            color: $sw-media-sidebar-color-quick-action;
+            color: var(--color-text-brand-default);
         }
 
         &:hover.is--danger {
-            color: $sw-media-sidebar-color-quick-action-danger;
+            color: var(--color-icon-critical-default);
         }
     }
 
     .sw-media-sidebar__quickactions-icon {
         position: relative;
         top: -2px;
-        color: $sw-media-sidebar-color-quick-action;
+        color: var(--color-text-brand-default);
         margin-right: 0.25rem;
 
         &.is--danger {
-            color: $sw-media-sidebar-color-quick-action-danger;
+            color: var(--color-icon-critical-default);
         }
     }
 }

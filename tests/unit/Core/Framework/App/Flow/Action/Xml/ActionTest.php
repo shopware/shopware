@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Action;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Action::class)]
 class ActionTest extends TestCase
 {
@@ -49,6 +51,55 @@ class ActionTest extends TestCase
         static::assertSame('text', $result['config'][0]['type']);
     }
 
+    public function testToArrayAddsTranslationsForTheDefaultLocale(): void
+    {
+        $action = Action::fromXml(self::loadElement(<<<'XML'
+<flow-action>
+    <meta>
+        <name>payment.capture</name>
+        <label>Capture authorization</label>
+        <label lang="de-DE">Autorisierung einziehen</label>
+        <description lang="de-DE">Den autorisierten Betrag einziehen</description>
+        <url>https://example.com/capture</url>
+    </meta>
+    <headers></headers>
+    <parameters></parameters>
+    <config>
+        <input-field>
+            <name>note</name>
+            <label>Note to customer</label>
+        </input-field>
+    </config>
+</flow-action>
+XML));
+
+        $result = $action->toArray('en-US');
+
+        static::assertSame(
+            ['en-GB' => 'Capture authorization', 'de-DE' => 'Autorisierung einziehen', 'en-US' => 'Capture authorization'],
+            $result['label']
+        );
+        static::assertSame(
+            ['de-DE' => 'Den autorisierten Betrag einziehen', 'en-US' => 'Den autorisierten Betrag einziehen'],
+            $result['description']
+        );
+        static::assertNull($result['headline']);
+        static::assertSame(
+            [
+                'extensions' => [],
+                'name' => 'note',
+                'label' => ['en-GB' => 'Note to customer', 'en-US' => 'Note to customer'],
+                'placeHolder' => null,
+                'required' => null,
+                'helpText' => null,
+                'defaultValue' => null,
+                'options' => [],
+                'type' => 'text',
+            ],
+            $result['config'][0]
+        );
+    }
+
     private static function createAction(): Action
     {
         return Action::fromXml(self::loadElement(<<<'XML'
@@ -81,6 +132,9 @@ class ActionTest extends TestCase
 XML));
     }
 
+    /**
+     * @param non-empty-string $xml
+     */
     private static function loadElement(string $xml): \DOMElement
     {
         $document = new \DOMDocument();

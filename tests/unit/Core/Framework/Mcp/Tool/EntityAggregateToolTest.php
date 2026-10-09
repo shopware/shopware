@@ -3,14 +3,18 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\AvgResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
@@ -90,7 +94,7 @@ class EntityAggregateToolTest extends TestCase
     public function testCriteriaBuilderReceivesAggregationsAndSearchUsesLimitZero(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $capturedPayload = null;
         $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
@@ -103,7 +107,7 @@ class EntityAggregateToolTest extends TestCase
             });
 
         $capturedCriteria = null;
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')
             ->willReturnCallback(function (Criteria $criteria) use (&$capturedCriteria, $context): EntitySearchResult {
                 $capturedCriteria = $criteria;
@@ -111,15 +115,15 @@ class EntityAggregateToolTest extends TestCase
                 return new EntitySearchResult('order', 0, new EntityCollection(), null, new Criteria(), $context);
             });
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider);
+        $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider, static::createStub(AclCriteriaValidator::class));
         ($tool)('order', '[{"type":"count","name":"total","field":"id"}]');
 
         static::assertIsArray($capturedPayload);
@@ -133,7 +137,7 @@ class EntityAggregateToolTest extends TestCase
     public function testFiltersArePassedToCriteria(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $capturedPayload = null;
         $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
@@ -145,20 +149,20 @@ class EntityAggregateToolTest extends TestCase
                 return new Criteria();
             });
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn(
             new EntitySearchResult('order', 0, new EntityCollection(), null, new Criteria(), $context)
         );
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider);
+        $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider, static::createStub(AclCriteriaValidator::class));
         ($tool)(
             'order',
             '[{"type":"count","name":"total","field":"id"}]',
@@ -173,7 +177,7 @@ class EntityAggregateToolTest extends TestCase
     public function testEmptyFiltersAreNotPassedToCriteria(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $capturedPayload = null;
         $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
@@ -185,20 +189,20 @@ class EntityAggregateToolTest extends TestCase
                 return new Criteria();
             });
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn(
             new EntitySearchResult('order', 0, new EntityCollection(), null, new Criteria(), $context)
         );
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider);
+        $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider, static::createStub(AclCriteriaValidator::class));
         ($tool)('order', '[{"type":"count","name":"total","field":"id"}]');
 
         static::assertIsArray($capturedPayload);
@@ -207,13 +211,13 @@ class EntityAggregateToolTest extends TestCase
 
     public function testReturnsErrorWhenEntityNotFound(): void
     {
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(false);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $tool = new EntityAggregateTool($registry, $this->createMock(RequestCriteriaBuilder::class), $contextProvider);
+        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
         $data = json_decode(($tool)('unknown_entity', '[]'), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertFalse($data['success']);
@@ -224,15 +228,15 @@ class EntityAggregateToolTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
-        $registry->method('getByEntityName')->willReturn($this->createMock(EntityDefinition::class));
-        $registry->method('getRepository')->willReturn($this->createMock(EntityRepository::class));
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getRepository')->willReturn(static::createStub(EntityRepository::class));
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityAggregateTool($registry, $this->createMock(RequestCriteriaBuilder::class), $contextProvider);
+        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('order', '{"type":"count"}');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -245,15 +249,15 @@ class EntityAggregateToolTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
-        $registry->method('getByEntityName')->willReturn($this->createMock(EntityDefinition::class));
-        $registry->method('getRepository')->willReturn($this->createMock(EntityRepository::class));
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getRepository')->willReturn(static::createStub(EntityRepository::class));
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityAggregateTool($registry, $this->createMock(RequestCriteriaBuilder::class), $contextProvider);
+        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('order', '[{"type":"count","name":"total","field":"id"}]', 'not-json');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -267,15 +271,15 @@ class EntityAggregateToolTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
-        $registry->method('getByEntityName')->willReturn($this->createMock(EntityDefinition::class));
-        $registry->method('getRepository')->willReturn($this->createMock(EntityRepository::class));
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getRepository')->willReturn(static::createStub(EntityRepository::class));
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityAggregateTool($registry, $this->createMock(RequestCriteriaBuilder::class), $contextProvider);
+        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('order', 'not-json');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -295,10 +299,10 @@ class EntityAggregateToolTest extends TestCase
         $registry->method('has')->willReturn(true);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityAggregateTool($registry, $this->createMock(RequestCriteriaBuilder::class), $contextProvider);
+        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('order', '[{"type":"count","name":"total","field":"id"}]');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -307,29 +311,124 @@ class EntityAggregateToolTest extends TestCase
         static::assertStringContainsString('order:read', $data['error']);
     }
 
+    public function testDeniesAccessWhenCriteriaRequiresMissingAssociationPrivilege(): void
+    {
+        $source = new AdminApiSource(null, null);
+        $source->setPermissions(['order:read']);
+        $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('search');
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getRepository')->willReturn($repository);
+
+        $criteria = new Criteria();
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $criteriaBuilder->method('fromArray')->willReturn($criteria);
+
+        $criteriaValidator = $this->createMock(AclCriteriaValidator::class);
+        $criteriaValidator->expects($this->once())
+            ->method('validate')
+            ->with('order', static::identicalTo($criteria), $context)
+            ->willReturn(['order_customer:read']);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider, $criteriaValidator);
+        $output = ($tool)('order', '[{"type":"terms","name":"emails","field":"orderCustomer.email"}]');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Missing privilege:', $data['error']);
+        static::assertStringContainsString('order_customer:read', $data['error']);
+    }
+
+    #[TestDox('A rejected aggregation is answered with the parser pointer and detail instead of escaping to the SDK\'s generic error')]
+    public function testAnAggregationTheEntityCannotExpressIsAnsweredWithTheParserDetail(): void
+    {
+        $context = Context::createDefaultContext();
+        $result = new EntitySearchResult('order', 0, new EntityCollection(), new AggregationResultCollection(), new Criteria(), $context);
+
+        $exception = new SearchRequestException();
+        $exception->add(
+            new InvalidAggregationQueryException('The aggregation should contain a "field".'),
+            '/aggregations/0/avg/field'
+        );
+
+        [$tool] = $this->createTool($context, $result, $exception);
+        $output = ($tool)('order', '[{"type":"avg","name":"c"}]');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('/aggregations/0/avg/field', $data['error']);
+        static::assertStringContainsString('The aggregation should contain a "field".', $data['error']);
+    }
+
+    public function testAnUnknownAggregationTypeIsAnsweredRatherThanPropagated(): void
+    {
+        $context = Context::createDefaultContext();
+        $result = new EntitySearchResult('order', 0, new EntityCollection(), new AggregationResultCollection(), new Criteria(), $context);
+
+        [$tool] = $this->createTool(
+            $context,
+            $result,
+            new InvalidAggregationQueryException('The aggregation type "nonsense" used as key does not exist.')
+        );
+        $output = ($tool)('order', '[{"type":"nonsense","name":"c","field":"id"}]');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertSame('The aggregation type "nonsense" used as key does not exist.', $data['error']);
+    }
+
+    #[TestDox('Only criteria-parsing exceptions are answered; any other throwable is a bug and still propagates')]
+    public function testAnUnexpectedThrowableStillPropagates(): void
+    {
+        $context = Context::createDefaultContext();
+        $result = new EntitySearchResult('order', 0, new EntityCollection(), new AggregationResultCollection(), new Criteria(), $context);
+
+        [$tool] = $this->createTool($context, $result, new \RuntimeException('bug, not bad input'));
+
+        $this->expectExceptionObject(new \RuntimeException('bug, not bad input'));
+
+        ($tool)('order', '[{"type":"count","name":"c","field":"id"}]');
+    }
+
     /**
      * @param EntitySearchResult<*> $result
+     * @param \Throwable|null $criteriaError thrown by the stubbed RequestCriteriaBuilder when set
      *
      * @return array{EntityAggregateTool, EntityRepository<*>}
      */
-    private function createTool(Context $context, EntitySearchResult $result): array
+    private function createTool(Context $context, EntitySearchResult $result, ?\Throwable $criteriaError = null): array
     {
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
 
-        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
-        $criteriaBuilder->method('fromArray')->willReturn(new Criteria());
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        if ($criteriaError !== null) {
+            $criteriaBuilder->method('fromArray')->willThrowException($criteriaError);
+        } else {
+            $criteriaBuilder->method('fromArray')->willReturn(new Criteria());
+        }
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        return [new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider), $repository];
+        return [new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider, static::createStub(AclCriteriaValidator::class)), $repository];
     }
 }

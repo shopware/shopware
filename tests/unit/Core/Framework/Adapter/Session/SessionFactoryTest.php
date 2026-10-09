@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Session\SessionFactory;
 use Shopware\Core\Framework\Adapter\Session\StatefulFlashBag;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFacto
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SessionFactory::class)]
 class SessionFactoryTest extends TestCase
 {

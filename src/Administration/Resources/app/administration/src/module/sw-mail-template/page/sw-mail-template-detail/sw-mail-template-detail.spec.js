@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package after-sales
  */
@@ -41,6 +43,20 @@ const mediaMock = [
         mediaId: '30c0082ccb03494799b42f22c7fa07d9',
         position: 0,
     },
+    {
+        id: '88uy773yd1ssd299si1d837dy1ud628',
+        mailTemplateId: 'ed3866445dd744bb9e0f88f8f340141f',
+        languageId: '60a91bbbc83f42a3abedd20dd45b9fb0',
+        mediaId: '1svd4de52e6924d70ya5u75cd7ze4gd01',
+        position: 0,
+    },
+    {
+        id: 'ad3466455ed794bb9e0f28s8g3701s1z',
+        mailTemplateId: 'ed3866445dd744bb9e0f88f8f340141f',
+        languageId: '60a91bbbc83f42a3abedd20dd45b9fb0',
+        mediaId: '30c0082ccb03494799b42f22c7fa07d9',
+        position: 0,
+    },
 ];
 
 const mailTemplateMediaMock = {
@@ -53,7 +69,31 @@ const mailTemplateMediaMock = {
     fileSize: 792866,
 };
 
+const flowSearchMock = jest.fn(() => Promise.resolve([{ eventName: 'checkout.order.placed' }]));
+
+const businessEventsMock = jest.fn(() =>
+    Promise.resolve([
+        {
+            name: 'checkout.order.placed',
+            aware: ['mailAware'],
+            data: {},
+        },
+    ]),
+);
+
 const repositoryMockFactory = (entity) => {
+    if (entity === 'flow') {
+        return {
+            search: flowSearchMock,
+        };
+    }
+
+    if (entity === 'mail_template_type') {
+        return {
+            get: (id) => Promise.resolve({ ...mailTemplateTypeMock, id }),
+        };
+    }
+
     if (entity === 'sales_channel') {
         return {
             search: () => Promise.resolve({}),
@@ -86,12 +126,13 @@ const repositoryMockFactory = (entity) => {
     }
     return {
         search: () => Promise.resolve({}),
+        searchIds: () => Promise.resolve({ total: 1, data: [mailTemplateMock.id] }),
         get: (resolve = null) => {
             if (resolve === 'mailTemplateMediaTestId') {
                 return Promise.resolve(mailTemplateMediaMock);
             }
 
-            return Promise.resolve(mailTemplateMock);
+            return Promise.resolve({ ...mailTemplateMock });
         },
         create: () => {
             return {
@@ -118,18 +159,13 @@ class SyntaxValidationTemplateError extends Error {
 
 function createSimulationResponse(mailTemplateContent) {
     return Object.fromEntries(
-        Object.entries(mailTemplateContent).map(
-            ([
-                key,
+        Object.entries(mailTemplateContent).map(([key, content]) => [
+            key,
+            {
+                type: 'success',
                 content,
-            ]) => [
-                key,
-                {
-                    type: 'success',
-                    content,
-                },
-            ],
-        ),
+            },
+        ]),
     );
 }
 
@@ -162,15 +198,7 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 businessEventService: {
-                    getBusinessEvents: jest.fn(() =>
-                        Promise.resolve([
-                            {
-                                name: 'checkout.order.placed',
-                                aware: ['mailAware'],
-                                data: {},
-                            },
-                        ]),
-                    ),
+                    getBusinessEvents: businessEventsMock,
                 },
             },
             mocks: {
@@ -205,6 +233,7 @@ async function createWrapper(privileges = []) {
                     template: '<textarea :disabled="disabled"></textarea>',
                 },
                 'mt-select': {
+                    props: ['modelValue'],
                     template: '<div><slot name="hint"></slot></div>',
                 },
                 'mt-banner': {
@@ -227,9 +256,7 @@ async function createWrapper(privileges = []) {
                 'sw-text-field': true,
                 'sw-context-menu-item': true,
                 'sw-code-editor': {
-                    props: [
-                        'disabled',
-                    ],
+                    props: ['disabled'],
                     template: '<input type="text" class="sw-code-editor" :disabled="disabled" />',
                     methods: {
                         defineAutocompletion() {},
@@ -282,6 +309,41 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
 
         expect(wrapper.vm.mailTemplate.media.some((media) => media.mediaId === mailTemplateMediaMock.id)).toBeTruthy();
+    });
+
+    it('should be able to add an item to the attachment exist this item with different language', async () => {
+        const originalLanguageId = Shopware.Context.api.languageId;
+
+        const wrapper = await createWrapper();
+        await wrapper.setData({ mailTemplateMedia: [] });
+        wrapper.vm.createNotificationInfo = jest.fn();
+
+        // Add media
+        wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
+        expect(wrapper.vm.mailTemplate.media.some((media) => media.mediaId === mailTemplateMediaMock.id)).toBeTruthy();
+
+        // Add same media again and expect error
+        wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
+        expect(wrapper.vm.createNotificationInfo).toHaveBeenCalledWith({
+            message: 'sw-mail-template.list.errorMediaItemDuplicated',
+        });
+
+        // reset mock function to be sure error message is correct
+        wrapper.vm.createNotificationInfo = jest.fn();
+
+        // Switch language and add same media again and expect success
+        Shopware.Context.api.languageId = '9886595ca65447d6a812fe9de1096079';
+        wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
+
+        expect(wrapper.vm.mailTemplate.media.some((media) => media.mediaId === mailTemplateMediaMock.id)).toBeTruthy();
+
+        // Add same media again and expect error
+        wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
+        expect(wrapper.vm.createNotificationInfo).toHaveBeenCalledWith({
+            message: 'sw-mail-template.list.errorMediaItemDuplicated',
+        });
+
+        Shopware.Context.api.languageId = originalLanguageId;
     });
 
     it('should be unable to add an item to the attachment exist this item', async () => {
@@ -358,15 +420,17 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         });
 
         const hasMediaBeforeTest = wrapper.vm.mailTemplate.media.some(
-            (media) => media.id === 'ad3466455ed794bb9e0f28s8g3701s1z',
+            (media) =>
+                media.id === 'ad3466455ed794bb9e0f28s8g3701s1z' && media.languageId === Shopware.Context.api.languageId,
         );
         expect(hasMediaBeforeTest).toBeTruthy();
 
         wrapper.vm.onDeleteSelectedMedia();
 
-        expect(wrapper.vm.mailTemplate.media).toHaveLength(mailTemplateMock.media.length);
+        expect(wrapper.vm.mailTemplate.media).toHaveLength(mediaMock.length - 1);
         const hasMediaAfterTest = wrapper.vm.mailTemplate.media.some(
-            (media) => media.id === 'ad3466455ed794bb9e0f28s8g3701s1z',
+            (media) =>
+                media.id === 'ad3466455ed794bb9e0f28s8g3701s1z' && media.languageId === Shopware.Context.api.languageId,
         );
         expect(hasMediaAfterTest).toBeFalsy();
     });
@@ -507,6 +571,32 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             message: 'CTRL + S',
             appearance: 'light',
         });
+    });
+
+    it('should enable the preview button only with edit permission', async () => {
+        const wrapper = await createWrapper(['api_send_email']);
+        await wrapper.setData({
+            isLoading: false,
+            triggerEvent: { name: 'checkout.order.placed' },
+        });
+
+        const previewButton = wrapper
+            .findAll('button')
+            .find((button) => button.text() === 'sw-mail-template.detail.previewModalTitle');
+
+        expect(previewButton?.attributes('disabled')).toBeDefined();
+
+        const editorWrapper = await createWrapper(['mail_templates.editor']);
+        await editorWrapper.setData({
+            isLoading: false,
+            triggerEvent: { name: 'checkout.order.placed' },
+        });
+
+        const editorPreviewButton = editorWrapper
+            .findAll('button')
+            .find((button) => button.text() === 'sw-mail-template.detail.previewModalTitle');
+
+        expect(editorPreviewButton?.attributes('disabled')).toBeUndefined();
     });
 
     it('should not be able to show preview if html content is empty', async () => {
@@ -1139,5 +1229,123 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         const copyIcons = wrapper.findAll('.sw-mail-template-detail__copy_icon');
         expect(copyIcons).toHaveLength(2);
+    });
+
+    it('should preselect the trigger event of the active flow sending the mail template type', async () => {
+        const wrapper = await createWrapper(['flow:read']);
+        await flushPromises();
+
+        const triggerEventSelect = wrapper.findComponent(
+            '.sw-mail-template-detail__available-variables-sidebar-trigger-select',
+        );
+        expect(triggerEventSelect.props('modelValue')).toBe('checkout.order.placed');
+    });
+
+    it('should not preselect the trigger event without flow read permission', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const triggerEventSelect = wrapper.findComponent(
+            '.sw-mail-template-detail__available-variables-sidebar-trigger-select',
+        );
+        expect(flowSearchMock).not.toHaveBeenCalled();
+        expect(triggerEventSelect.props('modelValue')).toBeUndefined();
+    });
+
+    it.each([
+        ['no flow sends the mail template type', []],
+        [
+            'flows send it on different events',
+            [{ eventName: 'checkout.order.placed' }, { eventName: 'state_enter.order.state.open' }],
+        ],
+    ])('should not preselect the trigger event when %s', async (_, flows) => {
+        businessEventsMock.mockResolvedValueOnce([
+            { name: 'checkout.order.placed', aware: ['mailAware'], data: {} },
+            { name: 'state_enter.order.state.open', aware: ['mailAware'], data: {} },
+        ]);
+        flowSearchMock.mockResolvedValueOnce(flows);
+
+        const wrapper = await createWrapper(['flow:read']);
+        await flushPromises();
+
+        const triggerEventSelect = wrapper.findComponent(
+            '.sw-mail-template-detail__available-variables-sidebar-trigger-select',
+        );
+        expect(triggerEventSelect.props('modelValue')).toBeUndefined();
+    });
+
+    it('should not overwrite a trigger event selected by the user', async () => {
+        let resolveFlows;
+        flowSearchMock.mockReturnValueOnce(
+            new Promise((resolve) => {
+                resolveFlows = resolve;
+            }),
+        );
+        businessEventsMock.mockResolvedValueOnce([
+            { name: 'checkout.order.placed', aware: ['mailAware'], data: {} },
+            { name: 'state_enter.order.state.open', aware: ['mailAware'], data: {} },
+        ]);
+
+        const wrapper = await createWrapper(['flow:read']);
+        await flushPromises();
+
+        const triggerEventSelect = wrapper.findComponent(
+            '.sw-mail-template-detail__available-variables-sidebar-trigger-select',
+        );
+        await triggerEventSelect.vm.$emit('update:modelValue', 'state_enter.order.state.open');
+
+        resolveFlows([{ eventName: 'checkout.order.placed' }]);
+        await flushPromises();
+
+        expect(triggerEventSelect.props('modelValue')).toBe('state_enter.order.state.open');
+    });
+
+    it('should replace the preselected trigger event when the mail template type changes', async () => {
+        businessEventsMock.mockResolvedValueOnce([
+            { name: 'checkout.order.placed', aware: ['mailAware'], data: {} },
+            { name: 'state_enter.order.state.open', aware: ['mailAware'], data: {} },
+        ]);
+
+        const wrapper = await createWrapper(['flow:read', 'mail_templates.editor']);
+        await flushPromises();
+
+        const triggerEventSelect = wrapper.findComponent(
+            '.sw-mail-template-detail__available-variables-sidebar-trigger-select',
+        );
+        expect(triggerEventSelect.props('modelValue')).toBe('checkout.order.placed');
+
+        flowSearchMock.mockResolvedValueOnce([{ eventName: 'state_enter.order.state.open' }]);
+        await wrapper.findComponent('#mailTemplateTypes').vm.$emit('update:value', 'otherMailTemplateTypeId');
+        await flushPromises();
+
+        expect(triggerEventSelect.props('modelValue')).toBe('state_enter.order.state.open');
+    });
+
+    it('should ignore the preselection result of a previously selected mail template type', async () => {
+        let resolveFirstFlows;
+        flowSearchMock.mockReturnValueOnce(
+            new Promise((resolve) => {
+                resolveFirstFlows = resolve;
+            }),
+        );
+        businessEventsMock.mockResolvedValueOnce([
+            { name: 'checkout.order.placed', aware: ['mailAware'], data: {} },
+            { name: 'state_enter.order.state.open', aware: ['mailAware'], data: {} },
+        ]);
+
+        const wrapper = await createWrapper(['flow:read', 'mail_templates.editor']);
+        await flushPromises();
+
+        flowSearchMock.mockResolvedValueOnce([{ eventName: 'state_enter.order.state.open' }]);
+        await wrapper.findComponent('#mailTemplateTypes').vm.$emit('update:value', 'otherMailTemplateTypeId');
+        await flushPromises();
+
+        resolveFirstFlows([{ eventName: 'checkout.order.placed' }]);
+        await flushPromises();
+
+        const triggerEventSelect = wrapper.findComponent(
+            '.sw-mail-template-detail__available-variables-sidebar-trigger-select',
+        );
+        expect(triggerEventSelect.props('modelValue')).toBe('state_enter.order.state.open');
     });
 });

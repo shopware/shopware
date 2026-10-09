@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\Consent\Event;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescription;
 use Shopware\Core\System\Consent\ConsentDefinitionRegistry;
 use Shopware\Core\System\Consent\Event\ConsentHookableEventDescriber;
@@ -12,6 +13,7 @@ use Shopware\Tests\Unit\Core\System\Consent\TestDefinition;
 /**
  * @internal
  */
+#[Package('data-services')]
 #[CoversClass(ConsentHookableEventDescriber::class)]
 class ConsentHookableEventDescriberTest extends TestCase
 {

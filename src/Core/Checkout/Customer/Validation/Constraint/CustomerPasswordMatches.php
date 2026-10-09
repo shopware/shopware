@@ -3,6 +3,9 @@
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,9 +21,7 @@ class CustomerPasswordMatches extends Constraint
         self::CUSTOMER_PASSWORD_NOT_CORRECT => 'CUSTOMER_PASSWORD_NOT_CORRECT',
     ];
 
-    /**
-     * @deprecated tag:v6.8.0 - $message property access modifier will be changed to protected and is injectable via constructor
-     */
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected', description: 'Use getMessage() instead.')]
     public string $message = 'Your password is wrong';
 
     /**
@@ -34,15 +35,15 @@ class CustomerPasswordMatches extends Constraint
     protected SalesChannelContext $salesChannelContext;
 
     /**
-     * @param ?array{salesChannelContext: SalesChannelContext} $options
+     * @param array{salesChannelContext?: SalesChannelContext, context?: SalesChannelContext}|null $options
      *
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $options parameter will be removed, use $salesChannelContext instead
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $salesChannelContext parameter will be required and natively typed as constructor property promotion
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $message will be natively typed as constructor property promotion
+     * The `$message` property will be natively typed via constructor property promotion in v6.8.0.
      *
      * @internal
      */
     #[HasNamedArguments]
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options', description: 'Use the $salesChannelContext argument instead.')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'salesChannelContext', newType: SalesChannelContext::class, description: 'The parameter loses its null default, becomes required and a promoted property.')]
     public function __construct(?array $options = null, ?SalesChannelContext $salesChannelContext = null, string $message = 'Your password is wrong')
     {
         if ($options !== null || $salesChannelContext === null) {

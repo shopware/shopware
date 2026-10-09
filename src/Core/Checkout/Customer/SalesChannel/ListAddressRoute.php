@@ -6,7 +6,9 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent;
+use Shopware\Core\Checkout\Customer\Extension\ListAddressRouteExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -17,8 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ListAddressRoute extends AbstractListAddressRoute
 {
     /**
@@ -28,7 +30,8 @@ class ListAddressRoute extends AbstractListAddressRoute
      */
     public function __construct(
         private readonly SalesChannelRepository $addressRepository,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -48,6 +51,15 @@ class ListAddressRoute extends AbstractListAddressRoute
         methods: [Request::METHOD_GET, Request::METHOD_POST],
     )]
     public function load(Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ListAddressRouteResponse
+    {
+        return $this->extensions->publish(
+            name: ListAddressRouteExtension::NAME,
+            extension: new ListAddressRouteExtension($criteria, $context, $customer),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ListAddressRouteResponse
     {
         $criteria
             ->addAssociation('salutation')

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Attribute;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Declares a functional dependency on another MCP tool by name.
  * Apply repeatedly to list multiple dependencies.
@@ -23,8 +23,8 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @codeCoverageIgnore
  */
-#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final class McpToolDependsOn
 {
     public function __construct(

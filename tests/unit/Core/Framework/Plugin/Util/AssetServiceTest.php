@@ -13,13 +13,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration as ShopwareAdministration;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\Filesystem as ThemeFilesystem;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -34,6 +35,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AssetService::class)]
 class AssetServiceTest extends TestCase
 {
@@ -107,7 +109,7 @@ class AssetServiceTest extends TestCase
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
 
-        static::assertNotEmpty($adapter->visibilities);
+        static::assertNotCount(0, $adapter->visibilities);
         static::assertSame([Visibility::PRIVATE], array_values(array_unique($adapter->visibilities)));
     }
 
@@ -130,7 +132,7 @@ class AssetServiceTest extends TestCase
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
 
-        static::assertNotEmpty($adapter->visibilities);
+        static::assertNotCount(0, $adapter->visibilities);
         static::assertSame([Visibility::PRIVATE], array_values(array_unique($adapter->visibilities)));
     }
 
@@ -151,7 +153,7 @@ class AssetServiceTest extends TestCase
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
 
-        static::assertNotEmpty($adapter->visibilities);
+        static::assertNotCount(0, $adapter->visibilities);
         static::assertSame([Visibility::PRIVATE], array_values(array_unique($adapter->visibilities)));
     }
 
@@ -170,7 +172,7 @@ class AssetServiceTest extends TestCase
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
 
-        static::assertNotEmpty($adapter->visibilities);
+        static::assertNotCount(0, $adapter->visibilities);
         static::assertSame([Visibility::PUBLIC], array_values(array_unique($adapter->visibilities)));
     }
 
@@ -178,7 +180,7 @@ class AssetServiceTest extends TestCase
     {
         $filesystem = $this->createFilesystem();
 
-        $classLoader = $this->createMock(ClassLoader::class);
+        $classLoader = static::createStub(ClassLoader::class);
         $classLoader->method('findFile')->willReturn(__FILE__);
         $pluginLoader = new StaticKernelPluginLoader(
             $classLoader,
@@ -205,6 +207,7 @@ class AssetServiceTest extends TestCase
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->willThrowException(new \InvalidArgumentException('foo'));
 
@@ -236,6 +239,7 @@ class AssetServiceTest extends TestCase
     {
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('ExampleBundle')
             ->willThrowException(new \InvalidArgumentException());
@@ -250,7 +254,7 @@ class AssetServiceTest extends TestCase
 
     public function testCopyAssetsClosesStreamItself(): void
     {
-        $adapter = $this->createMock(FilesystemAdapter::class);
+        $adapter = static::createStub(FilesystemAdapter::class);
         $adapter->method('writeStream')
             ->willReturnCallback(static function (string $path, $stream) {
                 static::assertIsResource($stream);
@@ -261,7 +265,7 @@ class AssetServiceTest extends TestCase
             });
         $adapter->method('read')->willReturn(json_encode([], \JSON_THROW_ON_ERROR));
 
-        $assetService = $this->createAssetService($this->createFilesystem());
+        $assetService = $this->createAssetService(new Filesystem($adapter));
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
     }
@@ -278,7 +282,7 @@ class AssetServiceTest extends TestCase
 
         $assetService->copyAssetsFromApp('TestApp', __DIR__ . '/foo');
 
-        static::assertEmpty($filesystem->listContents('bundles')->toArray());
+        static::assertCount(0, $filesystem->listContents('bundles')->toArray());
     }
 
     public function testCopyAssetsWithApp(): void
@@ -363,6 +367,7 @@ class AssetServiceTest extends TestCase
         ksort($manifest);
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('AdministrationBundle')
             ->willReturn(new Administration());
@@ -448,6 +453,7 @@ class AssetServiceTest extends TestCase
     {
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('AdministrationBundle')
             ->willReturn(new Administration());
@@ -518,6 +524,55 @@ class AssetServiceTest extends TestCase
         );
     }
 
+    #[DataProvider('missingManifestProvider')]
+    public function testCopyPreservesAssetsAfterDelayedDeletes(bool $force, bool $hasManifest): void
+    {
+        $adapter = new DelayedDeleteAdapter();
+        $filesystem = new Filesystem($adapter);
+        $privateFilesystem = $this->createFilesystem();
+        $assetService = $this->createAssetService($filesystem, $privateFilesystem);
+
+        if ($hasManifest) {
+            $assetService->copyAssetsFromBundle('ExampleBundle');
+            $adapter->completeDeletes();
+        }
+
+        $filesystem->write('bundles/example/test.txt', 'old content');
+        $filesystem->write('bundles/example/nested/obsolete.js', 'obsolete');
+        $filesystem->write('bundles/unrelated/keep.js', 'unrelated');
+
+        $assetService->copyAssetsFromBundle('ExampleBundle', $force);
+        $adapter->completeDeletes();
+
+        static::assertTrue($filesystem->fileExists('bundles/example/test.txt'));
+        static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
+        static::assertFalse($filesystem->fileExists('bundles/example/nested/obsolete.js'));
+        static::assertSame('unrelated', $filesystem->read('bundles/unrelated/keep.js'));
+        static::assertTrue($privateFilesystem->fileExists('asset-manifest.json'));
+    }
+
+    public function testCopyAfterDeactivationPreservesAssets(): void
+    {
+        $adapter = new DelayedDeleteAdapter();
+        $filesystem = new Filesystem($adapter);
+        $assetService = $this->createAssetService($filesystem, $this->createFilesystem());
+
+        $assetService->copyAssetsFromBundle('ExampleBundle');
+        $assetService->removeAssetsOfBundle('ExampleBundle', false);
+        $assetService->copyAssetsFromBundle('ExampleBundle');
+        $adapter->completeDeletes();
+
+        static::assertTrue($filesystem->fileExists('bundles/example/test.txt'));
+        static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
+    }
+
+    public static function missingManifestProvider(): iterable
+    {
+        yield 'forced copy with an existing manifest' => [true, true];
+        yield 'forced copy without a manifest' => [true, false];
+        yield 'normal copy without a manifest' => [false, false];
+    }
+
     private function getBundle(): ExampleBundle
     {
         return new ExampleBundle(true, __DIR__ . '/_fixtures/ExampleBundle');
@@ -533,9 +588,8 @@ class AssetServiceTest extends TestCase
         ?ParameterBag $parameterBag = null,
     ): AssetService {
         if ($kernel === null) {
-            $kernel = $this->createMock(KernelInterface::class);
+            $kernel = static::createStub(KernelInterface::class);
             $kernel->method('getBundle')
-                ->with('ExampleBundle')
                 ->willReturn($this->getBundle());
         }
 
@@ -543,8 +597,8 @@ class AssetServiceTest extends TestCase
             $assetFilesystem,
             $privateFilesystem ?? $assetFilesystem,
             $kernel,
-            $pluginLoader ?? new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
-            $cacheInvalidator ?? $this->createMock(CacheInvalidator::class),
+            $pluginLoader ?? new StaticKernelPluginLoader(static::createStub(ClassLoader::class)),
+            $cacheInvalidator ?? static::createStub(CacheInvalidator::class),
             $staticSourceResolver ?? new StaticSourceResolver(),
             $parameterBag ?? new ParameterBag([
                 'shopware.filesystem.asset.type' => 's3',
@@ -596,5 +650,41 @@ class CapturingWriteBatchAdapter extends InMemoryFilesystemAdapter implements Wr
                 $this->write($targetFile, $content, new Config());
             }
         }
+    }
+}
+
+/**
+ * A storage backend that acknowledges deletions before applying them.
+ *
+ * @internal
+ */
+class DelayedDeleteAdapter extends InMemoryFilesystemAdapter
+{
+    /**
+     * @var list<string>
+     */
+    private array $pendingDeletes = [];
+
+    public function deleteDirectory(string $path): void
+    {
+        foreach ($this->listContents($path, true) as $item) {
+            if ($item->isFile()) {
+                $this->delete($item->path());
+            }
+        }
+    }
+
+    public function delete(string $path): void
+    {
+        $this->pendingDeletes[] = $path;
+    }
+
+    public function completeDeletes(): void
+    {
+        foreach ($this->pendingDeletes as $path) {
+            parent::delete($path);
+        }
+
+        $this->pendingDeletes = [];
     }
 }

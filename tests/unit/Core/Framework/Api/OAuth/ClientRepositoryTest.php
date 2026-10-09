@@ -4,17 +4,22 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\OAuth;
 
 use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
+use Shopware\Core\Framework\Api\OAuth\Client\PublicClientRegistry;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ClientRepository::class)]
 class ClientRepositoryTest extends TestCase
 {
@@ -26,12 +31,51 @@ class ClientRepositoryTest extends TestCase
     {
         parent::setUp();
         $this->connection = $this->createMock(Connection::class);
-        $this->clientRepository = new ClientRepository($this->connection);
+        $publicClients = new PublicClientRegistry([
+            'shopware-cli' => ['name' => 'Shopware CLI', 'redirect_uris' => ['http://127.0.0.1/callback']],
+        ]);
+        $this->clientRepository = new ClientRepository($this->connection, new NativeClock(), $publicClients);
+    }
+
+    public function testPublicClientIsReturnedWithoutDatabaseLookup(): void
+    {
+        $this->connection->expects($this->never())->method('fetchAssociative');
+
+        $client = $this->clientRepository->getClientEntity('shopware-cli');
+
+        static::assertInstanceOf(ApiClient::class, $client);
+        static::assertSame('shopware-cli', $client->getIdentifier());
+        static::assertSame('Shopware CLI', $client->getName());
+        static::assertFalse($client->isConfidential());
+        static::assertSame(['http://127.0.0.1/callback'], $client->getRedirectUri());
+        static::assertTrue($client->supportsGrantType('authorization_code'));
+        static::assertTrue($client->supportsGrantType('refresh_token'));
+        static::assertFalse($client->supportsGrantType('password'));
+        static::assertFalse($client->supportsGrantType('client_credentials'));
+    }
+
+    public function testValidateClientAcceptsPublicClientForAuthorizationCodeAndRefreshToken(): void
+    {
+        $this->connection->expects($this->never())->method('fetchAssociative');
+
+        static::assertTrue($this->clientRepository->validateClient('shopware-cli', null, 'authorization_code'));
+        static::assertTrue($this->clientRepository->validateClient('shopware-cli', null, 'refresh_token'));
+    }
+
+    public function testValidateClientRejectsPublicClientForOtherGrantTypes(): void
+    {
+        $this->connection->expects($this->never())->method('fetchAssociative');
+
+        $this->expectExceptionObject(OAuthServerException::unsupportedGrantType());
+        $this->clientRepository->validateClient('shopware-cli', null, 'password');
     }
 
     public function testValidateClientWithInvalidGrantTypeThrowException(): void
     {
-        static::expectExceptionMessage('The authorization grant type is not supported by the authorization server.');
+        $this->connection->expects($this->never())->method('fetchAssociative');
+        $this->connection->expects($this->never())->method('update');
+
+        $this->expectExceptionObject(OAuthServerException::unsupportedGrantType());
         $this->clientRepository->validateClient('clientIdentifier', 'clientSecret', 'unsupportGrantType');
     }
 

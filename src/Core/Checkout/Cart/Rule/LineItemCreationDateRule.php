@@ -62,6 +62,10 @@ class LineItemCreationDateRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('createdAt', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchesCreationDate($lineItem, $ruleValue)) {
                 return true;
             }
@@ -73,7 +77,7 @@ class LineItemCreationDateRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_DATE)
+            ->operatorSet(RuleConfig::OPERATOR_SET_DATE, false, true)
             ->dateTimeField('lineItemCreationDate');
     }
 

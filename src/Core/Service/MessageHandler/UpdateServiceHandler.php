@@ -21,6 +21,9 @@ final readonly class UpdateServiceHandler
 
     public function __invoke(UpdateServiceMessage $updateServiceMessage): void
     {
-        $this->serviceLifecycle->update($updateServiceMessage->name, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+
+        $this->serviceLifecycle->update($updateServiceMessage->name, $context);
+        $this->serviceLifecycle->reevaluateInstalled($context);
     }
 }

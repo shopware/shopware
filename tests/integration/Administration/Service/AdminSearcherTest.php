@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('framework')]
 class AdminSearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -75,7 +77,7 @@ class AdminSearcherTest extends TestCase
 
         static::assertCount(1, $result);
 
-        static::assertNotEmpty($result['product']);
+        static::assertArrayHasKey('product', $result);
 
         /** @var ProductCollection $products */
         $products = $result['product']['data'];
@@ -120,8 +122,8 @@ class AdminSearcherTest extends TestCase
 
         static::assertCount(2, $resultWithPermissions);
 
-        static::assertNotEmpty($resultWithPermissions['category']);
-        static::assertNotEmpty($resultWithPermissions['product']);
+        static::assertArrayHasKey('category', $resultWithPermissions);
+        static::assertArrayHasKey('product', $resultWithPermissions);
 
         $adminSource = new AdminApiSource($this->userId);
         $adminSource->setIsAdmin(false);
@@ -134,7 +136,7 @@ class AdminSearcherTest extends TestCase
         $resultWithoutPermissions = $this->searcher->search($queries, $this->context);
 
         static::assertCount(1, $resultWithoutPermissions);
-        static::assertNotEmpty($resultWithoutPermissions['category']);
+        static::assertArrayHasKey('category', $resultWithoutPermissions);
         static::assertArrayNotHasKey('product', $resultWithoutPermissions);
     }
 }

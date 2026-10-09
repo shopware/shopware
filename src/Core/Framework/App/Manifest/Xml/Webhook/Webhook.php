@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @method array{name: string, event: string, url: string, onlyLiveVersion: bool} toArray(string $defaultLocale)
  */
 #[Package('framework')]
 class Webhook extends XmlElement

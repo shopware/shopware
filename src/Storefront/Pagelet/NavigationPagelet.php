@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Pagelet;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('framework')]
+#[Package('discovery')]
 abstract class NavigationPagelet extends Pagelet
 {
     public function __construct(

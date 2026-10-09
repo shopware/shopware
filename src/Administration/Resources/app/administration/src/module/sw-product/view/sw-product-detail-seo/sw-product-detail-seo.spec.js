@@ -1,7 +1,7 @@
 /**
  * @sw-package inventory
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import uuid from 'test/_helper_/uuid';
 
 const classes = {
@@ -223,7 +223,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        const selectStoreFront = salesChannelSwitch.find('.sw-select-option--1');
+        const selectStoreFront = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(selectStoreFront.text()).toBe('Storefront');
         await selectStoreFront.trigger('click');
         await flushPromises();
@@ -297,7 +297,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        const selectStoreFront = salesChannelSwitch.find('.sw-select-option--1');
+        const selectStoreFront = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(selectStoreFront.text()).toBe('Storefront');
         await selectStoreFront.trigger('click');
         await wrapper.vm.$nextTick();
@@ -348,7 +348,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        const selectHeadless = salesChannelSwitch.find('.sw-select-option--2');
+        const selectHeadless = new DOMWrapper(document.body).get('.sw-select-option--2');
         expect(selectHeadless.text()).toBe('Headless');
         await selectHeadless.trigger('click');
         await wrapper.vm.$nextTick();
@@ -428,7 +428,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        const selectStoreFront = salesChannelSwitch.find('.sw-select-option--1');
+        const selectStoreFront = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(selectStoreFront.text()).toBe('Storefront');
         await selectStoreFront.trigger('click');
         await wrapper.vm.$nextTick();

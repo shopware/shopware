@@ -100,7 +100,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
 
         /** @var CustomerGroupEntity $customerGroup */
         $customerGroup = static::getContainer()->get('customer_group.repository')
-            ->search(new Criteria([$this->ids->get('customer_group')]), Context::createDefaultContext())->first();
+            ->search(new Criteria([$this->ids->get('customer_group')]), Context::createDefaultContext())->getEntities()->first();
 
         $expect = $option === 'clear' ? null : [$customFieldName => $expectData];
         static::assertSame($customerGroup->getCustomFields(), $expect);

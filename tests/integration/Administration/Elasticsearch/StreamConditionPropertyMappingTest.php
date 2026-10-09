@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
@@ -15,6 +16,7 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 /**
  * @internal
  */
+#[Package('framework')]
 class StreamConditionPropertyMappingTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -65,9 +67,13 @@ class StreamConditionPropertyMappingTest extends TestCase
             return !\in_array($property, $mappedProperties, true);
         });
 
-        static::assertEmpty($unmappedProperties, \sprintf(
-            'The following product fields available for filters in product streams are not mapped for elasticsearch: %s',
-            implode(', ', $unmappedProperties)
-        ));
+        static::assertCount(
+            0,
+            $unmappedProperties,
+            \sprintf(
+                'The following product fields available for filters in product streams are not mapped for elasticsearch: %s',
+                implode(', ', $unmappedProperties)
+            )
+        );
     }
 }

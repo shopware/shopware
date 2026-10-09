@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 use Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\Fixture\TestElement;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ConfigXmlElement::class)]
 class ConfigXmlElementTest extends TestCase
 {

@@ -8,10 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
 use Shopware\Core\Content\Media\Core\Strategy\IdPathStrategy;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(IdPathStrategy::class)]
 class IdPathStrategyTest extends TestCase
 {
@@ -63,5 +65,19 @@ class IdPathStrategyTest extends TestCase
             new MediaLocationStruct('018b3c6d2ddf726fb12ee582f5caba40', 'jpg', 'test', new \DateTimeImmutable('2021-01-01')),
             'media/fd/18/g0/1609459200/test.jpg',
         ];
+    }
+
+    public function testStrategyWithoutPathCacheBuster(): void
+    {
+        $strategy = new IdPathStrategy(false);
+
+        static::assertSame(
+            ['foo' => 'media/ac/bd/18/test.jpg'],
+            $strategy->generate([new MediaLocationStruct('foo', 'jpg', 'test', new \DateTimeImmutable('2021-01-01'))])
+        );
+        static::assertSame(
+            ['thumbnail' => 'thumbnail/ac/bd/18/test_100x100.jpg'],
+            $strategy->generate([new ThumbnailLocationStruct('thumbnail', 100, 100, new MediaLocationStruct('foo', 'jpg', 'test', new \DateTimeImmutable('2021-01-01')))])
+        );
     }
 }

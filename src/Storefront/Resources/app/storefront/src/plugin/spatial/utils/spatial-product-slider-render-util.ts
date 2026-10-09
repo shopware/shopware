@@ -56,7 +56,7 @@ export default class SpatialProductSliderRenderUtil {
     /**
      * Initializes the rendering.
      */
-    public initRender() {
+    public async initRender() {
         // Start rendering when slider is active
         const sliderInfo = this.tnsSlider?.getInfo();
         const singleImageGallery = !!this.plugin.el?.closest(
@@ -64,7 +64,7 @@ export default class SpatialProductSliderRenderUtil {
         )?.querySelector(SpatialProductSliderRenderUtil.options.singleImageGallerySelector);
 
         if (singleImageGallery || sliderInfo?.slideItems[sliderInfo.index] === this.sliderElement ) {
-            this.plugin.startRendering();
+            await this.plugin.startRendering();
         }
     }
 
@@ -74,7 +74,7 @@ export default class SpatialProductSliderRenderUtil {
      */
     private initEventListeners() {
         // remove eventual subscription
-        this.sliderPlugin?.$emitter.unsubscribe('rebuild', this.rebuildEvent.bind(this));
+        this.sliderPlugin?.$emitter.unsubscribe('rebuild');
 
         // listen to active slide changes
         this.tnsSlider?.events.on('indexChanged', this.indexChangedEvent.bind(this));
@@ -114,10 +114,10 @@ export default class SpatialProductSliderRenderUtil {
         // Start or stop rendering when the slide is active or not
         if (active) {
             // We should only start rendering after the slider has finished sliding
-            setTimeout(() => {
+            setTimeout(async () => {
                 // recheck if the slide is still active
                 if (this.plugin.sliderIndex == this.tnsSlider.getInfo().index) {
-                    this.plugin.startRendering();
+                    await this.plugin.startRendering();
                 }
             }, 500);
         } else {

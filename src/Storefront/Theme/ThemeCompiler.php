@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Theme;
 
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
-use League\Flysystem\UnableToDeleteDirectory;
+use League\Flysystem\FilesystemReader;
 use League\Flysystem\Visibility;
 use Psr\Log\LoggerInterface;
 use ScssPhp\ScssPhp\OutputStyle;
@@ -29,7 +29,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeCompiler implements ThemeCompilerInterface
 {
     /**
@@ -54,6 +54,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     public function __construct(
         private readonly FilesystemOperator $filesystem,
         private readonly FilesystemOperator $tempFilesystem,
+        private readonly FilesystemOperator $assetFilesystem,
         private readonly CopyBatchInputFactory $copyBatchInputFactory,
         private readonly ThemeFileResolver $themeFileResolver,
         private readonly bool $debug,
@@ -104,8 +105,10 @@ class ThemeCompiler implements ThemeCompilerInterface
             $styleCopyFiles = $this->getStyleCopyFiles($themePrefix, $compiledStyles);
 
             $assetCopyFiles = [];
+            $staleAssetFiles = [];
             if ($withAssets) {
                 $assetCopyFiles = $this->getAssetCopyFiles($themeConfig, $configurationCollection, $themeId);
+                $staleAssetFiles = $this->getStaleAssetFiles($themeId, $assetCopyFiles);
             }
         } catch (\Throwable $e) {
             throw ThemeException::themeCompileException(
@@ -123,6 +126,11 @@ class ThemeCompiler implements ThemeCompilerInterface
             ...$assetCopyFiles,
             ...$scriptFiles,
         );
+
+        // Never delete keys that are being overwritten: storage may apply deletes after the upload.
+        foreach ($staleAssetFiles as $staleAssetFile) {
+            $this->filesystem->delete($staleAssetFile);
+        }
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 
@@ -178,19 +186,11 @@ class ThemeCompiler implements ThemeCompilerInterface
         // Core vendor chunks → top-level specifier imports from bundle asset URLs.
         $coreVendorMap = $this->readBundleBuildMeta('Storefront', $configurationCollection)['vendorMap'] ?? [];
         foreach ($coreVendorMap as $specifier => $chunkPath) {
-            $imports[$specifier] = $this->buildBundleAssetUrl(
-                'Storefront',
-                '/bundles/' . $this->toAssetDirectory('Storefront') . '/storefront/components/' . $chunkPath,
-                $configurationCollection,
-            );
+            $imports[$specifier] = '/bundles/' . $this->toAssetDirectory('Storefront') . '/storefront/components/' . $chunkPath;
         }
 
         // The shopware singleton is published as a normal bundle asset.
-        $imports['shopware'] = $this->buildBundleAssetUrl(
-            'Storefront',
-            '/bundles/' . $this->toAssetDirectory('Storefront') . '/storefront/shopware/shopware.js',
-            $configurationCollection,
-        );
+        $imports['shopware'] = '/bundles/' . $this->toAssetDirectory('Storefront') . '/storefront/shopware/shopware.js';
 
         // Component entries (with content-hashed filenames) come from per-bundle
         // build metadata in `public/bundles/<bundle>/storefront/components/.vite/build-meta.json`.
@@ -198,11 +198,11 @@ class ThemeCompiler implements ThemeCompilerInterface
         foreach ($componentManifest as $tag => $entry) {
             $bundleName = $entry['bundle'];
             if (isset($entry['js']) && $entry['js'] !== '') {
-                $imports[$tag] = $this->buildBundleAssetUrl($bundleName, $entry['js'], $configurationCollection);
+                $imports[$tag] = $entry['js'];
             }
             if (isset($entry['css']) && $entry['css'] !== []) {
                 foreach ($entry['css'] as $cssPath) {
-                    $styles[] = $this->buildBundleAssetUrl($bundleName, $cssPath, $configurationCollection);
+                    $styles[] = $cssPath;
                 }
             }
         }
@@ -224,18 +224,31 @@ class ThemeCompiler implements ThemeCompilerInterface
         return $result;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Build-meta loading no longer fetches public URLs.
+     * Keep as protected no-op for backwards compatibility.
+     */
     protected function fetchPublicFile(string $url): string|false
     {
-        $context = stream_context_create([
-            'http' => [
-                'ignore_errors' => true,
-            ],
-            'https' => [
-                'ignore_errors' => true,
-            ],
-        ]);
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
 
-        return @file_get_contents($url, false, $context);
+        return false;
+    }
+
+    private function readBuildMetaFile(string $relativeMetaPath): ?string
+    {
+        $filesystemPath = ltrim($relativeMetaPath, '/');
+
+        try {
+            $raw = $this->assetFilesystem->read($filesystemPath);
+
+            return $raw !== '' ? $raw : null;
+        } catch (FilesystemException) {
+            return null;
+        }
     }
 
     /**
@@ -335,7 +348,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            $entryName = preg_replace('/\.(scss|css)$/', '', $entry['name']) ?? $entry['name'];
+            $entryName = $this->normalizeComponentEntryName($entry['name']);
             $outputFile = $entry['file'];
             $tag = str_replace('/', ':', $entryName);
 
@@ -377,11 +390,18 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
             if (isset($entry['css']) && $entry['css'] !== []) {
-                $jsToCssFiles[$entry['name']] = $entry['css'];
+                $jsToCssFiles[$this->normalizeComponentEntryName($entry['name'])] = $entry['css'];
             }
         }
 
         return $jsToCssFiles;
+    }
+
+    private function normalizeComponentEntryName(string $entryName): string
+    {
+        $entryName = preg_replace('/\.(scss|css)$/', '', $entryName) ?? $entryName;
+
+        return preg_replace('~/index$~', '', $entryName) ?? $entryName;
     }
 
     /**
@@ -399,15 +419,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         $relativeMetaPath = $this->getPublishedComponentsRoot($bundleName) . '/.vite/build-meta.json';
-        $package = $this->resolveAssetPackageForBundle($bundleName, $configurationCollection);
-
-        if ($package === null) {
-            return $this->bundleBuildMetaCache[$bundleName] = null;
-        }
-
-        $url = $package->getUrl($relativeMetaPath);
-        $raw = $this->fetchPublicFile($url);
-        if (!\is_string($raw) || $raw === '') {
+        $raw = $this->readBuildMetaFile($relativeMetaPath);
+        if ($raw === null || $raw === '') {
             return $this->bundleBuildMetaCache[$bundleName] = null;
         }
 
@@ -473,90 +486,14 @@ class ThemeCompiler implements ThemeCompilerInterface
             }
 
             $bundleComponentsBase = '/bundles/' . $this->toAssetDirectory($bundleName) . '/storefront/components/';
-            $scopeKey = $this->buildScopeKeyUrl(
-                $this->buildBundleAssetUrl($bundleName, $bundleComponentsBase . $bundleName . '/', $configurationCollection),
-            );
+            $scopeKey = $bundleComponentsBase . $bundleName . '/';
 
             foreach ($vendorMap as $specifier => $chunkPath) {
-                $scopes[$scopeKey][$specifier] = $this->buildBundleAssetUrl($bundleName, $bundleComponentsBase . $chunkPath, $configurationCollection);
+                $scopes[$scopeKey][$specifier] = $bundleComponentsBase . $chunkPath;
             }
         }
 
         return $scopes;
-    }
-
-    private function buildBundleAssetUrl(
-        string $bundleName,
-        string $path,
-        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
-    ): string {
-        $package = $this->resolveAssetPackageForBundle($bundleName, $configurationCollection);
-        if ($package === null) {
-            return $path;
-        }
-
-        return $package->getUrl(ltrim($path, '/'));
-    }
-
-    private function buildScopeKeyUrl(string $url): string
-    {
-        // Import-map scope matching is prefix-based on URL paths. If a scope key
-        // contains a query string (e.g. ".../Component/?hash"), module URLs like
-        // ".../Component/vendor/chunk.js?hash" no longer match that prefix and
-        // bare vendor specifiers cannot be resolved in the browser.
-        $queryPos = strpos($url, '?');
-        if ($queryPos === false) {
-            return $url;
-        }
-
-        return substr($url, 0, $queryPos);
-    }
-
-    private function resolveAssetPackageForBundle(
-        string $bundleName,
-        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
-    ): ?AssetPackage {
-        $isAppBundle = $this->isAppBundle($bundleName, $configurationCollection);
-
-        /**
-         * This is a SaaS specific logic for correct asset file system handling.
-         * In SaaS there are different CDN-based file systems for core files and apps.
-         * Most files are stored in a global CDN (global_asset) which is added by Rufus.
-         * App assets are stored in per-instance CDN (asset).
-         * On normal on-premise installations, the asset file system is used for both.
-         */
-        $preferredKeys = $isAppBundle
-            ? ['asset', 'public']
-            : ['global_asset', 'asset', 'public'];
-
-        foreach ($preferredKeys as $key) {
-            if (isset($this->packages[$key])) {
-                return $this->packages[$key];
-            }
-        }
-
-        return null;
-    }
-
-    private function isAppBundle(
-        string $bundleName,
-        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
-    ): bool {
-        if ($configurationCollection === null) {
-            return false;
-        }
-
-        $configuration = $configurationCollection->getByTechnicalName($bundleName);
-        if ($configuration === null) {
-            return false;
-        }
-
-        /**
-         * This is a SaaS specific logic to determine if the bundle is an app.
-         * In SaaS, app bundles are marked with the "saas_remote_app" extension.
-         * On normal on-premise installations, apps are handled as normal bundles.
-         */
-        return $configuration->hasExtension('saas_remote_app');
     }
 
     /**
@@ -635,9 +572,11 @@ class ThemeCompiler implements ThemeCompilerInterface
             return [];
         }
 
+        $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($configuration);
+
         foreach ($configuration->getAssetPaths() as $asset) {
-            if (mb_strpos((string) $asset, '@') === 0) {
-                $name = mb_substr((string) $asset, 1);
+            if (str_starts_with($asset, '@')) {
+                $name = mb_substr($asset, 1);
                 $config = $configurationCollection->getByTechnicalName($name);
                 if (!$config) {
                     throw ThemeException::couldNotFindThemeByName($name);
@@ -648,7 +587,6 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($configuration);
             if ($asset[0] !== '/' && $fs->has('Resources', $asset)) {
                 $asset = $fs->path('Resources', $asset);
             }
@@ -758,7 +696,15 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
-     * @param array{fields?: array{value: string|array<mixed>|null, scss?: bool, type: string}[]} $config
+     * @param array{
+     *     fields?: array<string, array{
+     *         value?: array<mixed>|bool|float|int|string|null,
+     *         scss?: bool|null,
+     *         type?: string|null,
+     *         ...<string, mixed>
+     *     }>,
+     *     ...<string, mixed>
+     * } $config
      *
      * @throws FilesystemException
      */
@@ -932,14 +878,36 @@ PHP_EOL;
         StorefrontPluginConfigurationCollection $configurationCollection,
         string $themeId
     ): array {
-        $assetPath = 'theme' . \DIRECTORY_SEPARATOR . $themeId;
+        return $this->getAssets($themeConfig, $configurationCollection, 'theme' . \DIRECTORY_SEPARATOR . $themeId);
+    }
 
-        try {
-            $this->filesystem->deleteDirectory($assetPath);
-        } catch (UnableToDeleteDirectory) {
+    /**
+     * @param list<CopyBatchInput> $assetCopyFiles
+     *
+     * @return list<string>
+     */
+    private function getStaleAssetFiles(string $themeId, array $assetCopyFiles): array
+    {
+        $assetPath = 'theme' . \DIRECTORY_SEPARATOR . $themeId;
+        if (!$this->filesystem->directoryExists($assetPath)) {
+            return [];
         }
 
-        return $this->getAssets($themeConfig, $configurationCollection, $assetPath);
+        $targetFiles = [];
+        foreach ($assetCopyFiles as $assetCopyFile) {
+            foreach ($assetCopyFile->getTargetFiles() as $targetFile) {
+                $targetFiles[ltrim($targetFile, '/')] = true;
+            }
+        }
+
+        $staleAssetFiles = [];
+        foreach ($this->filesystem->listContents($assetPath, FilesystemReader::LIST_DEEP) as $item) {
+            if ($item->isFile() && str_starts_with($item->path(), $assetPath . '/') && !isset($targetFiles[$item->path()])) {
+                $staleAssetFiles[] = $item->path();
+            }
+        }
+
+        return $staleAssetFiles;
     }
 
     /**

@@ -3,14 +3,14 @@
 namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Type;
 
 use PHPStan\Testing\TypeInferenceTestCase;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class CollectionHasSpecifyingExtensionTest extends TypeInferenceTestCase
 {
-    #[RunInSeparateProcess]
     public function testCollectionHas(): void
     {
         foreach (static::gatherAssertTypes(__DIR__ . '/data/collection_has.php') as $args) {

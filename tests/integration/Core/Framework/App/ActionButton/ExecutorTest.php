@@ -88,9 +88,9 @@ class ExecutorTest extends TestCase
             $request->getHeaderLine('shopware-shop-signature')
         );
 
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testExecutorReturnMessageWithFailedRequests(): void
@@ -146,9 +146,9 @@ class ExecutorTest extends TestCase
             $request->getHeaderLine('shopware-shop-signature')
         );
 
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testContentIsCorrect(): void
@@ -200,7 +200,8 @@ class ExecutorTest extends TestCase
 
         static::assertEquals($expectedSource, $data['source']);
         static::assertEquals($expectedData, $data['data']);
-        static::assertNotEmpty($data['meta']['timestamp']);
+        static::assertIsInt($data['meta']['timestamp']);
+        static::assertGreaterThan(0, $data['meta']['timestamp']);
         static::assertTrue(Uuid::isValid($data['meta']['reference']));
         static::assertSame($context->getLanguageId(), $data['meta']['language']);
 
@@ -211,9 +212,9 @@ class ExecutorTest extends TestCase
             $request->getHeaderLine('shopware-shop-signature')
         );
 
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testExecutorReturnEmptyResponseBody(): void
@@ -255,9 +256,9 @@ class ExecutorTest extends TestCase
             $request->getHeaderLine('shopware-shop-signature')
         );
 
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testExecutorReturnMessageWithWrongHMac(): void
@@ -334,8 +335,7 @@ class ExecutorTest extends TestCase
         static::assertNotNull($this->app->getAppSecret());
         $this->signResponse($this->app->getAppSecret());
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('Changes in your system were detected that suggest a change of the shop ID.');
+        $this->expectExceptionObject(AppException::actionButtonProcessException($action->getActionId(), 'Changes in your system were detected that suggest a change of the shop ID.'));
         $this->executor->execute($action, Context::createDefaultContext());
     }
 

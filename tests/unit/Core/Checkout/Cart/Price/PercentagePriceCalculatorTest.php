@@ -25,8 +25,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(PercentagePriceCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(PercentagePriceCalculator::class)]
 class PercentagePriceCalculatorTest extends TestCase
 {
     #[DataProvider('grossPriceDataProvider')]

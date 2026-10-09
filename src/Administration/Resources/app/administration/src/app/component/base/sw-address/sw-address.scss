@@ -1,22 +1,15 @@
-@import "~scss/variables";
-
 .sw-address {
-    margin-bottom: 20px;
-    font-style: normal;
-    font-size: $font-size-xs;
-    line-height: $line-height-sm;
-    color: $color-darkgray-200;
+    margin-bottom: var(--scale-size-24);
+    font-size: var(--font-size-xs);
+    line-height: var(--font-line-height-xs);
+    color: var(--color-text-primary-default);
 
-    .sw-address__headline {
-        margin: 0 0 20px;
-        color: $color-darkgray-200;
-        font-weight: normal;
-        font-size: $font-size-m;
-
-        .sw-address-headline-link {
-            font-size: $font-size-xs;
-            color: $color-shopware-brand-500;
-            text-decoration: none;
-        }
+    &__headline {
+        margin: 0 0 var(--scale-size-8);
+        font-size: var(--font-size-s);
+        font-weight: var(--font-weight-medium);
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-8);
     }
 }

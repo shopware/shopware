@@ -4,7 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\BeforeCartMergeEvent;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
@@ -27,7 +27,7 @@ class CartRestorer
         private readonly AbstractSalesChannelContextFactory $factory,
         private readonly SalesChannelContextPersister $contextPersister,
         private readonly CartService $cartService,
-        private readonly CartRuleLoader $cartRuleLoader,
+        private readonly CartCalculator $cartCalculator,
         private readonly AbstractCartPersister $cartPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly RequestStack $requestStack,
@@ -48,7 +48,7 @@ class CartRestorer
             $currentContext->getSalesChannelId(),
         );
 
-        if ($customerPayload === [] || !empty($customerPayload['permissions'])) {
+        if ($customerPayload === [] || ($customerPayload['permissions'] ?? []) !== []) {
             return $this->replaceContextToken($customerId, $currentContext, $token);
         }
 
@@ -73,7 +73,7 @@ class CartRestorer
             $customerId
         );
 
-        if ($customerPayload === [] || !empty($customerPayload['permissions']) || !($customerPayload['expired'] ?? false) && $customerPayload['token'] === $currentContext->getToken()) {
+        if ($customerPayload === [] || ($customerPayload['permissions'] ?? []) !== [] || !($customerPayload['expired'] ?? false) && $customerPayload['token'] === $currentContext->getToken()) {
             return $this->replaceContextToken($customerId, $currentContext);
         }
 
@@ -141,9 +141,40 @@ class CartRestorer
             ($originalToken === null) ? $customerId : null,
         );
 
+        // The current context may not contain the customer, e.g. when all customer tokens were revoked
+        // by a password change. A new context is created, so events like the CustomerLoginEvent
+        // are dispatched with a context that contains the customer and the matching rule ids.
+        if ($customerId !== null && $currentContext->getCustomerId() !== $customerId) {
+            $currentContext = $this->createCustomerContext($customerId, $currentContext);
+        }
+
         $this->updateRequestState($currentContext);
 
         return $currentContext;
+    }
+
+    private function createCustomerContext(string $customerId, SalesChannelContext $currentContext): SalesChannelContext
+    {
+        $customerContext = $this->factory->create(
+            $currentContext->getToken(),
+            $currentContext->getSalesChannelId(),
+            [
+                SalesChannelContextService::CUSTOMER_ID => $customerId,
+                SalesChannelContextService::LANGUAGE_ID => $currentContext->getLanguageId(),
+                SalesChannelContextService::CURRENCY_ID => $currentContext->getCurrencyId(),
+                SalesChannelContextService::DOMAIN_ID => $currentContext->getDomainId(),
+            ]
+        );
+
+        $customerContext->addState(...$currentContext->getStates());
+
+        if ($currentContext->getImitatingUserId() !== null) {
+            $customerContext->setImitatingUserId($currentContext->getImitatingUserId());
+        }
+
+        $this->cartCalculator->calculateByToken($customerContext->getToken(), $customerContext);
+
+        return $customerContext;
     }
 
     private function deleteGuestContext(SalesChannelContext $guestContext, string $customerId): void
@@ -164,7 +195,8 @@ class CartRestorer
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
 
-        if (!$request->hasSession()) {
+        // Only synchronize an initialized storefront session. Store API requests must remain stateless.
+        if (!$request->hasSession(true)) {
             return;
         }
 
@@ -207,9 +239,7 @@ class CartRestorer
         $this->updateRequestState($customerContext);
 
         $errors = $restoredCart->getErrors();
-        $result = $this->cartRuleLoader->loadByToken($customerContext, $restoredCart->getToken());
-
-        $cartWithErrors = $result->getCart();
+        $cartWithErrors = $this->cartCalculator->calculateByToken($restoredCart->getToken(), $customerContext);
         $cartWithErrors->setErrors($errors);
         $this->cartService->setCart($cartWithErrors);
 

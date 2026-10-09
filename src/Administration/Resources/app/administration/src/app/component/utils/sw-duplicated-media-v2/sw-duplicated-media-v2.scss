@@ -1,14 +1,10 @@
-@import "~scss/variables";
 @import "~scss/mixins";
-
-$sw-duplicated-media-v2-separator-color: $color-gray-300;
-$sw-duplicated-media-v2-font-size-preview: $font-size-xs;
 
 .sw-duplicated-media-v2 {
     z-index: 1150;
 
     .sw-duplicated-media-v2__description {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         margin-bottom: 10px;
     }
 
@@ -22,11 +18,11 @@ $sw-duplicated-media-v2-font-size-preview: $font-size-xs;
 
     .sw-duplicated-media-v2__preview-separator {
         justify-self: center;
-        color: $sw-duplicated-media-v2-separator-color;
+        color: var(--color-icon-secondary-default);
     }
 
     .sw-duplicated-media-v2__options {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         margin-bottom: 0;
     }
 
@@ -46,7 +42,7 @@ $sw-duplicated-media-v2-font-size-preview: $font-size-xs;
         display: grid;
         grid-template-columns: auto 1fr;
         grid-column-gap: 10px;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: 4px;
         padding: 8px;
     }
@@ -68,11 +64,11 @@ $sw-duplicated-media-v2-font-size-preview: $font-size-xs;
     .sw-duplicated-media-v2__target-label {
         @include truncate;
 
-        font-size: $sw-duplicated-media-v2-font-size-preview;
+        font-size: var(--font-size-xs);
     }
 
     .sw-duplicated-media-v2__target-details {
-        font-size: $font-size-xs;
-        color: $color-gray-300;
+        font-size: var(--font-size-xs);
+        color: var(--color-text-secondary-default);
     }
 }

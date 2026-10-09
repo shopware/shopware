@@ -29,10 +29,10 @@ class MediaUploadToolTest extends TestCase
             ->method('uploadFromURL')
             ->willReturn($mediaId);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($this->createAdminContext(['media:create']));
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
 
         $tool = new MediaUploadTool($uploadService, $contextProvider, $registry);
         $output = $tool('https://example.com/image.jpg');
@@ -47,17 +47,17 @@ class MediaUploadToolTest extends TestCase
         $mediaId = 'generated-media-id';
         $productId = 'product-id';
 
-        $uploadService = $this->createMock(MediaUploadService::class);
+        $uploadService = static::createStub(MediaUploadService::class);
         $uploadService->method('uploadFromURL')->willReturn($mediaId);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($this->createAdminContext(['media:create', 'product:update']));
 
         $repository = $this->createMock(EntityRepository::class);
         $repository->expects($this->once())->method('upsert');
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
-        $registry->method('getRepository')->with('product')->willReturn($repository);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getRepository')->willReturn($repository);
 
         $tool = new MediaUploadTool($uploadService, $contextProvider, $registry);
         $output = $tool('https://example.com/image.jpg', productId: $productId);
@@ -113,12 +113,12 @@ class MediaUploadToolTest extends TestCase
 
     public function testMissingAclReturnsError(): void
     {
-        $uploadService = $this->createMock(MediaUploadService::class);
+        $uploadService = static::createStub(MediaUploadService::class);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($this->createAdminContext([]));
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
 
         $tool = new MediaUploadTool($uploadService, $contextProvider, $registry);
         $output = $tool('https://example.com/image.jpg');

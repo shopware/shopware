@@ -12,12 +12,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class NaturalSortingTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -67,10 +69,10 @@ class NaturalSortingTest extends TestCase
 
         $options = $this->optionRepository->search($criteria, $context);
         // check all options generated
-        static::assertCount(\count($naturalOrder), $options);
+        static::assertCount(\count($naturalOrder), $options->getEntities());
 
         // extract names to compare them
-        $actual = $options->map(static fn (PropertyGroupOptionEntity $option) => $option->getName());
+        $actual = $options->getEntities()->map(static fn (PropertyGroupOptionEntity $option) => $option->getName());
 
         static::assertSame($rawOrder, array_values($actual));
 
@@ -80,7 +82,7 @@ class NaturalSortingTest extends TestCase
         $criteria->addSorting(new FieldSorting('property_group_option.name', FieldSorting::ASCENDING, true));
 
         $options = $this->optionRepository->search($criteria, $context);
-        $actual = $options->map(static fn (PropertyGroupOptionEntity $option) => $option->getName());
+        $actual = $options->getEntities()->map(static fn (PropertyGroupOptionEntity $option) => $option->getName());
 
         static::assertSame($naturalOrder, array_values($actual));
     }

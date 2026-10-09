@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -32,16 +32,16 @@ class DateIntervalFieldSerializerTest extends TestCase
 {
     private const REGEX_DATE_INTERVAL_VALIDATION = '/^P(\d+Y)(\d+M)(\d+D)T(\d+H)(\d+M)(\d+S)$/';
 
-    private DefinitionInstanceRegistry&MockObject $definitionInstanceRegistry;
+    private DefinitionInstanceRegistry&Stub $definitionInstanceRegistry;
 
-    private ValidatorInterface&MockObject $validator;
+    private ValidatorInterface&Stub $validator;
 
     private DateIntervalFieldSerializer $dateIntervalFieldSerializer;
 
     protected function setUp(): void
     {
-        $this->definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $this->validator = $this->createMock(ValidatorInterface::class);
+        $this->definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $this->validator = static::createStub(ValidatorInterface::class);
 
         $this->dateIntervalFieldSerializer = new DateIntervalFieldSerializer(
             $this->validator,
@@ -57,7 +57,7 @@ class DateIntervalFieldSerializerTest extends TestCase
             new DateIntervalField('fake', 'fake'),
             static::createStub(EntityExistence::class),
             $data,
-            $this->createMock(WriteParameterBag::class)
+            static::createStub(WriteParameterBag::class)
         );
 
         $dateIntervalString = $iterator->current();
@@ -79,7 +79,7 @@ class DateIntervalFieldSerializerTest extends TestCase
             new ManyToOneAssociationField('name', 'name', 'name', 'name'),
             static::createStub(EntityExistence::class),
             $data,
-            $this->createMock(WriteParameterBag::class)
+            static::createStub(WriteParameterBag::class)
         )->current();
     }
 
@@ -91,7 +91,7 @@ class DateIntervalFieldSerializerTest extends TestCase
             new DateIntervalField('name', 'name'),
             static::createStub(EntityExistence::class),
             $data,
-            $this->createMock(WriteParameterBag::class)
+            static::createStub(WriteParameterBag::class)
         )->current();
 
         static::assertNull($intervalString);
@@ -101,7 +101,8 @@ class DateIntervalFieldSerializerTest extends TestCase
     {
         $data = new KeyValuePair('key', new DateIntervalField('name', 'name'), false);
 
-        $this->validator
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator
             ->expects($this->exactly(2))
             ->method('validate')
             ->with($data->getValue(), static::callback(static function ($constraint): bool {
@@ -111,11 +112,11 @@ class DateIntervalFieldSerializerTest extends TestCase
 
         static::expectException(WriteConstraintViolationException::class);
 
-        $this->dateIntervalFieldSerializer->encode(
+        (new DateIntervalFieldSerializer($validator, $this->definitionInstanceRegistry))->encode(
             (new DateIntervalField('name', 'name'))->setFlags(new Required()),
             static::createStub(EntityExistence::class),
             $data,
-            $this->createMock(WriteParameterBag::class)
+            static::createStub(WriteParameterBag::class)
         )->current();
     }
 
@@ -127,7 +128,7 @@ class DateIntervalFieldSerializerTest extends TestCase
             new DateIntervalField('fake', 'fake'),
             static::createStub(EntityExistence::class),
             $data,
-            $this->createMock(WriteParameterBag::class)
+            static::createStub(WriteParameterBag::class)
         )->current();
 
         static::assertIsString($dateIntervalString);
@@ -144,7 +145,7 @@ class DateIntervalFieldSerializerTest extends TestCase
             new DateIntervalField('fake', 'fake'),
             static::createStub(EntityExistence::class),
             $data,
-            $this->createMock(WriteParameterBag::class)
+            static::createStub(WriteParameterBag::class)
         )->current();
     }
 
@@ -156,7 +157,7 @@ class DateIntervalFieldSerializerTest extends TestCase
             new DateIntervalField('name', 'name'),
             static::createStub(EntityExistence::class),
             $data,
-            $this->createMock(WriteParameterBag::class)
+            static::createStub(WriteParameterBag::class)
         );
 
         static::assertNull($interval->current());
@@ -174,7 +175,7 @@ class DateIntervalFieldSerializerTest extends TestCase
             new DateIntervalField('name', 'name'),
             static::createStub(EntityExistence::class),
             $data,
-            $this->createMock(WriteParameterBag::class)
+            static::createStub(WriteParameterBag::class)
         );
 
         static::assertNull($interval->current());

@@ -7,11 +7,13 @@ namespace Shopware\Tests\Unit\Administration\Framework\Asset;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\Asset\AssetUploadListener;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Event\AssetUploadEvent;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AssetUploadListener::class)]
 class AssetUploadListenerTest extends TestCase
 {

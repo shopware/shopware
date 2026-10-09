@@ -13,11 +13,7 @@ export default {
 
     inject: ['acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing'),
-        Mixin.getByName('theme'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing'), Mixin.getByName('theme')],
 
     data() {
         return {
@@ -92,15 +88,18 @@ export default {
                 criteria.setTerm(this.term);
             }
 
-            return this.themeRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
-                this.total = searchResult.total;
-                this.themes = searchResult;
-                this.isLoading = false;
+            return this.themeRepository
+                .search(criteria, Shopware.Context.api)
+                .then((searchResult) => {
+                    this.total = searchResult.total;
+                    this.themes = searchResult;
+                    this.isLoading = false;
 
-                return this.pages;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return this.pages;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         resetList() {
@@ -149,8 +148,8 @@ export default {
         },
 
         onListModeChange() {
-            this.listMode = (this.listMode === 'grid') ? 'list' : 'grid';
-            this.limit = (this.listMode === 'grid') ? 9 : 10;
+            this.listMode = this.listMode === 'grid' ? 'list' : 'grid';
+            this.limit = this.listMode === 'grid' ? 9 : 10;
 
             this.resetList();
         },
@@ -187,28 +186,33 @@ export default {
 
         saveTheme(theme) {
             this.isLoading = true;
-            return this.themeRepository.save(theme, Shopware.Context.api).then(() => {
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+            return this.themeRepository
+                .save(theme, Shopware.Context.api)
+                .then(() => {
+                    this.isLoading = false;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         getColumnConfig() {
-            return [{
-                property: 'name',
-                label: this.$t('sw-theme-manager.list.gridHeaderName'),
-                primary: true,
-            },
-            {
-                property: 'salesChannels.length',
-                label: this.$t('sw-theme-manager.list.gridHeaderAssignment'),
-                sortable: false,
-            },
-            {
-                property: 'createdAt',
-                label: this.$t('sw-theme-manager.list.gridHeaderCreated'),
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: this.$t('sw-theme-manager.list.gridHeaderName'),
+                    primary: true,
+                },
+                {
+                    property: 'salesChannels.length',
+                    label: this.$t('sw-theme-manager.list.gridHeaderAssignment'),
+                    sortable: false,
+                },
+                {
+                    property: 'createdAt',
+                    label: this.$t('sw-theme-manager.list.gridHeaderCreated'),
+                },
+            ];
         },
 
         deleteDisabledToolTip(theme) {

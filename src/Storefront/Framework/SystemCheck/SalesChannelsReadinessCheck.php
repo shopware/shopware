@@ -17,9 +17,10 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  *
  * @codeCoverageIgnore
- * covered with integration tests/integration/Storefront/Framework/HealthCheck/SaleChannelsReadinessCheckTest.php
+ *
+ * @see \Shopware\Tests\Integration\Storefront\Framework\HealthCheck\SalesChannelsReadinessCheckTest
  */
-#[Package('framework')]
+#[Package('discovery')]
 class SalesChannelsReadinessCheck extends BaseCheck
 {
     private const INDEX_PAGE = 'frontend.home.page';

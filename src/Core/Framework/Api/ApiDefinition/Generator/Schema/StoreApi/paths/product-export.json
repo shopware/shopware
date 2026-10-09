@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/product-export/{accessKey}/{fileName}": {
@@ -27,18 +27,25 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": ""
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The product export has no sales channel domain assigned."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "No product export exists for the given `accessKey` and `fileName`, or the export file could not be generated."
                     }
                 },
-                "security": [
-                    {
-                        "ApiKey": []
-                    }
-                ]
+                "security": []
             }
         }
     }

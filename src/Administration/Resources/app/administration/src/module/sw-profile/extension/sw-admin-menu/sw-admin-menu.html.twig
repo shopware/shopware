@@ -1,20 +1,17 @@
-{% block sw_admin_menu_user_actions_items %}
-<li
+{% block sw_admin_menu_user_actions_items_logout_user %}
+<router-link
     v-if="acl.can('user.update_profile')"
-    class="sw-admin-menu__navigation-list-item"
+    v-slot="{ navigate }"
+    :to="{ name: 'sw.profile.index' }"
+    custom
 >
-    <router-link
-        class="sw-admin-menu__navigation-link sw-admin-menu__profile-item"
-        :to="{ name: 'sw.profile.index', params: { currentUser } }"
+    <mt-action-menu-item
+        icon="regular-user"
+        @click="navigate"
     >
-        <mt-icon
-            class="sw-admin-menu__navigation-link-icon"
-            name="regular-user"
-            size="16px"
-        />
         {{ $t('sw-profile.general.headlineProfile') }}
-    </router-link>
-</li>
+    </mt-action-menu-item>
+</router-link>
 
 {% parent %}
 {% endblock %}

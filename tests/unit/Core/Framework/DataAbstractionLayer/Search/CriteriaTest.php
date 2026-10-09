@@ -13,11 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Criteria::class)]
 class CriteriaTest extends TestCase
 {
@@ -163,5 +165,53 @@ class CriteriaTest extends TestCase
         $nestedNested = $nested->getAssociation('nestedNested');
 
         static::assertSame(2, $nestedNested->getNestingLevel());
+    }
+
+    public function testNextPagesLimitIncludesNavigationWindowAndSentinel(): void
+    {
+        $criteria = (new Criteria())->setLimit(2);
+
+        static::assertSame(13, $criteria->getNextPagesLimit());
+    }
+
+    public function testResetFieldsRemovesTheAllowlistFieldSelection(): void
+    {
+        $criteria = (new Criteria())->addFields(['id', 'name']);
+
+        $criteria->resetFields();
+
+        static::assertSame([], $criteria->getFields());
+
+        // the allowlist is gone, so the mutually exclusive denylist can be used again
+        $criteria->excludeFields(['description']);
+
+        static::assertSame(['description'], $criteria->getExcludedFields());
+    }
+
+    public function testResetExcludedFieldsRemovesTheDenylistFieldSelection(): void
+    {
+        $criteria = (new Criteria())->excludeFields(['description']);
+
+        $criteria->resetExcludedFields();
+
+        static::assertSame([], $criteria->getExcludedFields());
+
+        // the denylist is gone, so the mutually exclusive allowlist can be used again
+        $criteria->addFields(['id', 'name']);
+
+        static::assertSame(['id', 'name'], $criteria->getFields());
+    }
+
+    public function testResetFieldsAndResetExcludedFieldsDoNotAffectEachOther(): void
+    {
+        $criteria = (new Criteria())->addFields(['id']);
+        $criteria->resetExcludedFields();
+
+        static::assertSame(['id'], $criteria->getFields());
+
+        $criteria = (new Criteria())->excludeFields(['description']);
+        $criteria->resetFields();
+
+        static::assertSame(['description'], $criteria->getExcludedFields());
     }
 }

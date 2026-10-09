@@ -9,6 +9,7 @@
     class="sw-media-display-options__label-presentation"
     :model-value="presentation"
     :disabled="disabled"
+    hide-clearable-button
     @update:model-value="onPresentationChanged"
 />
 {% endblock %}
@@ -22,6 +23,7 @@
     class="sw-media-display-options__label-sort"
     :model-value="sortingConCat"
     :disabled="disabled"
+    hide-clearable-button
     @update:model-value="onSortingChanged"
 />
 {% endblock %}

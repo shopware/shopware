@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -60,9 +62,7 @@ async function createWrapper({
               <slot></slot>
             </div>
         `,
-            mixins: [
-                Shopware.Mixin.getByName('listing'),
-            ],
+            mixins: [Shopware.Mixin.getByName('listing')],
             data() {
                 return {
                     ...defaultData,
@@ -86,9 +86,7 @@ async function createWrapper({
         },
         {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
                 provide: {
                     searchRankingService: {
                         isValidTerm: (term) => {
@@ -115,9 +113,7 @@ async function createRouteWrapper() {
     Shopware.Component.register(componentName, {
         template: '<div class="listing-route-component"></div>',
         name: componentName,
-        mixins: [
-            Shopware.Mixin.getByName('listing'),
-        ],
+        mixins: [Shopware.Mixin.getByName('listing')],
         computed: {
             filters() {
                 return [];
@@ -165,9 +161,7 @@ async function createRouteWrapper() {
         },
         {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
                 provide: {
                     searchRankingService: {
                         isValidTerm: (term) => {
@@ -306,6 +300,39 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         router.push({
             query: {
                 page: 8,
+            },
+        });
+
+        await flushPromises();
+
+        expect(getListMock).toHaveBeenCalledWith();
+    });
+
+    it('should reload when stored filter query changes without local filter criteria', async () => {
+        await wrapper.unmount();
+
+        getListMock = jest.fn(() => {});
+        wrapper = await createWrapper({
+            defaultData: {
+                storeKey: 'grid.filter.product_review',
+            },
+            routeFirstPush: {
+                name: 'sw.product.index',
+                query: {
+                    page: '1',
+                    limit: '25',
+                },
+            },
+        });
+
+        await flushPromises();
+        getListMock.mockClear();
+
+        await router.push({
+            query: {
+                page: '1',
+                limit: '25',
+                'grid.filter.product_review': encodeURIComponent(JSON.stringify({})),
             },
         });
 
@@ -750,12 +777,7 @@ describe('src/app/mixin/listing.mixin.ts', () => {
             },
         };
 
-        expect(JSON.stringify(wrapper.vm.selectionArray)).toBe(
-            JSON.stringify([
-                { id: 1 },
-                { id: 2 },
-            ]),
-        );
+        expect(JSON.stringify(wrapper.vm.selectionArray)).toBe(JSON.stringify([{ id: 1 }, { id: 2 }]));
     });
 
     it('should have the correct selectionCount computed value', async () => {

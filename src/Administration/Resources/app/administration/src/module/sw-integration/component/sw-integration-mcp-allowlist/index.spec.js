@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/module/sw-integration/component/sw-integration-mcp-allowlist';
 
 const defaultCapabilities = {
@@ -9,12 +9,8 @@ const defaultCapabilities = {
         { name: 'shopware-entity-search', description: 'Search entities', dependencies: [], requiredPrivileges: [] },
         { name: 'shopware-entity-read', description: 'Read entity', dependencies: [], requiredPrivileges: [] },
     ],
-    resources: [
-        { uri: 'shopware://entities', name: 'Entities', description: 'All entities', mimeType: 'application/json' },
-    ],
-    prompts: [
-        { name: 'shopware-context', description: 'Context prompt' },
-    ],
+    resources: [{ uri: 'shopware://entities', name: 'Entities', description: 'All entities', mimeType: 'application/json' }],
+    prompts: [{ name: 'shopware-context', description: 'Context prompt' }],
 };
 
 const mcpToolService = {
@@ -43,6 +39,7 @@ async function createWrapper(props = {}) {
             allowlist: null,
             disabled: false,
             isAdmin: false,
+            unrestrictedWhenUnset: false,
             grantedPrivileges: [],
             ...props,
         },
@@ -67,8 +64,8 @@ describe('sw-integration-mcp-allowlist', () => {
         expect(mcpToolService.getCapabilities).toHaveBeenCalledTimes(1);
     });
 
-    it('shows admin banner when isAdmin is true', async () => {
-        const wrapper = await createWrapper({ isAdmin: true });
+    it('shows admin banner for a principal that bypasses the allowlist when unset', async () => {
+        const wrapper = await createWrapper({ isAdmin: true, unrestrictedWhenUnset: true });
 
         expect(wrapper.find('.sw-integration-mcp-allowlist__admin-banner').exists()).toBe(true);
     });
@@ -79,9 +76,30 @@ describe('sw-integration-mcp-allowlist', () => {
         expect(wrapper.find('.sw-integration-mcp-allowlist__admin-banner').exists()).toBe(false);
     });
 
-    it('emits update:allowlist with null when allCapabilitiesEnabled is set to true', async () => {
+    it('hides admin banner for an admin integration, which has no allowlist bypass', async () => {
+        const wrapper = await createWrapper({ isAdmin: true, unrestrictedWhenUnset: false });
+
+        expect(wrapper.find('.sw-integration-mcp-allowlist__admin-banner').exists()).toBe(false);
+    });
+
+    it('warns that an unset allowlist grants nothing when there is no bypass', async () => {
+        const wrapper = await createWrapper({ allowlist: null });
+
+        expect(wrapper.vm.hasNoEffectiveCapabilities).toBe(true);
+        expect(wrapper.find('.sw-integration-mcp-allowlist__no-selection-banner').exists()).toBe(true);
+    });
+
+    it('does not warn about an unset allowlist when the principal bypasses it', async () => {
+        const wrapper = await createWrapper({ allowlist: null, unrestrictedWhenUnset: true });
+
+        expect(wrapper.vm.hasNoEffectiveCapabilities).toBe(false);
+        expect(wrapper.find('.sw-integration-mcp-allowlist__no-selection-banner').exists()).toBe(false);
+    });
+
+    it('emits update:allowlist with null when a bypassing principal enables all capabilities', async () => {
         const wrapper = await createWrapper({
             allowlist: { tools: null, resources: null, prompts: null },
+            unrestrictedWhenUnset: true,
         });
 
         wrapper.vm.allCapabilitiesEnabled = true;
@@ -89,18 +107,59 @@ describe('sw-integration-mcp-allowlist', () => {
         expect(wrapper.emitted('update:allowlist')).toStrictEqual([[null]]);
     });
 
-    it('emits update:allowlist with structured object when allCapabilitiesEnabled is set to false', async () => {
+    it('persists explicit lists when a principal without a bypass enables all capabilities', async () => {
         const wrapper = await createWrapper({ allowlist: null });
+        await flushPromises();
 
-        wrapper.vm.allCapabilitiesEnabled = false;
+        wrapper.vm.allCapabilitiesEnabled = true;
 
         expect(wrapper.emitted('update:allowlist')).toStrictEqual([
-            [{ tools: null, resources: null, prompts: null }],
+            [
+                {
+                    tools: [
+                        'shopware-entity-search',
+                        'shopware-entity-read',
+                    ],
+                    resources: ['shopware://entities'],
+                    prompts: ['shopware-context'],
+                },
+            ],
         ]);
     });
 
-    it('allCapabilitiesEnabled is true when allowlist is null', async () => {
+    it('emits an empty selection when all capabilities are disabled', async () => {
+        const wrapper = await createWrapper({ allowlist: null, unrestrictedWhenUnset: true });
+
+        wrapper.vm.allCapabilitiesEnabled = false;
+
+        expect(wrapper.emitted('update:allowlist')).toStrictEqual([[{ tools: [], resources: [], prompts: [] }]]);
+    });
+
+    it('allCapabilitiesEnabled is true when a bypassing principal has no allowlist', async () => {
+        const wrapper = await createWrapper({ allowlist: null, unrestrictedWhenUnset: true });
+
+        expect(wrapper.vm.allCapabilitiesEnabled).toBe(true);
+    });
+
+    it('allCapabilitiesEnabled is false when a principal without a bypass has no allowlist', async () => {
         const wrapper = await createWrapper({ allowlist: null });
+        await flushPromises();
+
+        expect(wrapper.vm.allCapabilitiesEnabled).toBe(false);
+    });
+
+    it('allCapabilitiesEnabled is true when every available capability is explicitly selected', async () => {
+        const wrapper = await createWrapper({
+            allowlist: {
+                tools: [
+                    'shopware-entity-search',
+                    'shopware-entity-read',
+                ],
+                resources: ['shopware://entities'],
+                prompts: ['shopware-context'],
+            },
+        });
+        await flushPromises();
 
         expect(wrapper.vm.allCapabilitiesEnabled).toBe(true);
     });
@@ -113,10 +172,48 @@ describe('sw-integration-mcp-allowlist', () => {
         expect(wrapper.vm.allCapabilitiesEnabled).toBe(false);
     });
 
-    it('toolsAllowlist returns null when allowlist is null', async () => {
-        const wrapper = await createWrapper({ allowlist: null });
+    it('toolsAllowlist returns null when a bypassing principal has no allowlist', async () => {
+        const wrapper = await createWrapper({ allowlist: null, unrestrictedWhenUnset: true });
 
         expect(wrapper.vm.toolsAllowlist).toBeNull();
+    });
+
+    it('resolves an unset allowlist to an empty selection when there is no bypass', async () => {
+        const wrapper = await createWrapper({ allowlist: null });
+
+        expect(wrapper.vm.toolsAllowlist).toStrictEqual([]);
+        expect(wrapper.vm.resourcesAllowlist).toStrictEqual([]);
+        expect(wrapper.vm.promptsAllowlist).toStrictEqual([]);
+    });
+
+    it('resolves a null per-type entry to an empty selection when there is no bypass', async () => {
+        const wrapper = await createWrapper({
+            allowlist: { tools: ['shopware-entity-search'], resources: null, prompts: null },
+        });
+
+        expect(wrapper.vm.toolsAllowlist).toStrictEqual(['shopware-entity-search']);
+        expect(wrapper.vm.resourcesAllowlist).toStrictEqual([]);
+        expect(wrapper.vm.promptsAllowlist).toStrictEqual([]);
+    });
+
+    it('persists an explicit list when a type is switched to "all" without a bypass', async () => {
+        const wrapper = await createWrapper({ allowlist: { tools: [], resources: [], prompts: [] } });
+        await flushPromises();
+
+        wrapper.vm.onToggleTypeAll('tools', true);
+
+        expect(wrapper.emitted('update:allowlist')).toStrictEqual([
+            [
+                {
+                    tools: [
+                        'shopware-entity-search',
+                        'shopware-entity-read',
+                    ],
+                    resources: [],
+                    prompts: [],
+                },
+            ],
+        ]);
     });
 
     it('toolsAllowlist returns tools sub-array when allowlist is set', async () => {
@@ -125,6 +222,34 @@ describe('sw-integration-mcp-allowlist', () => {
         });
 
         expect(wrapper.vm.toolsAllowlist).toStrictEqual(['shopware-entity-search']);
+    });
+
+    it('groups tools by backend group when present', async () => {
+        mcpToolService.getCapabilities.mockResolvedValue({
+            ...defaultCapabilities,
+            tools: [
+                {
+                    name: 'shopware-entity-search',
+                    group: 'catalogue',
+                    description: 'Search entities',
+                    dependencies: [],
+                    requiredPrivileges: [],
+                },
+                {
+                    name: 'swag-order-export',
+                    group: 'orders',
+                    description: 'Export orders',
+                    dependencies: [],
+                    requiredPrivileges: [],
+                },
+            ],
+        });
+
+        const wrapper = await createWrapper({ allowlist: { tools: null, resources: null, prompts: null } });
+        await flushPromises();
+
+        expect(Object.keys(wrapper.vm.toolGroups)).toStrictEqual(['catalogue', 'orders']);
+        expect(wrapper.vm.groupLabel('tools', 'catalogue')).toBe('Catalogue');
     });
 
     it('resourcesAllowlist returns resources sub-array when allowlist is set', async () => {
@@ -146,10 +271,7 @@ describe('sw-integration-mcp-allowlist', () => {
     it('staleEntries includes stale tool names', async () => {
         const wrapper = await createWrapper({
             allowlist: {
-                tools: [
-                    'old-tool',
-                    'shopware-entity-search',
-                ],
+                tools: ['old-tool', 'shopware-entity-search'],
                 resources: null,
                 prompts: null,
             },
@@ -165,10 +287,7 @@ describe('sw-integration-mcp-allowlist', () => {
         const wrapper = await createWrapper({
             allowlist: {
                 tools: null,
-                resources: [
-                    'shopware://old',
-                    'shopware://entities',
-                ],
+                resources: ['shopware://old', 'shopware://entities'],
                 prompts: null,
             },
         });
@@ -184,10 +303,7 @@ describe('sw-integration-mcp-allowlist', () => {
             allowlist: {
                 tools: null,
                 resources: null,
-                prompts: [
-                    'old-prompt',
-                    'shopware-context',
-                ],
+                prompts: ['old-prompt', 'shopware-context'],
             },
         });
 
@@ -209,13 +325,42 @@ describe('sw-integration-mcp-allowlist', () => {
         ]);
     });
 
-    it('emitUpdated uses defaults when allowlist is null', async () => {
-        const wrapper = await createWrapper({ allowlist: null });
+    it('does not count a duplicated entry as covering another capability', async () => {
+        // The save endpoints accept duplicates. Counting entries rather than distinct capabilities
+        // would show the per-type "All" switch as on while shopware-entity-read is still denied.
+        const wrapper = await createWrapper({
+            allowlist: {
+                tools: [
+                    'shopware-entity-search',
+                    'shopware-entity-search',
+                ],
+                resources: [],
+                prompts: [],
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.typeSelectedCount('tools')).toBe(1);
+        expect(wrapper.vm.typeAllEnabled('tools')).toBe(false);
+    });
+
+    it('emitUpdated uses null defaults when a bypassing principal has no allowlist', async () => {
+        const wrapper = await createWrapper({ allowlist: null, unrestrictedWhenUnset: true });
 
         wrapper.vm.emitUpdated({ tools: ['shopware-entity-search'] });
 
         expect(wrapper.emitted('update:allowlist')).toStrictEqual([
             [{ tools: ['shopware-entity-search'], resources: null, prompts: null }],
+        ]);
+    });
+
+    it('emitUpdated uses empty defaults when there is no bypass', async () => {
+        const wrapper = await createWrapper({ allowlist: null });
+
+        wrapper.vm.emitUpdated({ tools: ['shopware-entity-search'] });
+
+        expect(wrapper.emitted('update:allowlist')).toStrictEqual([
+            [{ tools: ['shopware-entity-search'], resources: [], prompts: [] }],
         ]);
     });
 
@@ -233,6 +378,7 @@ describe('sw-integration-mcp-allowlist', () => {
     it('deniedTypes returns types where all items are explicitly denied', async () => {
         const wrapper = await createWrapper({
             allowlist: { tools: null, resources: [], prompts: null },
+            unrestrictedWhenUnset: true,
         });
         await wrapper.vm.$nextTick();
 
@@ -242,7 +388,7 @@ describe('sw-integration-mcp-allowlist', () => {
     });
 
     it('deniedTypes is empty when allCapabilitiesEnabled', async () => {
-        const wrapper = await createWrapper({ allowlist: null });
+        const wrapper = await createWrapper({ allowlist: null, unrestrictedWhenUnset: true });
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.deniedTypes).toStrictEqual([]);
@@ -251,6 +397,7 @@ describe('sw-integration-mcp-allowlist', () => {
     it('deniedTypesLabel joins single type correctly', async () => {
         const wrapper = await createWrapper({
             allowlist: { tools: null, resources: [], prompts: null },
+            unrestrictedWhenUnset: true,
         });
         await wrapper.vm.$nextTick();
 
@@ -260,6 +407,7 @@ describe('sw-integration-mcp-allowlist', () => {
     it('deniedTypesLabel joins two types with "and"', async () => {
         const wrapper = await createWrapper({
             allowlist: { tools: null, resources: [], prompts: [] },
+            unrestrictedWhenUnset: true,
         });
         await wrapper.vm.$nextTick();
 
@@ -341,5 +489,72 @@ describe('sw-integration-mcp-allowlist', () => {
         const names = wrapper.vm.missingCapabilitySuggestions.map((s) => s.name);
         expect(names).toContain('shopware-context');
         expect(names).not.toContain('shopware-debug');
+    });
+
+    describe('no capabilities registered', () => {
+        it('renders the empty state when capabilities are empty and all-toggle is off', async () => {
+            mcpToolService.getCapabilities.mockResolvedValue({ tools: [], resources: [], prompts: [] });
+
+            const wrapper = await createWrapper({
+                allowlist: { tools: null, resources: null, prompts: null },
+            });
+            await flushPromises();
+
+            expect(wrapper.find('mt-empty-state-stub').exists()).toBe(true);
+        });
+
+        it('tolerates a capabilities payload with missing keys', async () => {
+            mcpToolService.getCapabilities.mockResolvedValue({});
+
+            const wrapper = await createWrapper({
+                allowlist: { tools: null, resources: null, prompts: null },
+            });
+            await flushPromises();
+
+            expect(wrapper.vm.availableTools).toStrictEqual([]);
+            expect(wrapper.vm.availableResources).toStrictEqual([]);
+            expect(wrapper.vm.availablePrompts).toStrictEqual([]);
+            expect(wrapper.find('mt-empty-state-stub').exists()).toBe(true);
+        });
+
+        it('does not throw when toggling all capabilities off with no capabilities', async () => {
+            mcpToolService.getCapabilities.mockResolvedValue({ tools: [], resources: [], prompts: [] });
+
+            const wrapper = await createWrapper({ allowlist: null });
+            await flushPromises();
+
+            expect(() => {
+                wrapper.vm.allCapabilitiesEnabled = false;
+            }).not.toThrow();
+        });
+    });
+
+    describe('malformed capability data', () => {
+        it('does not throw when a tool exposes an undefined privilege chip', async () => {
+            mcpToolService.getCapabilities.mockResolvedValue({
+                tools: [
+                    {
+                        name: 'broken-tool',
+                        description: 'Broken tool',
+                        dependencies: [],
+                        // static privilege list contains a nullish entry
+                        requiredPrivileges: { static: [undefined] },
+                    },
+                ],
+                resources: [],
+                prompts: [],
+            });
+
+            const wrapper = await createWrapper({
+                allowlist: { tools: null, resources: null, prompts: null },
+                // non-empty granted privileges + non-admin => the chip guard is actually evaluated
+                isAdmin: false,
+                grantedPrivileges: ['product.viewer'],
+            });
+            await flushPromises();
+
+            expect(() => wrapper.vm.privilegeChipClass(undefined)).not.toThrow();
+            expect(wrapper.vm.privilegeChipClass(undefined)).toBe('neutral');
+        });
     });
 });

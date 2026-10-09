@@ -7,11 +7,7 @@ import template from './sw-category-detail-menu.html.twig';
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['acl', 'repositoryFactory', 'feature'],
 
     props: {
         category: {

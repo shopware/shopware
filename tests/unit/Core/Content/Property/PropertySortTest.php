@@ -9,11 +9,14 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
+use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(PropertyGroupOptionCollection::class)]
 #[CoversClass(PropertyGroupCollection::class)]
 class PropertySortTest extends TestCase
@@ -113,7 +116,7 @@ class PropertySortTest extends TestCase
     }
 
     /**
-     * [1a, 2aa, 3-x$e, 3d, 3e, 20aa, 44f, 55g, h6, i7, j2]
+     * [1a, 2aa, 3d, 3e, 3-x$e, 20aa, 44f, 55g, h6, i7, j2]
      */
     public function testAlphaNumericSortingMixed(): void
     {
@@ -127,6 +130,94 @@ class PropertySortTest extends TestCase
             $this->notShuffledName,
             array_column($propertyOptionsArray, 'name')
         );
+    }
+
+    public function testAlphaNumericSortingMixedCases(): void
+    {
+        $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCases();
+        $propertyGroups->sortByConfig('de-DE');
+        $propertyGroup = $propertyGroups->first();
+        static::assertNotNull($propertyGroup);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(
+            ['1A', '2aa', '3D', '3e', '3-x$e', '20AA', '44f', '55g', 'a', 'A', 'ä', 'Ä', 'aa', 'Ab', 'b', 'B', 'h6', 'i7', 'j2', 'ö', 'Ö', 'ü', 'Ü'],
+            array_column($propertyOptionsArray, 'name')
+        );
+    }
+
+    public function testAlphaNumericSortingMixedCasesPositionFirst(): void
+    {
+        $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCasesPositionFirst();
+        $propertyGroups->sortByConfig('de-DE');
+        $propertyGroup = $propertyGroups->first();
+        static::assertNotNull($propertyGroup);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(
+            ['a', 'b', 'A', 'B', '1A', '2aa', '20AA', '3D', '3e', '44f', '55g', 'h6', 'i7', 'j2', '3-x$e', 'Ab', 'aa', 'ä', 'ö', 'ü', 'Ä', 'Ö', 'Ü'],
+            array_column($propertyOptionsArray, 'name')
+        );
+    }
+
+    public function testPositionSortingWithAlphanumericTiebreaker(): void
+    {
+        $propertyGroups = $this->getPropertyGroupPositionWithTiedPositions();
+        $propertyGroups->sortByConfig('de-DE');
+        $propertyGroup = $propertyGroups->first();
+        static::assertNotNull($propertyGroup);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(
+            ['ä', 'b', 'ü', 'a', 'A', 'Ö', 'ö', 'z'],
+            array_column($propertyOptionsArray, 'name')
+        );
+    }
+
+    public function testPositionSortingAllSamePositionFallsBackToAlphanumeric(): void
+    {
+        $propertyGroups = $this->getPropertyGroupPositionAllSame();
+        $propertyGroups->sortByConfig('de-DE');
+        $propertyGroup = $propertyGroups->first();
+        static::assertNotNull($propertyGroup);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(
+            ['a', 'ä', 'b', 'ö', 'ü', 'z'],
+            array_column($propertyOptionsArray, 'name')
+        );
+    }
+
+    public function testPositionSortingWithEmptyNamesAndNullPositions(): void
+    {
+        $propertyGroups = $this->getPropertyGroupPositionWithEmptyNames();
+        $propertyGroups->sortByConfig('de-DE');
+        $propertyGroup = $propertyGroups->first();
+        static::assertNotNull($propertyGroup);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(
+            ['', '', 'a', 'ä', 'b'],
+            array_column($propertyOptionsArray, 'name')
+        );
+    }
+
+    public function testAlphaNumericSortingWorksWithoutLocaleParameter(): void
+    {
+        $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCases();
+        $propertyGroups->sortByConfig();
+        $propertyGroup = $propertyGroups->first();
+        static::assertNotNull($propertyGroup);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(23, $propertyOptionsArray);
+    }
+
+    public function testDeprecatedMethodSortByConfigThrowsException(): void
+    {
+        $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCases();
+        static::expectException(FeatureException::class);
+        $propertyGroups->sortByConfig(null);
     }
 
     private function getPropertyGroupAlphaNumericOnlyNumbers(): PropertyGroupCollection
@@ -278,8 +369,183 @@ class PropertySortTest extends TestCase
             ]);
             $propertyOptions[] = $propertyOption;
         }
-        $this->notShuffledName = ['1a', '2aa', '3-x$e', '3d', '3e', '20aa', '44f', '55g', 'h6', 'i7', 'j2'];
+        $this->notShuffledName = ['1a', '2aa', '3d', '3e', '3-x$e', '20aa', '44f', '55g', 'h6', 'i7', 'j2'];
         $this->notShuffledPosition = array_column(json_decode(json_encode($propertyOptions, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR), 'position');
+        shuffle($propertyOptions);
+
+        return new PropertyGroupOptionCollection($propertyOptions);
+    }
+
+    private function getPropertyGroupAlphaNumericMixedCases(): PropertyGroupCollection
+    {
+        $propertyGroup = new PropertyGroupEntity();
+        $propertyGroup->setId(Uuid::randomHex());
+        $propertyGroup->setName('AlphaNumeric Mixed Cases');
+        $propertyGroup->setSortingType(PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC);
+        $propertyGroup->setDisplayType(PropertyGroupDefinition::DISPLAY_TYPE_TEXT);
+        $propertyGroup->setPosition(1);
+        $propertyGroup->setOptions($this->getPropertyOptionsMixedCases());
+
+        return new PropertyGroupCollection([$propertyGroup]);
+    }
+
+    private function getPropertyGroupAlphaNumericMixedCasesPositionFirst(): PropertyGroupCollection
+    {
+        $propertyGroup = new PropertyGroupEntity();
+        $propertyGroup->setId(Uuid::randomHex());
+        $propertyGroup->setName('AlphaNumeric Mixed Cases Position First');
+        $propertyGroup->setSortingType(PropertyGroupDefinition::SORTING_TYPE_POSITION);
+        $propertyGroup->setDisplayType(PropertyGroupDefinition::DISPLAY_TYPE_TEXT);
+        $propertyGroup->setPosition(1);
+        $propertyGroup->setOptions($this->getPropertyOptionsMixedCases());
+
+        return new PropertyGroupCollection([$propertyGroup]);
+    }
+
+    private function getPropertyOptionsMixedCases(): PropertyGroupOptionCollection
+    {
+        $propertyOptions = [];
+        $letterArray = ['a', 'b', 'A', 'B', '1A', '2aa', '20AA', '3D', '3e', '44f', '55g', 'h6', 'i7', 'j2', '3-x$e', 'Ab', 'aa', 'ä', 'ö', 'ü', 'Ä', 'Ö', 'Ü'];
+        for ($x = 0; $x < \count($letterArray); ++$x) {
+            $propertyOption = new PropertyGroupOptionEntity();
+            $propertyOption->setId(Uuid::randomHex());
+            $propertyOption->setPosition($x);
+            $propertyOption->setName($letterArray[$x]);
+            $propertyOption->setTranslated([
+                'name' => $letterArray[$x],
+                'description' => '',
+                'position' => $x,
+                'customFields' => [],
+            ]);
+            $propertyOptions[] = $propertyOption;
+        }
+        shuffle($propertyOptions);
+
+        return new PropertyGroupOptionCollection($propertyOptions);
+    }
+
+    private function getPropertyGroupPositionWithTiedPositions(): PropertyGroupCollection
+    {
+        $propertyGroup = new PropertyGroupEntity();
+        $propertyGroup->setId(Uuid::randomHex());
+        $propertyGroup->setName('Position with tied positions');
+        $propertyGroup->setSortingType(PropertyGroupDefinition::SORTING_TYPE_POSITION);
+        $propertyGroup->setDisplayType(PropertyGroupDefinition::DISPLAY_TYPE_TEXT);
+        $propertyGroup->setPosition(1);
+        $propertyGroup->setOptions($this->getPropertyOptionsWithTiedPositions());
+
+        return new PropertyGroupCollection([$propertyGroup]);
+    }
+
+    /**
+     * @return PropertyGroupOptionCollection Options with duplicate positions to test alphanumeric tiebreaker:
+     *                                       pos 1: ü, b, ä | pos 2: Ö, A, a | pos 3: z, ö
+     */
+    private function getPropertyOptionsWithTiedPositions(): PropertyGroupOptionCollection
+    {
+        $items = [
+            ['name' => 'ü', 'position' => 1],
+            ['name' => 'b', 'position' => 1],
+            ['name' => 'ä', 'position' => 1],
+            ['name' => 'Ö', 'position' => 2],
+            ['name' => 'A', 'position' => 2],
+            ['name' => 'a', 'position' => 2],
+            ['name' => 'z', 'position' => 3],
+            ['name' => 'ö', 'position' => 3],
+        ];
+
+        $propertyOptions = [];
+        foreach ($items as $item) {
+            $propertyOption = new PropertyGroupOptionEntity();
+            $propertyOption->setId(Uuid::randomHex());
+            $propertyOption->setPosition($item['position']);
+            $propertyOption->setName($item['name']);
+            $propertyOption->setTranslated([
+                'name' => $item['name'],
+                'description' => '',
+                'position' => $item['position'],
+                'customFields' => [],
+            ]);
+            $propertyOptions[] = $propertyOption;
+        }
+        shuffle($propertyOptions);
+
+        return new PropertyGroupOptionCollection($propertyOptions);
+    }
+
+    private function getPropertyGroupPositionAllSame(): PropertyGroupCollection
+    {
+        $propertyGroup = new PropertyGroupEntity();
+        $propertyGroup->setId(Uuid::randomHex());
+        $propertyGroup->setName('Position all same');
+        $propertyGroup->setSortingType(PropertyGroupDefinition::SORTING_TYPE_POSITION);
+        $propertyGroup->setDisplayType(PropertyGroupDefinition::DISPLAY_TYPE_TEXT);
+        $propertyGroup->setPosition(1);
+        $propertyGroup->setOptions($this->getPropertyOptionsAllSamePosition());
+
+        return new PropertyGroupCollection([$propertyGroup]);
+    }
+
+    private function getPropertyOptionsAllSamePosition(): PropertyGroupOptionCollection
+    {
+        $names = ['ü', 'b', 'ä', 'z', 'ö', 'a'];
+
+        $propertyOptions = [];
+        foreach ($names as $name) {
+            $propertyOption = new PropertyGroupOptionEntity();
+            $propertyOption->setId(Uuid::randomHex());
+            $propertyOption->setPosition(0);
+            $propertyOption->setName($name);
+            $propertyOption->setTranslated([
+                'name' => $name,
+                'description' => '',
+                'position' => 0,
+                'customFields' => [],
+            ]);
+            $propertyOptions[] = $propertyOption;
+        }
+        shuffle($propertyOptions);
+
+        return new PropertyGroupOptionCollection($propertyOptions);
+    }
+
+    private function getPropertyGroupPositionWithEmptyNames(): PropertyGroupCollection
+    {
+        $propertyGroup = new PropertyGroupEntity();
+        $propertyGroup->setId(Uuid::randomHex());
+        $propertyGroup->setName('Position with empty names');
+        $propertyGroup->setSortingType(PropertyGroupDefinition::SORTING_TYPE_POSITION);
+        $propertyGroup->setDisplayType(PropertyGroupDefinition::DISPLAY_TYPE_TEXT);
+        $propertyGroup->setPosition(1);
+        $propertyGroup->setOptions($this->getPropertyOptionsWithEmptyNames());
+
+        return new PropertyGroupCollection([$propertyGroup]);
+    }
+
+    private function getPropertyOptionsWithEmptyNames(): PropertyGroupOptionCollection
+    {
+        $items = [
+            ['name' => 'b', 'position' => 0],
+            ['name' => '', 'position' => 0],
+            ['name' => 'ä', 'position' => 0],
+            ['name' => 'a', 'position' => 0],
+            ['name' => '', 'position' => 0],
+        ];
+
+        $propertyOptions = [];
+        foreach ($items as $item) {
+            $propertyOption = new PropertyGroupOptionEntity();
+            $propertyOption->setId(Uuid::randomHex());
+            $propertyOption->setPosition($item['position']);
+            $propertyOption->setName($item['name']);
+            $propertyOption->setTranslated([
+                'name' => $item['name'],
+                'description' => '',
+                'position' => $item['position'],
+                'customFields' => [],
+            ]);
+            $propertyOptions[] = $propertyOption;
+        }
         shuffle($propertyOptions);
 
         return new PropertyGroupOptionCollection($propertyOptions);

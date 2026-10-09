@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
@@ -26,22 +26,18 @@ class CustomerGroupStorerTest extends TestCase
 {
     private CustomerGroupStorer $storer;
 
-    private MockObject&CustomerGroupProvider $customerGroupProvider;
+    private Stub&CustomerGroupProvider $customerGroupProvider;
 
     protected function setUp(): void
     {
-        $this->customerGroupProvider = $this->createMock(CustomerGroupProvider::class);
+        $this->customerGroupProvider = static::createStub(CustomerGroupProvider::class);
 
-        $this->storer = new CustomerGroupStorer(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->customerGroupProvider
-        );
+        $this->storer = $this->buildStorer($this->customerGroupProvider);
     }
 
     public function testStoreWithAware(): void
     {
-        $event = $this->createMock(CustomerGroupRegistrationDeclined::class);
+        $event = static::createStub(CustomerGroupRegistrationDeclined::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayHasKey(CustomerGroupAware::CUSTOMER_GROUP_ID, $stored);
@@ -49,7 +45,7 @@ class CustomerGroupStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(CustomerRegisterEvent::class);
+        $event = static::createStub(CustomerRegisterEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(CustomerGroupAware::CUSTOMER_GROUP_ID, $stored);
@@ -75,11 +71,14 @@ class CustomerGroupStorerTest extends TestCase
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerGroupId' => 'id'], []);
 
-        $this->storer->restore($storable);
+        $customerGroupProvider = $this->createMock(CustomerGroupProvider::class);
+        $storer = $this->buildStorer($customerGroupProvider);
+
+        $storer->restore($storable);
         $entity = new CustomerGroupEntity();
         $entity->setId('id');
 
-        $this->customerGroupProvider->expects($this->once())->method('getData')->willReturn($entity);
+        $customerGroupProvider->expects($this->once())->method('getData')->willReturn($entity);
         $customerGroup = $storable->getData('customerGroup');
 
         static::assertSame($customerGroup, $entity);
@@ -88,9 +87,12 @@ class CustomerGroupStorerTest extends TestCase
     public function testLazyLoadNullEntity(): void
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerGroupId' => 'id'], []);
-        $this->storer->restore($storable);
 
-        $this->customerGroupProvider->expects($this->once())->method('getData')->willReturn(null);
+        $customerGroupProvider = $this->createMock(CustomerGroupProvider::class);
+        $storer = $this->buildStorer($customerGroupProvider);
+        $storer->restore($storable);
+
+        $customerGroupProvider->expects($this->once())->method('getData')->willReturn(null);
         $customerGroup = $storable->getData('customerGroup');
 
         static::assertNull($customerGroup);
@@ -103,5 +105,14 @@ class CustomerGroupStorerTest extends TestCase
         $customerGroup = $storable->getData('customerGroup');
 
         static::assertNull($customerGroup);
+    }
+
+    private function buildStorer(CustomerGroupProvider $customerGroupProvider): CustomerGroupStorer
+    {
+        return new CustomerGroupStorer(
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            $customerGroupProvider
+        );
     }
 }

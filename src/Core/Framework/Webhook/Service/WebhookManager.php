@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Framework\Webhook\Service;
 
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
-use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
-use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
+use Shopware\Core\Framework\App\Event\AppLifecycleEvent;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
@@ -17,8 +15,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
-use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatchEvent;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -43,14 +40,8 @@ class WebhookManager implements ResetInterface
      */
     private ?array $webhooks = null;
 
-    /**
-     * @var array<string, mixed>
-     */
-    private array $privileges = [];
-
     public function __construct(
         private readonly WebhookLoader $webhookLoader,
-        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly HookableEventFactory $eventFactory,
         private readonly AppLocaleProvider $appLocaleProvider,
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
@@ -61,6 +52,7 @@ class WebhookManager implements ResetInterface
         private readonly bool $isAdminWorkerEnabled,
         private readonly WebhookDeliveryService $webhookDeliveryService,
         private readonly WebhookOutboxStore $webhookOutboxStore,
+        private readonly PolicyRegistry $policies,
     ) {
     }
 
@@ -78,7 +70,6 @@ class WebhookManager implements ResetInterface
     public function reset(): void
     {
         $this->webhooks = null;
-        $this->privileges = [];
     }
 
     public function clearInternalWebhookCache(): void
@@ -86,43 +77,30 @@ class WebhookManager implements ResetInterface
         $this->webhooks = null;
     }
 
-    public function clearInternalPrivilegesCache(): void
-    {
-        $this->privileges = [];
-    }
-
     private function callWebhooks(Hookable $event, Context $context): void
     {
         $webhooksForEvent = $this->filterWebhooksByLiveVersion($this->getWebhooks($event->getName()), $event);
+        $webhooksForEvent = $this->filterWebhooksByPolicies($webhooksForEvent, $event);
 
         if ($webhooksForEvent === []) {
             return;
         }
 
-        $this->eventDispatcher->dispatch($e = new PreWebhooksDispatchEvent($webhooksForEvent));
-        $webhooksForEvent = $e->webhooks;
-
         $languageId = $context->getLanguageId();
         $userLocale = $this->appLocaleProvider->getLocaleFromContext($context);
-
-        $affectedRoleIds = array_values(array_filter(array_map(static fn (Webhook $webhook) => $webhook->appAclRoleId, $webhooksForEvent)));
-        $this->loadPrivileges($event->getName(), $affectedRoleIds);
 
         if (Feature::isActive('WEBHOOKS_REWORK')) {
             $messages = $this->collectMessages($webhooksForEvent, $event, $languageId, $userLocale);
 
             if ($messages !== []) {
-                /** @deprecated tag:v6.8.0 - reason:parameter-will-be-removed - $forceSynchronous will be removed; lifecycle events will go async with retries */
-                $isAppLifecycleEvent = $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent || $event instanceof AppPermissionsUpdated;
-
-                $this->webhookDeliveryService->process($messages, forceSynchronous: $isAppLifecycleEvent);
+                Feature::silent('v6.8.0.0', fn () => $this->webhookDeliveryService->process($messages, forceSynchronous: $event instanceof AppLifecycleEvent));
             }
 
             return;
         }
 
         // Legacy paths — no feature flag
-        if ($this->isAdminWorkerEnabled || $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent || $event instanceof AppPermissionsUpdated) {
+        if ($this->isAdminWorkerEnabled || $event instanceof AppLifecycleEvent) {
             Profiler::trace(
                 'webhook::dispatch-sync',
                 fn () => $this->callWebhooksSynchronous($webhooksForEvent, $event, $languageId, $userLocale)
@@ -236,10 +214,6 @@ class WebhookManager implements ResetInterface
         string $languageId,
         string $userLocale
     ): ?WebhookEventMessage {
-        if (!$this->isEventDispatchingAllowed($webhook, $event)) {
-            return null;
-        }
-
         try {
             $webhookData = $this->getPayloadForWebhook($webhook, $event);
         } catch (ShopIdChangeSuggestedException) {
@@ -266,6 +240,7 @@ class WebhookManager implements ResetInterface
             $userLocale,
             $webhookHeaders,
             $partitionKey,
+            $webhook->appName,
         );
     }
 
@@ -324,34 +299,6 @@ class WebhookManager implements ResetInterface
         });
     }
 
-    private function isEventDispatchingAllowed(Webhook $webhook, Hookable $event): bool
-    {
-        if ($webhook->appId === null) {
-            return true;
-        }
-
-        // Only app lifecycle hooks can be received if app is deactivated
-        if ($webhook->appActive === false && !($event instanceof AppChangedEvent || $event instanceof AppDeletedEvent || $event instanceof AppPermissionsUpdated)) {
-            return false;
-        }
-
-        $privileges = $this->privileges[$event->getName()][$webhook->appAclRoleId] ?? new AclPrivilegeCollection([]);
-
-        return $event->isAllowed($webhook->appId, $privileges);
-    }
-
-    /**
-     * @param list<string> $affectedRoleIds
-     */
-    private function loadPrivileges(string $eventName, array $affectedRoleIds): void
-    {
-        if (\array_key_exists($eventName, $this->privileges)) {
-            return;
-        }
-
-        $this->privileges[$eventName] = $this->webhookLoader->getPrivilegesForRoles($affectedRoleIds);
-    }
-
     /**
      * @return list<Webhook>
      */
@@ -372,6 +319,19 @@ class WebhookManager implements ResetInterface
         foreach ($webhooks as $webhook) {
             $this->webhooks[$webhook->eventName][] = $webhook;
         }
+    }
+
+    /**
+     * @param list<Webhook> $webhooks
+     *
+     * @return list<Webhook>
+     */
+    private function filterWebhooksByPolicies(array $webhooks, Hookable $event): array
+    {
+        return array_values(array_filter(
+            $webhooks,
+            fn (Webhook $webhook): bool => $this->policies->permitsDelivery($event, $webhook)
+        ));
     }
 
     /**

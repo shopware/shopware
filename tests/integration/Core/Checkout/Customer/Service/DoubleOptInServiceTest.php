@@ -155,7 +155,7 @@ class DoubleOptInServiceTest extends TestCase
         $this->createService($eventDispatcher)->resendDoubleOptInMail($customer, $context);
 
         static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $dispatched);
-        static::assertNotEmpty($domain->getUrl());
+        static::assertNotSame('', $domain->getUrl());
         static::assertStringStartsWith($domain->getUrl(), $dispatched->getConfirmUrl());
     }
 
@@ -189,7 +189,7 @@ class DoubleOptInServiceTest extends TestCase
     private function fetchCustomer(string $id): CustomerEntity
     {
         $customer = static::getContainer()->get('customer.repository')
-            ->search(new Criteria([$id]), Context::createDefaultContext())
+            ->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()
             ->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);

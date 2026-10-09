@@ -6,12 +6,17 @@ use Mcp\Capability\Attribute\McpResource;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Util\Json;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
-#[McpResource(uri: 'shopware://flow-actions', name: 'shopware-flow-actions', description: 'All registered Shopware flow actions (core and app-provided) available in Flow Builder automations.')]
 #[Package('framework')]
+#[McpResource(
+    uri: 'shopware://flow-actions',
+    name: 'shopware-flow-actions',
+    description: 'All registered Shopware flow actions (core and app-provided) available in Flow Builder automations.'
+)]
 class FlowActionsResource
 {
     /**
@@ -45,7 +50,7 @@ class FlowActionsResource
         return [
             'uri' => 'shopware://flow-actions',
             'mimeType' => 'application/json',
-            'text' => json_encode($actions, \JSON_THROW_ON_ERROR),
+            'text' => Json::encode($actions),
         ];
     }
 }

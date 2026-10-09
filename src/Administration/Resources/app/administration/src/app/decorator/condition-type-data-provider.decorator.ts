@@ -17,7 +17,7 @@ export const SCOPES = {
     CART: 'cart',
     CHECKOUT: 'checkout',
     LINE_ITEM: 'lineItem',
-    ORDER: 'order',
+    FLOW: 'flow',
 } as const;
 
 /**
@@ -38,7 +38,6 @@ export const GROUPS = {
     CUSTOMER: 'customer',
     PROMOTION: 'promotion',
     ORDER: 'order',
-    FLOW: 'flow',
     MISC: 'misc',
 } as const;
 
@@ -60,8 +59,6 @@ export const COMPONENTS = {
     LINE_ITEM: 'sw-condition-line-item',
     LINE_ITEM_WITH_QUANTITY: 'sw-condition-line-item-with-quantity',
     LINE_ITEM_PROPERTY: 'sw-condition-line-item-property',
-    LINE_ITEM_PURCHASE_PRICE: 'sw-condition-line-item-purchase-price',
-    LINE_ITEM_IN_CATEGORY: 'sw-condition-line-item-in-category',
     LINE_ITEM_CUSTOM_FIELD: 'sw-condition-line-item-custom-field',
     LINE_ITEM_GOODS_TOTAL: 'sw-condition-line-item-goods-total',
     CUSTOMER_CUSTOM_FIELD: 'sw-condition-customer-custom-field',
@@ -90,6 +87,7 @@ export type ConditionDefinition = {
     scopes: RuleScope[];
     group: RuleGroup;
     removedInFeature?: string; // e.g. 'v6.8.0.0'
+    replacement?: string; // condition type that supersedes this one
 };
 
 /**
@@ -364,14 +362,14 @@ export const CONDITIONS: ConditionDefinition[] = [
         type: 'orderAffiliateCode',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.orderAffiliateCodeRule',
-        scopes: [SCOPES.ORDER],
+        scopes: [SCOPES.FLOW],
         group: GROUPS.ORDER,
     },
     {
         type: 'orderCampaignCode',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.orderCampaignCodeRule',
-        scopes: [SCOPES.ORDER],
+        scopes: [SCOPES.FLOW],
         group: GROUPS.ORDER,
     },
     {
@@ -452,6 +450,13 @@ export const CONDITIONS: ConditionDefinition[] = [
         group: GROUPS.ITEM,
     },
     {
+        type: 'cartLineItemPerItemQuantity',
+        component: COMPONENTS.GENERIC_LINE_ITEM,
+        label: 'global.sw-condition.condition.lineItemPerItemQuantityRule',
+        scopes: [SCOPES.LINE_ITEM],
+        group: GROUPS.ITEM,
+    },
+    {
         type: 'cartHasDeliveryFreeItem',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.hasDeliveryFreeItemRule',
@@ -523,7 +528,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     },
     {
         type: 'cartLineItemPurchasePrice',
-        component: COMPONENTS.LINE_ITEM_PURCHASE_PRICE,
+        component: COMPONENTS.GENERIC_LINE_ITEM,
         label: 'global.sw-condition.condition.lineItemPurchasePriceRule',
         scopes: [SCOPES.LINE_ITEM],
         group: GROUPS.ITEM,
@@ -558,7 +563,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     },
     {
         type: 'cartLineItemInCategory',
-        component: COMPONENTS.LINE_ITEM_IN_CATEGORY,
+        component: COMPONENTS.GENERIC_LINE_ITEM,
         label: 'global.sw-condition.condition.lineItemInCategoryRule',
         scopes: [SCOPES.LINE_ITEM],
         group: GROUPS.ITEM,
@@ -731,6 +736,7 @@ export const CONDITIONS: ConditionDefinition[] = [
         scopes: [SCOPES.LINE_ITEM],
         group: GROUPS.ITEM,
         removedInFeature: 'v6.8.0.0',
+        replacement: 'cartLineItemProductType',
     },
     {
         type: 'cartLineItemProductType',
@@ -743,21 +749,21 @@ export const CONDITIONS: ConditionDefinition[] = [
         type: 'orderTag',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.orderTagRule',
-        scopes: [SCOPES.ORDER],
+        scopes: [SCOPES.FLOW],
         group: GROUPS.ORDER,
     },
     {
         type: 'orderTrackingCode',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.orderTrackingCodeRule',
-        scopes: [SCOPES.ORDER],
+        scopes: [SCOPES.FLOW],
         group: GROUPS.ORDER,
     },
     {
         type: 'orderDeliveryStatus',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.orderDeliveryStatusRule',
-        scopes: [SCOPES.ORDER],
+        scopes: [SCOPES.FLOW],
         group: GROUPS.ORDER,
     },
     {
@@ -771,42 +777,42 @@ export const CONDITIONS: ConditionDefinition[] = [
         type: 'orderTransactionStatus',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.orderTransactionStatusRule',
-        scopes: [SCOPES.ORDER],
+        scopes: [SCOPES.FLOW],
         group: GROUPS.ORDER,
     },
     {
         type: 'orderStatus',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.orderStatusRule',
-        scopes: [SCOPES.ORDER],
+        scopes: [SCOPES.FLOW],
         group: GROUPS.ORDER,
     },
     {
         type: 'orderCreatedByAdmin',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.orderCreatedByAdminRule',
-        scopes: [SCOPES.ORDER],
+        scopes: [SCOPES.FLOW],
         group: GROUPS.ORDER,
     },
     {
         type: 'orderCustomField',
         component: COMPONENTS.ORDER_CUSTOM_FIELD,
         label: 'global.sw-condition.condition.orderCustomFieldRule',
-        scopes: [SCOPES.ORDER],
+        scopes: [SCOPES.FLOW],
         group: GROUPS.ORDER,
     },
     {
         type: 'orderDocumentType',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.orderDocumentTypeRule',
-        scopes: [SCOPES.ORDER],
+        scopes: [SCOPES.FLOW],
         group: GROUPS.ORDER,
     },
     {
         type: 'orderDocumentTypeSent',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.orderDocumentTypeSentRule',
-        scopes: [SCOPES.ORDER],
+        scopes: [SCOPES.FLOW],
         group: GROUPS.ORDER,
     },
     {
@@ -842,99 +848,64 @@ export const AWARENESS_CONFIGURATIONS = (service: RuleConditionService): Awarene
     {
         name: 'personaPromotions',
         config: {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
-            equalsAny: [
-                'alwaysValid',
-                ...service.getRestrictionsByGroup(GROUPS.CUSTOMER),
-            ],
+            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
+            equalsAny: ['alwaysValid', ...service.getRestrictionsByGroup(GROUPS.CUSTOMER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.personaPromotions',
         },
     },
     {
         name: 'orderPromotions',
         config: {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
         },
     },
     {
         name: 'cartPromotions',
         config: {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
         },
     },
     {
         name: 'promotionSetGroups',
         config: {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.promotionSetGroups',
         },
     },
     {
         name: 'promotionDiscounts',
         config: {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.promotionDiscounts',
         },
     },
     {
         name: 'shippingMethodPriceCalculations',
         config: {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPriceCalculations',
         },
     },
     {
         name: 'shippingMethodPrices',
         config: {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPrices',
         },
     },
     {
         name: 'paymentMethods',
         config: {
-            notEquals: [
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: [...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.paymentMethods',
         },
     },
     {
         name: 'shippingMethods',
         config: {
-            notEquals: [
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: [...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethods',
         },
     },
@@ -944,7 +915,15 @@ export const AWARENESS_CONFIGURATIONS = (service: RuleConditionService): Awarene
  * @private
  */
 export const ruleConditionTypeDataProvider = (ruleConditionService: RuleConditionService): RuleConditionService => {
-    CONDITIONS.forEach(({ type, removedInFeature, ...condition }) => {
+    CONDITIONS.forEach(({ type, removedInFeature, replacement, ...condition }) => {
+        if (removedInFeature) {
+            ruleConditionService.registerDeprecation(type, {
+                version: removedInFeature,
+                label: condition.label,
+                replacement,
+            });
+        }
+
         if (removedInFeature && Shopware.Feature.isActive(removedInFeature)) {
             return;
         }

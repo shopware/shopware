@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
@@ -21,6 +22,7 @@ use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
 /**
  * @internal
  */
+#[Package('framework')]
 class SystemLanguageChangedSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -197,7 +199,7 @@ class SystemLanguageChangedSubscriberTest extends TestCase
             ], $this->context);
         }
 
-        $app = $this->appRepository->search(new Criteria([$id]), $this->context)->first();
+        $app = $this->appRepository->search(new Criteria([$id]), $this->context)->getEntities()->first();
         \assert($app instanceof AppEntity);
 
         return $app;

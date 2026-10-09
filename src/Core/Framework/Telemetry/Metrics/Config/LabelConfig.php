@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  *
  * @phpstan-type LabelDefinition array{allowed_values?: list<string>, policy?: string}
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 readonly class LabelConfig

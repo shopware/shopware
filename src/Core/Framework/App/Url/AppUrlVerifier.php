@@ -9,7 +9,6 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Lock\Exception\LockAcquiringException;
 use Symfony\Component\Lock\Exception\LockConflictedException;
@@ -43,7 +42,7 @@ class AppUrlVerifier
         private readonly HttpClientInterface $httpClient,
         private readonly LockFactory $lockFactory,
         private readonly LoggerInterface $logger,
-        private readonly ClockInterface $clock = new NativeClock(),
+        private readonly ClockInterface $clock,
     ) {
     }
 

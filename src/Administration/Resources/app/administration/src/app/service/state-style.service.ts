@@ -2,6 +2,8 @@ const { deepCopyObject } = Shopware.Utils.object;
 
 type variantKeys = 'neutral' | 'progress' | 'done' | 'warning' | 'danger';
 
+type meteorVariantKeys = 'neutral' | 'info' | 'attention' | 'critical' | 'positive';
+
 type style = {
     icon: variantKeys;
     color: variantKeys;
@@ -13,6 +15,7 @@ type storedStyle = {
     iconBackgroundStyle: string;
     icon: string;
     variant: string;
+    meteorVariant: string;
     colorCode: string;
     iconStyle: string;
 };
@@ -28,7 +31,7 @@ type store = {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type stateStyleService = {
     getPlaceholder: () => storedStyle;
-    getStyle: (stateMachine: string, state: string) => style;
+    getStyle: (stateMachine: string, state: string) => storedStyle;
     addStyle: (stateMachine: string, state: string, style: style) => void;
 };
 
@@ -49,6 +52,7 @@ export default class StateStyleService {
             iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
             selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
             variant: 'neutral',
+            meteorVariant: 'neutral',
             colorCode: 'var(--color-icon-secondary-default)',
         },
     };
@@ -85,6 +89,14 @@ export default class StateStyleService {
         danger: 'danger',
     };
 
+    $meteorVariantsMapping: Record<variantKeys, meteorVariantKeys> = {
+        neutral: 'neutral',
+        progress: 'info',
+        done: 'positive',
+        warning: 'attention',
+        danger: 'critical',
+    };
+
     getPlaceholder(): storedStyle {
         return this.$store.placeholder as storedStyle;
     }
@@ -112,6 +124,10 @@ export default class StateStyleService {
 
         if (style.variant in this.$variants) {
             entry.variant = this.$variants[style.variant];
+        }
+
+        if (style.variant in this.$meteorVariantsMapping) {
+            entry.meteorVariant = this.$meteorVariantsMapping[style.variant];
         }
 
         // @ts-expect-error

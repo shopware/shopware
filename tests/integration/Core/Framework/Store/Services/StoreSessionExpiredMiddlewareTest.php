@@ -3,9 +3,12 @@
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Promise\FulfilledPromise;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -46,7 +49,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         static::assertNotNull($adminUser);
         $this->userRepository->update([[
             'id' => $adminUser->getId(),
-            'store_token' => 's3cr3t',
+            'storeToken' => 's3cr3t',
         ]], Context::createDefaultContext());
 
         $context = new Context(new AdminApiSource($adminUser->getId()));
@@ -69,12 +72,18 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
 
         $request = new Psr7Request('GET', '/');
 
-        $this->expectException(StoreSessionExpiredException::class);
-        $middleware($response, $request);
+        $this->expectExceptionObject(new StoreSessionExpiredException());
+        $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
+        /** @var PromiseInterface $promise */
+        $promise = ($middleware($handler))($request, []);
 
-        $adminUser = $this->userRepository->search(new Criteria([$adminUser->getId()]), Context::createDefaultContext())->getEntities()->first();
-        static::assertNotNull($adminUser);
-        static::assertNull($adminUser->getStoreToken());
+        try {
+            $promise->wait();
+        } finally {
+            $adminUser = $this->userRepository->search(new Criteria([$adminUser->getId()]), Context::createDefaultContext())->getEntities()->first();
+            static::assertNotNull($adminUser);
+            static::assertNull($adminUser->getStoreToken());
+        }
     }
 
     public function testLogsOutUserByTokenAndThrowsIfApiRespondsWithTokenExpiredException(): void
@@ -99,16 +108,22 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
 
         $request = new Psr7Request('GET', '/', [StoreRequestOptionsProvider::SHOPWARE_PLATFORM_TOKEN_HEADER => 'some-invalid-token']);
 
-        $this->expectException(StoreSessionExpiredException::class);
-        $middleware($response, $request);
+        $this->expectExceptionObject(new StoreSessionExpiredException());
+        $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
+        /** @var PromiseInterface $promise */
+        $promise = ($middleware($handler))($request, []);
 
-        $adminUsers = $this->userRepository->search(new Criteria([$expiredSessionUserId, $loginSessionUserId]), Context::createDefaultContext())->getEntities();
-        $expiredSessionUser = $adminUsers->get($expiredSessionUserId);
-        $loginSessionUser = $adminUsers->get($loginSessionUserId);
-        static::assertNotNull($expiredSessionUser);
-        static::assertNotNull($loginSessionUser);
-        static::assertNull($expiredSessionUser->getStoreToken());
-        static::assertSame('some-valid-token', $loginSessionUser->getStoreToken());
+        try {
+            $promise->wait();
+        } finally {
+            $adminUsers = $this->userRepository->search(new Criteria([$expiredSessionUserId, $loginSessionUserId]), Context::createDefaultContext())->getEntities();
+            $expiredSessionUser = $adminUsers->get($expiredSessionUserId);
+            $loginSessionUser = $adminUsers->get($loginSessionUserId);
+            static::assertNotNull($expiredSessionUser);
+            static::assertNotNull($loginSessionUser);
+            static::assertNull($expiredSessionUser->getStoreToken());
+            static::assertSame('some-valid-token', $loginSessionUser->getStoreToken());
+        }
     }
 
     private function createAdminUser(string $userId, string $storeToken): void

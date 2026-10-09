@@ -57,31 +57,46 @@
         {% block sw_order_create_content_view %}
         <sw-card-view>
             {% block sw_order_create_content_tabs %}
-            <sw-tabs
-                v-if="!showInitialModal"
-                class="sw-order-create__tabs"
-                position-identifier="sw-order-create"
-            >
-                {% block sw_order_create_content_tabs_general %}
-                <sw-tabs-item
-                    class="sw-order-create__tab-general"
-                    :route="{ name: 'sw.order.create.general' }"
-                    :title="$t('sw-order.detail.tabGeneral')"
-                >
-                    {{ $t('sw-order.detail.tabGeneral') }}
-                </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                {% block sw_order_create_content_mt_tabs %}
+                <mt-tabs
+                    v-if="!showInitialModal"
+                    class="sw-order-create__tabs"
+                    position-identifier="sw-order-create"
+                    :default-item="$route.name"
+                    :items="orderCreateTabs"
+                    :small="true"
+                />
                 {% endblock %}
+            </template>
 
-                {% block sw_order_create_content_tabs_details %}
-                <sw-tabs-item
-                    class="sw-order-create__tab-details"
-                    :route="{ name: 'sw.order.create.details' }"
-                    :title="$t('sw-order.detail.tabDetails')"
+            <template v-else>
+                <sw-tabs
+                    v-if="!showInitialModal"
+                    class="sw-order-create__tabs"
+                    position-identifier="sw-order-create"
                 >
-                    {{ $t('sw-order.detail.tabDetails') }}
-                </sw-tabs-item>
-                {% endblock %}
-            </sw-tabs>
+                    {% block sw_order_create_content_tabs_general %}
+                    <sw-tabs-item
+                        class="sw-order-create__tab-general"
+                        :route="{ name: 'sw.order.create.general' }"
+                        :title="$t('sw-order.detail.tabGeneral')"
+                    >
+                        {{ $t('sw-order.detail.tabGeneral') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+
+                    {% block sw_order_create_content_tabs_details %}
+                    <sw-tabs-item
+                        class="sw-order-create__tab-details"
+                        :route="{ name: 'sw.order.create.details' }"
+                        :title="$t('sw-order.detail.tabDetails')"
+                    >
+                        {{ $t('sw-order.detail.tabDetails') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+                </sw-tabs>
+            </template>
             {% endblock %}
 
             {% block sw_order_create_content_view %}

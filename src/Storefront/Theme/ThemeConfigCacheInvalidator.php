@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeConfigCacheInvalidator implements EventSubscriberInterface
 {
     /**
@@ -51,6 +51,7 @@ class ThemeConfigCacheInvalidator implements EventSubscriberInterface
         $this->cacheInvalidator->invalidate([
             self::buildCacheTag($event->getThemeId()),
             CachedDomainLoader::CACHE_KEY,
+            CachedDomainLoader::DOMAIN_COLLECTION_CACHE_KEY,
             Translator::tag($salesChannelId),
         ]);
     }

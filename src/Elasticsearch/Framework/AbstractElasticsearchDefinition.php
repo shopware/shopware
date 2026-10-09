@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -69,7 +70,7 @@ abstract class AbstractElasticsearchDefinition
     abstract public function getEntityDefinition(): EntityDefinition;
 
     /**
-     * @return array{_source?: array{includes: string[]}, properties: array<mixed>}
+     * @return array{_source?: array{includes: string[]}, properties: array<mixed>, dynamic_templates?: list<array<string, mixed>>}
      */
     abstract public function getMapping(Context $context): array;
 
@@ -94,10 +95,9 @@ abstract class AbstractElasticsearchDefinition
     abstract public function buildTermQuery(Context $context, Criteria $criteria): BuilderInterface;
 
     /**
-     * @deprecated tag:v6.8.0 - reason:becomes-internal - Use {@see self::buildTextFieldConfig()} instead.
-     *
      * @return array<string, mixed>
      */
+    #[BecomesInternal(version: 'v6.8.0', description: 'Use buildTextFieldConfig() instead.')]
     protected static function getTextFieldConfig(): array
     {
         return self::KEYWORD_FIELD + self::SEARCH_FIELD;

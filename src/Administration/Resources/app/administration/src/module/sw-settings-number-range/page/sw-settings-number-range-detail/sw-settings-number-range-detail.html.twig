@@ -268,6 +268,7 @@
                             entity-name="sales_channel"
                             :entity-collection="selectedSalesChannelsCollection"
                             :criteria="salesChannelCriteria"
+                            :result-limit="500"
                             label-property="translated.name"
                             @item-add="addSalesChannel"
                             @item-remove="removeSalesChannel"

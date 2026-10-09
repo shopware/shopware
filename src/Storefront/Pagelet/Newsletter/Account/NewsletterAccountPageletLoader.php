@@ -109,7 +109,7 @@ class NewsletterAccountPageletLoader
     protected function subscribe(RequestDataBag $dataBag, CustomerEntity $customer, SalesChannelContext $context, NewsletterAccountPagelet $newsletterAccountPagelet): NewsletterAccountPagelet
     {
         try {
-            $this->newsletterSubscribeRoute->subscribe(
+            $this->newsletterSubscribeRoute->subscribeWithResponse(
                 $this->hydrateFromCustomer($dataBag, $customer),
                 $context,
                 false
@@ -147,7 +147,7 @@ class NewsletterAccountPageletLoader
     protected function unsubscribe(RequestDataBag $dataBag, CustomerEntity $customer, SalesChannelContext $context, NewsletterAccountPagelet $newsletterAccountPagelet): NewsletterAccountPagelet
     {
         try {
-            $this->newsletterUnsubscribeRoute->unsubscribe(
+            $this->newsletterUnsubscribeRoute->unsubscribeWithResponse(
                 $this->hydrateFromCustomer($dataBag, $customer),
                 $context
             );
@@ -203,7 +203,7 @@ class NewsletterAccountPageletLoader
         $newsletterAccountPagelet = new NewsletterAccountPagelet();
         $newsletterAccountPagelet->setCustomer($customer);
         $newsletterAccountPagelet->setNewsletterDoi(
-            (bool) $this->systemConfigService->get('core.newsletter.doubleOptInRegistered', $salesChannelId)
+            $this->systemConfigService->getBool('core.newsletter.doubleOptInRegistered', $salesChannelId)
         );
 
         return $newsletterAccountPagelet;

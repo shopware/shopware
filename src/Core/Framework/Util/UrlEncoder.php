@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Util;
 
+use GuzzleHttp\Psr7\Uri;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -13,43 +14,33 @@ class UrlEncoder
             return null;
         }
 
-        $urlInfo = parse_url($mediaUrl);
-
-        if (!\is_array($urlInfo)) {
+        try {
+            $uri = new Uri($mediaUrl);
+        } catch (\InvalidArgumentException) {
             return null;
         }
 
-        $path = self::encodePathSegments($urlInfo['path'] ?? '');
+        $path = self::encodeEachSegment(
+            $uri->getPath(),
+            static fn (string $segment): string => rawurlencode(rawurldecode($segment))
+        );
 
-        if (isset($urlInfo['query'])) {
-            $path .= "?{$urlInfo['query']}";
-        }
-
-        $encodedPath = '';
-
-        if (isset($urlInfo['scheme'])) {
-            $encodedPath = "{$urlInfo['scheme']}://";
-        }
-
-        if (isset($urlInfo['host'])) {
-            $encodedPath .= "{$urlInfo['host']}";
-        }
-
-        if (isset($urlInfo['port'])) {
-            $encodedPath .= ":{$urlInfo['port']}";
-        }
-
-        return $encodedPath . $path;
+        return (string) $uri->withPath($path)->withFragment('');
     }
 
+    /**
+     * Expects a raw storage path: a "%" is part of the file name and gets encoded, unlike in encodeUrl().
+     */
     public static function encodePathSegments(string $path): string
     {
-        $segments = explode('/', $path);
+        return self::encodeEachSegment($path, rawurlencode(...));
+    }
 
-        foreach ($segments as $index => $segment) {
-            $segments[$index] = rawurlencode($segment);
-        }
-
-        return implode('/', $segments);
+    /**
+     * @param \Closure(string): string $encode
+     */
+    private static function encodeEachSegment(string $path, \Closure $encode): string
+    {
+        return implode('/', array_map($encode, explode('/', $path)));
     }
 }

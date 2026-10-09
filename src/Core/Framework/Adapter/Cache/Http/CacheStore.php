@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheHitEvent;
@@ -40,12 +41,13 @@ class CacheStore implements StoreInterface
      * @internal
      *
      * @param array<string, mixed> $sessionOptions
-     *
-     * @deprecated tag:v6.8.0 - Parameter $stateValidator will be removed
      */
     public function __construct(
         private readonly TagAwareAdapterInterface&CacheInterface $cache,
-        private readonly CacheStateValidator $stateValidator,
+        /**
+         * @deprecated tag:v6.8.0 - Parameter $stateValidator will be removed
+         */
+        private readonly ?CacheStateValidator $stateValidator,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly HttpCacheKeyGenerator $cacheKeyGenerator,
         private readonly MaintenanceModeResolver $maintenanceResolver,
@@ -53,6 +55,7 @@ class CacheStore implements StoreInterface
         private readonly CacheTagCollector $collector,
         private bool $softPurge,
         private readonly MessageBusInterface $bus,
+        private readonly ClockInterface $clock,
     ) {
         $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
@@ -92,7 +95,7 @@ class CacheStore implements StoreInterface
 
             if ($minInvalidation >= $responseGeneratedAt->getTimestamp()) {
                 // The cache is too old, we need to revalidate it
-                if ($staleWhileRevalidate && $responseGeneratedAt->diff(new \DateTime())->s >= (int) $staleWhileRevalidate) {
+                if ($staleWhileRevalidate && $responseGeneratedAt->diff($this->clock->now())->s >= (int) $staleWhileRevalidate) {
                     return null;
                 }
 
@@ -105,7 +108,7 @@ class CacheStore implements StoreInterface
                  */
                 $this->cache->get($lockKey, function (ItemInterface $item) use ($lockKey, $request): void {
                     // We keep the lock for a half hour, if not proceed in that time, the lock will be released, and we can re-dispatch the message
-                    $item->expiresAfter(self::HALF_HOUR);
+                    $item->expiresAt($this->clock->now()->modify('+' . self::HALF_HOUR . ' seconds'));
 
                     $this->bus->dispatch(new RefreshHttpCacheMessage($lockKey, $request->query->all(), $request->attributes->all(), $request->cookies->all(), $request->server->all(), Request::getTrustedProxies(), Request::getTrustedHeaderSet()));
                 });
@@ -113,6 +116,8 @@ class CacheStore implements StoreInterface
         }
 
         if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+            // The validator service is removed only in v6.8.0.0 mode, so it is available in this legacy branch.
+            \assert($this->stateValidator !== null);
             $isValid = Feature::silent('v6.8.0.0', function () use ($request, $response): bool {
                 return $this->stateValidator->isValid($request, $response);
             });
@@ -142,6 +147,8 @@ class CacheStore implements StoreInterface
         }
 
         if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+            // The validator service is removed only in v6.8.0.0 mode, so it is available in this legacy branch.
+            \assert($this->stateValidator !== null);
             $isValid = Feature::silent('v6.8.0.0', function () use ($request, $response): bool {
                 return $this->stateValidator->isValid($request, $response);
             });
@@ -186,7 +193,12 @@ class CacheStore implements StoreInterface
             $item->tag($tags);
         }
 
-        $item->expiresAfter($cacheResponse->getMaxAge());
+        $maxAge = $cacheResponse->getMaxAge();
+        if ($maxAge === null) {
+            $item->expiresAfter(null);
+        } else {
+            $item->expiresAt($this->clock->now()->modify('+' . $maxAge . ' seconds'));
+        }
 
         $this->eventDispatcher->dispatch(
             new HttpCacheStoreEvent($item, $tags, $request, $response)
@@ -224,7 +236,7 @@ class CacheStore implements StoreInterface
 
         $item = $this->cache->getItem($key);
         $item->set(true);
-        $item->expiresAfter(3);
+        $item->expiresAt($this->clock->now()->modify('+3 seconds'));
 
         $this->cache->save($item);
         $this->locks[$key] = true;

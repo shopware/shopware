@@ -1,37 +1,35 @@
 .sw-settings-search-live-search {
+    &__rebuild-index-row {
+        display: flex;
+        gap: var(--scale-size-4);
+        margin-bottom: var(--scale-size-32);
+    }
+
+    &__show-example-link,
     &__description {
         font-size: var(--font-size-xs);
     }
 
-    &__show-example-link {
-        display: grid;
-        grid-auto-flow: column;
-        grid-column-gap: var(--scale-size-4);
-        align-items: center;
-        margin: var(--scale-size-18) 0 var(--scale-size-12);
-        color: var(--color-shopware-brand-500);
-        font-size: var(--font-size-xs);
-        text-decoration: underline;
-        cursor: pointer;
-    }
-
-    &__search-icon {
-        cursor: pointer;
+    &__search-container {
+        margin-bottom: var(--scale-size-32);
     }
 
     &__search-results {
         position: relative;
-        padding: var(--scale-size-10) 0;
-    }
 
-    &__no-result {
-        display: block;
-        margin: var(--scale-size-18) 0;
-        font-size: var(--font-size-xs);
+        &-loader {
+            min-height: var(--scale-size-128);
+        }
     }
 
     &__grid-result {
-        margin-top: var(--scale-size-18);
+        border: 1px solid var(--color-border-primary-default);
+        overflow: hidden;
+    }
+
+    &__no-result {
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
     }
 
     &__sorting-select {

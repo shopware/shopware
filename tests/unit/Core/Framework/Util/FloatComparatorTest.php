@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Util\Exception\ComparatorException;
 use Shopware\Core\Framework\Util\FloatComparator;
@@ -14,6 +15,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FloatComparator::class)]
 class FloatComparatorTest extends TestCase
 {
@@ -133,6 +135,29 @@ class FloatComparatorTest extends TestCase
         /** @phpstan-ignore identical.alwaysFalse, staticMethod.alreadyNarrowedType (check is always false, which is exactly the point) */
         static::assertFalse($x === 3.155);
         static::assertTrue(FloatComparator::cast($x) === 3.155);
+    }
+
+    /**
+     * @param array<float> $values
+     */
+    #[DataProvider('sumDataProvider')]
+    public function testSum(array $values, float $expected): void
+    {
+        static::assertSame($expected, FloatComparator::sum($values));
+    }
+
+    /**
+     * @return iterable<string, array{0: array<float>, 1: float}>
+     */
+    public static function sumDataProvider(): iterable
+    {
+        yield 'empty list sums to zero' => [[], 0.0];
+        yield 'positive prices are summed exactly' => [[200.0, 300.0], 500.0];
+        yield 'negative total is preserved' => [[10.0, -15.5], -5.5];
+        yield 'representation error is normalized to a clean value' => [[0.1, 0.2], 0.3];
+        yield 'cart discounted to zero snaps the residual to zero' => [[169.0, -208.9, 39.9, 0.0], 0.0];
+        yield 'reversed order that already sums to zero stays zero' => [[169.0, 39.9, -208.9, 0.0], 0.0];
+        yield 'shipping cost discounted to zero snaps the residual to zero' => [[49.89, -49.89], 0.0];
     }
 
     /**

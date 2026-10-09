@@ -11,13 +11,15 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
+use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class TemplateDataSubscriber implements EventSubscriberInterface
 {
     public function __construct(
@@ -42,15 +44,28 @@ class TemplateDataSubscriber implements EventSubscriberInterface
     public function addHreflang(StorefrontRenderEvent $event): void
     {
         $request = $event->getRequest();
-        $route = $request->attributes->get('_route');
 
+        if ($request->attributes->getBoolean('_esi')) {
+            return;
+        }
+
+        $route = $request->attributes->get('_route');
         if ($route === null) {
             return;
         }
 
         $routeParams = $request->attributes->get('_route_params', []);
+
+        // When we have a product page, we should make sure that the hreflang matches the canonical URL, relevant if we have a dedicated canonical URL or if we are on the parent product page
+        if ($route === ProductPageSeoUrlRoute::ROUTE_NAME) {
+            $page = $event->getParameter('page');
+            if ($page instanceof ProductPage) {
+                $routeParams['productId'] = $page->getProduct()->getCanonicalProductId() ?? $page->getProduct()->getId();
+            }
+        }
+
         $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-        $parameter = new HreflangLoaderParameter($route, $routeParams, $salesChannelContext);
+        $parameter = new HreflangLoaderParameter($route, $routeParams, $salesChannelContext, $route === 'frontend.home.page', $request->getBasePath());
         $event->setParameter('hrefLang', $this->hreflangLoader->load($parameter));
     }
 

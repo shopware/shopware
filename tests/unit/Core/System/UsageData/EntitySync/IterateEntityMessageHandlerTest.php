@@ -43,9 +43,9 @@ class IterateEntityMessageHandlerTest extends TestCase
         $handler = new IterateEntityMessageHandler(
             $messageBus,
             $iteratorFactory,
-            $this->createMock(ConsentService::class),
-            $this->createMock(EntityDefinitionService::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(ConsentService::class),
+            static::createStub(EntityDefinitionService::class),
+            static::createStub(LoggerInterface::class),
         );
 
         $handler(new IterateEntityMessage('test-entity', Operation::DELETE, new \DateTimeImmutable('2023-08-16'), null));
@@ -79,15 +79,16 @@ class IterateEntityMessageHandlerTest extends TestCase
             $iteratorFactory,
             $consentService,
             $entityDefinitionService,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
         );
 
-        static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage('The consent was never accepted. Skipping dispatching of entity sync message. Entity: test-entity, Operation: delete');
-        $handler(new IterateEntityMessage('test-entity', Operation::DELETE, new \DateTimeImmutable('2023-08-16'), new \DateTimeImmutable()));
+        $this->expectExceptionObject(new UnrecoverableMessageHandlingException('The consent was never accepted. Skipping dispatching of entity sync message. Entity: test-entity, Operation: delete'));
 
-        $dispatchedMessages = $messageBus->getMessages();
-        static::assertCount(0, $dispatchedMessages);
+        try {
+            $handler(new IterateEntityMessage('test-entity', Operation::DELETE, new \DateTimeImmutable('2023-08-16'), new \DateTimeImmutable()));
+        } finally {
+            static::assertCount(0, $messageBus->getMessages());
+        }
     }
 
     public function testItDispatchesAMessageToTheQueue(): void
@@ -126,7 +127,7 @@ class IterateEntityMessageHandlerTest extends TestCase
             $iteratorFactory,
             $consentService,
             $entityDefinitionService,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
         );
 
         $handler(new IterateEntityMessage(
@@ -178,22 +179,22 @@ class IterateEntityMessageHandlerTest extends TestCase
             $iteratorFactory,
             $consentService,
             $entityDefinitionService,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
         );
 
-        static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage('Entity definition for entity test-entity not found.');
-        $handler(new IterateEntityMessage('test-entity', Operation::CREATE, new \DateTimeImmutable('2023-08-16'), new \DateTimeImmutable()));
+        $this->expectExceptionObject(new UnrecoverableMessageHandlingException('Entity definition for entity test-entity not found.'));
 
-        $dispatchedMessages = $messageBus->getMessages();
-        static::assertCount(0, $dispatchedMessages);
+        try {
+            $handler(new IterateEntityMessage('test-entity', Operation::CREATE, new \DateTimeImmutable('2023-08-16'), new \DateTimeImmutable()));
+        } finally {
+            static::assertCount(0, $messageBus->getMessages());
+        }
     }
 
     public function testItLogsExceptionWithNonDBALServerExceptionIsThrown(): void
     {
-        $iteratorFactory = $this->createMock(IterateEntitiesQueryBuilder::class);
-        $iteratorFactory->expects($this->any())
-            ->method('create')
+        $iteratorFactory = static::createStub(IterateEntitiesQueryBuilder::class);
+        $iteratorFactory->method('create')
             ->willThrowException(new \Exception('An exception occurred while executing...'));
 
         $consentService = $this->createMock(ConsentService::class);
@@ -220,7 +221,7 @@ class IterateEntityMessageHandlerTest extends TestCase
             );
 
         $messageHandler = new IterateEntityMessageHandler(
-            $this->createMock(CollectingMessageBus::class),
+            static::createStub(CollectingMessageBus::class),
             $iteratorFactory,
             $consentService,
             $entityDefinitionService,
@@ -237,11 +238,11 @@ class IterateEntityMessageHandlerTest extends TestCase
 
     public function testItLogsAndThrowsExceptionWithDBALConnectionExceptionIsThrown(): void
     {
-        $iteratorFactory = $this->createMock(IterateEntitiesQueryBuilder::class);
-        $iteratorFactory->method('create')
-            ->willThrowException(new ConnectionException());
+        $exception = new ConnectionException();
 
-        $this->expectException(ConnectionException::class);
+        $iteratorFactory = static::createStub(IterateEntitiesQueryBuilder::class);
+        $iteratorFactory->method('create')
+            ->willThrowException($exception);
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->once())
@@ -259,12 +260,14 @@ class IterateEntityMessageHandlerTest extends TestCase
             ->method('error');
 
         $messageHandler = new IterateEntityMessageHandler(
-            $this->createMock(CollectingMessageBus::class),
+            static::createStub(CollectingMessageBus::class),
             $iteratorFactory,
             $consentService,
             $entityDefinitionService,
             $logger,
         );
+
+        $this->expectExceptionObject($exception);
 
         $messageHandler(new IterateEntityMessage(
             'product',

@@ -9,6 +9,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -19,6 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TestBootstrapper::class)]
 class TestBootstrapperTest extends TestCase
 {
@@ -56,14 +58,27 @@ class TestBootstrapperTest extends TestCase
         static::assertSame('test', $testBootstrapper->getDatabaseUrl());
     }
 
-    public function testAddCallingPlugin(): void
+    public function testAddCallingPluginActivatesThePluginNamedInItsComposerJson(): void
     {
-        $testBootstrapper = new TestBootstrapper();
-        $testBootstrapper->addCallingPlugin(__DIR__ . '/Framework/Plugin/Util/_fixture/LocallyInstalledPlugins/SwagTest/composer.json');
+        $previousKernel = KernelLifecycleAccessor::currentKernel();
+        $projectDir = __DIR__ . '/_fixtures/TestBootstrapper/project';
+        $pluginPath = $projectDir . '/custom/static-plugins/SwagStaticAnalysis';
 
-        $activePlugins = (new \ReflectionProperty($testBootstrapper, 'activePlugins'))->getValue($testBootstrapper);
+        $kernel = static::createStub(Kernel::class);
+        $kernel->method('getPluginLoader')->willThrowException(new \RuntimeException('Kernel plugin loader is not available.'));
 
-        static::assertSame(['Test'], $activePlugins);
+        KernelLifecycleAccessor::setKernel($kernel);
+
+        try {
+            $classLoader = (new TestBootstrapper())
+                ->setProjectDir($projectDir)
+                ->addCallingPlugin($pluginPath . '/composer.json')
+                ->getClassLoader();
+
+            static::assertSame([$pluginPath . '/tests/'], $classLoader->getPrefixesPsr4()['SwagStaticAnalysis\\Tests\\']);
+        } finally {
+            KernelLifecycleAccessor::setKernel($previousKernel);
+        }
     }
 
     public function testGetClassLoaderRegistersActivePluginAutoloadDevFromKernelPluginLoader(): void
@@ -86,7 +101,7 @@ class TestBootstrapperTest extends TestCase
             ],
         ]);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getPluginLoader')->willReturn($pluginLoader);
 
         KernelLifecycleAccessor::setKernel($kernel);
@@ -122,7 +137,7 @@ class TestBootstrapperTest extends TestCase
             ],
         ]);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getPluginLoader')->willReturn($pluginLoader);
 
         KernelLifecycleAccessor::setKernel($kernel);
@@ -140,7 +155,7 @@ class TestBootstrapperTest extends TestCase
         $projectDir = __DIR__ . '/_fixtures/TestBootstrapper/project';
         $pluginPath = $projectDir . '/custom/static-plugins/SwagStaticAnalysis';
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getPluginLoader')->willThrowException(new \RuntimeException('Kernel plugin loader is not available.'));
 
         KernelLifecycleAccessor::setKernel($kernel);
@@ -158,7 +173,7 @@ class TestBootstrapperTest extends TestCase
         $projectDir = __DIR__ . '/_fixtures/TestBootstrapper/project';
         $pluginPath = $projectDir . '/custom/static-plugins/SwagStaticAnalysis';
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getPluginLoader')->willThrowException(new \RuntimeException('Kernel plugin loader is not available.'));
 
         KernelLifecycleAccessor::setKernel($kernel);

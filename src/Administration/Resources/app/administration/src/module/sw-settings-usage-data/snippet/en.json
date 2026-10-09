@@ -58,6 +58,7 @@
       },
       "opt-out-info": {
         "snippet": "You can change your preferences at any time: manage Store Data settings under {settings}, and Personal Data settings under {profile}.",
+        "single-option-snippet": "You can change your preferences at any time under {link}.",
         "settings": "Settings – Privacy",
         "profile": "Your Profile – Privacy Preferences"
       },

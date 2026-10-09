@@ -66,6 +66,7 @@
                     <template #content="{ currentValue, updateCurrentValue, isInherited, isInheritField, restoreInheritance, removeInheritance }">
                         <mt-switch
                             :model-value="currentValue"
+                            :inherited-value="storefrontSettings['core.storefrontSettings.iconCache']"
                             :disabled="isInherited"
                             :is-inheritance-field="isInheritField"
                             :is-inherited="isInherited"
@@ -89,6 +90,7 @@
                     <template #content="{ currentValue, updateCurrentValue, isInherited, isInheritField, restoreInheritance, removeInheritance }">
                         <mt-switch
                             :model-value="currentValue"
+                            :inherited-value="storefrontSettings['core.storefrontSettings.speculationRules']"
                             :disabled="isInherited"
                             :is-inheritance-field="isInheritField"
                             :is-inherited="isInherited"

@@ -7,7 +7,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Integration\Core\System\CustomEntity\CustomEntityTest;
 use Symfony\Component\Lock\LockFactory;
 
 /**
@@ -15,7 +14,9 @@ use Symfony\Component\Lock\LockFactory;
  *
  * @phpstan-import-type CustomEntityField from SchemaUpdater
  *
- * @codeCoverageIgnore - Tested with integration test {@see CustomEntityTest}
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\System\CustomEntity\CustomEntityTest
  */
 #[Package('framework')]
 class CustomEntitySchemaUpdater

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Message;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -13,8 +14,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler]
 #[Package('discovery')]
+#[AsMessageHandler]
 final readonly class GenerateThumbnailsHandler
 {
     /**
@@ -25,6 +26,7 @@ final readonly class GenerateThumbnailsHandler
     public function __construct(
         private ThumbnailService $thumbnailService,
         private EntityRepository $mediaRepository,
+        private LoggerInterface $logger,
         private bool $remoteThumbnailsEnable = false
     ) {
     }
@@ -45,7 +47,14 @@ final readonly class GenerateThumbnailsHandler
 
         if ($msg instanceof UpdateThumbnailsMessage) {
             foreach ($entities as $media) {
-                $this->thumbnailService->updateThumbnails($media, $context, $msg->isStrict());
+                try {
+                    $this->thumbnailService->updateThumbnails($media, $context, $msg->isStrict(), $msg->isForce());
+                } catch (\Throwable $e) {
+                    $this->logger->error('Thumbnail generation failed for media {mediaId}', [
+                        'mediaId' => $media->getId(),
+                        'exception' => $e,
+                    ]);
+                }
             }
         } else {
             $this->thumbnailService->generate($entities, $context);

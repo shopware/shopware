@@ -14,15 +14,16 @@
 
     {% block sw_seo_url_template_card_info_box %}
     <mt-banner
+        v-if="salesChannelSupportsSeoUrlTemplates"
         variant="info"
-        :title="$t('sw-seo-url-template-card.general.headlineInfoMessageBoxEmptyProperties')"
+        :title="$t('global.default.info')"
     >
         <span>{{ $t('sw-seo-url-template-card.general.textInfoMessageBoxEmptyProperties') }}</span>
     </mt-banner>
     {% endblock %}
 
     {% block sw_seo_url_template_card_entries %}
-    <template v-if="!isLoading && !salesChannelIsHeadless">
+    <template v-if="!isLoading && salesChannelSupportsSeoUrlTemplates">
         <div
             v-for="(seoUrlTemplate, index) in getTemplatesForSalesChannel(salesChannelId)"
             :key="index"
@@ -61,7 +62,7 @@
                                 {% block sw_seo_url_template_card_entries_input_suffix %}
                                 <sw-loader
                                     v-if="previewLoadingStates[seoUrlTemplate.id]"
-                                    size="var(--scale-size-16)"
+                                    size="22px"
                                 />
                                 <mt-icon
                                     v-else-if="errorMessages[seoUrlTemplate.id]"
@@ -136,9 +137,29 @@
             {% endblock %}
         </div>
     </template>
-    <div v-if="salesChannelIsHeadless && !isLoading">
-        {{ $t('sw-seo-url.textSeoUrlsDisallowedForHeadless') }}
-    </div>
+    <mt-banner
+        v-if="!isLoading && !salesChannelSupportsSeoUrlTemplates && !salesChannelIsHeadless"
+        variant="info"
+    >
+        <span>{{ $t('sw-seo-url.textSeoUrlsNotSupported') }}</span>
+    </mt-banner>
+    <mt-banner
+        v-if="!isLoading && salesChannelIsHeadless && !headlessSalesChannelHasExternalDomain"
+        variant="info"
+        :title="$t('sw-seo-url-template-card.general.headlineExternalStorefrontRequired')"
+    >
+        <div>{{ $t('sw-seo-url-template-card.general.textExternalStorefrontRequired') }}</div>
+        <router-link
+            class="sw-seo-url-template-card__external-storefront-link"
+            :to="{ name: 'sw.sales.channel.detail', params: { id: salesChannelId } }"
+        >
+            {{ $t('sw-seo-url-template-card.general.linkExternalStorefrontDomain') }}
+            <mt-icon
+                name="regular-long-arrow-right"
+                size="16px"
+            />
+        </router-link>
+    </mt-banner>
     {% endblock %}
 </mt-card>
 {% endblock %}

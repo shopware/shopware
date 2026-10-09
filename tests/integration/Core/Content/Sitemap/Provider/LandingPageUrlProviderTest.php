@@ -8,6 +8,7 @@ use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Sitemap\Provider\LandingPageUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -22,7 +23,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -89,13 +89,17 @@ class LandingPageUrlProviderTest extends TestCase
         $excludedId = Uuid::randomHex();
 
         $configHandler = $this->createMock(ConfigHandler::class);
-        $configHandler->method('get')->with(ConfigHandler::EXCLUDED_URLS_KEY)->willReturn([
-            [
-                'resource' => LandingPageEntity::class,
-                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
-                'identifier' => $excludedId,
-            ],
-        ]);
+        $configHandler
+            ->expects($this->once())
+            ->method('get')
+            ->with(ConfigHandler::EXCLUDED_URLS_KEY)
+            ->willReturn([
+                [
+                    'resource' => LandingPageEntity::class,
+                    'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
+                    'identifier' => $excludedId,
+                ],
+            ]);
 
         $this->landingPageRepository->upsert([
             [
@@ -122,7 +126,7 @@ class LandingPageUrlProviderTest extends TestCase
         $landingPageUrlProvider = new LandingPageUrlProvider(
             $configHandler,
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get(RouterInterface::class),
+            static::getContainer()->get(EntityRouteResolver::class),
             static::getContainer()->get('event_dispatcher'),
         );
 
@@ -157,7 +161,7 @@ class LandingPageUrlProviderTest extends TestCase
         $seuUrlRepository = static::getContainer()->get('seo_url.repository');
 
         /** @var SeoUrlEntity|null $seoUrl */
-        $seoUrl = $seuUrlRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $seoUrl = $seuUrlRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         static::assertNotNull($seoUrl);
 

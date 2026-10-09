@@ -12,9 +12,7 @@ async function createWrapper() {
                     <slot></slot>
                 </div>
             `,
-            mixins: [
-                Shopware.Mixin.getByName('sw-form-field'),
-            ],
+            mixins: [Shopware.Mixin.getByName('sw-form-field')],
         },
         {
             attachTo: document.body,

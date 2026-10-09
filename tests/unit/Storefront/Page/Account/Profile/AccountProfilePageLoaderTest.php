@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Page\Account\Profile;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
@@ -32,6 +33,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(AccountProfilePageLoader::class)]
 class AccountProfilePageLoaderTest extends TestCase
 {
@@ -39,21 +41,21 @@ class AccountProfilePageLoaderTest extends TestCase
 
     private AccountProfilePageLoader $pageLoader;
 
-    private AbstractTranslator&MockObject $translator;
+    private AbstractTranslator&Stub $translator;
 
-    private GenericPageLoader&MockObject $genericPageLoader;
+    private GenericPageLoader&Stub $genericPageLoader;
 
-    private SalutationRoute&MockObject $salutationRoute;
+    private SalutationRoute&Stub $salutationRoute;
 
-    private SalutationSorter&MockObject $salutationSorter;
+    private SalutationSorter&Stub $salutationSorter;
 
     protected function setUp(): void
     {
         $this->eventDispatcher = new CollectingEventDispatcher();
-        $this->salutationRoute = $this->createMock(SalutationRoute::class);
-        $this->salutationSorter = $this->createMock(SalutationSorter::class);
-        $this->translator = $this->createMock(AbstractTranslator::class);
-        $this->genericPageLoader = $this->createMock(GenericPageLoader::class);
+        $this->salutationRoute = static::createStub(SalutationRoute::class);
+        $this->salutationSorter = static::createStub(SalutationSorter::class);
+        $this->translator = static::createStub(AbstractTranslator::class);
+        $this->genericPageLoader = static::createStub(GenericPageLoader::class);
 
         $this->pageLoader = new AccountProfilePageLoader(
             $this->genericPageLoader,
@@ -87,12 +89,14 @@ class AccountProfilePageLoaderTest extends TestCase
 
         $salutationsSorted = new SalutationCollection([$salutation2, $salutation]);
 
-        $this->salutationRoute
+        $salutationRoute = $this->createMock(SalutationRoute::class);
+        $salutationRoute
             ->expects($this->once())
             ->method('load')
             ->willReturn($salutationResponse);
 
-        $this->salutationSorter
+        $salutationSorter = $this->createMock(SalutationSorter::class);
+        $salutationSorter
             ->expects($this->once())
             ->method('sort')
             ->willReturn($salutationsSorted);
@@ -100,18 +104,28 @@ class AccountProfilePageLoaderTest extends TestCase
         $page = new Page();
         $page->setMetaInformation(new MetaInformation());
         $page->getMetaInformation()?->setMetaTitle('testshop');
-        $this->genericPageLoader
+        $genericPageLoader = $this->createMock(GenericPageLoader::class);
+        $genericPageLoader
             ->expects($this->once())
             ->method('load')
             ->willReturn($page);
 
-        $this->translator
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator
             ->expects($this->once())
             ->method('trans')
             ->willReturn('translated');
 
+        $pageLoader = new AccountProfilePageLoader(
+            $genericPageLoader,
+            $this->eventDispatcher,
+            $salutationRoute,
+            $salutationSorter,
+            $translator
+        );
+
         $salesChannelContext = $this->getContextWithDummyCustomer();
-        $page = $this->pageLoader->load(new Request(), $salesChannelContext);
+        $page = $pageLoader->load(new Request(), $salesChannelContext);
 
         static::assertSame($salutationsSorted, $page->getSalutations());
         $metaInformation = $page->getMetaInformation();
@@ -147,7 +161,7 @@ class AccountProfilePageLoaderTest extends TestCase
 
     public function testNoCustomerException(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         static::expectException(CustomerNotLoggedInException::class);
 
@@ -158,7 +172,7 @@ class AccountProfilePageLoaderTest extends TestCase
     {
         $customer = new CustomerEntity();
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getCustomer')
             ->willReturn($customer);

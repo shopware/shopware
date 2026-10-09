@@ -38,10 +38,10 @@ Planning reference for contributors and PMs. For the public docs see [developer.
 | Item | Status | Notes | Effort | Horizon |
 |------|--------|-------|--------|---------|
 | `/api/_mcp` endpoint, Streamable HTTP | **Done** | `McpServerController` | S | — |
-| Tool / prompt / resource discovery (core + bundles + apps) | **Done** | `McpToolCompilerPass`, `McpCapabilityDiscoveryTest` | S | — |
+| Tool / prompt / resource discovery (core + bundles + apps) | **Done** | `McpToolDiscoveryCompilerPass`, `McpCapabilityDiscoveryTest` | S | — |
 | App registration (XML, persistence, HMAC execution) | **Done** | `AppMcpToolLoader` / `AppMcpToolExecutor` | M | — |
 | Auth: Admin API bearer + integration header | **Done** | `McpAuthenticationListener` | S | — |
-| Rate limiting | **Done** | `RateLimiter::MCP` + OAuth bucket | S | — |
+| Rate limiting | **Done** | `McpRateLimiter`; per-scope routes `RateLimiter::MCP_ADMIN_API` (OAuth-token key) and `RateLimiter::MCP_STORE_API` (sales-channel-token key, tighter). Per-tool limits + `Retry-After` header are open (see `AGENTS.md`) | S | — |
 | Per-installation allowlist | **Done** | `shopware.mcp.allowed_tools` + compiler pass | S | — |
 | Per-integration allowlist (Admin UI + API + runtime filter) | **Done** | `integration.mcp_allowlist`, `McpAllowlistProvider`, `sw-integration-mcp-allowlist` component | M–L | — |
 | Write safety (dry-run defaults) | **Done** | All write tools default `dryRun=true` | S | — |
@@ -49,7 +49,7 @@ Planning reference for contributors and PMs. For the public docs see [developer.
 | ACL on tools | **Partial** | Most tools ACL-gated; `entity-schema` and resources explicitly no ACL | M | V1 |
 | **Structured MCP observability** (telemetry on every tool call) | **Partial** | `mcp` Monolog channel exists; no OpenTelemetry spans or metrics emission yet. Needed for adoption data and tool census | M | **V1 (GA blocker)** |
 | Feature flag `MCP_SERVER` lifecycle | **Partial** | Good for POC; needs lifecycle decision (default on, compile-time removal path) | S | V1 |
-| New integrations start with empty allowlist (enforcement) | **Open** | Current default is `NULL` (unrestricted); product direction says new integrations start with no tools selected | S | V1 |
+| New integrations start with empty allowlist (enforcement) | **Done** | `NULL` now denies every capability. Only administrator users bypass the allowlist; integrations never do | S | — |
 | **Per-user MCP allowlist** (bearer token + Copilot intersection) | **Done** | Per-user allowlist on `user`; bearer JWT re-enabled; Copilot intersection via `sw-app-user-id`. See [gaps-user-allowlist.md](gaps-user-allowlist.md) | M | — |
 | ACL on read-only resources | **Open** | Resources are reference data today; only if security review demands it | M | Later |
 | Optional discovery metadata | **Open** | Not needed if Admin allowlist + docs are sufficient | M | Later |
@@ -129,7 +129,7 @@ First public slice shipped via `shopware/docs#2264`. In-repo `docs/` is now the 
 
 Contributor reference: [spec-coverage.md](spec-coverage.md) · Spec: [modelcontextprotocol.io/specification/2025-11-25/server](https://modelcontextprotocol.io/specification/2025-11-25/server)
 
-Shopware uses **Streamable HTTP** at `/api/_mcp` via `symfony/mcp-bundle`. Session init and JSON-RPC routing are delegated to the bundle/SDK. Shopware adds: Admin API auth bridge, rate limits, feature flag, `McpContextProvider`, app HMAC execution, `McpToolCompilerPass`.
+Shopware uses **Streamable HTTP** at `/api/_mcp` via `symfony/mcp-bundle`. Session init and JSON-RPC routing are delegated to the bundle/SDK. Shopware adds: Admin API auth bridge, rate limits, feature flag, `McpContextProvider`, app HMAC execution, `McpToolDiscoveryCompilerPass`.
 
 | Spec topic | Shopware today | Gap / follow-up |
 |------------|----------------|-----------------|
@@ -137,7 +137,7 @@ Shopware uses **Streamable HTTP** at `/api/_mcp` via `symfony/mcp-bundle`. Sessi
 | **Prompts** | `shopware-context` + app-backed prompts loader | Optional extra prompts; keep discovery test aligned |
 | **Resources** | 8 static resources + `shopware://tool-result/{id}` template (large-result delivery) | Templates/subscriptions if clients rely on them; ACL policy still open |
 | **Completion** | Unknown — likely partially handled by `symfony/mcp-bundle` | Spike: wire entity name / field / enum completions for `shopware-entity-search` |
-| **Logging** | `mcp` Monolog channel (debug/support); product metrics need OpenTelemetry path | Decide on `logging/setLevel` + `notifications/message` as real protocol feature |
+| **Logging** | `mcp` Monolog channel (debug/support); product metrics need OpenTelemetry path | Closed: SEP-2577 deprecated the MCP logging utility in mcp/sdk 0.8, so `logging/setLevel` and `notifications/message` are not on the table |
 | **Pagination** | Application-level (`_meta`, criteria `page`/`limit`) | Confirm if protocol-level `resources/list` cursors are needed |
 | **Client: Roots / Sampling / Elicitation** | N/A on server side | Document "N/A on `/api/_mcp`" in public docs |
 
@@ -164,14 +164,13 @@ Shopware uses **Streamable HTTP** at `/api/_mcp` via `symfony/mcp-bundle`. Sessi
 **Still open**
 
 - **Structured MCP observability** — only `mcp` Monolog channel today. No OpenTelemetry spans, no metrics emission on tool calls. Needed to prove adoption, detect zero-use tools, and judge quality.
-- **Per-integration allowlist — new integrations default empty** — current default is `NULL` (unrestricted). Product direction says new integrations start with no tools selected; enforcement not yet in place.
 - **`shopware/*` org move for samples** — `McpHelloWorld` and `SwagMcpAdminUsers` are in-repo on this branch; need move + polish + canonical docs links.
 - Optional ACL on resources (if security review demands it).
 - Optional discovery metadata (deferred; revisit only if allowlist + docs prove insufficient).
 
 **Future roadmap (needs PM ownership)**
 
-- **Store API MCP server** — customer-authenticated MCP surface (session token / customer credentials) scoped to the buyer journey: browsing, cart, checkout, account. Enables AI shopping assistants acting *as the shopper*, not as a merchant operator. Separate endpoint (e.g. `store-api/_mcp`), auth, scope, rate limiting, tool set. Raised internally — needs PM driver.
+- **Store API MCP server** — **foundation implemented** (`StoreApiMcpServerController` at `/store-api/_mcp`, `sw-access-key` + `sw-context-token` auth, own capability registry, dedicated `mcp_store_api` rate-limit bucket, `shopware-store-api-context` tool; see [store-api-mcp.md](store-api-mcp.md)). Remaining PM-driven scope: the full buyer-journey tool set (browse, cart, checkout, account), customer-tier access control, and storefront discovery/session bridging so agents can act *as the shopper*.
 - **WebMCP (browser-native, Storefront)** — W3C WebMachinelearning CG proposal (Aug 2025, Microsoft) for browser-native JS tools exposed to in-browser agents. Human-in-loop storefront workflows only; explicitly **not** for autonomous agents (that use case = Store API MCP). No browser ships it yet. See: https://github.com/webmachinelearning/webmcp
 
 ---

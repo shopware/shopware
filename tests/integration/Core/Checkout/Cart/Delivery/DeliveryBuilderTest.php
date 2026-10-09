@@ -85,6 +85,29 @@ class DeliveryBuilderTest extends TestCase
         );
     }
 
+    public function testBuildDeliveryPositionUsesReleaseDateAsAvailabilityStart(): void
+    {
+        $releaseDate = new \DateTimeImmutable('2030-01-15 10:00:00');
+        $cart = $this->createCartWithReleaseDate($releaseDate);
+        $firstDelivery = $this->getDeliveries($cart)->first();
+        static::assertNotNull($firstDelivery);
+
+        $deliveryPosition = $firstDelivery->getPositions()->get('testid');
+        static::assertNotNull($deliveryPosition);
+
+        $deliveryDate = $deliveryPosition->getDeliveryDate();
+        $expectedDeliveryDate = $releaseDate->add(new \DateInterval('P2M'))->setTime(16, 0);
+
+        static::assertSame(
+            $expectedDeliveryDate->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $deliveryDate->getEarliest()->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+        );
+        static::assertSame(
+            $expectedDeliveryDate->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $deliveryDate->getLatest()->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+        );
+    }
+
     private function getDeliveries(Cart $cart): DeliveryCollection
     {
         $data = new CartDataCollection();
@@ -104,6 +127,17 @@ class DeliveryBuilderTest extends TestCase
 
         $lineItems = $this->createLineItems();
         $cart->addLineItems($lineItems);
+
+        return $cart;
+    }
+
+    private function createCartWithReleaseDate(\DateTimeImmutable $releaseDate): Cart
+    {
+        $cart = new Cart('test');
+        $lineItem = $this->createLineItem();
+        $lineItem->setPayloadValue('releaseDate', $releaseDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+
+        $cart->add($lineItem);
 
         return $cart;
     }

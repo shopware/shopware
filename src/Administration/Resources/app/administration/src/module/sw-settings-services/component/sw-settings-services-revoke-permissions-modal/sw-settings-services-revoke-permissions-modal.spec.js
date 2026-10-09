@@ -15,8 +15,9 @@ jest.mock('../../composables/permissions', () => {
     };
 });
 
-const createWrapper = async () => {
+const createWrapper = async (props = {}) => {
     return mount(SwSettingsServicesRevokePermissionsModal, {
+        props,
         global: {
             stubs: {
                 'mt-modal': MtModal,
@@ -24,6 +25,37 @@ const createWrapper = async () => {
                 'mt-modal-action': MtModalAction,
                 'mt-modal-trigger': MtModalTrigger,
                 'mt-modal-root': MtModalRoot,
+                'mt-icon': {
+                    template: '<span :class="$attrs.class" />',
+                },
+            },
+        },
+    });
+};
+
+const createContentWrapper = async (props = {}) => {
+    return mount(SwSettingsServicesRevokePermissionsModal, {
+        props,
+        global: {
+            stubs: {
+                'mt-modal-root': {
+                    template: '<div><slot /></div>',
+                },
+                'mt-modal': {
+                    template: '<div><slot /><slot name="footer" /></div>',
+                },
+                'mt-modal-close': {
+                    template: '<button><slot /></button>',
+                },
+                'mt-modal-action': {
+                    template: '<button><slot /></button>',
+                },
+                'mt-modal-trigger': {
+                    template: '<button><slot /></button>',
+                },
+                'mt-icon': {
+                    template: '<span :class="$attrs.class" />',
+                },
             },
         },
     });
@@ -77,6 +109,41 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
         expect(notificationSpy).not.toHaveBeenCalled();
         expect(Shopware.Service('shopwareServicesService').revokePermissions).toHaveBeenCalled();
         expect(permissionsComposable._reloadPage).toHaveBeenCalled();
+    });
+
+    it('shows services that keep their Shopware Account permissions', async () => {
+        const revokePermissionsModal = await createContentWrapper({
+            servicesWithAccountRequirement: [
+                {
+                    name: 'account-service',
+                    label: 'Account Service',
+                },
+                {
+                    name: 'another-account-service',
+                    label: 'Another Account Service',
+                },
+            ],
+        });
+        await flushPromises();
+
+        expect(
+            revokePermissionsModal.find('.sw-settings-services-revoke-permissions-modal__account-requirement-info').exists(),
+        ).toBe(true);
+        expect(revokePermissionsModal.text()).toContain('sw-settings-services.revoke-permissions-modal.p-3');
+        expect(
+            revokePermissionsModal.findAll('.sw-settings-services-revoke-permissions-modal__services-list li'),
+        ).toHaveLength(2);
+        expect(revokePermissionsModal.text()).toContain('Account Service');
+        expect(revokePermissionsModal.text()).toContain('Another Account Service');
+    });
+
+    it('does not show the Shopware Account permissions notice without matching services', async () => {
+        const revokePermissionsModal = await createContentWrapper();
+        await flushPromises();
+
+        expect(
+            revokePermissionsModal.find('.sw-settings-services-revoke-permissions-modal__account-requirement-info').exists(),
+        ).toBe(false);
     });
 
     it('shows notification if permissions request fails', async () => {

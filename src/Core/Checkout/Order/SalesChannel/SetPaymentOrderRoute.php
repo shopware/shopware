@@ -5,13 +5,15 @@ namespace Shopware\Core\Checkout\Order\SalesChannel;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Order\OrderRestorer;
+use Shopware\Core\Checkout\Cart\Order\RestoredOrder;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
+use Shopware\Core\Checkout\Order\Extension\SetPaymentOrderRouteExtension;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -19,7 +21,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -36,8 +38,8 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 {
     /**
@@ -50,10 +52,11 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         private readonly EntityRepository $orderRepository,
         private readonly OrderConverter $orderConverter,
         private readonly CartRuleLoader $cartRuleLoader,
-        private readonly CartService $cartService,
+        private readonly OrderRestorer $orderRestorer,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly InitialStateIdLoader $initialStateIdLoader,
-        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute
+        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -73,6 +76,15 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     )]
     public function setPayment(Request $request, SalesChannelContext $context): SetPaymentOrderRouteResponse
     {
+        return $this->extensions->publish(
+            name: SetPaymentOrderRouteExtension::NAME,
+            extension: new SetPaymentOrderRouteExtension($request, $context),
+            function: $this->_setPayment(...),
+        );
+    }
+
+    private function _setPayment(Request $request, SalesChannelContext $context): SetPaymentOrderRouteResponse
+    {
         $paymentMethodId = $request->request->getAlnum('paymentMethodId');
         if (!Uuid::isValid($paymentMethodId)) {
             throw OrderException::invalidUuid($paymentMethodId);
@@ -85,17 +97,17 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
         $order = $this->loadOrder($orderId, $context);
 
-        $context = $this->orderConverter->assembleSalesChannelContext(
+        $restored = $this->orderRestorer->restore(
             $order,
             $context->getContext(),
             [SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId]
         );
 
-        $this->validateRequest($request, $order, $context);
+        $this->validateRequest($request, $restored);
 
         $this->validatePaymentState($order);
 
-        $this->setPaymentMethod($paymentMethodId, $order, $context);
+        $this->setPaymentMethod($paymentMethodId, $order, $restored->context);
 
         return new SetPaymentOrderRouteResponse();
     }
@@ -154,19 +166,22 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $this->eventDispatcher->dispatch($event);
     }
 
-    private function validateRequest(Request $request, OrderEntity $order, SalesChannelContext $salesChannelContext): void
+    private function validateRequest(Request $request, RestoredOrder $restored): void
     {
         $paymentMethodId = $request->request->getAlnum('paymentMethodId');
-        $cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
-        $cart->setToken($salesChannelContext->getToken());
+        $request->attributes->set('orderId', $restored->order->getId());
 
-        $this->cartService->setCart($cart);
-        $request->attributes->set('orderId', $order->getId());
+        $response = $this->checkoutGatewayRoute->load($request, $restored->cart, $restored->context);
 
-        $response = $this->checkoutGatewayRoute->load($request, $cart, $salesChannelContext);
+        $paymentMethods = $response->getPaymentMethods();
 
-        if ($response->getPaymentMethods()->get($paymentMethodId) === null) {
+        if ($paymentMethods->get($paymentMethodId) === null) {
             throw OrderException::paymentMethodNotAvailable($paymentMethodId);
+        }
+
+        // Enforce "Allow payment change after checkout" (afterOrderEnabled) server-side, not just in the edit-order UI filter.
+        if (!$paymentMethods->get($paymentMethodId)->getAfterOrderEnabled()) {
+            throw OrderException::paymentMethodNotChangeable();
         }
     }
 
@@ -188,11 +203,10 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         }
 
         foreach ($transactions as $transaction) {
-            if ($transaction->getPaymentMethodId() === $paymentMethodId && $lastTransaction->getId() === $transaction->getId()) {
-                if ($this->hasChangedAmount($order->getPrice(), $transaction->getAmount())) {
-                    return false;
-                }
-
+            if ($transaction->getPaymentMethodId() === $paymentMethodId
+                && $lastTransaction->getId() === $transaction->getId()
+                && !$this->hasChangedAmount($order->getPrice(), $transaction->getAmount())
+            ) {
                 $initialState = $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE);
                 if ($transaction->getStateId() === $initialState) {
                     return true;
@@ -256,9 +270,6 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
             ->addAssociation('transactions')
             ->addAssociation('primaryOrderTransaction.stateMachineState');
 
-        $criteria->getAssociation('transactions')
-            ->addSorting(new FieldSorting('createdAt'));
-
         $customer = $context->getCustomer();
         \assert($customer !== null);
 
@@ -274,9 +285,11 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
                 'stateMachineState',
             ]);
 
+        $this->orderRestorer->addRequiredAssociations($criteria);
+
         $this->eventDispatcher->dispatch(new OrderPaymentMethodChangedCriteriaEvent($orderId, $criteria, $context));
 
-        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $context->getContext())->getEntities()->first();
         if ($order === null) {
             throw OrderException::orderNotFound($orderId);
         }

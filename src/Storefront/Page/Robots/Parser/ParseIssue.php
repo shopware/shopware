@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @codeCoverageIgnore Simple DTO with no business logic
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ParseIssue
 {
     public function __construct(

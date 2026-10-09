@@ -3,25 +3,34 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Capability\Attribute\Schema;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Dedicated aggregation tool that loads zero entity rows and returns only
  * aggregation results, keeping the response well within the 100 KB limit.
  */
-#[McpTool(name: 'shopware-entity-aggregate', title: 'Entity Aggregate', description: 'The correct tool for count, sum, average, and other aggregate questions. Use this — not shopware-entity-search — for any \'how many\', \'total value\', or \'average\' query. Note: entity-search\'s _meta.total is pagination metadata, not a reporting count. Supports: count, avg, sum, min, max, terms, date-histogram. Returns only aggregation results, no entity rows. Pass aggregation definitions as Admin API criteria JSON.')]
-#[McpToolDependsOn('shopware-entity-schema')]
-#[McpToolRequires(entityParam: 'entity', operations: ['read'])]
 #[Package('framework')]
+#[McpTool(
+    name: 'shopware-entity-aggregate',
+    title: 'Entity Aggregate',
+    description: 'The correct tool for count, sum, average, and other aggregate questions. Use this — not shopware-entity-search — for any \'how many\', \'total value\', or \'average\' query. Note: entity-search\'s _meta.total is pagination metadata, not a reporting count. Supports: count, avg, sum, min, max, terms, date-histogram. Returns only aggregation results, no entity rows. Pass aggregation definitions as Admin API criteria JSON.'
+)]
+#[McpToolDependsOn('shopware-entity-schema')]
+#[McpToolGroup('entity')]
+#[McpToolRequires(entityParam: 'entity', operations: ['read'])]
 class EntityAggregateTool extends McpToolResponse
 {
     /**
@@ -31,11 +40,18 @@ class EntityAggregateTool extends McpToolResponse
         private readonly DefinitionInstanceRegistry $registry,
         private readonly RequestCriteriaBuilder $criteriaBuilder,
         private readonly McpContextProvider $contextProvider,
+        private readonly AclCriteriaValidator $criteriaValidator,
     ) {
     }
 
-    public function __invoke(string $entity, string $aggregations, string $filters = '[]'): string
-    {
+    public function __invoke(
+        #[Schema(description: 'Entity name to aggregate over, e.g. "order" or "product". See the shopware://entities resource for the full list.')]
+        string $entity,
+        #[Schema(description: 'A JSON ARRAY of Admin API aggregation definitions, as a string. Each element needs "name" and "type"; every type except "filter" also needs "field" — e.g. [{"name":"order_count","type":"count","field":"id"}] to count orders, or [{"name":"revenue","type":"sum","field":"amountTotal"}] to total them. A "filter" element takes no "field": it wraps another aggregation, so it needs "filter" (an array of filter definitions) and "aggregation" (the nested definition to apply inside it). A bare object rather than an array is the most common mistake and is rejected.')]
+        string $aggregations,
+        #[Schema(description: 'A JSON array of Admin API filter definitions, as a string, narrowing what is aggregated — e.g. [{"type":"equals","field":"stateId","value":"..."}]. Defaults to no filter.')]
+        string $filters = '[]',
+    ): string {
         $context = $this->contextProvider->getContext();
 
         if (!$this->registry->has($entity)) {
@@ -71,12 +87,27 @@ class EntityAggregateTool extends McpToolResponse
             $payload['filter'] = $filterDefs;
         }
 
-        $criteriaObj = $this->criteriaBuilder->fromArray(
-            $payload,
-            new Criteria(),
-            $definition,
-            $context,
-        );
+        try {
+            $criteriaObj = $this->criteriaBuilder->fromArray(
+                $payload,
+                new Criteria(),
+                $definition,
+                $context,
+            );
+        } catch (ShopwareHttpException $e) {
+            // Scoped to this call on purpose: a DAL failure from the search
+            // below is a bug, not bad input, and must still reach the log.
+            // `fromArray()` only parses the payload and checks field flags, so
+            // every ShopwareHttpException it raises is something the caller can fix.
+            return $this->invalidCriteriaError($e);
+        }
+
+        // Aggregations and filters can reference associated entities that require their own
+        // read privileges (same association ACL model as the Admin API).
+        $missing = $this->criteriaValidator->validate($entity, $criteriaObj, $context);
+        if ($missing !== []) {
+            return $this->missingPrivilegesError($missing);
+        }
 
         $criteriaObj->setLimit(0);
 

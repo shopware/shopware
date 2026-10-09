@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -23,6 +24,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class AntiJoinSearchTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -335,7 +337,7 @@ class AntiJoinSearchTest extends TestCase
 
         $ids = $productRepository->searchIds($criteria, $enGbContext)->getIds();
         static::assertIsArray($ids);
-        static::assertEmpty($ids);
+        static::assertCount(0, $ids);
 
         $rawDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM]);
         $criteria = (new Criteria())->addFilter($notGreenFilter);
@@ -368,7 +370,7 @@ class AntiJoinSearchTest extends TestCase
 
         $ids = $productRepository->searchIds($criteria, $rawDeContext)->getIds();
         static::assertIsArray($ids);
-        static::assertEmpty($ids);
+        static::assertCount(0, $ids);
 
         $deContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, true);
         $criteria = (new Criteria())->addFilter($notGruenFilter);

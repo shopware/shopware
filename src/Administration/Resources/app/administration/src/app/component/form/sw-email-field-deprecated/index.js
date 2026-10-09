@@ -13,8 +13,5 @@ import template from './sw-email-field-deprecated.html.twig';
 export default {
     template,
 
-    emits: [
-        'inheritance-restore',
-        'inheritance-remove',
-    ],
+    emits: ['inheritance-restore', 'inheritance-remove'],
 };

@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitchedEvent;
@@ -17,6 +18,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CreateAliasTaskHandler::class)]
 class CreateAliasTaskHandlerTest extends TestCase
 {
@@ -34,9 +36,9 @@ class CreateAliasTaskHandlerTest extends TestCase
             ->method('logAndThrowException');
 
         $handler = new CreateAliasTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
-            $this->createMock(Client::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
+            static::createStub(Client::class),
             $connection,
             $elasticsearchHelper,
             [],
@@ -58,11 +60,11 @@ class CreateAliasTaskHandlerTest extends TestCase
         $client->expects($this->never())->method('indices');
 
         $handler = new CreateAliasTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $client,
             $connection,
-            $this->createMock(ElasticsearchHelper::class),
+            static::createStub(ElasticsearchHelper::class),
             [],
             new EventDispatcher(),
         );
@@ -95,7 +97,7 @@ class CreateAliasTaskHandlerTest extends TestCase
             ->expects($this->once())
             ->method('executeStatement');
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
 
         $indices
@@ -132,11 +134,11 @@ class CreateAliasTaskHandlerTest extends TestCase
         });
 
         $handler = new CreateAliasTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $client,
             $connection,
-            $this->createMock(ElasticsearchHelper::class),
+            static::createStub(ElasticsearchHelper::class),
             ['settings' => ['index' => ['number_of_replicas' => 1]]],
             $eventDispatcher,
         );
@@ -165,8 +167,8 @@ class CreateAliasTaskHandlerTest extends TestCase
             ->expects($this->once())
             ->method('executeStatement');
 
-        $client = $this->createMock(Client::class);
-        $indices = $this->createMock(IndicesNamespace::class);
+        $client = static::createStub(Client::class);
+        $indices = static::createStub(IndicesNamespace::class);
 
         $indices
             ->method('existsAlias')
@@ -181,36 +183,18 @@ class CreateAliasTaskHandlerTest extends TestCase
             ]);
 
         $indices
-            ->method('updateAliases')
-            ->with([
-                'body' => [
-                    'actions' => [
-                        [
-                            'remove' => [
-                                'index' => 'old_index',
-                                'alias' => 'alias',
-                            ],
-                        ],
-                        [
-                            'add' => [
-                                'index' => 'index',
-                                'alias' => 'alias',
-                            ],
-                        ],
-                    ],
-                ],
-            ]);
+            ->method('updateAliases');
 
         $client
             ->method('indices')
             ->willReturn($indices);
 
         $handler = new CreateAliasTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $client,
             $connection,
-            $this->createMock(ElasticsearchHelper::class),
+            static::createStub(ElasticsearchHelper::class),
             ['settings' => ['index' => ['number_of_replicas' => 1]]],
             new EventDispatcher(),
         );

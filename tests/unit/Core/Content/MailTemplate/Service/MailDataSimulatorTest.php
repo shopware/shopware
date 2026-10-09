@@ -3,8 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFormDataEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailDataSimulator;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider;
@@ -20,20 +23,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\FormDataObjectType;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\Clock\NativeClock;
@@ -43,8 +52,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(MailDataSimulator::class)]
 #[Package('after-sales')]
+#[CoversClass(MailDataSimulator::class)]
 class MailDataSimulatorTest extends TestCase
 {
     public function testGenerateFieldDataUsesEmailFieldSimulationForStringSubclass(): void
@@ -140,7 +149,7 @@ class MailDataSimulatorTest extends TestCase
     public function testFieldEventCanOverrideSubclassOfKnownCoreFieldType(): void
     {
         $capturedEvent = null;
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatcher->method('dispatch')->willReturnCallback(function (object $event) use (&$capturedEvent): object {
             if ($event instanceof MailDataSimulatorFieldEvent) {
                 $capturedEvent = $event;
@@ -189,27 +198,139 @@ class MailDataSimulatorTest extends TestCase
         static::assertLessThanOrEqual(10000, $result['score']);
     }
 
+    /**
+     * @param array<string, mixed> $expectedFormData
+     */
+    #[DataProvider('formDataObjectProvider')]
+    public function testGetTemplateDataProvidesKnownFormDataForFormDataVariables(string $variableName, array $expectedFormData): void
+    {
+        $simulator = $this->createSimulator([
+            $variableName => (new FormDataObjectType())->toArray(),
+        ]);
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+        $formData = $result[$variableName];
+
+        static::assertIsArray($formData);
+        foreach ($expectedFormData as $key => $value) {
+            static::assertArrayHasKey($key, $formData);
+            static::assertSame($value, $formData[$key]);
+        }
+
+        if ($variableName === FlowMailVariables::REVOCATION_REQUEST_FORM_DATA) {
+            static::assertArrayHasKey('submitTime', $formData);
+            static::assertInstanceOf(\DateTimeImmutable::class, $formData['submitTime']);
+        }
+    }
+
+    public function testGetTemplateDataReturnsEmptyArrayForUnknownFormDataVariables(): void
+    {
+        $simulator = $this->createSimulator([
+            'unknownFormData' => (new FormDataObjectType())->toArray(),
+        ]);
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertArrayHasKey('unknownFormData', $result);
+        static::assertSame([], $result['unknownFormData']);
+    }
+
+    public function testPlainObjectTypeVariablesDoNotDispatchFormDataEvent(): void
+    {
+        $dispatchedNames = [];
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
+        $dispatcher->method('dispatch')->willReturnCallback(function (object $event) use (&$dispatchedNames): object {
+            if ($event instanceof MailDataSimulatorFormDataEvent) {
+                $dispatchedNames[] = $event->variableName;
+            }
+
+            return $event;
+        });
+
+        $simulator = $this->createSimulator(
+            [
+                'customer' => (new ObjectType())->toArray(),
+            ],
+            null,
+            $dispatcher
+        );
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertSame([], $dispatchedNames);
+        static::assertSame([], $result['customer']);
+    }
+
+    public function testFormDataEventCanProvideSimulatedDataForUnknownForms(): void
+    {
+        $seededData = 'not-captured';
+        $flowEventName = null;
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
+        $dispatcher->method('dispatch')->willReturnCallback(function (object $event) use (&$seededData, &$flowEventName): object {
+            if ($event instanceof MailDataSimulatorFormDataEvent && $event->variableName === 'customFormData') {
+                $seededData = $event->getData();
+                $flowEventName = $event->flowEventName;
+                $event->setData(['customField' => 'custom-value']);
+            }
+
+            return $event;
+        });
+
+        $simulator = $this->createSimulator(
+            [
+                'customFormData' => (new FormDataObjectType())->toArray(),
+            ],
+            null,
+            $dispatcher
+        );
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertNull($seededData);
+        static::assertSame('test.flow', $flowEventName);
+        static::assertSame(['customField' => 'custom-value'], $result['customFormData']);
+    }
+
+    public function testFormDataEventReceivesKnownFormDataAndCanOverrideIt(): void
+    {
+        $capturedData = null;
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
+        $dispatcher->method('dispatch')->willReturnCallback(function (object $event) use (&$capturedData): object {
+            if ($event instanceof MailDataSimulatorFormDataEvent && $event->variableName === FlowMailVariables::CONTACT_FORM_DATA) {
+                $capturedData = $event->getData();
+                $event->setData(['firstName' => 'Overridden']);
+            }
+
+            return $event;
+        });
+
+        $simulator = $this->createSimulator(
+            [
+                FlowMailVariables::CONTACT_FORM_DATA => (new FormDataObjectType())->toArray(),
+            ],
+            null,
+            $dispatcher
+        );
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertIsArray($capturedData);
+        static::assertSame('Max', $capturedData['firstName']);
+        static::assertSame(['firstName' => 'Overridden'], $result[FlowMailVariables::CONTACT_FORM_DATA]);
+    }
+
     public function testGetTemplateDataUsesProviderCriteriaForEntityEventData(): void
     {
         $definition = new TestMailTemplateEntityDefinition(new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new ApiAware()),
         ]));
 
-        $provider = new class($this->createStub(EventDispatcherInterface::class), $this->createStub(ContainerInterface::class)) extends AbstractProvider {
-            public bool $wasCalled = false;
-
-            public function getEntityName(): string
-            {
-                return TestMailTemplateEntityDefinition::ENTITY_NAME;
-            }
-
-            protected function constructCriteria(string $entityId): Criteria
-            {
-                $this->wasCalled = true;
-
-                return new Criteria([$entityId]);
-            }
-        };
+        $provider = new TestMailTemplateProvider(
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ContainerInterface::class),
+            [],
+        );
+        $provider->wasCalled = false;
 
         $simulator = $this->createSimulator(
             [
@@ -237,7 +358,7 @@ class MailDataSimulatorTest extends TestCase
 
         $firstAttributeDefinition = new AttributeEntityDefinition([
             'entity_name' => 'first_attribute_entity',
-            'entity_class' => Entity::class,
+            'entity_class' => ArrayEntity::class,
             'collection_class' => EntityCollection::class,
             'hydrator_class' => EntityHydrator::class,
             'fields' => [
@@ -258,7 +379,7 @@ class MailDataSimulatorTest extends TestCase
 
         $secondAttributeDefinition = new AttributeEntityDefinition([
             'entity_name' => 'second_attribute_entity',
-            'entity_class' => Entity::class,
+            'entity_class' => ArrayEntity::class,
             'collection_class' => EntityCollection::class,
             'hydrator_class' => EntityHydrator::class,
             'fields' => [
@@ -301,10 +422,121 @@ class MailDataSimulatorTest extends TestCase
         );
     }
 
+    public function testMappingDefinitionDoesNotThrowException(): void
+    {
+        $definition = new TestMailTemplateEntityDefinition(new FieldCollection([
+            (new OneToManyAssociationField('mappingChildren', TestMappingDefinition::class, 'test_mail_template_entity_id'))->addFlags(new ApiAware()),
+        ]));
+
+        $provider = new TestMailTemplateProvider(
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ContainerInterface::class),
+            ['mappingChildren'],
+        );
+
+        $simulator = $this->createSimulator(
+            [
+                'testEntity' => [
+                    'type' => EntityType::TYPE,
+                    'entityClass' => TestMailTemplateEntityDefinition::ENTITY_NAME,
+                ],
+            ],
+            $definition,
+            null,
+            [TestMailTemplateEntityDefinition::ENTITY_NAME => $provider],
+            [new TestMappingDefinition()]
+        );
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
+
+        $mappingChildren = $result['testEntity']->get('mappingChildren');
+        static::assertInstanceOf(EntityCollection::class, $mappingChildren);
+        static::assertCount(1, $mappingChildren);
+        static::assertInstanceOf(Entity::class, $mappingChildren->first());
+    }
+
+    public function testGetTemplateDataProvidesDummyA11yDocumentForA11yRenderedDocumentAwareEvents(): void
+    {
+        $simulator = $this->createSimulator([], eventClass: TestA11yRenderedDocumentAwareEvent::class);
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        $a11yDocuments = $result[A11yRenderedDocumentAware::A11Y_DOCUMENTS];
+        static::assertIsArray($a11yDocuments);
+        static::assertCount(1, $a11yDocuments);
+
+        $a11yDocument = $a11yDocuments[0];
+        static::assertTrue(Uuid::isValid($a11yDocument['documentId']));
+        static::assertMatchesRegularExpression('/^[a-zA-Z0-9]{32}$/', $a11yDocument['deepLinkCode']);
+        static::assertSame('html', $a11yDocument['fileExtension']);
+    }
+
+    public function testGetTemplateDataDoesNotProvideA11yDocumentsForOtherEvents(): void
+    {
+        $simulator = $this->createSimulator([]);
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertArrayNotHasKey(A11yRenderedDocumentAware::A11Y_DOCUMENTS, $result);
+    }
+
+    public function testGetTemplateDataKeepsA11yDocumentsDeclaredByTheEvent(): void
+    {
+        $simulator = $this->createSimulator(
+            [A11yRenderedDocumentAware::A11Y_DOCUMENTS => ['type' => ScalarValueType::TYPE_STRING]],
+            eventClass: TestA11yRenderedDocumentAwareEvent::class,
+        );
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertSame('Lorem ipsum dolor', $result[A11yRenderedDocumentAware::A11Y_DOCUMENTS]);
+    }
+
+    public static function formDataObjectProvider(): \Generator
+    {
+        yield 'contact form data' => [
+            FlowMailVariables::CONTACT_FORM_DATA,
+            [
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'email' => 'max.mustermann@example.com',
+                'phone' => '+49123456789',
+                'subject' => 'Lorem ipsum dolor',
+                'comment' => 'Lorem ipsum dolor sit amet.',
+            ],
+        ];
+
+        yield 'review form data' => [
+            FlowMailVariables::REVIEW_FORM_DATA,
+            [
+                'name' => 'Max',
+                'lastName' => 'Mustermann',
+                'email' => 'max.mustermann@example.com',
+                'points' => 5,
+                'title' => 'Lorem ipsum dolor',
+                'content' => 'Lorem ipsum dolor sit amet.',
+            ],
+        ];
+
+        yield 'revocation request form data' => [
+            FlowMailVariables::REVOCATION_REQUEST_FORM_DATA,
+            [
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'email' => 'max.mustermann@example.com',
+                'contractNumber' => '10000',
+                'comment' => 'Lorem ipsum dolor sit amet.',
+            ],
+        ];
+    }
+
     /**
      * @param array<string, mixed> $eventData
      * @param iterable<string, AbstractProvider<Entity, EntityCollection<Entity>>> $dataProviders
      * @param list<EntityDefinition> $additionalDefinitions
+     * @param class-string<MailAware> $eventClass
      */
     private function createSimulator(
         array $eventData,
@@ -312,9 +544,10 @@ class MailDataSimulatorTest extends TestCase
         ?EventDispatcherInterface $dispatcher = null,
         iterable $dataProviders = [],
         array $additionalDefinitions = [],
+        string $eventClass = TestMailAwareEvent::class,
     ): MailDataSimulator {
         $response = new BusinessEventCollectorResponse();
-        $response->set('test.flow', new BusinessEventDefinition('test.flow', TestMailAwareEvent::class, $eventData));
+        $response->set('test.flow', new BusinessEventDefinition('test.flow', $eventClass, $eventData));
 
         $businessEventCollector = static::createStub(BusinessEventCollector::class);
         $businessEventCollector->method('collect')->willReturn($response);
@@ -330,7 +563,7 @@ class MailDataSimulatorTest extends TestCase
 
         $definitions = [...$definitions, ...$additionalDefinitions];
 
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         foreach ($definitions as $definition) {
             $definition->compile($definitionRegistry);
@@ -411,13 +644,23 @@ class TestMailAwareEvent implements MailAware
 /**
  * @internal
  */
+class TestA11yRenderedDocumentAwareEvent extends TestMailAwareEvent implements A11yRenderedDocumentAware
+{
+    public function getA11yDocumentIds(): array
+    {
+        return [];
+    }
+}
+
+/**
+ * @internal
+ */
 class TestMailTemplateEntityDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'test_mail_template_entity';
 
     public function __construct(private readonly FieldCollection $definitionFields)
     {
-        parent::__construct();
     }
 
     public function getEntityName(): string
@@ -444,5 +687,63 @@ class TestSalesChannelDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractProvider<Entity, EntityCollection<Entity>>
+ */
+class TestMailTemplateProvider extends AbstractProvider
+{
+    public bool $wasCalled = false;
+
+    /**
+     * @param list<string> $associations
+     */
+    public function __construct(
+        EventDispatcherInterface $dispatcher,
+        ContainerInterface $container,
+        private readonly array $associations
+    ) {
+        parent::__construct($dispatcher, $container);
+    }
+
+    public function getEntityName(): string
+    {
+        return TestMailTemplateEntityDefinition::ENTITY_NAME;
+    }
+
+    protected function constructCriteria(string $entityId): Criteria
+    {
+        $this->wasCalled = true;
+
+        $criteria = new Criteria([$entityId]);
+
+        foreach ($this->associations as $association) {
+            $criteria->addAssociation($association);
+        }
+
+        return $criteria;
+    }
+}
+
+/**
+ * @internal
+ */
+class TestMappingDefinition extends MappingEntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'test_mapping';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware()),
+        ]);
     }
 }

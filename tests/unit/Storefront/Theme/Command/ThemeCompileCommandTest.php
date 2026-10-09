@@ -8,15 +8,17 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\Command\ThemeCompileCommand;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
 use Shopware\Storefront\Theme\ThemeService;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ThemeCompileCommand::class)]
 class ThemeCompileCommandTest extends TestCase
 {
@@ -37,7 +39,7 @@ class ThemeCompileCommandTest extends TestCase
             ->with(static::anything(), false)
             ->willReturn([$salesChannelId => $themeId]);
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
 
         $commandTester->execute(['--keep-assets' => $keepAssetsOption]);
         $commandTester->assertCommandIsSuccessful();
@@ -46,7 +48,7 @@ class ThemeCompileCommandTest extends TestCase
     #[DataProvider('getOptionsValue')]
     public function testItPassesActiveOnlyFlagCorrectly(bool $activeOnly): void
     {
-        $themeService = static::createMock(ThemeService::class);
+        $themeService = static::createStub(ThemeService::class);
 
         $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
         $themeProvider->expects($this->once())
@@ -54,7 +56,7 @@ class ThemeCompileCommandTest extends TestCase
             ->with(static::anything(), $activeOnly)
             ->willReturn([]);
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
 
         $commandTester->execute(['--active-only' => $activeOnly]);
         $commandTester->assertCommandIsSuccessful();
@@ -79,7 +81,7 @@ class ThemeCompileCommandTest extends TestCase
             ->with(static::anything(), false)
             ->willReturn([$salesChannelId => $themeId]);
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
 
         $commandTester->execute(['--sync' => true]);
         $commandTester->assertCommandIsSuccessful();
@@ -124,7 +126,7 @@ class ThemeCompileCommandTest extends TestCase
                 }
             );
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
 
         $commandTester->execute(['--skip' => [$salesChannelIdSkip1, $salesChannelIdSkip2]]);
         $commandTester->assertCommandIsSuccessful();
@@ -169,7 +171,7 @@ class ThemeCompileCommandTest extends TestCase
                 }
             );
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
 
         $commandTester->execute(['--only' => [$salesChannelIdIncluded1, $salesChannelIdIncluded2]]);
         $commandTester->assertCommandIsSuccessful();
@@ -215,7 +217,7 @@ class ThemeCompileCommandTest extends TestCase
                 }
             );
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
 
         $commandTester->execute(['--skip-themes' => [$themeIdSkip]]);
         $commandTester->assertCommandIsSuccessful();
@@ -261,7 +263,7 @@ class ThemeCompileCommandTest extends TestCase
                 }
             );
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
 
         $commandTester->execute(['--only-themes' => [$themeIdIncluded]]);
         $commandTester->assertCommandIsSuccessful();
@@ -277,7 +279,7 @@ class ThemeCompileCommandTest extends TestCase
         $themeService->expects($this->never())
             ->method('compileTheme');
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
 
         $salesChannelId = Uuid::randomHex();
         $commandTester->execute([
@@ -297,7 +299,7 @@ class ThemeCompileCommandTest extends TestCase
         $themeService->expects($this->never())
             ->method('compileTheme');
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
 
         $themeId = Uuid::randomHex();
         $commandTester->execute([
@@ -305,6 +307,26 @@ class ThemeCompileCommandTest extends TestCase
             '--skip-themes' => [$themeId],
         ]);
         static::assertSame(1, $commandTester->getStatusCode());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed together with the `--no-cleanup` option
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testItStillAcceptsTheDeprecatedNoCleanupOption(): void
+    {
+        $themeService = static::createMock(ThemeService::class);
+        $themeService->expects($this->once())->method('compileTheme');
+
+        $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
+        $themeProvider->expects($this->once())
+            ->method('load')
+            ->willReturn(['sales-channel-id' => 'theme-id']);
+
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
+
+        $commandTester->execute(['--no-cleanup' => true]);
+        $commandTester->assertCommandIsSuccessful();
     }
 
     /**

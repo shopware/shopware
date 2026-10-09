@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -33,6 +34,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class BM25SimilarityRankingTest extends TestCase
 {
     use CacheTestBehaviour;
+    use DatabaseTransactionBehaviour;
     use ElasticsearchTestTestBehaviour;
     use FilesystemBehaviour;
     use KernelTestBehaviour;
@@ -96,7 +98,7 @@ class BM25SimilarityRankingTest extends TestCase
         }
 
         $values = array_values($scores);
-        static::assertNotEmpty($values, 'No scores found for expected products');
+        static::assertNotCount(0, $values, 'No scores found for expected products');
         $max = max($values);
         $min = min($values);
         $ratio = $max > 0 ? $min / $max : 1.0;
@@ -107,7 +109,7 @@ class BM25SimilarityRankingTest extends TestCase
                 // Ratio > 0.95 means < 5% difference — tight enough to catch b=0.75
                 // (which causes 50%+ difference) while tolerating floating-point rounding.
                 static::assertGreaterThan(0.95, $ratio, \sprintf(
-                    'Expected near-equal scores (ratio > 0.95) for [%s] but got ratio %.4f: %s',
+                    'Expected near-equal scores (ratio > 0.95) for [%s] but got ratio %.4F: %s',
                     implode(', ', $expectedOrder),
                     $ratio,
                     json_encode($scores, \JSON_THROW_ON_ERROR)
@@ -118,7 +120,7 @@ class BM25SimilarityRankingTest extends TestCase
                 // With sw_length_norm (b=0.75), short fields score significantly higher.
                 // Ratio < 0.8 means > 20% difference — proves length normalization is active.
                 static::assertLessThan(0.8, $ratio, \sprintf(
-                    "Expected significant score gap (ratio < 0.8) for [%s] but got ratio %.4f: %s\nLength normalization (sw_length_norm) may not be applied to this field.",
+                    "Expected significant score gap (ratio < 0.8) for [%s] but got ratio %.4F: %s\nLength normalization (sw_length_norm) may not be applied to this field.",
                     implode(', ', $expectedOrder),
                     $ratio,
                     json_encode($scores, \JSON_THROW_ON_ERROR)

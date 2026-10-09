@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Suggest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Extension\ProductSuggestRouteExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
@@ -13,18 +14,23 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\AbstractProductSuggestRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
+use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ResolvedCriteriaProductSuggestRoute;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ProductSuggestRoute::class)]
 class ProductSuggestRouteTest extends TestCase
 {
@@ -40,6 +46,8 @@ class ProductSuggestRouteTest extends TestCase
 
     public function testGetDecoratedShouldThrowException(): void
     {
+        $this->listingLoader->expects($this->never())->method('load');
+
         $this->expectExceptionObject(new DecorationPatternException(ProductSuggestRoute::class));
 
         $this->getProductSuggestRoute()->getDecorated();
@@ -47,18 +55,20 @@ class ProductSuggestRouteTest extends TestCase
 
     public function testLoadThrowsExceptionForMissingSearchParameter(): void
     {
+        $this->listingLoader->expects($this->never())->method('load');
+
         $this->expectExceptionObject(ProductException::missingRequestParameter('search'));
 
         $route = new ResolvedCriteriaProductSuggestRoute(
-            $this->createMock(ProductSearchBuilderInterface::class),
+            static::createStub(ProductSearchBuilderInterface::class),
             new EventDispatcher(),
-            $this->createMock(AbstractProductSuggestRoute::class),
+            static::createStub(AbstractProductSuggestRoute::class),
             new CompositeListingProcessor([])
         );
 
         $route->load(
             new Request(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Criteria()
         );
     }
@@ -81,7 +91,7 @@ class ProductSuggestRouteTest extends TestCase
                 Context::createDefaultContext()
             ));
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $this->getProductSuggestRoute()->load(
@@ -91,10 +101,36 @@ class ProductSuggestRouteTest extends TestCase
         );
     }
 
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $criteria = new Criteria();
+        $response = static::createStub(ProductSuggestRouteResponse::class);
+
+        $this->listingLoader->expects($this->never())->method('load');
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('product-suggest-route.load.pre', static function (ProductSuggestRouteExtension $extension) use ($request, $context, $criteria, $response): void {
+            static::assertSame(['request' => $request, 'context' => $context, 'criteria' => $criteria], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ProductSuggestRoute(
+            $this->listingLoader,
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($request, $context, $criteria));
+    }
+
     private function getProductSuggestRoute(): ProductSuggestRoute
     {
         return new ProductSuggestRoute(
-            $this->listingLoader
+            $this->listingLoader,
+            new ExtensionDispatcher(new EventDispatcher())
         );
     }
 }

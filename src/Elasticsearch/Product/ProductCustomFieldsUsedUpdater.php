@@ -42,13 +42,7 @@ class ProductCustomFieldsUsedUpdater implements EventSubscriberInterface
 
         $productSortingIds = [];
 
-        foreach ($event->getWriteResults() as $writeResult) {
-            $payload = $writeResult->getPayload();
-
-            if (!\array_key_exists('fields', $payload)) {
-                continue;
-            }
-
+        foreach ($event->getResults()->withPayloadProperties('fields') as $writeResult) {
             $key = $writeResult->getPrimaryKey();
             if (!\is_string($key)) {
                 continue;
@@ -74,14 +68,10 @@ class ProductCustomFieldsUsedUpdater implements EventSubscriberInterface
 
         $productStreamFilterIds = [];
 
-        foreach ($event->getWriteResults() as $writeResult) {
-            if (!\in_array($writeResult->getOperation(), [
-                EntityWriteResult::OPERATION_INSERT,
-                EntityWriteResult::OPERATION_UPDATE,
-            ], true)) {
-                continue;
-            }
-
+        foreach ($event->getResults()->only(
+            EntityWriteResult::OPERATION_INSERT,
+            EntityWriteResult::OPERATION_UPDATE,
+        ) as $writeResult) {
             $key = $writeResult->getPrimaryKey();
             if (!\is_string($key)) {
                 continue;

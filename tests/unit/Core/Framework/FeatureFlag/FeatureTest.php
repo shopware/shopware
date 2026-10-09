@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
@@ -15,20 +17,19 @@ use Twig\Loader\FilesystemLoader;
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
+#[Package('framework')]
 #[CoversClass(Feature::class)]
 #[CoversClass(FeatureFlagExtension::class)]
 class FeatureTest extends TestCase
 {
+    use EnvTestBehaviour;
+
+    public static string $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
+
     /**
      * @var array<string, FeatureFlagConfig>
      */
-    public static array $features;
-
-    public static string $featureAllValue;
-
-    public static string $appEnvValue;
-
-    public static string $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
+    private array $registeredFeaturesBackup;
 
     /**
      * @var list<string>
@@ -38,43 +39,35 @@ class FeatureTest extends TestCase
         'FEATURE_NEXT_102',
     ];
 
-    public static function setUpBeforeClass(): void
-    {
-        self::$featureAllValue = $_SERVER['FEATURE_ALL'] ?? 'false';
-        self::$appEnvValue = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'];
-        self::$features = Feature::getRegisteredFeatures();
-    }
-
     protected function setUp(): void
     {
-        $_SERVER['FEATURE_ALL'] = 'false';
-        $_ENV['FEATURE_ALL'] = 'false';
-        $_SERVER['APP_ENV'] = 'test';
+        $this->registeredFeaturesBackup = Feature::getRegisteredFeatures();
 
-        unset($_SERVER['FEATURE_NEXT_101'], $_SERVER['FEATURE_NEXT_102']);
+        $this->setEnvVars([
+            'APP_ENV' => 'test',
+            'FEATURE_ALL' => 'false',
+            'TWIG_COMPILE_TIME_OPTIMIZATION' => 'false',
+        ]);
+
+        $this->unsetFixtureEnv();
 
         Feature::resetRegisteredFeatures();
-        Feature::registerFeatures(self::$features);
+        Feature::registerFeatures($this->registeredFeaturesBackup);
     }
 
     protected function tearDown(): void
     {
-        $_SERVER['APP_ENV'] = self::$appEnvValue;
-        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'];
-        $_SERVER['FEATURE_ALL'] = self::$featureAllValue;
-        $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'];
-
-        unset($_SERVER['FEATURE_NEXT_101'], $_SERVER['FEATURE_NEXT_102']);
+        $this->unsetFixtureEnv();
 
         Feature::resetRegisteredFeatures();
-        Feature::registerFeatures(self::$features);
+        Feature::registerFeatures($this->registeredFeaturesBackup);
     }
 
     public function testABoolGetsReturned(): void
     {
         $this->setUpFixtures();
         static::assertFalse(Feature::isActive('FEATURE_NEXT_102'));
-        $_SERVER['FEATURE_NEXT_102'] = '1';
+        $this->setEnvVars(['FEATURE_NEXT_102' => '1']);
         static::assertTrue(Feature::isActive('FEATURE_NEXT_102'));
     }
 
@@ -90,7 +83,7 @@ class FeatureTest extends TestCase
     {
         $this->setUpFixtures();
 
-        Feature::registerFeature('v6.1.0.0', ['default' => true, 'major' => true]);
+        Feature::registerFeature('v6.1.0.0', ['default' => true]);
 
         static::assertTrue(Feature::has('v6.1.0.0'));
         static::assertTrue(Feature::has('V6.1.0.0'));
@@ -98,24 +91,26 @@ class FeatureTest extends TestCase
         static::assertTrue(Feature::isActive('v6.1.0.0'));
         static::assertTrue(Feature::isActive('v6.1.0.0'));
 
-        Feature::registerFeature('paypal:v1.0.0.0', ['default' => true, 'major' => true]);
+        Feature::registerFeature('paypal:v1.0.0.0', ['default' => true]);
 
         static::assertTrue(Feature::has('paypal:v1.0.0.0'));
         static::assertTrue(Feature::has('PAYPAL:V1.0.0.0'));
         static::assertTrue(Feature::has('paypal_v1_0_0_0'));
+        static::assertTrue(Feature::isMajorVersionFlag('v6.1.0.0'));
+        static::assertFalse(Feature::isMajorVersionFlag('paypal:v1.0.0.0'));
     }
 
     public function testTheCallableGetsExecutes(): void
     {
         $this->setUpFixtures();
-        $_SERVER['FEATURE_NEXT_101'] = '0';
+        $this->setEnvVars(['FEATURE_NEXT_101' => '0']);
         $indicator = false;
         Feature::ifActive('FEATURE_NEXT_101', static function () use (&$indicator): void {
             $indicator = true;
         });
         static::assertFalse($indicator);
 
-        $_SERVER['FEATURE_NEXT_101'] = '1';
+        $this->setEnvVars(['FEATURE_NEXT_101' => '1']);
 
         Feature::ifActive('FEATURE_NEXT_101', static function () use (&$indicator): void {
             $indicator = true;
@@ -126,7 +121,7 @@ class FeatureTest extends TestCase
     public function testConfigGetAllReturnsAllAndTracksState(): void
     {
         $currentConfig = array_keys(Feature::getAll(false));
-        $featureFlags = array_keys(self::$features);
+        $featureFlags = array_keys($this->registeredFeaturesBackup);
 
         static::assertSame(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $currentConfig));
 
@@ -140,22 +135,23 @@ class FeatureTest extends TestCase
     public function testTwigFeatureFlag(): void
     {
         $this->setUpFixtures();
+        $this->registerTwigOptimizationFlag();
         $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
         $twig->addExtension(new FeatureFlagExtension());
         $template = $twig->loadTemplate($twig->getTemplateClass('featuretest.html.twig'), 'featuretest.html.twig');
-        $_SERVER['FEATURE_NEXT_101'] = '1';
+        $this->setEnvVars(['FEATURE_NEXT_101' => '1']);
         static::assertSame('FeatureIsActive', $template->render([]));
-        $_SERVER['FEATURE_NEXT_101'] = '0';
+        $this->setEnvVars(['FEATURE_NEXT_101' => '0']);
         static::assertSame('FeatureIsInactive', $template->render([]));
     }
 
     public function testTwigFeatureFlagNotRegistered(): void
     {
-        $_SERVER['APP_ENV'] = 'test';
-        $_ENV['APP_ENV'] = 'test';
+        $this->registerTwigOptimizationFlag();
+        $this->setEnvVars(['APP_ENV' => 'test']);
 
         $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
         $twig = new Environment($loader, [
@@ -169,8 +165,8 @@ class FeatureTest extends TestCase
 
     public function testTwigFeatureFlagNotRegisteredInProd(): void
     {
-        $_SERVER['APP_ENV'] = 'prod';
-        $_ENV['APP_ENV'] = 'prod';
+        $this->registerTwigOptimizationFlag();
+        $this->setEnvVars(['APP_ENV' => 'prod']);
 
         $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
         $twig = new Environment($loader, [
@@ -186,7 +182,6 @@ class FeatureTest extends TestCase
     {
         $features = [
             'FEATURE_NEXT_101' => [
-                'major' => true,
                 'default' => true,
                 'description' => 'test',
             ],
@@ -223,12 +218,11 @@ class FeatureTest extends TestCase
     #[DataProvider('featureAllDataProvider')]
     public function testFeatureAll(string $appEnv, bool $active): void
     {
-        $_SERVER['FEATURE_NEXT_102'] = 'true';
-
-        $_SERVER['APP_ENV'] = $appEnv;
-        $_ENV['APP_ENV'] = $appEnv;
-        $_SERVER['FEATURE_ALL'] = $active;
-        $_ENV['FEATURE_ALL'] = $active;
+        $this->setEnvVars([
+            'APP_ENV' => $appEnv,
+            'FEATURE_ALL' => $active,
+            'FEATURE_NEXT_102' => 'true',
+        ]);
 
         $this->setUpFixtures();
         static::assertSame($active, Feature::isActive('FEATURE_NEXT_101'));
@@ -237,7 +231,7 @@ class FeatureTest extends TestCase
 
     /**
      * @return \Generator<string, array{
-     *     list<string>|array<string, array<string, bool>>,
+     *     list<string>|array<string, FeatureFlagConfig>,
      *     array<string, string>,
      *     string,
      *     bool
@@ -299,43 +293,6 @@ class FeatureTest extends TestCase
             ],
             'FEATURE_NEXT_101',
             true,
-        ];
-
-        yield 'registered major active feature' => [
-            [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                ],
-            ],
-            [
-                'FEATURE_NEXT_101' => '1',
-            ],
-            'FEATURE_NEXT_101',
-            true,
-        ];
-
-        yield 'registered major inactive feature' => [
-            [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                ],
-            ],
-            [
-                'FEATURE_NEXT_101' => '',
-            ],
-            'FEATURE_NEXT_101',
-            false,
-        ];
-
-        yield 'registered major inactive feature without env' => [
-            [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                ],
-            ],
-            [],
-            'FEATURE_NEXT_101',
-            false,
         ];
 
         yield 'registered active feature with default false' => [
@@ -477,20 +434,7 @@ class FeatureTest extends TestCase
             true,
         ];
 
-        yield 'registered major inactive only with minor FEATURE_ALL env' => [
-            [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                ],
-            ],
-            [
-                'FEATURE_ALL' => '1',
-            ],
-            'FEATURE_NEXT_101',
-            false,
-        ];
-
-        yield 'registered active minor with major FEATURE_ALL' => [
+        yield 'registered active minor with FEATURE_ALL=major' => [
             [
                 'FEATURE_NEXT_101',
             ],
@@ -502,7 +446,7 @@ class FeatureTest extends TestCase
             true,
         ];
 
-        yield 'registered inactive major with major FEATURE_ALL' => [
+        yield 'explicitly inactive major with FEATURE_ALL=major' => [
             [
                 'FEATURE_NEXT_101',
             ],
@@ -512,19 +456,6 @@ class FeatureTest extends TestCase
             ],
             'FEATURE_NEXT_101',
             false,
-        ];
-
-        yield 'registered major inactive only with major FEATURE_ALL env' => [
-            [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                ],
-            ],
-            [
-                'FEATURE_ALL' => 'major',
-            ],
-            'FEATURE_NEXT_101',
-            true,
         ];
 
         yield 'unregistered inactive only with major FEATURE_ALL env' => [
@@ -549,15 +480,117 @@ class FeatureTest extends TestCase
             true,
         ];
 
-        yield 'registered major inactive with FEATURE_ALL=minor' => [
+        // A version-shaped FEATURE_ALL value is now just another truthy value.
+        yield 'version-shaped FEATURE_ALL enables a later major' => [
             [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                ],
+                'v9.2.0.0' => [],
             ],
             [
-                'FEATURE_NEXT_101' => '',
-                'FEATURE_ALL' => 'minor',
+                'FEATURE_ALL' => 'v9.1.0.0',
+            ],
+            'v9.2.0.0',
+            true,
+        ];
+
+        yield 'version-shaped FEATURE_ALL enables a non-major feature' => [
+            [
+                'FEATURE_NEXT_101',
+            ],
+            [
+                'FEATURE_ALL' => 'v9.1.0.0',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'explicit setting overrides version-shaped FEATURE_ALL' => [
+            [
+                'v9.2.0.0' => [],
+            ],
+            [
+                'V9_2_0_0' => 'false',
+                'FEATURE_ALL' => 'v9.1.0.0',
+            ],
+            'v9.2.0.0',
+            false,
+        ];
+
+        yield 'active parent enables a sub-feature' => [
+            [
+                'v9.1.0.0' => [],
+                'FEATURE_NEXT_101' => ['major' => 'v9.1.0.0'],
+            ],
+            [
+                'V9_1_0_0' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'inactive parent leaves a sub-feature at its default' => [
+            [
+                'v9.1.0.0' => [],
+                'FEATURE_NEXT_101' => ['major' => 'v9.1.0.0'],
+            ],
+            [],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'a non-major parent cannot activate a sub-feature' => [
+            [
+                'FEATURE_NEXT_101' => ['major' => 'FEATURE_NEXT_102'],
+                'FEATURE_NEXT_102' => ['default' => true],
+            ],
+            [],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'sub-feature can be explicitly disabled with its parent active' => [
+            [
+                'v9.1.0.0' => [],
+                'FEATURE_NEXT_101' => ['major' => 'v9.1.0.0'],
+            ],
+            [
+                'V9_1_0_0' => '1',
+                'FEATURE_NEXT_101' => 'false',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'sub-feature can be explicitly enabled with its parent inactive' => [
+            [
+                'v9.1.0.0' => [],
+                'FEATURE_NEXT_101' => ['major' => 'v9.1.0.0'],
+            ],
+            [
+                'V9_1_0_0' => 'false',
+                'FEATURE_NEXT_101' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'runtime override wins over active parent' => [
+            [
+                'v9.1.0.0' => [],
+                'FEATURE_NEXT_101' => ['major' => 'v9.1.0.0', 'active' => false],
+            ],
+            [
+                'V9_1_0_0' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'runtime override wins over FEATURE_ALL' => [
+            [
+                'FEATURE_NEXT_101' => ['active' => false],
+            ],
+            [
+                'FEATURE_ALL' => '1',
             ],
             'FEATURE_NEXT_101',
             false,
@@ -571,17 +604,29 @@ class FeatureTest extends TestCase
     #[DataProvider('isActiveDataProvider')]
     public function testIsActive(array $featureConfig, array $env, string $feature, bool $expected): void
     {
-        $_SERVER['APP_ENV'] = 'prod';
-        $_ENV['APP_ENV'] = 'prod';
-
-        foreach ($env as $key => $value) {
-            $_SERVER[$key] = $value;
-        }
+        $this->setEnvVars(['APP_ENV' => 'prod', ...$env]);
 
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures($featureConfig);
 
         static::assertSame(Feature::isActive($feature), $expected);
+    }
+
+    private function unsetFixtureEnv(): void
+    {
+        foreach ($this->fixtureFlags as $flag) {
+            unset($_SERVER[$flag], $_ENV[$flag]);
+            putenv($flag);
+        }
+    }
+
+    private function registerTwigOptimizationFlag(): void
+    {
+        if (Feature::has('TWIG_COMPILE_TIME_OPTIMIZATION')) {
+            return;
+        }
+
+        Feature::registerFeature('TWIG_COMPILE_TIME_OPTIMIZATION', ['default' => false]);
     }
 
     private function setUpFixtures(): void

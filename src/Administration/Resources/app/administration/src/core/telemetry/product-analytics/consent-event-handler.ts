@@ -29,14 +29,17 @@ export default function createConsentEventHandler(client: GatewayClient): (conse
 
         if (isConsentEventType(consentEvent, 'consent_modal_decision')) {
             const eventProps: EventPayload = {
-                product_analytics_state: consentEvent.eventProperties.product_analytics.status,
-                product_analytics_changed: consentEvent.eventProperties.product_analytics.changed,
                 time_spent_on_modal: consentEvent.eventProperties.time_spent_on_modal,
             };
 
             if (consentEvent.eventProperties.backend_data) {
                 eventProps.backend_data_state = consentEvent.eventProperties.backend_data.status;
                 eventProps.backend_data_changed = consentEvent.eventProperties.backend_data.changed;
+            }
+
+            if (consentEvent.eventProperties.product_analytics) {
+                eventProps.product_analytics_state = consentEvent.eventProperties.product_analytics.status;
+                eventProps.product_analytics_changed = consentEvent.eventProperties.product_analytics.changed;
             }
 
             client.trackConsentMetric(consentEvent.eventName, eventProps, consentEvent.timestamp.getTime());

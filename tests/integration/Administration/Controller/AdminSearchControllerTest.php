@@ -3,18 +3,18 @@
 namespace Shopware\Tests\Integration\Administration\Controller;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class AdminSearchControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -43,12 +43,13 @@ class AdminSearchControllerTest extends TestCase
         static::assertArrayHasKey('data', $content, print_r($content, true));
 
         if (!$hasResponse) {
-            static::assertEmpty($content['data']);
+            static::assertSame([], $content['data']);
 
             return;
         }
 
-        static::assertNotEmpty($content['data']);
+        static::assertIsArray($content['data']);
+        static::assertNotCount(0, $content['data']);
 
         $data = $content['data'];
 
@@ -62,7 +63,7 @@ class AdminSearchControllerTest extends TestCase
             static::assertSame($expectedErrorDetail, $actual['detail']);
         }
 
-        static::assertSame(\count($expectedEntities), is_countable($data) ? \count($data) : 0);
+        static::assertCount(\count($expectedEntities), $data);
 
         foreach ($expectedEntities as $entity => $expectedTotal) {
             static::assertArrayHasKey($entity, $data);
@@ -85,7 +86,8 @@ class AdminSearchControllerTest extends TestCase
 
         static::assertArrayHasKey('data', $content, print_r($content, true));
 
-        static::assertNotEmpty($content['data']['user']['data']);
+        static::assertIsArray($content['data']['user']['data']);
+        static::assertNotCount(0, $content['data']['user']['data']);
 
         $user = array_values($content['data']['user']['data'])[0];
 

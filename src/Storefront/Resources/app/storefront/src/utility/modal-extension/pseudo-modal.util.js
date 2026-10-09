@@ -101,6 +101,8 @@ export default class PseudoModalUtil {
             }
 
             existingModalInstance.hide();
+            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+            window.focusHandler._removeFocusTrapGuard();
         } catch (err) {
             console.warn(`[PseudoModalUtil] Unable to hide existing pseudo modal before opening pseudo modal: ${err.message}`);
         }
@@ -116,6 +118,17 @@ export default class PseudoModalUtil {
         this._modal.addEventListener('hidden.bs.modal', this._modalWrapper.remove);
         this._modal.addEventListener('shown.bs.modal', cb);
 
+        // An open offcanvas focus-trap pulls the focus back out before the modal's focus-trap is active.
+        this._modal.addEventListener('shown.bs.modal', () => {
+            if (!this._modal.contains(document.activeElement)) {
+                this._modal.focus();
+            }
+        });
+
+        // Keep the Bootstrap focus-trap working when the modal is the last element before `</body>`.
+        // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+        this._modal.addEventListener('hidden.bs.modal', () => window.focusHandler._removeFocusTrapGuard());
+
         /**
          * Fix bootstrap modal accessibility errors.
          *
@@ -129,6 +142,9 @@ export default class PseudoModalUtil {
         });
 
         this._modalInstance.show();
+
+        // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+        window.focusHandler._addFocusTrapGuard(this._modalWrapper);
     }
 
     /**
@@ -164,6 +180,10 @@ export default class PseudoModalUtil {
             this._modalWrapper = document.createElement('div');
             this._modalWrapper.classList.add(PSEUDO_MODAL_CLASS);
         }
+
+        // An open offcanvas makes the rest of the page inert, including a wrapper left over from an earlier modal.
+        this._modalWrapper.inert = false;
+        this._modalWrapper.removeAttribute('aria-hidden');
     }
 
     /**

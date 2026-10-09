@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
@@ -169,6 +171,30 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         const customComponent = wrapper.find('.foo-bar');
         expect(customComponent.attributes().disabled).toBeUndefined();
     });
+
+    it.each(['buy-box', 'product-description-reviews'])(
+        'should lock %s on product detail pages without changing the slot',
+        async (type) => {
+            Shopware.Store.get('cmsPage').currentPage = { type: 'product_detail' };
+
+            const wrapper = await createWrapper({
+                element: {
+                    type,
+                    locked: false,
+                },
+                active: true,
+            });
+
+            expect(wrapper.vm.isElementLocked).toBe(true);
+            expect(wrapper.props('element').locked).toBe(false);
+
+            expect(wrapper.find('.sw-cms-slot__settings-action').classes()).toContain('is--disabled');
+
+            wrapper.vm.onSettingsButtonClick();
+
+            expect(wrapper.vm.showElementSettings).toBe(false);
+        },
+    );
 
     it('should show a tooltip when the element is not disabled', async () => {
         const wrapper = await createWrapper();
@@ -348,9 +374,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     it('should filter slots based on pageType compatibility', async () => {
         const wrapper = await createWrapper();
 
-        expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual([
-            'product_list_slot',
-        ]);
+        expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual(['product_list_slot']);
     });
 
     it('should show an error state after 10s when element is not existing', async () => {
@@ -376,14 +400,8 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     });
 
     const toggleElementSelectionModalDataProvider = [
-        [
-            'onElementButtonClick',
-            true,
-        ],
-        [
-            'onCloseElementModal',
-            false,
-        ],
+        ['onElementButtonClick', true],
+        ['onCloseElementModal', false],
     ];
     it.each(toggleElementSelectionModalDataProvider)(
         'should toggle the element selection modal according to %s',
@@ -395,10 +413,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         },
     );
 
-    it.each([
-        true,
-        false,
-    ])(
+    it.each([true, false])(
         'should not toggle the element settings modal without defaultConfig and showElementSettings is %s',
         async (actualShowElementSettings) => {
             const wrapper = await createWrapper();
@@ -418,10 +433,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         },
     );
 
-    it.each([
-        true,
-        false,
-    ])(
+    it.each([true, false])(
         'should not toggle the element settings modal with a locked element and showElementSettings is %s',
         async (actualShowElementSettings) => {
             const wrapper = await createWrapper();
@@ -441,10 +453,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         },
     );
 
-    it.each([
-        true,
-        false,
-    ])(
+    it.each([true, false])(
         'should show the element settings modal with a defaultConfig, no locked element and showElementSettings is %s',
         async (actualShowElementSettings) => {
             const wrapper = await createWrapper();
@@ -464,6 +473,45 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
             expect(wrapper.vm.showElementSettings).toBe(true);
         },
     );
+
+    it.each([
+        [
+            'settings',
+            'keydown.enter',
+            '.sw-cms-slot__settings-action',
+            'showElementSettings',
+        ],
+        [
+            'settings',
+            'keydown.space',
+            '.sw-cms-slot__settings-action',
+            'showElementSettings',
+        ],
+        [
+            'swap',
+            'keydown.enter',
+            '.sw-cms-slot__element-action',
+            'showElementSelection',
+        ],
+        [
+            'swap',
+            'keydown.space',
+            '.sw-cms-slot__element-action',
+            'showElementSelection',
+        ],
+    ])('should open the %s modal when pressing the corresponding key on the action', async (_, key, selector, modal) => {
+        const wrapper = await createWrapper({
+            element: {
+                type: 'with_config_and_unlocked',
+                locked: false,
+            },
+            active: true,
+        });
+
+        await wrapper.find(selector).trigger(key);
+
+        expect(wrapper.vm[modal]).toBe(true);
+    });
 
     it('should close the settings modal and call handleUpdateContent if the methods exists and showElementSettings is true', async () => {
         const wrapper = await createWrapper();

@@ -25,8 +25,8 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class ShopIdController extends AbstractController
 {
     /**
@@ -45,7 +45,7 @@ class ShopIdController extends AbstractController
         return new JsonResponse($this->shopIdChangeResolver->getAvailableStrategies());
     }
 
-    #[Route(path: 'api/app-system/shop-id/change', name: 'api.app_system.shop_id.change', methods: ['POST'])]
+    #[Route(path: 'api/app-system/shop-id/change', name: 'api.app_system.shop_id.change', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:app:change']], methods: ['POST'])]
     public function changeShopId(Request $request, Context $context): Response
     {
         $strategy = RequestParamHelper::get($request, 'strategy');

@@ -11,14 +11,9 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'cacheApiService',
-        'feature',
-    ],
+    inject: ['cacheApiService', 'feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -26,63 +21,19 @@ export default {
             isLoading: true,
             cacheInfo: null,
             processes: {
+                refreshCache: false,
                 normalClearCache: false,
                 updateIndexes: false,
             },
+            /**
+             * @deprecated tag:v6.8.0 - will be removed.
+             */
             processSuccess: {
                 normalClearCache: false,
                 updateIndexes: false,
             },
             indexingMethod: 'skip',
             indexerSelection: [],
-            indexers: {
-                'category.indexer': [
-                    'category.child-count',
-                    'category.tree',
-                    'category.breadcrumb',
-                    'category.seo-url',
-                ],
-                'customer.indexer': [
-                    'customer.many-to-many-id-field',
-                ],
-                'landing_page.indexer': [
-                    'landing_page.many-to-many-id-field',
-                    'landing_page.seo-url',
-                ],
-                'media.indexer': [],
-                'media_folder.indexer': [
-                    'media_folder.child-count',
-                ],
-                'media_folder_configuration.indexer': [],
-                'payment_method.indexer': [],
-                'product.indexer': [
-                    'product.inheritance',
-                    'product.stock',
-                    'product.variant-listing',
-                    'product.child-count',
-                    'product.many-to-many-id-field',
-                    'product.category-denormalizer',
-                    'product.cheapest-price',
-                    'product.rating-average',
-                    'product.stream',
-                    'product.search-keyword',
-                    'product.seo-url',
-                ],
-                'product_stream.indexer': [],
-                'product_stream_mapping.indexer': [],
-                'promotion.indexer': [
-                    'promotion.exclusion',
-                    'promotion.redemption',
-                ],
-                'rule.indexer': [
-                    'rule.payload',
-                ],
-                'sales_channel.indexer': [
-                    'sales_channel.many-to-many',
-                ],
-                'flow.indexer': [],
-                'newsletter_recipient.indexer': [],
-            },
         };
     },
 
@@ -136,6 +87,30 @@ export default {
                 },
             ];
         },
+
+        indexers() {
+            return this.cacheInfo?.indexers ?? {};
+        },
+
+        isIndexSelectionComplete() {
+            if (this.indexingMethod === 'skip') {
+                return true;
+            }
+
+            return (this.indexingMethod === 'only') === this.indexerSelection.length > 0;
+        },
+    },
+
+    watch: {
+        indexingMethod(value) {
+            if (value !== 'only') {
+                return;
+            }
+
+            this.indexerSelection = this.indexerSelection.filter((selection) =>
+                Object.prototype.hasOwnProperty.call(this.indexers, selection),
+            );
+        },
     },
 
     created() {
@@ -151,6 +126,9 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed.
+         */
         resetButtons() {
             this.processSuccess = {
                 normalClearCache: false,
@@ -171,7 +149,7 @@ export default {
                 message: this.$t('sw-settings-cache.notifications.clearDataCache.started'),
             });
 
-            this.processes.normalClearCache = true;
+            this.processes.refreshCache = true;
             this.cacheApiService
                 .delayed()
                 .then(() => {
@@ -189,7 +167,7 @@ export default {
                     });
                 })
                 .finally(() => {
-                    this.processes.normalClearCache = false;
+                    this.processes.refreshCache = false;
                 });
         },
 
@@ -228,7 +206,7 @@ export default {
 
             if (this.indexingMethod === 'skip') {
                 skip = this.indexerSelection;
-            } else {
+            } else if (this.indexingMethod === 'only') {
                 this.createOnlySelection(only);
             }
 
@@ -262,27 +240,15 @@ export default {
             }
         },
 
+        clearIndexerSelection() {
+            this.indexerSelection = [];
+        },
+
         createOnlySelection(only) {
-            for (const [
-                indexerName,
-                updaters,
-            ] of Object.entries(this.indexers)) {
+            for (const indexerName of Object.keys(this.indexers)) {
                 if (this.indexerSelection.indexOf(indexerName) > -1) {
                     only.push(indexerName);
                 }
-
-                const selectedUpdaters = [];
-                for (const updater of updaters) {
-                    if (this.indexerSelection.indexOf(updater) > -1) {
-                        selectedUpdaters.push(updater);
-                    }
-                }
-
-                if (selectedUpdaters.length > 0) {
-                    only.push(indexerName);
-                }
-
-                only.push(...selectedUpdaters);
             }
         },
     },

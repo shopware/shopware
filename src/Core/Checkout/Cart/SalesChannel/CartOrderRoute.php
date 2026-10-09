@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Cart\Extension\CartOrderRouteExtension;
 use Shopware\Core\Checkout\Cart\Extension\CheckoutPlaceOrderExtension;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\Order\OrderPlaceResult;
@@ -36,8 +37,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CartOrderRoute extends AbstractCartOrderRoute
 {
     /**
@@ -76,6 +77,15 @@ class CartOrderRoute extends AbstractCartOrderRoute
     )]
     public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse
     {
+        return $this->extensions->publish(
+            name: CartOrderRouteExtension::NAME,
+            extension: new CartOrderRouteExtension($cart, $context, $data),
+            function: $this->_order(...),
+        );
+    }
+
+    private function _order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse
+    {
         $hash = $data->getAlnum('hash');
 
         if ($hash && !$this->cartContextHasher->isMatching($hash, $cart, $context)) {
@@ -83,6 +93,10 @@ class CartOrderRoute extends AbstractCartOrderRoute
         }
 
         return $this->cartLocker->locked($context, function () use ($cart, $context, $data) {
+            if ($cart->isPersisted() && !$this->cartPersister->exists($cart->getToken(), $context)) {
+                throw CartException::tokenNotFound($cart->getToken());
+            }
+
             // we use this state in stock updater class, to prevent duplicate available stock updates
             $context->addState('checkout-order-route');
 

@@ -256,6 +256,13 @@
         .page-count {
             width: 100%;
             float: left;
+            display: none;
+        }
+
+        @media dompdf {
+            .page-count {
+                display: block;
+            }
         }
 
         .pagenum:after {

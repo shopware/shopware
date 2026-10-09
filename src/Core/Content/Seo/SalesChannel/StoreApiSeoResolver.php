@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
+use Shopware\Core\Content\Seo\Exception\SeoUrlRouteConfigException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface as SeoUrlRouteConfigRoute;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -41,7 +44,8 @@ class StoreApiSeoResolver implements EventSubscriberInterface
         private readonly SalesChannelRepository $salesChannelRepository,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
         private readonly SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionInstanceRegistry,
-        private readonly SeoUrlRouteRegistry $seoUrlRouteRegistry
+        private readonly SeoUrlRouteRegistry $seoUrlRouteRegistry,
+        private readonly EntityRouteResolver $entityRouteResolver
     ) {
     }
 
@@ -66,7 +70,8 @@ class StoreApiSeoResolver implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        if (!$request->headers->has(PlatformRequest::HEADER_INCLUDE_SEO_URLS)) {
+        // an empty value counts as absent, like in the HTTP cache key
+        if ($request->headers->get(PlatformRequest::HEADER_INCLUDE_SEO_URLS, '') === '') {
             return;
         }
 
@@ -102,7 +107,8 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             }
         }
 
-        if ($struct instanceof Collection) {
+        /** @deprecated tag:v6.8.0 - Remove the EntitySearchResult exclusion once it no longer extends Collection. */
+        if ($struct instanceof Collection && !$struct instanceof EntitySearchResult) {
             foreach ($struct as $item) {
                 $this->findStruct($data, $item);
             }
@@ -122,7 +128,10 @@ class StoreApiSeoResolver implements EventSubscriberInterface
         }
 
         foreach ($struct->getVars() as $item) {
-            if ($item instanceof Collection || \is_array($item)) {
+            /** @deprecated tag:v6.8.0 - Fold the EntitySearchResult branch into the Struct one once it no longer extends Collection. */
+            if ($item instanceof EntitySearchResult) {
+                $this->findStruct($data, $item);
+            } elseif ($item instanceof Collection || \is_array($item)) {
                 foreach ($item as $collectionItem) {
                     if ($collectionItem instanceof Struct) {
                         $this->findStruct($data, $collectionItem);
@@ -140,21 +149,19 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             $definition = (string) $definition;
 
             $ids = $data->getIds($definition);
-            $routes = $this->seoUrlRouteRegistry->findByDefinition($definition);
-            if ($routes === []) {
+            $routeNames = $this->getRouteNames($definition, $context);
+            if ($routeNames === []) {
                 continue;
             }
 
-            $routes = array_map(static fn (SeoUrlRouteConfigRoute $seoUrlRoute) => $seoUrlRoute->getConfig()->getRouteName(), $routes);
-
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('isCanonical', true));
-            $criteria->addFilter(new EqualsAnyFilter('routeName', $routes));
+            $criteria->addFilter(new EqualsAnyFilter('routeName', $routeNames));
             $criteria->addFilter(new EqualsAnyFilter('foreignKey', $ids));
             $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
             $criteria->addSorting(new FieldSorting('salesChannelId'));
 
-            foreach ($this->salesChannelRepository->search($criteria, $context) as $url) {
+            foreach ($this->salesChannelRepository->search($criteria, $context)->getEntities() as $url) {
                 $entities = $data->getAll($definition, $url->getForeignKey());
 
                 foreach ($entities as $entity) {
@@ -174,6 +181,32 @@ class StoreApiSeoResolver implements EventSubscriberInterface
                     $seoUrlCollection->add($url);
                 }
             }
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getRouteNames(string $entityName, SalesChannelContext $context): array
+    {
+        $routeNames = array_values(array_map(
+            static fn (SeoUrlRouteConfigRoute $seoUrlRoute) => $seoUrlRoute->getConfig()->getRouteName(),
+            $this->seoUrlRouteRegistry->findByDefinition($entityName)
+        ));
+
+        if ($context->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_API) {
+            return $routeNames;
+        }
+
+        // Headless sales channels persist their SEO URLs against the store-api route family. The storefront
+        // route names stay in the filter as a fallback for entities without a store-api counterpart.
+        try {
+            return array_values(array_unique([
+                $this->entityRouteResolver->getRouteNameForEntityName($entityName, $context->getSalesChannel()->getTypeId()),
+                ...$routeNames,
+            ]));
+        } catch (SeoUrlRouteConfigException) {
+            return $routeNames;
         }
     }
 }

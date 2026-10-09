@@ -8,7 +8,7 @@
     #}
     {% if searchResult is defined and searchResult and searchResult.total > 0 %}
         {% set itemListElements = [] %}
-        {% for product in searchResult %}
+        {% for product in searchResult.entities %}
             {% set itemListElements = itemListElements|merge([{
                 '@type': 'ListItem',
                 position: loop.index,

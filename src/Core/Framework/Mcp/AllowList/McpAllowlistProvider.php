@@ -10,7 +10,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Reads the per-principal MCP allowlist from the database for the current request.
  * Returns null for a type when no restriction is configured (all capabilities accessible).
@@ -22,14 +22,14 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * - Bearer JWT, password grant → user.mcp_allowlist via ATTRIBUTE_OAUTH_USER_ID
  * - Bearer JWT, client_credentials → integration.mcp_allowlist via ATTRIBUTE_OAUTH_CLIENT_ID
  * - Admin users (admin=true) → always unrestricted regardless of auth mode
+ *
+ * That administrator bypass is the only path to an unrestricted allowlist; every other principal
+ * needs an explicit selection. The full rule, and why the discovery meta-tools are exempt, is in
+ * the allowlist section of Mcp/AGENTS.md.
  */
 #[Package('framework')]
 class McpAllowlistProvider
 {
-    public const TOOLS = 'tools';
-    public const RESOURCES = 'resources';
-    public const PROMPTS = 'prompts';
-
     /**
      * @param array<string, list<string>> $toolDependencies tool-name => [dep-name, ...]
      *
@@ -47,7 +47,7 @@ class McpAllowlistProvider
      */
     public function toolsForCurrentRequest(): ?array
     {
-        return $this->forCurrentRequest()[self::TOOLS];
+        return $this->forCurrentRequest()->tools;
     }
 
     /**
@@ -55,7 +55,7 @@ class McpAllowlistProvider
      */
     public function resourcesForCurrentRequest(): ?array
     {
-        return $this->forCurrentRequest()[self::RESOURCES];
+        return $this->forCurrentRequest()->resources;
     }
 
     /**
@@ -63,17 +63,19 @@ class McpAllowlistProvider
      */
     public function promptsForCurrentRequest(): ?array
     {
-        return $this->forCurrentRequest()[self::PROMPTS];
+        return $this->forCurrentRequest()->prompts;
     }
 
-    /**
-     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
-     */
-    public function forCurrentRequest(): array
+    public function forCurrentRequest(): McpAllowlist
     {
         $request = $this->requestStack->getMainRequest();
+
+        // Outside the request cycle there is no principal *and* no response being built for one, so
+        // there is nothing to close off. Blocking here would only empty McpToolsetRegistry for CLI
+        // and container-direct callers. The fail-closed case is a request whose principal cannot be
+        // resolved, handled at the end of this method.
         if ($request === null) {
-            return $this->unrestricted();
+            return McpAllowlist::unrestricted();
         }
 
         $clientId = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
@@ -109,90 +111,41 @@ class McpAllowlistProvider
             return $this->forUserId($userId);
         }
 
-        return $this->unrestricted();
+        return McpAllowlist::blocked();
     }
 
-    /**
-     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
-     */
-    public function forAccessKey(string $accessKey): array
+    public function forAccessKey(string $accessKey): McpAllowlist
     {
         $json = $this->connection->fetchOne(
             'SELECT `mcp_allowlist` FROM `integration` WHERE `access_key` = :key AND `deleted_at` IS NULL',
             ['key' => $accessKey],
         );
 
-        if (!\is_string($json) || $json === '') {
-            return $this->unrestricted();
-        }
-
-        try {
-            $allowlist = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
-            return $this->unrestricted();
-        }
-
-        if (!\is_array($allowlist)) {
-            return $this->unrestricted();
-        }
-
-        $tools = $this->extractStringList($allowlist, self::TOOLS);
-        $resources = $this->extractStringList($allowlist, self::RESOURCES);
-        $prompts = $this->extractStringList($allowlist, self::PROMPTS);
-
-        return [
-            self::TOOLS => $tools !== null ? $this->expandWithDependencies($tools) : null,
-            self::RESOURCES => $resources,
-            self::PROMPTS => $prompts,
-        ];
+        // No bypass here, not even for an integration flagged `admin`: that flag only waives ACL.
+        return $this->fromAllowlist(McpAllowlist::restrictedFromJson(\is_string($json) ? $json : null));
     }
 
-    /**
-     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
-     */
-    public function forUserId(string $userId): array
+    public function forUserId(string $userId): McpAllowlist
     {
         $row = $this->connection->fetchAssociative(
             'SELECT `mcp_allowlist`, `admin` FROM `user` WHERE `id` = :id AND `active` = 1',
             ['id' => Uuid::fromHexToBytes($userId)],
         );
 
+        // Unknown or inactive: not a verified administrator, so no bypass.
+        if ($row === false) {
+            return McpAllowlist::blocked();
+        }
+
         // Admin users bypass ACL checks — mirror that for MCP allowlist.
-        if ($row === false || (bool) $row['admin']) {
-            return $this->unrestricted();
+        if ((bool) $row['admin']) {
+            return McpAllowlist::unrestricted();
         }
 
-        $json = $row['mcp_allowlist'];
-
-        if (!\is_string($json) || $json === '') {
-            return $this->unrestricted();
-        }
-
-        try {
-            $allowlist = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
-            return $this->unrestricted();
-        }
-
-        if (!\is_array($allowlist)) {
-            return $this->unrestricted();
-        }
-
-        $tools = $this->extractStringList($allowlist, self::TOOLS);
-        $resources = $this->extractStringList($allowlist, self::RESOURCES);
-        $prompts = $this->extractStringList($allowlist, self::PROMPTS);
-
-        return [
-            self::TOOLS => $tools !== null ? $this->expandWithDependencies($tools) : null,
-            self::RESOURCES => $resources,
-            self::PROMPTS => $prompts,
-        ];
+        return $this->fromAllowlist(McpAllowlist::restrictedFromJson(\is_string($row['mcp_allowlist']) ? $row['mcp_allowlist'] : null));
     }
 
-    /**
-     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
-     */
-    private function forUserAccessKey(string $accessKey): array
+    private function forUserAccessKey(string $accessKey): McpAllowlist
     {
         $userId = $this->connection->fetchOne(
             'SELECT `user_id` FROM `user_access_key` WHERE `access_key` = :key',
@@ -200,36 +153,19 @@ class McpAllowlistProvider
         );
 
         if (!\is_string($userId) || $userId === '') {
-            return $this->unrestricted();
+            return McpAllowlist::blocked();
         }
 
         return $this->forUserId(Uuid::fromBytesToHex($userId));
     }
 
-    /**
-     * @return array{tools: null, resources: null, prompts: null}
-     */
-    private function unrestricted(): array
+    private function fromAllowlist(McpAllowlist $allowlist): McpAllowlist
     {
-        return [self::TOOLS => null, self::RESOURCES => null, self::PROMPTS => null];
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     *
-     * @return list<string>|null null when key is absent or null (unrestricted); list when key is an array
-     */
-    private function extractStringList(array $data, string $key): ?array
-    {
-        if (!\array_key_exists($key, $data) || $data[$key] === null) {
-            return null;
-        }
-
-        if (!\is_array($data[$key])) {
-            return null;
-        }
-
-        return array_values(array_filter($data[$key], 'is_string'));
+        return new McpAllowlist(
+            tools: $allowlist->tools !== null ? $this->expandWithDependencies($allowlist->tools) : null,
+            resources: $allowlist->resources,
+            prompts: $allowlist->prompts,
+        );
     }
 
     /**
@@ -259,19 +195,13 @@ class McpAllowlistProvider
         return array_keys($expanded);
     }
 
-    /**
-     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $a
-     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $b
-     *
-     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
-     */
-    private function intersect(array $a, array $b): array
+    private function intersect(McpAllowlist $a, McpAllowlist $b): McpAllowlist
     {
-        return [
-            self::TOOLS => $this->intersectList($a[self::TOOLS], $b[self::TOOLS]),
-            self::RESOURCES => $this->intersectList($a[self::RESOURCES], $b[self::RESOURCES]),
-            self::PROMPTS => $this->intersectList($a[self::PROMPTS], $b[self::PROMPTS]),
-        ];
+        return new McpAllowlist(
+            tools: $this->intersectList($a->tools, $b->tools),
+            resources: $this->intersectList($a->resources, $b->resources),
+            prompts: $this->intersectList($a->prompts, $b->prompts),
+        );
     }
 
     /**

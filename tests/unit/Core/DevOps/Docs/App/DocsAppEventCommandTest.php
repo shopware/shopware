@@ -4,11 +4,14 @@ namespace Shopware\Tests\Unit\Core\DevOps\Docs\App;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Docs\App\DocsAppEventCommand;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,12 +22,13 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DocsAppEventCommand::class)]
 class DocsAppEventCommandTest extends TestCase
 {
-    private BusinessEventCollector&MockObject $businessEventCollector;
+    private BusinessEventCollector&Stub $businessEventCollector;
 
-    private HookableEventCollector&MockObject $hookableEventCollector;
+    private HookableEventCollector&Stub $hookableEventCollector;
 
     private Environment&MockObject $twig;
 
@@ -53,12 +57,13 @@ class DocsAppEventCommandTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->businessEventCollector = $this->createMock(BusinessEventCollector::class);
-        $this->hookableEventCollector = $this->createMock(HookableEventCollector::class);
+        $this->businessEventCollector = static::createStub(BusinessEventCollector::class);
+        $this->hookableEventCollector = static::createStub(HookableEventCollector::class);
         $this->twig = $this->createMock(Environment::class);
         $this->command = new DocsAppEventCommandTestable(
             $this->businessEventCollector,
             $this->hookableEventCollector,
+            $this->policies(),
             [],
             $this->twig,
             self::$testFilePath
@@ -84,9 +89,13 @@ class DocsAppEventCommandTest extends TestCase
 
     public function testGetListEventPath(): void
     {
+        // getListEventPath() does not render, so the shared twig mock must assert it is not used here.
+        $this->twig->expects($this->never())->method('getLoader');
+
         $command = new DocsAppEventCommand(
             $this->businessEventCollector,
             $this->hookableEventCollector,
+            $this->policies(),
             [],
             $this->twig
         );
@@ -98,10 +107,10 @@ class DocsAppEventCommandTest extends TestCase
 
     public function testExecuteReturnsSuccess(): void
     {
-        $mockOutput = $this->getMockBuilder(OutputInterface::class)->getMock();
-        $mockInput = $this->getMockBuilder(InputInterface::class)->getMock();
+        $mockOutput = static::createStub(OutputInterface::class);
+        $mockInput = static::createStub(InputInterface::class);
 
-        $this->twig->method('getLoader')->willReturn(new ArrayLoader());
+        $this->twig->expects($this->once())->method('getLoader')->willReturn(new ArrayLoader());
         $this->twig->method('render')->willReturn('rendered content');
         $this->twig->method('setLoader');
 
@@ -111,8 +120,8 @@ class DocsAppEventCommandTest extends TestCase
 
     public function testRenderThrowsIfTemplateMissing(): void
     {
-        $this->twig->method('getLoader')->willReturn(new ArrayLoader());
-        $this->twig->expects($this->any())->method('setLoader');
+        $this->twig->expects($this->once())->method('getLoader')->willReturn(new ArrayLoader());
+        $this->twig->method('setLoader');
 
         $result = $this->command->render();
         static::assertIsString($result);
@@ -122,8 +131,8 @@ class DocsAppEventCommandTest extends TestCase
     {
         $exception = new \RuntimeException('Twig error');
 
-        $this->twig->method('getLoader')->willReturn(new ArrayLoader());
-        $this->twig->expects($this->any())->method('setLoader');
+        $this->twig->expects($this->once())->method('getLoader')->willReturn(new ArrayLoader());
+        $this->twig->method('setLoader');
         $this->twig->method('render')->willThrowException($exception);
 
         $this->expectExceptionObject($exception);
@@ -173,7 +182,7 @@ class DocsAppEventCommandTest extends TestCase
             ->method('getPrivilegesFromBusinessEventDefinition')
             ->willReturn(['priv1', 'priv2']);
 
-        $this->twig->method('getLoader')->willReturn(new ArrayLoader());
+        $this->twig->expects($this->once())->method('getLoader')->willReturn(new ArrayLoader());
         $this->twig->method('setLoader');
         $this->twig->method('render')->willReturn('rendered content');
 
@@ -191,14 +200,23 @@ class DocsAppEventCommandTest extends TestCase
             ->method('getEntityWrittenEventNamesWithPrivileges')
             ->willReturn($entityWrittenEvents);
 
-        $this->twig->method('getLoader')->willReturn(new ArrayLoader());
+        $this->twig->expects($this->once())->method('getLoader')->willReturn(new ArrayLoader());
         $this->twig->method('setLoader');
         $this->twig->method('render')->willReturn('rendered content');
 
         $result = $this->command->render();
         static::assertSame('rendered content', $result);
     }
+
+    private function policies(): PolicyRegistry
+    {
+        $policies = static::createStub(PolicyRegistry::class);
+        $policies->method('permitsSubscription')->willReturn(true);
+
+        return $policies;
+    }
 }
+
 /**
  * @internal
  *
@@ -209,11 +227,12 @@ class DocsAppEventCommandTestable extends DocsAppEventCommand
     public function __construct(
         BusinessEventCollector $businessEventCollector,
         HookableEventCollector $hookableEventCollector,
+        PolicyRegistry $policies,
         iterable $hookableEventDescribers,
         Environment $twig,
         private readonly string $testPath
     ) {
-        parent::__construct($businessEventCollector, $hookableEventCollector, $hookableEventDescribers, $twig);
+        parent::__construct($businessEventCollector, $hookableEventCollector, $policies, $hookableEventDescribers, $twig);
     }
 
     public function getListEventPath(): string

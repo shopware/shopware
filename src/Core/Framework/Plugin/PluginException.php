@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -47,6 +48,7 @@ class PluginException extends HttpException
     public const KERNEL_PLUGIN_LOADER_ERROR = 'FRAMEWORK__KERNEL_PLUGIN_LOADER_ERROR';
     public const PLUGIN_EXTRACTION_FAILED = 'FRAMEWORK__PLUGIN_EXTRACTION_FAILED';
     public const PLUGIN_CREATION_INVALID_ENTRY = 'FRAMEWORK__PLUGIN_CREATION_INVALID_ENTRY';
+    public const SYMFONY_CONSOLE_APPLICATION_NOT_FOUND = 'FRAMEWORK__PLUGIN_SYMFONY_CONSOLE_APPLICATION_NOT_FOUND';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -242,9 +244,7 @@ class PluginException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function pluginComposerRequire(string $pluginName, string $pluginComposerName, string $output): self|PluginComposerRequireException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -263,9 +263,7 @@ class PluginException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function pluginComposerRemove(string $pluginName, string $pluginComposerName, string $output): self|PluginComposerRemoveException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -284,9 +282,7 @@ class PluginException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function kernelPluginLoaderError(string $pluginName, string $reason): self|KernelPluginLoaderException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -315,6 +311,18 @@ class PluginException extends HttpException
             [
                 'reason' => $reason,
             ]
+        );
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public static function consoleApplicationNotFound(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SYMFONY_CONSOLE_APPLICATION_NOT_FOUND,
+            'Symfony console application not found'
         );
     }
 }

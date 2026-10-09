@@ -24,13 +24,13 @@ use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\StubCheckoutGatew
 /**
  * @internal
  */
-#[CoversClass(CheckoutGatewayCommandExecutor::class)]
 #[Package('checkout')]
+#[CoversClass(CheckoutGatewayCommandExecutor::class)]
 class CheckoutGatewayCommandExecutorTest extends TestCase
 {
     public function testExecute(): void
     {
-        $logger = new ExceptionLogger('prod', false, $this->createMock(LoggerInterface::class));
+        $logger = new ExceptionLogger('prod', false, static::createStub(LoggerInterface::class));
 
         $handler = new StubCheckoutGatewayHandler();
         $registry = new CheckoutGatewayCommandRegistry([$handler]);
@@ -52,7 +52,7 @@ class CheckoutGatewayCommandExecutorTest extends TestCase
 
     public function testUnknownCommandThrowsIfEnforced(): void
     {
-        $logger = new ExceptionLogger('prod', true, $this->createMock(LoggerInterface::class));
+        $logger = new ExceptionLogger('prod', true, static::createStub(LoggerInterface::class));
 
         $handler = new StubCheckoutGatewayHandler();
         $registry = new CheckoutGatewayCommandRegistry([$handler]);
@@ -76,8 +76,7 @@ class CheckoutGatewayCommandExecutorTest extends TestCase
             $throwCommand,
         ]);
 
-        static::expectException(CheckoutGatewayException::class);
-        static::expectExceptionMessage('Handler not found for command "this-one-throws"');
+        $this->expectExceptionObject(CheckoutGatewayException::handlerNotFound('this-one-throws'));
 
         $executor->execute($commands, $response, Generator::generateSalesChannelContext());
     }

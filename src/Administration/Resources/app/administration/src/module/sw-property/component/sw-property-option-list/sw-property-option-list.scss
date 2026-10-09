@@ -1,10 +1,4 @@
-@import "~scss/variables";
-
 .sw-property-option-list {
-    .sw-empty-state {
-        position: static;
-    }
-
     .media-column .sw-grid__cell-content {
         padding: 0;
     }
@@ -15,14 +9,14 @@
 
     .sw-property-option-list__toolbar {
         padding: 25px 35px;
-        background-color: $color-gray-100;
-        border-bottom: 1px solid $color-gray-300;
+        background-color: var(--color-elevation-surface-sunken);
+        border-bottom: 1px solid var(--color-border-secondary-default);
 
         .sw-property-option-list__delete-button {
-            border-color: $color-crimson-500;
+            border-color: var(--color-border-critical-default);
 
             .mt-icon {
-                color: $color-crimson-500;
+                color: var(--color-icon-critical-default);
             }
 
             &.mt-button--disabled {

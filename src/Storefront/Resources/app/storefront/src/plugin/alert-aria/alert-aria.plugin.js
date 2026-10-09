@@ -10,16 +10,27 @@ import Plugin from 'src/plugin-system/plugin.class';
 *     announceOnLoad: true
 * } %}
 *
+* Manual usage with custom markup:
+* @example
+* <div aria-live="polite"
+*      data-alert-aria="true"
+*      data-alert-aria-options="{{ { contentSelector: '.live-update-content' }|json_encode }}">
+*      <div class="live-update-content">
+*          {# ... content that should be announced ... #}
+*      </div>
+* </div>
+*
 * @internal
 */
 export default class AlertAriaPlugin extends Plugin {
 
     static options = {
         ariaLive: 'polite',
+        contentSelector: '.alert-content-container',
     };
 
     init() {
-        this._container = this.el.querySelector('.alert-content-container');
+        this._container = this.el.querySelector(this.options.contentSelector);
 
         if (!this._container) {
             console.warn(`[${this._pluginName}] The alert content container cannot be found.`);

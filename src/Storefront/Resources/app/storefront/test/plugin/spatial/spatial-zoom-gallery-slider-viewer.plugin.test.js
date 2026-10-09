@@ -5,7 +5,7 @@ jest.mock('src/plugin/spatial/utils/spatial-dive-load-util');
 jest.mock('src/plugin/spatial/utils/spatial-zoom-gallery-slider-render-util');
 
 const mockDive = {
-    start: jest.fn(),
+    startAsync: jest.fn(),
     stop: jest.fn(),
 };
 window.DIVEQuickViewPlugin = {
@@ -116,7 +116,7 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
 
         await process.nextTick(() => {});
 
-        expect(mockDive.start).toHaveBeenCalled();
+        expect(mockDive.startAsync).toHaveBeenCalled();
 
         modal.hide();
 

@@ -6,29 +6,31 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\ShopIdChangeResolver\AbstractShopIdChangeStrategy;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\ShopIdChangeStrategy;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Resolver::class)]
 class ResolverTest extends TestCase
 {
-    private MockObject&AbstractShopIdChangeStrategy $firstStrategy;
+    private MockObject&ShopIdChangeStrategy $firstStrategy;
 
-    private MockObject&AbstractShopIdChangeStrategy $secondStrategy;
+    private MockObject&ShopIdChangeStrategy $secondStrategy;
 
     private Resolver $appUrlChangedResolverStrategy;
 
     protected function setUp(): void
     {
-        $this->firstStrategy = $this->createMock(AbstractShopIdChangeStrategy::class);
+        $this->firstStrategy = $this->createMock(ShopIdChangeStrategy::class);
         $this->firstStrategy->method('getName')
             ->willReturn('FirstStrategy');
 
-        $this->secondStrategy = $this->createMock(AbstractShopIdChangeStrategy::class);
+        $this->secondStrategy = $this->createMock(ShopIdChangeStrategy::class);
         $this->secondStrategy->method('getName')
             ->willReturn('SecondStrategy');
 

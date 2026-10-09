@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\DevOps\Test\Command;
 
-use PHPUnit\TextUI\XmlConfiguration\Loader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -18,11 +18,11 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'make:coverage',
     description: 'Generate PHP Unit test file',
 )]
-#[Package('framework')]
 class MakeCoverageTestCommand extends Command
 {
     public function __construct(
@@ -123,9 +123,7 @@ class MakeCoverageTestCommand extends Command
 
         $phpUnitConfigurationPath = $this->getPhpUnitConfigurationPath($input);
 
-        $xml = (new Loader())->load($phpUnitConfigurationPath);
-        $excludedDirectories = $xml->source()->excludeDirectories();
-        $excludedFiles = $xml->source()->excludeFiles();
+        ['directories' => $excludedDirectories, 'files' => $excludedFiles] = $this->readSourceExcludes($phpUnitConfigurationPath);
 
         foreach ($classes as $class) {
             $className = $this->getClassname($class);
@@ -147,24 +145,24 @@ class MakeCoverageTestCommand extends Command
                 continue;
             }
 
-            foreach ($excludedDirectories->getIterator() as $excludedDir) {
-                if (!str_contains($fileName, str_replace([$this->projectDir, '/private/'], '', $excludedDir->path()))) {
+            foreach ($excludedDirectories as $excludedDir) {
+                if (!str_contains($fileName, str_replace([$this->projectDir, '/private/'], '', $excludedDir['path']))) {
                     continue;
                 }
 
-                if ($excludedDir->prefix() !== '' && str_ends_with($fileName, $excludedDir->prefix())) {
+                if ($excludedDir['prefix'] !== '' && str_ends_with($fileName, $excludedDir['prefix'])) {
                     $failReason = \sprintf('Skip coverage test for excluded directory: %s', $fileName);
 
                     continue;
                 }
 
-                if ($excludedDir->suffix() !== '' && str_ends_with($fileName, $excludedDir->suffix())) {
+                if ($excludedDir['suffix'] !== '' && str_ends_with($fileName, $excludedDir['suffix'])) {
                     $failReason = \sprintf('Skip coverage test for excluded directory: %s', $fileName);
                 }
             }
 
             foreach ($excludedFiles as $excludedFile) {
-                if ($excludedFile->path() === $fileName) {
+                if ($excludedFile === $fileName) {
                     $failReason = \sprintf('Skip coverage test for excluded file: %s', $fileName);
                 }
             }
@@ -179,6 +177,52 @@ class MakeCoverageTestCommand extends Command
         }
 
         return array_values(array_unique($filteredClasses));
+    }
+
+    /**
+     * Reads the `<source><exclude>` entries and resolves their paths like PHPUnit does. PHPUnit's own configuration
+     * loader is internal and its constructor changed in a minor release.
+     *
+     * @return array{directories: list<array{path: string, prefix: string, suffix: string}>, files: list<string>}
+     */
+    private function readSourceExcludes(string $configurationPath): array
+    {
+        $xpath = new \DOMXPath(XmlUtils::loadFile($configurationPath));
+        $configurationDir = \dirname($configurationPath);
+
+        $directories = [];
+        foreach ($xpath->query('source/exclude/directory') ?: [] as $node) {
+            if (!$node instanceof \DOMElement || trim($node->textContent) === '') {
+                continue;
+            }
+
+            $directories[] = [
+                'path' => $this->toAbsolutePath($configurationDir, $node->textContent),
+                'prefix' => $node->getAttribute('prefix'),
+                // PHPUnit defaults the suffix to .php when the attribute is missing
+                'suffix' => $node->hasAttribute('suffix') ? $node->getAttribute('suffix') : '.php',
+            ];
+        }
+
+        $files = [];
+        foreach ($xpath->query('source/exclude/file') ?: [] as $node) {
+            if ($node instanceof \DOMElement && trim($node->textContent) !== '') {
+                $files[] = $this->toAbsolutePath($configurationDir, $node->textContent);
+            }
+        }
+
+        return ['directories' => $directories, 'files' => $files];
+    }
+
+    private function toAbsolutePath(string $configurationDir, string $path): string
+    {
+        $path = trim($path);
+
+        if (str_starts_with($path, '/') || str_contains($path, '://')) {
+            return $path;
+        }
+
+        return $configurationDir . '/' . $path;
     }
 
     private function getClassname(string $rawClass): ?string

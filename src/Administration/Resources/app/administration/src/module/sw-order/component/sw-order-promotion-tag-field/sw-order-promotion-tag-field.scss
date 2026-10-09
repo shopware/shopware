@@ -1,19 +1,15 @@
-@import "~scss/variables";
-
-$promotion-tag-danger-border: var(--color-border-critical-default);
-
 .sw-order-promotion-tag-field {
     .sw-tagged-field__tag-list {
         background: var(--color-elevation-surface-raised);
 
         &--disabled {
-            background: var(--color-background-primary-disabled);
+            background: var(--color-background-tertiary-default);
         }
     }
 
     .sw-label {
         &.sw-label--danger {
-            border-color: $promotion-tag-danger-border;
+            border-color: var(--color-border-critical-default);
         }
     }
 }

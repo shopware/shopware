@@ -6,6 +6,7 @@ import template from './sw-entity-multi-id-select.html.twig';
 
 const { Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
+const { get } = Shopware.Utils;
 
 /**
  * @private
@@ -19,16 +20,11 @@ export default {
 
     emits: ['update:value'],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error')],
 
     props: {
         value: {
-            type: [
-                Array,
-                null,
-            ],
+            type: [Array, null],
             required: false,
             default: null,
         },
@@ -90,6 +86,20 @@ export default {
         normalizedValue() {
             return this.value ?? [];
         },
+
+        displayVariants() {
+            return this.repository.entityName === 'product';
+        },
+
+        selectCriteria() {
+            const criteria = Criteria.fromCriteria(this.criteria);
+
+            if (this.displayVariants) {
+                criteria.addAssociation('options.group');
+            }
+
+            return criteria;
+        },
     },
 
     methods: {
@@ -106,7 +116,7 @@ export default {
                 return Promise.resolve(this.collection);
             }
 
-            const criteria = Criteria.fromCriteria(this.criteria);
+            const criteria = Criteria.fromCriteria(this.selectCriteria);
             criteria.setIds(this.normalizedValue);
             criteria.setTerm('');
             criteria.queries = [];
@@ -126,6 +136,14 @@ export default {
             this.collection = collection;
 
             this.$emit('update:value', collection.getIds());
+        },
+
+        displayLabelProperty(item, labelProperty, getKey = get) {
+            const labelProperties = Array.isArray(labelProperty) ? labelProperty : [labelProperty];
+
+            return labelProperties
+                .map((property) => getKey(item, property) || getKey(item, `translated.${property}`))
+                .join(' ');
         },
     },
 };

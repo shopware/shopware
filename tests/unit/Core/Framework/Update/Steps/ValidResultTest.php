@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Update\Steps;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Steps\ValidResult;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ValidResult::class)]
 class ValidResultTest extends TestCase
 {

@@ -5,9 +5,8 @@
     :title="modalTitle"
     @modal-close="onCloseModal"
 >
-
     {% block sw_order_nested_line_item_modal_loader %}
-    <sw-loader
+    <mt-loader
         v-if="isLoading"
         class="sw-order-nested-line-items-modal__loader"
     />
@@ -18,10 +17,8 @@
         v-else
         class="sw-order-nested-line-items-modal__container"
     >
-
         {% block sw_order_nested_line_item_modal_header_container %}
         <div class="sw-order-nested-line-items-modal__header-container">
-
             {% block sw_order_nested_line_item_modal_header_label %}
             <div class="sw-order-nested-line-items-modal__header-label sw-order-nested-line-items-modal__header-item">
                 {{ $t('sw-order.nestedLineItemsModal.headerLabel') }}
@@ -51,7 +48,6 @@
                 {{ $t('sw-order.nestedLineItemsModal.headerTax') }}
             </div>
             {% endblock %}
-
         </div>
         {% endblock %}
 
@@ -62,13 +58,11 @@
             :currency="order.currency"
         />
         {% endblock %}
-
     </div>
     {% endblock %}
 
     {% block sw_order_nested_line_item_modal_footer %}
     <template #modal-footer>
-
         {% block sw_order_nested_line_item_modal_footer_content %}
         <mt-button
             variant="primary"
@@ -79,9 +73,7 @@
             {{ $t('global.default.close') }}
         </mt-button>
         {% endblock %}
-
     </template>
     {% endblock %}
-
 </sw-modal>
 {% endblock %}

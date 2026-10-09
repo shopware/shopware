@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
@@ -40,8 +40,8 @@ class DocumentBaseConfigSyncSubscriberTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [$this->definition = new DocumentBaseConfigDefinition()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
         );
 
         $this->definition->compile($registry);
@@ -247,7 +247,7 @@ class DocumentBaseConfigSyncSubscriberTest extends TestCase
         $event = EntityWriteEvent::create($writeContext, $commands);
 
         $subscriber = new DocumentBaseConfigSyncSubscriber(
-            $connection ?? $this->createMock(Connection::class)
+            $connection ?? static::createStub(Connection::class)
         );
 
         return [$subscriber, $event];
@@ -262,7 +262,7 @@ class DocumentBaseConfigSyncSubscriberTest extends TestCase
             $this->definition,
             $payload,
             ['id' => $this->ids->getBytes('config')],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0',
         );
     }
@@ -276,7 +276,7 @@ class DocumentBaseConfigSyncSubscriberTest extends TestCase
             $this->definition,
             $payload,
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0',
         );
     }

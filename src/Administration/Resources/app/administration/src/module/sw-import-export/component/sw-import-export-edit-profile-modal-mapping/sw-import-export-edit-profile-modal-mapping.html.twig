@@ -20,7 +20,6 @@
                 showOnDisabledElements: true
             }"
             class="sw-import-export-edit-profile-modal-mapping__add-action"
-            ghost
             :disabled="profile.systemDefault || !addMappingEnabled"
             size="small"
             variant="secondary"
@@ -162,8 +161,10 @@
     <mt-empty-state
         v-else
         class="sw-import-export-edit-profile-modal-mapping__empty-state"
+        centered
         :icon="$route.meta.$module.icon"
         :headline="$t('sw-import-export.profile.mappingEmptyState')"
+        description=""
     />
     {% endblock %}
 </div>

@@ -15,6 +15,7 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(TextCmsElementResolver::class)]
 class TextCmsElementResolverTest extends TestCase
 {
@@ -278,7 +280,7 @@ class TextCmsElementResolverTest extends TestCase
         $product->setReleaseDate($releaseDate);
         $request = new Request();
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), $request, new ProductDefinition(), $product);
+        $resolverContext = new EntityResolverContext(static::createStub(SalesChannelContext::class), $request, new ProductDefinition(), $product);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
@@ -313,7 +315,7 @@ class TextCmsElementResolverTest extends TestCase
 
     private function createResolverContextWithProduct(ProductEntity $product): EntityResolverContext
     {
-        return new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), new ProductDefinition(), $product);
+        return new EntityResolverContext(static::createStub(SalesChannelContext::class), new Request(), new ProductDefinition(), $product);
     }
 
     private function createProductEntity(): ProductEntity
@@ -326,6 +328,6 @@ class TextCmsElementResolverTest extends TestCase
 
     private function createResolverContext(): ResolverContext
     {
-        return new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        return new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
     }
 }

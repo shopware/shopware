@@ -63,8 +63,8 @@ $base-size: calc(var(--scale-size-224) + var(--scale-size-56));
     }
 
     .sw-product-add-properties-modal__toolbar {
-        border-bottom: var(--scale-size-1) solid var(--color-border-primary-default);
-        background-color: var(--color-gray-100);
+        border-bottom: var(--scale-size-1) solid var(--color-border-secondary-default);
+        background-color: var(--color-elevation-surface-sunken);
         grid-template-columns: 1fr auto;
     }
 

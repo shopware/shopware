@@ -45,37 +45,65 @@ class ChildCountUpdater
      */
     private function trySingleUpdate(EntityDefinition $definition, array $parentIds, Context $context): void
     {
-        $entity = $definition->getEntityName();
+        $entity = EntityDefinitionQueryHelper::escape($definition->getEntityName());
         $versionAware = $definition->isVersionAware();
 
-        $sql = \sprintf(
-            'UPDATE #entity#  as parent
-                LEFT JOIN
-                (
-                    SELECT parent_id, count(id) total
-                    FROM   #entity#
-                    WHERE parent_id in (:ids)
-                    %s
-                    GROUP BY parent_id
-                ) child ON parent.id = child.parent_id
-            SET parent.child_count = IFNULL(child.total, 0)
-            WHERE parent.id IN (:ids)
-            %s',
-            $versionAware ? 'AND version_id = :version' : '',
-            $versionAware ? 'AND parent.version_id = :version' : ''
-        );
+        // sort the ids so concurrent transactions acquire the parent row locks in a consistent order
+        $ids = Uuid::fromHexToBytesList($parentIds);
+        sort($ids);
 
-        $sql = str_replace(
-            ['#entity#'],
-            [EntityDefinitionQueryHelper::escape($entity)],
-            $sql
-        );
-
-        $params = ['ids' => Uuid::fromHexToBytesList($parentIds)];
+        $params = ['ids' => $ids];
         if ($versionAware) {
             $params['version'] = Uuid::fromHexToBytes($context->getVersionId());
         }
 
-        $this->connection->executeStatement($sql, $params, ['ids' => ArrayParameterType::BINARY]);
+        // lock the parents (PK only) so concurrent recalculations serialise instead of a stale count
+        // overwriting a fresh one; no child rows are locked, keeping the deadlock-free footprint
+        $this->connection->executeStatement(
+            \sprintf(
+                'SELECT id FROM %s WHERE id IN (:ids) %s FOR UPDATE',
+                $entity,
+                $versionAware ? 'AND version_id = :version' : ''
+            ),
+            $params,
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        $aggregations = $this->connection->fetchAllKeyValue(
+            \sprintf(
+                'SELECT parent_id, COUNT(id) FROM %s WHERE parent_id IN (:ids) %s GROUP BY parent_id',
+                $entity,
+                $versionAware ? 'AND version_id = :version' : ''
+            ),
+            $params,
+            ['ids' => ArrayParameterType::BINARY]
+        );
+        /**
+         * @var list<array{
+         *     sql: non-falsy-string,
+         *     params: non-empty-array<lowercase-string&non-falsy-string, int|non-empty-string>
+         * }> $cases
+         */
+        $cases = array_map(
+            static fn (string $id, int $key): array => [
+                'sql' => \sprintf('WHEN :id%d THEN :count%d ', $key, $key),
+                'params' => ['id' . $key => $id, 'count' . $key => (int) ($aggregations[$id] ?? 0)],
+            ],
+            $ids,
+            array_keys($ids)
+        );
+
+        $params = array_merge($params, ...array_column($cases, 'params'));
+
+        $this->connection->executeStatement(
+            \sprintf(
+                'UPDATE %s SET child_count = CASE id %s ELSE 0 END WHERE id IN (:ids) %s',
+                $entity,
+                implode('', array_column($cases, 'sql')),
+                $versionAware ? 'AND version_id = :version' : ''
+            ),
+            $params,
+            ['ids' => ArrayParameterType::BINARY]
+        );
     }
 }

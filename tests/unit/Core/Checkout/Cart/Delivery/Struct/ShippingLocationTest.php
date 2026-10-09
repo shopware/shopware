@@ -13,8 +13,8 @@ use Shopware\Core\System\Country\CountryEntity;
 /**
  * @internal
  */
-#[CoversClass(ShippingLocation::class)]
 #[Package('checkout')]
+#[CoversClass(ShippingLocation::class)]
 class ShippingLocationTest extends TestCase
 {
     public function testCreateFromAddress(): void

@@ -11,6 +11,7 @@ export default {
     data() {
         return {
             isLoading: false,
+            salesChannelIsHeadless: false,
         };
     },
 
@@ -23,11 +24,19 @@ export default {
     methods: {
         onClickSave() {
             this.$refs.seoUrlTemplateCard.onClickSave();
-            this.$refs.systemConfig.saveAll();
+
+            // The system config (e.g. canonical redirect) is hidden and not rendered for headless sales channels.
+            if (this.$refs.systemConfig) {
+                this.$refs.systemConfig.saveAll();
+            }
         },
 
         onLoadingChanged(loading) {
             this.isLoading = loading;
+        },
+
+        onSalesChannelChanged(salesChannelIsHeadless) {
+            this.salesChannelIsHeadless = salesChannelIsHeadless;
         },
     },
 };

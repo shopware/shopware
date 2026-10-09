@@ -1,33 +1,19 @@
-@import "~scss/variables";
-
 .sw-order-detail-state-card {
-    font-size: $font-size-xs;
+    font-size: var(--font-size-xs);
 
     &__divider {
-        margin: 32px 0;
+        margin: var(--scale-size-32) 0;
         border: none;
-        height: 1px;
-        background-color: var(--color-border-primary-default);
+        height: var(--scale-size-1);
+        background-color: var(--color-border-secondary-default);
     }
 
     &__content {
-        column-gap: 32px;
-        margin-bottom: -16px;
-    }
-
-    &__state-container > * {
-        &:not(:first-child) {
-            margin-top: 1.5rem;
-            align-self: center;
-        }
+        column-gap: var(--scale-size-32);
+        margin-bottom: calc(var(--scale-size-16) * -1);
     }
 
     &__state-history-text {
         color: var(--color-text-secondary-default);
-    }
-
-    &__state-history-button {
-        margin-bottom: 6px;
-        text-align: right;
     }
 }

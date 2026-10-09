@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\DevOps\Core\Migration\MigrationIndexerSafeguardTest;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -17,7 +16,7 @@ use Symfony\Component\Finder\Finder;
  * shipped migrations or fixture trees.
  *
  * DevOps wiring against the real migration tree:
- * {@see MigrationIndexerSafeguardTest}.
+ * {@see \Shopware\Tests\DevOps\Core\Migration\MigrationIndexerSafeguardTest}.
  *
  * @internal
  */

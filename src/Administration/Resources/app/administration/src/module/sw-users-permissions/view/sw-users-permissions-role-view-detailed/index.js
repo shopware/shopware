@@ -7,19 +7,22 @@ import template from './sw-users-permissions-role-view-detailed.html.twig';
 export default {
     template,
 
-    inject: [
-        'acl',
-    ],
+    inject: ['acl'],
 
     props: {
         role: {
             type: Object,
-            required: true,
+            required: false,
+            default: null,
         },
-
         detailedPrivileges: {
             type: Array,
             required: true,
+        },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 };

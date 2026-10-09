@@ -15,14 +15,13 @@ export {};
 
 /**
  * @private
+ *
+ * Duplicated in `src/app/composables/use-listing`; change both together.
  */
 export default Shopware.Mixin.register(
     'listing',
     defineComponent({
-        inject: [
-            'searchRankingService',
-            'feature',
-        ],
+        inject: ['searchRankingService', 'feature'],
 
         data(): {
             page: number;
@@ -146,7 +145,7 @@ export default Shopware.Mixin.register(
                 this.updateData(query);
 
                 // @ts-expect-error - properties are defined in base component
-                if (newRoute.query[this.storeKey] !== oldRoute.query[this.storeKey] && this.filterCriteria.length) {
+                if (newRoute.query[this.storeKey] !== oldRoute.query[this.storeKey] && this.filterCriteria?.length) {
                     // @ts-expect-error - filterCriteria is defined in base component
                     this.filterCriteria = [];
                     return;

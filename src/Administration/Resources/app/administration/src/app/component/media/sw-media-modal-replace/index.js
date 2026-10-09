@@ -17,20 +17,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'mediaService',
-        'mediaPresignedUploadService',
-        'repositoryFactory',
-    ],
+    inject: ['mediaService', 'mediaPresignedUploadService', 'repositoryFactory'],
 
-    emits: [
-        'media-replace-modal-close',
-        'media-replace-modal-item-replaced',
-    ],
+    emits: ['media-replace-modal-close', 'media-replace-modal-item-replaced'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         itemToReplace: {
@@ -57,6 +48,10 @@ export default {
     methods: {
         onNewUpload({ data }) {
             this.isUploadDataSet = true;
+
+            // overwrite file name randomly to avoid conflicts on upload before renaming
+            // e.g. you want to replace image.png with shopware.png but shopware.png already exists
+            data[0].fileName = Shopware.Utils.createId();
 
             const newFileExtension = data[0].extension;
             const oldFileExtension = this.itemToReplace.fileExtension;
@@ -102,10 +97,7 @@ export default {
             const { fileName, extension } = fileReader.getNameAndExtensionFromFile(fileHandle);
             const mimeType = fileHandle.type || 'application/octet-stream';
 
-            const [
-                result,
-                dimensions,
-            ] = await Promise.all([
+            const [result, dimensions] = await Promise.all([
                 this.mediaPresignedUploadService.prepareUpload({
                     fileName,
                     extension,

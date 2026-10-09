@@ -20,6 +20,20 @@ class TestDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = '_test_lock';
 
+    private bool $lockTranslation = true;
+
+    public function lockTranslation(): void
+    {
+        $this->lockTranslation = true;
+        $this->fields = null;
+    }
+
+    public function unlockTranslation(): void
+    {
+        $this->lockTranslation = false;
+        $this->fields = null;
+    }
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
@@ -37,7 +51,7 @@ class TestDefinition extends EntityDefinition
             (new StringField('description', 'description'))->addFlags(new ApiAware()),
             (new TranslatedField('name'))->addFlags(new ApiAware()),
             (new TranslationsAssociationField(TestTranslationDefinition::class, '_test_lock_id'))->addFlags(new ApiAware()),
-            (new LockedField())->addFlags(new ApiAware()),
+            (new LockedField($this->lockTranslation))->addFlags(new ApiAware()),
         ]);
     }
 }

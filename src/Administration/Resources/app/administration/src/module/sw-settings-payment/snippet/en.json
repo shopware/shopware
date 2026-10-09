@@ -31,10 +31,7 @@
       "columnPosition": "Position",
       "columnExtension": "Extension",
       "buttonAddPaymentMethod": "Add payment method",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
       "messageDeleteSuccess": "Payment method \"{name}\" has been deleted.",
-      "buttonDelete": "Delete",
       "pluginDeleteTitleText": "Plugin payment methods cannot be deleted."
     },
     "detail": {
@@ -58,7 +55,6 @@
       "placeholderPosition": "Enter position...",
       "placeholderDescription": "Enter description...",
       "placeholderAvailabilityRule": "Choose availability rule...",
-      "buttonSave": "Save",
       "helpTextTechnicalName": "The technical name is used to uniquely reference the payment method. A subsequent change to the technical name can cause payment integrations that rely on it to no longer work.",
       "hintTextTechnicalNameIsProvided": "The technical name has been provided by {name}.",
       "delete": {
@@ -66,8 +62,7 @@
         "textAlert": "This payment method is used in rules, Sales Channels or orders and can therefore not be deleted.",
         "textButton": "Delete payment method",
         "modal": {
-          "textConfirmation": "Do you really want to delete this payment method?",
-          "buttonDelete": "Delete"
+          "textConfirmation": "Do you really want to delete this payment method?"
         }
       }
     }

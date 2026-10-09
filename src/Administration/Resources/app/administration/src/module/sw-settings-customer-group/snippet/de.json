@@ -3,7 +3,6 @@
     "general": {
       "mainMenuItemGeneral": "Kundengruppen",
       "buttonCreate": "Kundengruppe anlegen",
-      "buttonSave": "Speichern",
       "placeholderSearchBar": "Durchsuche alle Kundengruppen ..."
     },
     "list": {

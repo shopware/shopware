@@ -2,7 +2,7 @@ type MediaUploadResult = {
     failureAmount: number;
     successAmount: number;
     totalAmount: number;
-    targetId: string;
+    targetId: EntityKey<'media'>;
 };
 
 /**

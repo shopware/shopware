@@ -10,14 +10,71 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityDefinition::class)]
 class EntityDefinitionTest extends TestCase
 {
+    public function testInheritedConstructorDoesNotSignalDeprecationWhenInstantiatedFromAnotherConstructor(): void
+    {
+        $caller = new class {
+            public EntityDefinition $definition;
+
+            public function __construct()
+            {
+                $this->definition = new class extends EntityDefinition {
+                    public const ENTITY_NAME = 'test_definition';
+
+                    public function getEntityName(): string
+                    {
+                        return self::ENTITY_NAME;
+                    }
+
+                    protected function defineFields(): FieldCollection
+                    {
+                        return new FieldCollection();
+                    }
+                };
+            }
+        };
+
+        static::assertSame('test_definition', $caller->definition->getEntityName());
+    }
+
+    public function testConstructorSignalsDeprecationWhenCalledByChildConstructor(): void
+    {
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: ' . Feature::deprecatedMethodMessage(EntityDefinition::class, '__construct', 'v6.8.0.0')
+        ));
+
+        /** @phpstan-ignore-next-line - Intentionally testing the deprecated parent constructor. */
+        new class extends EntityDefinition {
+            public const ENTITY_NAME = 'test_definition';
+
+            public function __construct()
+            {
+                parent::__construct();
+            }
+
+            public function getEntityName(): string
+            {
+                return self::ENTITY_NAME;
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection();
+            }
+        };
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFieldsLegacyBehaviour(): void
     {
@@ -35,7 +92,7 @@ class EntityDefinitionTest extends TestCase
                 ]);
             }
         };
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $updatedAtField = $definition->getFields()->get('updatedAt');
         static::assertInstanceOf(UpdatedAtField::class, $updatedAtField);
@@ -59,7 +116,7 @@ class EntityDefinitionTest extends TestCase
                 ]);
             }
         };
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $updatedAtField = $definition->getFields()->get('updatedAt');
         static::assertInstanceOf(UpdatedAtField::class, $updatedAtField);

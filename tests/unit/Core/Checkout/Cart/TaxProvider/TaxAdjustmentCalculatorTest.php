@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(TaxAdjustmentCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(TaxAdjustmentCalculator::class)]
 class TaxAdjustmentCalculatorTest extends TestCase
 {
     public function testCalculateGrossTaxesActuallyCalculatesNetTaxes(): void

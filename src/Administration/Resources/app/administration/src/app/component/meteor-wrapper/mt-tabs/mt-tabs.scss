@@ -1,0 +1,16 @@
+@import "~scss/variables";
+
+.mt-tabs.mt-tabs--small {
+    max-width: $content-width;
+    margin: 0 auto 55px;
+}
+
+.mt-tabs.mt-tabs--small:has(+ .mt-tabs__custom-content) {
+    margin-bottom: 0;
+}
+
+.mt-tabs__custom-content {
+    max-width: $content-width;
+    margin: 0 auto 15px;
+    padding: 20px 0;
+}

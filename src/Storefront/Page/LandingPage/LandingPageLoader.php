@@ -52,6 +52,7 @@ class LandingPageLoader
         $page = LandingPage::createFrom($page);
 
         $page->setLandingPage($landingPage);
+        $page->setNavigationId($landingPage->getId());
 
         $metaTitle = $landingPage->getTranslation('metaTitle') ?? $landingPage->getTranslation('name');
         $metaDescription = $landingPage->getTranslation('metaDescription');

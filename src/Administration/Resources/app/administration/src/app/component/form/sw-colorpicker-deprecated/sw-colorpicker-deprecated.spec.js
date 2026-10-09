@@ -1,8 +1,10 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 async function createWrapper(additionalProps = {}) {
     const wrapper = mount(await wrapTestComponent('sw-colorpicker-deprecated', { sync: true }), {
@@ -17,7 +19,6 @@ async function createWrapper(additionalProps = {}) {
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
-                'mt-floating-ui': true,
             },
         },
         props: {
@@ -434,7 +435,7 @@ describe('components/form/sw-colorpicker', () => {
         await wrapper.find('.sw-colorpicker__previewWrapper').trigger('click');
         await flushPromises();
 
-        const colorPicker = wrapper.find('.sw-colorpicker__colorpicker');
+        const colorPicker = new DOMWrapper(document.body).find('.sw-colorpicker__colorpicker');
 
         expect(colorPicker.exists()).toBe(true);
     });
@@ -579,7 +580,7 @@ describe('components/form/sw-colorpicker', () => {
         });
         await flushPromises();
 
-        const colorPicker = wrapper.find('.sw-colorpicker__colorpicker-selection');
+        const colorPicker = new DOMWrapper(document.body).get('.sw-colorpicker__colorpicker-selection');
 
         await colorPicker.trigger('mousedown');
 
@@ -596,7 +597,7 @@ describe('components/form/sw-colorpicker', () => {
         });
         await flushPromises();
 
-        const colorPicker = wrapper.find('.sw-colorpicker__colorpicker-selection');
+        const colorPicker = new DOMWrapper(document.body).get('.sw-colorpicker__colorpicker-selection');
         await colorPicker.trigger('mousedown');
 
         expect(eventListener.mousemove).toBeDefined();

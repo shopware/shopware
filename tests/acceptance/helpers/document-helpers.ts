@@ -2,13 +2,13 @@ import type { Locator } from '@playwright/test';
 import type { expect } from '@fixtures/AcceptanceTest';
 
 export type DocumentTypes =
-    'invoice' |
-    'credit_note' |
-    'delivery_note' |
-    'cancellation_invoice' |
-    'zugferd_embedded_invoice' |
-    'zugferd_embedded_cancellation_invoice' |
-    'zugferd_embedded_credit_note';
+    | 'invoice'
+    | 'credit_note'
+    | 'delivery_note'
+    | 'cancellation_invoice'
+    | 'zugferd_embedded_invoice'
+    | 'zugferd_embedded_cancellation_invoice'
+    | 'zugferd_embedded_credit_note';
 
 export interface DocumentOptions {
     orderId: string;

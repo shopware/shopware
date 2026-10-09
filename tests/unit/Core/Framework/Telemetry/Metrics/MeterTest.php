@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Telemetry\Metrics;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
@@ -41,7 +42,7 @@ class MeterTest extends TestCase
             $collection,
             $this->configProviderWithSuccessfulExpectation($metricConfig),
             $this->createPassthroughLabelProcessor(),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             'prod',
             true,
         );
@@ -66,7 +67,7 @@ class MeterTest extends TestCase
             $collection,
             $configProvider,
             $labelProcessor,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             'prod',
             false,
         );
@@ -155,7 +156,7 @@ class MeterTest extends TestCase
         $meter = new Meter(
             $collection,
             $metricConfigProvider,
-            $this->createMock(MetricLabelProcessor::class),
+            static::createStub(MetricLabelProcessor::class),
             $logger,
             'prod',
             true,
@@ -190,7 +191,7 @@ class MeterTest extends TestCase
         $meter = new Meter(
             $collection,
             $metricConfigProvider,
-            $this->createMock(MetricLabelProcessor::class),
+            static::createStub(MetricLabelProcessor::class),
             $logger,
             'test',
             true,
@@ -218,7 +219,7 @@ class MeterTest extends TestCase
             $collection,
             $this->configProviderWithSuccessfulExpectation($metricConfig),
             $labelProcessor,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             'prod',
             true,
         );
@@ -250,9 +251,9 @@ class MeterTest extends TestCase
         return $metricConfigProvider;
     }
 
-    private function createPassthroughLabelProcessor(): MetricLabelProcessor&MockObject
+    private function createPassthroughLabelProcessor(): MetricLabelProcessor&Stub
     {
-        $processor = $this->createMock(MetricLabelProcessor::class);
+        $processor = static::createStub(MetricLabelProcessor::class);
         $processor->method('process')->willReturnCallback(
             static fn (MetricConfig $config, array $labels) => $labels,
         );

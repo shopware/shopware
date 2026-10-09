@@ -19,12 +19,15 @@
 {% block component_filter_multi_select %}
     <div class="filter-multi-select filter-multi-select-{{ name }} filter-panel-item{% if sidebar %} d-grid{% else %} dropdown{% endif %}"
          role="listitem"
+         aria-busy="true"
          data-{{ pluginSelector }}="true"
          data-{{ pluginSelector }}-options='{{ dataPluginSelectorOptions|json_encode }}'>
 
         {% block component_filter_multi_select_toggle %}
             <button class="filter-panel-item-toggle btn"
                     aria-expanded="false"
+                    disabled
+                    data-filter-loading
                     {% if ariaLabel %}
                     aria-label="{{ ariaLabel }}"
                     {% endif %}
@@ -34,7 +37,6 @@
                     {% else %}
                     data-bs-toggle="dropdown"
                     data-boundary="viewport"
-                    data-bs-offset="0,8"
                     {% endif %}>
 
                 {% block component_filter_multi_select_display_name %}

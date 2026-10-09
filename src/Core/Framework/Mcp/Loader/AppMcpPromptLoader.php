@@ -9,7 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Loads app-provided MCP prompts from the database and registers them
  * with the MCP server registry at build time.
@@ -61,6 +61,6 @@ class AppMcpPromptLoader extends AbstractAppMcpLoader
 
         $registry->registerPrompt($prompt, function (RequestContext $context) use ($promptName, $appSecret, $url): string {
             return $this->executor->execute($promptName, $appSecret, $url, []);
-        }, [], true);
+        }, []);
     }
 }

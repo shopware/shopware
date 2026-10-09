@@ -1,4 +1,4 @@
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
@@ -23,7 +23,7 @@ interface UserInfoResponse {
  * Gateway for the API end point "store"
  */
 export default class StoreApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'store') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'store') {
         super(httpClient, loginService, apiEndpoint, 'application/json');
 
         this.name = 'storeService';

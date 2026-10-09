@@ -1,13 +1,10 @@
-/**
- * @sw-package inventory
- */
-
 import template from './sw-product-stream-filter.html.twig';
 import './sw-product-stream-filter.scss';
 
 const { EntityDefinition } = Shopware;
 
 /**
+ * @sw-package inventory
  * @private
  */
 export default {
@@ -23,6 +20,13 @@ export default {
     ],
 
     computed: {
+        conditionClasses() {
+            return {
+                ...this.$super('conditionClasses'),
+                'sw-product-stream-filter': true,
+            };
+        },
+
         actualCondition() {
             if (this.condition.type === 'not') {
                 return this.condition.queries[0];

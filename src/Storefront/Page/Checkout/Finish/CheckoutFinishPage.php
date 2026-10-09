@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('framework')]
+#[Package('checkout')]
 class CheckoutFinishPage extends Page
 {
     protected OrderEntity $order;

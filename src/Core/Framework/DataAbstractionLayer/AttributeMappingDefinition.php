@@ -17,7 +17,6 @@ class AttributeMappingDefinition extends MappingEntityDefinition
      */
     public function __construct(private readonly array $meta = [])
     {
-        parent::__construct();
     }
 
     public function getEntityName(): string

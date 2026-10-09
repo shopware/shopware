@@ -25,10 +25,6 @@
                     variant="secondary"
                     @click="navigateToCreateOrder"
                 >
-                    <mt-icon
-                        name="regular-plus-circle-s"
-                        size="16px"
-                    />
                     {{ $t('sw-customer.detailOrder.buttonCreateOrder') }}
                 </mt-button>
                 {% endblock %}
@@ -53,9 +49,9 @@
             {% block sw_customer_detail_order_card_grid_columns %}
             {% block sw_customer_detail_order_card_grid_columns_number %}
             <template #column-orderNumber="{ item }">
-                <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }">
+                <mt-link :to="{ name: 'sw.order.detail', params: { id: item.id } }">
                     {{ item.orderNumber }}
-                </router-link>
+                </mt-link>
             </template>
             {% endblock %}
 
@@ -94,7 +90,9 @@
     {% block sw_customer_detail_order_card_grid_empty_state %}
     <template v-if="(!orders || orders.total === 0) && !isLoading && !term">
         <mt-empty-state
-            icon="solid-shopping-bag"
+            class="sw-customer-detail-order__empty-state"
+            centered
+            icon="regular-shopping-bag"
             :headline="emptyTitle"
             :description="$t('sw-customer.detailOrder.emptySubline')"
         >
@@ -106,10 +104,9 @@
                         disabled: acl.can('order.creator'),
                         showOnDisabledElements: true
                     }"
-                    ghost
                     class="sw-customer-detail-order__add-order-action"
                     :disabled="!acl.can('order.creator')"
-                    variant="secondary"
+                    variant="primary"
                     @click="navigateToCreateOrder"
                 >
                     {{ $t('sw-customer.detailOrder.buttonCreateOrder') }}

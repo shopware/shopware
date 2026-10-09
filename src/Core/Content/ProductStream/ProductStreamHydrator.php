@@ -23,6 +23,12 @@ class ProductStreamHydrator extends EntityHydrator
         if (isset($row[$root . '.invalid'])) {
             $entity->invalid = (bool) $row[$root . '.invalid'];
         }
+        if (\array_key_exists($root . '.internal', $row)) {
+            $entity->internal = (bool) $row[$root . '.internal'];
+        }
+        if (\array_key_exists($root . '.displayAsGroup', $row)) {
+            $entity->displayAsGroup = (bool) $row[$root . '.displayAsGroup'];
+        }
         if (isset($row[$root . '.createdAt'])) {
             $entity->createdAt = new \DateTimeImmutable($row[$root . '.createdAt']);
         }

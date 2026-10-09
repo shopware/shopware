@@ -87,7 +87,7 @@ class LogoutRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
@@ -132,7 +132,7 @@ class LogoutRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
@@ -209,7 +209,7 @@ class LogoutRouteTest extends TestCase
         $customerId = $this->createCustomer();
         $customer = static::getContainer()
             ->get('customer.repository')
-            ->search(new Criteria(), Context::createDefaultContext())
+            ->search(new Criteria(), Context::createDefaultContext())->getEntities()
             ->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $customer->setGuest(false);
@@ -247,7 +247,7 @@ class LogoutRouteTest extends TestCase
         $customerId = $this->createCustomer();
         $customer = static::getContainer()
             ->get('customer.repository')
-            ->search(new Criteria(), Context::createDefaultContext())
+            ->search(new Criteria(), Context::createDefaultContext())->getEntities()
             ->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $customer->setGuest(true);
@@ -266,7 +266,7 @@ class LogoutRouteTest extends TestCase
         $exists = static::getContainer()->get(Connection::class)
             ->fetchAllAssociative('SELECT * FROM sales_channel_api_context WHERE token = :token', ['token' => $login->getToken()]);
 
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
     }
 
     public function testValidLogoutAsGuest(): void

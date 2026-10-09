@@ -31,6 +31,14 @@ describe('src/plugin/alert-aria/alert-aria.plugin', () => {
         </div>
     `;
 
+    const customMarkupTemplate = `
+        <div class="alert custom-live-update" aria-live="polite">
+            <div class="custom-live-update-content">
+                Custom content
+            </div>
+        </div>
+    `;
+
     function initPlugin(template, options = {}) {
         document.body.innerHTML = template;
         return new AlertAriaPlugin(document.querySelector('.alert'), options);
@@ -95,5 +103,19 @@ describe('src/plugin/alert-aria/alert-aria.plugin', () => {
 
         expect(consoleSpy).toHaveBeenCalledWith('[AlertAriaPlugin] The "aria-live" attribute is not found on the alert. The alert will not be announced.');
         consoleSpy.mockRestore();
+    });
+
+    test('handles custom markup with content selector', () => {
+        jest.useFakeTimers();
+
+        initPlugin(customMarkupTemplate, { contentSelector: '.custom-live-update-content' });
+
+        expect(document.querySelector('.custom-live-update-content').getAttribute('aria-hidden')).toBe('true');
+
+        jest.advanceTimersByTime(1500);
+
+        expect(document.querySelector('.custom-live-update-content').getAttribute('aria-hidden')).toBe('false');
+
+        jest.useRealTimers();
     });
 });

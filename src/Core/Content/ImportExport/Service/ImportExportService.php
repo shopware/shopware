@@ -9,6 +9,7 @@ use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
+use Shopware\Core\Content\ImportExport\Processing\Mapping\UpdateByCollection;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -24,7 +25,11 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @internal
  *
- * @phpstan-type Config array{mapping?: list<array{key: string, mappedKey: string}>|array<Mapping>|null, updateBy?: array<string, mixed>|null, parameters?: array<string, mixed>|null}
+ * @phpstan-type Config array{
+ *     mapping?: list<array{key: string, mappedKey: string}>|array<Mapping>|MappingCollection|null,
+ *     updateBy?: array<string, mixed>|null|UpdateByCollection,
+ *     parameters?: array<string, mixed>|null
+ * }
  */
 #[Package('fundamentals@after-sales')]
 class ImportExportService
@@ -119,7 +124,7 @@ class ImportExportService
     {
         $criteria = new Criteria([$logId]);
         $criteria->addAssociation('file');
-        $current = $this->logRepository->search($criteria, Context::createDefaultContext())->first();
+        $current = $this->logRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         if (!$current instanceof ImportExportLogEntity) {
             throw ImportExportException::logEntityNotFound($logId);
         }

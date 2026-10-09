@@ -2,130 +2,121 @@
 
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
-use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\AppManager;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Storefront\Theme\ThemeCollection;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeAppLifecycleHandlerTest extends TestCase
 {
-    use AppSystemTestBehaviour;
     use IntegrationTestBehaviour;
 
-    private EventDispatcherInterface $eventDispatcher;
+    private AbstractAppLifecycle $appLifecycle;
+
+    private AppManager $appManager;
+
+    /**
+     * @var EntityRepository<AppCollection>
+     */
+    private EntityRepository $appRepository;
 
     /**
      * @var EntityRepository<ThemeCollection>
      */
     private EntityRepository $themeRepository;
 
+    private Context $context;
+
     protected function setUp(): void
     {
-        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
+        $this->appRepository = static::getContainer()->get('app.repository');
         $this->themeRepository = static::getContainer()->get('theme.repository');
+        $this->appLifecycle = static::getContainer()->get(AppLifecycle::class);
+        $this->appManager = static::getContainer()->get(AppManager::class);
+        $this->context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
     }
 
-    public function testHandleInstall(): void
+    #[DataProvider('keepUserDataProvider')]
+    public function testThemeRemovedOnUninstall(bool $keepUserData): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/theme');
+        $app = $this->installThemeApp();
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
+        static::assertCount(1, $this->findThemes($app->getName()));
 
-        $themes = $this->themeRepository->search($criteria, Context::createDefaultContext())->getEntities();
-
-        static::assertCount(1, $themes);
-        static::assertNotNull($themes->first());
-        static::assertTrue($themes->first()->isActive());
-    }
-
-    public function testHandleUpdateIfNotActivated(): void
-    {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/theme', false);
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/fixtures/Apps/theme/manifest.xml');
-
-        $this->eventDispatcher->dispatch(
-            new AppUpdatedEvent(
-                (new AppEntity())->assign([
-                    'id' => Uuid::randomHex(),
-                    'active' => false,
-                    'name' => 'SwagTheme',
-                    'version' => '1.0.0',
-                    'path' => str_replace(
-                        static::getContainer()->getParameter('kernel.project_dir') . '/',
-                        '',
-                        $manifest->getPath()
-                    ),
-                ]),
-                $manifest,
-                Context::createDefaultContext()
-            )
+        $this->appLifecycle->uninstall(
+            $app->getName(),
+            ['id' => $app->getId()],
+            $this->context,
+            $keepUserData
         );
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', $manifest->getMetadata()->getName()));
-
-        $themes = $this->themeRepository->search($criteria, Context::createDefaultContext())->getEntities();
-
-        static::assertCount(0, $themes);
+        static::assertCount($keepUserData ? 1 : 0, $this->findThemes($app->getName()));
+        static::assertCount(0, $this->appRepository->searchIds(new Criteria(), $this->context)->getIds());
     }
 
-    public function testHandleUninstallIfNotInstalled(): void
+    public function testLocalDeleteRemovesAppWithoutNotifyingAppServerAndLeavesThemeRecord(): void
     {
-        $this->eventDispatcher->dispatch(
-            new AppDeactivatedEvent(
-                (new AppEntity())->assign([
-                    'name' => 'SwagTheme',
-                ]),
-                Context::createDefaultContext()
-            )
-        );
+        $app = $this->installThemeApp();
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
+        static::assertCount(1, $this->findThemes($app->getName()));
 
-        $themes = $this->themeRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        // local-only delete (e.g. the uninstall-apps shop-id strategy): the app server is not notified
+        $this->appManager->delete($app, $this->context);
 
-        static::assertCount(0, $themes);
+        // the app is gone, but the theme record is intentionally left in place (matches the
+        // behaviour for copied shops); only an uninstall removes the theme record
+        static::assertCount(0, $this->appRepository->searchIds(new Criteria(), $this->context)->getIds());
+        static::assertCount(1, $this->findThemes($app->getName()));
     }
 
-    public function testHandleUninstallDeactivatesTheme(): void
+    /**
+     * @return array<string, array<int, bool>>
+     */
+    public static function keepUserDataProvider(): array
     {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/theme');
+        return [
+            'keep user data' => [true],
+            'remove user data' => [false],
+        ];
+    }
 
+    private function installThemeApp(): AppEntity
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/fixtures/Apps/SwagTheme/manifest.xml');
+        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+
+        $app = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertNotNull($app);
+
+        return $app;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function findThemes(string $technicalName): array
+    {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
-        $themes = $this->themeRepository->search($criteria, Context::createDefaultContext())->getEntities();
-        static::assertCount(1, $themes);
-        static::assertNotNull($themes->first());
-        static::assertTrue($themes->first()->isActive());
+        $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
 
-        $this->eventDispatcher->dispatch(
-            new AppDeactivatedEvent(
-                (new AppEntity())->assign([
-                    'name' => 'SwagTheme',
-                ]),
-                Context::createDefaultContext()
-            )
-        );
-
-        $themes = $this->themeRepository->search($criteria, Context::createDefaultContext())->getEntities();
-
-        static::assertCount(1, $themes);
-        static::assertNotNull($themes->first());
-        static::assertFalse($themes->first()->isActive());
+        return $this->themeRepository->search($criteria, $this->context)->getEntities()->getElements();
     }
 }

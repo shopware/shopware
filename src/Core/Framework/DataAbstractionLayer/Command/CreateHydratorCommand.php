@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -38,14 +37,15 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'dal:create:hydrators',
     description: 'Creates the hydrator classes',
 )]
-#[Package('framework')]
 class CreateHydratorCommand extends Command
 {
     private readonly string $dir;
@@ -70,7 +70,7 @@ class CreateHydratorCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $io->title('DAL generate hydrators');
 
         if ($this->hasInactiveFeatureFlag()) {
@@ -82,9 +82,10 @@ class CreateHydratorCommand extends Command
         $entities = $this->registry->getDefinitions();
         $classes = [];
         $services = [];
+        $uses = [];
 
         $whitelist = $input->getArgument('whitelist');
-        if (empty($whitelist)) {
+        if ($whitelist === []) {
             $whitelist = [];
 
             $startsWith = ['product', 'category', 'property'];
@@ -117,7 +118,11 @@ class CreateHydratorCommand extends Command
                 $classes[$this->getDefinitionFile($entity)] = $content;
             }
 
-            $services[] = $this->generateService($entity);
+            // key by hydrator class: the registry can yield the same definition twice,
+            // and a duplicated use statement would be a PHP fatal error
+            $hydratorClass = $this->getNamespace($entity) . '\\' . $this->getClass($entity);
+            $services[$hydratorClass] = $this->generateService($entity);
+            $uses[$hydratorClass] = $hydratorClass;
         }
 
         $io->success('Created schema in ' . $this->dir);
@@ -131,24 +136,35 @@ class CreateHydratorCommand extends Command
             }
         }
 
-        $file = $this->dir . '/Core/Framework/DependencyInjection/hydrator.xml';
+        $file = $this->dir . '/Core/Framework/DependencyInjection/hydrator.php';
 
         try {
-            $content = <<<EOF
-<?xml version="1.0" ?>
+            $content = <<<'EOF'
+<?php declare(strict_types=1);
 
-<container xmlns="http://symfony.com/schema/dic/services"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+namespace Shopware\Core\Framework\DependencyInjection;
 
-    <services>
+#uses#
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+
+return static function (ContainerConfigurator $containerConfigurator): void {
+    $services = $containerConfigurator->services();
+
 #services#
-    </services>
-</container>
+};
 
 EOF;
 
-            $content = str_replace('#services#', implode("\n\n", $services), $content);
+            uksort($uses, 'strcasecmp');
+            $useStatements = array_map(static fn (string $class): string => 'use ' . $class . ';', $uses);
+
+            $content = str_replace(
+                ['#uses#', '#services#'],
+                [implode("\n", $useStatements), implode("\n\n", $services)],
+                $content
+            );
 
             $this->filesystem->dumpFile($file, $content);
         } catch (IOException $e) {
@@ -205,18 +221,15 @@ EOF;
 
     private function generateService(EntityDefinition $definition): string
     {
-        $template = <<<EOF
-        <service id="#namespace#\#class#" public="true">
-            <argument type="service" id="service_container"/>
-        </service>
+        $template = <<<'EOF'
+    $services->set(#class#::class)
+        ->public()
+        ->args([
+            service('service_container'),
+        ]);
 EOF;
 
-        $vars = [
-            '#namespace#' => $this->getNamespace($definition),
-            '#class#' => $this->getClass($definition),
-        ];
-
-        return str_replace(array_keys($vars), array_values($vars), $template);
+        return str_replace('#class#', $this->getClass($definition), $template);
     }
 
     private function generate(EntityDefinition $definition): string
@@ -329,7 +342,6 @@ class #class# extends EntityHydrator
 {
     protected function assign(EntityDefinition \$definition, Entity \$entity, string \$root, array \$row, Context \$context): Entity
     {
-
         #fields#
 
         \$this->translate(\$definition, \$entity, \$row, \$root, \$context, \$definition->getTranslatedFields());

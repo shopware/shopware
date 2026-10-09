@@ -4,9 +4,10 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
@@ -19,46 +20,46 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeScripts::class)]
 class ThemeScriptsTest extends TestCase
 {
     private RequestStack $requestStack;
 
-    private ThemeRuntimeConfigService&MockObject $themeRuntimeConfigService;
+    private ThemeRuntimeConfigService&Stub $themeRuntimeConfigService;
 
-    private FilesystemOperator&MockObject $tempFilesystem;
+    private FilesystemOperator&Stub $tempFilesystem;
 
-    private LoggerInterface&MockObject $logger;
+    private LoggerInterface&Stub $logger;
 
     private ThemeScripts $themeScripts;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
-        $this->tempFilesystem = $this->createMock(FilesystemOperator::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->themeRuntimeConfigService = static::createStub(ThemeRuntimeConfigService::class);
+        $this->tempFilesystem = static::createStub(FilesystemOperator::class);
+        $this->logger = static::createStub(LoggerInterface::class);
         $this->requestStack = new RequestStack();
-        $this->themeScripts = new ThemeScripts(
-            $this->requestStack,
-            $this->themeRuntimeConfigService,
-            $this->tempFilesystem,
-            $this->logger,
-        );
+        $this->themeScripts = $this->createThemeScripts();
     }
 
     public function testGetThemeScriptsWhenNoRequestGiven(): void
     {
-        $this->themeRuntimeConfigService->expects($this->never())->method('getResolvedRuntimeConfig');
-        static::assertSame([], $this->themeScripts->getThemeScripts());
+        $themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $themeRuntimeConfigService->expects($this->never())->method('getResolvedRuntimeConfig');
+        $themeScripts = $this->createThemeScripts($themeRuntimeConfigService);
+        static::assertSame([], $themeScripts->getThemeScripts());
     }
 
     public function testGetThemeScriptsWhenAdminRequest(): void
     {
         $this->requestStack->push(new Request());
 
-        $this->themeRuntimeConfigService->expects($this->never())->method('getResolvedRuntimeConfig');
-        static::assertSame([], $this->themeScripts->getThemeScripts());
+        $themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $themeRuntimeConfigService->expects($this->never())->method('getResolvedRuntimeConfig');
+        $themeScripts = $this->createThemeScripts($themeRuntimeConfigService);
+        static::assertSame([], $themeScripts->getThemeScripts());
     }
 
     public function testNotExistingTheme(): void
@@ -70,9 +71,11 @@ class ThemeScriptsTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
         $this->requestStack->push($request);
 
-        $this->themeRuntimeConfigService->expects($this->once())->method('getResolvedRuntimeConfig')->willReturn(null);
+        $themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $themeRuntimeConfigService->expects($this->once())->method('getResolvedRuntimeConfig')->willReturn(null);
+        $themeScripts = $this->createThemeScripts($themeRuntimeConfigService);
 
-        static::assertSame([], $this->themeScripts->getThemeScripts());
+        static::assertSame([], $themeScripts->getThemeScripts());
     }
 
     public function testLoadPaths(): void
@@ -96,16 +99,20 @@ class ThemeScriptsTest extends TestCase
             'iconSets' => [],
             'updatedAt' => new \DateTimeImmutable(),
         ]);
-        $this->themeRuntimeConfigService->expects($this->once())->method('getResolvedRuntimeConfig')->willReturn($themeRuntimeConfig);
+        $themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $themeRuntimeConfigService->expects($this->once())->method('getResolvedRuntimeConfig')->willReturn($themeRuntimeConfig);
+        $themeScripts = $this->createThemeScripts($themeRuntimeConfigService);
 
-        static::assertSame(['js/foo/foo.js', 'js/foo/bar.js'], $this->themeScripts->getThemeScripts());
+        static::assertSame(['js/foo/foo.js', 'js/foo/bar.js'], $themeScripts->getThemeScripts());
     }
 
     public function testGetImportMapReturnsNullWhenNoRequest(): void
     {
-        $this->themeRuntimeConfigService->expects($this->never())->method('getResolvedRuntimeConfig');
+        $themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $themeRuntimeConfigService->expects($this->never())->method('getResolvedRuntimeConfig');
+        $themeScripts = $this->createThemeScripts($themeRuntimeConfigService);
 
-        static::assertNull($this->themeScripts->getImportMap());
+        static::assertNull($themeScripts->getImportMap());
     }
 
     public function testGetImportMapReturnsNullWhenNoBuildPresent(): void
@@ -170,7 +177,7 @@ class ThemeScriptsTest extends TestCase
 
     public function testGetDevImportMapReturnsNullWhenFlagFileAbsent(): void
     {
-        $this->tempFilesystem->method('fileExists')->with('cache/storefront_components.dev.json')->willReturn(false);
+        $this->tempFilesystem->method('fileExists')->willReturn(false);
 
         static::assertNull($this->themeScripts->getDevImportMap());
     }
@@ -179,19 +186,21 @@ class ThemeScriptsTest extends TestCase
     {
         $devMap = ['imports' => ['shopware' => 'http://localhost:5176/src/shopware.ts']];
 
-        $this->tempFilesystem->method('fileExists')->with('cache/storefront_components.dev.json')->willReturn(true);
-        $this->tempFilesystem->method('read')->with('cache/storefront_components.dev.json')->willReturn((string) json_encode($devMap));
+        $this->tempFilesystem->method('fileExists')->willReturn(true);
+        $this->tempFilesystem->method('read')->willReturn((string) json_encode($devMap));
 
         static::assertSame($devMap, $this->themeScripts->getDevImportMap());
     }
 
     public function testGetDevImportMapReturnsNullForInvalidJson(): void
     {
-        $this->tempFilesystem->method('fileExists')->with('cache/storefront_components.dev.json')->willReturn(true);
-        $this->tempFilesystem->method('read')->with('cache/storefront_components.dev.json')->willReturn('not json {{{');
-        $this->logger->expects($this->once())->method('warning');
+        $this->tempFilesystem->method('fileExists')->willReturn(true);
+        $this->tempFilesystem->method('read')->willReturn('not json {{{');
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning');
+        $themeScripts = $this->createThemeScripts(logger: $logger);
 
-        static::assertNull($this->themeScripts->getDevImportMap());
+        static::assertNull($themeScripts->getDevImportMap());
     }
 
     public function testGetDevImportMapReturnsNullWhenRequestThemeIdDoesNotMatchDevThemeId(): void
@@ -200,12 +209,13 @@ class ThemeScriptsTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'request-theme');
         $this->requestStack->push($request);
 
-        $this->tempFilesystem->method('fileExists')->with('cache/storefront_components.dev.json')->willReturn(true);
-        $this->tempFilesystem->method('read')->with('cache/storefront_components.dev.json')->willReturn((string) json_encode([
+        $this->tempFilesystem->method('fileExists')->willReturn(true);
+        $this->tempFilesystem->method('read')->willReturn((string) json_encode([
             'imports' => ['shopware' => 'http://localhost:5176/src/shopware.ts'],
             'themeId' => 'dev-theme',
         ]));
-        $this->logger->expects($this->once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
             ->method('debug')
             ->with(
                 'Storefront dev import map skipped due to theme mismatch.',
@@ -215,8 +225,9 @@ class ThemeScriptsTest extends TestCase
                     'path' => 'cache/storefront_components.dev.json',
                 ]
             );
+        $themeScripts = $this->createThemeScripts(logger: $logger);
 
-        static::assertNull($this->themeScripts->getDevImportMap());
+        static::assertNull($themeScripts->getDevImportMap());
     }
 
     public function testGetDevImportMapReturnsMapWhenRequestThemeIdMatchesDevThemeId(): void
@@ -230,8 +241,8 @@ class ThemeScriptsTest extends TestCase
             'themeId' => 'storefront',
         ];
 
-        $this->tempFilesystem->method('fileExists')->with('cache/storefront_components.dev.json')->willReturn(true);
-        $this->tempFilesystem->method('read')->with('cache/storefront_components.dev.json')->willReturn((string) json_encode($devMap));
+        $this->tempFilesystem->method('fileExists')->willReturn(true);
+        $this->tempFilesystem->method('read')->willReturn((string) json_encode($devMap));
 
         static::assertSame($devMap, $this->themeScripts->getDevImportMap());
     }
@@ -246,8 +257,8 @@ class ThemeScriptsTest extends TestCase
             'themeId' => 'storefront',
         ];
 
-        $this->tempFilesystem->method('fileExists')->with('cache/storefront_components.dev.json')->willReturn(true);
-        $this->tempFilesystem->method('read')->with('cache/storefront_components.dev.json')->willReturn((string) json_encode($devMap));
+        $this->tempFilesystem->method('fileExists')->willReturn(true);
+        $this->tempFilesystem->method('read')->willReturn((string) json_encode($devMap));
 
         static::assertSame($devMap, $this->themeScripts->getDevImportMap());
     }
@@ -263,10 +274,24 @@ class ThemeScriptsTest extends TestCase
             'themeId' => 123,
         ];
 
-        $this->tempFilesystem->method('fileExists')->with('cache/storefront_components.dev.json')->willReturn(true);
-        $this->tempFilesystem->method('read')->with('cache/storefront_components.dev.json')->willReturn((string) json_encode($devMap));
-        $this->logger->expects($this->never())->method('debug');
+        $this->tempFilesystem->method('fileExists')->willReturn(true);
+        $this->tempFilesystem->method('read')->willReturn((string) json_encode($devMap));
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('debug');
+        $themeScripts = $this->createThemeScripts(logger: $logger);
 
-        static::assertSame($devMap, $this->themeScripts->getDevImportMap());
+        static::assertSame($devMap, $themeScripts->getDevImportMap());
+    }
+
+    private function createThemeScripts(
+        ?ThemeRuntimeConfigService $themeRuntimeConfigService = null,
+        ?LoggerInterface $logger = null,
+    ): ThemeScripts {
+        return new ThemeScripts(
+            $this->requestStack,
+            $themeRuntimeConfigService ?? $this->themeRuntimeConfigService,
+            $this->tempFilesystem,
+            $logger ?? $this->logger,
+        );
     }
 }

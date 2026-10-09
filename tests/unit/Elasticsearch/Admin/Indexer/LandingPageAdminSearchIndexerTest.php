@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\LandingPageAdminSearchIndexer;
@@ -25,6 +26,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(LandingPageAdminSearchIndexer::class)]
 class LandingPageAdminSearchIndexerTest extends TestCase
 {
@@ -33,10 +35,10 @@ class LandingPageAdminSearchIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->searchIndexer = new LandingPageAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
     }
@@ -44,10 +46,10 @@ class LandingPageAdminSearchIndexerTest extends TestCase
     public function testGetUpdatedIds(): void
     {
         $indexer = new LandingPageAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -85,7 +87,7 @@ class LandingPageAdminSearchIndexerTest extends TestCase
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $landingPage = new LandingPageEntity();
         $landingPage->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -100,10 +102,10 @@ class LandingPageAdminSearchIndexerTest extends TestCase
         );
 
         $indexer = new LandingPageAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
             $repository,
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -125,9 +127,9 @@ class LandingPageAdminSearchIndexerTest extends TestCase
 
         $indexer = new LandingPageAdminSearchIndexer(
             $connection,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -148,7 +150,7 @@ class LandingPageAdminSearchIndexerTest extends TestCase
 
     private function getConnection(): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $languageId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         $connection->method('fetchAllAssociative')->willReturn(

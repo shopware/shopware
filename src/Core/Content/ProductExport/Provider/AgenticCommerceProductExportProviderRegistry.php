@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Content\ProductExport\Provider;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
+ * @deprecated tag:v6.8.0 - Will be removed and is going to be part of SwagAgenticCommerce
  */
 #[Package('discovery')]
 readonly class AgenticCommerceProductExportProviderRegistry
@@ -21,6 +22,8 @@ readonly class AgenticCommerceProductExportProviderRegistry
 
     public function getByTechnicalName(string $technicalName): ?AbstractAgenticCommerceProductExportProvider
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'Will be part of SwagAgenticCommerce'));
+
         foreach ($this->providers as $provider) {
             if ($provider->getTechnicalName() === $technicalName) {
                 return $provider;

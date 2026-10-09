@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Stock\StockData;
 use Shopware\Core\Content\Product\Stock\StockDataCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(StockDataCollection::class)]
 class StockDataCollectionTest extends TestCase
 {
@@ -17,7 +19,7 @@ class StockDataCollectionTest extends TestCase
     {
         $collection = new StockDataCollection([]);
 
-        static::assertEmpty($collection->all());
+        static::assertCount(0, $collection->all());
     }
 
     public function testGetStockForProductId(): void
@@ -39,7 +41,7 @@ class StockDataCollectionTest extends TestCase
     {
         $collection = new StockDataCollection([]);
 
-        static::assertEmpty($collection->all());
+        static::assertCount(0, $collection->all());
 
         $stock1 = new StockData('12345', 10, true);
 

@@ -1,0 +1,38 @@
+{
+  "customer": [
+    {
+      "id": "{customer-0}",
+      "customerNumber": "customer-0",
+      "firstName": "Max",
+      "lastName": "Mustermann",
+      "email": "max@mustermann.com",
+      "groupId": "{customer-group}",
+      "defaultBillingAddressId": "{default-billing-address}",
+      "defaultBillingAddress": {
+        "firstName": "Max",
+        "lastName": "Mustermann",
+        "city": "Bielefeld",
+        "salutationId": "{salutation}",
+        "street": "Buchenweg 5",
+        "zipcode": "33062",
+        "countryId": "{country}",
+        "id": "{default-billing-address}"
+      },
+      "defaultShippingAddressId": "{default-billing-address}",
+      "defaultPaymentMethodId": "{default-payment-method}",
+      "salesChannelId": "{sales-channel}",
+      "addresses": {
+        "default-address": {
+          "firstName": "Max",
+          "lastName": "Mustermann",
+          "city": "Bielefeld",
+          "salutationId": "{salutation}",
+          "street": "Buchenweg 5",
+          "zipcode": "33062",
+          "countryId": "{country}"
+        }
+      },
+      "salutationId": "{salutation}"
+    }
+  ]
+}

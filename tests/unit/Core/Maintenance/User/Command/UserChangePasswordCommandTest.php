@@ -27,8 +27,7 @@ class UserChangePasswordCommandTest extends TestCase
 
     public function testUnknownUser(): void
     {
-        /** @var StaticEntityRepository<UserCollection> $userRepo */
-        $userRepo = new StaticEntityRepository([[]]);
+        $userRepo = StaticEntityRepository::of(UserCollection::class, [[]]);
         $command = new UserChangePasswordCommand($userRepo);
 
         $commandTester = new CommandTester($command);
@@ -47,8 +46,7 @@ class UserChangePasswordCommandTest extends TestCase
         $userId = Uuid::randomHex();
         $newPassword = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<UserCollection> $userRepo */
-        $userRepo = new StaticEntityRepository([[$userId]]);
+        $userRepo = StaticEntityRepository::of(UserCollection::class, [[$userId]]);
         $command = new UserChangePasswordCommand($userRepo);
 
         $commandTester = new CommandTester($command);
@@ -69,7 +67,7 @@ class UserChangePasswordCommandTest extends TestCase
 
     public function testEmptyPasswordOption(): void
     {
-        $userRepo = $this->createMock(EntityRepository::class);
+        $userRepo = static::createStub(EntityRepository::class);
         $command = new UserChangePasswordCommand($userRepo);
 
         $commandTester = new CommandTester($command);

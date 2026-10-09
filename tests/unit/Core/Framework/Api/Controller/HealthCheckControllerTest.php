@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\Controller\HealthCheckController;
 use Shopware\Core\Framework\Api\HealthCheck\Event\HealthCheckEvent;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HealthCheckController::class)]
 class HealthCheckControllerTest extends TestCase
 {
@@ -30,7 +32,10 @@ class HealthCheckControllerTest extends TestCase
 
     public function testCheck(): void
     {
-        $response = $this->createHealthCheckController()->check(Context::createDefaultContext());
+        $controller = $this->createHealthCheckController();
+        $this->systemChecker->expects($this->never())->method('check');
+
+        $response = $controller->check(Context::createDefaultContext());
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertFalse($response->isCacheable());
@@ -80,7 +85,10 @@ class HealthCheckControllerTest extends TestCase
 
     public function testEventIsDispatched(): void
     {
-        $response = $this->createHealthCheckController()->check(Context::createDefaultContext());
+        $controller = $this->createHealthCheckController();
+        $this->systemChecker->expects($this->never())->method('check');
+
+        $response = $controller->check(Context::createDefaultContext());
 
         static::assertCount(1, $this->eventDispatcher->getEvents());
         static::assertInstanceOf(HealthCheckEvent::class, $this->eventDispatcher->getEvents()[0]);
@@ -96,6 +104,8 @@ class HealthCheckControllerTest extends TestCase
         ?string $validBearer = null
     ): void {
         $controller = $this->createHealthCheckController($staticToken, $validBearer);
+        $this->systemChecker->expects($expectedOAuthServerException ? $this->never() : $this->once())
+            ->method('check');
         $request = Request::create('');
         if ($headerValue !== null) {
             $request->headers->set(HealthCheckController::HEADER_AUTHORIZATION, $headerValue);
@@ -168,7 +178,7 @@ class HealthCheckControllerTest extends TestCase
         $this->eventDispatcher = new CollectingEventDispatcher();
         $this->systemChecker = $this->createMock(SystemChecker::class);
 
-        $tokenValidator = $this->createMock(SymfonyBearerTokenValidator::class);
+        $tokenValidator = static::createStub(SymfonyBearerTokenValidator::class);
         $tokenValidator->method('validateAuthorization')->willReturnCallback(
             static function (Request $request) use ($validBearer): void {
                 // simplified mock of original implementation in src/Core/Framework/Api/OAuth/SymfonyBearerTokenValidator.php

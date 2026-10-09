@@ -44,12 +44,7 @@ export default {
                             };
                         }
 
-                        if (
-                            [
-                                'sw-entity-multi-id-select',
-                                'sw-multi-select',
-                            ].includes(config.componentName)
-                        ) {
+                        if (['sw-entity-multi-id-select', 'sw-multi-select'].includes(config.componentName)) {
                             return this.condition.value[name] || [];
                         }
 
@@ -66,24 +61,6 @@ export default {
             });
 
             return values;
-        },
-
-        currentError() {
-            let error = null;
-
-            Object.values(this.config).forEach((config) => {
-                if (error) {
-                    return;
-                }
-
-                const errorProperty = Shopware.Store.get('error').getApiError(this.condition, `value.${config.name}`);
-
-                if (errorProperty) {
-                    error = errorProperty;
-                }
-            });
-
-            return error;
         },
 
         conditionClasses() {

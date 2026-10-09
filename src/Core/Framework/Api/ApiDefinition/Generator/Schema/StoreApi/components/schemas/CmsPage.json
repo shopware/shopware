@@ -1,29 +1,94 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": [],
     "components": {
         "schemas": {
             "CmsPage": {
-                "type": "object",
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "apiAlias",
+                    "sections",
+                    "id",
+                    "type"
+                ],
                 "properties": {
-                    "apiAlias": {
+                    "id": {
                         "type": "string",
-                        "enum": [
-                            "cms_page"
-                        ]
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "CMS page types can be `landingpage`, `page`, `product_list`, `product_detail`.",
+                        "type": "string"
+                    },
+                    "entity": {
+                        "description": "This field will be implemented in the future.",
+                        "type": "string"
+                    },
+                    "cssClass": {
+                        "description": "One or more CSS classes added and separated by spaces.",
+                        "type": "string"
+                    },
+                    "config": {
+                        "properties": {
+                            "backgroundColor": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "previewMediaId": {
+                        "description": "Unique identity of media to be previewed.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "translated": {
+                        "type": "object"
                     },
                     "sections": {
+                        "description": "Content sections within the CMS page (layout blocks containing slots)",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/CmsSection"
                         }
+                    },
+                    "previewMedia": {
+                        "$ref": "#/components/schemas/Media",
+                        "description": "Preview image for the CMS page in admin panel and page selection"
+                    },
+                    "landingPages": {
+                        "description": "Landing pages using this CMS layout",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LandingPage"
+                        }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "const": "cms_page"
                     }
                 },
-                "required": [
-                    "apiAlias",
-                    "sections"
-                ]
+                "type": "object"
             }
         }
     }

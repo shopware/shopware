@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
@@ -19,14 +20,15 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class AppJWTGenerateRoute
 {
     public function __construct(
         private readonly Connection $connection,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly InAppPurchase $inAppPurchase,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -46,15 +48,15 @@ class AppJWTGenerateRoute
             $key
         );
 
-        $expiration = new \DateTimeImmutable('+10 minutes');
+        $expiration = $this->clock->now()->modify('+10 minutes');
 
         /** @var non-empty-string $shopId */
         $shopId = $this->shopIdProvider->getShopId()->id;
         $builder = $configuration
             ->builder()
             ->issuedBy($shopId)
-            ->issuedAt(new \DateTimeImmutable())
-            ->canOnlyBeUsedAfter(new \DateTimeImmutable())
+            ->issuedAt($this->clock->now())
+            ->canOnlyBeUsedAfter($this->clock->now())
             ->expiresAt($expiration);
 
         $builder = $builder->withClaim('inAppPurchases', $this->inAppPurchase->getJWTByExtension($name));
@@ -103,7 +105,7 @@ LEFT JOIN acl_role ON app.acl_role_id = acl_role.id
 WHERE `app`.name = ? AND
       active = 1', [$name]);
 
-        if (empty($row)) {
+        if ($row === false) {
             throw AppException::notFound($name);
         }
 

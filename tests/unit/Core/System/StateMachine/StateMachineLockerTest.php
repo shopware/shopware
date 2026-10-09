@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
@@ -20,6 +21,7 @@ use Symfony\Component\Lock\Store\InMemoryStore;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(StateMachineLocker::class)]
 #[CoversClass(StateMachineTransitionResult::class)]
 class StateMachineLockerTest extends TestCase

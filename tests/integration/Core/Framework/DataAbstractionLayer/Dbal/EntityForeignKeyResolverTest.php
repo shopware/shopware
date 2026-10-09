@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,6 +30,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityForeignKeyResolverTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;
@@ -92,7 +94,7 @@ class EntityForeignKeyResolverTest extends TestCase
         static::assertContainsOnlyArray($deletedCategoriesRo);
 
         static::assertSame($productId, $deletedProduct[0]);
-        static::assertEmpty($deletedCategories, print_r($deletedCategories, true));
+        static::assertCount(0, $deletedCategories, print_r($deletedCategories, true));
         static::assertCount(3, $deletedCategoriesRo);
 
         foreach ($deletedCategoriesRo as $deletedRo) {
@@ -103,9 +105,7 @@ class EntityForeignKeyResolverTest extends TestCase
             }
         }
 
-        foreach ($categoryIds as $categoryId) {
-            static::fail('All category IDS must be unset at this point');
-        }
+        static::assertCount(0, $categoryIds, 'All category IDS must be unset at this point');
     }
 
     public function testNestedCascades(): void
@@ -179,7 +179,7 @@ class EntityForeignKeyResolverTest extends TestCase
 
         static::assertCount(1, $affected);
         static::assertArrayHasKey('shipping_method', $affected);
-        static::assertContains($ids->get('shipping-method'), $affected['shipping_method']);
+        static::assertSame($ids->get('shipping-method'), $affected['shipping_method'][0]['id']);
         static::assertArrayNotHasKey('sales_channel', $affected);
     }
 

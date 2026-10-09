@@ -8,6 +8,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Framework\Adapter\Twig\Extension\CategoryUrlExtension;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
@@ -18,6 +19,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  *
  * @deprecated tag:v6.8.0 - Will be removed
  */
+#[Package('framework')]
 #[CoversClass(CategoryUrlExtension::class)]
 class CategoryUrlExtensionTest extends TestCase
 {
@@ -35,7 +37,7 @@ class CategoryUrlExtensionTest extends TestCase
             ->willReturn('/navigation');
 
         $extension = new CategoryUrlExtension(
-            new RoutingExtension($this->createMock(UrlGeneratorInterface::class)),
+            new RoutingExtension(static::createStub(UrlGeneratorInterface::class)),
             $categoryUrlGenerator
         );
 

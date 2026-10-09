@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\DependencyInjection\TwigComponentBundlePass;
 use Shopware\Storefront\Storefront;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -12,6 +13,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(TwigComponentBundlePass::class)]
 class TwigComponentBundlePassTest extends TestCase
 {
@@ -63,9 +65,8 @@ class TwigComponentBundlePassTest extends TestCase
     {
         $bundlePath = '/some/storefront/path';
 
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('exists')
-            ->with($bundlePath . '/Resources/views/components')
             ->willReturn(true);
 
         $container = new ContainerBuilder();
@@ -92,9 +93,8 @@ class TwigComponentBundlePassTest extends TestCase
         $existingConfig = ['template_directory' => 'custom', 'name_prefix' => 'Custom'];
         $namespace = 'Shopware\\Storefront\\Resources\\views\\components\\';
 
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('exists')
-            ->with($bundlePath . '/Resources/views/components')
             ->willReturn(true);
 
         $container = new ContainerBuilder();

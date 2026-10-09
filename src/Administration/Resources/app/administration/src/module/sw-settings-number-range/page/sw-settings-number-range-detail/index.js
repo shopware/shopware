@@ -22,10 +22,7 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -109,7 +106,7 @@ export default {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 500);
 
             criteria.addFilter(
                 Criteria.multi('OR', [
@@ -176,10 +173,7 @@ export default {
             return !!this.numberRange.id && this.numberRange.isLoading !== true;
         },
 
-        ...mapPropertyErrors('numberRange', [
-            'name',
-            'typeId',
-        ]),
+        ...mapPropertyErrors('numberRange', ['name', 'typeId']),
 
         stateInput: {
             get() {
@@ -221,10 +215,7 @@ export default {
 
             if (this.$route.params.id && this.numberRange.isLoading !== true) {
                 this.numberRangeId = this.$route.params.id.toLowerCase();
-                await Promise.all([
-                    this.loadEntityData(),
-                    this.loadCustomFieldSets(),
-                ]);
+                await Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
             }
 
             this.isLoading = false;
@@ -354,6 +345,7 @@ export default {
                 .save(this.numberRange)
                 .then(() => {
                     this.isSaveSuccessful = true;
+                    this.invalidateNumberRangeCaches();
 
                     return this.loadEntityData();
                 })
@@ -376,6 +368,12 @@ export default {
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.number.range.index' });
+        },
+
+        invalidateNumberRangeCaches() {
+            Shopware.Service('cacheService').invalidateCaches({
+                cacheKey: ['shared-data', 'number-range-ids'],
+            });
         },
 
         onChangeLanguage() {

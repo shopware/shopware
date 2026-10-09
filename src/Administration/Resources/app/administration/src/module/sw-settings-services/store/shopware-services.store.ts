@@ -9,7 +9,7 @@ import type { RevisionData, ServicesRevision } from '../service/service-registry
 export type PermissionsConsent = {
     identifier: string;
     revision: string;
-    consentingUserId: string;
+    consentingUserId: EntityKey<'user'>;
     grantedAt: string;
 };
 

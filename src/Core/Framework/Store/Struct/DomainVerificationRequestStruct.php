@@ -2,17 +2,19 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class DomainVerificationRequestStruct extends Struct
 {
     protected string $fileName;
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-name-change - Parameter `filename` will be renamed to `fileName` and become a promoted property
-     */
+    #[ParameterNameChange(version: 'v6.8.0', parameterName: 'filename', newName: 'fileName', description: 'Will also become a promoted property.')]
     public function __construct(
         protected string $content,
         string $filename,

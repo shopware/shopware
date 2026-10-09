@@ -18,7 +18,6 @@
       "searchBarTitleSnippets": "Snippets"
     },
     "detail": {
-      "buttonSave": "Save",
       "cardGeneralTitle": "Information",
       "cardSnippetSetsTitle": "Translations",
       "labelContent": "Snippet set: {name}",
@@ -29,7 +28,8 @@
       "messageSaveError": "Snippets for \"{key}\" could not be saved.",
       "messageSaveErrorNumericKey": "Exclusively numeric snippet keys are not allowed.",
       "messageSaveSuccess": "Snippet for \"{key}\" has been saved.",
-      "textHeadline": "New snippet"
+      "textHeadline": "New snippet",
+      "labelOriginal": "Original:"
     },
     "list": {
       "identifier": "{setName} | Snippet set comparison",
@@ -39,7 +39,6 @@
       "columnKey": "Name",
       "columnValue": "Value",
       "contextMenuDelete": "Delete | Reset",
-      "contextMenuEdit": "Edit",
       "columnHeaderGridColumnTitleSet": "Snippet set",
       "columnHeaderResetTo": "Original",
       "checkboxDeleteAll": "Delete for all snippet sets | Reset for all snippet sets",
@@ -68,9 +67,6 @@
       "columnIso": "Locale",
       "columnChangedAt": "Last updated",
       "columnName": "Name",
-      "contextMenuClone": "Duplicate",
-      "contextMenuDelete": "Delete",
-      "contextMenuEdit": "Edit",
       "deleteNoteErrorMessage": "Could not delete snippet set.",
       "deleteNoteSuccessMessage": "Snippet set has been deleted.",
       "inlineEditErrorMessage": "Snippet set could not be saved | Snippet set \"{name}\" could not be saved.",

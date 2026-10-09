@@ -3,10 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Extension\DownloadRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
@@ -14,41 +15,44 @@ use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
-#[CoversClass(DownloadRoute::class)]
 #[Package('checkout')]
+#[CoversClass(DownloadRoute::class)]
 class DownloadRouteTest extends TestCase
 {
     /**
-     * @var MockObject&EntityRepository<OrderLineItemDownloadCollection>
+     * @var Stub&EntityRepository<OrderLineItemDownloadCollection>
      */
-    private MockObject&EntityRepository $downloadRepository;
+    private Stub&EntityRepository $downloadRepository;
 
-    private MockObject&DownloadResponseGenerator $downloadResponseGenerator;
+    private Stub&DownloadResponseGenerator $downloadResponseGenerator;
 
-    private MockObject&SalesChannelContext $salesChannelContext;
+    private Stub&SalesChannelContext $salesChannelContext;
 
     private DownloadRoute $downloadRoute;
 
     protected function setUp(): void
     {
-        $this->downloadRepository = $this->createMock(EntityRepository::class);
-        $this->downloadResponseGenerator = $this->createMock(DownloadResponseGenerator::class);
-        $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $this->downloadRepository = static::createStub(EntityRepository::class);
+        $this->downloadResponseGenerator = static::createStub(DownloadResponseGenerator::class);
+        $this->salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $this->downloadRoute = new DownloadRoute(
             $this->downloadRepository,
-            $this->downloadResponseGenerator
+            $this->downloadResponseGenerator,
+            new ExtensionDispatcher(new EventDispatcher())
         );
     }
 
@@ -61,8 +65,7 @@ class DownloadRouteTest extends TestCase
 
     public function testCustomerNotLoggedInException(): void
     {
-        static::expectException(CustomerException::class);
-        static::expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(CustomerException::customerNotLoggedIn());
 
         $this->downloadRoute->load(new Request(), $this->salesChannelContext);
     }
@@ -85,15 +88,14 @@ class DownloadRouteTest extends TestCase
         $customer->setId('foobar');
         $this->salesChannelContext->method('getCustomer')->willReturn($customer);
 
-        $searchResult = $this->createMock(EntitySearchResult::class);
+        $searchResult = static::createStub(EntitySearchResult::class);
         $this->downloadRepository->method('search')->willReturn($searchResult);
 
         $request = new Request();
         $request->attributes->set('downloadId', 'foo');
         $request->attributes->set('orderId', 'bar');
 
-        static::expectException(CustomerException::class);
-        static::expectExceptionMessage('Line item download file with id "foo" not found.');
+        $this->expectExceptionObject(CustomerException::downloadFileNotFound('foo'));
         $this->downloadRoute->load($request, $this->salesChannelContext);
     }
 
@@ -103,7 +105,7 @@ class DownloadRouteTest extends TestCase
         $customer->setId('foobar');
         $this->salesChannelContext->method('getCustomer')->willReturn($customer);
 
-        $searchResult = $this->createMock(EntitySearchResult::class);
+        $searchResult = static::createStub(EntitySearchResult::class);
         $download = new OrderLineItemDownloadEntity();
         $download->setId('foo');
         $download->setMedia(new MediaEntity());
@@ -118,5 +120,27 @@ class DownloadRouteTest extends TestCase
 
         $response = $this->downloadRoute->load($request, $this->salesChannelContext);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $response = new Response();
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('download-route.load.pre', function (DownloadRouteExtension $extension) use ($request, $response): void {
+            static::assertSame(['request' => $request, 'context' => $this->salesChannelContext], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new DownloadRoute(
+            $this->downloadRepository,
+            $this->downloadResponseGenerator,
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($request, $this->salesChannelContext));
     }
 }

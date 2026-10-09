@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
@@ -23,6 +25,7 @@ final readonly class PluginLifecycleSubscriber implements EventSubscriberInterfa
     public function __construct(
         private TaskRegistry $registry,
         private CacheItemPoolInterface $restartSignalCachePool,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -41,7 +44,7 @@ final readonly class PluginLifecycleSubscriber implements EventSubscriberInterfa
 
         // signal worker restart
         $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
-        $cacheItem->set(microtime(true));
+        $cacheItem->set((float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT));
         $this->restartSignalCachePool->save($cacheItem);
     }
 }

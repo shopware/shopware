@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('discovery')]
 class MediaThumbnailRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -49,9 +51,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         $thumbnailIds = static::getContainer()->get('media_thumbnail.repository')
             ->searchIds(new Criteria(), Context::createDefaultContext());
 
-        $delete = \array_values(\array_map(static fn ($id) => ['id' => $id], $thumbnailIds->getIds()));
-
-        static::getContainer()->get('media_thumbnail.repository')->delete($delete, Context::createDefaultContext());
+        static::getContainer()->get('media_thumbnail.repository')->delete($thumbnailIds->getPrimaryKeyData(), Context::createDefaultContext());
         $this->runWorker();
 
         static::assertFalse($this->getFilesystem($service)->has($thumbnailPath));
@@ -85,7 +85,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         ], Context::createDefaultContext());
 
         $media = static::getContainer()->get('media.repository')
-            ->search(new Criteria([$mediaId]), Context::createDefaultContext())
+            ->search(new Criteria([$mediaId]), Context::createDefaultContext())->getEntities()
             ->get($mediaId);
 
         static::assertInstanceOf(MediaEntity::class, $media);

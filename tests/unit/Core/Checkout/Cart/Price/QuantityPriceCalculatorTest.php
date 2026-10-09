@@ -25,8 +25,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(QuantityPriceCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(QuantityPriceCalculator::class)]
 class QuantityPriceCalculatorTest extends TestCase
 {
     #[DataProvider('priceCalculationWithGrossPricesProvider')]
@@ -63,9 +63,8 @@ class QuantityPriceCalculatorTest extends TestCase
             new NetPriceCalculator($taxCalculator, new CashRounding())
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->expects($this->any())
-            ->method('getItemRounding')
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getItemRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $lineItemPrice = $calculator->calculate($priceDefinition, $context);
@@ -87,9 +86,8 @@ class QuantityPriceCalculatorTest extends TestCase
             new NetPriceCalculator($taxCalculator, $priceRounding)
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->expects($this->any())
-            ->method('getItemRounding')
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getItemRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_FREE);
 

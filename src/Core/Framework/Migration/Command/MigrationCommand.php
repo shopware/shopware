@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Migration\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
@@ -18,11 +17,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'database:migrate',
     description: 'Executes all migrations',
 )]
-#[Package('framework')]
 class MigrationCommand extends Command
 {
     protected SymfonyStyle $io;
@@ -55,7 +54,7 @@ class MigrationCommand extends Command
     {
         $this
             ->addArgument('identifier', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'identifier to determine which migrations to run', ['core'])
-            ->addOption('all', 'all', InputOption::VALUE_NONE, 'no migration timestamp cap')
+            ->addOption('all', 'a', InputOption::VALUE_NONE, 'no migration timestamp cap')
             ->addOption('until', 'u', InputOption::VALUE_OPTIONAL, 'timestamp cap for migrations')
             ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', '0');
     }
@@ -69,7 +68,7 @@ class MigrationCommand extends Command
 
         $until = (int) $input->getOption('until');
 
-        $this->io = new ShopwareStyle($input, $output);
+        $this->io = new SymfonyStyle($input, $output);
 
         if (!$until && !$input->getOption('all')) {
             throw MigrationException::invalidArgument('missing timestamp cap or --all option');

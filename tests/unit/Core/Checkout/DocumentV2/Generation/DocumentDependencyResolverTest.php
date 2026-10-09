@@ -99,7 +99,7 @@ class DocumentDependencyResolverTest extends TestCase
     {
         $resolver = $this->createResolver($renderers);
 
-        static::expectExceptionObject($exception);
+        $this->expectExceptionObject($exception);
 
         $resolver->resolve(DocumentType::INVOICE->value, $requested);
     }
@@ -124,7 +124,6 @@ class DocumentDependencyResolverTest extends TestCase
             'renderers' => [
                 new StaticDocumentRenderer(
                     DocumentFormat::PDF,
-                    [DocumentType::INVOICE->value],
                     [DocumentFormat::HTML->value]
                 ),
             ],
@@ -139,12 +138,10 @@ class DocumentDependencyResolverTest extends TestCase
             'renderers' => [
                 new StaticDocumentRenderer(
                     DocumentFormat::PDF,
-                    [DocumentType::INVOICE->value],
                     [DocumentFormat::HTML->value]
                 ),
                 new StaticDocumentRenderer(
                     DocumentFormat::HTML,
-                    [DocumentType::INVOICE->value],
                     [DocumentFormat::PDF->value]
                 ),
             ],
@@ -159,7 +156,6 @@ class DocumentDependencyResolverTest extends TestCase
             'renderers' => [
                 new StaticDocumentRenderer(
                     DocumentFormat::PDF,
-                    [DocumentType::INVOICE->value],
                     [DocumentFormat::PDF->value]
                 ),
             ],
@@ -187,22 +183,18 @@ class DocumentDependencyResolverTest extends TestCase
         return [
             new StaticDocumentRenderer(
                 DocumentFormat::HTML,
-                [DocumentType::INVOICE->value],
                 []
             ),
             new StaticDocumentRenderer(
                 DocumentFormat::PDF,
-                [DocumentType::INVOICE->value],
                 [DocumentFormat::HTML->value]
             ),
             new StaticDocumentRenderer(
                 DocumentFormat::ZUGFERD_XML,
-                [DocumentType::INVOICE->value],
                 []
             ),
             new StaticDocumentRenderer(
                 DocumentFormat::ZUGFERD_EMBEDDED_PDF,
-                [DocumentType::INVOICE->value],
                 [DocumentFormat::PDF->value, DocumentFormat::ZUGFERD_XML->value]
             ),
         ];

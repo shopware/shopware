@@ -15,8 +15,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('checkout')]
+#[Group('store-api')]
 class ListAddressRouteTest extends TestCase
 {
     use CustomerTestTrait;
@@ -52,7 +52,7 @@ class ListAddressRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
@@ -70,7 +70,7 @@ class ListAddressRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(1, $response['total']);
-        static::assertNotEmpty($response['elements']);
+        static::assertNotCount(0, $response['elements']);
         static::assertSame('Max', $response['elements'][0]['firstName']);
         static::assertSame('Mustermann', $response['elements'][0]['lastName']);
         static::assertSame('Musterstraße 1', $response['elements'][0]['street']);
@@ -100,7 +100,7 @@ class ListAddressRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(1, $response['total']);
-        static::assertNotEmpty($response['elements']);
+        static::assertNotCount(0, $response['elements']);
         static::assertSame([
             'firstName' => 'Max',
             'apiAlias' => 'customer_address',
@@ -124,7 +124,7 @@ class ListAddressRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(1, $response['total']);
-        static::assertNotEmpty($response['elements']);
+        static::assertNotCount(0, $response['elements']);
         static::assertSame('Max', $response['elements'][0]['firstName']);
         static::assertSame('Mustermann', $response['elements'][0]['lastName']);
         static::assertSame('Musterstraße 1', $response['elements'][0]['street']);

@@ -62,6 +62,9 @@ class MediaHydrator extends EntityHydrator
         if (isset($row[$root . '.updatedAt'])) {
             $entity->updatedAt = new \DateTimeImmutable($row[$root . '.updatedAt']);
         }
+        if (isset($row[$root . '.fileHash'])) {
+            $entity->fileHash = $row[$root . '.fileHash'];
+        }
         $entity->user = $this->manyToOne($row, $root, $definition->getField('user'), $context);
         $entity->mediaFolder = $this->manyToOne($row, $root, $definition->getField('mediaFolder'), $context);
 

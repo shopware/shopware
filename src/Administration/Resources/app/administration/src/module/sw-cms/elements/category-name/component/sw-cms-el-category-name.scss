@@ -3,7 +3,7 @@
 .sw-cms-el-category-name {
     &__skeleton,
     &__placeholder {
-        background-color: $color-gray-100;
+        background-color: var(--color-background-secondary-default);
         height: 32px;
         border-radius: $border-radius-pill;
         margin-bottom: 16px;
@@ -11,7 +11,7 @@
     }
 
     &__placeholder {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         padding: 4px 12px;
     }
 }

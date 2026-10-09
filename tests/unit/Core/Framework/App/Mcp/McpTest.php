@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(Mcp::class)]
 #[Package('framework')]
+#[CoversClass(Mcp::class)]
 class McpTest extends TestCase
 {
     public function testCreateFromXmlFileWithTools(): void

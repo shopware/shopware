@@ -3,7 +3,7 @@
  */
 import template from './sw-bulk-edit-product-media.html.twig';
 
-const { Context, Utils, Mixin } = Shopware;
+const { Utils, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { isEmpty } = Utils.types;
 
@@ -13,9 +13,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         disabled: {
@@ -72,7 +70,9 @@ export default {
 
         getMediaDefaultFolderId() {
             return this.mediaDefaultFolderRepository
-                .search(this.mediaDefaultFolderCriteria, Context.api)
+                .search(this.mediaDefaultFolderCriteria, {
+                    cacheKey: ['media-default-folder', 'product'],
+                })
                 .then((mediaDefaultFolder) => {
                     const defaultFolder = mediaDefaultFolder.first();
                     if (defaultFolder === null) {

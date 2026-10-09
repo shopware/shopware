@@ -66,7 +66,7 @@ class LineItemGroupBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->context = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
+        $this->context = static::createStub(SalesChannelContext::class);
         $this->context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $quantityPriceCalculator = $this->createQuantityPriceCalculator();

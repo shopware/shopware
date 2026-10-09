@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package framework
  */
@@ -664,10 +666,7 @@ describe('core/service/login.service.js', () => {
                     ];
                 }
 
-                return [
-                    400,
-                    { error: 'invalid_grant' },
-                ];
+                return [400, { error: 'invalid_grant' }];
             });
 
             await loginService.loginByUsername('admin', 'shopware');

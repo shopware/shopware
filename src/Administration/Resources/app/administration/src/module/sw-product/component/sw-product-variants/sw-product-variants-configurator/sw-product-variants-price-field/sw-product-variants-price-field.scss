@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-product-variants-price-field {
     display: grid;
     grid-template-columns: 1fr var(--scale-size-30) 1fr;
@@ -8,12 +6,12 @@
         height: var(--scale-size-32);
         background: none;
         border: none;
-        color: var(--color-darkgray-200);
+        color: var(--color-icon-secondary-default);
         outline: none;
         cursor: pointer;
 
         &.is--locked {
-            color: var(--color-shopware-brand-500);
+            color: var(--color-icon-brand-default);
         }
     }
 

@@ -14,6 +14,10 @@ export default Shopware.Component.wrapComponentConfig({
         feedbackLink: {
             type: String,
         },
+        servicesWithAccountRequirement: {
+            type: Array,
+            default: () => [],
+        },
     },
 
     data() {

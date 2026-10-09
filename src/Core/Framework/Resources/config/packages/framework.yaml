@@ -2,7 +2,7 @@ parameters:
     messenger.default_transport_name: 'v65'
     env(MESSENGER_TRANSPORT_DSN): 'doctrine://default?auto_setup=false'
     env(MESSENGER_TRANSPORT_LOW_PRIORITY_DSN): 'doctrine://default?auto_setup=false&queue_name=low_priority'
-    env(MESSENGER_TRANSPORT_FAILURE_DSN): 'doctrine://default?queue_name=failed&auto_setup=false'
+    env(MESSENGER_TRANSPORT_FAILURE_DSN): 'doctrine://default?auto_setup=false&queue_name=failed'
     env(MAILER_DSN): 'null://null'
     env(LOCK_DSN): 'flock'
     '.container.dumper.inline_class_loader': false
@@ -53,6 +53,8 @@ framework:
             cache.tags:
                 adapter: cache.app
             cache.rate_limiter:
+                adapter: cache.app
+            cache.double_submit:
                 adapter: cache.app
     messenger:
         failure_transport: failed
@@ -144,8 +146,6 @@ framework:
             log_level: notice
         Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException:
             log_level: notice
-        Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException:
-            log_level: notice
         Shopware\Core\Checkout\Order\Exception\EmptyCartException:
             log_level: notice
         Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException:
@@ -180,8 +180,6 @@ framework:
             log_level: notice
         Shopware\Core\Framework\Uuid\Exception\InvalidUuidException:
             log_level: notice
-        Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException:
-            log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException:
             log_level: notice
         Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException:
@@ -206,23 +204,15 @@ framework:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException:
             log_level: notice
-        Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException:
-            log_level: notice
         Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException:
             log_level: notice
         Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException:
-            log_level: notice
-        Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException:
             log_level: notice
         Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException:
             log_level: notice
         Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException:
             log_level: notice
         Shopware\Core\Framework\App\Exception\AppRegistrationException:
-            log_level: notice
-        Shopware\Core\System\CustomEntity\Exception\CustomEntityNotFoundException:
-            log_level: notice
-        Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException:
             log_level: notice
         Shopware\Core\Content\Seo\Exception\InvalidTemplateException:
             log_level: notice

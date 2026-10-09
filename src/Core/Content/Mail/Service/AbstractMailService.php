@@ -6,13 +6,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\Email;
 
+/**
+ * @phpstan-import-type MailData from AbstractMailFactory
+ */
 #[Package('after-sales')]
 abstract class AbstractMailService
 {
     abstract public function getDecorated(): AbstractMailService;
 
     /**
-     * @param array<string, mixed> $data
+     * @param MailData $data
      * @param array<string, mixed> $templateData
      */
     abstract public function send(array $data, Context $context, array $templateData = []): ?Email;

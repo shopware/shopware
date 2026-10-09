@@ -1,18 +1,23 @@
-@import "~scss/variables";
 @import "~scss/mixins";
 
 .sw-extension-card-base {
+    &__select {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     &.is--deactivated {
-        background: var(--color-background-primary-disabled);
+        background: var(--color-background-tertiary-default);
         box-shadow: none;
-        border: 1px solid var(--color-border-primary-default);
+        border: 1px solid var(--color-border-secondary-default);
 
         .sw-extension-card-base__extension-activation-switch {
             background: var(--color-background-secondary-default);
         }
 
         .sw-loader {
-            background-color: var(--color-background-primary-disabled);
+            background-color: var(--color-background-tertiary-default);
         }
     }
 
@@ -30,7 +35,7 @@
     &.is--not-installed {
         background-color: var(--color-background-secondary-default);
         box-shadow: none;
-        border: 1px solid var(--color-border-primary-default);
+        border: 1px solid var(--color-border-secondary-default);
     }
 
     .sw-loader {
@@ -52,14 +57,14 @@
         background-color: var(--color-background-secondary-default);
 
         &::after {
-            border-color: var(--color-border-primary-default);
+            border-color: var(--color-border-secondary-default);
         }
     }
 
     .sw-meteor-card__content .sw-meteor-card__content-wrapper {
         display: grid;
         grid-column-gap: 24px;
-        grid-template-columns: 24px 56px 5fr 2fr minmax(min-content, 1fr) auto;
+        grid-template-columns: auto 24px 56px 5fr 2fr minmax(min-content, 1fr) auto;
         align-items: center;
         padding: 16px 32px;
         border: none;
@@ -68,18 +73,18 @@
     .sw-extension-card-base__info {
         margin-left: -8px;
         overflow: hidden;
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-2xs);
 
         .sw-extension-card-base__info-name {
             @include truncate;
 
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
             color: var(--color-text-primary-default);
-            font-weight: $font-weight-semi-bold;
+            font-weight: var(--font-weight-semibold);
         }
 
         .sw-extension-card-base__info-inactive {
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
         }
     }
 
@@ -89,7 +94,7 @@
     }
 
     .sw-extension-card-base__meta-info {
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-2xs);
         text-align: right;
 
         a {
@@ -98,7 +103,7 @@
         }
 
         &-version {
-            font-weight: $font-weight-semi-bold;
+            font-weight: var(--font-weight-semibold);
         }
     }
 
@@ -107,7 +112,7 @@
         text-decoration: underline;
         color: var(--color-text-brand-default);
         transition: color 0.1s ease;
-        font-weight: $font-weight-medium;
+        font-weight: var(--font-weight-medium);
 
         &:hover {
             color: var(--color-text-brand-hover);

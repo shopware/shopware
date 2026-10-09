@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\MailerConfigurationCompilerPass;
 use Shopware\Core\Content\Mail\Service\MailSender;
 use Shopware\Core\Content\Mail\Transport\MailerTransportLoader;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
@@ -14,6 +15,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(MailerConfigurationCompilerPass::class)]
 class MailerConfigurationCompilerPassTest extends TestCase
 {

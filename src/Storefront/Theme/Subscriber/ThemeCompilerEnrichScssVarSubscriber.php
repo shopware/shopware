@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\IOStreamHelper;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -14,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
 {
     /**
@@ -26,9 +27,6 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
     ) {
     }
 
-    /**
-     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
-     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -51,7 +49,7 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
             foreach ($this->storefrontPluginRegistry->getConfigurations() as $configuration) {
                 $allConfigs = array_merge(
                     $allConfigs,
-                    $this->configurationService->getResolvedConfiguration(
+                    $this->configurationService->getResolvedSystemConfigDefinition(
                         $configuration->getTechnicalName() . '.config',
                         $event->getContext(),
                         $event->getSalesChannelId()
@@ -64,39 +62,31 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
             }
         }
 
-        foreach ($allConfigs as $card) {
-            if (!isset($card['elements']) || !\is_array($card['elements'])) {
-                continue;
-            }
+        foreach ($allConfigs as $tab) {
+            foreach ($tab->cards as $card) {
+                foreach ($card->elements as $element) {
+                    $cssValue = $this->getCssValue($element);
 
-            foreach ($card['elements'] as $element) {
-                if (!$this->hasCssValue($element)) {
-                    continue;
+                    if ($cssValue === null) {
+                        continue;
+                    }
+
+                    $event->addVariable($element->config['css'], $cssValue);
                 }
-
-                $event->addVariable($element['config']['css'], $element['value'] ?? $element['defaultValue']);
             }
         }
     }
 
-    private function hasCssValue(mixed $element): bool
+    private function getCssValue(SystemConfigElement $element): ?string
     {
-        if (!\is_array($element)) {
-            return false;
+        if (!isset($element->config['css'])) {
+            return null;
         }
 
-        if (!\is_array($element['config'])) {
-            return false;
+        if ($element->value === null) {
+            return '';
         }
 
-        if (!isset($element['config']['css'])) {
-            return false;
-        }
-
-        if (!\is_string($element['value'] ?? $element['defaultValue'])) {
-            return false;
-        }
-
-        return true;
+        return \is_string($element->value) ? $element->value : null;
     }
 }

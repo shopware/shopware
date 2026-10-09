@@ -13,8 +13,10 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -25,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @phpstan-import-type Cookie from AppEntity
  */
+#[Package('framework')]
 #[CoversClass(AppCookieCollectListener::class)]
 class AppCookieCollectListenerTest extends TestCase
 {
@@ -241,7 +244,7 @@ class AppCookieCollectListenerTest extends TestCase
         $this->createListener()->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
-        static::assertEmpty($groups);
+        static::assertCount(0, $groups);
     }
 
     /**
@@ -258,10 +261,9 @@ class AppCookieCollectListenerTest extends TestCase
 
     private function createListener(AppEntity ...$appEntity): AppCookieCollectListener
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([
             new AppCollection([...$appEntity]),
-        ]);
+        ], new AppDefinition());
 
         return new AppCookieCollectListener($appRepo);
     }

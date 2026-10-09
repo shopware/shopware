@@ -3,6 +3,9 @@
         display: flex;
         align-items: center;
         gap: var(--scale-size-8);
+        font-size: var(--font-size-m);
+        line-height: var(--font-line-height-m);
+        font-weight: var(--font-weight-semibold);
 
         &-help-text {
             color: var(--color-icon-brand-default);

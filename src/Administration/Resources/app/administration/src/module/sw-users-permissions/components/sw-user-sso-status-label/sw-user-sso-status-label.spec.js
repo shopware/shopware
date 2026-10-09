@@ -1,5 +1,4 @@
 /**
- * @internal
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
@@ -26,11 +25,10 @@ describe('module/sw-users-permissions/components/sw-user-sso-status-label', () =
     it('should be active', async () => {
         const wrapper = await createWrapper({ active: true });
 
-        const colorBadge = await wrapper.find('.sw-color-badge');
-        expect(colorBadge.attributes('variant')).toBe('success');
+        const colorBadge = await wrapper.find('.sw-user-sso-status-label');
+        expect(colorBadge.attributes('variant')).toBe('positive');
 
-        const text = await wrapper.find('span');
-        expect(text.text()).toBe('sw-users-permissions.sso.user-listing.status-label.active');
+        expect(colorBadge.text()).toBe('sw-users-permissions.sso.user-listing.status-label.active');
     });
 
     it('should be invited', async () => {
@@ -41,11 +39,10 @@ describe('module/sw-users-permissions/components/sw-user-sso-status-label', () =
             lastName: 'foo@bar.baz',
         });
 
-        const colorBadge = await wrapper.find('.sw-color-badge');
-        expect(colorBadge.attributes('variant')).toBe('warning');
+        const colorBadge = await wrapper.find('.sw-user-sso-status-label');
+        expect(colorBadge.attributes('variant')).toBe('attention');
 
-        const text = await wrapper.find('span');
-        expect(text.text()).toBe('sw-users-permissions.sso.user-listing.status-label.invited');
+        expect(colorBadge.text()).toBe('sw-users-permissions.sso.user-listing.status-label.invited');
     });
 
     it('should be inactive', async () => {
@@ -56,10 +53,9 @@ describe('module/sw-users-permissions/components/sw-user-sso-status-label', () =
             lastName: 'bar',
         });
 
-        const colorBadge = await wrapper.find('.sw-color-badge');
-        expect(colorBadge.attributes('variant')).toBe('danger');
+        const colorBadge = await wrapper.find('.sw-user-sso-status-label');
+        expect(colorBadge.attributes('variant')).toBe('critical');
 
-        const text = await wrapper.find('span');
-        expect(text.text()).toBe('sw-users-permissions.sso.user-listing.status-label.inactive');
+        expect(colorBadge.text()).toBe('sw-users-permissions.sso.user-listing.status-label.inactive');
     });
 });

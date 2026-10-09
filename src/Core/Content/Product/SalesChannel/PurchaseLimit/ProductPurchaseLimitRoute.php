@@ -3,9 +3,11 @@
 namespace Shopware\Core\Content\Product\SalesChannel\PurchaseLimit;
 
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
+use Shopware\Core\Content\Product\Extension\ProductPurchaseLimitRouteExtension;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -15,8 +17,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('inventory')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ProductPurchaseLimitRoute extends AbstractProductPurchaseLimitRoute
 {
     /**
@@ -27,6 +29,7 @@ class ProductPurchaseLimitRoute extends AbstractProductPurchaseLimitRoute
     public function __construct(
         private readonly SalesChannelRepository $productRepository,
         private readonly AbstractProductMaxPurchaseCalculator $maxPurchaseCalculator,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -43,10 +46,19 @@ class ProductPurchaseLimitRoute extends AbstractProductPurchaseLimitRoute
     )]
     public function readProductsPurchaseLimit(Request $request, SalesChannelContext $context): ProductPurchaseLimitRouteResponse
     {
+        return $this->extensions->publish(
+            name: ProductPurchaseLimitRouteExtension::NAME,
+            extension: new ProductPurchaseLimitRouteExtension($request, $context),
+            function: $this->_readProductsPurchaseLimit(...),
+        );
+    }
+
+    private function _readProductsPurchaseLimit(Request $request, SalesChannelContext $context): ProductPurchaseLimitRouteResponse
+    {
         /** @var array<string> $ids */
         $ids = $request->query->all('ids');
 
-        if (empty($ids)) {
+        if ($ids === []) {
             throw ProductException::missingRequestParameter('ids');
         }
 
@@ -61,7 +73,7 @@ class ProductPurchaseLimitRoute extends AbstractProductPurchaseLimitRoute
             'stock',
         ]);
 
-        $products = $this->productRepository->search($criteria, $context);
+        $products = $this->productRepository->search($criteria, $context)->getEntities();
 
         $results = new ProductPurchaseLimitCollection();
 
@@ -69,7 +81,7 @@ class ProductPurchaseLimitRoute extends AbstractProductPurchaseLimitRoute
             $maxPurchase = $this->maxPurchaseCalculator->calculate($product, $context);
             $minPurchase = $product->get('minPurchase') ?? 1;
             $purchaseSteps = $product->get('purchaseSteps') ?? 1;
-            $stock = $product->get('stock') ?? null;
+            $stock = $product->get('stock');
 
             $results->add(new ProductPurchaseLimit(
                 $product->getId(),

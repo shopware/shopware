@@ -8,10 +8,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(CartBehavior::class)]
 class CartBehaviorTest extends TestCase
 {
@@ -31,5 +34,19 @@ class CartBehaviorTest extends TestCase
     {
         $cartBehavior = new CartBehavior();
         static::assertFalse($cartBehavior->hasPermission(CheckoutPermissions::ALLOW_PRODUCT_LABEL_OVERWRITES));
+    }
+
+    public function testDeprecatedIsRecalculationParameterDoesNotTriggerWhenOmitted(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        new CartBehavior([], true);
+    }
+
+    public function testDeprecatedIsRecalculationParameterThrowsWhenExplicitlyPassed(): void
+    {
+        $this->expectException(FeatureException::class);
+
+        new CartBehavior([], true, false);
     }
 }

@@ -1,81 +1,82 @@
-{% block sw_condition_base %}
+{% block sw_condition_base_field_condition %}
+{# @deprecated tag:v6.8.0 - Will be removed. Use `sw_condition_base` instead. #}
 {% block sw_product_stream_filter %}
-<div
-    class="sw-product-stream-filter"
-    :class="conditionClasses"
->
-    {% block sw_product_stream_filter_container %}
-    <div class="sw-product-stream-filter__container">
-        {% block sw_product_stream_filter_selects %}
-        <div class="sw-product-stream-filter__selects">
-            {% block sw_product_stream_filter_fields %}
-            <template
-                v-for="(definition, index) in fieldDefinitions"
-                :key="index"
-            >
-                {% block sw_product_stream_filter_field_select %}
-                <sw-product-stream-field-select
-                    v-bind="{ field: fields[index], definition, index }"
-                    :disabled="!acl.can('product_stream.editor') || undefined"
-                    :has-error="hasError"
-                    @field-changed="updateFields"
-                />
-                {% endblock %}
-            </template>
-            {% endblock %}
-
-            {% block sw_product_stream_filter_value %}
-            <sw-product-stream-value
-                v-bind="{ condition, ...lastField }"
-                :disabled="!acl.can('product_stream.editor') || undefined"
-                @type-change="changeType"
-                @boolean-change="changeBooleanValue"
-                @empty-change="changeEmptyValue"
-            />
-            {% endblock %}
-        </div>
-        {% endblock %}
-
-        {% block sw_product_stream_filter_field_actions %}
-        <sw-context-button
-            v-tooltip="getNoPermissionsTooltip('product_stream.editor', false)"
-            class="sw-product-stream-filter__context-button"
+{# @deprecated tag:v6.8.0 - Will be removed. Use `sw_condition_base_content` instead. #}
+{% block sw_product_stream_filter_container %}
+{% block sw_product_stream_filter_selects %}
+<div class="sw-product-stream-filter__fields">
+    {% block sw_product_stream_filter_fields %}
+    <template
+        v-for="(definition, index) in fieldDefinitions"
+        :key="index"
+    >
+        {% block sw_product_stream_filter_field_select %}
+        <sw-product-stream-field-select
+            v-bind="{ field: fields[index], definition, index }"
             :disabled="!acl.can('product_stream.editor') || undefined"
-        >
-            {% block sw_product_stream_filter_field_create_before_action %}
-            <sw-context-menu-item
-                class="sw-product-stream-filter__create-before-action"
-                @click="onCreateBefore"
-            >
-                {{ $t('global.sw-condition.condition.createBefore') }}
-            </sw-context-menu-item>
-            {% endblock %}
-
-            {% block sw_product_stream_filter_field_create_after_action %}
-            <sw-context-menu-item
-                class="sw-product-stream-filter__create-after-action"
-                @click="onCreateAfter"
-            >
-                {{ $t('global.sw-condition.condition.createAfter') }}
-            </sw-context-menu-item>
-            {% endblock %}
-
-            {% block sw_product_stream_filter_field_delete_action %}
-            <sw-context-menu-item
-                variant="danger"
-                @click="onDeleteCondition"
-            >
-                {{ $t('global.default.delete') }}
-            </sw-context-menu-item>
-            {% endblock %}
-        </sw-context-button>
+            :has-error="hasError"
+            @field-changed="updateFields"
+        />
         {% endblock %}
-    </div>
-    {% endblock %}
-
-    {% block sw_product_stream_filter_error %}
-    <sw-field-error :error="currentError" />
+    </template>
     {% endblock %}
 </div>
+{% endblock %}
+{% endblock %}
+{% endblock %}
+{% endblock %}
+
+{% block sw_condition_value_content %}
+{% block sw_product_stream_filter_value %}
+<sw-product-stream-value
+    v-bind="{ condition, ...lastField }"
+    :disabled="!acl.can('product_stream.editor') || undefined"
+    @type-change="changeType"
+    @boolean-change="changeBooleanValue"
+    @empty-change="changeEmptyValue"
+/>
+{% endblock %}
+{% endblock %}
+
+{% block sw_condition_base_field_actions %}
+{% block sw_product_stream_filter_field_actions %}
+<sw-context-button
+    v-tooltip="getNoPermissionsTooltip('product_stream.editor', false)"
+    class="sw-condition__context-button"
+    :disabled="!acl.can('product_stream.editor') || undefined"
+>
+    {% block sw_product_stream_filter_field_create_before_action %}
+    <sw-context-menu-item
+        class="sw-product-stream-filter__create-before-action"
+        @click="onCreateBefore"
+    >
+        {{ $t('global.sw-condition.condition.createBefore') }}
+    </sw-context-menu-item>
     {% endblock %}
+
+    {% block sw_product_stream_filter_field_create_after_action %}
+    <sw-context-menu-item
+        class="sw-product-stream-filter__create-after-action"
+        @click="onCreateAfter"
+    >
+        {{ $t('global.sw-condition.condition.createAfter') }}
+    </sw-context-menu-item>
+    {% endblock %}
+
+    {% block sw_product_stream_filter_field_delete_action %}
+    <sw-context-menu-item
+        variant="danger"
+        @click="onDeleteCondition"
+    >
+        {{ $t('global.default.delete') }}
+    </sw-context-menu-item>
+    {% endblock %}
+</sw-context-button>
+{% endblock %}
+{% endblock %}
+
+{% block sw_condition_base_error %}
+{% block sw_product_stream_filter_error %}
+<sw-field-error :error="currentError" />
+{% endblock %}
 {% endblock %}

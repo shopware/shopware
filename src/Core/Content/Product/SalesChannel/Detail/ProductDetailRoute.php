@@ -11,8 +11,8 @@ use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Extension\ProductDetailRouteExtension;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Detail\Event\ResolveVariantIdEvent;
@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -43,8 +44,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('inventory')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ProductDetailRoute extends AbstractProductDetailRoute
 {
     private const SKIP_CONFIGURATOR = 'skipConfigurator';
@@ -69,6 +70,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -92,6 +94,15 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         methods: [Request::METHOD_POST, Request::METHOD_GET]
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
+    {
+        return $this->extensions->publish(
+            name: ProductDetailRouteExtension::NAME,
+            extension: new ProductDetailRouteExtension($productId, $request, $context, $criteria),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
     {
         return Profiler::trace('product-detail-route', function () use ($productId, $request, $context, $criteria) {
             $requestedProductId = $productId;
@@ -125,6 +136,12 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
             $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
 
+            if (!$product instanceof SalesChannelProductEntity && $mainVariantId !== null && $this->isParentProductRequest($requestedProductId, $parentProductId)) {
+                $productId = $this->findBestVariant($requestedProductId, $context);
+                $criteria->setIds([$productId]);
+                $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
+            }
+
             if (!$product instanceof SalesChannelProductEntity) {
                 throw ProductException::productNotFound($productId);
             }
@@ -155,7 +172,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                     $resolverContext
                 );
 
-                $cmsPage = $pages->first();
+                $cmsPage = $pages->getEntities()->first();
                 if ($cmsPage instanceof CmsPageEntity) {
                     $product->setCmsPage($cmsPage);
                 }
@@ -251,7 +268,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             ]
         );
 
-        if (empty($productData)) {
+        if ($productData === false) {
             return [null, null];
         }
 
@@ -379,7 +396,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $slots = explode('|', $slots);
         }
 
-        if (!empty($slots) && \is_array($slots)) {
+        if (\is_array($slots) && $slots !== []) {
             $criteria
                 ->getAssociation('sections.blocks')
                 ->addFilter(new EqualsAnyFilter('slots.id', $slots));
@@ -388,14 +405,14 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         return $criteria;
     }
 
-    private function getBreadcrumbCategory(Request $request, ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
+    private function getBreadcrumbCategory(Request $request, SalesChannelProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
-        if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('BREADCRUMB_REWORK')) {
             if ($this->config->getBool('core.listing.buildBreadcrumbByReferrerCategory', $context->getSalesChannelId())) {
                 $referrerCategoryId = $request->query->get('referrerCategoryId');
 
-                if ($referrerCategoryId !== null && \in_array($referrerCategoryId, $product->getCategoryIds() ?? [], true)) {
-                    return $this->breadcrumbBuilder->loadCategory($referrerCategoryId, $context->getContext());
+                if ($referrerCategoryId !== null) {
+                    return $this->breadcrumbBuilder->getProductCategoryByReferrer($referrerCategoryId, $product, $context);
                 }
             }
         }

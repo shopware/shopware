@@ -37,7 +37,6 @@ class TranslationSerializerTest extends TestCase
 {
     public function testSerializationWithNullTranslations(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
         $translationsSerializer = $this->getTranslationSerializer($languageRepository);
@@ -51,24 +50,19 @@ class TranslationSerializerTest extends TestCase
 
     public function testSerializationWithInvalidField(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
         $translationsSerializer = $this->getTranslationSerializer($languageRepository);
 
         $field = new BlobField('foo', 'bar');
 
-        static::expectException(ImportExportException::class);
-        static::expectExceptionMessage('Expected "associationField" to be an instance of "Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField".');
+        $this->expectExceptionObject(ImportExportException::invalidInstanceType('associationField', TranslationsAssociationField::class));
 
-        $translations = \iterator_to_array($translationsSerializer->serialize($this->getConfig(), $field, []));
-
-        static::assertEmpty($translations);
+        \iterator_to_array($translationsSerializer->serialize($this->getConfig(), $field, []));
     }
 
     public function testSerialization(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 'language',
@@ -117,7 +111,6 @@ class TranslationSerializerTest extends TestCase
 
     public function testDeserializationWithEmptyTranslations(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
         $translationsSerializer = $this->getTranslationSerializer($languageRepository);
@@ -129,24 +122,19 @@ class TranslationSerializerTest extends TestCase
 
     public function testDeserializationWithInvalidField(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
         $translationsSerializer = $this->getTranslationSerializer($languageRepository);
 
         $field = new BlobField('foo', 'bar');
 
-        static::expectException(ImportExportException::class);
-        static::expectExceptionMessage('Expected "associationField" to be an instance of "*ToOneField".');
+        $this->expectExceptionObject(ImportExportException::invalidInstanceType('associationField', '*ToOneField'));
 
-        $translations = $translationsSerializer->deserialize($this->getConfig(), $field, []);
-
-        static::assertEmpty($translations);
+        $translationsSerializer->deserialize($this->getConfig(), $field, []);
     }
 
     public function testDeserialization(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
         $translationsSerializer = $this->getTranslationSerializer($languageRepository);
@@ -175,7 +163,6 @@ class TranslationSerializerTest extends TestCase
 
     public function testSupports(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
         $translationsSerializer = new TranslationsSerializer($languageRepository);
 

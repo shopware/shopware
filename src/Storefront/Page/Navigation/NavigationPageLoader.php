@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('framework')]
+#[Package('discovery')]
 class NavigationPageLoader implements NavigationPageLoaderInterface
 {
     /**
@@ -53,7 +53,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         $page->setNavigationId($category->getId());
         $page->setCategory($category);
 
-        if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('BREADCRUMB_REWORK')) {
             $page->setBreadcrumb($this->breadcrumbBuilder->getCategoryBreadcrumbUrls($category, $context->getContext(), $context->getSalesChannel()));
         }
 

@@ -41,8 +41,8 @@ class JoinGroupBuilderTest extends TestCase
                 ProductCategoryDefinition::class,
                 CategoryDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $definition = $registry->get(ProductDefinition::class);
@@ -80,8 +80,8 @@ class JoinGroupBuilderTest extends TestCase
                 StateMachineDefinition::class,
                 StateMachineStateDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $builder = new JoinGroupBuilder();

@@ -21,10 +21,7 @@ export default {
         'acl',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     props: {
         salesChannel: {
@@ -58,6 +55,7 @@ export default {
     },
 
     computed: {
+        /** @deprecated tag:v6.8.0 - Will be removed */
         isAgenticCommerce() {
             return this.salesChannel?.typeId === Defaults.agenticCommerceTypeId;
         },

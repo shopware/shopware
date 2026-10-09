@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -16,6 +16,8 @@ use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -31,51 +33,55 @@ use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoaderInterface;
+use Shopware\Tests\Unit\Storefront\Controller\Stub\NavigationControllerStub;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(NavigationController::class)]
 class NavigationControllerTest extends TestCase
 {
-    private NavigationPageLoaderInterface&MockObject $pageLoader;
+    private NavigationPageLoaderInterface&Stub $pageLoader;
 
-    private MenuOffcanvasPageletLoaderInterface&MockObject $offCanvasLoader;
+    private MenuOffcanvasPageletLoaderInterface&Stub $offCanvasLoader;
 
-    private NavigationControllerTestClass $controller;
+    private NavigationControllerStub $controller;
 
-    private HeaderPageletLoaderInterface&MockObject $headerLoader;
+    private HeaderPageletLoaderInterface&Stub $headerLoader;
 
-    private FooterPageletLoaderInterface&MockObject $footerLoader;
+    private FooterPageletLoaderInterface&Stub $footerLoader;
 
     private AbstractCategoryUrlGenerator $categoryUrlGenerator;
 
-    private SeoUrlPlaceholderHandlerInterface&MockObject $seoUrlReplacer;
+    private SeoUrlPlaceholderHandlerInterface&Stub $seoUrlReplacer;
 
     protected function setUp(): void
     {
-        $this->pageLoader = $this->createMock(NavigationPageLoaderInterface::class);
-        $this->offCanvasLoader = $this->createMock(MenuOffcanvasPageletLoaderInterface::class);
-        $this->headerLoader = $this->createMock(HeaderPageletLoaderInterface::class);
-        $this->footerLoader = $this->createMock(FooterPageletLoaderInterface::class);
+        $this->pageLoader = static::createStub(NavigationPageLoaderInterface::class);
+        $this->offCanvasLoader = static::createStub(MenuOffcanvasPageletLoaderInterface::class);
+        $this->headerLoader = static::createStub(HeaderPageletLoaderInterface::class);
+        $this->footerLoader = static::createStub(FooterPageletLoaderInterface::class);
 
-        $this->seoUrlReplacer = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
+        $this->seoUrlReplacer = static::createStub(SeoUrlPlaceholderHandlerInterface::class);
         $this->seoUrlReplacer->method('replace')
             ->willReturnCallback(static fn (string $url) => $url);
-        $this->seoUrlReplacer->method('generate')
-            ->willReturnCallback(static function (string $route, array $parameters) {
-                return match ($route) {
-                    'frontend.detail.page' => '/product/' . $parameters['productId'],
-                    'frontend.navigation.page' => '/navigation/' . $parameters['navigationId'],
-                    'frontend.home.page' => '/',
-                    default => '/' . $route,
+
+        $entityRouteResolver = static::createStub(EntityRouteResolver::class);
+        $entityRouteResolver->method('generateSeoUrlPlaceholder')
+            ->willReturnCallback(static function (string $entityName, string $primaryKey) {
+                return match ($entityName) {
+                    'product' => '/product/' . $primaryKey,
+                    'category' => '/navigation/' . $primaryKey,
+                    'landing_page' => '/landingPage/' . $primaryKey,
+                    default => '/' . $entityName,
                 };
             });
-        $this->categoryUrlGenerator = new CategoryUrlGenerator($this->seoUrlReplacer);
+        $this->categoryUrlGenerator = new CategoryUrlGenerator($entityRouteResolver);
 
-        $this->controller = new NavigationControllerTestClass(
+        $this->controller = new NavigationControllerStub(
             $this->pageLoader,
             $this->offCanvasLoader,
             $this->headerLoader,
@@ -94,7 +100,7 @@ class NavigationControllerTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         $this->controller->home($request, $context);
-        static::assertSame('@Storefront/storefront/page/content/index.html.twig', $this->controller->renderStorefrontView);
+        static::assertSame('@Storefront/storefront/page/content/index.html.twig', $this->controller->recorder()->renderStorefrontView);
     }
 
     public function testIndexRendersStorefront(): void
@@ -114,7 +120,7 @@ class NavigationControllerTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         $this->controller->index($context, $request);
-        static::assertSame('@Storefront/storefront/page/content/index.html.twig', $this->controller->renderStorefrontView);
+        static::assertSame('@Storefront/storefront/page/content/index.html.twig', $this->controller->recorder()->renderStorefrontView);
     }
 
     public static function redirectOnLinkTypeDataProvider(): \Generator
@@ -228,7 +234,7 @@ class NavigationControllerTest extends TestCase
 
         $response = $this->controller->offcanvas($request, $context);
         static::assertSame('noindex', $response->headers->get('x-robots-tag'));
-        static::assertSame('@Storefront/storefront/layout/navigation/offcanvas/navigation-pagelet.html.twig', $this->controller->renderStorefrontView);
+        static::assertSame('@Storefront/storefront/layout/navigation/offcanvas/navigation-pagelet.html.twig', $this->controller->recorder()->renderStorefrontView);
     }
 
     public function testHeaderRendersStorefront(): void
@@ -237,14 +243,16 @@ class NavigationControllerTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $headerPagelet = new HeaderPagelet(new Tree(null, []), new LanguageCollection(), new CurrencyCollection());
 
-        $this->headerLoader->expects($this->once())->method('load')->with($request, $context)->willReturn($headerPagelet);
+        $headerLoader = $this->createMock(HeaderPageletLoaderInterface::class);
+        $headerLoader->expects($this->once())->method('load')->with($request, $context)->willReturn($headerPagelet);
 
+        $this->controller = $this->buildController(headerLoader: $headerLoader);
         $this->controller->header($request, $context);
-        static::assertSame('@Storefront/storefront/layout/header.html.twig', $this->controller->renderStorefrontView);
-        static::assertSame(['foo' => 'bar'], $this->controller->renderStorefrontParameters['headerParameters']);
+        static::assertSame('@Storefront/storefront/layout/header.html.twig', $this->controller->recorder()->renderStorefrontView);
+        static::assertSame(['foo' => 'bar'], $this->controller->recorder()->renderStorefrontParameters['headerParameters']);
 
-        static::assertInstanceOf(HeaderPageletLoadedHook::class, $this->controller->calledHook);
-        static::assertSame($headerPagelet, $this->controller->calledHook->getPage());
+        static::assertInstanceOf(HeaderPageletLoadedHook::class, $this->controller->recorder()->calledHook);
+        static::assertSame($headerPagelet, $this->controller->recorder()->calledHook->getPage());
     }
 
     public function testFooterRendersStorefront(): void
@@ -253,21 +261,29 @@ class NavigationControllerTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $footerPagelet = new FooterPagelet(null, new CategoryCollection(), new PaymentMethodCollection(), new ShippingMethodCollection());
 
-        $this->footerLoader->expects($this->once())->method('load')->with($request, $context)->willReturn($footerPagelet);
+        $footerLoader = $this->createMock(FooterPageletLoaderInterface::class);
+        $footerLoader->expects($this->once())->method('load')->with($request, $context)->willReturn($footerPagelet);
 
+        $this->controller = $this->buildController(footerLoader: $footerLoader);
         $this->controller->footer($request, $context);
-        static::assertSame('@Storefront/storefront/layout/footer.html.twig', $this->controller->renderStorefrontView);
-        static::assertSame(['foo' => 'bar'], $this->controller->renderStorefrontParameters['footerParameters']);
+        static::assertSame('@Storefront/storefront/layout/footer.html.twig', $this->controller->recorder()->renderStorefrontView);
+        static::assertSame(['foo' => 'bar'], $this->controller->recorder()->renderStorefrontParameters['footerParameters']);
 
-        static::assertInstanceOf(FooterPageletLoadedHook::class, $this->controller->calledHook);
-        static::assertSame($footerPagelet, $this->controller->calledHook->getPage());
+        static::assertInstanceOf(FooterPageletLoadedHook::class, $this->controller->recorder()->calledHook);
+        static::assertSame($footerPagelet, $this->controller->recorder()->calledHook->getPage());
     }
-}
 
-/**
- * @internal
- */
-class NavigationControllerTestClass extends NavigationController
-{
-    use StorefrontControllerMockTrait;
+    private function buildController(
+        ?HeaderPageletLoaderInterface $headerLoader = null,
+        ?FooterPageletLoaderInterface $footerLoader = null,
+    ): NavigationControllerStub {
+        return new NavigationControllerStub(
+            $this->pageLoader,
+            $this->offCanvasLoader,
+            $headerLoader ?? $this->headerLoader,
+            $footerLoader ?? $this->footerLoader,
+            $this->categoryUrlGenerator,
+            $this->seoUrlReplacer,
+        );
+    }
 }

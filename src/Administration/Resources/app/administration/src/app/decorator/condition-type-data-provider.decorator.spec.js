@@ -59,6 +59,7 @@ const EXPECTED_CONDITION_TYPES = [
     'cartLineItemTotalPrice',
     'cartLineItemUnitPrice',
     'cartLineItemWithQuantity',
+    'cartLineItemPerItemQuantity',
     'cartHasDeliveryFreeItem',
     'dayOfWeek',
     'cartWeight',
@@ -98,7 +99,6 @@ const EXPECTED_CONDITION_TYPES = [
     'customerBirthday',
     'customerCreatedByAdmin',
     'customerSalutation',
-    'cartLineItemProductStates',
     'cartLineItemProductType',
     'orderTag',
     'orderTrackingCode',
@@ -140,9 +140,12 @@ describe('app/decorator/condition-type-data-provider.decorator', () => {
 
     it('should register exactly the expected rule conditions', () => {
         const registered = Object.keys(service.$store);
+        const expected = Shopware.Feature.isActive('v6.8.0.0')
+            ? EXPECTED_CONDITION_TYPES
+            : [...EXPECTED_CONDITION_TYPES, 'cartLineItemProductStates'];
 
-        expect(registered).toHaveLength(EXPECTED_CONDITION_TYPES.length);
-        expect([...registered].sort()).toEqual([...EXPECTED_CONDITION_TYPES].sort());
+        expect(registered).toHaveLength(expected.length);
+        expect([...registered].sort()).toEqual([...expected].sort());
     });
 
     it('should register exactly the expected awareness configurations', () => {
@@ -203,6 +206,49 @@ describe('app/decorator/condition-type-data-provider.decorator', () => {
             jest.restoreAllMocks();
         },
     );
+
+    it.activeFeatureFlags(['v6.8.0.0'])('removes the legacy product states condition with the 6.8 major flag', () => {
+        const conditionService = ruleConditionTypeDataProvider(new RuleConditionService());
+
+        expect(conditionService.$store).not.toHaveProperty('cartLineItemProductStates');
+    });
+
+    it.each(CONDITIONS.filter((condition) => Boolean(condition.removedInFeature)))(
+        'should register a deprecation for $type with version $removedInFeature',
+        ({ type, removedInFeature, label, replacement }) => {
+            const conditionService = ruleConditionTypeDataProvider(new RuleConditionService());
+
+            expect(conditionService.$deprecations[type]).toEqual({
+                version: removedInFeature,
+                label,
+                replacement,
+            });
+        },
+    );
+
+    it.each(CONDITIONS.filter((condition) => Boolean(condition.removedInFeature)))(
+        'should register a deprecation for $type even when feature flag $removedInFeature is active',
+        ({ type, removedInFeature }) => {
+            jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === removedInFeature);
+
+            const conditionService = ruleConditionTypeDataProvider(new RuleConditionService());
+            expect(conditionService.$deprecations[type]).toBeDefined();
+
+            jest.restoreAllMocks();
+        },
+    );
+
+    it('should not register deprecations for conditions without removedInFeature', () => {
+        const conditionService = ruleConditionTypeDataProvider(new RuleConditionService());
+
+        const nonDeprecatedTypes = CONDITIONS.filter((condition) => !condition.removedInFeature).map(
+            (condition) => condition.type,
+        );
+
+        nonDeprecatedTypes.forEach((type) => {
+            expect(conditionService.$deprecations[type]).toBeUndefined();
+        });
+    });
 
     it('should add app script conditions', () => {
         service.addScriptConditions([

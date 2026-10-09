@@ -13,8 +13,8 @@ use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\StubCheckoutGatew
 /**
  * @internal
  */
-#[CoversClass(CheckoutGatewayCommandRegistry::class)]
 #[Package('checkout')]
+#[CoversClass(CheckoutGatewayCommandRegistry::class)]
 class CheckoutGatewayCommandRegistryTest extends TestCase
 {
     public function testConstruct(): void

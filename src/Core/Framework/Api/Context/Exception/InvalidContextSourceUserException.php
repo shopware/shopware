@@ -7,6 +7,8 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed in v6.8.0.0. Use `\Shopware\Core\Framework\Store\StoreException::invalidContextSourceUser` instead.
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class InvalidContextSourceUserException extends ShopwareHttpException

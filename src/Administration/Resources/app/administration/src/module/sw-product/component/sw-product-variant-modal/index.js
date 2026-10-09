@@ -12,16 +12,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     emits: ['modal-close'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         // this is the parent product entity from wich we will get all the variants
@@ -139,8 +134,11 @@ export default {
             criteria.addAssociation('tax');
 
             if (this.searchTerm) {
-                // Split each word for search
-                const terms = this.searchTerm.split(' ');
+                // Split each word for search; drop empty entries from leading,
+                // trailing or repeated spaces, otherwise they build a `contains`
+                // filter with an empty value and the API rejects the whole query
+                // with FRAMEWORK__INVALID_FILTER_QUERY.
+                const terms = this.searchTerm.split(' ').filter((term) => term !== '');
 
                 // Create query for each single word
                 terms.forEach((term) => {
@@ -293,17 +291,11 @@ export default {
                         };
                     });
 
-                return [
-                    ...result,
-                    ...optionsForGroup,
-                ];
+                return [...result, ...optionsForGroup];
             }, []);
 
             // Assign groups and children to order objects
-            return [
-                ...groups,
-                ...children,
-            ];
+            return [...groups, ...children];
         },
 
         stockColorVariantFilter() {

@@ -22,7 +22,7 @@
     {% endblock %}
 
     {% block sw_extension_adding_failed_licence_cancellation %}
-    <template v-if="isRent">
+    <template v-if="hasActiveRentLicense">
         <p class="sw-extension-adding-failed__text-licence-cancellation">
             {{ $t('sw-extension-store.component.sw-extension-adding-failed.installationFailed.notificationLicense') }}
         </p>

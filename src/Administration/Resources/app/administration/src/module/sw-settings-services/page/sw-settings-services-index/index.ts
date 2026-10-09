@@ -5,6 +5,10 @@ import template from './sw-settings-services-index.html.twig';
 import './sw-settings-services-index.scss';
 import type { ServiceDescription } from '../../service/shopware-services.service';
 import extractError from '../../composables/extract-error';
+import {
+    getServicesWithShopwareAccountRequirement,
+    type ServiceWithShopwareAccountRequirement,
+} from '../../requirements/index';
 
 import SwSettingsServicesHero from '../../component/sw-settings-services-hero';
 import SwSettingsServicesGrantPermissionsCard from '../../component/sw-settings-services-grant-permissions-card';
@@ -52,11 +56,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        ...mapState(useShopwareServicesStore, [
-            'config',
-            'currentRevision',
-            'consentGiven',
-        ]),
+        ...mapState(useShopwareServicesStore, ['config', 'currentRevision', 'consentGiven']),
+        servicesWithAccountRequirement(): ServiceWithShopwareAccountRequirement[] {
+            return getServicesWithShopwareAccountRequirement(this.services);
+        },
     },
 
     created() {

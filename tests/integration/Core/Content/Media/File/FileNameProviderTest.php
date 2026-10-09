@@ -6,11 +6,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class FileNameProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

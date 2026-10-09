@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Test\Theme\ThemeRuntimeConfigTestService;
@@ -22,6 +23,7 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithoutStorefront\
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeInheritanceBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;

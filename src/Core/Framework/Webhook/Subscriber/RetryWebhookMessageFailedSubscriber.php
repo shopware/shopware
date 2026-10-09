@@ -3,19 +3,19 @@
 namespace Shopware\Core\Framework\Webhook\Subscriber;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
-use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 
 /**
- * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriberTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriberTest
  *
  * @internal
  */
@@ -30,7 +30,6 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly Connection $connection,
         private readonly WebhookOutboxStore $webhookOutboxStore,
-        private readonly RelatedWebhooks $relatedWebhooks,
         string $failureStrategy = WebhookFailureStrategy::DisableOnThreshold->value,
     ) {
         $this->failureStrategy = WebhookFailureStrategy::from($failureStrategy);
@@ -68,8 +67,6 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 
         $webhookId = $message->getWebhookId();
 
-        $context = Context::createDefaultContext();
-
         $rows = $this->connection->fetchAllAssociative(
             'SELECT active, error_count FROM webhook WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($webhookId)]
@@ -87,7 +84,7 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
             WebhookFailureStrategy::Ignore => $this->handleIgnore($webhook),
         };
 
-        $this->relatedWebhooks->updateRelated($webhookId, $params, $context);
+        $this->connection->update('webhook', $params, ['id' => Uuid::fromHexToBytes($webhookId)]);
     }
 
     /**

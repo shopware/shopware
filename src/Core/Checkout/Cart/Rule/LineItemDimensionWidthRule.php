@@ -42,6 +42,10 @@ class LineItemDimensionWidthRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if ($lineItem->getDeliveryInformation() === null && !\array_key_exists(LineItem::PAYLOAD_PRODUCT_TYPE, $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchWidthDimension($lineItem)) {
                 return true;
             }
@@ -68,7 +72,7 @@ class LineItemDimensionWidthRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true, true)
             ->numberField('amount', ['unit' => RuleConfig::UNIT_DIMENSION]);
     }
 

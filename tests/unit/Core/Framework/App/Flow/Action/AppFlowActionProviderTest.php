@@ -13,6 +13,7 @@ use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderProvider;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -21,6 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppFlowActionProvider::class)]
 class AppFlowActionProviderTest extends TestCase
 {
@@ -52,7 +54,7 @@ class AppFlowActionProviderTest extends TestCase
         $order = new OrderEntity();
         $order->setId($ids->get('orderId'));
 
-        $orderProvider = $this->createMock(OrderProvider::class);
+        $orderProvider = static::createStub(OrderProvider::class);
         $orderProvider->method('getData')->willReturn($order);
 
         $context = Generator::generateSalesChannelContext();
@@ -60,8 +62,8 @@ class AppFlowActionProviderTest extends TestCase
         $awareEvent = new CheckoutOrderPlacedEvent($context, $order);
 
         $orderStorer = new OrderStorer(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
             $orderProvider,
         );
 
@@ -82,7 +84,7 @@ class AppFlowActionProviderTest extends TestCase
 
         $appFlowActionProvider = new AppFlowActionProvider(
             $connection,
-            $this->createMock(BusinessEventEncoder::class),
+            static::createStub(BusinessEventEncoder::class),
             $stringTemplateRender
         );
 

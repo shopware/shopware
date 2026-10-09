@@ -17,14 +17,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language as LanguageDto;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection as LanguageDtoCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 use Shopware\Core\System\Snippet\Event\SnippetsThemeResolveEvent;
+use Shopware\Core\System\Snippet\Files\FilesystemSnippetFile;
 use Shopware\Core\System\Snippet\Files\RemoteSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
@@ -39,7 +38,6 @@ use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Translation\MessageCatalogue;
-use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -58,11 +56,14 @@ class SnippetServiceTest extends TestCase
 
     private Filesystem $filesystem;
 
+    private Flysystem $privateFilesystem;
+
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $this->flysystem = new Flysystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
         $this->filesystem = new Filesystem();
+        $this->privateFilesystem = new Flysystem(new InMemoryFilesystemAdapter());
         $this->snippetCollection = new SnippetFileCollection();
         $this->addThemes();
     }
@@ -119,6 +120,32 @@ class SnippetServiceTest extends TestCase
         $snippetSetId = $snippetService->findSnippetSetId(Uuid::randomHex(), Uuid::randomHex(), 'en-GB');
 
         static::assertSame($snippetSetId, $snippetSetIdWithSalesChannelDomain);
+    }
+
+    public function testDecodeSnippetsFromThePrivateFilesystem(): void
+    {
+        $this->privateFilesystem->write(
+            'snippets/storefront/MyIntegration/storefront.es.json',
+            '{"shop_storefront": "From the private filesystem"}',
+        );
+        $this->snippetCollection->add(new FilesystemSnippetFile(
+            'storefront.es',
+            'snippets/storefront/MyIntegration/storefront.es.json',
+            'es',
+            'MyIntegration',
+            false,
+            'MyIntegration',
+        ));
+
+        $this->connection->expects($this->once())
+            ->method('fetchOne')->willReturn('es');
+
+        $snippetService = $this->createSnippetService();
+
+        $catalogue = new MessageCatalogue('es', ['messages' => []]);
+        $snippets = $snippetService->getStorefrontSnippets($catalogue, Uuid::randomHex(), 'es', Uuid::randomHex());
+
+        static::assertSame(['shop_storefront' => 'From the private filesystem'], $snippets);
     }
 
     public function testDecodeRemoteSnippets(): void
@@ -350,18 +377,18 @@ class SnippetServiceTest extends TestCase
         $snippetSetCollection = new SnippetSetCollection();
         $snippetSetCollection->add($snippetSet);
 
-        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
         $snippetSetRepository = new StaticEntityRepository([
             static function ($criteria, $context) use ($snippetSetCollection) {
                 return $snippetSetCollection;
             },
         ]);
-        /** @var StaticEntityRepository<SnippetCollection> $snippetRepository */
         $snippetRepository = new StaticEntityRepository([
             static function ($criteria, $context) {
                 return new SnippetCollection();
             },
         ]);
+
+        $this->connection->expects($this->never())->method('fetchOne');
 
         $service = $this->createSnippetService(
             snippetRepository: $snippetRepository,
@@ -456,10 +483,10 @@ class SnippetServiceTest extends TestCase
         $snippetSetCollection = new SnippetSetCollection();
         $snippetSetCollection->add($snippetSet);
 
-        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
         $snippetSetRepository = new StaticEntityRepository([$snippetSetCollection]);
-        /** @var StaticEntityRepository<SnippetCollection> $snippetRepository */
         $snippetRepository = new StaticEntityRepository([new SnippetCollection()]);
+
+        $this->connection->expects($this->never())->method('fetchOne');
 
         $service = $this->createSnippetService(
             snippetRepository: $snippetRepository,
@@ -508,7 +535,7 @@ class SnippetServiceTest extends TestCase
 
         $snippetFileCollection = $snippetFileCollection ?? $this->snippetCollection;
         $connection = $connection ?? $this->connection;
-        $snippetFilterFactory = $snippetFilterFactory ?? $this->createMock(SnippetFilterFactory::class);
+        $snippetFilterFactory = $snippetFilterFactory ?? static::createStub(SnippetFilterFactory::class);
         $extensionDispatcher = $extensionDispatcher ?? new ExtensionDispatcher(new EventDispatcher());
 
         /** @var EntityRepository<SnippetCollection> $snippetRepository */
@@ -523,18 +550,16 @@ class SnippetServiceTest extends TestCase
             $eventDispatcher ?? new EventDispatcher(),
             $this->flysystem,
             $this->filesystem,
+            $this->privateFilesystem,
         );
     }
 
     private function getTranslationLoader(TranslationConfig $config): TranslationLoader
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<LocaleCollection> $localeRepository */
         $localeRepository = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
         $snippetSetRepository = new StaticEntityRepository([]);
 
         return new TranslationLoader(
@@ -542,9 +567,9 @@ class SnippetServiceTest extends TestCase
             languageRepository: $languageRepository,
             localeRepository: $localeRepository,
             snippetSetRepository: $snippetSetRepository,
-            client: $this->createMock(ClientInterface::class),
+            client: static::createStub(ClientInterface::class),
             config: $config,
-            validator: Validation::createValidator(),
+            eventDispatcher: new EventDispatcher(),
         );
     }
 }

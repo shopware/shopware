@@ -7,10 +7,12 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
+use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CachedSearchConfigLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand;
@@ -50,8 +52,6 @@ trait ElasticsearchTestTestBehaviour
             ->run(new ArrayInput([]), new NullOutput());
 
         $this->runWorker();
-
-        $this->refreshIndex();
     }
 
     public function refreshIndex(): void
@@ -153,6 +153,8 @@ trait ElasticsearchTestTestBehaviour
                 );
             }
         }
+
+        $this->invalidateSearchConfigCache();
     }
 
     /**
@@ -173,6 +175,8 @@ trait ElasticsearchTestTestBehaviour
                 [$ranking, Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), $field]
             );
         }
+
+        $this->invalidateSearchConfigCache();
     }
 
     protected function clearElasticsearch(): void
@@ -189,5 +193,18 @@ trait ElasticsearchTestTestBehaviour
 
         $connection = $c->get(Connection::class);
         $connection->executeStatement('DELETE FROM elasticsearch_index_task');
+    }
+
+    /**
+     * The raw SQL config writes above bypass entity events, so the statically keyed
+     * CachedSearchConfigLoader keeps serving whatever was loaded first. Under the v6.8 flag
+     * the search-keyword updater already primes that cache while the fixture products are
+     * indexed, which would freeze the pristine configuration for the whole test.
+     */
+    private function invalidateSearchConfigCache(): void
+    {
+        $cache = $this->getDiContainer()->get('cache.object');
+        \assert($cache instanceof CacheItemPoolInterface);
+        $cache->deleteItem(CachedSearchConfigLoader::CACHE_KEY);
     }
 }

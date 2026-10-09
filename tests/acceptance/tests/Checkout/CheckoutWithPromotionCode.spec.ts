@@ -2,7 +2,12 @@ import { test, expect, formatPrice } from '@fixtures/AcceptanceTest';
 
 test(
     'Registered shop customer should be able to use promotion code during checkout.',
-    { tag: ['@Checkout', '@Storefront'] },
+    {
+        tag: [
+            '@Checkout',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         AdminApiContext,
@@ -58,8 +63,8 @@ test(
                     orderCustomer: expect.objectContaining({
                         email: DefaultSalesChannel.customer.email,
                     }),
-                })
+                }),
             );
         });
-    }
+    },
 );

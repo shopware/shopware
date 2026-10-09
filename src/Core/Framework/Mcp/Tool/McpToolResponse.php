@@ -6,14 +6,17 @@ use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Provides a unified response envelope for MCP tools.
  *
@@ -66,13 +69,13 @@ abstract class McpToolResponse
             $response['_meta'] = $meta;
         }
 
-        $json = json_encode($response, \JSON_THROW_ON_ERROR);
+        $json = Json::encode($response);
         $size = \strlen($json);
 
         if ($size <= self::MAX_RESPONSE_SIZE) {
             if ($size >= self::RESPONSE_SIZE_HINT_THRESHOLD) {
                 $response['_meta'] = array_merge($meta, ['responseSize' => $size]);
-                $json = json_encode($response, \JSON_THROW_ON_ERROR);
+                $json = Json::encode($response);
             }
 
             return $json;
@@ -105,11 +108,11 @@ abstract class McpToolResponse
                     $oversizedMeta['query'] = $query;
                 }
 
-                return json_encode([
+                return Json::encode([
                     'success' => true,
                     'data' => null,
                     '_meta' => $oversizedMeta,
-                ], \JSON_THROW_ON_ERROR);
+                ]);
             }
         }
 
@@ -119,7 +122,46 @@ abstract class McpToolResponse
 
     protected function error(string $message): string
     {
-        return json_encode(['success' => false, 'error' => $message], \JSON_THROW_ON_ERROR);
+        return Json::encode(['success' => false, 'error' => $message]);
+    }
+
+    /**
+     * Renders a `RequestCriteriaBuilder::fromArray()` failure as an error the
+     * caller can act on, instead of letting it escape to the SDK's generic
+     * "Error while executing tool".
+     *
+     * `SearchRequestException` carries one entry per rejected pointer, so each
+     * detail is prefixed with it: "/aggregations/0/avg/field" names the element
+     * that is wrong. Every other `ShopwareHttpException` is rendered by its own
+     * message, because the builder reports bad input through several unrelated
+     * classes: `DataAbstractionLayerException` directly for e.g.
+     * `expectedArrayWithType()` on `{"includes":"id"}`,
+     * `FrameworkException::associationNotFound()` for an unknown association,
+     * and `ApiProtectionException` / `RuntimeFieldInCriteriaException` from
+     * `ApiCriteriaValidator` for a field the caller may not query. All of them
+     * name the offending part of the payload, so the message is what the caller
+     * needs; only the exception class differs.
+     */
+    protected function invalidCriteriaError(ShopwareHttpException $e): string
+    {
+        if (!$e instanceof SearchRequestException) {
+            return $this->error($e->getMessage());
+        }
+
+        $details = [];
+        foreach ($e->getErrors() as $error) {
+            $pointer = $error['source']['pointer'];
+            $details[] = $pointer === '' ? $error['detail'] : \sprintf('%s: %s', $pointer, $error['detail']);
+        }
+
+        // An empty exception is not thrown by tryToThrow(), but getErrors() is a
+        // generator over caller-supplied state and a message with nothing after
+        // the colon would be worse than the generic one it replaces.
+        if ($details === []) {
+            return $this->error($e->getMessage());
+        }
+
+        return $this->error(\sprintf('Invalid criteria: %s', \implode('; ', $details)));
     }
 
     /**
@@ -147,11 +189,22 @@ abstract class McpToolResponse
     {
         foreach ($privileges as $privilege) {
             if (!$context->isAllowed($privilege)) {
-                return $this->error(\sprintf('Missing privilege: %s', $privilege));
+                return $this->missingPrivilegesError([$privilege]);
             }
         }
 
         return null;
+    }
+
+    /**
+     * Canonical error format for privilege denials — all tools must use this
+     * so clients can match on a single "Missing privilege:" prefix.
+     *
+     * @param non-empty-list<string> $privileges
+     */
+    protected function missingPrivilegesError(array $privileges): string
+    {
+        return $this->error(\sprintf('Missing privilege: %s', implode(', ', $privileges)));
     }
 
     /**

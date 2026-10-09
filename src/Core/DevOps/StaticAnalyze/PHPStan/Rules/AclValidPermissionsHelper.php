@@ -29,6 +29,10 @@ class AclValidPermissionsHelper
         'system.plugin_maintain',
         'system.plugin_upload',
         'system:core:update',
+        'system:translation:read',
+        'system:translation:create',
+        'system:translation:update',
+        'system:translation:delete',
         'app',
         'api_send_email',
         'promotion.editor',
@@ -36,6 +40,11 @@ class AclValidPermissionsHelper
         'media.editor',
         'user_change_me',
         'notification:create',
+        'flow:dispatch',
+        'system:app:change',
+        'increment:manage',
+        'message_queue_stats:read',
+        'system:queue:process',
     ];
 
     /**

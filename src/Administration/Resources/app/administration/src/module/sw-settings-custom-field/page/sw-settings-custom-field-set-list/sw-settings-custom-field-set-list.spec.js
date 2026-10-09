@@ -30,7 +30,14 @@ function mockCustomFieldSetData() {
     return _customFieldSets;
 }
 
-async function createWrapper(privileges = []) {
+async function createWrapper(
+    privileges = [],
+    repository = {
+        search: () => {
+            return Promise.resolve(mockCustomFieldSetData());
+        },
+    },
+) {
     const { Mixin } = Shopware;
 
     return mount(
@@ -52,15 +59,16 @@ async function createWrapper(privileges = []) {
                             sortBy: 'config.name',
                             sortDirection: 'ASC',
                         },
+                        meta: {
+                            $module: {
+                                icon: 'regular-bars-square',
+                            },
+                        },
                     },
                 },
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            search: () => {
-                                return Promise.resolve(mockCustomFieldSetData());
-                            },
-                        }),
+                        create: () => repository,
                     },
                     acl: {
                         can: (identifier) => {
@@ -135,9 +143,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
     });
 
     it('should be able to create a new custom-field set', async () => {
-        const wrapper = await createWrapper([
-            'custom_field.creator',
-        ]);
+        const wrapper = await createWrapper(['custom_field.creator']);
         await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-custom-field-set-list__button-create');
@@ -154,13 +160,27 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
     });
 
     it('should be able to delete', async () => {
-        const wrapper = await createWrapper([
-            'custom_field.deleter',
-        ]);
+        const wrapper = await createWrapper(['custom_field.deleter']);
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-custom-field-set-list__delete-action');
         expect(deleteMenuItem.attributes('disabled')).toBeFalsy();
+    });
+
+    it('invalidates cached custom-field sets after deletion', async () => {
+        const repository = {
+            search: jest.fn(() => Promise.resolve(mockCustomFieldSetData())),
+            delete: jest.fn(() => Promise.resolve()),
+        };
+        const wrapper = await createWrapper(['custom_field.deleter'], repository);
+        const invalidateCaches = jest.spyOn(Shopware.Service('cacheService'), 'invalidateCaches');
+        await flushPromises();
+
+        await wrapper.vm.onConfirmDelete('id0');
+
+        expect(invalidateCaches).toHaveBeenCalledWith({
+            cacheKey: ['custom-field-sets'],
+        });
     });
 
     it('should not be able to edit', async () => {
@@ -172,9 +192,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
     });
 
     it('should be able to edit', async () => {
-        const wrapper = await createWrapper([
-            'custom_field.editor',
-        ]);
+        const wrapper = await createWrapper(['custom_field.editor']);
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-custom-field-set-list__edit-action');
@@ -187,5 +205,44 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
         expect(wrapper.vm.listingCriteria.page).toBe(1);
         expect(wrapper.vm.listingCriteria.limit).toBe(25);
+    });
+
+    it('should offer the create action in the empty state when no custom field set exists', async () => {
+        const wrapper = await createWrapper(['custom_field.creator'], {
+            search: () => Promise.resolve([]),
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-settings-custom-field.set.list.messageEmpty');
+
+        const createButton = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(createButton.exists()).toBe(true);
+        expect(createButton.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should not offer the create action when a search has no hits', async () => {
+        const wrapper = await createWrapper(['custom_field.creator'], {
+            search: () => Promise.resolve([]),
+        });
+        await flushPromises();
+        await wrapper.setData({ term: 'zzzqqqnothing' });
+
+        // a search without hits is not an empty custom field set list, so it offers no create action
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
+    });
+
+    it('should keep the listing when the page is out of range', async () => {
+        const outOfRangePage = [];
+        outOfRangePage.total = 50;
+
+        const wrapper = await createWrapper(['custom_field.creator'], {
+            search: () => Promise.resolve(outOfRangePage),
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-custom-field-set-list-grid').isVisible()).toBe(true);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(false);
     });
 });

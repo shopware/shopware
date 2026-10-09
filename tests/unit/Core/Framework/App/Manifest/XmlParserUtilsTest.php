@@ -3,12 +3,16 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(XmlParserUtils::class)]
 class XmlParserUtilsTest extends TestCase
 {
@@ -68,7 +72,7 @@ class XmlParserUtilsTest extends TestCase
 
         $result = XmlParserUtils::parseChildren($element);
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testParseChildrenAsList(): void
@@ -100,7 +104,7 @@ class XmlParserUtilsTest extends TestCase
 
         $result = XmlParserUtils::parseChildrenAsList($element);
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testParseChildrenAndTranslate(): void
@@ -189,6 +193,103 @@ class XmlParserUtilsTest extends TestCase
     {
         static::assertSame('someValue', XmlParserUtils::kebabCaseToCamelCase('some-value'));
         static::assertSame('someValue', XmlParserUtils::kebabCaseToCamelCase('some_value'));
+    }
+
+    /**
+     * @param array<string, string>|null $translations
+     * @param array<string, string>|null $expected
+     */
+    #[DataProvider('ensureTranslationForLocaleProvider')]
+    public function testEnsureTranslationForLocale(?array $translations, string $locale, ?array $expected): void
+    {
+        static::assertSame($expected, XmlParserUtils::ensureTranslationForLocale($translations, $locale));
+    }
+
+    public static function ensureTranslationForLocaleProvider(): \Generator
+    {
+        yield 'keeps the translations when the locale is declared' => [
+            ['en-GB' => 'English', 'de-DE' => 'German'],
+            'de-DE',
+            ['en-GB' => 'English', 'de-DE' => 'German'],
+        ];
+
+        yield 'does not add a locale that is declared in a different letter case' => [
+            ['en-gb' => 'English'],
+            'en-GB',
+            ['en-gb' => 'English'],
+        ];
+
+        yield 'keeps missing translations missing' => [
+            null,
+            'en-GB',
+            null,
+        ];
+
+        yield 'keeps empty translations empty' => [
+            [],
+            'en-GB',
+            [],
+        ];
+
+        yield 'uses en-GB for another region of English' => [
+            ['en-GB' => 'English', 'de-DE' => 'German'],
+            'en-US',
+            ['en-GB' => 'English', 'de-DE' => 'German', 'en-US' => 'English'],
+        ];
+
+        yield 'prefers the main region of the language over earlier declared regions' => [
+            ['en-GB' => 'English', 'de-CH' => 'Swiss German', 'de-DE' => 'German'],
+            'de-AT',
+            ['en-GB' => 'English', 'de-CH' => 'Swiss German', 'de-DE' => 'German', 'de-AT' => 'German'],
+        ];
+
+        yield 'uses another region of the language when its main region is not declared' => [
+            ['en-GB' => 'English', 'sv-SE' => 'Swedish'],
+            'sv-FI',
+            ['en-GB' => 'English', 'sv-SE' => 'Swedish', 'sv-FI' => 'Swedish'],
+        ];
+
+        yield 'uses the first declared region of the language when several are declared' => [
+            ['en-GB' => 'English', 'de-CH' => 'Swiss German', 'de-LU' => 'Luxembourgish German'],
+            'de-AT',
+            ['en-GB' => 'English', 'de-CH' => 'Swiss German', 'de-LU' => 'Luxembourgish German', 'de-AT' => 'Swiss German'],
+        ];
+
+        yield 'uses another English region for en-GB when en-GB is not declared' => [
+            ['de-DE' => 'German', 'en-US' => 'American English'],
+            'en-GB',
+            ['de-DE' => 'German', 'en-US' => 'American English', 'en-GB' => 'American English'],
+        ];
+
+        yield 'compares the language case-insensitively' => [
+            ['en-GB' => 'English', 'DE-de' => 'German'],
+            'de-AT',
+            ['en-GB' => 'English', 'DE-de' => 'German', 'de-AT' => 'German'],
+        ];
+
+        yield 'resolves a language without region to its main region' => [
+            ['en-GB' => 'English', 'de-DE' => 'German'],
+            'de',
+            ['en-GB' => 'English', 'de-DE' => 'German', 'de' => 'German'],
+        ];
+
+        yield 'falls back to en-GB without a translation in the same language' => [
+            ['de-DE' => 'German', 'en-GB' => 'English'],
+            'fr-FR',
+            ['de-DE' => 'German', 'en-GB' => 'English', 'fr-FR' => 'English'],
+        ];
+
+        yield 'falls back to the first translation without the same language or en-GB' => [
+            ['de-DE' => 'German', 'nl-NL' => 'Dutch'],
+            'fr-FR',
+            ['de-DE' => 'German', 'nl-NL' => 'Dutch', 'fr-FR' => 'German'],
+        ];
+
+        yield 'does not read a language from a value that is no locale' => [
+            ['de-DE' => 'German', 'en-GB' => 'English'],
+            Defaults::LANGUAGE_SYSTEM,
+            ['de-DE' => 'German', 'en-GB' => 'English', Defaults::LANGUAGE_SYSTEM => 'English'],
+        ];
     }
 
     /**

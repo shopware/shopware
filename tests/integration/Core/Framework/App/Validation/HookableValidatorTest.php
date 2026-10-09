@@ -6,8 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
+use Shopware\Core\Framework\App\Validation\Error\WebhookNotPermittedError;
 use Shopware\Core\Framework\App\Validation\HookableValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\Event\CommercialLicenseProvidedEvent;
@@ -15,6 +17,7 @@ use Shopware\Core\Service\Event\CommercialLicenseProvidedEvent;
 /**
  * @internal
  */
+#[Package('framework')]
 class HookableValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -74,16 +77,16 @@ class HookableValidatorTest extends TestCase
 - product:read', $validations->first()->getMessage());
     }
 
-    public function testCommercialLicenseWebhookIsNotHookableForRegularApps(): void
+    public function testCommercialLicenseWebhookIsNotPermittedForRegularApps(): void
     {
         $manifest = Manifest::createFromXml($this->createManifestWithWebhook('app-with-commercial-license', CommercialLicenseProvidedEvent::NAME));
 
         $validations = $this->hookableValidator->validate($manifest, Context::createDefaultContext());
 
         static::assertCount(1, $validations);
-        static::assertInstanceOf(NotHookableError::class, $validations->first());
+        static::assertInstanceOf(WebhookNotPermittedError::class, $validations->first());
         static::assertSame(
-            'The following webhooks are not hookable:
+            'This app is not permitted to subscribe to the following webhooks:
 - commercial-license: ' . CommercialLicenseProvidedEvent::NAME,
             $validations->first()->getMessage()
         );

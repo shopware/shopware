@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\OAuth;
 use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
+use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Grant\PasswordGrant;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
@@ -13,10 +14,15 @@ use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\Scope\AdminScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\ShopwareGrantType;
 
+/**
+ * OAuth integrations should rely on {@see ScopeRepositoryInterface} instead of this concrete Shopware class.
+ */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class ScopeRepository implements ScopeRepositoryInterface
 {
     /**
@@ -39,6 +45,13 @@ class ScopeRepository implements ScopeRepositoryInterface
      * @see RefreshTokenGrant::getIdentifier()
      */
     public const REFRESH_TOKEN_GRANT = 'refresh_token';
+
+    /**
+     * @internal abstraction on external library
+     *
+     * @see AuthCodeGrant::getIdentifier()
+     */
+    public const AUTH_CODE_GRANT = 'authorization_code';
 
     /**
      * @var ScopeEntityInterface[]
@@ -82,7 +95,7 @@ class ScopeRepository implements ScopeRepositoryInterface
     ): array {
         $hasWrite = false;
 
-        if ($grantType === self::PASSWORD_GRANT) {
+        if ($grantType === self::PASSWORD_GRANT || $grantType === self::AUTH_CODE_GRANT) {
             $hasWrite = true;
         }
 

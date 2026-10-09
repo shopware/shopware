@@ -6,22 +6,24 @@ namespace Shopware\Tests\Unit\Core\DevOps\Docs\Script;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Docs\DocsException;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceDataCollector;
 use Shopware\Core\DevOps\Docs\Script\ServiceReferenceGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 use Twig\Environment;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceReferenceGenerator::class)]
 class ServiceReferenceGeneratorTest extends TestCase
 {
-    private Environment&MockObject $twig;
+    private Environment&Stub $twig;
 
     private string $projectDir;
 
@@ -63,7 +65,7 @@ class ServiceReferenceGeneratorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->twig = $this->createMock(Environment::class);
+        $this->twig = static::createStub(Environment::class);
         $this->twig->method('render')->willReturnCallback(static fn ($template, $data) => print_r($data, true));
         $this->projectDir = '/project/root';
         $this->generator = new ServiceReferenceGenerator($this->twig, $this->projectDir);
@@ -82,27 +84,30 @@ class ServiceReferenceGeneratorTest extends TestCase
         $result = $this->generator->generate();
 
         static::assertIsArray($result);
-        static::assertNotEmpty($result);
+        static::assertNotCount(0, $result);
         $expectedKey = array_key_first($result);
         static::assertIsString($expectedKey);
-        static::assertNotEmpty($result[$expectedKey]);
+        static::assertNotSame('', $result[$expectedKey]);
         static::assertStringContainsString('ValidService', $result[$expectedKey]);
     }
 
-    public function testGetGroupForServiceReturnsCorrectGroup(): void
+    public function testScriptServiceLinkUsesTheGroupOfTheService(): void
     {
-        $group = $this->generator->getGroupForService(new \ReflectionClass(_fixtures\ValidService::class));
-        static::assertSame('data_loading', $group);
+        $fqcn = _fixtures\ValidService::class;
+
+        $link = $this->generator->getLinkForClass($fqcn, [$fqcn]);
+
+        static::assertSame('./data-loading-script-services-reference#validservice', $link);
     }
 
     /**
      * @param class-string $fqcn
      */
     #[DataProvider('provideInvalidGroupFixtures')]
-    public function testGetGroupForServiceThrows(string $fqcn): void
+    public function testScriptServiceLinkThrowsOnInvalidGroup(string $fqcn): void
     {
         $this->expectExceptionObject(DocsException::incorrectGroupForScriptService($fqcn));
-        $this->generator->getGroupForService(new \ReflectionClass($fqcn));
+        $this->generator->getLinkForClass($fqcn, [$fqcn]);
     }
 
     public static function provideInvalidGroupFixtures(): \Generator

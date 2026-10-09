@@ -1,0 +1,62 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CountryState": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "countryId",
+                    "shortCode",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "countryId": {
+                        "description": "Unique identity of the country.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "shortCode": {
+                        "description": "An abbreviation for the country's state.",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "position": {
+                        "description": "Numerical value that indicates the order in which the defined states must be displayed in the frontend.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "active": {
+                        "description": "When boolean value is `true`, the country's state is available for selection in the storefront.",
+                        "type": "boolean"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "translated": {
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

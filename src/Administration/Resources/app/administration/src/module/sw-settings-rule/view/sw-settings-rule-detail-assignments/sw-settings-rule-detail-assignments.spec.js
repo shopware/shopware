@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/service/rule-assignment-configuration.service';
@@ -77,11 +79,7 @@ function createEntityCollectionMock(entityName, items = []) {
 function repositoryMock(entityName, entitiesWithResults) {
     return {
         search: jest.fn((_, api) => {
-            const entities = [
-                { name: 'Foo' },
-                { name: 'Bar' },
-                { name: 'Baz' },
-            ];
+            const entities = [{ name: 'Foo' }, { name: 'Bar' }, { name: 'Baz' }];
 
             if (api.inheritance) {
                 entities.push({ name: 'Inherited' });
@@ -192,7 +190,7 @@ async function createWrapper(
                     $route: {
                         meta: {
                             $module: {
-                                icon: 'solid-content',
+                                icon: 'regular-content',
                             },
                         },
                     },
@@ -712,17 +710,12 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
             {
                 name: 'with manufacturerId',
                 item: { id: 'p-1', name: 'Product', manufacturerId: 'mfr-1' },
-                expectedLinks: [
-                    'sw.manufacturer.detail',
-                    'sw.product.detail.prices',
-                ],
+                expectedLinks: ['sw.manufacturer.detail', 'sw.product.detail.prices'],
             },
             {
                 name: 'without manufacturerId',
                 item: { id: 'p-1', name: 'Product' },
-                expectedLinks: [
-                    'sw.product.detail.prices',
-                ],
+                expectedLinks: ['sw.product.detail.prices'],
             },
         ])('should render router-link for manufacturer column $name', async ({ item, expectedLinks }) => {
             const configWithManufacturerColumn = {

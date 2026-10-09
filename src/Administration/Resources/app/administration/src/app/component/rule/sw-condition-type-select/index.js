@@ -26,12 +26,6 @@ export default {
             required: true,
         },
 
-        hasError: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
         disabled: {
             type: Boolean,
             required: false,
@@ -77,33 +71,6 @@ export default {
 
                 return ucType.includes(this.ucTerm) || ucLabel.includes(this.ucTerm);
             });
-        },
-
-        typeSelectClasses() {
-            return {
-                'has--error': this.hasError,
-            };
-        },
-
-        arrowColor() {
-            if (this.disabled) {
-                return {
-                    primary: '#d1d9e0',
-                    secondary: '#d1d9e0',
-                };
-            }
-
-            if (this.hasError) {
-                return {
-                    primary: '#DE294C',
-                    secondary: '#ffffff',
-                };
-            }
-
-            return {
-                primary: '#758CA3',
-                secondary: '#ffffff',
-            };
         },
     },
 
@@ -176,35 +143,25 @@ export default {
                 return accumulator;
             }, {});
 
-            return Object.entries(groups).reduce(
-                (
-                    accumulator,
-                    [
-                        key,
-                        value,
-                    ],
-                    index,
-                ) => {
-                    let snippet = '';
+            return Object.entries(groups).reduce((accumulator, [key, value], index) => {
+                let snippet = '';
 
-                    value.forEach((currentValue, currentIndex) => {
-                        if (currentIndex > 0) {
-                            snippet += '<br />';
-                        }
-
-                        snippet += this.$t(`sw-restricted-rules.restrictedConditions.relation.${key}`, {
-                            assignments: `"${this.$t(currentValue.snippet, 1)}"`,
-                        });
-                    });
-
-                    if (index > 0) {
-                        return `${accumulator} </br> ${snippet}`;
+                value.forEach((currentValue, currentIndex) => {
+                    if (currentIndex > 0) {
+                        snippet += '<br />';
                     }
 
-                    return `${accumulator} ${snippet}`;
-                },
-                '',
-            );
+                    snippet += this.$t(`sw-restricted-rules.restrictedConditions.relation.${key}`, {
+                        assignments: `"${this.$t(currentValue.snippet, 1)}"`,
+                    });
+                });
+
+                if (index > 0) {
+                    return `${accumulator} </br> ${snippet}`;
+                }
+
+                return `${accumulator} ${snippet}`;
+            }, '');
         },
     },
 };

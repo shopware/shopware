@@ -10,8 +10,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler]
 #[Package('fundamentals@after-sales')]
+#[AsMessageHandler]
 final readonly class DeleteFileHandler
 {
     /**

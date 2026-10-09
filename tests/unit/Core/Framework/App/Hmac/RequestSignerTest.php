@@ -7,10 +7,12 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RequestSigner::class)]
 class RequestSignerTest extends TestCase
 {
@@ -73,7 +75,7 @@ class RequestSignerTest extends TestCase
         $response = new Response(200, $responseHeaders, $body);
 
         static::assertTrue($post->isResponseAuthentic($response, $this->authSecret));
-        static::assertNotEmpty($response->getBody()->getContents());
+        static::assertNotSame('', $response->getBody()->getContents());
     }
 
     public function testIsResponseAuthenticRequiredWithoutHeader(): void

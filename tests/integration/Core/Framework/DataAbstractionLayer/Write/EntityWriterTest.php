@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\NonUuidFkField\NonUuidFkFieldSerializer;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\NonUuidFkField\TestEntityOneDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\NonUuidFkField\TestEntityTwoDefinition;
@@ -45,6 +46,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityWriterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -78,7 +80,7 @@ class EntityWriterTest extends TestCase
         );
 
         $exists = $this->connection->fetchAllAssociative('SELECT * FROM category WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
-        static::assertNotEmpty($exists);
+        static::assertNotCount(0, $exists);
 
         $deleteResult = $this->getWriter()->delete(
             static::getContainer()->get(CategoryDefinition::class),
@@ -89,9 +91,9 @@ class EntityWriterTest extends TestCase
         );
 
         $exists = $this->connection->fetchAllAssociative('SELECT * FROM category WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
-        static::assertEmpty($exists);
-        static::assertEmpty($deleteResult->getNotFound());
-        static::assertNotEmpty($deleteResult->getDeleted());
+        static::assertCount(0, $exists);
+        static::assertCount(0, $deleteResult->getNotFound());
+        static::assertNotCount(0, $deleteResult->getDeleted());
     }
 
     public function testMultiDelete(): void
@@ -134,8 +136,8 @@ class EntityWriterTest extends TestCase
             ],
             $context
         );
-        static::assertEmpty($deleteResult->getNotFound());
-        static::assertNotEmpty($deleteResult->getDeleted()[CategoryDefinition::ENTITY_NAME]);
+        static::assertCount(0, $deleteResult->getNotFound());
+        static::assertNotCount(0, $deleteResult->getDeleted()[CategoryDefinition::ENTITY_NAME]);
 
         $categories = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:id) ',
@@ -143,7 +145,7 @@ class EntityWriterTest extends TestCase
             ['id' => ArrayParameterType::BINARY]
         );
 
-        static::assertEmpty($categories);
+        static::assertCount(0, $categories);
 
         $translations = $this->connection->fetchAllAssociative(
             'SELECT * FROM category_translation WHERE category_id IN (:id) ',
@@ -151,7 +153,7 @@ class EntityWriterTest extends TestCase
             ['id' => ArrayParameterType::BINARY]
         );
 
-        static::assertEmpty($translations);
+        static::assertCount(0, $translations);
     }
 
     public function testMultiDeleteWithNoneExistingId(): void
@@ -199,7 +201,7 @@ class EntityWriterTest extends TestCase
             ['id' => ArrayParameterType::BINARY]
         );
 
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
     }
 
     public function testDeleteWithMultiplePrimaryColumns(): void
@@ -237,7 +239,7 @@ class EntityWriterTest extends TestCase
             'SELECT * FROM product_category WHERE product_id = :product AND category_id = :category',
             ['product' => Uuid::fromHexToBytes($productId), 'category' => Uuid::fromHexToBytes($categoryId)]
         );
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
 
         static::assertCount(1, $deleteResult->getDeleted()[ProductCategoryDefinition::ENTITY_NAME]);
         static::assertCount(0, $deleteResult->getNotFound());
@@ -278,7 +280,7 @@ class EntityWriterTest extends TestCase
             'SELECT * FROM product_category WHERE product_id = :product AND category_id = :category',
             ['product' => Uuid::fromHexToBytes($productId), 'category' => Uuid::fromHexToBytes($categoryId)]
         );
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
 
         static::assertCount(1, $deleteResult->getDeleted()[ProductCategoryDefinition::ENTITY_NAME]);
         static::assertCount(0, $deleteResult->getNotFound());
@@ -357,7 +359,7 @@ class EntityWriterTest extends TestCase
             ['product' => [Uuid::fromHexToBytes($productId), Uuid::fromHexToBytes($productId2)], 'category' => Uuid::fromHexToBytes($categoryId)],
             ['product' => ArrayParameterType::BINARY]
         );
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
 
         static::assertCount(2, $deleteResult->getDeleted()[ProductCategoryDefinition::ENTITY_NAME]);
         static::assertCount(0, $deleteResult->getNotFound());
@@ -394,7 +396,7 @@ class EntityWriterTest extends TestCase
         ]);
 
         static::assertIsArray($product);
-        static::assertNotEmpty($product['id']);
+        static::assertSame($this->idBytes, $product['id']);
     }
 
     public function testInsertWithoutId(): void
@@ -459,7 +461,7 @@ class EntityWriterTest extends TestCase
             'id' => $this->idBytes,
         ]);
 
-        static::assertNotEmpty($product);
+        static::assertNotFalse($product);
     }
 
     public function testUpdate(): void
@@ -563,7 +565,7 @@ class EntityWriterTest extends TestCase
         $media = $this->getMediaRepository()->search(
             new Criteria([$id]),
             Context::createDefaultContext()
-        )->get($id);
+        )->getEntities()->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertStringContainsString('/testFile.jpg', $media->getUrl());
@@ -600,7 +602,7 @@ class EntityWriterTest extends TestCase
         $media = $this->getMediaRepository()->search(
             new Criteria([$id]),
             Context::createDefaultContext()
-        )->get($id);
+        )->getEntities()->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertStringContainsString('/testFile.jpg', $media->getUrl());
@@ -661,7 +663,7 @@ class EntityWriterTest extends TestCase
 
         $productTranslations = $this->connection->fetchAllAssociative('SELECT * FROM product_translation WHERE product_id= :id', ['id' => $this->idBytes]);
 
-        static::assertNotEmpty($product);
+        static::assertNotCount(0, $product);
 
         static::assertCount(2, $productTranslations, print_r($productTranslations, true));
 
@@ -739,7 +741,7 @@ class EntityWriterTest extends TestCase
 
         $manufacturer = static::getContainer()->get('product_manufacturer.repository')
             ->search(new Criteria([$manufacturerId]), Context::createDefaultContext())
-            ->get($manufacturerId);
+            ->getEntities()->get($manufacturerId);
 
         static::assertNotNull($manufacturer);
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
@@ -922,7 +924,7 @@ class EntityWriterTest extends TestCase
             $context,
         );
 
-        $product = $productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertIsArray($product->getCustomFields());

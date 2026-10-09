@@ -8,7 +8,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -18,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -29,6 +32,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityWriteResultFactory::class)]
 class EntityWriteResultFactoryTest extends TestCase
 {
@@ -41,13 +45,13 @@ class EntityWriteResultFactoryTest extends TestCase
     {
         $registry = new StaticDefinitionInstanceRegistry(
             [CountryDefinition::class, TaxDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $factory = new EntityWriteResultFactory(
             $registry,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         $queue = new WriteCommandQueue();
@@ -191,8 +195,8 @@ class EntityWriteResultFactoryTest extends TestCase
         $ids = new IdsCollection();
         $registry = new StaticDefinitionInstanceRegistry(
             [CountryDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $queue = new WriteCommandQueue();
@@ -216,7 +220,7 @@ class EntityWriteResultFactoryTest extends TestCase
 
         $result = (new EntityWriteResultFactory(
             $registry,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         ))->build($queue);
 
         static::assertCount(1, $result['country']);
@@ -233,8 +237,8 @@ class EntityWriteResultFactoryTest extends TestCase
         $ids = new IdsCollection();
         $registry = new StaticDefinitionInstanceRegistry(
             [TestJsonDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $queue = new WriteCommandQueue();
@@ -261,7 +265,7 @@ class EntityWriteResultFactoryTest extends TestCase
 
         $result = (new EntityWriteResultFactory(
             $registry,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         ))->build($queue);
 
         static::assertCount(1, $result[TestJsonDefinition::ENTITY_NAME]);
@@ -270,6 +274,100 @@ class EntityWriteResultFactoryTest extends TestCase
             'id' => $ids->get('json-entity-1'),
             'payloadJson' => ['foo' => 'bar'],
         ], $result[TestJsonDefinition::ENTITY_NAME][0]->getPayload());
+    }
+
+    public function testResolveWriteSkipsNullParentForeignKey(): void
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [TestParentDefinition::class, TestSubDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $factory = new EntityWriteResultFactory(
+            $registry,
+            static::createStub(Connection::class)
+        );
+
+        $ids = new IdsCollection();
+        $rawData = [['id' => $ids->get('sub-1'), 'parentId' => null]];
+
+        $parents = $factory->resolveWrite($registry->get(TestSubDefinition::class), $rawData);
+        $results = $factory->addParentResults([], $parents);
+
+        static::assertSame([TestParentDefinition::ENTITY_NAME => []], $results);
+    }
+
+    public function testResolveWriteYieldsParentUpdateForSubEntityWithForeignKey(): void
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [TestParentDefinition::class, TestSubDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $factory = new EntityWriteResultFactory(
+            $registry,
+            static::createStub(Connection::class)
+        );
+
+        $ids = new IdsCollection();
+        $rawData = [['id' => $ids->get('sub-1'), 'parentId' => $ids->get('parent-1')]];
+
+        $parents = $factory->resolveWrite($registry->get(TestSubDefinition::class), $rawData);
+        $results = $factory->addParentResults([], $parents);
+
+        static::assertArrayHasKey(TestParentDefinition::ENTITY_NAME, $results);
+        static::assertCount(1, $results[TestParentDefinition::ENTITY_NAME]);
+        $parentResult = $results[TestParentDefinition::ENTITY_NAME][0];
+        static::assertSame($ids->get('parent-1'), $parentResult->getPrimaryKey());
+        static::assertSame(EntityWriteResult::OPERATION_UPDATE, $parentResult->getOperation());
+    }
+}
+
+/**
+ * @internal
+ */
+class TestParentDefinition extends EntityDefinition
+{
+    public const ENTITY_NAME = 'test_parent';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class TestSubDefinition extends EntityDefinition
+{
+    public const ENTITY_NAME = 'test_sub';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    protected function getParentDefinitionClass(): ?string
+    {
+        return TestParentDefinition::class;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            new FkField('parent_id', 'parentId', TestParentDefinition::class),
+        ]);
     }
 }
 

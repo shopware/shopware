@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Command\ListScheduledTaskCommand;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
@@ -14,6 +15,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ListScheduledTaskCommand::class)]
 class ListScheduledTaskCommandTest extends TestCase
 {
@@ -26,7 +28,7 @@ class ListScheduledTaskCommandTest extends TestCase
         $entity->setRunInterval(100);
         $entity->setStatus(ScheduledTaskDefinition::STATUS_QUEUED);
 
-        $taskRegistry = $this->createMock(TaskRegistry::class);
+        $taskRegistry = static::createStub(TaskRegistry::class);
         $taskRegistry
             ->method('getAllTasks')
             ->willReturn(new ScheduledTaskCollection([$entity]));

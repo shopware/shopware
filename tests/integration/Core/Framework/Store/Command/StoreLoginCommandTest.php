@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Store\Command\StoreLoginCommand;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -23,8 +26,8 @@ class StoreLoginCommandTest extends TestCase
     {
         $commandTester = new CommandTester(static::getContainer()->get(StoreLoginCommand::class));
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('The password cannot be empty');
+        $violations = Validation::createValidator()->validate('', new NotBlank(message: 'The password cannot be empty'));
+        $this->expectExceptionObject(new ValidationFailedException('', $violations));
 
         $commandTester->setInputs(['', '', '']);
         $commandTester->execute([

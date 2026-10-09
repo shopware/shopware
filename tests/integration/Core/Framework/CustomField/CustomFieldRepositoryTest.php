@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
@@ -15,6 +16,7 @@ use Shopware\Core\System\CustomField\CustomFieldDefinition;
 /**
  * @internal
  */
+#[Package('framework')]
 class CustomFieldRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -43,7 +45,7 @@ class CustomFieldRepositoryTest extends TestCase
         static::assertNotNull($events);
 
         $payloads = $events->getPayloads();
-        static::assertNotEmpty($payloads);
+        static::assertNotCount(0, $payloads);
 
         static::assertSame($attribute['id'], $payloads[0]['id']);
         static::assertSame($attribute['name'], $payloads[0]['name']);

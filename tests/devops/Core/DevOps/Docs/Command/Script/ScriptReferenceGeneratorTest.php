@@ -6,11 +6,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceDataCollector;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceGenerator;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceGeneratorCommand;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class ScriptReferenceGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

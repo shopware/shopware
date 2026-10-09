@@ -37,7 +37,7 @@ class BillingCityRule extends Rule
             return false;
         }
 
-        if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
+        if (!$customer = $scope->getCustomer()) {
             return RuleComparison::isNegativeOperator($this->operator);
         }
 

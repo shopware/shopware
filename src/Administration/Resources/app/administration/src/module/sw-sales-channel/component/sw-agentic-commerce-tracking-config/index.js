@@ -4,6 +4,7 @@
 
 import template from './sw-agentic-commerce-tracking-config.html.twig';
 
+/** @deprecated tag:v6.8.0 - Will be removed */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

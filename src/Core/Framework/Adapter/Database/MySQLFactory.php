@@ -56,7 +56,7 @@ class MySQLFactory
         $parameters['driverOptions'] = [
             \PDO::ATTR_STRINGIFY_FETCHES => true,
             \PDO::ATTR_TIMEOUT => 5,
-        ] + $dsnParameters['driverOptions'];
+        ] + ($dsnParameters['driverOptions'] ?? []);
 
         $initCommands = [
             'SET @@session.time_zone = \'+00:00\'',
@@ -96,16 +96,30 @@ class MySQLFactory
                 $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
             }
 
+            // Keep the replica connection distinct from the primary one, so
+            // ReplicaConnectionResetter can switch back to the replica between
+            // requests. Without this option DBAL aliases the replica to the
+            // primary once the primary was used, which pins long running
+            // workers to the primary for their whole lifetime.
+            // See https://symfony.com/doc/current/doctrine/dbal.html#using-primary-replica-connections-read-replicas
+            if (!\array_key_exists('keepReplica', $parameters)) {
+                $parameters['keepReplica'] = true;
+            } else {
+                $parameters['keepReplica'] = (bool) self::castValue($parameters['keepReplica']);
+            }
+
             // Primary connection should use parameters from the main url
             $parameters['primary'] = array_merge([
                 'charset' => $parameters['charset'],
             ], $dsnParameters);
-            $parameters['primary']['driverOptions'] = $parameters['driverOptions'] + $dsnParameters['driverOptions'];
+            unset($parameters['primary']['primary'], $parameters['primary']['replica'], $parameters['primary']['keepReplica']);
+            $parameters['primary']['driverOptions'] = $parameters['driverOptions'] + ($dsnParameters['driverOptions'] ?? []);
 
             $parameters['replica'] = [];
 
             for ($i = 0; $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_' . $i . '_URL'); ++$i) {
                 $replicaParams = self::parseDsn($dsnParser, $replicaUrl);
+                unset($replicaParams['primary'], $replicaParams['replica'], $replicaParams['keepReplica']);
 
                 $parameters['replica'][$i] = array_merge([
                     'charset' => $parameters['charset'],
@@ -118,7 +132,7 @@ class MySQLFactory
     }
 
     /**
-     * @return Params&array{driverOptions: array<mixed>}
+     * @return Params
      */
     private static function parseDsn(DsnParser $dsnParser, string $url): array
     {

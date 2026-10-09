@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\BeforeClass;
@@ -14,8 +15,10 @@ use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
+use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -24,16 +27,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Annotation\CriteriaValueResolver;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\V6_7\Migration1775460999AddParentNameToProductSearchConfig;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
@@ -41,6 +48,7 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[Group('store-api')]
 class ProductSearchRouteTest extends TestCase
 {
@@ -62,6 +70,11 @@ class ProductSearchRouteTest extends TestCase
 
     private SearchKeywordUpdater $searchKeywordUpdater;
 
+    /**
+     * @var array<string, string>|null
+     */
+    private ?array $parentNameSearchState = null;
+
     protected function setUp(): void
     {
         $this->searchKeywordUpdater = static::getContainer()->get(SearchKeywordUpdater::class);
@@ -70,6 +83,14 @@ class ProductSearchRouteTest extends TestCase
         if (self::$initialized === false) {
             $this->initializeIndexing();
             self::$initialized = true;
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->parentNameSearchState !== null) {
+            $this->restoreParentNameSearch($this->parentNameSearchState);
+            $this->parentNameSearchState = null;
         }
     }
 
@@ -375,6 +396,133 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
+    public function testSearchFindsVariantByParentNameWhenFindBestVariantIsEnabled(): void
+    {
+        $ids = new IdsCollection();
+
+        $productRepository = static::getContainer()->get('product.repository');
+        static::assertInstanceOf(EntityRepository::class, $productRepository);
+
+        $languageRepository = static::getContainer()->get('language.repository');
+        static::assertInstanceOf(EntityRepository::class, $languageRepository);
+
+        $analyzer = static::getContainer()->get(ProductSearchKeywordAnalyzer::class);
+        static::assertInstanceOf(ProductSearchKeywordAnalyzer::class, $analyzer);
+
+        $searchKeywordUpdater = new SearchKeywordUpdater(
+            static::getContainer()->get(Connection::class),
+            $languageRepository,
+            $productRepository,
+            $analyzer,
+            new MockClock()
+        );
+
+        $this->enableParentNameSearch();
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
+            'token',
+            self::$ids->get('sales-channel')
+        );
+        $findBestVariant = $systemConfigService->get(
+            'core.listing.findBestVariant',
+            $salesChannelContext->getSalesChannelId()
+        );
+
+        try {
+            $products = [
+                (new ProductBuilder($ids, 'parent-variant-name'))
+                    ->name('ticket 13976 parent name')
+                    ->tax(null)
+                    ->add('taxId', self::$ids->get('t1'))
+                    ->price(10)
+                    ->visibility(self::$ids->get('sales-channel'))
+                    ->variant(
+                        (new ProductBuilder($ids, 'parent-variant-name.1'))
+                            ->name('child 1')
+                            ->tax(null)
+                            ->add('taxId', self::$ids->get('t1'))
+                            ->price(11)
+                            ->visibility(self::$ids->get('sales-channel'))
+                            ->build()
+                    )
+                    ->variant(
+                        (new ProductBuilder($ids, 'parent-variant-name.2'))
+                            ->name('child 2')
+                            ->tax(null)
+                            ->add('taxId', self::$ids->get('t1'))
+                            ->price(12)
+                            ->visibility(self::$ids->get('sales-channel'))
+                            ->build()
+                    )
+                    ->variant(
+                        (new ProductBuilder($ids, 'parent-variant-name.3'))
+                            ->name('child 3')
+                            ->tax(null)
+                            ->add('taxId', self::$ids->get('t1'))
+                            ->price(13)
+                            ->visibility(self::$ids->get('sales-channel'))
+                            ->build()
+                    )
+                    ->build(),
+            ];
+
+            $productRepository->create($products, Context::createDefaultContext());
+            $productRepository->update([
+                [
+                    'id' => $ids->get('parent-variant-name'),
+                    'variantListingConfig' => [
+                        'displayParent' => true,
+                        'mainVariantId' => null,
+                        'configuratorGroupConfig' => [],
+                    ],
+                ],
+            ], Context::createDefaultContext());
+            $searchKeywordUpdater->reset();
+            $searchKeywordUpdater->update([
+                $ids->get('parent-variant-name'),
+                $ids->get('parent-variant-name.1'),
+                $ids->get('parent-variant-name.2'),
+                $ids->get('parent-variant-name.3'),
+            ], Context::createDefaultContext());
+
+            $systemConfigService->set(
+                'core.listing.findBestVariant',
+                true,
+                $salesChannelContext->getSalesChannelId()
+            );
+
+            $searchRoute = static::getContainer()->get(ProductSearchRoute::class);
+            $suggestRoute = static::getContainer()->get(ProductSuggestRoute::class);
+
+            foreach ([$searchRoute, $suggestRoute] as $route) {
+                $result = $route->load(
+                    new Request(['search' => 'ticket 13976 parent name']),
+                    $salesChannelContext,
+                    new Criteria()
+                );
+
+                static::assertSame(1, $result->getListingResult()->getTotal());
+
+                $product = $result->getListingResult()->getEntities()->first();
+                static::assertInstanceOf(SalesChannelProductEntity::class, $product);
+                static::assertNotSame($ids->get('parent-variant-name'), $product->getId());
+                static::assertSame($ids->get('parent-variant-name'), $product->getParentId());
+            }
+        } finally {
+            if ($findBestVariant === null) {
+                $systemConfigService->delete('core.listing.findBestVariant', $salesChannelContext->getSalesChannelId());
+            } else {
+                $systemConfigService->set(
+                    'core.listing.findBestVariant',
+                    $findBestVariant,
+                    $salesChannelContext->getSalesChannelId()
+                );
+            }
+
+            $searchKeywordUpdater->reset();
+        }
+    }
+
     /**
      * @param array<array-key, bool> $searchTerms
      */
@@ -406,10 +554,10 @@ class ProductSearchRouteTest extends TestCase
 
             static::assertSame(
                 $shouldBeFound,
-                $result->getListingResult()->has($ids->get($productNumber)),
+                $result->getListingResult()->getEntities()->has($ids->get($productNumber)),
                 \sprintf(
                     'Product was%s found, but should%s be found for term "%s".',
-                    $result->getListingResult()->has($ids->get($productNumber)) ? '' : ' not',
+                    $result->getListingResult()->getEntities()->has($ids->get($productNumber)) ? '' : ' not',
                     $shouldBeFound ? '' : ' not',
                     $searchTerm
                 )
@@ -423,10 +571,10 @@ class ProductSearchRouteTest extends TestCase
 
             static::assertSame(
                 $shouldBeFound,
-                $result->getListingResult()->has($ids->get($productNumber)),
+                $result->getListingResult()->getEntities()->has($ids->get($productNumber)),
                 \sprintf(
                     'Product was%s found, but should%s be found for term "%s".',
-                    $result->getListingResult()->has($ids->get($productNumber)) ? '' : ' not',
+                    $result->getListingResult()->getEntities()->has($ids->get($productNumber)) ? '' : ' not',
                     $shouldBeFound ? '' : ' not',
                     $searchTerm
                 )
@@ -869,6 +1017,63 @@ class ProductSearchRouteTest extends TestCase
                 ->parent('volvo')
                 ->build(),
         ], Context::createDefaultContext());
+    }
+
+    private function enableParentNameSearch(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+
+        /** @var array<string, string> $originalState */
+        $originalState = $connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)), searchable FROM product_search_config_field WHERE field = :field',
+            ['field' => 'parent.name']
+        );
+
+        (new Migration1775460999AddParentNameToProductSearchConfig())->update($connection);
+
+        $connection->executeStatement(
+            'UPDATE product_search_config_field SET searchable = 1 WHERE field = :field',
+            ['field' => 'parent.name']
+        );
+
+        $this->parentNameSearchState = $originalState;
+    }
+
+    /**
+     * @param array<string, string> $originalState
+     */
+    private function restoreParentNameSearch(array $originalState): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+
+        $parentNameConfigIds = array_map(
+            'strval',
+            $connection->fetchFirstColumn(
+                'SELECT LOWER(HEX(id)) FROM product_search_config_field WHERE field = :field',
+                ['field' => 'parent.name']
+            )
+        );
+
+        $addedConfigIds = array_values(array_diff($parentNameConfigIds, array_keys($originalState)));
+        if ($addedConfigIds !== []) {
+            $connection->executeStatement(
+                'DELETE FROM product_search_config_field WHERE id IN (:ids)',
+                ['ids' => Uuid::fromHexToBytesList($addedConfigIds)],
+                ['ids' => ArrayParameterType::BINARY]
+            );
+        }
+
+        foreach ($originalState as $id => $searchable) {
+            $connection->executeStatement(
+                'UPDATE product_search_config_field SET searchable = :searchable WHERE id = :id',
+                [
+                    'id' => Uuid::fromHexToBytes($id),
+                    'searchable' => (int) $searchable,
+                ]
+            );
+        }
+
+        $this->searchKeywordUpdater->reset();
     }
 
     private function getProductSearchConfigId(): string

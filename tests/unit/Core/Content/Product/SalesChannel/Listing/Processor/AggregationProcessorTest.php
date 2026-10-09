@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Processo
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Events\ProductListingCollectFilterEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\AbstractListingFilterHandler;
@@ -14,14 +15,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Filte
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AggregationListingProcessor::class)]
 class AggregationProcessorTest extends TestCase
 {
@@ -29,10 +33,10 @@ class AggregationProcessorTest extends TestCase
     {
         $processor = new AggregationListingProcessor(
             [$foo = new FooListingFilterHandler()],
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $criteria = new Criteria();
         $processor->prepare(new Request(), $criteria, $context);
@@ -47,10 +51,10 @@ class AggregationProcessorTest extends TestCase
     {
         $processor = new AggregationListingProcessor(
             [$foo = new FooListingFilterHandler()],
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $result = new ProductListingResult('test', 0, new ProductCollection(), null, new Criteria(), Context::createDefaultContext());
 
@@ -63,10 +67,10 @@ class AggregationProcessorTest extends TestCase
     {
         $processor = new AggregationListingProcessor(
             [new FooListingFilterHandler()],
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $criteria = new Criteria();
 
         $processor->prepare(new Request(), $criteria, $context);
@@ -82,13 +86,13 @@ class AggregationProcessorTest extends TestCase
     {
         $processor = new AggregationListingProcessor(
             [new FooListingFilterHandler(), new BarListingFilterHandler()],
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
 
         $processor->prepare(
             new Request(['reduce-aggregations' => true]),
             $criteria = new Criteria(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertCount(2, $criteria->getAggregations());
@@ -107,6 +111,118 @@ class AggregationProcessorTest extends TestCase
 
         // filter is set to excluded and should not be removed by own list (property filter scenario where you also have to add the property filter to calculate the property filter)
         static::assertCount(2, $agg->getFilter());
+    }
+
+    public function testAllFilterAggregationsAreCollectedInOrder(): void
+    {
+        $priceFilter = new Filter(
+            'price',
+            false,
+            [new TermsAggregation('price', 'product.price')],
+            new EqualsFilter('product.price', 100),
+            null,
+        );
+
+        $manufacturerFilter = new Filter(
+            'manufacturer',
+            false,
+            [new TermsAggregation('manufacturer', 'product.manufacturerId')],
+            new EqualsFilter('product.manufacturerId', 'abc'),
+            null,
+        );
+
+        $processor = $this->createProcessor($priceFilter, $manufacturerFilter);
+
+        $criteria = new Criteria();
+        $processor->prepare(new Request(), $criteria, static::createStub(SalesChannelContext::class));
+
+        $aggregations = $criteria->getAggregations();
+
+        static::assertCount(2, $aggregations);
+        static::assertSame(['price', 'manufacturer'], array_keys($aggregations));
+        static::assertInstanceOf(TermsAggregation::class, $aggregations['price']);
+        static::assertInstanceOf(TermsAggregation::class, $aggregations['manufacturer']);
+    }
+
+    public function testPrepareWithoutFiltersAddsNoAggregations(): void
+    {
+        $processor = $this->createProcessor();
+
+        $criteria = new Criteria();
+        $processor->prepare(new Request(), $criteria, static::createStub(SalesChannelContext::class));
+
+        static::assertSame([], $criteria->getAggregations());
+    }
+
+    public function testReduceAggregationsExcludesOwnFilterButKeepsOthers(): void
+    {
+        $priceFilter = new Filter(
+            'price',
+            true,
+            [new TermsAggregation('price', 'product.price')],
+            new EqualsFilter('product.price', 100),
+            null,
+            true,
+        );
+
+        $manufacturerFilter = new Filter(
+            'manufacturer',
+            true,
+            [new TermsAggregation('manufacturer', 'product.manufacturerId')],
+            new EqualsFilter('product.manufacturerId', 'abc'),
+            null,
+            true,
+        );
+
+        $processor = $this->createProcessor($priceFilter, $manufacturerFilter);
+
+        $criteria = new Criteria();
+        $processor->prepare(
+            new Request(['reduce-aggregations' => '1']),
+            $criteria,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        $aggregations = $criteria->getAggregations();
+
+        static::assertCount(2, $aggregations);
+
+        $price = $aggregations['price'];
+        static::assertInstanceOf(FilterAggregation::class, $price);
+        static::assertSame(['product.manufacturerId'], $this->fields($price));
+
+        $manufacturer = $aggregations['manufacturer'];
+        static::assertInstanceOf(FilterAggregation::class, $manufacturer);
+        static::assertSame(['product.price'], $this->fields($manufacturer));
+    }
+
+    private function createProcessor(Filter ...$filters): AggregationListingProcessor
+    {
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ProductListingCollectFilterEvent::class,
+            static function (ProductListingCollectFilterEvent $event) use ($filters): void {
+                foreach ($filters as $filter) {
+                    $event->getFilters()->add($filter);
+                }
+            }
+        );
+
+        return new AggregationListingProcessor([], $dispatcher);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function fields(FilterAggregation $aggregation): array
+    {
+        $fields = [];
+        foreach ($aggregation->getFilter() as $filter) {
+            static::assertInstanceOf(EqualsFilter::class, $filter);
+            $fields[] = $filter->getField();
+        }
+
+        return $fields;
     }
 }
 

@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslatio
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
@@ -20,6 +21,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[Group('store-api')]
 #[CoversClass(EntityCmsSlotConfigInheritanceBuilder::class)]
 class EntityCmsSlotConfigInheritanceBuilderTest extends TestCase
@@ -133,8 +135,8 @@ class EntityCmsSlotConfigInheritanceBuilderTest extends TestCase
      */
     private function createConnectionWithParentLanguageIds(array $parentLanguageIds): Connection
     {
-        $connection = $this->createMock(Connection::class);
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $connection = static::createStub(Connection::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
 
         $queryBuilder->method('select')->willReturnSelf();
         $queryBuilder->method('from')->willReturnSelf();
@@ -142,7 +144,7 @@ class EntityCmsSlotConfigInheritanceBuilderTest extends TestCase
         $queryBuilder->method('setParameter')->willReturnSelf();
 
         $results = array_map(function (?string $parentLanguageId): Result {
-            $result = $this->createMock(Result::class);
+            $result = $this->createStub(Result::class);
             $result->method('fetchOne')->willReturn($parentLanguageId);
 
             return $result;

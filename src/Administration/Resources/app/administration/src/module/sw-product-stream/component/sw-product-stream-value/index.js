@@ -1,12 +1,10 @@
-/*
- * @sw-package inventory
- */
-
 import template from './sw-product-stream-value.html.twig';
 import './sw-product-stream-value.scss';
 
 const { Criteria } = Shopware.Data;
-/*
+
+/**
+ * @sw-package inventory
  * @private
  */
 export default {
@@ -17,15 +15,10 @@ export default {
         'conditionDataProviderService',
         'productCustomFields',
         'productTypes',
-        'acl',
         'feature',
     ],
 
-    emits: [
-        'empty-change',
-        'type-change',
-        'boolean-change',
-    ],
+    emits: ['empty-change', 'type-change', 'boolean-change'],
 
     props: {
         condition: {
@@ -54,7 +47,6 @@ export default {
     data() {
         return {
             value: null,
-            childComponentsCount: null,
             searchTerm: '',
         };
     },
@@ -69,14 +61,7 @@ export default {
         },
 
         componentClasses() {
-            return [
-                this.growthClass,
-                this.disabledClass,
-            ];
-        },
-
-        growthClass() {
-            return `sw-product-stream-value--grow-${this.childComponentsCount}`;
+            return [this.disabledClass];
         },
 
         disabledClass() {
@@ -179,10 +164,7 @@ export default {
 
         productTypeOptions() {
             const providedTypes = this.productTypes?.value ?? this.productTypes;
-            const defaultTypes = [
-                'digital',
-                'physical',
-            ];
+            const defaultTypes = ['digital', 'physical'];
             const types = Array.isArray(providedTypes) && providedTypes.length > 0 ? providedTypes : defaultTypes;
 
             return types.map((type) => {
@@ -336,12 +318,7 @@ export default {
 
         stringValue: {
             get() {
-                if (
-                    [
-                        'int',
-                        'float',
-                    ].includes(this.fieldType)
-                ) {
+                if (['int', 'float'].includes(this.fieldType)) {
                     return Number.parseFloat(this.actualCondition.value);
                 }
                 if (typeof this.actualCondition.value !== 'string') {
@@ -437,13 +414,6 @@ export default {
         isProductEntity() {
             return this.getCustomFieldEntityName(this.fieldName) === 'product';
         },
-    },
-
-    mounted() {
-        // Wait for all child components to be mounted. $nextTick is not enough here.
-        setTimeout(() => {
-            this.childComponentsCount = Object.keys(this.$refs ?? {}).length;
-        });
     },
 
     methods: {

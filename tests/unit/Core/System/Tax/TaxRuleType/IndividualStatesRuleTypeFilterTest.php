@@ -15,8 +15,8 @@ use Shopware\Core\System\Tax\TaxRuleType\IndividualStatesRuleTypeFilter;
 /**
  * @internal
  */
-#[CoversClass(IndividualStatesRuleTypeFilter::class)]
 #[Package('checkout')]
+#[CoversClass(IndividualStatesRuleTypeFilter::class)]
 class IndividualStatesRuleTypeFilterTest extends TestCase
 {
     public function testMatchesNotWithWrongType(): void

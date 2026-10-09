@@ -25,10 +25,7 @@
       "columnIso3": "ISO3",
       "columnActive": "Active",
       "buttonAddCountry": "Add country",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
-      "messageDeleteSuccess": "Country \"{name}\" has been deleted.",
-      "buttonDelete": "Delete"
+      "messageDeleteSuccess": "Country \"{name}\" has been deleted."
     },
     "detail": {
       "textHeadline": "New country",
@@ -47,12 +44,12 @@
       "labelCheckVatIdFormat": "Validate VAT Reg.No. format",
       "helpTextCheckVatIdFormat": "Validates the European VAT Reg.No. format.",
       "labelForceStateInRegistration": "State/region required",
+      "labelDisplayStateInRegistration": "Show state/region",
       "placeholderName": "Enter name...",
       "placeholderPosition": "1",
       "placeholderStateSearch": "Search states/regions...",
       "placeholderIso": "Enter alpha-2 ISO code...",
       "placeholderIso3": "Enter alpha-3 ISO code...",
-      "buttonSave": "Save",
       "buttonAddCountryState": "Add state/region",
       "editAction": "Edit",
       "columnStateNameLabel": "Name",
@@ -70,7 +67,7 @@
       "labelCheckPostalCodePattern": "Postal code validation",
       "labelCheckAdvancedPostalCodePattern": "Advanced validation rules",
       "placeholderAdvancedPostalCodePattern": "Enter postal code pattern...",
-      "helpTextAdvancedPostalCodePattern": "Possible formats to use:<ul><li>^\\d{5}$ - Exact 5 Digits, e.g 12345</li><li>^(\\d{4})\\s*([A-Z]{2})$ - Exact 4 Digits and 2 Letters, e.g 1234 AB</li></ul>",
+      "helpTextAdvancedPostalCodePattern": "Possible formats to use:<ul><li>^\\d&#123;5&#125;$ - Exact 5 Digits, e.g 12345</li><li>^(\\d&#123;4&#125;)\\s*([A-Z]&#123;2&#125;)$ - Exact 4 Digits and 2 Letters, e.g 1234 AB</li></ul>",
       "labelCheckDefaultAddressFormat": "Custom address format",
       "labelAddressFormatPlain": "Format",
       "titleFormatting": "Address markup",
@@ -87,7 +84,6 @@
   "sw-country-state-detail": {
     "titleNew": "New state/region",
     "titleEdit": "Edit state/region",
-    "buttonSave": "Save",
     "labelName": "Name",
     "labelPosition": "Position",
     "labelShortCode": "ISO",

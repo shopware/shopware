@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Theme\ThemeCompiler;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class AssetRegistrationCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
@@ -21,11 +22,5 @@ class AssetRegistrationCompilerPass implements CompilerPassInterface
 
         $assetService = $container->getDefinition('assets.packages');
         $assetService->addMethodCall('setDefaultPackage', [$assets['asset']]);
-
-        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
-        if ($container->hasDefinition(ThemeCompiler::class)) {
-            /** @phpstan-ignore phpat.restrictNamespacesInCore */
-            $container->getDefinition(ThemeCompiler::class)->setArgument('$packages', $assets);
-        }
     }
 }

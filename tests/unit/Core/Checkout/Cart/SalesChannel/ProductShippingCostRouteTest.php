@@ -11,10 +11,13 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingCostCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Extension\ProductShippingCostRouteExtension;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\ProductShippingCostRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\ShippingCostRouteResponse;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
@@ -27,11 +30,14 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -43,9 +49,10 @@ class ProductShippingCostRouteTest extends TestCase
     public function testGetDecorated(): void
     {
         $route = new ProductShippingCostRoute(
-            $this->createMock(ProductGatewayInterface::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(Processor::class),
+            static::createStub(ProductGatewayInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(Processor::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $this->expectException(DecorationPatternException::class);
@@ -64,6 +71,7 @@ class ProductShippingCostRouteTest extends TestCase
             $this->createProductGatewayMock($product, $context),
             $this->createShippingMethodRepositoryMock($shippingMethods, $context, [$shippingMethod->getId()]),
             $this->createProcessorMock(1),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $route->shippingCostsByProduct($product->getId(), new Criteria([$shippingMethod->getId()]), $context);
@@ -101,6 +109,7 @@ class ProductShippingCostRouteTest extends TestCase
             $this->createProductGatewayMock($product, $context),
             $this->createShippingMethodRepositoryMock(new ShippingMethodCollection([$shippingMethod]), $context, [$shippingMethod->getId()]),
             $processor,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $context->assign(['permissions' => [
@@ -127,6 +136,7 @@ class ProductShippingCostRouteTest extends TestCase
             $this->createProductGatewayMock($product, $context),
             $this->createShippingMethodRepositoryMock(new ShippingMethodCollection([$shippingMethod]), $context, [$shippingMethod->getId()]),
             $this->createProcessorMock(1, $processedCart),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $route->shippingCostsByProduct($product->getId(), new Criteria([$shippingMethod->getId()]), $context);
@@ -148,6 +158,7 @@ class ProductShippingCostRouteTest extends TestCase
             $this->createProductGatewayMock($product, $context),
             $this->createShippingMethodRepositoryMock($shippingMethods, $context),
             $this->createProcessorMock(2),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $route->shippingCostsByProduct($product->getId(), new Criteria(), $context);
@@ -167,6 +178,7 @@ class ProductShippingCostRouteTest extends TestCase
             $this->createProductGatewayMock($product, $context),
             $this->createShippingMethodRepositoryMock(new ShippingMethodCollection([$shippingMethod]), $context, [$shippingMethod->getId()]),
             $this->createProcessorMock(1, new Cart('test')),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $route->shippingCostsByProduct($product->getId(), new Criteria([$shippingMethod->getId()]), $context);
@@ -200,11 +212,37 @@ class ProductShippingCostRouteTest extends TestCase
             $productGateway,
             $shippingMethodRepository,
             $processor,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $this->expectException(CartException::class);
 
         $route->shippingCostsByProduct($productId, new Criteria(), $context);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $productId = Uuid::randomHex();
+        $criteria = new Criteria();
+        $context = Generator::generateSalesChannelContext();
+        $response = new ShippingCostRouteResponse(new ShippingCostCollection());
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('product-shipping-cost-route.shipping-costs-by-product.pre', static function (ProductShippingCostRouteExtension $extension) use ($productId, $criteria, $context, $response): void {
+            static::assertSame(['productId' => $productId, 'criteria' => $criteria, 'salesChannelContext' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ProductShippingCostRoute(
+            static::createStub(ProductGatewayInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(Processor::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->shippingCostsByProduct($productId, $criteria, $context));
     }
 
     private function createShippingMethod(string $id): ShippingMethodEntity

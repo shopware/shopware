@@ -18,8 +18,8 @@ use Shopware\Core\Test\Integration\Traits\Promotion\PromotionLineItemTestFixture
 /**
  * @internal
  */
-#[CoversClass(DiscountPackage::class)]
 #[Package('checkout')]
+#[CoversClass(DiscountPackage::class)]
 class DiscountPackageTest extends TestCase
 {
     use PromotionLineItemTestFixtureBehaviour;

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -23,6 +24,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class SyncServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -118,7 +120,7 @@ class SyncServiceTest extends TestCase
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['media-2']))],
             ['ids' => ArrayParameterType::BINARY]
         );
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
     }
 
     public function testSingleOperationWithDeletesAndWrites(): void
@@ -175,16 +177,12 @@ class SyncServiceTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $createListener = $this
-            ->getMockBuilder(CallableClass::class)
-            ->getMock();
+        $createListener = $this->createMock(CallableClass::class);
 
         $createListener->expects($this->once())
             ->method('__invoke');
 
-        $deleteListener = $this
-            ->getMockBuilder(CallableClass::class)
-            ->getMock();
+        $deleteListener = $this->createMock(CallableClass::class);
 
         $deleteListener->expects($this->exactly(3))
             ->method('__invoke');
@@ -223,14 +221,14 @@ class SyncServiceTest extends TestCase
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['t1', 't2']))],
             ['ids' => ArrayParameterType::BINARY]
         );
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
 
         $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM country WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['c1', 'c2']))],
             ['ids' => ArrayParameterType::BINARY]
         );
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
     }
 
     public function testSingleOperationParameter(): void
@@ -239,9 +237,7 @@ class SyncServiceTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this
-            ->getMockBuilder(CallableClass::class)
-            ->getMock();
+        $listener = $this->createMock(CallableClass::class);
 
         $listener->expects($this->once())
             ->method('__invoke');

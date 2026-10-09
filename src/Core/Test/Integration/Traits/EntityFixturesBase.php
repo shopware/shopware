@@ -74,6 +74,7 @@ trait EntityFixturesBase
 
         $entity = $repository
             ->search($criteria, $this->entityFixtureContext)
+            ->getEntities()
             ->get($fixtureData[$fixtureName]['id']);
 
         static::assertInstanceOf(Entity::class, $entity);

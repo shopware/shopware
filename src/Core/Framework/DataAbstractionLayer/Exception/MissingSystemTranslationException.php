@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class MissingSystemTranslationException extends WriteConstraintViolationException
 {

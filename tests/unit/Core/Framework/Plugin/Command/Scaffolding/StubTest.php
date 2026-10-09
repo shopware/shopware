@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Stub::class)]
 class StubTest extends TestCase
 {
@@ -33,6 +35,15 @@ class StubTest extends TestCase
 
         static::assertSame($destinationPath, $stub->getPath());
         static::assertSame($content, $stub->getContent());
+    }
+
+    public function testAppendConstructor(): void
+    {
+        $stub = Stub::append('/path/to/destination', 'Appended content');
+
+        static::assertSame('/path/to/destination', $stub->getPath());
+        static::assertSame(Stub::TYPE_APPEND, $stub->getType());
+        static::assertSame('Appended content', $stub->getContent());
     }
 
     /**

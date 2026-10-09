@@ -27,7 +27,7 @@ class GdImageThumbnailProcessorTest extends TestCase
         parent::setUp();
 
         $this->processor = new GdImageThumbnailProcessor();
-        $this->image = $this->processor->createImageFromString((string) file_get_contents(__DIR__ . '/../shopware-logo.png'));
+        $this->image = $this->processor->createImageFromString((string) file_get_contents(__DIR__ . '/../fixtures/shopware-logo.png'));
         static::assertSame(266, $this->processor->getHeight($this->image));
         static::assertSame(499, $this->processor->getWidth($this->image));
     }
@@ -88,5 +88,14 @@ class GdImageThumbnailProcessorTest extends TestCase
         yield 'image/jpeg' => ['image/jpeg', ['image/jpg', 'image/jpeg']];
         yield 'image/webp' => ['image/webp', ['image/webp']];
         yield 'image/avif' => ['image/avif', ['image/avif']];
+    }
+
+    public function testConvertImageProducesProgressiveJpeg(): void
+    {
+        $binary = $this->processor->convertImage($this->image, 'image/jpeg', 80);
+
+        static::assertNotEmpty($binary);
+        // Progressive JPEGs use SOF2 marker (0xFFC2) instead of baseline SOF0 (0xFFC0)
+        static::assertStringContainsString("\xFF\xC2", $binary, 'JPEG output should be progressive (SOF2 marker)');
     }
 }

@@ -65,11 +65,30 @@
             <mt-empty-state
                 v-if="!isLoading && !total"
                 :icon="$route.meta.$module.icon"
-                :centered="true"
+                centered
                 :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-settings-shipping.list.messageEmpty')"
+                description=""
                 :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
                 :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
-            />
+            >
+                <template
+                    v-if="!isValidTerm(term)"
+                    #button
+                >
+                    <mt-button
+                        v-tooltip="{
+                            message: $t('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('shipping.creator'),
+                            showOnDisabledElements: true
+                        }"
+                        variant="primary"
+                        :disabled="!acl.can('shipping.creator')"
+                        @click="$router.push({ name: 'sw.settings.shipping.create' })"
+                    >
+                        {{ $t('sw-settings-shipping.list.buttonAddShippingMethod') }}
+                    </mt-button>
+                </template>
+            </mt-empty-state>
             {% endblock %}
 
             {% block sw_settings_shipping_list_grid %}
@@ -154,7 +173,7 @@
                         :disabled="!acl.can('shipping.editor') || undefined"
                         class="sw-settings-shipping-list__edit-action"
                     >
-                        {{ $t('sw-settings-shipping.list.contextMenuEdit') }}
+                        {{ $t('global.default.edit') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -164,7 +183,7 @@
                         :disabled="!acl.can('shipping.deleter') || undefined"
                         @click="onDelete(item.id)"
                     >
-                        {{ $t('sw-settings-shipping.list.contextMenuDelete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -203,7 +222,7 @@
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
-                                {{ $t('sw-settings-shipping.list.buttonDelete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                             {% endblock %}
                         </template>

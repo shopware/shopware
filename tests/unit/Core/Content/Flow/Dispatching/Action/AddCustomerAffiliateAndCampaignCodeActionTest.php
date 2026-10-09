@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerAffiliateAndCampaignCodeAction;
@@ -23,19 +23,19 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(AddCustomerAffiliateAndCampaignCodeAction::class)]
 class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     /**
-     * @var MockObject&EntityRepository<CustomerCollection>
+     * @var Stub&EntityRepository<CustomerCollection>
      */
-    private MockObject&EntityRepository $repository;
+    private Stub&EntityRepository $repository;
 
     private AddCustomerAffiliateAndCampaignCodeAction $action;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->repository = $this->createMock(EntityRepository::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->repository = static::createStub(EntityRepository::class);
         $this->action = new AddCustomerAffiliateAndCampaignCodeAction($this->connection, $this->repository);
     }
 
@@ -60,7 +60,8 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     #[DataProvider('actionExecuteProvider')]
     public function testActionWithExpectedUpdate(array $config, array $existedData, array $expected): void
     {
-        $this->connection->expects($this->once())->method('fetchAssociative')->willReturn($existedData);
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('fetchAssociative')->willReturn($existedData);
 
         $customerId = Uuid::randomHex();
         $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
@@ -69,18 +70,20 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
         $flow->setConfig($config);
 
         $expected['id'] = $customerId;
-        $this->repository->expects($this->once())->method('update')->with([$expected]);
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())->method('update')->with([$expected]);
 
-        $this->action->handleFlow($flow);
+        $this->createAction($connection, $repository)->handleFlow($flow);
     }
 
     public function testActionWithNotAware(): void
     {
         $flow = new StorableFlow('foo', Context::createDefaultContext());
 
-        $this->repository->expects($this->never())->method('update');
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('update');
 
-        $this->action->handleFlow($flow);
+        $this->createAction(repository: $repository)->handleFlow($flow);
     }
 
     public function testActionWithEmptyConfig(): void
@@ -89,9 +92,10 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
             CustomerAware::CUSTOMER_ID => Uuid::randomHex(),
         ]);
 
-        $this->repository->expects($this->never())->method('update');
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('update');
 
-        $this->action->handleFlow($flow);
+        $this->createAction(repository: $repository)->handleFlow($flow);
     }
 
     public static function actionExecuteProvider(): \Generator
@@ -125,5 +129,16 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
             ['affiliate_code' => '11111', 'campaign_code' => '22222'],
             ['affiliateCode' => '33333', 'campaignCode' => '33333'],
         ];
+    }
+
+    /**
+     * @param EntityRepository<CustomerCollection>|null $repository
+     */
+    private function createAction(?Connection $connection = null, ?EntityRepository $repository = null): AddCustomerAffiliateAndCampaignCodeAction
+    {
+        return new AddCustomerAffiliateAndCampaignCodeAction(
+            $connection ?? $this->connection,
+            $repository ?? $this->repository,
+        );
     }
 }

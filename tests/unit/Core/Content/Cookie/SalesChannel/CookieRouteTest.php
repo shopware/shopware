@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\CookieException;
+use Shopware\Core\Content\Cookie\Extension\CookieRouteExtension;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRouteResponse;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
@@ -12,13 +13,17 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CookieRoute::class)]
 #[CoversClass(CookieRouteResponse::class)]
 class CookieRouteTest extends TestCase
@@ -27,8 +32,8 @@ class CookieRouteTest extends TestCase
     {
         $this->expectExceptionObject(new DecorationPatternException(CookieRoute::class));
 
-        $cookieProvider = $this->createMock(CookieProvider::class);
-        (new CookieRoute($cookieProvider))->getDecorated();
+        $cookieProvider = static::createStub(CookieProvider::class);
+        (new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher())))->getDecorated();
     }
 
     public function testGetCookieGroups(): void
@@ -39,12 +44,11 @@ class CookieRouteTest extends TestCase
         $cookieGroup->setEntries(new CookieEntryCollection([new CookieEntry('test-cookie')]));
         $expectedCookieGroups = new CookieGroupCollection([$cookieGroup]);
 
-        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')
-            ->with(static::isInstanceOf(Request::class), $salesChannelContext)
             ->willReturn($expectedCookieGroups);
 
-        $cookieRoute = new CookieRoute($cookieProvider);
+        $cookieRoute = new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher()));
 
         $response1 = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
         $response2 = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
@@ -76,14 +80,14 @@ class CookieRouteTest extends TestCase
         $cookieGroup2->setEntries(new CookieEntryCollection([new CookieEntry('test-cookie-2')]));
         $cookieGroups2 = new CookieGroupCollection([$cookieGroup2]);
 
-        $cookieProvider1 = $this->createMock(CookieProvider::class);
+        $cookieProvider1 = static::createStub(CookieProvider::class);
         $cookieProvider1->method('getCookieGroups')->willReturn($cookieGroups1);
 
-        $cookieProvider2 = $this->createMock(CookieProvider::class);
+        $cookieProvider2 = static::createStub(CookieProvider::class);
         $cookieProvider2->method('getCookieGroups')->willReturn($cookieGroups2);
 
-        $response1 = (new CookieRoute($cookieProvider1))->getCookieGroups(new Request(), $salesChannelContext);
-        $response2 = (new CookieRoute($cookieProvider2))->getCookieGroups(new Request(), $salesChannelContext);
+        $response1 = (new CookieRoute($cookieProvider1, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
+        $response2 = (new CookieRoute($cookieProvider2, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
 
         static::assertNotSame($response1->getHash(), $response2->getHash());
     }
@@ -111,14 +115,14 @@ class CookieRouteTest extends TestCase
         // Collection 2: B, A order (different insertion order)
         $collection2 = new CookieGroupCollection([$group2, $group1]);
 
-        $cookieProvider1 = $this->createMock(CookieProvider::class);
+        $cookieProvider1 = static::createStub(CookieProvider::class);
         $cookieProvider1->method('getCookieGroups')->willReturn($collection1);
 
-        $cookieProvider2 = $this->createMock(CookieProvider::class);
+        $cookieProvider2 = static::createStub(CookieProvider::class);
         $cookieProvider2->method('getCookieGroups')->willReturn($collection2);
 
-        $response1 = (new CookieRoute($cookieProvider1))->getCookieGroups(new Request(), $salesChannelContext);
-        $response2 = (new CookieRoute($cookieProvider2))->getCookieGroups(new Request(), $salesChannelContext);
+        $response1 = (new CookieRoute($cookieProvider1, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
+        $response2 = (new CookieRoute($cookieProvider2, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
 
         // Hash should be the same regardless of collection order thanks to internal sorting
         static::assertSame($response1->getHash(), $response2->getHash(), 'Hash should be the same regardless of collection order');
@@ -145,10 +149,10 @@ class CookieRouteTest extends TestCase
             $statisticalGroup,
         ]);
 
-        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')->willReturn($originalGroups);
 
-        $response = (new CookieRoute($cookieProvider))->getCookieGroups(new Request(), $salesChannelContext);
+        $response = (new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
         $returnedGroups = $response->getCookieGroups();
 
         // Verify that the original order is preserved
@@ -219,14 +223,14 @@ class CookieRouteTest extends TestCase
         $extendedGroup->setEntries(new CookieEntryCollection([$extendedEntry]));
         $extendedGroups = new CookieGroupCollection([$extendedGroup]);
 
-        $standardProvider = $this->createMock(CookieProvider::class);
+        $standardProvider = static::createStub(CookieProvider::class);
         $standardProvider->method('getCookieGroups')->willReturn($standardGroups);
 
-        $extendedProvider = $this->createMock(CookieProvider::class);
+        $extendedProvider = static::createStub(CookieProvider::class);
         $extendedProvider->method('getCookieGroups')->willReturn($extendedGroups);
 
-        $standardResponse = (new CookieRoute($standardProvider))->getCookieGroups(new Request(), $salesChannelContext);
-        $extendedResponse = (new CookieRoute($extendedProvider))->getCookieGroups(new Request(), $salesChannelContext);
+        $standardResponse = (new CookieRoute($standardProvider, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
+        $extendedResponse = (new CookieRoute($extendedProvider, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
 
         // Hash should be the same despite extended properties
         static::assertSame(
@@ -253,14 +257,14 @@ class CookieRouteTest extends TestCase
         $modifiedGroup->description = 'Modified description'; // Only change this property
         $groups2 = new CookieGroupCollection([$modifiedGroup]);
 
-        $provider1 = $this->createMock(CookieProvider::class);
+        $provider1 = static::createStub(CookieProvider::class);
         $provider1->method('getCookieGroups')->willReturn($groups1);
 
-        $provider2 = $this->createMock(CookieProvider::class);
+        $provider2 = static::createStub(CookieProvider::class);
         $provider2->method('getCookieGroups')->willReturn($groups2);
 
-        $response1 = (new CookieRoute($provider1))->getCookieGroups(new Request(), $salesChannelContext);
-        $response2 = (new CookieRoute($provider2))->getCookieGroups(new Request(), $salesChannelContext);
+        $response1 = (new CookieRoute($provider1, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
+        $response2 = (new CookieRoute($provider2, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
 
         // Hash should be different when defined properties change
         static::assertNotSame(
@@ -280,12 +284,11 @@ class CookieRouteTest extends TestCase
         $cookieGroup->setEntries(new CookieEntryCollection([$malformedEntry]));
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
-        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')
-            ->with(static::isInstanceOf(Request::class), $salesChannelContext)
             ->willReturn($cookieGroups);
 
-        $cookieRoute = new CookieRoute($cookieProvider);
+        $cookieRoute = new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher()));
 
         $this->expectExceptionObject(
             CookieException::hashGenerationFailed('Cookie configuration processing failed: JSON is invalid')
@@ -307,10 +310,10 @@ class CookieRouteTest extends TestCase
         $cookieGroup->setEntries(new CookieEntryCollection([$hashEntry, $otherEntry]));
         $cookieGroups = new CookieGroupCollection([$cookieGroup]);
 
-        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
 
-        $cookieRoute = new CookieRoute($cookieProvider);
+        $cookieRoute = new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher()));
         $response = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
 
         // Verify that the hash entry value was updated to the generated hash
@@ -333,10 +336,10 @@ class CookieRouteTest extends TestCase
 
         $cookieGroups = new CookieGroupCollection([$groupWithoutEntries, $groupWithHashEntry]);
 
-        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
 
-        $cookieRoute = new CookieRoute($cookieProvider);
+        $cookieRoute = new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher()));
         $response = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
 
         // Verify that processing continues and hash is still set correctly
@@ -361,14 +364,36 @@ class CookieRouteTest extends TestCase
         // Place required group first in collection to match early return behavior
         $cookieGroups = new CookieGroupCollection([$requiredGroup, $secondGroup]);
 
-        $cookieProvider = $this->createMock(CookieProvider::class);
+        $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
 
-        $cookieRoute = new CookieRoute($cookieProvider);
+        $cookieRoute = new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher()));
         $response = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
 
         // Verify only the required group's hash entry was updated (method returns early on required group)
         static::assertSame($response->getHash(), $requiredHashEntry->value);
         static::assertSame('old-hash-2', $secondHashEntry->value); // Should remain unchanged
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $response = static::createStub(CookieRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('cookie-route.get-cookie-groups.pre', static function (CookieRouteExtension $extension) use ($request, $salesChannelContext, $response): void {
+            static::assertSame(['request' => $request, 'salesChannelContext' => $salesChannelContext], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new CookieRoute(
+            static::createStub(CookieProvider::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->getCookieGroups($request, $salesChannelContext));
     }
 }

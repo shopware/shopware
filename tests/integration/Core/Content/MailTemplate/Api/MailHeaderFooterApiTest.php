@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\MailTemplate\Api;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -47,7 +46,6 @@ class MailHeaderFooterApiTest extends TestCase
     /**
      * api.mail_header_footer.create
      */
-    #[Group('slow')]
     public function testHeaderFooterCreate(): void
     {
         // prepare test data
@@ -88,7 +86,6 @@ class MailHeaderFooterApiTest extends TestCase
     /**
      * api.mail_header_footer.list
      */
-    #[Group('slow')]
     public function testHeaderFooterList(): void
     {
         // Create test data.

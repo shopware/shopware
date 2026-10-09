@@ -20,6 +20,7 @@ class TemplateLoader extends AbstractTemplateLoader
         'storefront',
         'documents',
         'components',
+        'files',
     ];
 
     private const ALLOWED_FILE_EXTENSIONS = '*.twig';
@@ -46,6 +47,7 @@ class TemplateLoader extends AbstractTemplateLoader
             ->in($viewDirectory)
             ->name(self::ALLOWED_FILE_EXTENSIONS)
             ->path(self::ALLOWED_TEMPLATE_DIRS)
+            ->ignoreDotFiles(false)
             ->ignoreUnreadableDirs();
 
         return array_values(array_map(static fn (\SplFileInfo $file): string => ltrim(mb_substr($file->getPathname(), mb_strlen($viewDirectory)), '/'), iterator_to_array($finder)));

@@ -23,7 +23,8 @@
 const crypto = require('crypto');
 
 function getCacheKey(fileData, filePath, configStr) {
-    return crypto.createHash('sha256')
+    return crypto
+        .createHash('sha256')
         .update(fileData + filePath + configStr, 'utf8')
         .digest('hex');
 }

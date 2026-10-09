@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Installer\Finish;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Finish\SystemLocker;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemLocker::class)]
 class SystemLockerTest extends TestCase
 {
@@ -33,7 +35,7 @@ class SystemLockerTest extends TestCase
         $locker->lock();
 
         $content = file_get_contents(__DIR__ . '/install.lock');
-        static::assertNotEmpty($content);
+        static::assertNotFalse($content);
         // The file should contain a timestamp in YmdHi format
         static::assertMatchesRegularExpression('/^\d{12}$/', $content);
     }

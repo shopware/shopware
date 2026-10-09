@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
@@ -22,7 +23,6 @@ use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -30,17 +30,19 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTestPlugin\SwagTestPlugin;
 use SwagTestSkipRebuild\SwagTestSkipRebuild;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class KernelPluginIntegrationTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;
@@ -62,7 +64,7 @@ class KernelPluginIntegrationTest extends TestCase
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
-        static::assertEmpty($this->kernel->getPluginLoader()->getPluginInstances()->all());
+        static::assertCount(0, $this->kernel->getPluginLoader()->getPluginInstances()->all());
     }
 
     public function testInactive(): void
@@ -78,7 +80,7 @@ class KernelPluginIntegrationTest extends TestCase
         $this->kernel->boot();
 
         $plugins = $this->kernel->getPluginLoader()->getPluginInstances();
-        static::assertNotEmpty($plugins->all());
+        static::assertNotCount(0, $plugins->all());
 
         $testPlugin = $plugins->get(SwagTestPlugin::class);
         static::assertNotNull($testPlugin);
@@ -369,7 +371,7 @@ class KernelPluginIntegrationTest extends TestCase
         $container = $kernel->getContainer();
 
         $emptyPluginCollection = new PluginCollection();
-        $pluginRepoMock = $this->createMock(EntityRepository::class);
+        $pluginRepoMock = static::createStub(EntityRepository::class);
 
         $pluginRepoMock
             ->method('search')
@@ -380,19 +382,21 @@ class KernelPluginIntegrationTest extends TestCase
             $container->get('event_dispatcher'),
             $kernel->getPluginLoader()->getPluginInstances(),
             $container,
-            $this->createMock(MigrationCollectionLoader::class),
-            $this->createMock(AssetService::class),
-            $this->createMock(CommandExecutor::class),
-            $this->createMock(RequirementsValidator::class),
+            static::createStub(MigrationCollectionLoader::class),
+            static::createStub(AssetService::class),
+            static::createStub(CommandExecutor::class),
+            static::createStub(RequirementsValidator::class),
             new ArrayAdapter(),
             $container->getParameter('kernel.shopware_version'),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(CustomEntityPersister::class),
-            $this->createMock(CustomEntitySchemaUpdater::class),
-            $this->createMock(PluginService::class),
-            $this->createMock(VersionSanitizer::class),
-            $this->createMock(DefinitionInstanceRegistry::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(CustomEntityPersister::class),
+            static::createStub(CustomEntitySchemaUpdater::class),
+            static::createStub(PluginService::class),
+            static::createStub(VersionSanitizer::class),
+            static::createStub(DefinitionInstanceRegistry::class),
             new RequestStack(),
+            static::createStub(CustomFieldSetPersister::class),
+            new NativeClock()
         );
     }
 

@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package inventory
  */
@@ -407,9 +409,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         await wrapper.vm.onUploadMediaFailed({ targetId: 'mediaId' });
 
         expect(wrapper.vm.source.media).not.toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({ mediaId: 'mediaId' }),
-            ]),
+            expect.arrayContaining([expect.objectContaining({ mediaId: 'mediaId' })]),
         );
     });
 

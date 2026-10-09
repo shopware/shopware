@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\SendEmailMessageJsonSerializer;
 use Symfony\Component\Mailer\Messenger\SendEmailMessage;
 use Symfony\Component\Mime\RawMessage;
@@ -15,6 +16,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SendEmailMessageJsonSerializer::class)]
 class SendEmailMessageJsonSerializerTest extends TestCase
 {

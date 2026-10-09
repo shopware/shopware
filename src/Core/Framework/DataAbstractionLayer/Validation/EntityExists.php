@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Validation;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
@@ -19,9 +22,7 @@ class EntityExists extends Constraint
         self::ENTITY_DOES_NOT_EXISTS => 'ENTITY_DOES_NOT_EXISTS',
     ];
 
-    /**
-     * @deprecated tag:v6.8.0 - $message property access modifier will be changed to protected and is injectable via constructor
-     */
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected', description: 'Use getMessage() instead.')]
     public string $message = 'The {{ entity }} entity with {{ primaryProperty }} {{ id }} does not exist.';
 
     protected string $entity;
@@ -33,15 +34,16 @@ class EntityExists extends Constraint
     protected string $primaryProperty = 'id';
 
     /**
-     * @param array{entity: string, context: Context, criteria?: Criteria, primaryProperty?: string}|null $options
+     * @param array{entity?: string, context?: Context, criteria?: Criteria, primaryProperty?: string}|null $options
      *
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $options parameter will be removed
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $entity and $context parameter will be required
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $entity, $context, $primaryProperty and $message properties will be natively typed as constructor property promotion
+     * The `$entity`, `$context`, `$primaryProperty` and `$message` properties will be natively typed via constructor property promotion in v6.8.0.
      *
      * @internal
      */
     #[HasNamedArguments]
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options', description: 'Use the named arguments instead.')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'entity', newType: 'string', description: 'The parameter loses its null default and becomes required.')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'context', newType: Context::class, description: 'The parameter loses its null default and becomes required.')]
     public function __construct(
         ?array $options = null,
         ?string $entity = null,
@@ -87,8 +89,8 @@ class EntityExists extends Constraint
                 throw FrameworkException::missingOptions(\sprintf('Option "context" must be given for constraint %s', self::class));
             }
 
-            if (!($options['criteria'] ?? null) instanceof Criteria) {
-                throw FrameworkException::missingOptions(\sprintf('Option "criteria" must be an instance of Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria for constraint %s', self::class));
+            if (!$options['criteria'] instanceof Criteria) {
+                throw FrameworkException::invalidOptions(\sprintf('Option "criteria" must be an instance of Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria for constraint %s', self::class));
             }
 
             if (isset($options['primaryProperty']) && !\is_string($options['primaryProperty'])) {

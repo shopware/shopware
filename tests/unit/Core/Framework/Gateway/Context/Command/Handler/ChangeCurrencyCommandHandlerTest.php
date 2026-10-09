@@ -77,9 +77,12 @@ class ChangeCurrencyCommandHandlerTest extends TestCase
         $this->expectExceptionObject(GatewayException::handlerException('Currency with iso code {{ isoCode }} not found', ['isoCode' => 'EUR']));
 
         $handler = new ChangeCurrencyCommandHandler($currencyRepo);
-        $handler->handle($command, $context, $parameters);
 
-        static::assertSame([], $parameters);
+        try {
+            $handler->handle($command, $context, $parameters);
+        } finally {
+            static::assertSame([], $parameters);
+        }
     }
 
     public function testSupportedCommands(): void

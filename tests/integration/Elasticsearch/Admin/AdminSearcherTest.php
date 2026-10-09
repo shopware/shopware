@@ -3,26 +3,25 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
-use OpenSearch\Client;
-use OpenSearchDSL\Search;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
-use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
+use Shopware\Elasticsearch\Profiler\ClientProfiler;
 use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 class AdminSearcherTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -39,13 +38,16 @@ class AdminSearcherTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!static::getContainer()->getParameter('elasticsearch.administration.enabled')) {
-            static::markTestSkipped('No OPENSEARCH configured');
-        }
-
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->searcher = static::getContainer()->get(AdminSearcher::class);
 
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+
+        $this->clearElasticsearch();
+    }
+
+    protected function tearDown(): void
+    {
         static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
 
         $this->clearElasticsearch();
@@ -70,7 +72,7 @@ class AdminSearcherTest extends TestCase
 
         $results = $this->searcher->search('laptop', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($results);
+        static::assertNotCount(0, $results);
         static::assertArrayHasKey('product', $results);
         static::assertGreaterThan(0, $results['product']['total']);
 
@@ -80,7 +82,7 @@ class AdminSearcherTest extends TestCase
 
         $prefixResults = $this->searcher->search('LAPTO', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($prefixResults, 'Case-insensitive product-name prefix search should find "Laptop Computer".');
+        static::assertNotCount(0, $prefixResults, 'Case-insensitive product-name prefix search should find "Laptop Computer".');
         static::assertArrayHasKey('product', $prefixResults);
         static::assertInstanceOf(ProductCollection::class, $prefixResults['product']['data']);
         static::assertContains($productLaptopId, $prefixResults['product']['data']->getIds(), 'Laptop should be found when searching for the uppercase prefix "LAPTO"');
@@ -115,7 +117,7 @@ class AdminSearcherTest extends TestCase
 
         $results = $this->searcher->search('38000', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($results);
+        static::assertNotCount(0, $results);
         static::assertArrayHasKey('product', $results);
         static::assertGreaterThanOrEqual(3, $results['product']['total'], 'Should find at least 3 products containing "3800"');
 
@@ -156,7 +158,7 @@ class AdminSearcherTest extends TestCase
 
         $results = $this->searcher->search('3800', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($results);
+        static::assertNotCount(0, $results);
         static::assertArrayHasKey('product', $results);
 
         static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
@@ -198,9 +200,14 @@ class AdminSearcherTest extends TestCase
         $this->indexElasticSearch(['--only' => ['product']]);
         $this->refreshIndex();
 
-        $hits = $this->runRawAdminProductSearch('457');
+        $profiler = $this->startRecordingAdminSearchRequests();
 
-        static::assertNotEmpty($hits, 'Raw OpenSearch search must return hits for a short numeric prefix in the product name.');
+        $results = $this->searcher->search('457', ['product'], Context::createDefaultContext());
+
+        // Control arm: the relevance order OpenSearch itself returned for the query the searcher sent.
+        $hits = $this->recordedProductHits($profiler);
+
+        static::assertNotCount(0, $hits, 'Raw OpenSearch search must return hits for a short numeric prefix in the product name.');
         static::assertSame(
             $productId,
             $hits[0]['id'],
@@ -210,9 +217,7 @@ class AdminSearcherTest extends TestCase
             )
         );
 
-        $results = $this->searcher->search('457', ['product'], Context::createDefaultContext());
-
-        static::assertNotEmpty($results, 'Search must return hits for a short numeric prefix in the product name.');
+        static::assertNotCount(0, $results, 'Search must return hits for a short numeric prefix in the product name.');
         static::assertArrayHasKey('product', $results);
         static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
 
@@ -275,9 +280,14 @@ class AdminSearcherTest extends TestCase
         $this->indexElasticSearch(['--only' => ['product']]);
         $this->refreshIndex();
 
-        $hits = $this->runRawAdminProductSearch($ean);
+        $profiler = $this->startRecordingAdminSearchRequests();
 
-        static::assertNotEmpty($hits, 'Raw OpenSearch search must return hits for the exact EAN.');
+        $results = $this->searcher->search($ean, ['product'], Context::createDefaultContext());
+
+        // Control arm: the relevance order OpenSearch itself returned for the query the searcher sent.
+        $hits = $this->recordedProductHits($profiler);
+
+        static::assertNotCount(0, $hits, 'Raw OpenSearch search must return hits for the exact EAN.');
         $topHit = $hits[0];
         static::assertSame(
             $ownerId,
@@ -289,9 +299,7 @@ class AdminSearcherTest extends TestCase
             )
         );
 
-        $results = $this->searcher->search($ean, ['product'], Context::createDefaultContext());
-
-        static::assertNotEmpty($results, 'Search must return hits for the exact EAN.');
+        static::assertNotCount(0, $results, 'Search must return hits for the exact EAN.');
         static::assertArrayHasKey('product', $results);
         static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
 
@@ -335,7 +343,7 @@ class AdminSearcherTest extends TestCase
 
         $results = $this->searcher->search('shirt', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($results, '"shirt" should find products whose names contain the word — including hyphenated forms like "T-Shirt".');
+        static::assertNotCount(0, $results, '"shirt" should find products whose names contain the word — including hyphenated forms like "T-Shirt".');
         static::assertArrayHasKey('product', $results);
         static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
 
@@ -353,33 +361,49 @@ class AdminSearcherTest extends TestCase
     }
 
     /**
+     * Starts recording the requests the searcher sends, so a test can compare the relevance order
+     * OpenSearch returned against the order the public search() hands back. In debug mode, which the
+     * test suite runs in, the admin client is a ClientProfiler that captures every request with its
+     * verbatim params and raw response, so nothing has to be rebuilt or reflected into.
+     */
+    private function startRecordingAdminSearchRequests(): ClientProfiler
+    {
+        $client = static::getContainer()->get('admin.openSearch.client');
+
+        if (!$client instanceof ClientProfiler) {
+            static::markTestSkipped('The admin OpenSearch client only records requests when kernel.debug is enabled.');
+        }
+
+        // drop the indexing and refresh traffic, so only the search under test remains
+        $client->resetRequests();
+
+        return $client;
+    }
+
+    /**
+     * Reads the product hits out of the recorded msearch, in the order OpenSearch scored them.
+     *
      * @return list<array{id: string, score: float}>
      */
-    private function runRawAdminProductSearch(string $term): array
+    private function recordedProductHits(ClientProfiler $profiler): array
     {
-        $registry = static::getContainer()->get(AdminSearchRegistry::class);
-        $indexer = $registry->getIndexer('product');
+        $requests = $profiler->getCalledRequests();
+        static::assertCount(1, $requests, 'The searcher is expected to issue exactly one msearch per search().');
 
-        $reflection = new \ReflectionClass(AdminSearcher::class);
-        $method = $reflection->getMethod('buildSearch');
-        $method->setAccessible(true);
+        $responses = $requests[0]['response']['responses'] ?? null;
+        static::assertIsArray($responses, 'The recorded msearch response must contain a responses list.');
+        static::assertNotCount(0, $responses, 'The recorded msearch response must contain at least one sub-response.');
 
-        $search = $method->invoke($this->searcher, $term);
-        static::assertInstanceOf(Search::class, $search);
-
-        $response = static::getContainer()->get(Client::class)->search([
-            'index' => static::getContainer()->get(AdminElasticsearchHelper::class)->getIndex($indexer->getName()),
-            'body' => $indexer->globalCriteria($term, $search)->toArray(),
-        ]);
-
-        $hits = $response['hits']['hits'] ?? [];
+        $hits = $responses[0]['hits']['hits'] ?? [];
         static::assertIsArray($hits);
 
+        // `_id` is the field the searcher itself reads (see AdminSearcher::parseResponse()), so the
+        // control arm and the production path agree on what identifies a hit.
         return array_values(array_map(static function (array $hit): array {
-            static::assertIsString($hit['_source']['id'] ?? null);
+            static::assertIsString($hit['_id'] ?? null);
 
             return [
-                'id' => $hit['_source']['id'],
+                'id' => $hit['_id'],
                 'score' => (float) $hit['_score'],
             ];
         }, $hits));

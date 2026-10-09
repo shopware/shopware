@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Service\Permission;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -24,6 +25,7 @@ class PermissionsService
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly RemoteLogger $remoteConsentLogger,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -46,7 +48,7 @@ class PermissionsService
             identifier: $consentIdentifier,
             revision: $revision,
             consentingUserId: $consentingUser,
-            grantedAt: new \DateTime()
+            grantedAt: $this->clock->now()
         );
 
         $this->systemConfigService->set(self::CONFIG_KEY_PERMISSIONS_CONSENT, json_encode($consent, \JSON_THROW_ON_ERROR), null, false);

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuild
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
@@ -21,6 +22,7 @@ use Twig\Loader\FilesystemLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 class TwigSwExtendsTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -128,30 +130,6 @@ class TwigSwExtendsTest extends TestCase
         static::assertSame('TestPlugin1/TestPlugin2', $template->render([]));
     }
 
-    public function testMultipleInheritanceWithChangingTemplateChain(): void
-    {
-        static::markTestSkipped('Twig cache is not invalidated');
-
-        [$twig, $templateFinder] = $this->createFinder([
-            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1'),
-            new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2'),
-        ]);
-
-        $templatePath = $templateFinder->find('storefront/frontend/base.html.twig');
-        $template = $twig->loadTemplate($twig->getTemplateClass($templatePath), $templatePath);
-        static::assertSame('Base/TestPlugin1/TestPlugin2', $template->render([]));
-
-        [$twig, $templateFinder] = $this->createFinder([
-            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2'),
-        ]);
-
-        $templatePath = $templateFinder->find('storefront/frontend/base.html.twig');
-        $template = $twig->loadTemplate($twig->getTemplateClass($templatePath), $templatePath);
-        static::assertSame('Base/TestPlugin2', $template->render([]));
-    }
-
     public function testPluginExtendsOtherPlugin(): void
     {
         [$twig, $templateFinder] = $this->createFinder([
@@ -203,14 +181,12 @@ class TwigSwExtendsTest extends TestCase
 
         $twig = new Environment($loader, ['cache' => $this->cache]);
 
-        $kernel = $this->createMock(Kernel::class);
-        $kernel->expects($this->any())
-            ->method('getBundles')
+        $kernel = static::createStub(Kernel::class);
+        $kernel->method('getBundles')
             ->willReturn($bundles);
 
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
-        $scopeDetector->expects($this->any())
-            ->method('getScopes')
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
+        $scopeDetector->method('getScopes')
             ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $templateFinder = new TemplateFinder(

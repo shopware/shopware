@@ -11,8 +11,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: InvalidateCacheTask::class)]
 #[Package('framework')]
+#[AsMessageHandler(handles: InvalidateCacheTask::class)]
 final class InvalidateCacheTaskHandler extends ScheduledTaskHandler
 {
     public function __construct(

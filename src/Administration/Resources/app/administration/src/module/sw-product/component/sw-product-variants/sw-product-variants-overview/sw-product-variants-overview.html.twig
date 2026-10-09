@@ -386,7 +386,7 @@
                 :disabled="!acl.can('product.editor')"
                 @click="onOptionEdit(item)"
             >
-                {{ $t('sw-product.variations.generatedListContextMenuEdit') }}
+                {{ $t('global.default.edit') }}
             </sw-context-menu-item>
 
             <sw-context-menu-item
@@ -399,7 +399,7 @@
                 :disabled="!acl.can('product.deleter')"
                 @click="onVariationDelete(item)"
             >
-                {{ $t('sw-product.variations.generatedListContextMenuDelete') }}
+                {{ $t('global.default.delete') }}
             </sw-context-menu-item>
             {% endblock %}
         </template>
@@ -603,7 +603,7 @@
                 :disabled="modalLoading"
                 @click="onConfirmDelete"
             >
-                {{ $t('sw-product.variations.generatedListDeleteModalButtonDelete') }}
+                {{ $t('global.default.delete') }}
             </mt-button>
             {% endblock %}
         </template>

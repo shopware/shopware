@@ -10,20 +10,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-        'promotionCodeApiService',
-    ],
+    inject: ['acl', 'repositoryFactory', 'promotionCodeApiService'],
 
-    emits: [
-        'delete-finish',
-        'generate-finish',
-    ],
+    emits: ['delete-finish', 'generate-finish'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         promotion: {
@@ -90,6 +81,7 @@ export default {
             ];
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
@@ -206,6 +198,9 @@ export default {
                                 break;
                             case 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE':
                                 errorType = 'alreadyInUseException';
+                                break;
+                            case 'CHECKOUT__INVALID_CODE_PATTERN':
+                                errorType = 'invalidPatternException';
                                 break;
                             default:
                                 errorType = 'unknownErrorCode';

@@ -21,9 +21,9 @@ trait ServiceBehaviour
         $appRepository = static::getContainer()->get('app.repository');
         $idResult = $appRepository->searchIds(new Criteria(), Context::createDefaultContext());
 
-        $ids = $idResult->getIds();
+        $ids = $idResult->getPrimaryKeyData();
         if (\count($ids)) {
-            $appRepository->delete(array_map(static fn (string $id) => ['id' => $id], $ids), Context::createDefaultContext());
+            $appRepository->delete($ids, Context::createDefaultContext());
         }
 
         $fs = new Filesystem();

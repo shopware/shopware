@@ -34,7 +34,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
         foreach ($configFields as $configField) {
             $path = $configField['field'];
             $isTokenize = (bool) $configField['tokenize'];
-            $ranking = (int) $configField['ranking'];
+            $ranking = (float) $configField['ranking'];
 
             $values = array_filter($this->resolveEntityValue($product, $path));
             ksort($values);

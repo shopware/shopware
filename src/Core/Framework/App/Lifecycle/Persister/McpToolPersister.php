@@ -82,6 +82,6 @@ class McpToolPersister extends AbstractMcpCapabilityPersister
      */
     protected function fetchExisting(string $appId, Context $context): EntityCollection
     {
-        return $this->searchByAppId($this->mcpToolRepository, $appId, $context);
+        return $this->searchByAppId($appId, $context);
     }
 }

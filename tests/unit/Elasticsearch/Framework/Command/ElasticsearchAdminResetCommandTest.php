@@ -6,9 +6,10 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminResetCommand;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -16,28 +17,29 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ElasticsearchAdminResetCommand::class)]
 class ElasticsearchAdminResetCommandTest extends TestCase
 {
     private Connection $connection;
 
-    private Client&MockObject $client;
+    private Client&Stub $client;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->client = $this->createMock(Client::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->client = static::createStub(Client::class);
     }
 
     public function testExecuteWithEsNotEnabled(): void
     {
-        $searchHelper = $this->getMockBuilder(AdminElasticsearchHelper::class)->disableOriginalConstructor()->getMock();
-        $searchHelper->expects($this->any())->method('isEnabled')->willReturn(false);
+        $searchHelper = $this->createMock(AdminElasticsearchHelper::class);
+        $searchHelper->expects($this->once())->method('isEnabled')->willReturn(false);
         $commandTester = new CommandTester(
             new ElasticsearchAdminResetCommand(
                 $this->client,
                 $this->connection,
-                $this->createMock(IncrementGatewayRegistry::class),
+                static::createStub(IncrementGatewayRegistry::class),
                 $searchHelper
             )
         );
@@ -50,13 +52,13 @@ class ElasticsearchAdminResetCommandTest extends TestCase
 
     public function testExecuteWithInputNo(): void
     {
-        $searchHelper = $this->getMockBuilder(AdminElasticsearchHelper::class)->disableOriginalConstructor()->getMock();
-        $searchHelper->expects($this->any())->method('isEnabled')->willReturn(true);
+        $searchHelper = $this->createMock(AdminElasticsearchHelper::class);
+        $searchHelper->expects($this->once())->method('isEnabled')->willReturn(true);
         $commandTester = new CommandTester(
             new ElasticsearchAdminResetCommand(
                 $this->client,
                 $this->connection,
-                $this->createMock(IncrementGatewayRegistry::class),
+                static::createStub(IncrementGatewayRegistry::class),
                 $searchHelper
             )
         );
@@ -71,8 +73,8 @@ class ElasticsearchAdminResetCommandTest extends TestCase
 
     public function testExecute(): void
     {
-        $searchHelper = $this->getMockBuilder(AdminElasticsearchHelper::class)->disableOriginalConstructor()->getMock();
-        $searchHelper->expects($this->any())->method('isEnabled')->willReturn(true);
+        $searchHelper = $this->createMock(AdminElasticsearchHelper::class);
+        $searchHelper->expects($this->once())->method('isEnabled')->willReturn(true);
 
         $indices = $this->createMock(IndicesNamespace::class);
         $indices->expects($this->once())->method('get')->willReturn([]);
@@ -83,7 +85,7 @@ class ElasticsearchAdminResetCommandTest extends TestCase
             new ElasticsearchAdminResetCommand(
                 $this->client,
                 $this->connection,
-                $this->createMock(IncrementGatewayRegistry::class),
+                static::createStub(IncrementGatewayRegistry::class),
                 $searchHelper
             )
         );

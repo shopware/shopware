@@ -1,12 +1,10 @@
-@import "~scss/variables";
-
 .sw-modal {
     .sw-modal__body {
         &.sw-settings-tax-provider-sorting-modal__subtitle {
             display: flex;
             flex: none;
             overflow-y: hidden;
-            border-bottom: 1px solid var(--color-border-primary-default);
+            border-bottom: 1px solid var(--color-border-secondary-default);
         }
     }
 }
@@ -21,18 +19,18 @@
         padding: 12px 24px 12px 12px;
         grid-template-columns: 30px auto;
         grid-column-gap: 8px;
-        border: 1px solid var(--color-border-primary-default);
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: 4px;
         align-items: center;
 
         &.is--disabled {
             color: var(--color-text-secondary-disabled);
-            background-color: var(--color-background-primary-disabled);
+            background-color: var(--color-background-tertiary-default);
         }
 
         &__name {
-            font-weight: $font-weight-semi-bold;
-            font-size: $font-size-xs;
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-xs);
         }
 
         &__action {

@@ -64,7 +64,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
         });
     });
 
-    it('should inherit on empty array', async () => {
+    it('should not inherit on empty array', async () => {
         const wrapper = await createWrapper({
             propsData: {
                 value: [],
@@ -75,7 +75,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
         });
 
         expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.vm.isInherited).toBe(true);
+        expect(wrapper.vm.isInherited).toBe(false);
     });
 
     it('should not re-inherit after the user clears a previously detached field with a truthy parent value', async () => {
@@ -113,6 +113,57 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
 
         wrapper.vm.updateCurrentValue(null);
         await wrapper.setProps({ value: null });
+        expect(wrapper.vm.isInherited).toBe(false);
+    });
+
+    it('should not re-inherit a multi-select after removing the last value once it was detached', async () => {
+        const wrapper = await createWrapper({
+            propsData: {
+                value: [],
+                inheritedValue: ['parent-id'],
+                hasParent: true,
+            },
+            global: createWrapperGlobalValue,
+        });
+
+        expect(wrapper.vm.isInherited).toBe(false);
+
+        // user clicks unlink -> the inherited value is copied down
+        wrapper.vm.removeInheritance();
+        await wrapper.setProps({ value: ['parent-id'] });
+        expect(wrapper.vm.isInherited).toBe(false);
+
+        // user removes the last value -> the field must stay empty and detached
+        await wrapper.setProps({ value: [] });
+        expect(wrapper.vm.isInherited).toBe(false);
+    });
+
+    it('should keep a multi-select detached while removing its values one by one', async () => {
+        const wrapper = await createWrapper({
+            propsData: {
+                value: [],
+                inheritedValue: ['parent-a', 'parent-b'],
+                hasParent: true,
+            },
+            global: createWrapperGlobalValue,
+        });
+
+        expect(wrapper.vm.isInherited).toBe(false);
+
+        // unlink from the parent
+        wrapper.vm.removeInheritance();
+        await wrapper.setProps({
+            value: ['parent-a', 'parent-b'],
+        });
+        expect(wrapper.vm.isInherited).toBe(false);
+
+        // remove the values one by one, ending with an empty selection
+        wrapper.vm.updateCurrentValue(['parent-a']);
+        await wrapper.setProps({ value: ['parent-a'] });
+        expect(wrapper.vm.isInherited).toBe(false);
+
+        wrapper.vm.updateCurrentValue([]);
+        await wrapper.setProps({ value: [] });
         expect(wrapper.vm.isInherited).toBe(false);
     });
 

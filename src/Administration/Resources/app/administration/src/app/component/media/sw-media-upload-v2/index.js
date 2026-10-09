@@ -40,17 +40,11 @@ export default {
         'media-upload-add-file',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         source: {
-            type: [
-                Object,
-                String,
-                File,
-            ],
+            type: [Object, String, File],
             required: false,
             default: null,
         },
@@ -58,17 +52,9 @@ export default {
         variant: {
             type: String,
             required: false,
-            validValues: [
-                'compact',
-                'regular',
-                'small',
-            ],
+            validValues: ['compact', 'regular', 'small'],
             validator(value) {
-                return [
-                    'compact',
-                    'regular',
-                    'small',
-                ].includes(value);
+                return ['compact', 'regular', 'small'].includes(value);
             },
             default: 'regular',
         },
@@ -141,6 +127,12 @@ export default {
             default: null,
         },
 
+        extensionMimeTypesByExtension: {
+            type: Object,
+            required: false,
+            default: () => ({}),
+        },
+
         maxFileSize: {
             type: Number,
             required: false,
@@ -187,6 +179,8 @@ export default {
             defaultFolderId: null,
             isUploadUrlFeatureEnabled: Shopware.Store.get('context').app.config?.settings?.enableUrlFeature ?? false,
             isLoading: false,
+            // Ids of media entities created via `sync` whose upload has not finished yet.
+            pendingUploadMediaIds: new Set(),
         };
     },
 
@@ -297,10 +291,7 @@ export default {
 
         mountedComponent() {
             if (this.$refs.dropzone) {
-                [
-                    'dragover',
-                    'drop',
-                ].forEach((event) => {
+                ['dragover', 'drop'].forEach((event) => {
                     window.addEventListener(event, this.stopEventPropagation, false);
                 });
                 this.$refs.dropzone.addEventListener('drop', this.onDrop);
@@ -311,13 +302,12 @@ export default {
         },
 
         beforeDestroyComponent() {
+            this.cleanupOrphanedMedia();
+
             this.mediaService.removeByTag(this.uploadTag);
             this.mediaService.removeListener(this.uploadTag, this.handleMediaServiceUploadEvent);
 
-            [
-                'dragover',
-                'drop',
-            ].forEach((event) => {
+            ['dragover', 'drop'].forEach((event) => {
                 window.removeEventListener(event, this.stopEventPropagation, false);
             });
             if (this.$refs.dropzone) {
@@ -475,10 +465,7 @@ export default {
                 }
 
                 if (this.addFilesOnMultiselect) {
-                    this.preview = [
-                        ...this.preview,
-                        ...newMediaFiles,
-                    ];
+                    this.preview = [...this.preview, ...newMediaFiles];
                 } else {
                     this.preview = newMediaFiles;
                 }
@@ -506,6 +493,12 @@ export default {
 
             await this.mediaRepository.sync(syncEntities, Context.api);
 
+            syncEntities.forEach((entity) => {
+                if (entity.id) {
+                    this.pendingUploadMediaIds.add(entity.id);
+                }
+            });
+
             await this.mediaService.addUploads(this.uploadTag, uploadData);
         },
 
@@ -529,21 +522,51 @@ export default {
             return mediaItem;
         },
 
+        /**
+         * @internal
+         */
+        cleanupOrphanedMedia() {
+            if (this.pendingUploadMediaIds.size === 0) {
+                return;
+            }
+
+            const pendingIds = Array.from(this.pendingUploadMediaIds);
+            this.pendingUploadMediaIds.clear();
+
+            pendingIds.forEach((mediaId) => {
+                Promise.resolve()
+                    .then(() => this.mediaRepository.get(mediaId, Context.api))
+                    .then((media) => {
+                        if (media && !media.hasFile) {
+                            return this.mediaRepository.delete(mediaId, Context.api);
+                        }
+
+                        return null;
+                    })
+                    .catch((error) => {
+                        Shopware.Utils.debug.warn('sw-media-upload-v2', 'Failed to clean up orphaned media', mediaId, error);
+                    });
+            });
+        },
+
         async getDefaultFolderId() {
             return this.mediaService.getDefaultFolderId(this.defaultFolder);
         },
 
         handleMediaServiceUploadEvent({ action, payload }) {
-            if (action === 'media-upload-fail') {
-                this.createNotificationError({
-                    title: this.$t('global.default.error'),
-                    message: this.getUploadFailureMessage(payload),
-                });
+            // Keep the id on failure so the orphaned entity is still cleaned up on teardown.
+            if (action === 'media-upload-finish') {
+                this.pendingUploadMediaIds.delete(payload.targetId);
+            }
 
+            if (action === 'media-upload-fail') {
                 this.onRemoveMediaItem();
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement. Upload failure notifications are now handled by `sw-upload-status`.
+         */
         getUploadFailureMessage(task) {
             const detail = task?.error?.response?.data?.errors?.[0]?.detail;
 
@@ -584,7 +607,12 @@ export default {
 
             const isValidFile = () => {
                 if (this.extensionAccept) {
-                    return this.fileValidationService.checkByExtension(file, this.extensionAccept);
+                    return this.fileValidationService.checkByExtension(
+                        file,
+                        this.extensionAccept,
+                        null,
+                        this.extensionMimeTypesByExtension,
+                    );
                 }
 
                 if (this.fileAccept) {

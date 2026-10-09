@@ -11,6 +11,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
@@ -19,6 +21,7 @@ use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\TestTask;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -26,6 +29,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 class TaskSchedulerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -51,7 +55,8 @@ class TaskSchedulerTest extends TestCase
             $this->messageBus,
             new ParameterBag(),
             new Logger('test'),
-            12
+            12,
+            new NativeClock()
         );
 
         $this->connection = static::getContainer()->get(Connection::class);
@@ -85,7 +90,7 @@ class TaskSchedulerTest extends TestCase
 
         $this->scheduler->queueScheduledTasks();
 
-        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
@@ -128,7 +133,7 @@ class TaskSchedulerTest extends TestCase
 
         $this->scheduler->queueScheduledTasks();
 
-        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
@@ -155,7 +160,7 @@ class TaskSchedulerTest extends TestCase
 
         $this->scheduler->queueScheduledTasks();
 
-        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
     }
@@ -183,7 +188,7 @@ class TaskSchedulerTest extends TestCase
 
         $this->scheduler->queueScheduledTasks();
 
-        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame($status, $task->getStatus());
     }
@@ -245,7 +250,7 @@ class TaskSchedulerTest extends TestCase
         try {
             $this->scheduler->queueScheduledTasks();
         } catch (\Exception $exception) {
-            $task2Entity = $this->scheduledTaskRepo->search(new Criteria([$taskId2]), $context)->get($taskId2);
+            $task2Entity = $this->scheduledTaskRepo->search(new Criteria([$taskId2]), $context)->getEntities()->get($taskId2);
             static::assertInstanceOf(ScheduledTaskEntity::class, $task2Entity);
             static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task2Entity->getStatus());
 
@@ -253,8 +258,13 @@ class TaskSchedulerTest extends TestCase
         }
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testGetNextExecutionTime(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $nextExecutionTime = new \DateTime();
@@ -289,8 +299,13 @@ class TaskSchedulerTest extends TestCase
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
     public function testGetNextExecutionTimeIgnoresNotScheduledTasks(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $nextExecutionTime = new \DateTime();

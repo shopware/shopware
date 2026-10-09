@@ -40,7 +40,10 @@ class BenchExtension implements ExtensionInterface
             ->setProjectDir($_ENV['PROJECT_DIR'] ?? null)
             ->bootstrap();
 
-        (new Fixtures())->load(__DIR__ . '/data.json');
+        $fixtures = new Fixtures();
+        $fixtures->load(__DIR__ . '/data-initial.json');
+        Fixtures::getIds(); // Load the saved IDs to use them for the customer
+        $fixtures->load(__DIR__ . '/data-customer.json'); // Customer needs some data to be present in the DB, so it could not be created in the same sync operation as the other data
 
         // TODO: Resolve autoloading to [Commercial]/tests/performance/bench so native phpbench `core.extensions` can be used
         $fixturePath = $bootstrapper->getPluginPath('SwagCommercial') . '/tests/performance/bench/Common';

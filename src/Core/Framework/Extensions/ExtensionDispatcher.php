@@ -16,19 +16,38 @@ final readonly class ExtensionDispatcher
     ) {
     }
 
+    /**
+     * Prefer `MyExtension::onPre()` on the concrete Extension subclass (it resolves name from `MyExtension::NAME`.
+     * Use this helper directly only when the publisher dispatches under a runtime-determined name.
+     */
     public static function pre(string $name): string
     {
         return $name . '.pre';
     }
 
+    /**
+     * Prefer `MyExtension::onPost()` on the concrete Extension subclass (it resolves name from `MyExtension::NAME`.
+     * Use this helper directly only when the publisher dispatches under a runtime-determined name.
+     */
     public static function post(string $name): string
     {
         return $name . '.post';
     }
 
+    /**
+     * Prefer `MyExtension::onError()` on the concrete Extension subclass (it resolves name from `MyExtension::NAME`.
+     * Use this helper directly only when the publisher dispatches under a runtime-determined name.
+     */
     public static function error(string $name): string
     {
         return $name . '.error';
+    }
+
+    public function hasListeners(string $name): bool
+    {
+        return $this->dispatcher->hasListeners(self::pre($name))
+            || $this->dispatcher->hasListeners(self::post($name))
+            || $this->dispatcher->hasListeners(self::error($name));
     }
 
     /**

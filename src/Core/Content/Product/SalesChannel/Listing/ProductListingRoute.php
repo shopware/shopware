@@ -10,6 +10,8 @@ use Shopware\Core\Content\Product\Extension\ProductListingRouteExtension;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\ProductStream\Exception\EmptyProductStreamException;
+use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
@@ -17,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
@@ -121,10 +124,17 @@ class ProductListingRoute extends AbstractProductListingRoute
             );
 
             $productStreamBuilder = $this->productStreamBuilder;
-            if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
-                $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $salesChannelContext->getContext());
-            } else {
-                $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $salesChannelContext->getContext()));
+
+            try {
+                if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+                    $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $salesChannelContext->getContext());
+                } else {
+                    $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $salesChannelContext->getContext()));
+                }
+            } catch (EmptyProductStreamException) {
+                // An empty group selects all products, as in the product export
+            } catch (NoFilterException) {
+                $criteria->addFilter(new EqualsAnyFilter('product.id', []));
             }
 
             return;

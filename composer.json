@@ -203,7 +203,7 @@
         "phpdocumentor/type-resolver": "^1.7.1",
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpdoc-parser": "^2.0.0",
-        "phpstan/phpstan": "2.3.0",
+        "phpstan/phpstan": "2.3.1",
         "phpstan/phpstan-deprecation-rules": "2.0.5",
         "phpstan/phpstan-phpunit": "2.1.1",
         "phpstan/phpstan-strict-rules": "2.1.0",

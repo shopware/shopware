@@ -1,4 +1,3 @@
-/* eslint-disable vuejs-accessibility/no-static-element-interactions */
 <div
     ref="workspace"
     role="application"
@@ -21,10 +20,14 @@
         :style="worldStyle"
     >
         <section
+            v-for="frame in visibleFrames"
+            :key="frame.id"
             class="sw-experience-studio-canvas__frame"
-            :class="{ 'is--viewport-transitioning': isViewportTransitioning }"
-            :style="frameStyle"
-            :aria-label="layoutName"
+            :class="{ 'is--viewport-transitioning': isViewportTransitioning, 'is--active': frame.isActive }"
+            :style="frameStyleFor(frame)"
+            :data-frame-id="frame.id"
+            :aria-label="frame.layout.name"
+            @click.stop="activateFrame(frame.id)"
         >
             <header class="sw-experience-studio-canvas__frame-toolbar">
                 <button
@@ -39,7 +42,7 @@
                         name="regular-arrows"
                         size="16px"
                     />
-                    <span>{{ layoutName }}</span>
+                    <span>{{ frame.layout.name }}</span>
                 </button>
 
                 <div
@@ -48,7 +51,7 @@
                     :aria-label="$t('sw-experience-studio.detail.canvas.viewportToolbar')"
                 >
                     <span
-                        v-if="viewport === 'custom'"
+                        v-if="frame.viewport === 'custom'"
                         class="sw-experience-studio-canvas__custom-viewport"
                     >
                         {{ $t('sw-experience-studio.detail.canvas.customViewport') }}
@@ -57,10 +60,10 @@
                         class="sw-experience-studio-canvas__viewport-button"
                         type="button"
                         :aria-label="$t('sw-experience-studio.detail.toolbar.viewportMobile')"
-                        :aria-pressed="viewport === 'mobile'"
+                        :aria-pressed="frame.viewport === 'mobile'"
                         :title="$t('sw-experience-studio.detail.toolbar.viewportMobile')"
                         @pointerdown.stop
-                        @click="onViewportChange('mobile')"
+                        @click="onViewportChange('mobile', frame.id)"
                     >
                         <mt-icon name="regular-mobile" />
                     </button>
@@ -68,10 +71,10 @@
                         class="sw-experience-studio-canvas__viewport-button"
                         type="button"
                         :aria-label="$t('sw-experience-studio.detail.toolbar.viewportTablet')"
-                        :aria-pressed="viewport === 'tablet-landscape'"
+                        :aria-pressed="frame.viewport === 'tablet-landscape'"
                         :title="$t('sw-experience-studio.detail.toolbar.viewportTablet')"
                         @pointerdown.stop
-                        @click="onViewportChange('tablet-landscape')"
+                        @click="onViewportChange('tablet-landscape', frame.id)"
                     >
                         <mt-icon name="regular-tablet" />
                     </button>
@@ -79,23 +82,44 @@
                         class="sw-experience-studio-canvas__viewport-button"
                         type="button"
                         :aria-label="$t('sw-experience-studio.detail.toolbar.viewportDesktop')"
-                        :aria-pressed="viewport === 'desktop'"
+                        :aria-pressed="frame.viewport === 'desktop'"
                         :title="$t('sw-experience-studio.detail.toolbar.viewportDesktop')"
                         @pointerdown.stop
-                        @click="onViewportChange('desktop')"
+                        @click="onViewportChange('desktop', frame.id)"
                     >
                         <mt-icon name="regular-desktop" />
+                    </button>
+                </div>
+
+                <div class="sw-experience-studio-canvas__frame-actions">
+                    <slot
+                        name="frame-controls"
+                        :frame="frame"
+                    ></slot>
+
+                    <button
+                        class="sw-experience-studio-canvas__close-frame"
+                        type="button"
+                        :aria-label="$t('sw-experience-studio.detail.canvas.closeFrame', { name: frame.layout.name })"
+                        :title="$t('sw-experience-studio.detail.canvas.closeFrame', { name: frame.layout.name })"
+                        @pointerdown.stop
+                        @click.stop="$emit('frame-close', frame.id)"
+                    >
+                        <mt-icon name="regular-times" />
                     </button>
                 </div>
             </header>
 
             <div class="sw-experience-studio-canvas__preview">
-                <slot name="preview"></slot>
+                <slot
+                    name="preview"
+                    :frame="frame"
+                ></slot>
             </div>
 
             <button
                 v-for="direction in resizeDirections"
-                :key="direction"
+                :key="`${frame.id}-${direction}`"
                 class="sw-experience-studio-canvas__resize-handle"
                 :class="`is--${direction}`"
                 type="button"
@@ -104,6 +128,10 @@
                 @keydown="onFrameResizeKeydown($event, direction)"
             ></button>
         </section>
+        <div
+            v-if="!frames.length"
+            class="sw-experience-studio-canvas__empty"
+        ></div>
     </div>
 
     <div
@@ -112,7 +140,19 @@
         :aria-label="$t('sw-experience-studio.detail.canvas.panelsToolbar')"
     >
         <button
-            v-tooltip.top="{ message: $t('sw-experience-studio.detail.canvas.structure'), width: 'auto' }"
+            v-tooltip.right="{ message: $t('sw-experience-studio.workspace.layouts.title'), width: 'auto' }"
+            class="sw-experience-studio-canvas__tool"
+            :class="{ 'is--active': activePanel === 'layouts' }"
+            type="button"
+            :aria-label="$t('sw-experience-studio.workspace.layouts.title')"
+            :aria-pressed="activePanel === 'layouts'"
+            @pointerdown.stop
+            @click="togglePanel('layouts')"
+        >
+            <mt-icon name="regular-folder-open" />
+        </button>
+        <button
+            v-tooltip.right="{ message: $t('sw-experience-studio.detail.canvas.structure'), width: 'auto' }"
             class="sw-experience-studio-canvas__tool"
             :class="{ 'is--active': activePanel === 'structure' }"
             type="button"
@@ -124,7 +164,7 @@
             <mt-icon name="regular-sitemap" />
         </button>
         <button
-            v-tooltip.top="{ message: $t('sw-experience-studio.detail.canvas.settings'), width: 'auto' }"
+            v-tooltip.right="{ message: $t('sw-experience-studio.detail.canvas.settings'), width: 'auto' }"
             class="sw-experience-studio-canvas__tool"
             :class="{ 'is--active': isSettingsOpen }"
             type="button"
@@ -156,6 +196,28 @@
         </header>
         <div class="sw-experience-studio-canvas__panel-content">
             <slot name="structure"></slot>
+        </div>
+    </aside>
+
+    <aside
+        v-if="activePanel === 'layouts'"
+        class="sw-experience-studio-canvas__panel sw-experience-studio-canvas__panel--structure"
+        role="region"
+        :aria-label="$t('sw-experience-studio.workspace.layouts.title')"
+    >
+        <header class="sw-experience-studio-canvas__panel-header">
+            <h2>{{ $t('sw-experience-studio.workspace.layouts.title') }}</h2>
+            <button
+                class="sw-experience-studio-canvas__close-panel"
+                type="button"
+                :aria-label="$t('sw-experience-studio.detail.canvas.closePanel')"
+                @click="closeStructurePanel"
+            >
+                <mt-icon name="regular-times" />
+            </button>
+        </header>
+        <div class="sw-experience-studio-canvas__panel-content">
+            <slot name="layouts"></slot>
         </div>
     </aside>
 
@@ -228,8 +290,10 @@
             @pointerdown.stop
             @click="resetCanvasZoom"
         >
-            <mt-icon name="regular-compress-arrows"
-                     size="var(--scale-size-18)" />
+            <mt-icon
+                name="regular-compress-arrows"
+                size="var(--scale-size-18)"
+            />
         </button>
     </div>
 </div>

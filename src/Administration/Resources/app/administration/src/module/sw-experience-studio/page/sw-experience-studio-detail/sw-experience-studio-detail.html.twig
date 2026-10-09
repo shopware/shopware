@@ -31,42 +31,64 @@
                     :preview-entity-id="previewEntityId"
                     :can-undo="canUndo"
                     :can-redo="canRedo"
-                    :can-manage-assignments="canManageAssignments"
+                    :is-workspace="isWorkspaceMode"
+                    :is-saving-all="isSavingAll"
                     @back="onClickBack"
                     @preview-sales-channel-change="onPreviewSalesChannelChange"
-                    @preview-entity-id-change="onPreviewEntityIdChange"
                     @save="onSave"
                     @undo="onUndo"
                     @redo="onRedo"
-                    @open-assignments="onOpenAssignmentModal"
                 />
             {% endblock %}
 
             {% block sw_experience_studio_detail_workspace %}
-                <div ref="workspace" class="sw-experience-studio-detail__workspace" :class="{ 'is-resizing': isResizingElementSettings }">
+                <div
+                    ref="workspace"
+                    class="sw-experience-studio-detail__workspace"
+                    :class="{ 'is-resizing': isResizingElementSettings }"
+                >
                     <sw-experience-studio-canvas
                         ref="experienceStudioCanvas"
+                        :frames="canvasFrames"
                         :layout-id="layoutId"
                         :layout-name="layout?.name ?? ''"
                         :viewport="currentViewport"
                         :settings-width="elementSettingsWidth"
                         :is-resizing-settings="isResizingElementSettings"
                         @viewport-change="onViewportChange"
+                        @frame-viewport-change="onFrameViewportChange"
+                        @frame-activate="activateLayout"
+                        @frame-close="closeLayout"
                         @settings-resize-start="onElementSettingsResizeStart"
                         @settings-close="onSettingsPanelClose"
                     >
                         {% block sw_experience_studio_detail_preview %}
-                        <template #preview>
+                        <template #preview="{ frame }">
                             <sw-experience-studio-preview
-                                :layout="layout"
-                                :viewport="currentViewport"
+                                :key="frame.id"
+                                :layout="frame.layout"
+                                :viewport="frame.viewport"
                                 :sales-channel-id="previewSalesChannelId"
-                                :entity-type="previewEntityType"
-                                :entity-id="previewEntityId"
-                                @select-element="onElementSelect"
+                                :entity-type="resolvePreviewContext(frame.layout)?.entityType ?? null"
+                                :entity-id="frame.previewEntityId"
+                                @select-element="onFrameElementSelect(frame.id, $event)"
                             />
                         </template>
                         {% endblock %}
+
+                        <template #frame-controls="{ frame }">
+                            <sw-entity-single-select
+                                class="sw-experience-studio-detail__frame-entity-select"
+                                :entity="resolvePreviewContext(frame.layout)?.entityType ?? null"
+                                size="small"
+                                :value="frame.previewEntityId"
+                                :placeholder="$t('sw-experience-studio.detail.toolbar.previewEntityPlaceholder')"
+                                :show-clearable-button="false"
+                                :disabled="isLoading || !resolvePreviewContext(frame.layout)?.entityType || undefined"
+                                @pointerdown.stop
+                                @update:value="onFramePreviewEntityChange(frame.id, $event)"
+                            />
+                        </template>
 
                         {% block sw_experience_studio_detail_sidebar_tree %}
                         <template #structure>
@@ -82,6 +104,97 @@
                             />
                         </template>
                         {% endblock %}
+
+                        <template #layouts>
+                            <div class="sw-experience-studio-detail__layouts-panel">
+                                <div
+                                    class="sw-experience-studio-detail__layout-actions"
+                                    role="toolbar"
+                                    :aria-label="$t('sw-experience-studio.workspace.layouts.title')"
+                                >
+                                    <mt-button
+                                        size="small"
+                                        variant="primary"
+                                        @click="onOpenCreateLayout"
+                                    >
+                                        {{ $t('sw-experience-studio.workspace.layouts.create') }}
+                                    </mt-button>
+                                    <mt-button
+                                        size="small"
+                                        variant="secondary"
+                                        @click="openLayoutPicker"
+                                    >
+                                        {{ $t('global.default.open') }}
+                                    </mt-button>
+                                </div>
+                                <ul class="sw-experience-studio-detail__open-layouts">
+                                    <li
+                                        v-for="openLayout in openLayouts"
+                                        :key="openLayout.id"
+                                        :class="{ 'is--active': openLayout.id === activeLayoutId }"
+                                    >
+                                        <button
+                                            type="button"
+                                            class="sw-experience-studio-detail__layout-select"
+                                            :aria-current="openLayout.id === activeLayoutId ? 'page' : undefined"
+                                            @click="activateLayout(openLayout.id)"
+                                        >
+                                            <span class="sw-experience-studio-detail__layout-name">
+                                                <span>{{ openLayout.layout.name }}</span>
+                                                <span
+                                                    v-if="isLayoutDirty(openLayout)"
+                                                    class="sw-experience-studio-detail__dirty-indicator"
+                                                    role="img"
+                                                    :aria-label="$t('sw-experience-studio.workspace.layouts.unsaved')"
+                                                    :title="$t('sw-experience-studio.workspace.layouts.unsaved')"
+                                                ></span>
+                                            </span>
+                                            <small
+                                                v-if="openLayout.saveError"
+                                                class="is--error"
+                                            >{{ openLayout.saveError }}</small>
+                                        </button>
+                                        <button
+                                            v-if="canManageLayoutAssignments(openLayout)"
+                                            type="button"
+                                            class="sw-experience-studio-detail__layout-assignments"
+                                            :aria-label="$t('sw-experience-studio.workspace.layouts.assignments', { name: openLayout.layout.name })"
+                                            :title="$t('sw-experience-studio.workspace.layouts.assignments', { name: openLayout.layout.name })"
+                                            :disabled="isLoading || undefined"
+                                            @click.stop="onOpenAssignmentModal(openLayout.id)"
+                                        >
+                                            <mt-icon
+                                                name="regular-share"
+                                                size="16px"
+                                            />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="sw-experience-studio-detail__layout-focus"
+                                            :aria-label="$t('sw-experience-studio.workspace.layouts.focus', { name: openLayout.layout.name })"
+                                            :title="$t('sw-experience-studio.workspace.layouts.focus', { name: openLayout.layout.name })"
+                                            @click.stop="focusLayout(openLayout.id)"
+                                        >
+                                            <mt-icon
+                                                name="regular-compress-arrows"
+                                                size="16px"
+                                            />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="sw-experience-studio-detail__layout-close"
+                                            :aria-label="$t('sw-experience-studio.workspace.layouts.close', { name: openLayout.layout.name })"
+                                            @click="closeLayout(openLayout.id)"
+                                        >
+                                            <mt-icon
+                                                name="regular-times"
+                                                size="14px"
+                                            />
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </template>
 
                         {% block sw_experience_studio_detail_element_settings %}
                         <template #settings>
@@ -120,13 +233,69 @@
 
             {% block sw_experience_studio_detail_assignment_modal %}
                 <sw-experience-studio-assignment-modal
-                    v-if="isAssignmentModalOpen && layout && layoutRootSource"
-                    :layout-id="layout.id"
-                    :root-source="layoutRootSource"
+                    v-if="isAssignmentModalOpen && assignmentLayout && assignmentRootSource"
+                    :layout-id="assignmentLayout.id"
+                    :root-source="assignmentRootSource"
                     :allow-edit="allowSave"
                     @close="onCloseAssignmentModal"
                 />
             {% endblock %}
+
+                <sw-experience-studio-layout-picker
+                    v-if="isLayoutPickerOpen"
+                    :open-layout-ids="layoutPickerOpenIds"
+                    @select="onLayoutPickerSelect"
+                    @close="isLayoutPickerOpen = false"
+                />
+
+                <sw-modal
+                    v-if="isCreateLayoutModalOpen"
+                    :title="$t('sw-experience-studio.createWizard.title')"
+                    variant="default"
+                    @modal-close="onCreateLayoutModalCancel"
+                >
+                    <sw-experience-studio-create-wizard
+                        :name="createWizardName"
+                        :selected-type="createWizardSelectedType"
+                        :type-options="layoutTypeOptions"
+                        :is-loading-types="isLoadingLayoutTypes"
+                        :type-load-error="layoutTypeLoadError"
+                        @update:name="onCreateWizardNameChange"
+                        @update:selected-type="onCreateWizardTypeChange"
+                        @complete="onCreateWizardComplete"
+                        @cancel="onCreateLayoutModalCancel"
+                    />
+                </sw-modal>
+
+                <sw-modal
+                    v-if="pendingCloseLayoutId"
+                    :title="$t('sw-experience-studio.workspace.closeDirty.title')"
+                    variant="small"
+                    @modal-close="onCancelCloseLayout"
+                >
+                    <p>{{ $t('sw-experience-studio.workspace.closeDirty.description', { name: openLayouts.find(item => item.id === pendingCloseLayoutId)?.layout.name }) }}</p>
+                    <template #modal-footer>
+                        <mt-button
+                            variant="secondary"
+                            @click="onCancelCloseLayout"
+                        >
+                            {{ $t('global.default.cancel') }}
+                        </mt-button>
+                        <mt-button
+                            variant="secondary"
+                            @click="onDiscardCloseLayout"
+                        >
+                            {{ $t('global.default.discard') }}
+                        </mt-button>
+                        <mt-button
+                            variant="primary"
+                            :is-loading="openLayouts.find(item => item.id === pendingCloseLayoutId)?.isSaving"
+                            @click="onSaveAndCloseLayout"
+                        >
+                            {{ $t('global.default.save') }}
+                        </mt-button>
+                    </template>
+                </sw-modal>
             </template>
 
             <sw-loader v-if="isLoading" />

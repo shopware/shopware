@@ -52,7 +52,12 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
-        canManageAssignments: {
+        isWorkspace: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        isSavingAll: {
             type: Boolean,
             required: false,
             default: false,
@@ -66,7 +71,6 @@ export default Shopware.Component.wrapComponentConfig({
         'preview-entity-id-change',
         'undo',
         'redo',
-        'open-assignments',
     ],
 
     computed: {
@@ -104,10 +108,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         onRedo(): void {
             this.$emit('redo');
-        },
-
-        onOpenAssignments(): void {
-            this.$emit('open-assignments');
         },
     },
 });

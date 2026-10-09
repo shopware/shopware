@@ -1,4 +1,8 @@
-import { loadExperienceStudioCanvasPosition, saveExperienceStudioCanvasPosition } from './canvas-position.util';
+import {
+    hasExperienceStudioCanvasPositionBeenManuallyPlaced,
+    loadExperienceStudioCanvasPosition,
+    saveExperienceStudioCanvasPosition,
+} from './canvas-position.util';
 
 describe('module/sw-experience-studio/util/canvas-position.util', () => {
     beforeEach(() => {
@@ -28,5 +32,15 @@ describe('module/sw-experience-studio/util/canvas-position.util', () => {
 
         expect(loadExperienceStudioCanvasPosition(null, 'layout-1')).toBeNull();
         expect(localStorage).toHaveLength(0);
+    });
+
+    it('records when a frame position was manually placed', () => {
+        saveExperienceStudioCanvasPosition('user-1', 'layout-1', { x: 0, y: 0 });
+        expect(hasExperienceStudioCanvasPositionBeenManuallyPlaced('user-1', 'layout-1')).toBe(false);
+
+        saveExperienceStudioCanvasPosition('user-1', 'layout-1', { x: 0, y: 0 }, true);
+
+        expect(hasExperienceStudioCanvasPositionBeenManuallyPlaced('user-1', 'layout-1')).toBe(true);
+        expect(loadExperienceStudioCanvasPosition('user-1', 'layout-1')).toEqual({ x: 0, y: 0 });
     });
 });

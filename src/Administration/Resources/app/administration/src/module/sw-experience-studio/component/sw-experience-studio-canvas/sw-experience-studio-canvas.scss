@@ -41,11 +41,36 @@
         left: 50%;
         display: flex;
         flex-direction: column;
+        container-name: experience-frame;
+        container-type: inline-size;
         border: 1px solid var(--color-border-primary-default);
         border-radius: 6px;
         background: var(--color-elevation-surface-default);
         box-shadow: 0 4px 18px 0 var(--color-elevation-shadow-default);
         pointer-events: auto;
+    }
+
+    &__frame.is--active {
+        border-color: var(--color-border-brand-default);
+    }
+
+    &__close-frame {
+        display: inline-flex;
+        flex: 0 0 28px;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border: 0;
+        border-radius: 4px;
+        background: transparent;
+        color: var(--color-icon-secondary-default);
+        cursor: pointer;
+
+        &:hover {
+            background: var(--color-background-tertiary-default);
+            color: var(--color-text-primary-default);
+        }
     }
 
     &__frame.is--viewport-transitioning {
@@ -54,23 +79,24 @@
 
     &__frame-toolbar {
         z-index: 2;
-        display: flex;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
         flex: 0 0 48px;
         align-items: center;
-        justify-content: space-between;
-        gap: 16px;
+        column-gap: 8px;
         min-width: 0;
         padding: 0 12px;
         border-bottom: 1px solid var(--color-border-primary-default);
+        border-radius: 5px 5px 0 0;
         background: var(--color-elevation-surface-default);
     }
 
     &__move-handle {
         display: flex;
-        flex: 1 1 auto;
+        grid-column: 1;
+        min-width: 0;
         align-items: center;
         gap: 8px;
-        min-width: 0;
         padding: 6px 8px;
         overflow: hidden;
         border: 0;
@@ -99,9 +125,25 @@
 
     &__viewport-controls {
         display: flex;
-        flex: 0 0 auto;
+        grid-column: 2;
         align-items: center;
+        justify-self: center;
         gap: 4px;
+    }
+
+    &__frame-actions {
+        display: flex;
+        grid-column: 3;
+        align-items: center;
+        justify-self: end;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    @container experience-frame (max-width: 560px) {
+        .sw-experience-studio-detail__frame-entity-select {
+            display: none;
+        }
     }
 
     &__viewport-button,
@@ -155,6 +197,7 @@
         min-width: 0;
         min-height: 0;
         overflow: hidden;
+        border-radius: 0 0 5px 5px;
     }
 
     &__resize-handle {

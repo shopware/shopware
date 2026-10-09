@@ -59,6 +59,10 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     computed: {
+        panelTitle(): string {
+            return this.layout?.name || this.$t('sw-experience-studio.detail.sidebarTree.title');
+        },
+
         layoutElements(): ContentElementNode[] {
             return this.layout?.layout ?? [];
         },

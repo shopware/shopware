@@ -1,0 +1,69 @@
+<sw-modal
+    :title="$t('sw-experience-studio.workspace.layoutPicker.title')"
+    variant="large"
+    @modal-close="$emit('close')"
+>
+    <div class="sw-experience-studio-layout-picker">
+        <mt-banner
+            v-if="hasLoadError"
+            variant="critical"
+        >
+            {{ $t('sw-experience-studio.workspace.layoutPicker.loadError') }}
+        </mt-banner>
+
+        <mt-text-field
+            :model-value="searchTerm"
+            :label="$t('sw-experience-studio.workspace.layoutPicker.searchLabel')"
+            :placeholder="$t('sw-experience-studio.workspace.layoutPicker.searchPlaceholder')"
+            @update:model-value="onSearch"
+        />
+
+        <sw-data-grid
+            v-if="layouts"
+            class="sw-experience-studio-layout-picker__grid"
+            identifier="sw-experience-studio-layout-picker"
+            :data-source="layouts"
+            :columns="columns"
+            :is-loading="isLoading"
+            :show-selection="true"
+            :maximum-select-items="1"
+            :show-actions="false"
+            :show-settings="false"
+            :allow-inline-edit="false"
+            :allow-column-edit="false"
+            @selection-change="onSelectionChange"
+        />
+        <sw-loader v-else-if="isLoading" />
+        <mt-empty-state
+            v-else-if="!isLoading"
+            icon="regular-palette"
+            :headline="$t('sw-experience-studio.workspace.layoutPicker.emptyTitle')"
+            :description="$t('sw-experience-studio.workspace.layoutPicker.emptyDescription')"
+        />
+
+        <sw-pagination
+            v-if="total > limit"
+            :page="page"
+            :limit="limit"
+            :total="total"
+            :auto-hide="false"
+            @page-change="onPageChange"
+        />
+    </div>
+
+    <template #modal-footer>
+        <mt-button
+            variant="secondary"
+            @click="$emit('close')"
+        >
+            {{ $t('global.default.cancel') }}
+        </mt-button>
+        <mt-button
+            variant="primary"
+            :disabled="!selectedLayout"
+            @click="onSelectLayout"
+        >
+            {{ $t(selectedLayoutIsOpen ? 'sw-experience-studio.workspace.layoutPicker.activate' : 'sw-experience-studio.workspace.layoutPicker.open') }}
+        </mt-button>
+    </template>
+</sw-modal>

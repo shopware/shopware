@@ -26,6 +26,7 @@ describe('src/module/sw-experience-studio/store/experience-studio-editor.store.t
 
     it('should track undo and redo across up to 10 history entries', () => {
         const store = getStore();
+        store.initialize('layout-a');
 
         for (let index = 0; index < EXPERIENCE_STUDIO_MAX_HISTORY_SIZE + 2; index += 1) {
             store.pushToHistory(
@@ -39,8 +40,8 @@ describe('src/module/sw-experience-studio/store/experience-studio-editor.store.t
             );
         }
 
-        expect(store.past).toHaveLength(EXPERIENCE_STUDIO_MAX_HISTORY_SIZE);
-        expect(store.past[0].layout[0].id).toBe('root-2');
+        expect(store.getActiveHistory()!.past).toHaveLength(EXPERIENCE_STUDIO_MAX_HISTORY_SIZE);
+        expect(store.getActiveHistory()!.past[0].layout[0].id).toBe('root-2');
 
         const currentLayout: ContentElementNode[] = [
             {
@@ -53,7 +54,7 @@ describe('src/module/sw-experience-studio/store/experience-studio-editor.store.t
 
         expect(undoEntry?.layout[0].id).toBe('root-11');
         expect(store.canRedo).toBe(true);
-        expect(store.future[0].layout[0].id).toBe('root-current');
+        expect(store.getActiveHistory()!.future[0].layout[0].id).toBe('root-current');
 
         const redoEntry = store.redo(
             [
@@ -70,6 +71,7 @@ describe('src/module/sw-experience-studio/store/experience-studio-editor.store.t
 
     it('should clear future history when a new mutation is recorded', () => {
         const store = getStore();
+        store.initialize('layout-a');
 
         store.pushToHistory(layout, null);
         store.undo(
@@ -87,18 +89,31 @@ describe('src/module/sw-experience-studio/store/experience-studio-editor.store.t
         store.pushToHistory(layout, null);
 
         expect(store.canRedo).toBe(false);
-        expect(store.future).toHaveLength(0);
+        expect(store.getActiveHistory()!.future).toHaveLength(0);
     });
 
-    it('should reset history when initialized for a different layout', () => {
+    it('should keep independent history when switching between layouts', () => {
         const store = getStore();
 
         store.initialize('layout-a');
         store.pushToHistory(layout, null);
         store.initialize('layout-b');
+        store.pushToHistory(
+            [
+                {
+                    id: 'root-b',
+                    component: 'layout:section',
+                },
+            ],
+            null,
+        );
 
-        expect(store.past).toHaveLength(0);
-        expect(store.future).toHaveLength(0);
-        expect(store.layoutId).toBe('layout-b');
+        expect(store.getActiveHistory()!.past).toHaveLength(1);
+        store.initialize('layout-a');
+        expect(store.getActiveHistory()!.past).toHaveLength(1);
+        expect(store.getActiveHistory()!.past[0].layout[0].id).toBe('root-1');
+
+        store.removeLayout('layout-a');
+        expect(store.historyByLayoutId['layout-a']).toBeUndefined();
     });
 });

@@ -1,13 +1,10 @@
 import toolbarComponent from './index';
 
 describe('module/sw-experience-studio/component/sw-experience-studio-toolbar', () => {
-    const methods = (toolbarComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
+    const config = toolbarComponent as unknown as { props: Record<string, unknown>; emits: string[] };
 
-    it('emits open-assignments when the assignments button is clicked', () => {
-        const emit = jest.fn();
-
-        methods.onOpenAssignments.call({ $emit: emit });
-
-        expect(emit).toHaveBeenCalledWith('open-assignments');
+    it('does not expose layout-specific assignment actions', () => {
+        expect(config.props.canManageAssignments).toBeUndefined();
+        expect(config.emits).not.toContain('open-assignments');
     });
 });

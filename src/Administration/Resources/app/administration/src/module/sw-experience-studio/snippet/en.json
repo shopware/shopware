@@ -7,6 +7,33 @@
       "moduleTitle": "Experience Studio",
       "createNewLayout": "Create new layout"
     },
+    "workspace": {
+      "saveAll": "Save all layouts",
+      "saved": "All open layouts were saved.",
+      "savePartialFailure": "Some layouts could not be saved: {layouts}",
+      "layoutPicker": {
+        "title": "Open a layout",
+        "searchLabel": "Search layouts",
+        "searchPlaceholder": "Enter a layout name...",
+        "emptyTitle": "No layouts found",
+        "emptyDescription": "Create a layout to start editing.",
+        "loadError": "The layout list could not be loaded.",
+        "open": "Open layout",
+        "activate": "Go to layout"
+      },
+      "layouts": {
+        "title": "Layouts",
+        "create": "Create",
+        "unsaved": "Unsaved changes",
+        "focus": "Focus {name}",
+        "assignments": "Manage assignments for {name}",
+        "close": "Close {name}"
+      },
+      "closeDirty": {
+        "title": "Save changes?",
+        "description": "Save changes to {name} before closing it?"
+      }
+    },
     "mapping": {
       "category": {
         "name": {
@@ -175,13 +202,13 @@
         "previewEntityPlaceholder": "Select entity for preview",
         "previewSalesChannel": "Sales channel",
         "previewSalesChannelPlaceholder": "Select sales channel for preview",
-        "assignments": "Assignments",
         "save": "Save layout"
       },
       "canvas": {
         "customViewport": "Custom",
         "viewportToolbar": "Preview viewport",
         "moveFrame": "Move preview frame. Use arrow keys to reposition.",
+        "closeFrame": "Close layout {name}",
         "panelsToolbar": "Canvas panels",
         "structure": "Structure",
         "settings": "Settings",

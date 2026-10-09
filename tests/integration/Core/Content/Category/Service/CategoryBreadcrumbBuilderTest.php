@@ -320,7 +320,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
         $json = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($json);
+        static::assertIsArray($json);
         static::assertArrayHasKey('product', $json);
         static::assertArrayHasKey('seoCategory', $json['product']);
         static::assertNotCount(0, $json['product']['seoCategory']);

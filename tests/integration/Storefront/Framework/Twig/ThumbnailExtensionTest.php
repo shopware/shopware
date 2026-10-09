@@ -195,7 +195,7 @@ class ThumbnailExtensionTest extends TestCase
         $entries = array_map('trim', explode(',', $sizes));
         $fallback = array_pop($entries);
 
-        static::assertNotEmpty($fallback, 'sizes fallback entry is empty');
+        static::assertNotSame('', $fallback, 'sizes fallback entry is empty');
 
         foreach ($entries as $i => $entry) {
             static::assertMatchesRegularExpression(

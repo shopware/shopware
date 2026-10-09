@@ -8,6 +8,7 @@ import '@testing-library/jest-dom';
 
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
+import DeprecationPlugin from 'src/app/plugin/deprecation.plugin';
 import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
 import SwBlock from 'src/app/component/structure/sw-block-override/sw-block/index';
 import SwBlockParent from 'src/app/component/structure/sw-block-override/sw-block-parent/index';
@@ -55,13 +56,14 @@ import {
 } from '@shopware-ag/meteor-component-library';
 import { createI18n } from 'vue-i18n';
 import aclService from './_mocks_/acl.service.mock';
-import feature from './_mocks_/feature.service.mock';
+import feature, { FeatureMock } from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
 import 'blob-polyfill';
 import {
     sendTimeoutExpired,
+    deprecationWarning,
     deprecatedTabComponent,
     deprecatedPopoverComponent,
     unresolvedComponentWarning,
@@ -175,7 +177,7 @@ const customFieldDataProviderService = {
 // Add services
 Shopware.Service().register('acl', () => aclService);
 Shopware.Service().register('feature', () => feature);
-Shopware.Feature = Shopware.Service('feature');
+Shopware.Feature = FeatureMock;
 Shopware.Service().register('repositoryFactory', () => repositoryFactory);
 Shopware.Service().register('customFieldDataProviderService', () => customFieldDataProviderService);
 
@@ -376,6 +378,7 @@ const BlockDataScopePlugin = {
 config.global.plugins = [
     VirtualCallStackPlugin,
     MeteorSdkDataPlugin,
+    DeprecationPlugin,
     BlockDataScopePlugin,
     i18n,
 ];
@@ -539,6 +542,7 @@ global.allowedErrors = [
     },
 
     sendTimeoutExpired,
+    deprecationWarning,
     deprecatedTabComponent,
     deprecatedPopoverComponent,
     // Vue 3 test stubs may have empty templates which triggers this warning

@@ -527,7 +527,37 @@ Link categories no longer get new SEO URLs during category indexing, so a link c
 
 When several canonical SEO URLs match a request, the storefront now resolves the one stored exactly as requested. This ends the endless redirect between a link category and its target when their URLs differ only in case or a trailing slash.
 
-If category indexing ran on 6.7.13.0 or later, a target category can still show under a fallback URL. Find affected categories with the query in [#21106](https://github.com/shopware/shopware/issues/21106) and set their SEO URL again in the Administration.
+If category indexing ran on 6.7.13.0 or later, a target category can still show under a write-protected fallback URL, while a link category of the same name holds the target's URL. Indexing does not repair this, because the fallback is marked as modified. After updating:
+
+1. Find the affected target categories:
+
+    ```sql
+    SELECT LOWER(HEX(target.id)) AS target_id, target_t.name AS target_name,
+           target_url.seo_path_info AS target_url_now, link_url.seo_path_info AS url_held_by_link
+    FROM category link
+    JOIN category_translation link_t ON link_t.category_id = link.id AND link_t.category_version_id = link.version_id
+    JOIN category target ON target.id = link_t.internal_link AND target.version_id = link.version_id
+    JOIN category_translation target_t ON target_t.category_id = target.id AND target_t.category_version_id = target.version_id
+         AND target_t.language_id = link_t.language_id AND target_t.name = link_t.name
+    JOIN seo_url link_url ON link_url.foreign_key = link.id AND link_url.language_id = link_t.language_id
+         AND link_url.route_name = 'frontend.navigation.page' AND link_url.is_canonical = 1
+         AND link_url.is_deleted = 0 AND link_url.is_modified = 0
+    JOIN seo_url target_url ON target_url.foreign_key = target.id AND target_url.language_id = link_url.language_id
+         AND target_url.sales_channel_id = link_url.sales_channel_id
+         AND target_url.route_name = 'frontend.navigation.page' AND target_url.is_canonical = 1 AND target_url.is_modified = 1
+    WHERE link.type = 'link' AND link_t.link_type = 'category'
+      AND link.version_id = UNHEX('0FA91CE3E96A4BC2BE4BD9CE752C3425');
+    ```
+
+2. Check the list, because a target whose SEO URL was set manually also appears in it. Remove the write protection of the confirmed targets:
+
+    ```sql
+    UPDATE seo_url SET is_modified = 0
+    WHERE foreign_key IN (UNHEX('<target_id>'))
+      AND route_name = 'frontend.navigation.page' AND is_canonical = 1 AND is_modified = 1;
+    ```
+
+3. Run `bin/console dal:refresh:index --only=category.indexer`. The targets get their SEO URLs back, and their fallback URLs redirect to them.
 
 ### Extension component aliases work in the dev server
 

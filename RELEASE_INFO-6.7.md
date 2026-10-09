@@ -363,6 +363,13 @@ Run `bin/console es:index` after deploying. Existing documents have no price unt
 
 Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
 
+### Mail sent and mail error events carry the mail context
+
+`MailSentEvent` and `MailErrorEvent` now expose the data a mail was sent with, so subscribers can tell which template, event and sales channel a mail belongs to:
+
+- `MailSentEvent`: `getData()` (the mail data, e.g. `templateId`), `getTemplateData()`, `getMessage()`, `getEventName()`, `getTemplateId()` and `getSalesChannelId()`
+- `MailErrorEvent`: `getData()`, `getMail()` (the mail as far as it was built, `null` if the error happened earlier), `getEventName()`, `getTemplateId()` and `getSalesChannelId()`
+
 ### Extensions can add their own spatial media types
 
 A media type that implements `Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface` is shown by the spatial viewer instead of as a picture. `MediaEntity::isSpatial()` checks for it in PHP and in Twig, while `MediaEntity::isSpatialObject()` still matches GLB files only. `SpatialObjectType` implements the interface.

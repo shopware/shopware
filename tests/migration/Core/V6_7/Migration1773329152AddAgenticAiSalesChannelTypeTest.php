@@ -78,7 +78,7 @@ class Migration1773329152AddAgenticAiSalesChannelTypeTest extends TestCase
              WHERE sctt.sales_channel_type_id = :id',
             ['id' => $id]
         );
-        static::assertNotEmpty($translations);
+        static::assertNotCount(0, $translations);
         static::assertContains('Agentic Commerce', $translations);
     }
 }

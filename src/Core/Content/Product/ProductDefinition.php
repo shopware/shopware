@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWi
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
@@ -148,6 +149,7 @@ class ProductDefinition extends EntityDefinition
             (new ReferenceVersionField(self::class, 'canonical_product_version_id'))->addFlags(new ApiAware(), new Inherited(), new Required()),
             (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new ApiAware(), new Inherited()),
             (new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Inherited(), new Required(), new ApiAware()),
+            (new FkField('guarantee_terms_media_id', 'guaranteeTermsMediaId', MediaDefinition::class))->addFlags(new ApiAware(), new Inherited()),
 
             (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required(), new ApiCriteriaAware()),
             (new NumberRangeField('product_number', 'productNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false), new Required()),
@@ -166,6 +168,7 @@ class ProductDefinition extends EntityDefinition
             (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false)),
             (new IntField('guarantee_months', 'guaranteeMonths'))->addFlags(new ApiAware(), new Inherited()),
             (new BoolField('guarantee_confirmed', 'guaranteeConfirmed'))->addFlags(new ApiAware(), new Inherited()),
+            (new StringField('guarantee_terms_url', 'guaranteeTermsUrl', 2048))->addFlags(new ApiAware(), new Inherited()),
             (new StringField('ean', 'ean'))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false)),
             (new IntField('purchase_steps', 'purchaseSteps', 1))->addFlags(new ApiAware(), new Inherited()),
             (new IntField('max_purchase', 'maxPurchase'))->addFlags(new ApiAware(), new Inherited()),
@@ -217,6 +220,8 @@ class ProductDefinition extends EntityDefinition
             (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited()),
 
             (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited()),
+
+            (new ManyToOneAssociationField('guaranteeTermsMedia', 'guarantee_terms_media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware(), new Inherited()),
 
             (new ManyToOneAssociationField('featureSet', 'product_feature_set_id', ProductFeatureSetDefinition::class, 'id'))->addFlags(new Inherited()),
 

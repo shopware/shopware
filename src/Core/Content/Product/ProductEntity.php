@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWi
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
@@ -116,6 +117,12 @@ class ProductEntity extends Entity implements \Stringable
     protected ?int $guaranteeMonths = null;
 
     protected ?bool $guaranteeConfirmed = null;
+
+    protected ?string $guaranteeTermsMediaId = null;
+
+    protected ?MediaEntity $guaranteeTermsMedia = null;
+
+    protected ?string $guaranteeTermsUrl = null;
 
     /**
      * @var string|null
@@ -769,6 +776,36 @@ class ProductEntity extends Entity implements \Stringable
     public function setGuaranteeConfirmed(bool $guaranteeConfirmed): void
     {
         $this->guaranteeConfirmed = $guaranteeConfirmed;
+    }
+
+    public function getGuaranteeTermsMediaId(): ?string
+    {
+        return $this->guaranteeTermsMediaId;
+    }
+
+    public function setGuaranteeTermsMediaId(?string $guaranteeTermsMediaId): void
+    {
+        $this->guaranteeTermsMediaId = $guaranteeTermsMediaId;
+    }
+
+    public function getGuaranteeTermsMedia(): ?MediaEntity
+    {
+        return $this->guaranteeTermsMedia;
+    }
+
+    public function setGuaranteeTermsMedia(?MediaEntity $guaranteeTermsMedia): void
+    {
+        $this->guaranteeTermsMedia = $guaranteeTermsMedia;
+    }
+
+    public function getGuaranteeTermsUrl(): ?string
+    {
+        return $this->guaranteeTermsUrl;
+    }
+
+    public function setGuaranteeTermsUrl(?string $guaranteeTermsUrl): void
+    {
+        $this->guaranteeTermsUrl = $guaranteeTermsUrl;
     }
 
     public function getEan(): ?string

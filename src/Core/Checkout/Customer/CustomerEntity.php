@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
@@ -66,6 +67,10 @@ class CustomerEntity extends Entity implements \Stringable
      * @var array<string>|null
      */
     protected ?array $vatIds = null;
+
+    protected ?string $vatIdCountryId = null;
+
+    protected ?CountryEntity $vatIdCountry = null;
 
     protected ?string $affiliateCode = null;
 
@@ -340,6 +345,26 @@ class CustomerEntity extends Entity implements \Stringable
     public function setVatIds(?array $vatIds): void
     {
         $this->vatIds = $vatIds;
+    }
+
+    public function getVatIdCountryId(): ?string
+    {
+        return $this->vatIdCountryId;
+    }
+
+    public function setVatIdCountryId(?string $vatIdCountryId): void
+    {
+        $this->vatIdCountryId = $vatIdCountryId;
+    }
+
+    public function getVatIdCountry(): ?CountryEntity
+    {
+        return $this->vatIdCountry;
+    }
+
+    public function setVatIdCountry(?CountryEntity $vatIdCountry): void
+    {
+        $this->vatIdCountry = $vatIdCountry;
     }
 
     public function getActive(): bool

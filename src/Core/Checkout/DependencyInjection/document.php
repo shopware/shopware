@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use setasign\Fpdi\Tfpdf\Fpdi;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigValidator;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationDefinition;
@@ -142,6 +143,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentFileRendererRegistry::class),
             service('validator'),
             service(ClockInterface::class),
+            service(VatIdPatternProvider::class),
         ])
         ->tag('document.renderer');
 
@@ -168,6 +170,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentFileRendererRegistry::class),
             service('validator'),
             service(ClockInterface::class),
+            service(VatIdPatternProvider::class),
         ])
         ->tag('document.renderer');
 
@@ -182,6 +185,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentFileRendererRegistry::class),
             service('validator'),
             service(ClockInterface::class),
+            service(VatIdPatternProvider::class),
         ])
         ->tag('document.renderer');
 

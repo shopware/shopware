@@ -4,6 +4,7 @@
       "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Missing permissions.",
       "FRAMEWORK__DELETE_RESTRICTED": "Deletion failed.",
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "This field must not be empty.",
+      "463d3548-1caf-11eb-adc1-0242ac120002": "The VAT number format is incorrect. Please check the country code and the letters and digits you entered.",
       "PARENT_MUST_NOT_BE_EMPTY": "This field's inheritor must not be empty.",
       "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule.",

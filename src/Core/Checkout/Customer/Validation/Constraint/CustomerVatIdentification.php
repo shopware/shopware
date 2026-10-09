@@ -27,8 +27,11 @@ class CustomerVatIdentification extends Constraint
 
     protected bool $shouldCheck = false;
 
+    protected ?string $salesChannelId = null;
+
     /**
      * @param array{countryId?: string, shouldCheck?: bool}|null $options
+     * @param string|null $salesChannelId the sales channel the tax decision is made for, null to only validate the format
      *
      * The `$shouldCheck` and `$message` properties will be natively typed via constructor property promotion in v6.8.0.
      *
@@ -37,8 +40,10 @@ class CustomerVatIdentification extends Constraint
     #[HasNamedArguments]
     #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options', description: 'Use the named arguments instead.')]
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'countryId', newType: 'string', description: 'The parameter loses its null default, becomes required and a promoted property.')]
-    public function __construct(?array $options = null, ?string $countryId = null, bool $shouldCheck = false, string $message = 'The format of vatId {{ vatId }} is not correct.')
+    public function __construct(?array $options = null, ?string $countryId = null, bool $shouldCheck = false, string $message = 'The format of vatId {{ vatId }} is not correct.', ?string $salesChannelId = null)
     {
+        $this->salesChannelId = $salesChannelId;
+
         if ($options !== null || $countryId === null) {
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
@@ -74,6 +79,11 @@ class CustomerVatIdentification extends Constraint
     public function getCountryId(): string
     {
         return $this->countryId;
+    }
+
+    public function getSalesChannelId(): ?string
+    {
+        return $this->salesChannelId;
     }
 
     public function getShouldCheck(): bool

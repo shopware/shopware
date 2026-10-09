@@ -7,9 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -87,6 +90,19 @@ class CustomerDefinitionTest extends TestCase
         $field = $this->definition->getFields()->get('email');
         static::assertInstanceOf(EmailField::class, $field);
         static::assertTrue($field->is(Required::class));
+    }
+
+    public function testTheVatIdCountryIsReadableThroughTheAdminApiOnly(): void
+    {
+        foreach (['vatIdCountryId', 'vatIdCountry'] as $fieldName) {
+            $field = $this->definition->getFields()->get($fieldName);
+            static::assertNotNull($field, $fieldName);
+
+            $flag = $field->getFlag(ApiAware::class);
+            static::assertInstanceOf(ApiAware::class, $flag, $fieldName);
+            static::assertTrue($flag->isSourceAllowed(AdminApiSource::class), $fieldName);
+            static::assertFalse($flag->isSourceAllowed(SalesChannelApiSource::class), $fieldName);
+        }
     }
 
     public function testAddressesAssociation(): void

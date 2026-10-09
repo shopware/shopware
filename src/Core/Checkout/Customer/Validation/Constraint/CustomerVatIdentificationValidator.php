@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -15,7 +14,7 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(private readonly VatIdPatternProvider $vatIdPatternProvider)
     {
     }
 
@@ -33,44 +32,36 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
             throw CustomerException::unexpectedConstraintValue('iterable', CustomerVatIdentification::class);
         }
 
-        $vatIdPattern = $this->getVatIdPattern($constraint);
-        if ($vatIdPattern === null) {
+        $country = $this->vatIdPatternProvider->getCountrySettings($constraint->getCountryId());
+
+        if ($country === null) {
+            return;
+        }
+
+        if (!$constraint->getShouldCheck() && !$country['checkPattern']) {
+            return;
+        }
+
+        if ($country['pattern'] === null) {
             return;
         }
 
         foreach ($vatIds as $vatId) {
-            if (!preg_match($vatIdPattern, (string) $vatId)) {
-                $this->context->buildViolation($constraint->getMessage())
-                    ->setParameter('{{ vatId }}', $this->formatValue($vatId))
-                    ->setCode(CustomerVatIdentification::VAT_ID_FORMAT_NOT_CORRECT)
-                    ->addViolation();
+            $accepted = $this->vatIdPatternProvider->acceptsVatId(
+                (string) $vatId,
+                $country['pattern'],
+                $country['isEu'],
+                $constraint->getSalesChannelId()
+            );
+
+            if ($accepted) {
+                continue;
             }
+
+            $this->context->buildViolation($constraint->getMessage())
+                ->setParameter('{{ vatId }}', $this->formatValue($vatId))
+                ->setCode(CustomerVatIdentification::VAT_ID_FORMAT_NOT_CORRECT)
+                ->addViolation();
         }
-    }
-
-    private function getVatIdPattern(CustomerVatIdentification $constraint): ?string
-    {
-        $vatIdInformation = $this->connection->fetchAssociative(
-            'SELECT check_vat_id_pattern, vat_id_pattern FROM `country` WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($constraint->getCountryId())]
-        );
-
-        if ($vatIdInformation === false) {
-            return null;
-        }
-
-        \assert(\array_key_exists('check_vat_id_pattern', $vatIdInformation));
-        \assert(\array_key_exists('vat_id_pattern', $vatIdInformation));
-
-        if (!$constraint->getShouldCheck() && !$vatIdInformation['check_vat_id_pattern']) {
-            return null;
-        }
-
-        $pattern = (string) $vatIdInformation['vat_id_pattern'];
-        if ($pattern === '') {
-            return null;
-        }
-
-        return '/^' . $pattern . '$/';
     }
 }

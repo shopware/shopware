@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer as DocumentV2Renderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -91,6 +92,18 @@ abstract class AbstractDocumentRenderer
         return $isCompanyTaxFree && $isPartOfEu;
     }
 
+    protected function isDomesticSupply(OrderEntity $order, VatIdPatternProvider $vatIdPatternProvider): bool
+    {
+        $orderDelivery = $order->getPrimaryOrderDelivery();
+        if (!Feature::isActive('v6.8.0.0')) {
+            $orderDelivery = $order->getDeliveries()?->first();
+        }
+
+        $country = $orderDelivery?->getShippingOrderAddress()?->getCountry();
+
+        return $vatIdPatternProvider->isDomesticSupply($country?->getIso(), $order->getSalesChannelId());
+    }
+
     protected function isValidVat(OrderEntity $order, ValidatorInterface $validator): bool
     {
         $customerType = $order->getOrderCustomer()?->getCustomer()?->getAccountType();
@@ -123,7 +136,7 @@ abstract class AbstractDocumentRenderer
 
         $violations = $validator->validate($vatIds, [
             new NotBlank(),
-            new CustomerVatIdentification(countryId: $country->getId()),
+            new CustomerVatIdentification(countryId: $country->getId(), salesChannelId: $order->getSalesChannelId()),
         ]);
 
         return $violations->count() === 0;

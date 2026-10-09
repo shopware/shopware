@@ -1766,6 +1766,7 @@
  "sw_customer_card_slot_actions",
  "sw_customer_card_slot_default",
  "sw_customer_card_slot_metadata_additional",
+ "sw_customer_card_vat_id_warning",
  "sw_customer_card_vat_ids",
  "sw_customer_create",
  "sw_customer_create_actions",

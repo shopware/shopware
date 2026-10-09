@@ -74,6 +74,7 @@ use Shopware\Core\Checkout\Customer\Subscriber\CustomerMetaFieldSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerRemoteAddressSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerSalutationSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerTokenSubscriber;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerVatIdCountrySubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\ProductReviewSubscriber;
 use Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUniqueValidator;
@@ -84,6 +85,8 @@ use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker;
 use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternTwigExtension;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
@@ -203,9 +206,22 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('validator.constraint_validator');
 
+    $services->set(VatIdPatternProvider::class)
+        ->args([
+            service('country.repository'),
+            service(SystemConfigService::class),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set(VatIdPatternTwigExtension::class)
+        ->args([
+            service(VatIdPatternProvider::class),
+        ])
+        ->tag('twig.extension');
+
     $services->set(CustomerVatIdentificationValidator::class)
         ->args([
-            service(Connection::class),
+            service(VatIdPatternProvider::class),
         ])
         ->tag('validator.constraint_validator');
 
@@ -681,5 +697,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_subscriber');
 
     $services->set(CustomerAddressSubscriber::class)
+        ->tag('kernel.event_subscriber');
+
+    $services->set(CustomerVatIdCountrySubscriber::class)
+        ->args([
+            service(VatIdPatternProvider::class),
+        ])
         ->tag('kernel.event_subscriber');
 };

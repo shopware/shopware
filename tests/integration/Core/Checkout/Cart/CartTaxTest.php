@@ -5,7 +5,10 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
@@ -20,6 +23,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -368,6 +372,28 @@ class CartTaxTest extends TestCase
         ];
     }
 
+    public function testCompanyTaxFreeWithVatIdOfOtherEuMemberState(): void
+    {
+        $this->prepareIntraEuDelivery();
+        $this->createCrossBorderCustomerAndLogin(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+
+        // 500 net for the product + 10 net for the shipping
+        static::assertSame(['tax-free', 510.0], $this->addProductAndReadCartPrice());
+        static::assertSame(['tax-free', 510.0], $this->placeOrderAndReadPrice());
+    }
+
+    public function testPrivateAccountIsNotCompanyTaxFreeWithVatIdOfOtherEuMemberState(): void
+    {
+        $this->prepareIntraEuDelivery();
+
+        // Same company and VAT ID as the B2B case; only the account type differs
+        $this->createCrossBorderCustomerAndLogin(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+
+        // 550 gross for the product + 11 gross for the shipping
+        static::assertSame(['gross', 561.0], $this->addProductAndReadCartPrice());
+        static::assertSame(['gross', 561.0], $this->placeOrderAndReadPrice());
+    }
+
     private function createProduct(): void
     {
         $this->productRepository->create([
@@ -485,7 +511,7 @@ class CartTaxTest extends TestCase
         return $this->connection->fetchOne('SELECT id FROM currency WHERE iso_code = :iso', ['iso' => $iso]);
     }
 
-    private function createShippingMethod(): void
+    private function createShippingMethod(bool $alwaysAvailable = false): void
     {
         $data = [
             [
@@ -498,6 +524,7 @@ class CartTaxTest extends TestCase
                     'id' => $this->ids->create('rule'),
                     'name' => 'asd',
                     'priority' => 2,
+                    'conditions' => $alwaysAvailable ? [['type' => AlwaysValidRule::RULE_NAME]] : [],
                 ],
                 'deliveryTime' => [
                     'id' => Uuid::randomHex(),
@@ -528,5 +555,145 @@ class CartTaxTest extends TestCase
 
         static::getContainer()->get('shipping_method.repository')
             ->create($data, Context::createDefaultContext());
+    }
+
+    private function prepareIntraEuDelivery(): void
+    {
+        $this->createShippingMethod(alwaysAvailable: true);
+
+        $this->ids->set('country-nl', Uuid::fromBytesToHex($this->getCountryIdByIso('NL')));
+        $this->ids->set('country-be', Uuid::fromBytesToHex($this->getCountryIdByIso('BE')));
+
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel'),
+            'shippingMethodId' => $this->ids->get('shipping'),
+            'shippingMethods' => [['id' => $this->ids->get('shipping')]],
+            'countries' => [
+                ['id' => $this->getValidCountryId(null)],
+                ['id' => $this->ids->get('country-nl')],
+                ['id' => $this->ids->get('country-be')],
+            ],
+        ]);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
+
+        $this->createProduct();
+
+        $this->countryRepository->update([[
+            'id' => $this->ids->get('country-be'),
+            'customerTax' => [
+                'enabled' => false,
+                'currencyId' => Defaults::CURRENCY,
+                'amount' => 0,
+            ],
+            'companyTax' => [
+                'enabled' => true,
+                'currencyId' => Defaults::CURRENCY,
+                'amount' => 0,
+            ],
+            'checkVatIdPattern' => true,
+        ]], Context::createDefaultContext());
+
+        // A currency tax free amount of 0 disables the currency threshold, so the country one applies.
+        $this->currencyRepository->update([[
+            'id' => Defaults::CURRENCY,
+            'taxFreeFrom' => 0,
+        ]], Context::createDefaultContext());
+
+        // The exemption is only granted against a member state the shop does not supply from itself
+        static::getContainer()->get(SystemConfigService::class)->set(
+            'core.basicInformation.sellerCountryId',
+            Uuid::fromBytesToHex($this->getCountryIdByIso('DE'))
+        );
+
+        static::getContainer()->get(VatIdPatternProvider::class)->reset();
+    }
+
+    private function createCrossBorderCustomerAndLogin(string $accountType): void
+    {
+        $email = Uuid::randomHex() . '@example.com';
+
+        $this->customerRepository->create([[
+            'id' => $this->ids->create('customer'),
+            'salesChannelId' => $this->ids->get('sales-channel'),
+            'accountType' => $accountType,
+            'company' => 'Test',
+            'vatIds' => ['NL123456789B01'],
+            'defaultBillingAddress' => [
+                'id' => $this->ids->create('billing-address'),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Amsterdam',
+                'zipcode' => '1011',
+                'salutationId' => $this->getValidSalutationId(),
+                'countryId' => $this->ids->get('country-nl'),
+            ],
+            'defaultShippingAddress' => [
+                'id' => $this->ids->create('shipping-address'),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Brussels',
+                'zipcode' => '1000',
+                'salutationId' => $this->getValidSalutationId(),
+                'countryId' => $this->ids->get('country-be'),
+            ],
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => $email,
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => '12345',
+        ]], Context::createDefaultContext());
+
+        $this->login($email, 'shopware');
+    }
+
+    /**
+     * @return array{0: string, 1: float} the tax status and the total price of the cart
+     */
+    private function addProductAndReadCartPrice(): array
+    {
+        $this->browser->request(
+            'POST',
+            '/store-api/checkout/cart/line-item',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            (string) json_encode([
+                'items' => [
+                    [
+                        'id' => $this->ids->get('p1'),
+                        'type' => 'product',
+                        'referencedId' => $this->ids->get('p1'),
+                        'quantity' => 1,
+                    ],
+                ],
+            ], \JSON_THROW_ON_ERROR)
+        );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        return [$response['price']['taxStatus'], (float) $response['price']['totalPrice']];
+    }
+
+    /**
+     * @return array{0: string, 1: float} the tax status and the total price of the placed order
+     */
+    private function placeOrderAndReadPrice(): array
+    {
+        $this->browser->request('POST', '/store-api/checkout/order');
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('order', $response['apiAlias']);
+
+        return [$response['price']['taxStatus'], (float) $response['price']['totalPrice']];
     }
 }

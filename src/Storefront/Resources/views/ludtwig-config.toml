@@ -310,6 +310,7 @@ valid-functions = [
     "searchMedia",
     "sw_breadcrumb_full",
     "sw_breadcrumb_full_by_id",
+    "sw_eu_vat_id_patterns",
     "category_url",
     "category_linknewtab",
     "inAppPurchase",

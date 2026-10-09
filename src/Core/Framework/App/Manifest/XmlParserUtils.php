@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\App\Manifest;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
+use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
@@ -13,6 +15,15 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 class XmlParserUtils
 {
     private const FALLBACK_LOCALE = 'en-GB';
+
+    public static function loadFile(string $xmlFile, string $xsdFile): \DOMDocument
+    {
+        try {
+            return XmlUtils::loadFile($xmlFile, $xsdFile);
+        } catch (\Exception $e) {
+            throw AppException::xmlParsingException($xmlFile, $e->getMessage());
+        }
+    }
 
     /**
      * @return array<string, mixed>
@@ -89,6 +100,23 @@ class XmlParserUtils
         }
 
         return $values;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function parseTranslations(\DOMElement $element, string $tagName): array
+    {
+        $translations = [];
+        foreach ($element->childNodes as $child) {
+            if (!$child instanceof \DOMElement || $child->tagName !== $tagName) {
+                continue;
+            }
+
+            $translations[self::getLocaleCodeFromElement($child)] = trim($child->nodeValue ?? '');
+        }
+
+        return $translations;
     }
 
     /**

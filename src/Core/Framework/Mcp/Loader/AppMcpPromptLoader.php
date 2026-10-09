@@ -5,62 +5,51 @@ namespace Shopware\Core\Framework\Mcp\Loader;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Prompt;
 use Mcp\Server\RequestContext;
-use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\Feature\AppFeature;
+use Shopware\Core\Framework\App\Mcp\Feature\McpPromptConfig;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @experimental stableVersion:v6.8.0
  *
- * Loads app-provided MCP prompts from the database and registers them
- * with the MCP server registry at build time.
+ * Registers app-provided MCP prompts with the MCP server registry at build time.
+ *
+ * @extends AbstractAppMcpLoader<McpPromptConfig>
  */
 #[Package('framework')]
 class AppMcpPromptLoader extends AbstractAppMcpLoader
 {
-    protected function fetchRows(): array
+    protected function getConfigClass(): string
     {
-        return $this->connection->fetchAllAssociative(
-            'SELECT
-                p.name,
-                p.url,
-                a.name AS app_name,
-                a.app_secret,
-                pt.label,
-                pt.description
-            FROM app_mcp_prompt p
-            INNER JOIN app a ON p.app_id = a.id AND a.active = 1
-            LEFT JOIN app_mcp_prompt_translation pt
-                ON p.id = pt.app_mcp_prompt_id
-                AND pt.language_id = UNHEX(:languageId)
-            WHERE a.app_secret IS NOT NULL
-            ORDER BY a.name, p.name',
-            ['languageId' => Defaults::LANGUAGE_SYSTEM],
-        );
+        return McpPromptConfig::class;
     }
 
-    protected function registerCapability(RegistryInterface $registry, array $row): void
+    protected function registerCapability(RegistryInterface $registry, AppFeature $feature, string $locale): void
     {
-        $appName = (string) $row['app_name'];
-        $name = (string) $row['name'];
-        $promptName = $this->capabilityName($appName, $name);
+        if (!$feature->appHasSecret) {
+            return;
+        }
+
+        $appName = $feature->appName;
+        $config = $feature->config;
+        $promptName = $this->capabilityName($appName, $config->name);
 
         if ($this->isReservedName($promptName, $appName, 'prompt')) {
             return;
         }
 
-        $description = $this->resolveDescription($row, $promptName);
+        $label = $config->label->forLocale($locale);
 
         $prompt = new Prompt(
             name: $promptName,
-            title: isset($row['label']) && $row['label'] !== '' ? (string) $row['label'] : null,
-            description: $description,
+            title: $label ?: null,
+            description: $this->resolveDescription($config->description->forLocale($locale), $label, $promptName),
         );
 
-        $appSecret = (string) $row['app_secret'];
-        $url = (string) $row['url'];
+        $url = $config->url;
 
-        $registry->registerPrompt($prompt, function (RequestContext $context) use ($promptName, $appSecret, $url): string {
-            return $this->executor->execute($promptName, $appSecret, $url, []);
+        $registry->registerPrompt($prompt, function (RequestContext $context) use ($promptName, $appName, $url): string {
+            return $this->executor->execute($promptName, $appName, $url, []);
         }, []);
     }
 }

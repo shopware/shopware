@@ -135,7 +135,7 @@ Each MCP server declares in `packages/mcp.php` which capabilities it exposes, as
 ## Extensibility
 - **Plugins**: Tag services with `shopware.mcp.tool` -- `McpToolDiscoveryCompilerPass` re-tags them as `mcp.tool` and assigns them to the Admin API server, so they appear in both `debug:mcp` and the HTTP endpoint. Use `McpToolResponse` for consistent error handling and response formatting.
 - **Third-party Symfony bundles**: Same `shopware.mcp.tool` tag mechanism as plugins -- `McpToolDiscoveryCompilerPass` handles it. See `custom/bundles/SwagMcpExampleBundle/` for a worked example.
-- **Apps**: Declare capabilities in `Resources/mcp.xml` -- parsed by `Mcp::createFromXmlFile()` (XXE-safe via `XmlUtils::loadFile()`), persisted by the respective Persister (`McpToolPersister`, `McpPromptPersister`, `McpResourcePersister`), loaded at runtime by the corresponding Loader (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`). App tool webhook payloads include `shopId` and `appVersion` in the `source` object. **App tools also support internal dispatch via `/api/script/{path}` -- see the Serverless app tools section below.**
+- **Apps**: Declare capabilities in `Resources/mcp.xml` -- parsed and stored in the generic `app_feature` table by the respective feature definition (`McpToolFeatureDefinition`, `McpPromptFeatureDefinition`, `McpResourceFeatureDefinition`), loaded at runtime by the corresponding Loader (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`). App tool webhook payloads include `shopId` and `appVersion` in the `source` object. **App tools also support internal dispatch via `/api/script/{path}` -- see the Serverless app tools section below.**
 - **In-tree Shopware bundles** (Storefront, etc.): Tag with **`mcp.tool`** directly (not `shopware.mcp.tool`), and make sure the class sits under a namespace the Admin API server's `registry` prefixes in `packages/mcp.php` cover -- otherwise add it there.
 - **Reserved prefix**: The `shopware-` prefix is reserved for core tools. App tools with names starting with `shopware-` are skipped during loading.
 
@@ -148,7 +148,7 @@ App MCP tools can use `/api/script/{path}` as their `url` — Shopware dispatche
 1. `AppMcpCapabilityExecutor` detects URLs starting with `/` and dispatches a Symfony subrequest instead of a Guzzle HTTP call.
 2. Arguments are passed as a `POST` form parameter named `arguments` (not JSON body), so Twig scripts can access them via `hook.request.request.all('arguments')`.
 3. Auth headers from the parent MCP request are inherited — the subrequest runs in the integration's authenticated context, so DAL ACL is enforced normally.
-4. `AppMcpToolLoader` SQL includes apps without a secret when their tool URL starts with `/`.
+4. `AppMcpToolLoader` includes apps without a secret when their tool URL starts with `/`.
 
 ### App script pattern
 
@@ -184,7 +184,7 @@ Create the Twig script at `Resources/scripts/api-my-app-my-tool/script.twig`:
 
 `<required-privileges>` in `mcp.xml` is the app-side equivalent of `#[McpToolRequires]` for plugins. It is **informational** — the Admin UI shows the declared privileges as chips in the integration allowlist and warns when the integration role is missing them. Actual enforcement happens via DAL ACL inside the script.
 
-`McpToolPersister` validates at install/update time that every declared privilege appears in the app's manifest `<permissions>`. An app that declares `product:read` as a required privilege but does not have `<read>product</read>` in `<permissions>` will fail to install with a clear error message.
+`McpToolFeatureDefinition` validates at install/update time that every declared privilege appears in the app's manifest `<permissions>`. An app that declares `product:read` as a required privilege but does not have `<read>product</read>` in `<permissions>` will fail to install with a clear error message.
 
 ## Future ideas / backlog
 

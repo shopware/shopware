@@ -2,10 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Notification;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Mcp\Mcp;
+use Shopware\Core\Framework\App\Feature\AppFeature;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Feature\TranslatedString;
+use Shopware\Core\Framework\App\Mcp\Feature\McpPromptConfig;
+use Shopware\Core\Framework\App\Mcp\Feature\McpResourceConfig;
+use Shopware\Core\Framework\App\Mcp\Feature\McpToolConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityDetector;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
@@ -21,42 +25,19 @@ class AppMcpCapabilityDetectorTest extends TestCase
 {
     public function testDetectsPersistedCapabilitiesForApp(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->exactly(3))
-            ->method('fetchOne')
-            ->willReturnOnConsecutiveCalls('1', false, '1');
+        $appId = Uuid::randomHex();
+        $tool = new McpToolConfig('sync-orders', 'https://app.example.com/mcp/sync-orders', [], null, new TranslatedString([]), new TranslatedString([]));
+        $prompt = new McpPromptConfig('order-context', 'https://app.example.com/mcp/order-context', new TranslatedString([]), new TranslatedString([]));
 
-        $detector = new AppMcpCapabilityDetector($connection);
-        $capabilities = $detector->persistedForApp(Uuid::randomHex());
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forApp')->willReturnMap([
+            [$appId, McpToolConfig::class, [new AppFeature($appId, 'my-app', true, '1.0.0', true, new \DateTimeImmutable(), $tool)]],
+            [$appId, McpPromptConfig::class, [new AppFeature($appId, 'my-app', true, '1.0.0', true, new \DateTimeImmutable(), $prompt)]],
+            [$appId, McpResourceConfig::class, []],
+        ]);
 
-        static::assertTrue($capabilities->tools);
-        static::assertFalse($capabilities->resources);
-        static::assertTrue($capabilities->prompts);
-    }
+        $capabilities = (new AppMcpCapabilityDetector($storage))->persistedForApp($appId);
 
-    public function testDetectsCapabilitiesFromMcpXml(): void
-    {
-        $detector = new AppMcpCapabilityDetector(static::createStub(Connection::class));
-        $capabilities = $detector->fromMcp(Mcp::createFromXmlFile(__DIR__ . '/../../App/Mcp/_fixtures/mcp.xml'));
-
-        static::assertTrue($capabilities->tools);
-        static::assertTrue($capabilities->resources);
-        static::assertTrue($capabilities->prompts);
-    }
-
-    public function testNullMcpXmlHasNoCapabilities(): void
-    {
-        $detector = new AppMcpCapabilityDetector(static::createStub(Connection::class));
-        $capabilities = $detector->fromMcp(null);
-
-        static::assertFalse($capabilities->hasChanges());
-    }
-
-    public function testEmptyMcpXmlHasNoCapabilities(): void
-    {
-        $detector = new AppMcpCapabilityDetector(static::createStub(Connection::class));
-        $capabilities = $detector->fromMcp(Mcp::createFromXmlFile(__DIR__ . '/../../App/Mcp/_fixtures/mcp_empty.xml'));
-
-        static::assertFalse($capabilities->hasChanges());
+        static::assertEquals(new McpListChangedNotificationSet(tools: true, resources: false, prompts: true), $capabilities);
     }
 }

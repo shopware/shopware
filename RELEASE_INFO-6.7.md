@@ -216,29 +216,10 @@ The order is the `parentOrder` computed of `sw-users-permissions-permissions-gri
 
 ### Runtime guards for Administration deprecations
 
-`Shopware.Feature.triggerDeprecationOrThrow(majorFlag, message)` gives Administration deprecations the lifecycle of the PHP `Feature::triggerDeprecationOrThrow()`. While the major flag is inactive it warns in development builds. Once the flag is active it throws, so a missed migration fails in next-major mode instead of after the removal:
+`Shopware.Feature.triggerDeprecationOrThrow(majorFlag, message)` warns about a deprecated Administration API in development builds and throws once the major flag is active, like its PHP counterpart.
 
-```js
-Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'myService.oldMethod() is deprecated. Use newMethod() instead.');
-```
+The `deprecated` option of components and props now follows the same lifecycle: it used to only warn and now throws in next-major mode. See the [coding guidelines](coding-guidelines/administration/feature-flags-and-deprecations.md#runtime-guards) for usage.
 
-The `deprecated` option of components and props follows the same lifecycle. It used to only warn; now it throws in next-major mode. A deprecated component is guarded every time it is created, a deprecated prop only when a parent supplies it:
-
-```js
-Component.register('sw-example', {
-    deprecated: { version: 'v6.8.0.0', comment: 'Use "mt-example" instead.' },
-
-    props: {
-        emptyImagePath: {
-            type: String,
-            required: false,
-            deprecated: { version: 'v6.8.0.0', comment: 'Use "emptyIcon" instead.' },
-        },
-    },
-});
-```
-
-That error is thrown while the component is created, so Vue handles it: a development build aborts the mount, a production build logs it and keeps rendering.
 ### Import the global Shopware object with `shopware:*` modules (experimental)
 
 Administration code and extensions can now import selected APIs from the global `Shopware` object:

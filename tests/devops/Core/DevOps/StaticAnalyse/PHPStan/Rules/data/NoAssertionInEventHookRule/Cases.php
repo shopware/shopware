@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\RuleFixture;
+namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoAssertionInEventHookRule;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -62,21 +63,56 @@ class Cases extends TestCase
         });
     }
 
+    public function assertionsInAnInlineSubscriber(): void
+    {
+        $this->hooks->subscribe(new class implements EventSubscriberInterface {
+            public static function getSubscribedEvents(): array
+            {
+                return [Event::class => 'onEvent'];
+            }
+
+            public function onEvent(Event $event): void
+            {
+                TestCase::assertInstanceOf(Event::class, $event);
+            }
+        });
+    }
+
+    public function assertionsInASubscriberHeldInAVariable(): void
+    {
+        $subscriber = new class implements EventSubscriberInterface {
+            public static function getSubscribedEvents(): array
+            {
+                return [Event::class => 'onEvent'];
+            }
+
+            public function onEvent(Event $event): void
+            {
+                TestCase::assertNotNull($event);
+            }
+        };
+
+        $this->hooks->subscribe($subscriber);
+    }
+
+    public function assertionsInASubscriberDeclaredElsewhere(): void
+    {
+        $this->hooks->subscribe(new AssertingSubscriberElsewhere());
+    }
+
+    public function capturingSubscriber(): void
+    {
+        $subscriber = new CapturingSubscriber();
+        $this->hooks->subscribe($subscriber);
+
+        static::assertNotNull($subscriber->seen);
+    }
+
     public function listenerOnAPlainDispatcher(): void
     {
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(Event::class, static function (): void {
             static::assertTrue(true);
         });
-    }
-}
-
-/**
- * @internal
- */
-class Other
-{
-    public function on(string $eventName, callable $hook): void
-    {
     }
 }

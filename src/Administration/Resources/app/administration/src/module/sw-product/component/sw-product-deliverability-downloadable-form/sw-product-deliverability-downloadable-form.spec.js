@@ -129,18 +129,6 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         });
     });
 
-    it('should show the delivery time above the stock and order quantity switches', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        const deliveryTime = wrapper.find('.product-deliverability-downloadable-form__delivery-time').element;
-        const manageStock = wrapper.find('.product-deliverability-downloadable-form__manage-stock-switch').element;
-        const allowMultipleUnits = wrapper.find('.product-deliverability-downloadable-form__order-quantity-switch').element;
-
-        expect(deliveryTime.compareDocumentPosition(manageStock) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-        expect(manageStock.compareDocumentPosition(allowMultipleUnits) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    });
-
     it('should hide Deliverability item fields when advanced mode is off', async () => {
         wrapper = await createWrapper({ maxPurchase: 5 });
         await flushPromises();

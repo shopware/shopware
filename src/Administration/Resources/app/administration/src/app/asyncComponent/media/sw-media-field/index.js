@@ -212,7 +212,7 @@ export default {
         },
 
         showLabel() {
-            return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();
+            return !!this.label || !!this.$slots.label;
         },
 
         onPageChange({ page, limit }) {

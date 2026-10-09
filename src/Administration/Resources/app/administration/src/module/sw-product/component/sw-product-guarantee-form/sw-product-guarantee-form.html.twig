@@ -59,6 +59,54 @@
     </sw-container>
     {% endblock %}
 
+    {% block sw_product_guarantee_form_terms %}
+    <sw-container
+        columns="1fr 1fr"
+        gap="0 30px"
+    >
+        {% block sw_product_guarantee_form_guarantee_terms_media_field %}
+        <sw-inherit-wrapper
+            v-model:value="product.guaranteeTermsMediaId"
+            class="sw-product-guarantee-form__terms-media"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.guaranteeTermsMediaId"
+            :label="$t('sw-product.settingsForm.labelGuaranteeTermsMedia')"
+            :help-text="$t('sw-product.settingsForm.helpTextGuaranteeTermsMedia')"
+        >
+            <template #content="props">
+                <sw-media-field
+                    file-accept="application/pdf"
+                    default-folder="product"
+                    :disabled="props.isInherited || !allowEdit"
+                    :value="props.currentValue"
+                    @update:value="props.updateCurrentValue"
+                />
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_product_guarantee_form_guarantee_terms_url_field %}
+        <sw-inherit-wrapper
+            v-model:value="product.guaranteeTermsUrl"
+            class="sw-product-guarantee-form__terms-url"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.guaranteeTermsUrl"
+            :label="$t('sw-product.settingsForm.labelGuaranteeTermsUrl')"
+            :help-text="$t('sw-product.settingsForm.helpTextGuaranteeTermsUrl')"
+        >
+            <template #content="props">
+                <sw-url-field
+                    :error="productGuaranteeTermsUrlError"
+                    :disabled="props.isInherited || !allowEdit"
+                    :value="props.currentValue"
+                    @update:value="value => props.updateCurrentValue(value || null)"
+                />
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
     {% block sw_product_guarantee_form_requirements_notice %}
     <mt-banner
         v-if="unmetGuaranteeLabelRequirements.length > 0"

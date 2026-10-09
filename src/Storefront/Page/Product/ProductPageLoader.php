@@ -60,7 +60,8 @@ class ProductPageLoader
             ->addAssociation('options.group')
             ->addAssociation('properties.group')
             ->addAssociation('mainCategories.category')
-            ->addAssociation('media.media');
+            ->addAssociation('media.media')
+            ->addAssociation('guaranteeTermsMedia');
 
         $criteria->getAssociation('media')->addSorting(
             new FieldSorting('position')

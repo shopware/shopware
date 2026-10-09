@@ -34,6 +34,7 @@ import {
     assertReservedMacroNames,
     assertStaticObjectEntries,
 } from './script-analyzer/validation';
+import { forEachPatternIdentifier } from './utils/babel-patterns';
 import { type SetupRenameTarget, collectSetupRenameTargets } from './flow-analysis';
 
 const SUPPORTED_SCRIPT_LANGS = new Set([
@@ -76,6 +77,7 @@ type BaseScriptAnalysis = {
     mode: 'base';
     renameTargets: (SourceRange & Pick<SetupRenameTarget, 'localName' | 'expansion'>)[];
     publicEntries: string[];
+    modelBindings: string[];
 };
 
 /**
@@ -228,8 +230,27 @@ function classifyTopLevelStatements(ast: BabelFile, mode: ShopwareSetupMode, scr
 }
 
 /**
- * Phase 3a - the dialect assertions that must fire before marker extraction: unsupported syntax, macro
- * mode and multiplicity, and a setup binding colliding with a declared prop.
+ * The top-level bindings the block's `defineModel()` calls declare.
+ *
+ * These names are deliberately both a prop and setup state, so the runtime must keep them instead of
+ * treating them as accidentally returned props. Binding names rather than the prop names Vue derives
+ * from the macro arguments: what the generated footer returns as state is what the runtime compares.
+ */
+function collectModelBindings(macroEntries: MacroCallEntry[]): string[] {
+    const names: string[] = [];
+
+    macroEntries
+        .filter((entry) => entry.name === 'defineModel')
+        .forEach((entry) => {
+            forEachPatternIdentifier(entry.declarator?.id, (identifier) => names.push(identifier.name));
+        });
+
+    return names;
+}
+
+/**
+ * Phase 3a - the dialect assertions that must fire before marker extraction: unsupported syntax and
+ * macro mode/multiplicity.
  *
  * Macro arguments that read a top-level binding are deliberately not checked here - that is Vue's
  * business, and it handles them correctly on its own (it hoists a statically-analysable local to module
@@ -243,10 +264,6 @@ function assertScriptRules(
 ): void {
     assertNoUnsupportedSyntax(ast, mode, scriptOffset);
     assertMacroRules(classified.macroEntries, mode, scriptOffset);
-
-    // A setup binding sharing a declared prop's name is deliberately not rejected here: the
-    // `vue/no-dupe-keys` ESLint rule flags it across all prop forms (incl. `defineProps<Props>()`,
-    // which a build-time type check cannot resolve), so detection lives in lint rather than here.
 }
 
 /**
@@ -353,6 +370,7 @@ function buildBaseAnalysis(
             }),
         ),
         publicEntries,
+        modelBindings: collectModelBindings(classified.macroEntries),
     };
 }
 
@@ -370,7 +388,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     // 2 - classify every top-level statement in one walk
     const classified = classifyTopLevelStatements(ast, mode, scriptOffset);
 
-    // 3 - assert the dialect rules. Order is load-bearing: syntax/macro/collision first, then the marker
+    // 3 - assert the dialect rules. Order is load-bearing: syntax/macro rules first, then the marker
     // entries are extracted and their own checks run, then reserved-name shadowing last - so the author
     // sees the most specific error first.
     assertScriptRules(ast, classified, mode, scriptOffset);

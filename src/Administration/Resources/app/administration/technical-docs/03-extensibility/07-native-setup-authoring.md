@@ -42,7 +42,7 @@ The transform runs before Vue compiles the SFC.
 
 **Base.** The author body stays exactly as written — plain `<script setup>`, macros in place, nothing hoisted or wrapped. The transform only (1) renames each top-level runtime binding to a reserved `__swSetupAuthor_<name>` alias, (2) appends a generated `Shopware.Component.attachOverrides({ public, private })` footer that re-declares the original names from the override wrapper, and (3) closes that footer with a generated `defineExpose()` carrying the component's props and its `swDefinePublic()` entries (see [swDefinePublic() is also the parent-facing surface](#swdefinepublic-is-also-the-parent-facing-surface)). Templates read overrideable state exactly as before.
 
-Base mode is **auto-private**: every supported top-level runtime binding becomes private state unless it is listed in `swDefinePublic({...})`, which every base component must declare (see [Setup markers](#setup-markers)). Private state is still normal component/template state — it is only hidden from the top-level public override API. Overrides reach it through the `_private` group of the previous-state payload (`override(({ publicName, _private }) => ...)`). Macro-derived bindings are treated the same way: `const props = defineProps(...)`, `const emit = defineEmits(...)`, and `const slots = defineSlots(...)` become private state under their declared names, so templates can reference `emit`, `slots`, and `props.<name>` directly.
+Base mode is **auto-private**: every supported top-level runtime binding becomes private state unless it is listed in `swDefinePublic({...})`, which every base component must declare (see [Setup markers](#setup-markers)). Private state is still normal component/template state — it is only hidden from the top-level public override API. Overrides reach it through the `_private` group of the previous-state payload (`override(({ publicName, _private }) => ...)`). Macro-derived bindings are treated the same way: `const props = defineProps(...)`, `const emit = defineEmits(...)`, `const slots = defineSlots(...)`, and `const value = defineModel(...)` become private state under their declared names, so templates can reference `emit`, `slots`, `value`, and `props.<name>` directly.
 
 The base transform also adds `:data="$dataScope"` to every `<sw-block name="...">`, forwarding the generated data scope to block overrides without every base author writing it by hand. The `data` binding and the default slot scope of `<sw-block>` are owned by the transform: authoring `data`, `#default`, or a `v-bind` object on `<sw-block>` is rejected.
 
@@ -52,14 +52,14 @@ Override-local bindings are returned under deterministic private aliases only wh
 
 **Runtime inputs** are explicit:
 
-- Base: `defineProps(...)`, `withDefaults(defineProps(...), ...)`, plus Vue's own composables (`useAttrs()`, `useSlots()`, …) — the body is native `<script setup>`.
+- Base: `defineProps(...)`, `withDefaults(defineProps(...), ...)`, `defineModel(...)`, plus Vue's own composables (`useAttrs()`, `useSlots()`, …) — the body is native `<script setup>`.
 - Override: `useSwPreviousState()`, `useSwProps()`, `useSwContext()` — transform-injected local helpers, override mode only. Base components get no injected helpers; their body runs natively.
 
 ## Props
 
 Base components declare props with Vue's native `defineProps(...)` or `withDefaults(defineProps(...), ...)`. The macro stays where you wrote it and Vue compiles it — the transform never moves or rewrites it, so prop defaults, reactive destructuring, and `withDefaults` behave exactly as in any Vue 3.5 component. Read props through the props object (`props.count`) or a reactive destructure so access stays reactive, and keep defaults on the prop (a destructure default or `withDefaults`) rather than on a separate local, because the template reads the prop and not the local.
 
-**One Shopware-specific rule:** a top-level setup binding must not share a declared prop's name.
+**One Shopware-specific rule:** a top-level setup binding must not share a prop declared through `defineProps()`.
 
 ```ts
 const props = defineProps<{ count: number }>();
@@ -86,6 +86,58 @@ const count = ref(0);                         // not reported anywhere
 ```
 
 Sharing a props type between components is ordinary, so treat this as a case to watch for by hand: when props come from an imported type, check the names against your top-level bindings yourself.
+
+Bindings declared by [`defineModel()`](#models) are exempt: naming a prop is the point, and the generated footer tells the runtime to preserve them.
+
+## Models
+
+Base components declare `v-model` bindings with Vue's native `defineModel(...)`. Like the other base macros it stays where you wrote it and Vue compiles it, so the prop, the `update:` emit, the modifiers object, and `{ default }` behave exactly as in any Vue 3.5 component. The binding it returns is ordinary base state: auto-private, renamed into the footer, and listed in `swDefinePublic({...})` when overrides or a parent should reach it.
+
+```vue
+<template>
+    <input
+        :value="modelValue"
+        @input="modelValue = $event.target.value"
+    >
+</template>
+
+<script setup lang="ts">
+const modelValue = defineModel<string>();
+
+swDefinePublic({ modelValue });
+</script>
+```
+
+Writing the binding still emits: the footer re-declares it as a writable ref into the override-aware state, and a write travels through to the model and out as `update:modelValue`. That holds for a write from the template, from a parent holding a template ref, and through an override that replaced the binding.
+
+Vue's conventional binding names work unchanged, even though they match the generated model props:
+
+```ts
+const title = defineModel('title');
+const [modelValue, modelModifiers] = defineModel();
+```
+
+**An override replaces a public model binding like any other binding**, and the usual shapes apply.
+
+> [!WARNING]
+> A replacement returned as a plain `ref` is two-way synced with the model, so the override's own
+> initial value is pushed out to the parent the moment the component mounts — overwriting whatever the
+> parent had bound. Return a writable `computed` wrapping the previous state when the override should
+> adapt writes rather than seed a value:
+
+```ts
+const previousState = useSwPreviousState();
+const value = computed<string>({
+    get: () => previousState.value.value ?? '',
+    set: (next) => {
+        previousState.value.value = next.toUpperCase();
+    },
+});
+
+swDefineOverride({ value });
+```
+
+`defineModel()` itself is rejected in an override: an override declares neither props nor emits, and the base component already owns both halves of the model.
 
 ## Setup markers
 
@@ -132,7 +184,7 @@ Reaching in through Vue internals — `vnode.component.proxy`, or walking `subTr
 
 - Base public/private state is explicit Shopware extension state, not native setup-return behaviour.
 - Override SFCs register with `overrideComponentSetup(...)` at import time.
-- **Base mode does not touch the Vue macros at all.** `defineProps`, `withDefaults`, `defineEmits`, `defineSlots`, and `defineOptions` stay where you wrote them and are compiled by Vue with their normal semantics — including Vue's own rules on how many times each may appear, and Vue's own diagnostics for macro arguments it cannot hoist. The transform only renames top-level bindings and appends the footer.
+- **Base mode does not touch the Vue macros at all.** `defineProps`, `withDefaults`, `defineEmits`, `defineSlots`, `defineOptions`, and `defineModel` stay where you wrote them and are compiled by Vue with their normal semantics — including Vue's own rules on how many times each may appear, and Vue's own diagnostics for macro arguments it cannot hoist. The transform only renames top-level bindings and appends the footer.
 - **Override mode moves the author body into a callback**, so imports and type-only declarations (`interface`, `type`, ambient `declare`) are lifted back to the generated script root — matching how Vue keeps them at the module root. Ambient `declare` statements describe values provided elsewhere and are never returned as setup state.
 - **Forwarded override bindings are read-only in the template.** Inside `<sw-block extends>` content a forwarded binding arrives ref-unwrapped as a slot-scope local, so Vue's compiler applies none of the ref handling it gives a setup binding — no `.value` write-through. A template write (`@click="count = count + 1"`, `count++`) reassigns the slot-scope local and silently no-ops, where the identical line mutates state in a base component. The transform rejects such writes at build time; mutate from a method defined in the override setup instead.
 - Vue macros other than the base-mode set above are unsupported in either mode.
@@ -143,9 +195,9 @@ Reaching in through Vue internals — `vnode.component.proxy`, or walking `subTr
 The transform rejects these at build time:
 
 - Script languages other than `js`, `jsx`, `ts`, and `tsx`
-- `defineModel()`, in either mode
+- `defineModel()` in override mode - an override declares neither props nor emits
 - `defineExpose()`, in either mode — the transform generates it from `swDefinePublic({...})`
-- Base-mode macros used in override mode (`defineProps`, `withDefaults`, `defineEmits`, `defineSlots`, `defineOptions`)
+- Base-mode macros used in override mode (`defineProps`, `withDefaults`, `defineEmits`, `defineSlots`, `defineOptions`, `defineModel`)
 - Override-only helpers (`useSwPreviousState()`, `useSwProps()`, `useSwContext()`) in base mode
 - Top-level `await`
 - An SFC without a `<script setup>` block — a plain `<script>` (Options API) or a template-only `.vue` file. Every `.vue` component is extendable, and the markers that declare that only exist in `<script setup>`, so such a file would compile into a component nothing can override
@@ -170,4 +222,4 @@ All parser-sensitive behaviour lives in `build/vue-setup-transform`, with smalle
 
 Every transform rejection above surfaces in your editor, not only at build time. The `valid-shopware-setup` ESLint rule (`eslint-rules/core-rules`) runs the *same* shared transform against the file and reports its errors on the offending line — so a reserved binding name, a renamed marker key, or a wrong-mode macro is flagged as you type. There is one validator; the build enforces it and this rule mirrors it into the editor.
 
-The prop/binding name collision is the one detection that is **not** a transform rejection: it is caught by the standard `vue/no-dupe-keys` ESLint rule instead, which resolves prop names across every form — including a named type (`defineProps<Props>()`) the transform cannot see through. So it too is flagged in the editor and in `composer eslint:admin`, just via a different rule.
+The prop/binding name collision is the one detection that is **not** a transform rejection: for props declared through `defineProps()` it is caught by the standard `vue/no-dupe-keys` ESLint rule instead, which resolves prop names across every form — including a named type (`defineProps<Props>()`) the transform cannot see through. So it too is flagged in the editor and in `composer eslint:admin`, just via a different rule. Matching `defineModel()` prop and binding names are intentional and remain valid.

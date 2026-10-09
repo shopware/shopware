@@ -22,7 +22,7 @@ describe('SpatialBaseViewerPlugin tests', () => {
         },
     };
     window.DIVEQuickViewPlugin = {
-        QuickView: jest.fn().mockResolvedValue(mockDive)
+        QuickView: jest.fn().mockResolvedValue(mockDive),
     };
 
     beforeEach(() => {
@@ -141,20 +141,47 @@ describe('SpatialBaseViewerPlugin tests', () => {
     });
 
     test('stopRendering will stop rendering loop', () => {
+        spatialBaseViewerPlugin.rendering = true;
+
         spatialBaseViewerPlugin.stopRendering();
 
         expect(spatialBaseViewerPlugin.rendering).toBe(false);
+        expect(mockDive.stop).toHaveBeenCalledTimes(1);
         expect(parentDivClassListRemoveSpy).toHaveBeenCalledWith('spatial-canvas-rendering');
         expect(emitterPublishSpy).toHaveBeenCalledWith('Viewer/stopRendering');
     });
 
-    test('stopRendering stops the viewer every time it is called', () => {
-        spatialBaseViewerPlugin.stopRendering();
+    test('stopRendering makes no actions if not rendering', () => {
+        spatialBaseViewerPlugin.rendering = false;
+
         spatialBaseViewerPlugin.stopRendering();
 
-        expect(mockDive.stop).toHaveBeenCalledTimes(2);
-        expect(parentDivClassListRemoveSpy).toHaveBeenCalledTimes(2);
-        expect(emitterPublishSpy.mock.calls.filter(([event]) => event === 'Viewer/stopRendering')).toHaveLength(2);
+        expect(mockDive.stop).not.toHaveBeenCalled();
+        expect(parentDivClassListRemoveSpy).not.toHaveBeenCalled();
+        expect(emitterPublishSpy).not.toHaveBeenCalledWith('Viewer/stopRendering');
+    });
+
+    test('startRendering gives up when the viewer was stopped while the engine started', async () => {
+        let releaseStart;
+        mockDive.startAsync.mockReturnValueOnce(new Promise((resolve) => {
+            releaseStart = resolve;
+        }));
+
+        spatialBaseViewerPlugin.rendering = false;
+        spatialBaseViewerPlugin.ready = true;
+
+        const started = spatialBaseViewerPlugin.startRendering();
+
+        spatialBaseViewerPlugin.stopRendering();
+        parentDivClassListAddSpy.mockClear();
+        emitterPublishSpy.mockClear();
+
+        releaseStart();
+        await started;
+
+        expect(spatialBaseViewerPlugin.rendering).toBe(false);
+        expect(parentDivClassListAddSpy).not.toHaveBeenCalled();
+        expect(emitterPublishSpy).not.toHaveBeenCalledWith('Viewer/startRendering');
     });
 
     test('startRendering restarts a viewer that was stopped before', async () => {
@@ -201,7 +228,7 @@ describe('SpatialBaseViewerPlugin animation tests', () => {
         };
     }
 
-    function buildDOM({ withAnimContainer = true, withButton = true, withCircle = true, withSwitch = true } = {}) {
+    function buildDOM({ withAnimContainer = true, withButton = true, withCircle = true, withSwitch = true, withSelect = true } = {}) {
         let animContainerHTML = '';
 
         if (withAnimContainer) {
@@ -213,7 +240,7 @@ describe('SpatialBaseViewerPlugin animation tests', () => {
 
             const switchHTML = withSwitch ? `
                 <span class="spatial-anim-switch-container visually-hidden">
-                    <select class="spatial-anim-switch"></select>
+                    ${withSelect ? '<select class="spatial-anim-switch"></select>' : ''}
                 </span>
             ` : '';
 
@@ -396,6 +423,35 @@ describe('SpatialBaseViewerPlugin animation tests', () => {
         expect(originalUpdateFn).toHaveBeenCalledWith(0.016);
     });
 
+    test('animator.update sets progress to 0 when the animation has no duration', async () => {
+        buildDOM();
+
+        const originalUpdateFn = jest.fn();
+        const localAnimator = {
+            ...createMockAnimator(),
+            time: 5,
+            duration: 0,
+            update: originalUpdateFn,
+        };
+        window.DIVEAnimationPlugin.AnimationSystem.mockReturnValue({
+            fromClips: jest.fn().mockResolvedValue(localAnimator),
+        });
+        window.DIVEQuickViewPlugin.QuickView.mockResolvedValue({
+            model: { animations: [{ name: 'Walk' }] },
+            clock: { addTicker: jest.fn() },
+        });
+
+        const plugin = createPlugin();
+        await plugin.initViewer();
+
+        const circle = document.querySelector('.spatial-anim-button-circle');
+        circle.style.setProperty('--progress', '0.7');
+
+        localAnimator.update(0.016);
+
+        expect(circle.style.getPropertyValue('--progress')).toBe('0');
+    });
+
     test('initViewer does not show switch when model has only one animation', async () => {
         buildDOM();
 
@@ -496,6 +552,37 @@ describe('SpatialBaseViewerPlugin animation tests', () => {
         expect(window.DIVEAnimationPlugin.AnimationSystem).toHaveBeenCalled();
     });
 
+    test('initViewer shows the animation button without switch when the switch container is missing', async () => {
+        buildDOM({ withSwitch: false });
+
+        window.DIVEQuickViewPlugin.QuickView.mockResolvedValue({
+            model: { animations: [{ name: 'Walk' }, { name: 'Run' }] },
+            clock: { addTicker: jest.fn() },
+        });
+
+        const plugin = createPlugin();
+        await plugin.initViewer();
+
+        const animButton = document.querySelector('.spatial-anim-button');
+        expect(animButton.classList.contains('visually-hidden')).toBe(false);
+        expect(document.querySelector('.spatial-anim-switch')).toBeNull();
+    });
+
+    test('initViewer keeps the switch container hidden when the select is missing', async () => {
+        buildDOM({ withSelect: false });
+
+        window.DIVEQuickViewPlugin.QuickView.mockResolvedValue({
+            model: { animations: [{ name: 'Walk' }, { name: 'Run' }] },
+            clock: { addTicker: jest.fn() },
+        });
+
+        const plugin = createPlugin();
+        await plugin.initViewer();
+
+        const switchContainer = document.querySelector('.spatial-anim-switch-container');
+        expect(switchContainer.classList.contains('visually-hidden')).toBe(true);
+    });
+
     test('initViewer returns early when circle element is missing', async () => {
         buildDOM({ withCircle: false });
 
@@ -563,6 +650,32 @@ describe('SpatialBaseViewerPlugin viewer creation', () => {
         expect(plugin.createQuickView).toHaveBeenCalledWith('http://test/stand-in.png');
         expect(window.DIVEQuickViewPlugin.QuickView).not.toHaveBeenCalled();
         expect(plugin.dive).toBe(ownViewer);
+    });
+
+    test('skips the animation setup for a viewer without a model', async () => {
+        const viewerWithoutModel = { clock: { addTicker: jest.fn() }, startAsync: jest.fn(), stop: jest.fn() };
+        window.DIVEQuickViewPlugin.QuickView.mockResolvedValue(viewerWithoutModel);
+        const plugin = createPlugin({ modelUrl: 'http://test/file.glb', sliderPosition: 0 });
+        const emitterPublishSpy = jest.spyOn(plugin.$emitter, 'publish');
+
+        await plugin.initViewer();
+
+        expect(plugin.dive).toBe(viewerWithoutModel);
+        expect(viewerWithoutModel.clock.addTicker).not.toHaveBeenCalled();
+        expect(emitterPublishSpy).toHaveBeenCalledWith('Viewer/initViewer');
+    });
+
+    test('reuses the existing viewer when initialized again', async () => {
+        const plugin = createPlugin({ modelUrl: 'http://test/file.glb', sliderPosition: 0 });
+        const emitterPublishSpy = jest.spyOn(plugin.$emitter, 'publish');
+
+        await plugin.initViewer();
+        const firstViewer = plugin.dive;
+        await plugin.initViewer();
+
+        expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledTimes(1);
+        expect(plugin.dive).toBe(firstViewer);
+        expect(emitterPublishSpy.mock.calls.filter(([event]) => event === 'Viewer/initViewer')).toHaveLength(2);
     });
 
     test('leaves the canvas empty when no viewer could be built', async () => {

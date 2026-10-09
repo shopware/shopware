@@ -160,6 +160,10 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         this.rendering = true;
         await this.dive?.startAsync();
 
+        if (!this.rendering) {
+            return;
+        }
+
         // Add classes to canvas parent
         this.canvas?.parentElement?.classList.add('spatial-canvas-rendering');
 
@@ -176,6 +180,10 @@ export default class SpatialBaseViewerPlugin extends Plugin {
      * Stop rendering loop
      */
     public stopRendering() {
+        if (!this.rendering) {
+            return;
+        }
+
         // stop render loop
         this.rendering = false;
 

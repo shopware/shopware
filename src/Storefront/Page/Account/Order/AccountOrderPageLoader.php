@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Checkout\Order\OrderProductAvailabilityResolver;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\MetaInformation;
@@ -38,7 +39,8 @@ class AccountOrderPageLoader
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractOrderRoute $orderRoute,
-        private readonly AbstractTranslator $translator
+        private readonly AbstractTranslator $translator,
+        private readonly OrderProductAvailabilityResolver $productAvailabilityResolver
     ) {
     }
 
@@ -106,7 +108,11 @@ class AccountOrderPageLoader
         $responseStruct = $this->orderRoute
             ->load($event->getStoreApiRequest(), $context, $criteria);
 
-        return $responseStruct->getOrders();
+        $orders = $responseStruct->getOrders();
+
+        $this->productAvailabilityResolver->addAvailability($orders->getEntities(), $context);
+
+        return $orders;
     }
 
     private function createCriteria(Request $request): Criteria

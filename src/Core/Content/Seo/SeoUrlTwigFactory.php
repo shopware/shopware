@@ -39,7 +39,7 @@ class SeoUrlTwigFactory
 
         $twig->getRuntime(EscaperRuntime::class)->setEscaper(
             SeoUrlGenerator::ESCAPE_SLUGIFY,
-            static fn (string $string) => rawurlencode($slugify->slugify($string))
+            static fn (?string $string) => rawurlencode($slugify->slugify((string) $string))
         );
 
         return $twig;

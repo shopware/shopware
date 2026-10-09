@@ -179,6 +179,30 @@ class SeoActionControllerTest extends TestCase
         static::assertSame('test', $data[0]['seoPathInfo']);
     }
 
+    public function testPreviewWithNullableField(): void
+    {
+        $this->createStorefrontSalesChannelContext(TestDefaults::SALES_CHANNEL, 'test');
+        $this->createTestProduct(TestDefaults::SALES_CHANNEL, ['metaDescription' => 'Meta description']);
+        $this->createTestProduct();
+
+        $data = [
+            'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+            'entityName' => ProductDefinition::ENTITY_NAME,
+            'template' => '{{ product.metaDescription }}',
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ];
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/preview', $data);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertEqualsCanonicalizing(['Meta-description', ''], array_column($data, 'seoPathInfo'));
+    }
+
     public function testPreviewWithBrokenTemplate(): void
     {
         $salesChannelId = Uuid::randomHex();

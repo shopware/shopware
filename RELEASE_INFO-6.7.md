@@ -60,12 +60,6 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
-### `product-export:generate` now warns when scheduler-managed exports are skipped
-
-`bin/console product-export:generate` skips exports configured with `generateByCronjob`. Previously, this happened without any feedback.
-
-The command now logs a warning for each skipped export and continues processing the remaining exports. Use `--force` to generate scheduler-managed exports from the CLI.
-
 ### Snippets can be provided through the private filesystem
 
 Administration and storefront snippets are now also loaded from the private filesystem (`shopware.filesystem.private`, by default `files/`):

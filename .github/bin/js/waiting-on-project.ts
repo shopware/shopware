@@ -137,8 +137,23 @@ export function resolveSchema(projectId: string, fields: Field[]): ProjectSchema
 type ItemNode = {
     id: string;
     content: { id?: string; repository?: { nameWithOwner: string } } | null;
-    fieldValues: { nodes: { name?: string; date?: string; field?: { name?: string } }[] };
+    fieldValues: { nodes: FieldValueNode[] };
 };
+
+export type FieldValueNode = { name?: string; date?: string; field?: { name?: string } };
+
+export function readValues(nodes: FieldValueNode[]): FieldValues {
+    const values: FieldValues = {};
+    for (const value of nodes) {
+        const key = (Object.keys(PROJECT_FIELD) as FieldKey[]).find((candidate) => PROJECT_FIELD[candidate] === value.field?.name);
+        const stored = value.name ?? value.date;
+        if (key !== undefined && stored !== undefined) {
+            values[key] = key === 'since' ? toDate(stored) : stored;
+        }
+    }
+
+    return values;
+}
 
 export function toProjectItems(nodes: ItemNode[], nameWithOwner: string): ProjectItem[] {
     const items: ProjectItem[] = [];
@@ -148,16 +163,7 @@ export function toProjectItems(nodes: ItemNode[], nameWithOwner: string): Projec
             continue;
         }
 
-        const values: FieldValues = {};
-        for (const value of node.fieldValues.nodes) {
-            const key = (Object.keys(PROJECT_FIELD) as FieldKey[]).find((candidate) => PROJECT_FIELD[candidate] === value.field?.name);
-            const stored = value.name ?? value.date;
-            if (key !== undefined && stored !== undefined) {
-                values[key] = key === 'since' ? toDate(stored) : stored;
-            }
-        }
-
-        items.push({ id: node.id, pullRequestId: node.content.id, values });
+        items.push({ id: node.id, pullRequestId: node.content.id, values: readValues(node.fieldValues.nodes) });
     }
 
     return items;
@@ -212,7 +218,7 @@ const ITEM_QUERY = `
     }
 `;
 
-type ProjectClient = {
+export type ProjectClient = {
     graphql<T>(query: string, variables: Record<string, unknown>): Promise<T>;
 };
 
@@ -253,13 +259,17 @@ async function readPageItemByItem(github: ProjectClient, core: Pick<Core, 'warni
     return { pageInfo, nodes };
 }
 
-export async function fetchProject(github: ProjectClient, core: Pick<Core, 'warning'>, owner: string, number: number, nameWithOwner: string): Promise<{ schema: ProjectSchema; items: ProjectItem[] }> {
+export async function fetchSchema(github: ProjectClient, owner: string, number: number): Promise<ProjectSchema> {
     const project = (await github.graphql<SchemaPage>(SCHEMA_QUERY, { owner, number })).organization.projectV2;
     if (project === null) {
         throw new Error(`Project ${owner}/${number} does not exist or the token cannot read it.`);
     }
 
-    const schema = resolveSchema(project.id, project.fields.nodes.filter((field) => field.id !== undefined));
+    return resolveSchema(project.id, project.fields.nodes.filter((field) => field.id !== undefined));
+}
+
+export async function fetchProject(github: ProjectClient, core: Pick<Core, 'warning'>, owner: string, number: number, nameWithOwner: string): Promise<{ schema: ProjectSchema; items: ProjectItem[] }> {
+    const schema = await fetchSchema(github, owner, number);
     const items: ProjectItem[] = [];
     let after: string | undefined = undefined;
 

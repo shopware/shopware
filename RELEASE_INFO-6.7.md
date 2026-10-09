@@ -585,6 +585,14 @@ migrate it to `useCmsElement` by hand.
 
 The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
 
+### `mt-divider` and `mt-help-text` are registered globally
+
+`mt-divider` and `mt-help-text` from the Meteor Component Library are now registered globally and can be used in Administration templates.
+
+### `sw-order-state-select-v2` can render a regular size select
+
+`sw-order-state-select-v2` has a new `small` prop. It defaults to `true`, so existing usages keep the small select. Pass `:small="false"` to render a regular size select, for example in a form next to other fields.
+
 ### Meteor Component Library updated to 5.8.0
 
 The Administration now uses Meteor Component Library `5.8.0`, Meteor Admin SDK `6.15.0` and Meteor Icon Kit `5.11.0`.

@@ -174,7 +174,7 @@ const PROJECT_QUERY = `
                         ... on ProjectV2SingleSelectField { options { id name } }
                     }
                 }
-                items(first: 30, after: $after) {
+                items(first: 100, after: $after) {
                     pageInfo { hasNextPage endCursor }
                     nodes {
                         id

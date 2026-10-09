@@ -406,8 +406,7 @@ class DateRangeRuleTest extends TestCase
 
         $unserializedRule = Serialization::assertUnserializedInstanceOf(DateRangeRule::class, $legacySerialized . '}');
 
-        $timezone = (new \ReflectionProperty(DateRangeRule::class, 'timezone'))->getValue($unserializedRule);
-        static::assertNull($timezone);
+        static::assertNull($unserializedRule->getVars()['timezone']);
 
         $scopeMock = static::createStub(RuleScope::class);
         $scopeMock->method('getCurrentTime')->willReturn(new \DateTimeImmutable('2026-01-10 12:00:00'));
@@ -424,16 +423,13 @@ class DateRangeRuleTest extends TestCase
 
         $rule = $rule->assign($options);
 
-        $fromDate = (new \ReflectionProperty(DateRangeRule::class, 'fromDate'))->getValue($rule);
-        $toDate = (new \ReflectionProperty(DateRangeRule::class, 'toDate'))->getValue($rule);
-        $useTime = (new \ReflectionProperty(DateRangeRule::class, 'useTime'))->getValue($rule);
-        $timezone = (new \ReflectionProperty(DateRangeRule::class, 'timezone'))->getValue($rule);
+        $vars = $rule->getVars();
 
         $result = [
-            'fromDate' => $fromDate,
-            'toDate' => $toDate,
-            'useTime' => $useTime,
-            'timezone' => $timezone,
+            'fromDate' => $vars['fromDate'],
+            'toDate' => $vars['toDate'],
+            'useTime' => $vars['useTime'],
+            'timezone' => $vars['timezone'],
         ];
 
         static::assertSame($options, $result);

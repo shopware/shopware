@@ -449,18 +449,26 @@ class EntityHydratorTest extends TestCase
         $structsWithoutWarehouseZipcodeHydration = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithoutWarehouseZipcodeHydration], 'test', $context);
         $first = $structsWithoutWarehouseZipcodeHydration->first();
         static::assertNotNull($first);
-        $country = $first->get('zipcode')->get('country');
+        $zipcode = $first->get('zipcode');
+        static::assertInstanceOf(ArrayEntity::class, $zipcode);
+        $country = $zipcode->get('country');
         static::assertInstanceOf(ArrayEntity::class, $country);
         static::assertSame(Uuid::fromBytesToHex($countryId), $country->get('id'));
-        static::assertArrayHasKey('zipcode', $first->get('warehouse')->all());
-        static::assertNull($first->get('warehouse')->all()['zipcode']);
+        $warehouse = $first->get('warehouse');
+        static::assertInstanceOf(ArrayEntity::class, $warehouse);
+        static::assertArrayHasKey('zipcode', $warehouse->all());
+        static::assertNull($warehouse->all()['zipcode']);
 
         $structsWithWarehouseZipcodeHydration = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithWarehouseZipcodeHydration], 'test', $context);
         $first = $structsWithWarehouseZipcodeHydration->first();
         static::assertNotNull($first);
-        static::assertNotNull($first->get('zipcode')->get('country'));
-        static::assertArrayHasKey('zipcode', $first->get('warehouse')->all());
-        static::assertNotNull($first->get('warehouse')->all()['zipcode']);
+        $zipcode = $first->get('zipcode');
+        static::assertInstanceOf(ArrayEntity::class, $zipcode);
+        static::assertNotNull($zipcode->get('country'));
+        $warehouse = $first->get('warehouse');
+        static::assertInstanceOf(ArrayEntity::class, $warehouse);
+        static::assertArrayHasKey('zipcode', $warehouse->all());
+        static::assertNotNull($warehouse->all()['zipcode']);
     }
 
     public function testNotLoadedManyToManyAssociationsAreInitializedWithNullForArrayEntities(): void
@@ -498,7 +506,7 @@ class EntityHydratorTest extends TestCase
     private function createContext(bool $inheritance = true, array $additionalLanguages = []): Context
     {
         $languageIdChain = array_values(array_filter([Uuid::randomHex(), ...$additionalLanguages, Defaults::LANGUAGE_SYSTEM]));
-        static::assertNotEmpty($languageIdChain);
+        static::assertNotCount(0, $languageIdChain);
 
         return new Context(
             new SystemSource(),

@@ -12,7 +12,7 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
 use PHPStan\Parser\Parser;
@@ -28,8 +28,8 @@ use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
  * An event hook runs inside dispatch(), so the code under test can catch the failed assertion and keep the test
  * green: SendMailAction logs every exception around MailSentEvent, flow actions and message handlers do the same.
  * The hook captures the event, the test asserts after the code under test ran. Covers the closure given to on(),
- * the helpers of the test class it calls, and the methods of the subscriber given to subscribe(), wherever that
- * subscriber class is declared.
+ * the helpers it calls on the test class, its traits and its ancestors, and the methods of the subscriber given to
+ * subscribe(), wherever that subscriber class is declared.
  *
  * @implements Rule<MethodCall>
  *
@@ -81,7 +81,7 @@ class NoAssertionInEventHookRule implements Rule
 
             $owner = $scope->getClassReflection();
 
-            return $this->assertionsIn($hook, $owner === null ? null : $this->findClassNode($owner), null);
+            return $this->assertionsIn($hook, $scope->getFile(), $scope->getFile(), $owner === null ? [] : $this->ownerChain($owner));
         }
 
         $subscriber = $node->getArgs()[0]->value ?? null;
@@ -91,7 +91,7 @@ class NoAssertionInEventHookRule implements Rule
 
         // an anonymous class written inline is already in hand
         if ($subscriber instanceof New_ && $subscriber->class instanceof Class_) {
-            return $this->assertionsIn($subscriber->class, null, null);
+            return $this->assertionsIn($subscriber->class, $scope->getFile(), $scope->getFile(), []);
         }
 
         $errors = [];
@@ -101,22 +101,22 @@ class NoAssertionInEventHookRule implements Rule
                 continue;
             }
 
-            $file = $classReflection->getFileName();
-            $errors = [...$errors, ...$this->assertionsIn($class, null, $file === $scope->getFile() ? null : $file)];
+            $errors = [...$errors, ...$this->assertionsIn($class['node'], $class['file'], $scope->getFile(), [])];
         }
 
         return $errors;
     }
 
     /**
-     * Assertions in the hook itself and, for a closure, in the methods of the test class it calls through $this,
-     * self or static, followed transitively. A subscriber class is scanned whole, helpers included, so no owner.
+     * Assertions in the hook itself and, for a closure, in the methods it calls through $this, self or static,
+     * resolved along the owner chain and followed transitively. A subscriber class is scanned whole, so no chain.
      *
+     * @param list<array{node: ClassLike, file: string}> $chain the test class, its traits and its ancestors, in that order
      * @param array<string, true> $visited
      *
      * @return list<RuleError>
      */
-    private function assertionsIn(Node $hook, ?Class_ $owner, ?string $file, array &$visited = []): array
+    private function assertionsIn(Node $hook, string $hookFile, string $currentFile, array $chain, array &$visited = []): array
     {
         $errors = [];
         foreach ((new NodeFinder())->find($hook, self::isAssertion(...)) as $assertion) {
@@ -126,51 +126,81 @@ class NoAssertionInEventHookRule implements Rule
             $error = RuleErrorBuilder::message(\sprintf(self::ERROR, $assertion->name->toString()))
                 ->identifier('shopware.assertionInEventHook')
                 ->line($assertion->getStartLine());
-            if ($file !== null) {
-                $error->file($file);
+            if ($hookFile !== $currentFile) {
+                $error->file($hookFile);
             }
 
             $errors[] = $error->build();
         }
 
-        if ($owner === null) {
-            return $errors;
-        }
-
         foreach ((new NodeFinder())->find($hook, self::isOwnMethodCall(...)) as $call) {
             \assert(($call instanceof StaticCall || $call instanceof MethodCall) && $call->name instanceof Identifier);
-            $helper = $owner->getMethod($call->name->toString());
-            if ($helper === null || isset($visited[$helper->name->toString()])) {
+            // an assertion is reported above, not followed into PHPUnit
+            $name = $call->name->toString();
+            if (isset($visited[$name]) || self::isAssertion($call)) {
                 continue;
             }
 
-            $visited[$helper->name->toString()] = true;
-            $errors = [...$errors, ...$this->assertionsIn($helper, $owner, $file, $visited)];
+            foreach ($chain as $owner) {
+                $helper = $owner['node']->getMethod($name);
+                if ($helper === null) {
+                    continue;
+                }
+
+                $visited[$name] = true;
+                $errors = [...$errors, ...$this->assertionsIn($helper, $owner['file'], $currentFile, $chain, $visited)];
+
+                break;
+            }
         }
 
         return $errors;
     }
 
     /**
-     * The declaration of a subscriber class, parsed from its own file; an anonymous class is matched by its line.
+     * The declarations a $this call can resolve to: the class, the traits it uses, then each ancestor with its
+     * traits, the way PHP resolves the method.
+     *
+     * @return list<array{node: ClassLike, file: string}>
      */
-    private function findClassNode(ClassReflection $classReflection): ?Class_
+    private function ownerChain(ClassReflection $classReflection): array
+    {
+        $chain = [];
+        foreach ([$classReflection, ...array_values($classReflection->getParents())] as $class) {
+            foreach ([$class, ...array_values($class->getTraits(true))] as $declaration) {
+                $node = $this->findClassNode($declaration);
+                if ($node !== null) {
+                    $chain[] = $node;
+                }
+            }
+        }
+
+        return $chain;
+    }
+
+    /**
+     * The declaration of a class or trait, parsed from its own file; an anonymous class is matched by its line.
+     * Vendor code is never parsed: PHPUnit's own classes sit on every test's chain.
+     *
+     * @return array{node: ClassLike, file: string}|null
+     */
+    private function findClassNode(ClassReflection $classReflection): ?array
     {
         $file = $classReflection->getFileName();
-        if ($file === null) {
+        if ($file === null || str_contains($file, \DIRECTORY_SEPARATOR . 'vendor' . \DIRECTORY_SEPARATOR)) {
             return null;
         }
 
         $expectedLine = $classReflection->isAnonymous() ? $classReflection->getNativeReflection()->getStartLine() : null;
         $expectedName = $classReflection->isAnonymous() ? null : $classReflection->getNativeReflection()->getShortName();
 
-        foreach ((new NodeFinder())->findInstanceOf($this->parser->parseFile($file), Class_::class) as $class) {
-            if ($expectedLine !== null && $class->getStartLine() === $expectedLine) {
-                return $class;
+        foreach ((new NodeFinder())->findInstanceOf($this->parser->parseFile($file), ClassLike::class) as $class) {
+            if ($expectedLine !== null && $class instanceof Class_ && $class->getStartLine() === $expectedLine) {
+                return ['node' => $class, 'file' => $file];
             }
 
             if ($expectedName !== null && $class->name?->toString() === $expectedName) {
-                return $class;
+                return ['node' => $class, 'file' => $file];
             }
         }
 

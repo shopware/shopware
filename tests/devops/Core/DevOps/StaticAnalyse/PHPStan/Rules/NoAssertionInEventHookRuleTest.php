@@ -18,20 +18,23 @@ class NoAssertionInEventHookRuleTest extends RuleTestCase
     public function testRule(): void
     {
         $this->analyse([__DIR__ . '/data/NoAssertionInEventHookRule/Cases.php'], [
+            // helpers declared in AssertingHelperTrait.php and AbstractHookCase.php, reported in those files
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertTrue'), 14],
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertNotNull'), 15],
             // the subscriber declared in AssertingSubscriberElsewhere.php, reported in that file
             [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertTrue'), 21],
-            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertInstanceOf'), 28],
-            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertSame'), 29],
-            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertNotNull'), 35],
-            [\sprintf(NoAssertionInEventHookRule::ERROR, 'fail'), 41],
-            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertInstanceOf'), 78],
-            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertNotNull'), 93],
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertInstanceOf'), 30],
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertSame'), 31],
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertNotNull'), 37],
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'fail'), 43],
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertInstanceOf'), 80],
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertNotNull'), 95],
             // helpers of the test class called from a hook, followed transitively and reported once
-            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertFalse'), 144],
-            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertNotNull'), 155],
-            // NOT flagged: 52-53 (capture, assert after), 58 (a callable that is not a closure), 64 (on() of
-            // another object), 110 (asserting on what a subscriber captured), 129 (a helper without assertion),
-            // 138 (a listener on a plain dispatcher is another rule's business)
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertFalse'), 160],
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertNotNull'), 171],
+            // NOT flagged: 54-55 (capture, assert after), 60 (a callable that is not a closure), 66 (on() of
+            // another object), 112 (asserting on what a subscriber captured), 131-133 (a helper without
+            // assertion), 154 (a listener on a plain dispatcher is another rule's business)
         ]);
     }
 

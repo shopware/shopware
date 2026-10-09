@@ -11,8 +11,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
-class Cases extends TestCase
+class Cases extends AbstractHookCase
 {
+    use AssertingHelperTrait;
+
     private EventHookDispatcher $hooks;
 
     private ?Event $seen = null;
@@ -128,6 +130,20 @@ class Cases extends TestCase
     {
         $this->hooks->on(Event::class, function (Event $event): void {
             $this->remember($event);
+        });
+    }
+
+    public function assertionInAnInheritedHelper(): void
+    {
+        $this->hooks->on(Event::class, function (Event $event): void {
+            $this->inheritedCheck($event);
+        });
+    }
+
+    public function assertionInATraitHelper(): void
+    {
+        $this->hooks->on(Event::class, function (Event $event): void {
+            $this->traitCheck($event);
         });
     }
 

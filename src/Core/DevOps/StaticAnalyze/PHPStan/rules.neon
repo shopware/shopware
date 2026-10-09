@@ -38,6 +38,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoExpectExceptionMessageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoFeatureSkipInUnitTestsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoKernelInUnitTestsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoReflectionInUnitTestsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoKernelLifecycleManagerInUnitTestsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoKernelBootInSetUpBeforeClassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoMockBuilderConstructorBypassRule

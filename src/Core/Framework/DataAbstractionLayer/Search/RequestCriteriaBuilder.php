@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AssociationIdPathNormalizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
@@ -536,6 +537,7 @@ class RequestCriteriaBuilder
         }
 
         $prefix = $definition->getEntityName() . '.';
+        $fieldName = AssociationIdPathNormalizer::normalize($definition, $fieldName);
 
         if (!str_contains($fieldName, $prefix)) {
             return $prefix . $fieldName;

@@ -81,6 +81,10 @@ parameters:
         # runs against a database on purpose
         kernelInUnitTestsEnabledNamespaces:
             - 'Shopware\Tests\Unit\'
+        # narrows NoReflectionInUnitTestsRule to the unit suites; consumers append their unit namespace once
+        # their tests no longer use reflection
+        reflectionInUnitTestsEnabledNamespaces:
+            - 'Shopware\Tests\Unit\'
         # narrows NoRuntimeListenerOnSharedEventDispatcherRule to the suites that run against the container; a
         # unit test only ever holds a dispatcher it built itself
         runtimeListenerOnSharedEventDispatcherEnabledNamespaces:
@@ -99,5 +103,6 @@ parametersSchema:
         createMockWithoutExpectationsEnabledNamespaces: list(string),
         featureSkipInUnitTestsEnabledNamespaces: list(string),
         kernelInUnitTestsEnabledNamespaces: list(string),
+        reflectionInUnitTestsEnabledNamespaces: list(string),
         runtimeListenerOnSharedEventDispatcherEnabledNamespaces: list(string),
 ])

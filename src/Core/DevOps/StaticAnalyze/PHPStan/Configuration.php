@@ -68,6 +68,14 @@ final readonly class Configuration
     /**
      * @return list<string>
      */
+    public function getReflectionInUnitTestsEnabledNamespaces(): array
+    {
+        return $this->parameters['reflectionInUnitTestsEnabledNamespaces'] ?? [];
+    }
+
+    /**
+     * @return list<string>
+     */
     public function getRuntimeListenerOnSharedEventDispatcherEnabledNamespaces(): array
     {
         return $this->parameters['runtimeListenerOnSharedEventDispatcherEnabledNamespaces'] ?? [];

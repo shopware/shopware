@@ -17,7 +17,7 @@ class MajorMatrixTest extends TestCase
         $matrix = $this->generateMatrix('generate-phpunit-matrix.php', '', 'true');
 
         static::assertArrayNotHasKey('major', $matrix);
-        static::assertNotEmpty($matrix['test']);
+        static::assertNotCount(0, $matrix['test']);
         static::assertSame(['8.2'], $matrix['php']);
     }
 

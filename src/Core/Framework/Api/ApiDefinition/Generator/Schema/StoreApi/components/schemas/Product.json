@@ -94,7 +94,7 @@
                     },
                     "guaranteeTermsMediaId": {
                         "description": "Unique identity of the document with the producer commercial durability guarantee terms.",
-                        "type": "string",
+                        "type": ["string", "null"],
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "productNumber": {
@@ -141,16 +141,16 @@
                     },
                     "guaranteeMonths": {
                         "description": "Commercial durability guarantee duration in months.",
-                        "type": "integer",
+                        "type": ["integer", "null"],
                         "format": "int64"
                     },
                     "guaranteeConfirmed": {
                         "description": "Merchant confirmation that the producer commercial durability guarantee information is accurate and has been made available.",
-                        "type": "boolean"
+                        "type": ["boolean", "null"]
                     },
                     "guaranteeTermsUrl": {
                         "description": "URL of the producer commercial durability guarantee terms.",
-                        "type": "string"
+                        "type": ["string", "null"]
                     },
                     "ean": {
                         "description": "Indicates EAN of the product.",
@@ -488,8 +488,15 @@
                         "description": "Open Graph image for social media sharing"
                     },
                     "guaranteeTermsMedia": {
-                        "$ref": "#/components/schemas/Media",
-                        "description": "Document with the producer commercial durability guarantee terms"
+                        "description": "Document with the producer commercial durability guarantee terms",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Media"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "cmsPage": {
                         "$ref": "#/components/schemas/CmsPage",

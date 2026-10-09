@@ -42,7 +42,7 @@
                         "type": "boolean"
                     },
                     "payload": {
-                        "$ref": "#/components/schemas/ProductJsonApi"
+                        "$ref": "#/components/schemas/OrderLineItem/properties/payload"
                     },
                     "price": {
                         "type": "object",
@@ -186,7 +186,6 @@
                         "type": "boolean"
                     },
                     "states": {
-                        "deprecated": true,
                         "type": "array",
                         "deprecated": true,
                         "items": {
@@ -204,6 +203,90 @@
                 "required": [
                     "id",
                     "type"
+                ],
+                "allOf": [
+                    {
+                        "if": {
+                            "required": ["type"],
+                            "properties": {
+                                "type": {
+                                    "const": "product"
+                                }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "payload": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ProductLineItemPayload"
+                                        }
+                                    ],
+                                    "required": [
+                                        "categoryIds",
+                                        "createdAt",
+                                        "customFields",
+                                        "features",
+                                        "isCloseout",
+                                        "isNew",
+                                        "manufacturerId",
+                                        "markAsTopseller",
+                                        "optionIds",
+                                        "options",
+                                        "parentId",
+                                        "productNumber",
+                                        "propertyIds",
+                                        "releaseDate",
+                                        "stock",
+                                        "streamIds",
+                                        "tagIds",
+                                        "taxId"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "if": {
+                            "required": ["type"],
+                            "properties": {
+                                "type": {
+                                    "const": "promotion"
+                                }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "payload": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/PromotionLineItemPayload"
+                                        }
+                                    ],
+                                    "required": [
+                                        "code",
+                                        "conditionRuleIds",
+                                        "discountId",
+                                        "discountScope",
+                                        "discountType",
+                                        "exclusions",
+                                        "filter",
+                                        "groupId",
+                                        "hasGlobalRedemptionLimit",
+                                        "hasPersonaRestriction",
+                                        "limitedRedemptions",
+                                        "maxValue",
+                                        "preventCombination",
+                                        "priority",
+                                        "promotionCodeType",
+                                        "promotionId",
+                                        "setGroups",
+                                        "value"
+                                    ]
+                                }
+                            }
+                        }
+                    }
                 ]
             }
         }

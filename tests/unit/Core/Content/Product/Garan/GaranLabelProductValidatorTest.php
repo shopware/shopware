@@ -238,4 +238,52 @@ class GaranLabelProductValidatorTest extends TestCase
         $violation = $exception->getViolations()->get(0);
         static::assertSame('/update/guaranteeMonths', $violation->getPropertyPath());
     }
+
+    #[TestWith(['https://example.com/guarantee-terms.pdf'])]
+    #[TestWith(['HTTP://example.com'])]
+    #[TestWith([null])]
+    public function testAllowsWebGuaranteeTermsUrls(?string $url): void
+    {
+        $id = Uuid::randomBytes();
+        $event = new PreWriteValidationEvent(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [
+                new InsertCommand($this->registry->getByEntityName('product'), ['id' => $id, 'guarantee_terms_url' => $url], ['id' => $id], static::createStub(EntityExistence::class), '/insert'),
+            ]
+        );
+
+        $this->validator->validate($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
+    #[TestWith(['javascript:alert(1)'])]
+    #[TestWith(['data:text/html,<script>alert(1)</script>'])]
+    #[TestWith(['www.example.com'])]
+    #[TestWith(['ftp://example.com'])]
+    #[TestWith(['https://'])]
+    #[TestWith(['https://example.com/terms pdf'])]
+    #[TestWith(["https://example.com\n"])]
+    public function testCatchesGuaranteeTermsUrlsThatAreNoWebUrls(string $url): void
+    {
+        $id = Uuid::randomBytes();
+        $event = new PreWriteValidationEvent(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [
+                new InsertCommand($this->registry->getByEntityName('product'), ['id' => $id, 'guarantee_terms_url' => $url], ['id' => $id], static::createStub(EntityExistence::class), '/insert'),
+            ]
+        );
+
+        $this->validator->validate($event);
+
+        static::assertCount(1, $event->getExceptions()->getExceptions());
+        $exception = $event->getExceptions()->getExceptions()[0];
+
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
+        static::assertCount(1, $exception->getViolations());
+
+        $violation = $exception->getViolations()->get(0);
+        static::assertSame(GaranLabelProductValidator::TERMS_URL_VIOLATION_CODE, $violation->getCode());
+        static::assertSame('/insert/guaranteeTermsUrl', $violation->getPropertyPath());
+    }
 }

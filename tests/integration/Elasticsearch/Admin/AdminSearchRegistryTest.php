@@ -166,7 +166,7 @@ class AdminSearchRegistryTest extends TestCase
     public function testIterate(): void
     {
         $c = static::getContainer()->get(Connection::class);
-        static::assertEmpty($c->fetchAllAssociative('SELECT `index` FROM `admin_elasticsearch_index_task`'));
+        static::assertCount(0, $c->fetchAllAssociative('SELECT `index` FROM `admin_elasticsearch_index_task`'));
 
         $this->registry->iterate(new AdminIndexingBehavior(true));
 
@@ -199,7 +199,7 @@ class AdminSearchRegistryTest extends TestCase
     public function testRefresh(): void
     {
         $c = static::getContainer()->get(Connection::class);
-        static::assertEmpty($c->fetchAllAssociative('SELECT `index` FROM `admin_elasticsearch_index_task`'));
+        static::assertCount(0, $c->fetchAllAssociative('SELECT `index` FROM `admin_elasticsearch_index_task`'));
 
         $this->registry->refresh(new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
             new EntityWrittenEvent('promotion', [

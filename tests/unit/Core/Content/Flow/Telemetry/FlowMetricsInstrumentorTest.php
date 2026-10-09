@@ -9,8 +9,8 @@ use Shopware\Core\Content\Flow\Telemetry\FlowMetricsInstrumentor;
 use Shopware\Core\Content\Flow\Telemetry\TriggerGroupResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
+use Shopware\Core\Framework\Telemetry\Telemetry;
+use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 
 /**
  * @internal
@@ -19,20 +19,16 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 #[CoversClass(FlowMetricsInstrumentor::class)]
 class FlowMetricsInstrumentorTest extends TestCase
 {
-    /**
-     * @var list<ConfiguredMetric>
-     */
-    private array $emitted = [];
+    private CollectingMeter $meter;
 
     public function testSuccessfulExecutionEmitsDurationWithResolvedGroup(): void
     {
         $this->createInstrumentor()->measureExecution($this->createFlow('checkout.order.placed'), fn () => null);
 
-        $duration = $this->getMetric('flow.execution.duration');
-        static::assertInstanceOf(ConfiguredMetric::class, $duration);
+        $duration = $this->meter->getMetric('flow.execution.duration');
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0, $duration->value);
-        static::assertSame(['trigger_group' => 'trigger_group_label:checkout.order.placed', 'result' => 'success'], $duration->labels);
+        static::assertSame(['trigger_group' => 'trigger_group_label:checkout.order.placed', 'result' => 'success'], $this->meter->getLabels('flow.execution.duration'));
     }
 
     public function testCallbackIsInvokedExactlyOnce(): void
@@ -52,38 +48,23 @@ class FlowMetricsInstrumentorTest extends TestCase
 
         try {
             $this->createInstrumentor()->measureExecution($this->createFlow('checkout.order.placed'), function (): void {
-                throw new \RuntimeException('boom');
+                throw new \RuntimeException('flow execution failed');
             });
         } catch (\RuntimeException $e) {
             $thrown = $e;
         }
 
         static::assertNotNull($thrown, 'the original exception must propagate');
-        static::assertSame('boom', $thrown->getMessage());
+        static::assertSame('flow execution failed', $thrown->getMessage());
 
-        $duration = $this->getMetric('flow.execution.duration');
-        static::assertInstanceOf(ConfiguredMetric::class, $duration);
-        static::assertSame('failed', $duration->labels['result']);
-        static::assertSame('trigger_group_label:checkout.order.placed', $duration->labels['trigger_group']);
-    }
-
-    private function getMetric(string $name): ?ConfiguredMetric
-    {
-        foreach ($this->emitted as $metric) {
-            if ($metric->name === $name) {
-                return $metric;
-            }
-        }
-
-        return null;
+        $labels = $this->meter->getLabels('flow.execution.duration');
+        static::assertSame('failed', $labels['result']);
+        static::assertSame('trigger_group_label:checkout.order.placed', $labels['trigger_group']);
     }
 
     private function createInstrumentor(): FlowMetricsInstrumentor
     {
-        $meter = static::createStub(Meter::class);
-        $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
-            $this->emitted[] = $metric;
-        });
+        $this->meter = new CollectingMeter();
 
         // Pass-through resolver stub: echoes the event name back with a fixed prefix, so it's easy to validate
         $triggerGroupResolver = static::createStub(TriggerGroupResolver::class);
@@ -91,7 +72,7 @@ class FlowMetricsInstrumentorTest extends TestCase
             static fn (string $eventName): string => 'trigger_group_label:' . $eventName
         );
 
-        return new FlowMetricsInstrumentor($meter, $triggerGroupResolver);
+        return new FlowMetricsInstrumentor(new Telemetry($this->meter, 'test'), $triggerGroupResolver);
     }
 
     private function createFlow(string $eventName): StorableFlow

@@ -9,8 +9,8 @@ use Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator;
 use Shopware\Core\Framework\MessageQueue\Telemetry\MessageGroupResolver;
 use Shopware\Core\Framework\MessageQueue\Telemetry\MessageQueueTelemetrySubscriber;
 use Shopware\Core\Framework\MessageQueue\Telemetry\WorkerMessageTimingHelper;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
+use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
@@ -23,15 +23,7 @@ use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 #[CoversClass(MessageQueueTelemetrySubscriber::class)]
 class MessageQueueTelemetrySubscriberTest extends TestCase
 {
-    /**
-     * @var list<ConfiguredMetric>
-     */
-    private array $emitted = [];
-
-    protected function setUp(): void
-    {
-        $this->emitted = [];
-    }
+    private CollectingMeter $meter;
 
     public function testSubscribesToWorkerEvents(): void
     {
@@ -51,7 +43,7 @@ class MessageQueueTelemetrySubscriberTest extends TestCase
 
         $subscriber->onMessageReceived(new WorkerMessageReceivedEvent(new Envelope(new \stdClass()), 'async'));
 
-        $size = $this->getMetric('messenger.message.size');
+        $size = $this->meter->getMetric('messenger.message.size');
         static::assertSame(15, $size->value);
         // check for no outcome metrics yet
         static::assertNull($this->findMetric('messenger.message.handled.count'));
@@ -66,11 +58,11 @@ class MessageQueueTelemetrySubscriberTest extends TestCase
         $subscriber->onMessageReceived(new WorkerMessageReceivedEvent($envelope, 'async'));
         $subscriber->onMessageHandled(new WorkerMessageHandledEvent($envelope, 'async'));
 
-        $count = $this->getMetric('messenger.message.handled.count');
+        $count = $this->meter->getMetric('messenger.message.handled.count');
         static::assertSame(1, $count->value);
         static::assertSame(['message_group' => 'other', 'result' => 'handled'], $count->labels);
 
-        $duration = $this->getMetric('messenger.message.handling.duration');
+        $duration = $this->meter->getMetric('messenger.message.handling.duration');
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0.0, $duration->value);
         static::assertSame(['message_group' => 'other', 'result' => 'handled'], $duration->labels);
@@ -84,12 +76,13 @@ class MessageQueueTelemetrySubscriberTest extends TestCase
         $subscriber->onMessageReceived(new WorkerMessageReceivedEvent($envelope, 'async'));
         $subscriber->onMessageFailed(new WorkerMessageFailedEvent($envelope, 'async', new \RuntimeException()));
 
-        static::assertSame('failed', $this->getMetric('messenger.message.handled.count')->labels['result']);
+        $labels = $this->meter->getLabels('messenger.message.handled.count');
+        static::assertSame('failed', $labels['result']);
         // failure latency is a first-class signal (slow failures burn worker slots); the result label
         // keeps it separable from success latency
         static::assertSame(
             ['message_group' => 'other', 'result' => 'failed'],
-            $this->getMetric('messenger.message.handling.duration')->labels
+            $this->meter->getMetric('messenger.message.handling.duration')->labels
         );
     }
 
@@ -103,8 +96,10 @@ class MessageQueueTelemetrySubscriberTest extends TestCase
         $failed->setForRetry();
         $subscriber->onMessageFailed($failed);
 
-        static::assertSame('retried', $this->getMetric('messenger.message.handled.count')->labels['result']);
-        static::assertSame('retried', $this->getMetric('messenger.message.handling.duration')->labels['result']);
+        $labels = $this->meter->getLabels('messenger.message.handled.count');
+        static::assertSame('retried', $labels['result']);
+        $labels = $this->meter->getLabels('messenger.message.handling.duration');
+        static::assertSame('retried', $labels['result']);
     }
 
     public function testDurationSkippedWhenReceiveNotRecorded(): void
@@ -120,30 +115,22 @@ class MessageQueueTelemetrySubscriberTest extends TestCase
 
     private function createSubscriber(int $messageSize = 0): MessageQueueTelemetrySubscriber
     {
-        $meter = static::createStub(Meter::class);
-        $meter->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
-            $this->emitted[] = $metric;
-        });
+        $this->meter = new CollectingMeter();
 
         $sizeCalculator = static::createStub(MessageSizeCalculator::class);
         $sizeCalculator->method('size')->willReturn($messageSize);
 
         return new MessageQueueTelemetrySubscriber(
-            $meter,
+            $this->meter,
             $sizeCalculator,
             new MessageGroupResolver(),
             new WorkerMessageTimingHelper()
         );
     }
 
-    private function getMetric(string $name): ConfiguredMetric
-    {
-        return $this->findMetric($name) ?? static::fail(\sprintf('Metric "%s" was not emitted', $name));
-    }
-
     private function findMetric(string $name): ?ConfiguredMetric
     {
-        foreach ($this->emitted as $metric) {
+        foreach ($this->meter->getMetrics() as $metric) {
             if ($metric->name === $name) {
                 return $metric;
             }

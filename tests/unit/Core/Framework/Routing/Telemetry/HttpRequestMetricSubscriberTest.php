@@ -14,11 +14,12 @@ use Shopware\Core\Framework\Routing\Telemetry\HttpRequestMetricSubscriber;
 use Shopware\Core\Framework\Routing\Telemetry\OperationResolver;
 use Shopware\Core\Framework\Telemetry\Doctrine\QueryCounter;
 use Shopware\Core\Framework\Telemetry\Doctrine\QueryCountMiddleware;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -31,17 +32,17 @@ use Symfony\Component\HttpKernel\KernelEvents;
 #[CoversClass(HttpRequestMetricSubscriber::class)]
 class HttpRequestMetricSubscriberTest extends TestCase
 {
-    /**
-     * @var list<ConfiguredMetric>
-     */
-    private array $emitted = [];
+    private CollectingMeter $meter;
 
     public function testSubscribesToResponseAndTerminate(): void
     {
         static::assertSame(
             [
+                KernelEvents::REQUEST => 'onKernelRequest',
                 KernelEvents::RESPONSE => 'onKernelResponse',
-                KernelEvents::TERMINATE => 'onKernelTerminate',
+                // should be before other terminate listeners that do post-response work, so request duration tracks
+                // client latency
+                KernelEvents::TERMINATE => ['onKernelTerminate', 1024],
             ],
             HttpRequestMetricSubscriber::getSubscribedEvents()
         );
@@ -60,7 +61,8 @@ class HttpRequestMetricSubscriberTest extends TestCase
         // terminate gets the pre-transform request without route attributes
         $subscriber->onKernelTerminate($this->createTerminateEvent('', [], 200, microtime(true)));
 
-        static::assertSame('storefront', $this->getMetric('http.server.request.duration')->labels['area']);
+        $labels = $this->meter->getLabels('http.server.request.duration');
+        static::assertSame('storefront', $labels['area']);
     }
 
     public function testIgnoresEsiFragmentsAndSubRequests(): void
@@ -87,7 +89,68 @@ class HttpRequestMetricSubscriberTest extends TestCase
 
         $subscriber->onKernelTerminate($this->createTerminateEvent('', [], 200, microtime(true)));
 
-        static::assertSame('storefront', $this->getMetric('http.server.request.duration')->labels['area']);
+        $labels = $this->meter->getLabels('http.server.request.duration');
+        static::assertSame('storefront', $labels['area']);
+    }
+
+    public function testRequestStartDiscardsStaleRoutedRequest(): void
+    {
+        $subscriber = $this->createSubscriber();
+
+        // previous request stored its routed request, but its terminate never ran
+        // (e.g. the worker runtime aborted between response and terminate)
+        $stale = Request::create('/');
+        $stale->attributes->set('_route', 'frontend.detail.page');
+        $stale->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront']);
+        $subscriber->onKernelResponse($this->createResponseEvent($stale, HttpKernelInterface::MAIN_REQUEST));
+
+        // next request starts in the same process and clears the leftover state
+        $subscriber->onKernelRequest($this->createRequestEvent(Request::create('/'), HttpKernelInterface::MAIN_REQUEST));
+
+        $subscriber->onKernelTerminate($this->createTerminateEvent('store-api.product.search', ['store-api'], 200, microtime(true)));
+
+        // area should come from the terminate request itself (store-api), not the stale one (storefront)
+        $labels = $this->meter->getLabels('http.server.request.duration');
+        static::assertSame('store-api', $labels['area']);
+    }
+
+    public function testSubRequestStartKeepsRoutedRequest(): void
+    {
+        $subscriber = $this->createSubscriber();
+
+        $routed = Request::create('/');
+        $routed->attributes->set('_route', 'frontend.detail.page');
+        $routed->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront']);
+        $subscriber->onKernelResponse($this->createResponseEvent($routed, HttpKernelInterface::MAIN_REQUEST));
+
+        // a sub-request after the main response (e.g. fragment rendering) must not clear the state
+        $subscriber->onKernelRequest($this->createRequestEvent(Request::create('/'), HttpKernelInterface::SUB_REQUEST));
+
+        $subscriber->onKernelTerminate($this->createTerminateEvent('', [], 200, microtime(true)));
+
+        $labels = $this->meter->getLabels('http.server.request.duration');
+        static::assertSame('storefront', $labels['area']);
+    }
+
+    public function testEsiFragmentRequestKeepsRoutedRequest(): void
+    {
+        $subscriber = $this->createSubscriber();
+
+        // page response is stored first; the HttpCache resolves ESI fragments afterwards, before the outer terminate
+        $page = Request::create('/');
+        $page->attributes->set('_route', 'frontend.detail.page');
+        $page->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront']);
+        $subscriber->onKernelResponse($this->createResponseEvent($page, HttpKernelInterface::MAIN_REQUEST));
+
+        // ESI fragments are forwarded to the kernel as main requests (marked `_sw_esi`) and must not clear the stored request
+        $fragment = Request::create('/');
+        $fragment->attributes->set('_sw_esi', true);
+        $subscriber->onKernelRequest($this->createRequestEvent($fragment, HttpKernelInterface::MAIN_REQUEST));
+
+        $subscriber->onKernelTerminate($this->createTerminateEvent('', [], 200, microtime(true)));
+
+        $labels = $this->meter->getLabels('http.server.request.duration');
+        static::assertSame('storefront', $labels['area']);
     }
 
     public function testEmitsMetricsWithSharedLabels(): void
@@ -100,20 +163,20 @@ class HttpRequestMetricSubscriberTest extends TestCase
         $this->createSubscriber($counter)
             ->onKernelTerminate($this->createTerminateEvent('store-api.product.search', ['store-api'], 200, microtime(true)));
 
-        static::assertCount(3, $this->emitted);
+        static::assertCount(3, $this->meter->getMetrics());
 
         $sharedLabels = ['area' => 'store-api', 'domain' => 'product', 'operation' => 'none'];
 
-        $duration = $this->getMetric('http.server.request.duration');
+        $duration = $this->meter->getMetric('http.server.request.duration');
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0.0, $duration->value);
         static::assertSame($sharedLabels + ['status_class' => '2xx'], $duration->labels);
 
-        $queries = $this->getMetric('http.server.request.queries.count');
+        $queries = $this->meter->getMetric('http.server.request.queries.count');
         static::assertSame(3, $queries->value);
         static::assertSame($sharedLabels, $queries->labels);
 
-        $memory = $this->getMetric('http.server.request.memory.peak');
+        $memory = $this->meter->getMetric('http.server.request.memory.peak');
         static::assertIsInt($memory->value);
         static::assertGreaterThan(0, $memory->value);
         static::assertSame($sharedLabels, $memory->labels);
@@ -128,7 +191,7 @@ class HttpRequestMetricSubscriberTest extends TestCase
         $this->createSubscriber()
             ->onKernelTerminate($this->createTerminateEvent('frontend.detail.page', ['storefront'], 200, microtime(true)));
 
-        $names = array_map(static fn (ConfiguredMetric $m): string => $m->name, $this->emitted);
+        $names = $this->meter->getMetricNames();
         static::assertNotContains('http.server.request.queries.count', $names);
     }
 
@@ -137,7 +200,8 @@ class HttpRequestMetricSubscriberTest extends TestCase
         $this->createSubscriber()
             ->onKernelTerminate($this->createTerminateEvent('frontend.detail.page', ['storefront'], 404, microtime(true)));
 
-        static::assertSame('4xx', $this->getMetric('http.server.request.duration')->labels['status_class']);
+        $labels = $this->meter->getLabels('http.server.request.duration');
+        static::assertSame('4xx', $labels['status_class']);
     }
 
     public function testDurationIsSkippedWithoutRequestStartTime(): void
@@ -145,19 +209,8 @@ class HttpRequestMetricSubscriberTest extends TestCase
         $this->createSubscriber()
             ->onKernelTerminate($this->createTerminateEvent('frontend.detail.page', ['storefront'], 200, null));
 
-        $names = array_map(static fn (ConfiguredMetric $m): string => $m->name, $this->emitted);
+        $names = $this->meter->getMetricNames();
         static::assertNotContains('http.server.request.duration', $names);
-    }
-
-    private function getMetric(string $name): ConfiguredMetric
-    {
-        foreach ($this->emitted as $metric) {
-            if ($metric->name === $name) {
-                return $metric;
-            }
-        }
-
-        static::fail(\sprintf('Metric "%s" was not emitted', $name));
     }
 
     /**
@@ -165,10 +218,7 @@ class HttpRequestMetricSubscriberTest extends TestCase
      */
     private function createSubscriber(?QueryCounter $counter = null): HttpRequestMetricSubscriber
     {
-        $telemetry = static::createStub(Telemetry::class);
-        $telemetry->method('emit')->willReturnCallback(function (ConfiguredMetric $metric): void {
-            $this->emitted[] = $metric;
-        });
+        $this->meter = new CollectingMeter();
 
         $configuration = static::createStub(Configuration::class);
         $configuration->method('getMiddlewares')->willReturn($counter === null ? [] : [new QueryCountMiddleware($counter)]);
@@ -176,7 +226,7 @@ class HttpRequestMetricSubscriberTest extends TestCase
         $connection->method('getConfiguration')->willReturn($configuration);
 
         return new HttpRequestMetricSubscriber(
-            $telemetry,
+            new Telemetry($this->meter, 'test'),
             new AreaResolver(),
             new DomainResolver(new EntityGroupResolver()),
             new OperationResolver(),
@@ -202,6 +252,15 @@ class HttpRequestMetricSubscriberTest extends TestCase
             static::createStub(HttpKernelInterface::class),
             $request,
             new Response('', $statusCode)
+        );
+    }
+
+    private function createRequestEvent(Request $request, int $requestType): RequestEvent
+    {
+        return new RequestEvent(
+            static::createStub(HttpKernelInterface::class),
+            $request,
+            $requestType,
         );
     }
 

@@ -676,6 +676,30 @@ If you override `component_line_item_garan_label`, `buy_widget_garan_label_previ
 
 Shopware now follows a `301` or `302` from an app endpoint without dropping the `POST` method, the request body or the `shopware-shop-signature` header, so the redirect target receives the same signed request.
 
+### SEO URLs for app storefront routes
+
+Apps can give their script-rendered storefront pages SEO URLs by declaring `<seo-url>` and `<entity-seo-url>` elements inside `<storefront>` in `manifest.xml`.
+
+```xml
+<storefront>
+    <seo-url name="imprint">
+        <path>imprint</path>
+        <path lang="de-DE">impressum</path>
+    </seo-url>
+    <entity-seo-url name="blog-detail" entity="ce_blog">
+        <default-template>blog/{{ ceBlog.translated.title }}</default-template>
+    </entity-seo-url>
+</storefront>
+```
+
+A `<seo-url>` maps its path to the script hook `storefront-<name>` on every storefront sales channel domain, using the path of the domain's language; the `hook` attribute overrides the hook name. Installing or updating an app fails when one of its paths is already used by a storefront route, another app or an existing SEO URL.
+
+An `<entity-seo-url>` generates one SEO URL per entity. The app needs `read` permission for the entity and for every association its default template uses, otherwise the install or update fails; its own custom entities are covered automatically. A script hook can be claimed by one app only. Its default template is only seeded: merchants adjust it per sales channel in Settings > SEO, where the route is listed as `storefront.app.<appName>.<name>`, and app updates don't overwrite it. Changing the entity of a route resets all of its templates, including sales channel overrides. The template context exposes the entity under its camel-cased name, for example `ceBlog`. The URLs follow entity writes and the indexing behaviour like the core SEO URLs, get rebuilt by `dal:refresh:index`, and are marked as deleted while the app is inactive or after it is uninstalled.
+
+The script receives the entity id as `hook.query.id`. Templates link to such pages with `seoUrl('frontend.script_endpoint', { hook: 'blog-detail', id: entity.id })`; the placeholder is replaced with the SEO path like for products and categories.
+
+Four supporting changes apply to all SEO URLs: query parameters stored in `seo_url.path_info` are merged into the request when the SEO URL is resolved and take precedence over the browser's query string, `seo_url.route_name` now allows 255 characters, updating the SEO URLs of one route no longer marks the SEO URLs of other routes for the same entity as deleted or restores them, and the SEO URLs of an entity follow a changed technical target (`path_info`) without losing merchant-edited paths. Editing a canonical URL via `PATCH /api/_action/seo-url/canonical` now keeps the requested route when several storefront routes serve one entity.
+
 ### App translations fall back to the closest language
 
 If an app doesn't provide a translation for the shop's default language, Shopware now uses the closest one the app provides: the main region of the same language (`de-DE` for `de-AT`), then any other region of that language (`en-GB` for `en-US`), then `en-GB`, then the first translation.

@@ -18,10 +18,12 @@ const featureConfigPath = resolve(
 const featureConfig = parse(readFileSync(featureConfigPath, 'utf8'));
 const { flags } = featureConfig.shopware.feature;
 
-// Like in the browser, the flags that are on by default are active. FEATURE_ALL adds the majors of the
-// lanes integration-major.yml runs: all of them for `major`, or those up to a single major like `v6.8.0.0`.
-const defaultFlags = flags.filter((flag) => flag.default).map(({ name }) => normalizeFeatureFlag(name));
-const majorFlags = getMajorFeatureFlags(featureConfig, process.env.FEATURE_ALL ?? '');
+// Like in the browser, the flags that are on by default are active unless the environment switches them
+// off. Major CI lanes set their version flag directly; FEATURE_ALL enables every flag.
+const defaultFlags = flags
+    .filter((flag) => flag.default && process.env[normalizeFeatureFlag(flag.name)] === undefined)
+    .map(({ name }) => normalizeFeatureFlag(name));
+const majorFlags = getMajorFeatureFlags(featureConfig, process.env);
 global.activeFeatureFlags = [...new Set([...defaultFlags, ...majorFlags])];
 
 // Registers every flag in both spellings, like `window._features_` in the browser, so a guard with an

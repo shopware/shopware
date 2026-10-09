@@ -35,9 +35,12 @@ Beschreibung {{ lineItem.label|u.wordwrap(80) }},
 {% endif %}
 {% endif %}
 {% if lineItem.productId is defined and lineItem.productId %}
-{% set garanLabel = lineItem.productId|sw_garan_label_mail(context) %}
+{% set garanLabel = garanLabels[lineItem.productId] ?? null %}
 {% if garanLabel %}
 Gewerbliche Haltbarkeitsgarantie (GARAN) {{ garanLabel.duration }} Jahre,
+{% if garanLabel.termsUrl %}
+Garantiebedingungen: {{ garanLabel.termsUrl }},
+{% endif %}
 {% endif %}
 {% endif %}
 Menge {{ lineItem.quantity }},

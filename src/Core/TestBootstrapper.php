@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Test\PHPUnit\CompletionGuard\CompletionGuard;
+use Shopware\Core\Test\PHPUnit\EventHook\ResetEventHooksSubscriber;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -56,6 +57,7 @@ class TestBootstrapper
 
         // registered before anything below can fail, so a broken bootstrap can never disarm the guard
         CompletionGuard::register();
+        ResetEventHooksSubscriber::register();
 
         if ($this->loadEnvFile) {
             $this->loadEnvFile();

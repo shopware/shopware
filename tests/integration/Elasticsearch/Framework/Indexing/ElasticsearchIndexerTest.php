@@ -70,7 +70,7 @@ class ElasticsearchIndexerTest extends TestCase
     {
         $c = static::getContainer()->get(Connection::class);
         $before = $c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
-        static::assertEmpty($before);
+        static::assertCount(0, $before);
 
         $indexer = static::getContainer()->get(ElasticsearchIndexer::class);
         static::assertNotNull($indexer);
@@ -79,7 +79,7 @@ class ElasticsearchIndexerTest extends TestCase
         $indexer->iterate(null);
 
         $after = $c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
-        static::assertNotEmpty($after);
+        static::assertNotCount(0, $after);
     }
 
     protected function getDiContainer(): ContainerInterface

@@ -68,7 +68,13 @@ class ProductEntity extends Entity implements \Stringable
 
     protected ?int $guaranteeMonths = null;
 
-    protected bool $guaranteeConfirmed = false;
+    protected ?bool $guaranteeConfirmed = null;
+
+    protected ?string $guaranteeTermsMediaId = null;
+
+    protected ?MediaEntity $guaranteeTermsMedia = null;
+
+    protected ?string $guaranteeTermsUrl = null;
 
     protected ?string $ean = null;
 
@@ -380,12 +386,42 @@ class ProductEntity extends Entity implements \Stringable
 
     public function isGuaranteeConfirmed(): bool
     {
-        return $this->guaranteeConfirmed;
+        return $this->guaranteeConfirmed ?? false;
     }
 
     public function setGuaranteeConfirmed(bool $guaranteeConfirmed): void
     {
         $this->guaranteeConfirmed = $guaranteeConfirmed;
+    }
+
+    public function getGuaranteeTermsMediaId(): ?string
+    {
+        return $this->guaranteeTermsMediaId;
+    }
+
+    public function setGuaranteeTermsMediaId(?string $guaranteeTermsMediaId): void
+    {
+        $this->guaranteeTermsMediaId = $guaranteeTermsMediaId;
+    }
+
+    public function getGuaranteeTermsMedia(): ?MediaEntity
+    {
+        return $this->guaranteeTermsMedia;
+    }
+
+    public function setGuaranteeTermsMedia(?MediaEntity $guaranteeTermsMedia): void
+    {
+        $this->guaranteeTermsMedia = $guaranteeTermsMedia;
+    }
+
+    public function getGuaranteeTermsUrl(): ?string
+    {
+        return $this->guaranteeTermsUrl;
+    }
+
+    public function setGuaranteeTermsUrl(?string $guaranteeTermsUrl): void
+    {
+        $this->guaranteeTermsUrl = $guaranteeTermsUrl;
     }
 
     public function getEan(): ?string

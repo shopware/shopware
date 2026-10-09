@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Media;
 
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
-use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -88,6 +88,8 @@ class MediaEntity extends Entity
     protected ?ProductMediaCollection $productMedia = null;
 
     protected ?ProductCollection $productOpenGraphImages = null;
+
+    protected ?ProductCollection $productGuaranteeTerms = null;
 
     protected ?UserCollection $avatarUsers = null;
 
@@ -341,6 +343,16 @@ class MediaEntity extends Entity
     public function setProductOpenGraphImages(ProductCollection $productOpenGraphImages): void
     {
         $this->productOpenGraphImages = $productOpenGraphImages;
+    }
+
+    public function getProductGuaranteeTerms(): ?ProductCollection
+    {
+        return $this->productGuaranteeTerms;
+    }
+
+    public function setProductGuaranteeTerms(ProductCollection $productGuaranteeTerms): void
+    {
+        $this->productGuaranteeTerms = $productGuaranteeTerms;
     }
 
     public function getAvatarUsers(): ?UserCollection

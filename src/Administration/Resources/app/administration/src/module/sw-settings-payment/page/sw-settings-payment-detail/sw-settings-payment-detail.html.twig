@@ -118,6 +118,8 @@
                                 v-model="paymentMethod.position"
                                 name="sw-field--paymentMethod-position"
                                 class="sw-settings-payment-detail__field-position"
+                                :step="1"
+                                number-type="int"
                                 :label="$t('sw-settings-payment.detail.labelPosition')"
                                 :placeholder="$t('sw-settings-payment.detail.placeholderPosition')"
                             />

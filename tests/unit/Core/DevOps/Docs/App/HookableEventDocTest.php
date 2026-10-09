@@ -122,21 +122,13 @@ class HookableEventDocTest extends TestCase
         HookableEventDoc::fromBusinessEvent($event, [], 'desc');
     }
 
-    // Proxy for testing private static method parsingSimpleBusinessEventPayload
-    /**
-     * @param array<string, mixed> $dataTypes
-     *
-     * @return array<string, string>
-     */
-    public static function callParsingSimpleBusinessEventPayload(array $dataTypes): array
+    public function testFromBusinessEventWithoutDataHasEmptyPayload(): void
     {
-        return \Closure::bind(static fn ($dataTypes) => HookableEventDoc::parsingSimpleBusinessEventPayload($dataTypes), null, HookableEventDoc::class)($dataTypes);
-    }
+        $event = new BusinessEventDefinition(name: 'event.name', data: [], class: '');
 
-    public function testParsingSimpleBusinessEventPayloadEmpty(): void
-    {
-        $result = self::callParsingSimpleBusinessEventPayload([]);
-        static::assertSame([], $result);
+        $doc = HookableEventDoc::fromBusinessEvent($event, [], 'desc');
+
+        static::assertSame('[]', $doc->getPayload());
     }
 
     public function testFromBusinessEventWithEmptyDescription(): void
@@ -159,15 +151,20 @@ class HookableEventDocTest extends TestCase
         static::assertNull($doc->getPayload());
     }
 
-    public function testParsingSimpleBusinessEventPayloadEntityTypeAndCollectionType(): void
+    public function testFromBusinessEventCollapsesEntityAndCollectionTypesIntoOneEntityKey(): void
     {
-        $dataTypes = [
-            'foo' => ['type' => EntityType::TYPE, 'entityClass' => DummyEntityDefinition::class],
-            'bar' => ['type' => EntityCollectionType::TYPE, 'entityClass' => DummyEntityDefinition::class],
-        ];
-        $result = self::callParsingSimpleBusinessEventPayload($dataTypes);
-        // Only the last wins, so EntityType::TYPE => 'dummy'
-        static::assertSame(['entity' => 'dummy'], ['entity' => $result[EntityType::TYPE]]);
+        $event = new BusinessEventDefinition(
+            name: 'event.name',
+            data: [
+                'foo' => ['type' => EntityType::TYPE, 'entityClass' => DummyEntityDefinition::class],
+                'bar' => ['type' => EntityCollectionType::TYPE, 'entityClass' => DummyEntityDefinition::class],
+            ],
+            class: ''
+        );
+
+        $doc = HookableEventDoc::fromBusinessEvent($event, [], 'desc');
+
+        static::assertSame(json_encode([EntityType::TYPE => 'dummy'], \JSON_THROW_ON_ERROR), $doc->getPayload());
     }
 }
 

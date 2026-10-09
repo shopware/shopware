@@ -449,14 +449,13 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        /** @var array{product_id: string, category_id: string} $record */
         $record = $this->connection->fetchAssociative('SELECT * FROM product_category WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
-        static::assertNotEmpty($record);
+        static::assertNotFalse($record);
         static::assertSame($record['product_id'], Uuid::fromHexToBytes($id));
         static::assertSame($record['category_id'], Uuid::fromHexToBytes($id));
 
         $record = $this->connection->fetchAssociative('SELECT * FROM category WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
-        static::assertNotEmpty($record);
+        static::assertNotFalse($record);
     }
 
     public function testWriteProductWithDifferentTaxFormat(): void
@@ -1062,7 +1061,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals(['c' . Defaults::CURRENCY => $greenPrice], json_decode($row['price'], true, 512, \JSON_THROW_ON_ERROR));
 
         $row = $this->connection->fetchAssociative('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
-        static::assertEmpty($row);
+        static::assertFalse($row);
     }
 
     public function testInsertAndUpdateInOneStep(): void
@@ -1680,6 +1679,18 @@ class ProductRepositoryTest extends TestCase
         static::assertNull($stored[$ids->get('red')]);
         static::assertSame('0', $stored[$ids->get('green')]);
 
+        // The Administration reads variants without inheritance and needs null to show the switch as inherited.
+        $rawVariants = $this->repository->search(new Criteria($ids->getList(['red', 'green'])), $this->context);
+
+        $red = $rawVariants->getEntities()->get($ids->get('red'));
+        static::assertInstanceOf(ProductEntity::class, $red);
+        static::assertNull($red->get('guaranteeConfirmed'));
+        static::assertFalse($red->isGuaranteeConfirmed());
+
+        $green = $rawVariants->getEntities()->get($ids->get('green'));
+        static::assertInstanceOf(ProductEntity::class, $green);
+        static::assertFalse($green->get('guaranteeConfirmed'));
+
         $context = Context::createDefaultContext();
         $context->setConsiderInheritance(true);
 
@@ -1692,6 +1703,65 @@ class ProductRepositoryTest extends TestCase
         $green = $variants->getEntities()->get($ids->get('green'));
         static::assertInstanceOf(ProductEntity::class, $green);
         static::assertFalse($green->isGuaranteeConfirmed());
+    }
+
+    public function testGuaranteeTermsInheritance(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            [
+                'id' => $ids->create('parent'),
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'T-shirt',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'stock' => 10,
+                'guaranteeTermsMedia' => ['id' => $ids->create('terms'), 'fileName' => 'guarantee-terms'],
+                'guaranteeTermsUrl' => 'https://example.com/guarantee-terms',
+            ],
+            [
+                'id' => $ids->create('red'),
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $ids->get('parent'),
+                'name' => 'red',
+                'stock' => 10,
+            ],
+            [
+                'id' => $ids->create('green'),
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $ids->get('parent'),
+                'name' => 'green',
+                'stock' => 10,
+                'guaranteeTermsUrl' => 'https://example.com/green-guarantee-terms',
+            ],
+        ];
+
+        $this->repository->create($products, $this->context);
+
+        $rawRed = $this->repository->search(new Criteria([$ids->get('red')]), $this->context)->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $rawRed);
+        static::assertNull($rawRed->getGuaranteeTermsMediaId());
+        static::assertNull($rawRed->getGuaranteeTermsUrl());
+
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $criteria = new Criteria($ids->getList(['red', 'green']));
+        $criteria->addAssociation('guaranteeTermsMedia');
+
+        $variants = $this->repository->search($criteria, $context)->getEntities();
+
+        $red = $variants->get($ids->get('red'));
+        static::assertInstanceOf(ProductEntity::class, $red);
+        static::assertSame($ids->get('terms'), $red->getGuaranteeTermsMediaId());
+        static::assertSame($ids->get('terms'), $red->getGuaranteeTermsMedia()?->getId());
+        static::assertSame('https://example.com/guarantee-terms', $red->getGuaranteeTermsUrl());
+
+        $green = $variants->get($ids->get('green'));
+        static::assertInstanceOf(ProductEntity::class, $green);
+        static::assertSame($ids->get('terms'), $green->getGuaranteeTermsMedia()?->getId());
+        static::assertSame('https://example.com/green-guarantee-terms', $green->getGuaranteeTermsUrl());
     }
 
     public function testVariantInheritanceWithCategories(): void

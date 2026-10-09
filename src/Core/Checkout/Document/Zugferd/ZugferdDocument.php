@@ -273,7 +273,7 @@ class ZugferdDocument
             'isCharge' => $isCharge,
             'taxTypeCode' => 'VAT',
             'calculationPercent' => $isPercentage ? $discountValue : null,
-            'reasonCode' => ZugferdAllowanceCodes::DISCOUNT,
+            'reasonCode' => $isCharge ? null : ZugferdAllowanceCodes::DISCOUNT,
             'reason' => $lineItem->getReferencedId() ?? $lineItem->getLabel(),
         ];
 

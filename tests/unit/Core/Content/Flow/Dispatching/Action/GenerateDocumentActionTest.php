@@ -9,16 +9,15 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
-use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentDefinition;
-use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
-use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentDefinition;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
@@ -28,6 +27,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -47,8 +47,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\DocumentConfigLoaderFactory;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -175,14 +177,15 @@ class GenerateDocumentActionTest extends TestCase
             ->willReturn($createdOrderVersionId);
 
         $orderRepository
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(3))
             ->method('search')
             ->willReturnCallback(function (
                 Criteria $criteria,
                 Context $searchContext,
-            ) use ($order, $orderId, $createdOrderVersionId): EntitySearchResult {
+            ) use ($order, $orderId, $createdOrderVersionId, $context): EntitySearchResult {
                 static::assertSame([$orderId], $criteria->getIds());
-                static::assertSame($createdOrderVersionId, $searchContext->getVersionId());
+                static $searchCount = 0;
+                static::assertSame(++$searchCount === 3 ? $createdOrderVersionId : $context->getVersionId(), $searchContext->getVersionId());
 
                 return new EntitySearchResult(
                     OrderDefinition::ENTITY_NAME,
@@ -304,6 +307,7 @@ class GenerateDocumentActionTest extends TestCase
             ),
             $orderRepository,
             static::createStub(ScriptExecutor::class),
+            DocumentConfigLoaderFactory::create($documentTypeRegistry, static::createStub(SystemConfigService::class)),
         );
 
         return [$generator, $documentRepository];

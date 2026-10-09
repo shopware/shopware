@@ -369,19 +369,19 @@ class PromotionRedemptionUpdaterTest extends TestCase
         static::assertCount(3, $promotions);
 
         $actualVoucherA = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherA') ? $promotions[0] : $promotions[1];
-        static::assertNotEmpty($actualVoucherA);
+        static::assertNotCount(0, $actualVoucherA);
         static::assertSame('1', $actualVoucherA['order_count']);
         $customerCount = json_decode((string) $actualVoucherA['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherD = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherD') ? $promotions[0] : $promotions[1];
-        static::assertNotEmpty($actualVoucherD);
+        static::assertNotCount(0, $actualVoucherD);
         static::assertSame('1', $actualVoucherD['order_count']);
         $customerCount = json_decode((string) $actualVoucherD['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherB = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherB') ? $promotions[0] : $promotions[1];
-        static::assertNotEmpty($actualVoucherB);
+        static::assertNotCount(0, $actualVoucherB);
         static::assertSame('1', $actualVoucherB['order_count']);
         $customerCount = json_decode((string) $actualVoucherB['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $customerCount[$this->ids->get('customer')]);
@@ -394,19 +394,19 @@ class PromotionRedemptionUpdaterTest extends TestCase
         static::assertCount(3, $promotions);
 
         $actualVoucherA = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherA') ? $promotions[0] : $promotions[1];
-        static::assertNotEmpty($actualVoucherA);
+        static::assertNotCount(0, $actualVoucherA);
         static::assertSame('1', $actualVoucherA['order_count']);
         $customerCount = json_decode((string) $actualVoucherA['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherD = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherD') ? $promotions[0] : $promotions[1];
-        static::assertNotEmpty($actualVoucherD);
+        static::assertNotCount(0, $actualVoucherD);
         static::assertSame('1', $actualVoucherD['order_count']);
         $customerCount = json_decode((string) $actualVoucherD['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherB = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherB') ? $promotions[0] : $promotions[1];
-        static::assertNotEmpty($actualVoucherB);
+        static::assertNotCount(0, $actualVoucherB);
         // voucherB is used twice, it's mean group by works
         static::assertSame('1', $actualVoucherB['order_count']);
         $customerCount = json_decode((string) $actualVoucherB['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+    applyLabelChanges,
     buildRows,
     classifyPullRequest,
     daysSince,
@@ -8,6 +9,7 @@ import {
     isNonHumanLogin,
     NON_HUMAN_LOGINS,
     PARKED_LABEL,
+    planLabelChanges,
     type PullRequestFacts,
     summarizeActivity,
     type TimelineEvent,
@@ -286,6 +288,7 @@ test('toTimelineEvents reads each shape GitHub returns', () => {
 });
 
 const node = (overrides: Record<string, unknown> = {}) => ({
+    id: 'PR_1',
     number: 1,
     title: 'a pull request',
     url: 'https://github.com/shopware/shopware/pull/1',
@@ -347,4 +350,56 @@ test('a lone reply inside a review thread is activity the timeline does not repo
 
     assert.equal(activity.lastAuthorActivityAt, '2026-07-21T09:00:00Z');
     assert.equal(activity.lastMaintainerActivityAt, '2026-07-21T12:24:31Z');
+});
+
+const labelled = (number: number, ...names: string[]) => node({ number, labels: { nodes: names.map((name) => ({ name })) } });
+
+test('planLabelChanges sets the verdict and swaps out a stale one', () => {
+    const nodes = [labelled(1), labelled(2, 'waiting-on/author', 'component/core'), labelled(3, 'waiting-on/shopware')];
+    const changes = planLabelChanges(nodes, buildRows(nodes, new Date('2026-09-10T00:00:00Z')));
+
+    assert.deepEqual(changes, [
+        { number: 1, add: WAITING_ON_LABEL.shopware, remove: [] },
+        { number: 2, add: WAITING_ON_LABEL.shopware, remove: ['waiting-on/author'] },
+    ]);
+});
+
+test('planLabelChanges strips the label from a pull request a bot opened', () => {
+    const nodes = [node({ number: 4, author: { login: 'dependabot', __typename: 'Bot' }, labels: { nodes: [{ name: 'waiting-on/shopware' }] } })];
+
+    assert.deepEqual(planLabelChanges(nodes, buildRows(nodes, new Date())), [{ number: 4, add: undefined, remove: ['waiting-on/shopware'] }]);
+});
+
+test('applyLabelChanges carries on past a failing pull request and reports it', async () => {
+    const calls: string[] = [];
+    const github = {
+        rest: {
+            issues: {
+                addLabels: async ({ issue_number, labels }: { issue_number: number; labels: string[] }) => {
+                    if (issue_number === 1) {
+                        throw new Error('Not Found');
+                    }
+                    calls.push(`add #${issue_number} ${labels.join()}`);
+                },
+                removeLabel: async ({ issue_number, name }: { issue_number: number; name: string }) => {
+                    calls.push(`remove #${issue_number} ${name}`);
+                },
+            },
+        },
+    };
+    const core = { info() {}, warning() {}, error() {}, setOutput() {}, summary: { addRaw() {}, write: async () => {} } };
+
+    const failed = await applyLabelChanges(
+        github,
+        core,
+        { owner: 'shopware', repo: 'shopware' },
+        [
+            { number: 1, add: WAITING_ON_LABEL.author, remove: [] },
+            { number: 2, add: WAITING_ON_LABEL.author, remove: ['waiting-on/shopware'] },
+        ],
+        0,
+    );
+
+    assert.deepEqual(failed, [1]);
+    assert.deepEqual(calls, ['add #2 waiting-on/author', 'remove #2 waiting-on/shopware']);
 });

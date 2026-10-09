@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -84,8 +85,8 @@ class LineItemPropertyRuleTest extends TestCase
         }
     }
 
-    #[DataProvider('lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemPropertyRule([Uuid::randomHex()], Rule::OPERATOR_NEQ);
 
@@ -99,15 +100,38 @@ class LineItemPropertyRuleTest extends TestCase
         static::assertSame($expected, $rule->match($scope));
     }
 
-    /**
-     * @return \Generator<string, array{non-empty-string, bool, bool}>
-     */
-    public static function lineItemTypeProvider(): \Generator
+    #[DataProvider('singlePayloadKeyProvider')]
+    public function testLineItemWithOnePayloadKeyIsEvaluatedInCart(string $key): void
     {
-        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
-        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
-        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
-        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
+        $rule = new LineItemPropertyRule([Uuid::randomHex()], Rule::OPERATOR_NEQ);
+
+        $lineItem = CartRuleFixture::createLineItem('my-plugin-item')->setPayloadValue($key, []);
+
+        static::assertTrue($rule->match(new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        )));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function singlePayloadKeyProvider(): iterable
+    {
+        yield 'only property ids' => ['propertyIds'];
+        yield 'only option ids' => ['optionIds'];
+    }
+
+    public function testProductWithNullValuesIsEvaluatedInCart(): void
+    {
+        $rule = new LineItemPropertyRule([Uuid::randomHex()], Rule::OPERATOR_NEQ);
+        $lineItem = CartRuleFixture::createLineItem()->setPayloadValue('propertyIds', null)->setPayloadValue('optionIds', null);
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
     }
 
     /**

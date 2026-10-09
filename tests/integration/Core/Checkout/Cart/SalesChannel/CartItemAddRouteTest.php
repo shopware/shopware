@@ -117,7 +117,7 @@ class CartItemAddRouteTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
         $this->browser->request('GET', '/store-api/checkout/cart');
@@ -348,18 +348,18 @@ class CartItemAddRouteTest extends TestCase
 
         static::assertArrayHasKey('deliveries', $cart);
         static::assertCount(1, $deliveries = $cart['deliveries']);
-        static::assertNotEmpty($shippingCost = $deliveries[0]['shippingCosts']);
+        static::assertNotCount(0, $shippingCost = $deliveries[0]['shippingCosts']);
         static::assertCount(2, $shippingCostCalculatedTaxes = $shippingCost['calculatedTaxes']);
 
         // assert there is shipping cost calculated taxes for product and custom items in cart
         $calculatedTaxForCustomItem = array_filter($shippingCostCalculatedTaxes, static fn ($tax) => $tax['taxRate'] === $taxForCustomItem);
 
-        static::assertNotEmpty($calculatedTaxForCustomItem);
+        static::assertNotCount(0, $calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
         $calculatedTaxForProductItem = array_filter($shippingCostCalculatedTaxes, static fn ($tax) => $tax['taxRate'] === $taxForProductItem);
 
-        static::assertNotEmpty($calculatedTaxForProductItem);
+        static::assertNotCount(0, $calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);
     }
 

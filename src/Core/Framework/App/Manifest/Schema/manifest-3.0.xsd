@@ -50,6 +50,15 @@
                             Configuration for Storefront
                         </xs:documentation>
                     </xs:annotation>
+                    <xs:unique name="uniqueSeoUrlName">
+                        <xs:annotation>
+                            <xs:documentation xml:lang="en">
+                                The name of a SEO URL must be unique across all seo-url and entity-seo-url elements of the app.
+                            </xs:documentation>
+                        </xs:annotation>
+                        <xs:selector xpath="seo-url|entity-seo-url"/>
+                        <xs:field xpath="@name"/>
+                    </xs:unique>
                 </xs:element>
                 <xs:element name="permissions" type="permissions" minOccurs="0">
                     <xs:annotation>
@@ -225,8 +234,89 @@
     <xs:complexType name="storefront">
         <xs:choice maxOccurs="unbounded">
             <xs:element name="template-load-priority" maxOccurs="1" minOccurs="0" type="xs:int"/>
+            <xs:element name="seo-url" maxOccurs="unbounded" minOccurs="0" type="storefront-seo-url">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Make a storefront route rendered by an app script reachable under a static SEO path.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="entity-seo-url" maxOccurs="unbounded" minOccurs="0" type="storefront-entity-seo-url">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Generate a SEO URL per entity for a storefront route rendered by an app script.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:choice>
     </xs:complexType>
+    <xs:complexType name="storefront-seo-url">
+        <xs:sequence>
+            <xs:element name="path" maxOccurs="unbounded" type="seoUrlPath">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        The SEO path the route is reachable under.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="name" type="seoUrlName" use="required"/>
+        <xs:attribute name="hook" type="seoUrlName">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    The app script hook that renders the route. Defaults to the name.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="storefront-entity-seo-url">
+        <xs:sequence>
+            <xs:element name="default-template" type="nonEmptyToken">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        The Twig template the SEO paths are generated from, until the merchant changes it in the SEO settings.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="name" type="seoUrlName" use="required"/>
+        <xs:attribute name="hook" type="seoUrlName">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    The app script hook that renders the route. Defaults to the name.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="entity" type="seoUrlEntityName" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    The technical name of the entity the SEO URLs are generated for.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="seoUrlPath">
+        <xs:simpleContent>
+            <xs:extension base="nonEmptyToken">
+                <xs:attribute name="lang" type="languageCode" default="en-GB"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:simpleType name="nonEmptyToken">
+        <xs:restriction base="xs:token">
+            <xs:minLength value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="seoUrlName">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-z0-9]+(-[a-z0-9]+)*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="seoUrlEntityName">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-z][a-z0-9_]*"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="permissions">
         <xs:choice maxOccurs="unbounded">
             <xs:element name="read" maxOccurs="unbounded" type="xs:string"/>

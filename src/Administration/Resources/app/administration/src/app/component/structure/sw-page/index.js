@@ -3,6 +3,24 @@ import './sw-page.scss';
 
 const { dom } = Shopware.Utils;
 
+const lastVisitedPaths = new Map();
+
+function currentUserId() {
+    return Shopware.Store.get('session').currentUser?.id ?? '';
+}
+
+function routeNameChain(router, route) {
+    const names = new Set([route.name]);
+    let parentName = route.meta?.parentPath;
+
+    while (parentName && !names.has(parentName)) {
+        names.add(parentName);
+        parentName = router.getRoutes().find((candidate) => candidate.name === parentName)?.meta?.parentPath;
+    }
+
+    return names;
+}
+
 /**
  * @sw-package framework
  *
@@ -95,6 +113,12 @@ export default {
                 return this.previousPath;
             }
 
+            const lastVisited = lastVisitedPaths.get(this.parentRoute);
+
+            if (lastVisited?.userId === currentUserId()) {
+                return lastVisited.fullPath;
+            }
+
             return {
                 name: this.parentRoute,
             };
@@ -160,6 +184,28 @@ export default {
                 'border-bottom-color': this.pageColor,
                 'padding-right': this.pageOffset,
             };
+        },
+    },
+
+    watch: {
+        '$route.fullPath': {
+            handler(fullPath) {
+                if (!this.$route.name) {
+                    return;
+                }
+
+                const routeNames = routeNameChain(this.$router, this.$route);
+                Array.from(lastVisitedPaths.keys())
+                    .filter((routeName) => !routeNames.has(routeName))
+                    .forEach((routeName) => lastVisitedPaths.delete(routeName));
+
+                const hasParams = Object.keys(this.$route.params ?? {}).length > 0;
+
+                if (typeof fullPath === 'string' && !hasParams) {
+                    lastVisitedPaths.set(this.$route.name, { userId: currentUserId(), fullPath });
+                }
+            },
+            immediate: true,
         },
     },
 

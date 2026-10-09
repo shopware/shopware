@@ -9,8 +9,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
+use Shopware\Core\Checkout\DocumentV2\DocumentDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
@@ -158,7 +158,7 @@ class EntityForeignKeyResolverTest extends TestCase
 
         $queries = implode("\n", $capturedQueries);
 
-        static::assertNotEmpty($capturedQueries);
+        static::assertNotCount(0, $capturedQueries);
 
         // The meta field aliases must be backtick-escaped. An unescaped leading-underscore alias
         // (e.g. `as _fileName`) is parsed by MariaDB as a charset introducer and fails with

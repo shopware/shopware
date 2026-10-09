@@ -627,6 +627,8 @@
   "detail": {
     "garanLabelShowLink": "Show GARAN label",
     "garanLabelHideLink": "Hide GARAN label",
+    "garanLabelTitle": "GARAN label",
+    "garanLabelYourEuropeLink": "Information about the commercial guarantee of durability on Your Europe (opens in a new tab)",
     "garanTermsLink": "Guarantee terms",
     "ordernumberLabel": "Product number:",
     "productNumberLabel": "Product number:",

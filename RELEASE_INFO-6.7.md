@@ -664,6 +664,12 @@ The snippet `general.listPricePreviously` now reads "Lowest price (last 30 days)
 
 If you override `buy-widget-price`, `block-price`, `price-unit` or `badges`: `isListPrice` is `false` while a regulation price is set, the new `isRegulationPriceSaving` tells whether there is a saving against it, and the regulation price section renders a `list-price-percentage` element.
 
+### Nested GARAN label opens the full label
+
+The nested GARAN label is now a button that shows the full label. On line items it opens a modal loaded from the new route `frontend.product.garan-label` (template `storefront/component/product/garan-label-modal.html.twig`); on the product detail page it expands the full label.
+
+If you override `component_line_item_garan_label`, `buy_widget_garan_label_preview` or `buy_widget_garan_label_full`, take over the new button and link markup.
+
 ## App system
 
 ### App requests keep body and signature across redirects

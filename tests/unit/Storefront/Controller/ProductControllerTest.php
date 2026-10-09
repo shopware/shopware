@@ -10,9 +10,12 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination;
+use Shopware\Core\Content\Product\SalesChannel\Garan\AbstractGaranLabelRoute;
+use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\AbstractProductPurchaseLimitRoute;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimit;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitCollection;
@@ -66,6 +69,8 @@ class ProductControllerTest extends TestCase
 
     private Stub&AbstractProductPurchaseLimitRoute $productPurchaseLimitRouteMock;
 
+    private Stub&AbstractGaranLabelRoute $garanLabelRouteMock;
+
     private ProductControllerStub $controller;
 
     protected function setUp(): void
@@ -77,6 +82,7 @@ class ProductControllerTest extends TestCase
         $this->productReviewSaveRouteMock = static::createStub(AbstractProductReviewSaveRoute::class);
         $this->productReviewLoaderMock = static::createStub(ProductReviewLoader::class);
         $this->productPurchaseLimitRouteMock = static::createStub(AbstractProductPurchaseLimitRoute::class);
+        $this->garanLabelRouteMock = static::createStub(AbstractGaranLabelRoute::class);
 
         $this->controller = new ProductControllerStub(
             $this->productPageLoaderMock,
@@ -86,6 +92,7 @@ class ProductControllerTest extends TestCase
             $this->seoUrlPlaceholderHandlerMock,
             $this->productReviewLoaderMock,
             $this->productPurchaseLimitRouteMock,
+            $this->garanLabelRouteMock,
         );
     }
 
@@ -363,5 +370,27 @@ class ProductControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    public function testGaranLabelRendersModalWithFullLabel(): void
+    {
+        $this->garanLabelRouteMock->method('load')->willReturn(new GaranLabelRouteResponse('<svg>full</svg>', '<svg>nested</svg>'));
+
+        $response = $this->controller->garanLabel(Uuid::randomHex(), static::createStub(SalesChannelContext::class));
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame('@Storefront/storefront/component/product/garan-label-modal.html.twig', $this->controller->recorder()->renderStorefrontView);
+        static::assertSame(['garanLabel' => '<svg>full</svg>'], $this->controller->recorder()->renderStorefrontParameters);
+    }
+
+    public function testGaranLabelRendersModalWithoutLabelForUnavailableProduct(): void
+    {
+        $productId = Uuid::randomHex();
+        $this->garanLabelRouteMock->method('load')->willThrowException(ProductException::productNotFound($productId));
+
+        $response = $this->controller->garanLabel($productId, static::createStub(SalesChannelContext::class));
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(['garanLabel' => null], $this->controller->recorder()->renderStorefrontParameters);
     }
 }

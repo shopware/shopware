@@ -2,6 +2,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 // @ts-ignore
 import type NativeEventEmitter from 'src/helper/emitter.helper';
+import type { QuickView } from '@shopware-ag/dive/quickview';
 import { loadDIVE } from './utils/spatial-dive-load-util';
 
 /**
@@ -25,8 +26,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         sliderPosition: number;
     };
 
-    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-    protected dive: import('@shopware-ag/dive/quickview').QuickView | undefined;
+    protected dive: QuickView | undefined;
 
     /**
      * initialize plugin
@@ -48,18 +48,24 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         this.canvas.tabIndex = 0;
 
         if (this.dive == undefined) {
-            this.dive = await window.DIVEQuickViewPlugin.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.canvas });
+            const dive = await this.createQuickView(this.options.modelUrl);
+
+            if (dive === null) return;
+
+            this.dive = dive;
+
+            const model = 'model' in this.dive ? this.dive.model : undefined;
 
             // @ts-ignore - animations is inherited from Object3D
-            const animations: { name: string }[] = this.dive.model.animations;
-            if (animations.length > 0) {
+            const animations: { name: string }[] = model ? model.animations : [];
+            if (model && animations.length > 0) {
                 // instantiate animation system
                 const animSystem = new window.DIVEAnimationPlugin.AnimationSystem();
-                await animSystem.fromClips(this.dive.model, animations as never);
+                await animSystem.fromClips(model, animations as never);
                 this.dive.clock.addTicker(animSystem);
 
                 // create animator
-                const animator = await animSystem.fromClips(this.dive.model, animations as never);
+                const animator = await animSystem.fromClips(model, animations as never);
                 animator.loop = 'repeat';
 
                 // automatically play the first animation
@@ -133,6 +139,13 @@ export default class SpatialBaseViewerPlugin extends Plugin {
 
         // @ts-ignore
         this.$emitter.publish('Viewer/initViewer');
+    }
+
+    /**
+     * Builds the viewer for this canvas. Returning null leaves the canvas empty.
+     */
+    protected async createQuickView(modelUrl: string): Promise<QuickView | null> {
+        return window.DIVEQuickViewPlugin.QuickView(modelUrl, { autoStart: false, canvas: this.canvas });
     }
 
     /**

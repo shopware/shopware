@@ -24,7 +24,7 @@ class PromotionsOnCartPriceZeroErrorTest extends TestCase
         $error = new PromotionsOnCartPriceZeroError($promotions);
 
         static::assertSame(
-            \sprintf('Promotions %s were excluded for cart because the price of the cart is zero.', $expectedList),
+            \sprintf('Promotions %s were not applied because the cart does not contain any discountable products.', $expectedList),
             $error->getMessage()
         );
         static::assertSame('promotions-on-cart-price-zero-error', $error->getId());

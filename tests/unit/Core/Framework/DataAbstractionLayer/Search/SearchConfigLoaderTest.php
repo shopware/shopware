@@ -39,7 +39,7 @@ class SearchConfigLoaderTest extends TestCase
         $loader = new SearchConfigLoader($connection);
 
         $languageIdChain = array_values(array_filter(array_keys($configKeyedByLanguageId)));
-        static::assertNotEmpty($languageIdChain);
+        static::assertNotCount(0, $languageIdChain);
 
         $context = new Context(
             new SystemSource(),

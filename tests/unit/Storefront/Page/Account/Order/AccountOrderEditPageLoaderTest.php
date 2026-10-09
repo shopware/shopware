@@ -314,7 +314,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
 
         $pageLoader = $this->createPageLoader(genericPageLoader: $genericPageLoader);
 
-        $page = $pageLoader->load($request, Generator::generateSalesChannelContext());
+        $pageLoader->load($request, Generator::generateSalesChannelContext());
     }
 
     public function testLoadSelectsThePaymentMethodOfTheOrder(): void

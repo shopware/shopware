@@ -61,7 +61,7 @@ class HookableEventCollectorTest extends TestCase
         $result = $this->hookableEventCollector->getHookableEventNamesWithPrivileges($context, Manifest::createFromXmlFile(self::MANIFEST_FIXTURE));
 
         static::assertIsArray($result);
-        static::assertNotEmpty($result);
+        static::assertNotCount(0, $result);
 
         // Check that we have entity written events
         static::assertArrayHasKey('product.written', $result);

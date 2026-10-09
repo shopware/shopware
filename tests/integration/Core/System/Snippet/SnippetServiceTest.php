@@ -4,9 +4,13 @@ declare(strict_types=1);
 namespace Shopware\Tests\Integration\Core\System\Snippet;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\Filesystem as Flysystem;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
@@ -16,10 +20,16 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Extension\StorefrontSnippetsExtension;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
+use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
+use Shopware\Core\System\Snippet\Files\FilesystemStorefrontSnippets;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
+use Shopware\Core\System\Snippet\Files\StorefrontSnippetStorage;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
+use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
+use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Tests\Integration\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\Translation\MessageCatalogue;
@@ -1081,6 +1091,43 @@ json
         static::assertSame(self::LONG_SNIPPET, $result['data']['foo.ab'][0]['value']);
     }
 
+    public function testStorefrontSnippetsFromThePrivateFilesystemAreTheLowestLayer(): void
+    {
+        $privateFilesystem = new Flysystem(new InMemoryFilesystemAdapter());
+        $privateFilesystem->write(
+            FilesystemStorefrontSnippets::directoryFor('MyIntegration') . '/storefront.en-GB.json',
+            (string) json_encode([
+                'filesystemTest' => [
+                    'fromDirectory' => 'from_directory',
+                    'shared' => 'filesystem_loses',
+                ],
+            ], \JSON_THROW_ON_ERROR),
+        );
+        $privateFilesystem->write(
+            FilesystemStorefrontSnippets::DIRECTORY . '/custom.en.json',
+            (string) json_encode(['filesystemTest' => ['fromRoot' => 'from_root']], \JSON_THROW_ON_ERROR),
+        );
+
+        $collection = $this->loadSnippetFilesFromPrivateFilesystem($privateFilesystem);
+        // shipped snippet files are loaded after the private filesystem and therefore win
+        $collection->add(new MockSnippetFile(
+            'en-GB',
+            'en-GB',
+            (string) json_encode(['filesystemTest' => ['shared' => 'shipped_wins']], \JSON_THROW_ON_ERROR),
+        ));
+
+        $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
+        static::assertNotNull($snippetSetId);
+
+        // the translator passes the language prefix as fallback, which is where the language-agnostic root file comes in
+        $snippets = $this->createSnippetService($collection, $privateFilesystem)
+            ->getStorefrontSnippets($this->getCatalogue([], 'en-GB'), $snippetSetId, fallbackLocale: 'en');
+
+        static::assertSame('from_directory', $snippets['filesystemTest.fromDirectory']);
+        static::assertSame('from_root', $snippets['filesystemTest.fromRoot']);
+        static::assertSame('shipped_wins', $snippets['filesystemTest.shared']);
+    }
+
     /**
      * @param array<array<string>> $messages
      */
@@ -1118,6 +1165,35 @@ json
             $collection->add($file);
         }
 
+        return $this->createSnippetService($collection);
+    }
+
+    /**
+     * Runs the real loader against an in-memory private filesystem, so the test neither reads nor
+     * touches the `files/` directory of the installation.
+     */
+    private function loadSnippetFilesFromPrivateFilesystem(Flysystem $privateFilesystem): SnippetFileCollection
+    {
+        $loader = new SnippetFileLoader(
+            static::getContainer()->get('kernel'),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(AppSnippetFileLoader::class),
+            static::getContainer()->get(ActiveAppsLoader::class),
+            static::getContainer()->get(TranslationConfig::class),
+            static::getContainer()->get(TranslationLoader::class),
+            static::getContainer()->get('shopware.filesystem.translation'),
+            static::getContainer()->get(StorefrontSnippetStorage::class),
+            $privateFilesystem,
+        );
+
+        $collection = new SnippetFileCollection();
+        $loader->loadSnippetFilesIntoCollection($collection);
+
+        return $collection;
+    }
+
+    private function createSnippetService(SnippetFileCollection $collection, ?FilesystemOperator $privateFilesystem = null): SnippetService
+    {
         return new SnippetService(
             static::getContainer()->get(Connection::class),
             $collection,
@@ -1128,6 +1204,7 @@ json
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get('shopware.filesystem.private'),
             static::getContainer()->get('filesystem'),
+            $privateFilesystem ?? static::getContainer()->get('shopware.filesystem.private'),
         );
     }
 

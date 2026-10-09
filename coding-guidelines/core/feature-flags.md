@@ -31,7 +31,7 @@ Omit `major` unless the flag is a sub-feature; in that case, set it to the paren
 ## Major CI
 
 `FEATURE_ALL=1` does not describe a release state: it also activates unrelated experimental
-features. Major CI sets the upcoming version flag directly (`V6_8_0_0=1`) in
+features. Major CI sets the upcoming version flag directly (for example `V6_8_0_0=1`) in
 `integration-major.yml`, the major arm of `acceptance.yml`, and the migration suite in `php.yml`.
 Update these three workflow settings when the target major changes.
 The migration suite also sets its Composer root version to that major. Migration namespace
@@ -45,7 +45,7 @@ The unit suite is the exception: its bootstrap activates every registered flag r
 
 The feature flag can be used in PHP to make specific code parts only executable when the flag is active.
 
-Version-shaped feature flag IDs use four parts, such as `v6.8.0.0`. Pass that full ID to `Feature` methods. The three-part release label in `@deprecated tag:v6.8.0` is not a feature flag ID; PHPStan rejects it in feature checks. The `version` of a `BCChange` attribute uses the same three-part label, for example `#[ClassMoved(version: 'v6.8.0', ...)]`.
+Version-shaped feature flag IDs use four parts, for example `v6.8.0.0`. Pass that full ID to `Feature` methods. The three-part release label, for example in `@deprecated tag:v6.8.0`, is not a feature flag ID; PHPStan rejects it in feature checks. The `version` of a `BCChange` attribute uses the same three-part label, for example `#[ClassMoved(version: 'v6.8.0', ...)]`.
 
 ### Using flags for services
 
@@ -237,9 +237,9 @@ class ProductTest
 }
 ```
 
-While two majors are in flight, pin a test to the older one by disabling the newer major: `#[DisabledFeatures(['v6.9.0.0'])]` asserts the 6.8 state, `#[DisabledFeatures(['v6.8.0.0', 'v6.9.0.0'])]` the state before either major.
+While two majors are in flight, pin a test to the older one by disabling the newer major. For example, with 6.8 and 6.9 in flight, `#[DisabledFeatures(['v6.9.0.0'])]` asserts the 6.8 state, `#[DisabledFeatures(['v6.8.0.0', 'v6.9.0.0'])]` the state before either major.
 
-In integration tests, the suite may run multiple times with different feature-flag states. Keep using `Feature::skipTestIfActive()` or `Feature::skipTestIfInActive()` when a scenario only makes sense for one state of a flag. This can also be used in the `setUp()` method. That is also how an integration test pins itself to a single major — `Feature::skipTestIfActive('v6.9.0.0', $this)` keeps it out of the 6.9 lane.
+In integration tests, the suite may run multiple times with different feature-flag states. Keep using `Feature::skipTestIfActive()` or `Feature::skipTestIfInActive()` when a scenario only makes sense for one state of a flag. This can also be used in the `setUp()` method. That is also how an integration test pins itself to a single major; for example, `Feature::skipTestIfActive('v6.9.0.0', $this)` keeps it out of the 6.9 lane.
 
 ```php
 use Shopware\Core\Framework\Feature;
@@ -333,7 +333,7 @@ Feature flags can also be used in plugins. Among other things, by adding your ow
 
 ### Major feature flag
 
-As mentioned before, we use the major feature flags (`v6.5.0.0`, `v6.6.0.0`) to signal breaks within the code ahead of time. This is an incredible help in the preparation of the next major release, as otherwise all breaks would have to be made within a short period of time.
+As mentioned before, we use the major feature flags (for example `v6.5.0.0`, `v6.6.0.0`) to signal breaks within the code ahead of time. This is an incredible help in the preparation of the next major release, as otherwise all breaks would have to be made within a short period of time.
 
 This procedure can also be applied to plugins, which also use this flag and internally query it to either prepare the plugin for the next major or to support multiple Shopware major versions with one plugin version. Since each major feature flag remains after the corresponding release, they can be used as an alternative version switch to the php equivalent `version_compare`.
 

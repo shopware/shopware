@@ -62,15 +62,17 @@ force a single persona.
 ## Orchestrator flow
 
 1. **Gather once** (cache): PR metadata, names-only diff, full/paginated diff,
-   file list and stats, commits (only if `open-source` runs). Workers receive
+   file list and stats, commits (only if `maintainer` runs). Workers receive
    slices or references, never repeated full context.
 2. **Classify deterministically** (references/CLASSIFY.md): write the
-   changed-file list, the diff and the metadata (`fork`, `author_association`,
-   `labels`, `fixes_issue`) to files and run
-   `.agents/skills/sw-review/scripts/classify.sh --files … --diff … --base <base> --meta … --root <checkout>`.
-   The JSON it prints is the `change_profile`: path classes, signals, size, and
-   the selected guides with the personas each guide names. Never derive a
-   signal from the PR title or body.
+   metadata (`fork`, `author_association`, `labels`, `fixes_issue`) to a
+   `meta.json` and run
+   `.agents/skills/sw-review/scripts/classify.sh --range <merge-base>...<head> --base <base> --meta … --root <checkout> --rules-ref <merge-base>`.
+   The script produces the diff itself and reads the router index from the merge
+   base. The JSON it prints is the `change_profile`: path classes, signals,
+   size, and the selected guides with the personas each guide names. Never
+   derive a signal from the PR title or body, and never pass the diff through
+   the model to write a file.
 3. **Gate personas** off the path classes and signals (table above).
 3a. **Attach guides**: every selected guide with `file_exists: true` goes into
    the `guides` list of each persona it names. There is no cap on the number of

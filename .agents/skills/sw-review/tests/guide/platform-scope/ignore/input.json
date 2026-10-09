@@ -23,5 +23,15 @@
   "files": [
     "src/Core/Content/Mail/Message/SendMailHandler.php",
     "tests/unit/Core/Content/Mail/Message/SendMailHandlerTest.php"
-  ]
+  ],
+  "change_profile": {
+    "signals": [
+      "php_src",
+      "tests_changed"
+    ],
+    "guides": [
+      "platform-scope",
+      "scheduled-tasks-and-queue"
+    ]
+  }
 }

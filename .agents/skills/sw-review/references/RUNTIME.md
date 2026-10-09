@@ -17,6 +17,9 @@ Use with exactly one persona file. Review only the assigned diff slice.
   not to flag, and severity anchors for its topic.
 - When a finding rests on a guide rule, set `rule_id` to that rule's id.
 - A guide's "Do not flag" section overrides a persona check for that topic.
+- A guide the orchestrator hands you is in scope for your persona even where
+  your persona's Out Of Scope list says otherwise; the guide's topic was routed
+  to you on purpose.
 
 ## Verification
 

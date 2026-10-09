@@ -23,5 +23,20 @@
     "UPGRADE-6.8.md",
     "src/Storefront/DependencyInjection/services.php",
     "src/Storefront/Framework/Twig/Extension/ProductCoverUrlExtension.php"
-  ]
+  ],
+  "change_profile": {
+    "signals": [
+      "deprecation",
+      "di",
+      "extension_point",
+      "php_src",
+      "php_src_without_tests",
+      "public_surface",
+      "release_docs",
+      "removal"
+    ],
+    "guides": [
+      "bc-removal-before-major"
+    ]
+  }
 }

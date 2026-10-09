@@ -24,5 +24,16 @@
     "src/Core/System/User/Recovery/CleanupUserRecoveryTask.php",
     "src/Core/System/User/Recovery/CleanupUserRecoveryTaskHandler.php",
     "tests/unit/Core/System/User/Recovery/CleanupUserRecoveryTaskHandlerTest.php"
-  ]
+  ],
+  "change_profile": {
+    "signals": [
+      "php_src",
+      "public_surface",
+      "scheduled_task",
+      "tests_changed"
+    ],
+    "guides": [
+      "scheduled-tasks-and-queue"
+    ]
+  }
 }

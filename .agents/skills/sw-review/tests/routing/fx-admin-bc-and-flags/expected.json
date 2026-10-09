@@ -1,0 +1,13 @@
+{
+  "$comment": "Guide fixture admin-bc-and-flags/catch: nested flag check, uppercase flag id, removed position identifier.",
+  "signals": [
+    "admin_ui"
+  ],
+  "not_signals": [
+    "php_src"
+  ],
+  "guides": [
+    "bc-admin",
+    "admin-bc-and-flags"
+  ]
+}

@@ -152,8 +152,9 @@
       "anchors_any": [
         "getDecorated\\(",
         "extends Event\\b",
-        "AbstractExtension",
-        "#\\[AsDecorator"
+        "#\\[AsDecorator",
+        "Framework\\\\Extensions\\\\",
+        "ExtensionDispatcher"
       ]
     },
     {
@@ -268,9 +269,12 @@
       ],
       "signals_any": [
         "php_src_without_tests",
-        "fix_without_test"
+        "fix_without_test",
+        "tests_changed"
       ],
-      "paths_any": [],
+      "paths_any": [
+        "tests/*"
+      ],
       "anchors_any": []
     },
     {
@@ -280,9 +284,9 @@
       ],
       "signals_any": [
         "release_docs",
-        "public_surface",
         "deprecation",
-        "config"
+        "config",
+        "removal"
       ],
       "paths_any": [
         "UPGRADE-*.md",

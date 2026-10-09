@@ -31,9 +31,9 @@ was created or last modified. A theme folder written a week ago and replaced a
 minute ago is still used by every page cached before that minute. Record the
 time of the switch and measure from there; `UnusedThemeDirectoryDeleter` writes
 a `.retired` marker with the current time when it first finds a directory
-unused and deletes it 24 hours after that marker. Example: #21010, where the
-24-hour window was measured from the folder's file modification time, so
-folders were deleted minutes after a recompile and cached pages loaded 404s.
+unused and deletes it 24 hours after that marker. Example: the 24-hour window
+was once measured from the folder's file modification time, so folders were
+deleted minutes after a recompile and cached pages loaded 404s.
 
 <a id="async-cleanup"></a>
 
@@ -44,9 +44,9 @@ Delete referenced assets only from a scheduled task or message handler, such as
 request or compile step runs right after the reference change, which is exactly
 when cached pages still use the old files. Moving cleanup into such a path
 "because the task does not run" also breaks the rule in
-[platform-scope.md](platform-scope.md#environment). Example: #18612 called the
-directory deleter from `theme:compile` and `theme:change`; the extension store
-storefront lost its CSS and JS in production (#21010).
+[platform-scope.md](platform-scope.md#environment). Example: the directory
+deleter was once called from `theme:compile` and `theme:change`; the extension
+store storefront lost its CSS and JS in production.
 
 <a id="invalidation"></a>
 
@@ -57,14 +57,14 @@ output through `CacheInvalidator::invalidate()`. Every new cached output must
 register its tags through `CacheTagCollector::addTag()`, so a later write can
 find it. With delayed invalidation enabled, `CacheInvalidator` stores the tags and
 `InvalidateCacheTaskHandler` purges them later; that delay is expected and is
-not a missing invalidation. Example: #19460 added the missing invalidation of the
-category route tag in `CacheInvalidationSubscriber` when a category's slot
-config changed; before, merchants saved CMS changes and shoppers kept seeing
+not a missing invalidation. Example: `CacheInvalidationSubscriber` once did
+not invalidate the category route tag when a category's slot config changed;
+merchants saved CMS changes and shoppers kept seeing
 the old page. The same holds for in-memory caches and registries
 in long-running workers: reset them when the configuration or the app they are
 built from changes (`SystemConfigChangedEvent`, app activate, deactivate,
-uninstall and delete). Example: #20220, where a layout preset cache was never
-invalidated when its app was deactivated.
+uninstall and delete). Example: a layout preset cache was never invalidated
+when its app was deactivated.
 
 <a id="cache-policy"></a>
 
@@ -76,10 +76,10 @@ is the source of truth for cache headers
 Do not add listeners or subscribers that switch caching off or rewrite cache
 headers for a group of requests, and do not disable caching for logged-in
 customers as a fix. Pages for logged-in customers and filled carts are cached by
-default; keep personal data off cacheable responses instead. Examples: #16442
-disabled 404 caching for logged-in customers; #19634 added a listener of the
-kind the cache rework had removed, and #18835 was asked to leave the headers to
-the policy.
+default; keep personal data off cacheable responses instead. Examples: a
+subscriber disabled 404 caching for logged-in customers; a session listener
+brought back the kind of listener the cache rework had removed; a response
+subscriber was asked to leave the headers to the policy.
 
 <a id="cache-keys"></a>
 
@@ -89,7 +89,7 @@ A cache key contains every input that changes the cached value: a new
 `Criteria` property, app state, the scope. A missing input serves one caller's
 result to another. Compute the hash the same way in every scope. Keep tags and
 variants few: one tag per entity of a subtree, or one more `Vary` variant,
-splits the cache until it barely hits. Examples: #17680 left excluded fields out
-of the criteria hash; #20509 left database-backed app state out of a registry
-key, so long-running workers served stale data; #15956 added one tag per
-subtree category to the listing cache.
+splits the cache until it barely hits. Examples: the criteria hash left out
+the excluded fields; a registry key left out database-backed app state, so
+long-running workers served stale data; the listing cache got one tag per
+subtree category.

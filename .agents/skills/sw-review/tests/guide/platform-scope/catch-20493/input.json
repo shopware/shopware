@@ -33,5 +33,19 @@
     "tests/unit/Core/Content/Media/Api/MediaDownloadControllerTest.php",
     "tests/unit/Core/Content/Media/File/DownloadResponseGeneratorTest.php",
     "tests/unit/Core/Content/Media/File/PrivateFileDownloadResponseGeneratorTest.php"
-  ]
+  ],
+  "change_profile": {
+    "signals": [
+      "api_contract",
+      "filesystem",
+      "php_src",
+      "public_surface",
+      "release_docs",
+      "tests_changed"
+    ],
+    "guides": [
+      "platform-scope",
+      "cache-and-asset-lifetime"
+    ]
+  }
 }

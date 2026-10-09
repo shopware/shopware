@@ -62,9 +62,9 @@ Input block rules:
     - Local: base `trunk` fallback `main`/`master`; gather diff, names, `HEAD`, branch.
     - Commits: gather only when `maintainer` will run and it is cheap.
     - Wrapper-fed: trust provided `pr`, `diff` / `diff_path`, `files`, optional `commits`.
-2. **Classify.** Write the changed-file list, the diff and `{"fork","author_association","labels","fixes_issue"}` to a temp dir and run
-   `.agents/skills/sw-review/scripts/classify.sh --files ... --diff ... --base <base> --meta ... --root <checkout>`.
-   Keep the JSON as `change_profile` (`references/CLASSIFY.md`): path classes, signals, size, and the selected guides with the personas each guide names. Wrapper-fed: run it on the provided files and diff. Never derive a signal from the PR title or body.
+2. **Classify.** Write `{"fork","author_association","labels","fixes_issue"}` to a temp `meta.json` and run
+   `.agents/skills/sw-review/scripts/classify.sh --range <merge-base>...<head> --base <base> --meta <meta.json> --root <checkout> --rules-ref <merge-base>`.
+   The script produces the diff itself and reads `guides/index.json` from the merge base. Keep the JSON as `change_profile` (`references/CLASSIFY.md`): path classes, signals, size, and the selected guides with the personas each guide names. Wrapper-fed (no git): use `--files` and `--diff` on the provided input. Never derive a signal from the PR title or body.
 3. **Gate personas.** Slugs: `security`, `architecture`, `code-style`, `ux`, `maintainer`. Gate off path classes and signals (`maintainer` also runs when `platform-scope`, `bc-removal-before-major` or `release-docs` was selected). User override can force one.
 4. **Large PR throttle.** Over caps from `references/DIFF-DISCIPLINE.md`:
     - Run `security` and `maintainer`.

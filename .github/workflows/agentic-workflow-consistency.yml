@@ -59,6 +59,13 @@ jobs:
       # Deterministic classification of real PR diffs (no LLM). The run script exits
       # non-zero on any failed case; the grep proves it actually evaluated cases, so an
       # empty fixture directory cannot pass silently.
+      - name: Check script syntax
+        run: |
+          set -euo pipefail
+          bash -n .agents/skills/sw-review/scripts/classify.sh
+          bash -n .agents/skills/sw-review/tests/routing/run.sh
+          bash -n .agents/skills/sw-review/tests/_lib.sh
+
       - name: Run routing cases
         run: |
           set -euo pipefail

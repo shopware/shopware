@@ -30,8 +30,8 @@ If the issue exists only in Jira, include a link to the Jira issue.
 
 - [ ] I have written tests and verified that they fail without my change
 - [ ] I have updated developer-facing release notes if this change is **relevant** for external developers:
-  - Add a short entry to `RELEASE_INFO-6.<current minor line>.md` (today `RELEASE_INFO-6.7.md`) in the upcoming version section for informational changes: what changed, who is affected, and how to adapt.
-  - Add an entry to `UPGRADE-6.<next major>.md` (today `UPGRADE-6.8.md`) for breaking changes and deprecations: what changed, who is affected, and how to adapt.
+  - Add a short entry to `RELEASE_INFO-6.<current minor line>.md` in the upcoming version section for informational changes: what changed, who is affected, and how to adapt.
+  - Add an entry to `UPGRADE-6.<next major>.md` for breaking changes and deprecations: what changed, who is affected, and how to adapt.
   - See the [Documenting a Release Process](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md) for details.
 - [ ] I have written or adjusted the documentation and agent skills according to my changes
 - [ ] This change has comments for package types, values, functions, and non-obvious lines of code

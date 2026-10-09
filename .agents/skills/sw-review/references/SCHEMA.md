@@ -61,9 +61,13 @@ Merged findings add:
 ```json
 {
     "persona": "security",
-    "concurring_personas": ["architecture"]
+    "concurring_personas": ["architecture"],
+    "related_rule_ids": ["QUEUE-001", "CACHE-003"]
 }
 ```
+
+`related_rule_ids` is optional: the rule ids of findings that were collapsed
+into this one because they describe the same change at the same place.
 
 All other finding fields match the per-persona finding shape.
 

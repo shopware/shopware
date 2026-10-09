@@ -18,16 +18,16 @@ Skip release documentation for narrow local bug fixes, implementation-only refac
 
 Write into the following files, but only if the decision above applies:
 
-- Developer-facing notes: add a concise entry to `RELEASE_INFO-6.<current minor line>.md` (today `RELEASE_INFO-6.7.md`) in the upcoming section and relevant category.
+- Developer-facing notes: add a concise entry to `RELEASE_INFO-6.<current minor line>.md` in the upcoming section and relevant category.
   Keep it short and to the point and avoid describing implementation details.
   The short information should inform third party developers about all relevant changes and how to adopt them.
-- `UPGRADE-6.<next major>.md` (today `UPGRADE-6.8.md`) answers one question: must existing third-party code or configuration (extension, app, integration, theme, hosting setup) change to keep working after the next major?
+- `UPGRADE-6.<next major>.md` answers one question: must existing third-party code or configuration (extension, app, integration, theme, hosting setup) change to keep working after the next major?
   If yes, add an entry describing what to change; this covers breaking changes, removals, deprecations, and also features that change required setup.
   If no, add nothing, however large the change is; a bug fix that restores intended behaviour needs no entry either.
   For deprecations, the old path still works; the entry tells developers what to change before it stops.
   Write the deprecation entry now, in the pull request that introduces the deprecation.
   Describe the concrete before and after, and write in past tense, as developers read this only after the next major release.
-  Past tense applies to deprecation entries too, for example: "`Foo::bar()` was deprecated and is removed in 6.8. Use `Foo::baz()`."
+  Past tense applies to deprecation entries too, for example: "`Foo::bar()` was deprecated and is removed in the next major. Use `Foo::baz()`."
 - Public REST/Admin/Store API route additions or changes: add or update the matching OpenAPI JSON schema under `src/Core/Framework/Api/ApiDefinition/Generator/Schema/<AdminApi|StoreApi>/paths`.
 
 ## What To Write

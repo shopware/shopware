@@ -87,7 +87,7 @@ An extension point that only core can use is not an extension point. When a feat
 A deprecation announces that a contract breaks in the next major. Removal is the later step. Every deprecation states:
 
 - what is deprecated,
-- the version in which it breaks (`@deprecated tag:v6.8.0`; three-part tag, not the four-part flag id),
+- the version in which it breaks, for example `@deprecated tag:v6.8.0` (a three-part tag, not the four-part flag id),
 - what to use instead,
 - whether the migration is mechanical or behavioural,
 - which surface is affected, and whether callers or extenders break.
@@ -132,7 +132,7 @@ Announce a planned change to a symbol that stays with an attribute from [`BCChan
 - A flag is not proof that a change is backward compatible. The flag-off path must behave like the previous release. The flag-on path is the next major and still needs a deprecation, a migration path and upgrade documentation.
 - "Experimental" does not remove the cost for consumers who adopted it. `@experimental` code is outside the BC promise, but do not remove an experimental feature in a minor; deprecate it for the next major ([ADR](../../adr/2023-05-10-experimental-features.md)). Migrate its data; never discard it.
 - Test both flag states while both paths are supported. See [feature-flags.md](feature-flags.md) ("Using flags in tests").
-- Feature flag names are public API. Do not remove or rename a flag in a minor. A retired flag stays registered and does nothing.
+- Feature flag names are public API. Do not remove or rename a flag in a minor. At the major, remove the flag checks and the legacy branches; the released flag stays registered in `feature.yaml` (default on, not toggleable) and does nothing.
 - Record per surface whether a flag is evaluated at build time or at runtime. Changing an environment value does not rebuild Administration or Storefront assets.
 
 ## Per-surface rules
@@ -144,7 +144,7 @@ Announce a planned change to a symbol that stays with an attribute from [`BCChan
 - Allowed: change the constructor of a DI service; constructors of services are `@internal`.
 - Allowed: change anything private, `@internal` or `@experimental`.
 - Allowed: add classes, constants, events and event dispatches; add public methods to `@final` classes.
-- Allowed: add a method to an abstract decorator class that has `getDecorated()` ([decorator-pattern.md](decorator-pattern.md#rules-for-the-decorator-pattern)).
+- Allowed: add a non-abstract method to an abstract decorator class that has `getDecorated()` ([decorator-pattern.md](decorator-pattern.md#rules-for-the-decorator-pattern)).
 - Allowed: add a parameter through `func_get_arg()` and announce it with `#[NewOptionalParameter]` or `#[NewRequiredParameter]`.
 - Allowed: move a class with `#[ClassMoved]` and a class alias.
 - Not in a minor: remove or rename a public or protected class, method, property or constant.
@@ -243,9 +243,9 @@ Clients and SDKs are generated from the OpenAPI schema, so an imprecise schema i
 - Not in a minor: remove or rename a config key or environment variable. Keep reading the old name until the major.
 - Not in a minor: change a default that changes behaviour.
 - Not in a minor: require new infrastructure or setup, such as a new messenger transport to consume or a database setting.
-- Raising the minimum PHP, database or search engine version is a hosting requirement change: announce it in `RELEASE_INFO` at least one minor ahead and document it in the system requirements; never ship it silently.
+- Raising the minimum PHP, database or search engine version is a hosting requirement change: announce it in `RELEASE_INFO` at least one minor ahead and document it in the system requirements; never ship it silently (practice, not yet a ratified rule).
 - Not in a minor: rename or remove CLI commands, options or machine-readable output fields, change exit codes, or make an existing invocation fail or behave differently.
-- A new scheduled task changes what runs in every shop. Announce it in `RELEASE_INFO` with its interval and how to switch it off; `@experimental` tasks are no exception.
+- A new scheduled task changes what runs in every shop. Announce it in `RELEASE_INFO` with its interval and how to switch it off; `@experimental` tasks are no exception (practice, not yet a ratified rule).
 
 ## Enforced by CI
 
@@ -253,7 +253,7 @@ These checks run on every PR. Do not re-check by hand what they catch; review wh
 
 | Check | What it catches |
 | --- | --- |
-| `bc-checker` job ([php.yml](../../.github/workflows/php.yml)) | Roave BC check of PHP signatures against the last release tag or the PR base. Skips `@internal`; accepted breaks are listed with a reason in `.bc-exclude.php`. |
+| `bc-checker` job ([php.yml](../../.github/workflows/php.yml)) | Roave BC check of PHP signatures: against the last release tag outside PRs, and against the PR base on PRs. Skipped for PRs whose base branch contains `/feature/`. Skips `@internal`; accepted breaks are listed with a reason in `.bc-exclude.php`. |
 | `InternalClassRule` | Test classes, Storefront controllers, bundles, compiler passes and subscribers must be `@internal` (subscribers may be `@final`). |
 | `InternalMethodRule` | DI service constructors must be `@internal`; no deprecation annotation on them. |
 | `DeprecatedMethodsThrowDeprecationRule` | Deprecated methods and classes must call `Feature::triggerDeprecationOrThrow()`. |

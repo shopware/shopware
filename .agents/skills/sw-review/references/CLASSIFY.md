@@ -8,14 +8,23 @@ way, and `tests/routing/` proves it.
 ## Run
 
 ```text
-scripts/classify.sh --files files.txt --diff diff.patch --base trunk \
-    --meta meta.json --root <checkout root>
+scripts/classify.sh --range <merge-base>...HEAD --base trunk \
+    --meta meta.json --root <checkout root> --rules-ref <merge-base>
 ```
 
-- `files.txt`: one repo-relative path per line (post-change paths; deleted files too).
-- `diff.patch`: unified diff against the merge base.
-- `meta.json`: `{"fork": bool, "author_association": "...", "labels": [...], "fixes_issue": bool}`; all optional.
-- `--root`: the checkout; needed for the `@internal` lookup of `public_surface`.
+- `--range`: the script runs `git diff` itself, so the orchestrator never passes
+  the diff through the model. The changed-path list includes the old names of
+  renamed files, so globs match both sides.
+- `--rules-ref`: `guides/index.json` and the guide files are read from that git
+  ref (the merge base of the PR), never from the checked-out head, so a PR
+  cannot change the rules it is reviewed against.
+- `--meta`: `{"fork": bool, "author_association": "...", "labels": [...], "fixes_issue": bool}`; all optional.
+- `--root`: the checkout; needed for `git` and for the `@internal` lookup.
+- `--files files.txt --diff diff.patch` is the offline form used by the routing
+  tests (pre-computed inputs; a deleted file's path comes from the `---` line).
+- Input is normalised to LF; CRLF diffs classify like LF ones.
+- Needs bash 4 or newer (associative arrays); CI runners have it, macOS
+  `/bin/bash` 3.2 does not.
 
 Output:
 
@@ -64,6 +73,7 @@ Output:
 |---|---|
 | `php_src` | a non-test PHP file under `src/` changed |
 | `php_src_without_tests` | `php_src` and no file under `tests/` changed |
+| `tests_changed` | a file under `tests/` changed (routes the tests guide so test code itself is reviewed) |
 | `public_surface` | see above |
 | `removal` | a non-test `src/` file was deleted, or a `public`/`protected function` line was removed from a non-internal class |
 | `deprecation` | `@deprecated`, `triggerDeprecationOrThrow(`, `BCChange\`, `<deprecated`, `silentUntil` |
@@ -96,5 +106,8 @@ Output:
 `bash tests/routing/run.sh` runs every case under `tests/routing/<case>/`
 (`files.txt`, `diff.patch`, `meta.json`, `expected.json`). A case states the
 signals that must be present, the signals that must be absent, and the exact
-guide set. Add a case for every routing bug: the culprit PR's diff, the guide
-that must load. A signal that fires on every case is a bug.
+guide set. Every guide has at least one case that selects it (`fx-<slug>` cases
+reuse the guide fixtures' diffs); `docs-only` and `crlf-docs-only` prove the
+empty result, `deleted-public-class` the deleted-file path. Add a case for
+every routing bug: the culprit PR's diff, the guide that must load. A signal
+that fires on every case is a bug.

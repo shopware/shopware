@@ -1,6 +1,23 @@
 {
-  "$comment": "PR #20493 streamed private downloads through PHP for a hosting setup whose storage endpoint the browser could not reach; closed in favour of documentation. Must reach platform-scope and the API contract guide.",
-  "signals": ["filesystem", "api_contract", "public_surface", "php_src"],
-  "not_signals": ["migration", "scheduled_task", "fork_pr"],
-  "guides": ["platform-scope", "bc-php", "cache-and-asset-lifetime", "bc-api-contracts", "release-docs"]
+  "$comment": "PR #20493 streamed private downloads through PHP for a hosting setup whose storage endpoint the browser could not reach; closed in favour of documentation. Must reach platform-scope and the API contract guide. Test files changed, so the tests guide loads too.",
+  "signals": [
+    "filesystem",
+    "api_contract",
+    "public_surface",
+    "php_src",
+    "tests_changed"
+  ],
+  "not_signals": [
+    "migration",
+    "scheduled_task",
+    "fork_pr"
+  ],
+  "guides": [
+    "platform-scope",
+    "bc-php",
+    "cache-and-asset-lifetime",
+    "bc-api-contracts",
+    "release-docs",
+    "tests-for-behavior-change"
+  ]
 }

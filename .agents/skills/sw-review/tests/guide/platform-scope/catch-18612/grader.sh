@@ -14,7 +14,7 @@ check_schema_persona
 
 check "persona-attribution"        '.persona == "maintainer"'
 require "guide-rule-finding"       '[(.findings // [])[] | select((.rule_id // "") | test("^(SCOPE|CACHE)-"))] | length >= 1'
-check "major-or-blocking"          '[(.findings // [])[] | select(((.rule_id // "") | test("^(SCOPE|CACHE)-")) and (.severity == "major" or .severity == "blocking"))] | length >= 1'
+require "major-or-blocking"        '[(.findings // [])[] | select(((.rule_id // "") | test("^(SCOPE|CACHE)-")) and (.severity == "major" or .severity == "blocking"))] | length >= 1'
 check "scope-or-correctness"       '[(.findings // [])[] | select(((.rule_id // "") | test("^(SCOPE|CACHE)-")) and (.category == "scope" or .category == "correctness"))] | length >= 1'
 require "scope-requires-human"     '[(.findings // [])[] | select(.category == "scope" or ((.rule_id // "") | startswith("SCOPE-")))] | all(.requires_human == true)'
 

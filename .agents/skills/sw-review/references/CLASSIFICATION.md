@@ -49,7 +49,9 @@ If evidence is only the literal changed line, cap confidence at `0.70`.
 
 Group by `(file, line, normalized claim)`.
 Also collapse same `(file, line, category)` when wording differs but the issue is the same.
-Keep distinct categories.
+Collapse same `(file, rule_id)` across personas: two workers loading the same guide report the same rule once.
+When different guides describe the same change at the same `(file, line)` with different rule ids (for example a scope rule, a queue rule and a cache rule on one moved cleanup call), keep one finding: the highest severity, then the guide listed first in `guides_applied`; put the other ids into `related_rule_ids`.
+Keep distinct categories otherwise.
 
 Tie-break:
 

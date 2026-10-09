@@ -1,0 +1,16 @@
+{
+  "$comment": "Guide fixture migrations/catch: a migration drops a column in update() and another adds an index without a guard; tests changed.",
+  "signals": [
+    "migration",
+    "php_src"
+  ],
+  "not_signals": [
+    "scheduled_task",
+    "admin_ui"
+  ],
+  "guides": [
+    "bc-php",
+    "migrations",
+    "tests-for-behavior-change"
+  ]
+}

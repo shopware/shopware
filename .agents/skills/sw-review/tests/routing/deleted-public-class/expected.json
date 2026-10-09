@@ -1,0 +1,18 @@
+{
+  "$comment": "Synthetic: a non-internal class is deleted outright. The diff has +++ /dev/null, so the path comes from the --- line; removal and public_surface must fire and the release-docs guide must load.",
+  "signals": [
+    "php_src",
+    "public_surface",
+    "removal"
+  ],
+  "not_signals": [
+    "migration",
+    "admin_ui"
+  ],
+  "guides": [
+    "bc-php",
+    "bc-removal-before-major",
+    "release-docs",
+    "tests-for-behavior-change"
+  ]
+}

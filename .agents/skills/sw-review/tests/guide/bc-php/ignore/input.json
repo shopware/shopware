@@ -5,7 +5,7 @@
     "number": null,
     "head_sha": "synthetic-bc-php-ignore",
     "title": "feat(checkout): pass the rounding config to LineItemQuantitySplitter::split()",
-    "body": "Split line item taxes are rounded with an explicit rounding config in 6.8. `split()` gets a fourth argument, announced with `#[NewRequiredParameter]`; calls without it trigger a deprecation warning until 6.8. Core callers pass the argument. RELEASE_INFO and UPGRADE entries are included.",
+    "body": "Split line item taxes are rounded with an explicit rounding config in 6.8. `split()` gets a fourth argument, announced with `#[NewRequiredParameter]`; calls without it trigger a deprecation warning until 6.8. Core callers pass the argument. RELEASE_INFO and UPGRADE entries are included. We checked how store plugins use `split()` before the change.",
     "labels": [],
     "author": "synthetic",
     "author_association": "MEMBER",

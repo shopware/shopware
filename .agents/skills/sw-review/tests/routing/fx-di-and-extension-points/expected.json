@@ -1,0 +1,18 @@
+{
+  "$comment": "Guide fixture di-and-extension-points/catch: a new static helper and a new event dispatched inside EntitySearcher; no tests.",
+  "signals": [
+    "extension_point",
+    "php_src",
+    "php_src_without_tests"
+  ],
+  "not_signals": [
+    "migration",
+    "admin_ui"
+  ],
+  "guides": [
+    "bc-php",
+    "bc-extension-points",
+    "di-and-extension-points",
+    "tests-for-behavior-change"
+  ]
+}

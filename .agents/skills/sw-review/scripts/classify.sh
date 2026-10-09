@@ -6,45 +6,77 @@
 # selected from guides/index.json. No LLM is involved, so the routing is
 # reproducible and covered by tests/routing/.
 #
-#   classify.sh --files files.txt --diff diff.patch [--base trunk] [--meta meta.json] \
-#               [--root <checkout root>] [--index guides/index.json]
+#   classify.sh --range <merge-base>...HEAD [--base trunk] [--meta meta.json] \
+#               [--root <checkout root>] [--rules-ref <merge-base>]
+#   classify.sh --files files.txt --diff diff.patch [...]        # pre-computed inputs
 #
+# --range: the script runs `git diff` itself (changed paths incl. old names of renames,
+#          and the unified diff). Preferred in CI: the orchestrator then never has to
+#          pass the diff through the model.
+# --rules-ref: read guides/index.json and the guide files from that git ref instead of
+#          the working tree, so a pull request cannot change the rules it is reviewed
+#          against. Use the merge base of the PR.
 # files.txt: one repo-relative path per line (post-change paths; deleted files too).
-# meta.json: optional {"fork": bool, "author_association": "...", "labels": [...]}.
+# meta.json: optional {"fork": bool, "author_association": "...", "labels": [...], "fixes_issue": bool}.
 # Signals are computed on added/removed lines only (never on context lines) and
 # never inside tests/**; the one exception is "public_surface", which needs the
 # checkout to confirm that the touched class is not @internal.
 set -euo pipefail
+if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then echo "classify.sh needs bash 4 or newer (associative arrays); macOS /bin/bash is 3.2, use brew bash" >&2; exit 2; fi
 
-FILES=""; DIFF=""; BASE="trunk"; META=""; ROOT="."; INDEX=""
+FILES=""; DIFF=""; BASE="trunk"; META=""; ROOT="."; INDEX=""; RANGE=""; RULES_REF=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --files) FILES="$2"; shift 2 ;;
     --diff) DIFF="$2"; shift 2 ;;
+    --range) RANGE="$2"; shift 2 ;;
     --base) BASE="$2"; shift 2 ;;
     --meta) META="$2"; shift 2 ;;
     --root) ROOT="$2"; shift 2 ;;
     --index) INDEX="$2"; shift 2 ;;
+    --rules-ref) RULES_REF="$2"; shift 2 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
-[ -n "$FILES" ] && [ -n "$DIFF" ] || { echo "usage: classify.sh --files files.txt --diff diff.patch [--base trunk] [--meta meta.json] [--root dir] [--index guides/index.json]" >&2; exit 2; }
-[ -f "$FILES" ] || { echo "files list not found: $FILES" >&2; exit 2; }
-[ -f "$DIFF" ] || { echo "diff not found: $DIFF" >&2; exit 2; }
+usage() { echo "usage: classify.sh (--range <base>...<head> | --files files.txt --diff diff.patch) [--base trunk] [--meta meta.json] [--root dir] [--rules-ref <ref>] [--index guides/index.json]" >&2; exit 2; }
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-[ -n "$INDEX" ] || INDEX="$SCRIPT_DIR/../guides/index.json"
-[ -f "$INDEX" ] || { echo "guide index not found: $INDEX" >&2; exit 2; }
-GUIDES_DIR="$(dirname "$INDEX")"
+SKILL_REL=".agents/skills/sw-review"
 
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
+if [ -n "$RANGE" ]; then
+  [ -z "$FILES$DIFF" ] || { echo "--range cannot be combined with --files/--diff" >&2; exit 2; }
+  git -C "$ROOT" diff --no-color --no-ext-diff -M "$RANGE" > "$WORK/diff.patch" || { echo "git diff $RANGE failed in $ROOT" >&2; exit 2; }
+  # changed paths: post-change names plus the old names of renames, so globs match both sides
+  { git -C "$ROOT" diff --name-only -M "$RANGE"; git -C "$ROOT" diff --name-status -M "$RANGE" | awk -F'\t' '$1 ~ /^R/ { print $2 }'; } | sort -u > "$WORK/files.txt"
+  FILES="$WORK/files.txt"; DIFF="$WORK/diff.patch"
+fi
+[ -n "$FILES" ] && [ -n "$DIFF" ] || usage
+[ -f "$FILES" ] || { echo "files list not found: $FILES" >&2; exit 2; }
+[ -f "$DIFF" ] || { echo "diff not found: $DIFF" >&2; exit 2; }
+# normalise CRLF so paths and anchors match
+tr -d '\r' < "$FILES" > "$WORK/files.lf"; FILES="$WORK/files.lf"
+tr -d '\r' < "$DIFF" > "$WORK/diff.lf"; DIFF="$WORK/diff.lf"
+
+# rule files: from the working tree, or from --rules-ref via git show
+if [ -n "$RULES_REF" ]; then
+  INDEX="$WORK/index.json"
+  git -C "$ROOT" show "$RULES_REF:$SKILL_REL/guides/index.json" > "$INDEX" || { echo "cannot read guides/index.json from $RULES_REF" >&2; exit 2; }
+  guide_exists() { git -C "$ROOT" cat-file -e "$RULES_REF:$SKILL_REL/guides/$1.md" 2>/dev/null; }
+else
+  [ -n "$INDEX" ] || INDEX="$SCRIPT_DIR/../guides/index.json"
+  [ -f "$INDEX" ] || { echo "guide index not found: $INDEX" >&2; exit 2; }
+  GUIDES_DIR="$(dirname "$INDEX")"
+  guide_exists() { [ -f "$GUIDES_DIR/$1.md" ]; }
+fi
+
 # --- changed lines per file: "<path>\t<+|->\t<line>" ------------------------------
 # Only the +/- lines of hunks; the +++/--- headers and context lines are skipped.
 awk '
-  /^diff --git / { file=""; next }
-  /^\+\+\+ / { file=$2; sub(/^b\//, "", file); next }
-  /^--- /    { next }
+  /^diff --git / { file=""; old=""; next }
+  /^--- /    { old=$2; sub(/^a\//, "", old); next }
+  /^\+\+\+ / { file=$2; sub(/^b\//, "", file); if (file == "/dev/null") file=old; next }
   /^@@ /     { next }
   file != "" && /^\+/ { print file "\t+\t" substr($0, 2); next }
   file != "" && /^-/  { print file "\t-\t" substr($0, 2); next }
@@ -124,6 +156,7 @@ done < "$FILES"
 declare -A SIG=()
 [ "$php_src" = 1 ] && SIG[php_src]=1
 if [ "$php_src" = 1 ] && [ "$php_src_tests" = 0 ]; then SIG[php_src_without_tests]=1; fi
+[ "$php_src_tests" = 1 ] && SIG[tests_changed]=1
 
 # public_surface: a candidate line in a non-test PHP file, confirmed only when the
 # file is not @internal (checkout lookup; a deleted file counts as candidate).
@@ -183,8 +216,8 @@ n_lines="$(wc -l < "$WORK/lines.tsv" | tr -d ' ')"
 over_cap=false; { [ "$n_files" -gt 200 ] || [ "$n_lines" -gt 5000 ]; } && over_cap=true
 
 # --- guide selection ---------------------------------------------------------------
-signals_json="$(printf '%s\n' "${!SIG[@]}" | sort | jq -R . | jq -s .)"
-classes_json="$(printf '%s\n' "${!CLASSES[@]}" | sort | jq -R . | jq -s .)"
+if [ "${#SIG[@]}" -gt 0 ]; then signals_json="$(printf '%s\n' "${!SIG[@]}" | sort | jq -R . | jq -s .)"; else signals_json='[]'; fi
+if [ "${#CLASSES[@]}" -gt 0 ]; then classes_json="$(printf '%s\n' "${!CLASSES[@]}" | sort | jq -R . | jq -s .)"; else classes_json='[]'; fi
 selected='[]'
 n_guides="$(jq '.guides | length' "$INDEX")"
 for ((i=0; i<n_guides; i++)); do
@@ -195,7 +228,7 @@ for ((i=0; i<n_guides; i++)); do
   while IFS= read -r glob; do [ -n "$glob" ] && path_hit "$glob" && matched+=("path:$glob"); done < <(jq -r ".guides[$i].paths_any // [] | .[]" "$INDEX")
   while IFS= read -r re; do [ -n "$re" ] && hit "$re" && matched+=("anchor:$re"); done < <(jq -r ".guides[$i].anchors_any // [] | .[]" "$INDEX")
   [ "${#matched[@]}" -gt 0 ] || continue
-  exists=true; [ -f "$GUIDES_DIR/$g.md" ] || exists=false
+  exists=true; guide_exists "$g" || exists=false
   personas="$(jq -c ".guides[$i].personas" "$INDEX")"
   mj="$(printf '%s\n' "${matched[@]}" | jq -R . | jq -s .)"
   selected="$(jq -c --arg g "$g" --argjson p "$personas" --argjson m "$mj" --argjson e "$exists" '. + [{guide:$g, personas:$p, matched_by:$m, file_exists:$e}]' <<<"$selected")"

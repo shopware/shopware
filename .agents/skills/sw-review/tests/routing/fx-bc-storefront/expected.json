@@ -1,0 +1,14 @@
+{
+  "$comment": "Guide fixture bc-storefront/catch: a Twig block renamed and a JS plugin option removed.",
+  "signals": [
+    "storefront_ui",
+    "twig"
+  ],
+  "not_signals": [
+    "php_src",
+    "admin_ui"
+  ],
+  "guides": [
+    "bc-storefront"
+  ]
+}

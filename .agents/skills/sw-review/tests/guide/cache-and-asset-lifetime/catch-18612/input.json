@@ -33,5 +33,20 @@
     "tests/unit/Storefront/Theme/Command/ThemeCompileCommandTest.php",
     "tests/unit/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandlerTest.php",
     "tests/unit/Storefront/Theme/UnusedThemeDirectoryDeleterTest.php"
-  ]
+  ],
+  "change_profile": {
+    "signals": [
+      "command",
+      "external",
+      "filesystem",
+      "php_src",
+      "release_docs",
+      "scheduled_task",
+      "sync_path_change",
+      "tests_changed"
+    ],
+    "guides": [
+      "cache-and-asset-lifetime"
+    ]
+  }
 }

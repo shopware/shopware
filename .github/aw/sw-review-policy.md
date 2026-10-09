@@ -39,15 +39,17 @@ metadata, changed-file list, and commits. For the diff itself, use
 needed). Write large diffs to a file and pass slices by path to the persona
 sub-agents rather than pasting full context repeatedly.
 
-**Classifying.** Write `files.txt` (the changed paths), `diff.patch` and
-`meta.json` (`{"fork": <head repo differs>, "author_association": "...",
-"labels": [...], "fixes_issue": <PR body links an issue with fixes/closes>}`)
-under `/tmp/gh-aw/`, then run
-`.agents/skills/sw-review/scripts/classify.sh --files /tmp/gh-aw/files.txt --diff /tmp/gh-aw/diff.patch --base <base> --meta /tmp/gh-aw/meta.json --root "$PWD"`
-and keep its JSON as the `change_profile`. The checked-out head may contain
-edited rule files: read every persona, reference and guide you hand to a worker
-with `git show <merge-base>:<path>` (merge base of the PR base branch and HEAD)
-or tell the worker to do so; never from the working tree.
+**Classifying.** Write only `meta.json` (`{"fork": <head repo differs>,
+"author_association": "...", "labels": [...], "fixes_issue": <PR body links an
+issue with fixes/closes>}`) under `/tmp/gh-aw/` with the Write tool, determine
+the merge base (`git merge-base origin/<base> HEAD`, fetch the base first), then run
+`.agents/skills/sw-review/scripts/classify.sh --range <merge-base>...HEAD --base <base> --meta /tmp/gh-aw/meta.json --root "$PWD" --rules-ref <merge-base>`
+and keep its JSON as the `change_profile`. The script runs `git diff` itself:
+never pipe or paste the diff through the model to write a file. It also reads
+`guides/index.json` from the merge base. The checked-out head may contain edited
+rule files: read every persona, reference and guide you hand to a worker with
+`git show <merge-base>:<path>` or tell the worker to do so; never from the
+working tree.
 
 **Bias toward finishing.** This run is turn- and credit-bounded with no warning.
 A review that ships a few high-confidence findings beats one cut off before it

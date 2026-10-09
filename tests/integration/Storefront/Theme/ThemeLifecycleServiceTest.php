@@ -30,6 +30,7 @@ use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationEntity;
+use Shopware\Storefront\Theme\Snippet\ThemeSnippetFileWriter;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
@@ -344,6 +345,8 @@ class ThemeLifecycleServiceTest extends TestCase
 
     public function testItSkipsTranslationsIfLanguageIsNotAvailable(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $bundle = $this->getThemeConfigWithLabels();
         $this->deleteLanguageForLocale('de-DE');
 
@@ -362,6 +365,8 @@ class ThemeLifecycleServiceTest extends TestCase
 
     public function testItUsesEnglishTranslationsAsFallbackIfDefaultLanguageIsNotProvided(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $bundle = $this->getThemeConfigWithLabels();
         $this->changeDefaultLanguageLocale('de-DE-1');
 
@@ -467,6 +472,34 @@ class ThemeLifecycleServiceTest extends TestCase
         static::assertFalse($this->hasTheme($bundle));
         static::assertCount(0, $this->mediaRepository->searchIds(new Criteria($ids), Context::createDefaultContext())->getIds());
         static::assertCount(0, $this->themeRepository->search(new Criteria([$childId, $themeEntity->getId()]), $this->context)->getEntities());
+    }
+
+    public function testItGeneratesAdministrationSnippetsFromLegacyLabelsAndRemovesThemWithTheTheme(): void
+    {
+        $bundle = $this->getThemeConfigWithLabels();
+        $privateFilesystem = static::getContainer()->get('shopware.filesystem.private');
+        $directory = 'snippets/administration/' . $bundle->getTechnicalName();
+
+        try {
+            $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+            static::assertTrue($privateFilesystem->fileExists($directory . '/en-GB.json'));
+            static::assertTrue($privateFilesystem->fileExists($directory . '/de-DE.json'));
+
+            $snippets = \json_decode($privateFilesystem->read($directory . '/en-GB.json'), true, 512, \JSON_THROW_ON_ERROR);
+            static::assertSame(
+                'test label',
+                $snippets['sw-theme'][$bundle->getTechnicalName()]['default']['default']['default']['sw-image']['label'] ?? null,
+            );
+
+            $this->themeLifecycleService->removeTheme($bundle->getTechnicalName(), $this->context);
+
+            static::assertFalse($privateFilesystem->directoryExists($directory));
+        } finally {
+            if ($privateFilesystem->directoryExists($directory)) {
+                $privateFilesystem->deleteDirectory($directory);
+            }
+        }
     }
 
     private function getThemeConfig(): StorefrontPluginConfiguration
@@ -678,6 +711,7 @@ class ThemeLifecycleServiceTest extends TestCase
             $this->connection,
             static::getContainer()->get(StorefrontPluginConfigurationFactory::class),
             $runtimeConfigService,
+            static::getContainer()->get(ThemeSnippetFileWriter::class),
         );
     }
 }

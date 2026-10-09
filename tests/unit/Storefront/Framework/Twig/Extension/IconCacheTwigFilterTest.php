@@ -43,12 +43,9 @@ class IconCacheTwigFilterTest extends TestCase
 {
     public function testStorefrontRenderIconCacheEnabled(): void
     {
-        $storefrontBundleFileName = (new \ReflectionClass(Storefront::class))->getFileName();
-        static::assertNotFalse($storefrontBundleFileName);
-
         $twig = $this->createFinder([
             new BundleFixture('StorefrontTest', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('Storefront', \dirname($storefrontBundleFileName)),
+            new BundleFixture('Storefront', (new Storefront())->getPath()),
         ]);
 
         $container = $this->buildContainer();

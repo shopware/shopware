@@ -99,7 +99,6 @@ class ProductDetailRouteTest extends TestCase
 
         // measurements is calculated in the response
         static::assertArrayHasKey('measurements', $response['product']);
-        static::assertNotEmpty($response['product']['measurements']);
         static::assertSame([
             'width' => [
                 'value' => 50,
@@ -154,7 +153,6 @@ class ProductDetailRouteTest extends TestCase
 
         // measurements is calculated in the response
         static::assertArrayHasKey('measurements', $response['product']);
-        static::assertNotEmpty($response['product']['measurements']);
         static::assertSame([
             'width' => [
                 'value' => 1.97,
@@ -291,7 +289,8 @@ class ProductDetailRouteTest extends TestCase
         static::assertSame('product_detail', $response['apiAlias']);
         static::assertArrayHasKey('product', $response);
         static::assertArrayHasKey('manufacturer', $response['product']);
-        static::assertNotEmpty($response['product']['manufacturer']);
+        static::assertIsArray($response['product']['manufacturer']);
+        static::assertNotCount(0, $response['product']['manufacturer']);
     }
 
     public function testIncludeForCustomFields(): void

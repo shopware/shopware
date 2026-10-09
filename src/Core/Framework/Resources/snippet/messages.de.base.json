@@ -21,7 +21,7 @@
         "promotion-not-eligible-already-added": "Die Rabattaktion zum Gutscheincode \"%name%\" wurde bereits zum Warenkorb hinzugefügt. Eine Rabattaktion kann pro Bestellung nur einmal angewendet werden.",
         "promotion-excluded": "Mindestens ein Rabatt wurde wegen Konflikten mit anderen Rabatten aus dem Warenkorb entfernt. Sobald die Bedingungen wieder zutreffen, wird der Rabatt automatisch hinzugefügt.",
         "promotion-discount-zero-value": "Die Rabattaktion \"%name%\" wurde eingelöst, reduziert den Preis Ihres Warenkorbs jedoch nicht.",
-        "promotions-on-cart-price-zero-error": "Die Rabattaktionen \"%promotions%\" wurden nicht im Warenkorb angewendet, da der Warenkorb kostenlos ist.",
+        "promotions-on-cart-price-zero-error": "Die Rabattaktionen \"%promotions%\" wurden nicht angewendet, da der Warenkorb keine rabattfähigen Produkte enthält.",
         "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
         "billing-address-blocked": "Rechnungen können nicht an die gewählte Rechnungsadresse ausgestellt werden.",
         "shipping-address-invalid": "Die gewählte Versandadresse ist nicht gültig oder unvollständig. Bitte prüfen Sie <a href=\"%url%\">hier</a> Ihre Angaben.",

@@ -91,8 +91,8 @@ class ManufacturerFilterHandlerTest extends TestCase
         $criteriaFilter = $filter->getFilter();
         static::assertInstanceOf(EqualsAnyFilter::class, $criteriaFilter);
         static::assertSame('product.manufacturerId', $criteriaFilter->getField());
-        static::assertEmpty($criteriaFilter->getValue());
+        static::assertCount(0, $criteriaFilter->getValue());
 
-        static::assertEmpty($filter->getValues());
+        static::assertSame([], $filter->getValues());
     }
 }

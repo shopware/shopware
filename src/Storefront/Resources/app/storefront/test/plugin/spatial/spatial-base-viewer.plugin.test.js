@@ -148,41 +148,33 @@ describe('SpatialBaseViewerPlugin tests', () => {
         expect(emitterPublishSpy).toHaveBeenCalledWith('Viewer/stopRendering');
     });
 
-    test('stopRendering tears the viewer down only once', () => {
+    test('stopRendering stops the viewer every time it is called', () => {
+        spatialBaseViewerPlugin.stopRendering();
         spatialBaseViewerPlugin.stopRendering();
 
-        parentDivClassListRemoveSpy.mockClear();
-        emitterPublishSpy.mockClear();
-        mockDive.stop.mockClear();
-
-        spatialBaseViewerPlugin.stopRendering();
-
-        expect(mockDive.stop).not.toHaveBeenCalled();
-        expect(parentDivClassListRemoveSpy).not.toHaveBeenCalled();
-        expect(emitterPublishSpy).not.toHaveBeenCalled();
+        expect(mockDive.stop).toHaveBeenCalledTimes(2);
+        expect(parentDivClassListRemoveSpy).toHaveBeenCalledTimes(2);
+        expect(emitterPublishSpy.mock.calls.filter(([event]) => event === 'Viewer/stopRendering')).toHaveLength(2);
     });
 
-    test('startRendering gives up when the viewer was torn down while the engine started', async () => {
-        let releaseStart;
-        mockDive.startAsync.mockReturnValue(new Promise((resolve) => {
-            releaseStart = resolve;
-        }));
-
+    test('startRendering restarts a viewer that was stopped before', async () => {
         spatialBaseViewerPlugin.rendering = false;
         spatialBaseViewerPlugin.ready = true;
 
-        const started = spatialBaseViewerPlugin.startRendering();
-
-        // The viewer is disposed while the engine is still starting up.
+        await spatialBaseViewerPlugin.startRendering();
         spatialBaseViewerPlugin.stopRendering();
+
+        mockDive.startAsync.mockClear();
         parentDivClassListAddSpy.mockClear();
         emitterPublishSpy.mockClear();
 
-        releaseStart();
-        await started;
+        await spatialBaseViewerPlugin.startRendering();
 
-        expect(parentDivClassListAddSpy).not.toHaveBeenCalled();
-        expect(emitterPublishSpy).not.toHaveBeenCalledWith('Viewer/startRendering');
+        expect(spatialBaseViewerPlugin.rendering).toBe(true);
+        expect(mockDive.startAsync).toHaveBeenCalledTimes(1);
+        expect(parentDivClassListAddSpy).toHaveBeenCalledWith('spatial-canvas-rendering');
+        expect(parentDivClassListAddSpy).toHaveBeenCalledWith('spatial-canvas-display');
+        expect(emitterPublishSpy).toHaveBeenCalledWith('Viewer/startRendering');
     });
 });
 

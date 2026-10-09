@@ -615,7 +615,7 @@ class ProductExportGeneratorTest extends TestCase
             ->method('search')
             ->willReturnCallback(function (Criteria $criteria) use (&$results): EntitySearchResult {
                 $parentIdFilters = array_filter($criteria->getFilters(), static fn ($f) => $f instanceof EqualsFilter && $f->getField() === 'parentId' && $f->getValue() === null);
-                static::assertNotEmpty($parentIdFilters, 'Criteria must contain a parentId = null filter when variants are excluded');
+                static::assertNotCount(0, $parentIdFilters, 'Criteria must contain a parentId = null filter when variants are excluded');
 
                 $next = array_shift($results);
                 \assert($next instanceof EntitySearchResult);
@@ -655,7 +655,7 @@ class ProductExportGeneratorTest extends TestCase
             ->method('search')
             ->willReturnCallback(function (Criteria $criteria) use (&$results): EntitySearchResult {
                 $orFilters = array_filter($criteria->getFilters(), static fn ($f) => $f instanceof OrFilter);
-                static::assertNotEmpty($orFilters, 'Criteria must contain an OrFilter to exclude parent products when variants are included');
+                static::assertNotCount(0, $orFilters, 'Criteria must contain an OrFilter to exclude parent products when variants are included');
 
                 $next = array_shift($results);
                 \assert($next instanceof EntitySearchResult);

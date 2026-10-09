@@ -34,6 +34,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Helper\MailEventListener;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -1607,15 +1608,9 @@ class SalesChannelProxyControllerTest extends TestCase
             ->fetchAllKeyValue('SELECT LOWER(HEX(id)), technical_name FROM mail_template_type');
 
         $listener = new MailEventListener($mapping);
-        $dispatcher = static::getContainer()->get('event_dispatcher');
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, $listener);
 
-        $dispatcher->addListener(FlowSendMailActionEvent::class, $listener);
-
-        try {
-            return $closure($listener);
-        } finally {
-            $dispatcher->removeListener(FlowSendMailActionEvent::class, $listener);
-        }
+        return $closure($listener);
     }
 
     private function createShippingMethod(): string

@@ -164,8 +164,12 @@ jobs:
                 title: content.issueTitle,
                 body: content.issueBody,
                 labels,
+                type: 'Bug',
               });
               core.info(`Created issue #${created.data.number}`);
+              if (!created.data.type) {
+                core.warning(`Issue #${created.data.number} was created without an issue type`);
+              }
               return created.data;
             };
 

@@ -5,7 +5,6 @@ on:
     paths:
       - ".github/workflows/*.md"
       - ".github/workflows/*.lock.yml"
-      - ".github/workflows/agentics-maintenance.yml"
       - ".github/workflows/agentic-workflow-consistency.yml"
       - ".github/aw/**"
       - ".github/dependabot.yml"
@@ -25,20 +24,24 @@ jobs:
         with:
           persist-credentials: false
 
+      # Keep this pin equal to the `gh aw` version in .github/aw/README.md: a different
+      # compiler produces different lock files and this check fails on every PR.
       - name: Install gh-aw
-        uses: github/gh-aw-actions/setup-cli@b5cde6c5013569c8b0229dd2d7ffd63eaf2c9ad2 # v0.81.2
+        uses: github/gh-aw-actions/setup-cli@924af5fdc64061cfbf66fb584c8b07e2ac230c60 # v0.89.21
         with:
-          version: v0.81.2
+          version: v0.89.21
 
       - name: Compile agentic workflows
         run: gh aw compile
 
+      # `git status` instead of `git diff`: a file the compiler newly generates (such as
+      # agentics-maintenance.yml once a workflow opts in) is untracked and invisible to diff.
       - name: Check generated files are up to date
         run: |
-          git diff --exit-code -- \
-            .gitattributes \
-            .github/workflows/agentics-maintenance.yml \
-            .github/workflows/sw-bugfixer.lock.yml \
-            .github/workflows/sw-triage.lock.yml \
-            .github/workflows/sw-review.lock.yml \
-            .github/aw/actions-lock.json
+          set -euo pipefail
+          changes="$(git status --porcelain -- .gitattributes .github/workflows .github/aw/actions-lock.json .github/dependabot.yml)"
+          if [ -n "$changes" ]; then
+            echo "$changes"
+            echo "::error::gh aw compile output differs from the committed files. Run 'gh aw compile' with the pinned version and commit the result."
+            exit 1
+          fi

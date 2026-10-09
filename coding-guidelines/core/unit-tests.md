@@ -84,6 +84,38 @@ Option 3 is acceptable when the first two do not fit, under these conditions:
 - Make sure the transaction wrapper actually invokes its closure. A `Connection` double whose `transactional()` ignores its argument executes nothing, so every test in the file passes without proving anything.
 - Confirm each test fails when the decision under test is flipped, before trusting it.
 
+## Observing events in tests
+
+Never add or remove listeners on the shared `event_dispatcher` in a test. Symfony 8.2 compiles that dispatcher and deprecates runtime changes to it; `NoRuntimeListenerOnSharedEventDispatcherRule` reports them in the integration suite.
+
+A test that needs an event has two legitimate shapes. Prefer them in this order:
+
+1. **Unit test with a dispatcher the test owns.** When the behaviour under test is "this service dispatches this event with this payload" and the service can be built without the container, construct it with a `CollectingEventDispatcher` or a mock dispatcher and assert on what was dispatched. The event is the contract of that service, and the test proves it without a kernel.
+2. **Integration test with a hook.** When the point is the wiring, that the real system dispatches the event as a consequence of a write, a request or a flow, get the hook dispatcher from the container and capture the event:
+
+   ```php
+   $written = null;
+   EventHookDispatcher::fromContainer(static::getContainer())->on(ProductEvents::PRODUCT_WRITTEN_EVENT, function (EntityWrittenEvent $event) use (&$written): void {
+       $written = $event;
+   });
+
+   $this->productRepository->create([$product], $this->context);
+
+   static::assertNotNull($written);
+   static::assertSame([$id], $written->getIds());
+   ```
+
+   Hooks run after the dispatcher's own listeners, respect stopped propagation and are cleared before each test.
+
+Whichever shape, keep these conditions:
+
+- **Capture in the hook, assert after the code under test ran.** Never put an assertion inside the hook; `NoAssertionInEventHookRule` reports one. Code that catches and logs exceptions around a dispatch (`SendMailAction` around `MailSentEvent`, flow actions, message handlers) swallows the assertion failure and the test stays green. The reference incident is #21105.
+- **Assert that the hook fired.** A captured value that stays `null` must fail the test (`assertNotNull`, `assertCount`), otherwise a renamed event or a changed dispatch path passes silently.
+- **A hook that changes behaviour (alters the event, stops propagation, throws) is a last resort.** It means the test depends on listener order. Say so in a comment, and prefer a test-only service registered in `services_test.php` when the same intervention is needed in more than one test.
+- **`subscribe()` for a whole subscriber only when the test is about that subscriber's wiring.** For one event, `on()` with a closure reads better.
+
+When an integration test uses a hook only to assert a payload that a unit test could assert just as well, move it; the hook is the signal that the test is at the wrong level.
+
 ## Focus on behavior, not implementation: Effective unit testing principles
 
 Relying heavily on mocks creates a bad pattern in unit tests of testing `how` something is implemented and not `what` the implementation actually does. If tests are implemented in a mock-heavy way, they are tightly coupled to the implementation, meaning they rely on implementation details and may fail more often when the implementation details change than when the actual behavior of the class under test changes. Consider these two example changes to some classes:

@@ -36,6 +36,7 @@ Tests should read like executable examples.
 - Prefer `expectExceptionObject()` over a broader `expectException`, build the expected exception through the same domain factory when one exists so class, code, and message stay aligned with production behavior.
 - Do not behavior-mock Doctrine DBAL `Connection` in unit tests by asserting SQL calls or parameters. Stub DBAL-consuming collaborators when needed; isolate SQL/DBAL adapters and cover those adapters with integration tests.
 - Exception, when the behaviour under test is a decision whose only observable effect is the write itself and the class offers no other seam: drive the public method, stub the read side for data only, capture the executed statements in one helper, and assert on the written values in domain terms, never on SQL text. Make the `Connection` double's `transactional()` actually invoke its closure, otherwise nothing executes and the tests pass vacuously. See "Asserting writes when there is no other seam" in `coding-guidelines/core/unit-tests.md`.
+- Never add listeners to the shared `event_dispatcher` in a test. Observe an event in a unit test through a dispatcher the test owns, or in an integration test through `EventHookDispatcher::fromContainer()->on()`: capture in the hook, assert after the code under test ran, never inside the hook. See "Observing events in tests" in `coding-guidelines/core/unit-tests.md`.
 
 ## Stubbing DAL Repositories
 

@@ -449,14 +449,13 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        /** @var array{product_id: string, category_id: string} $record */
         $record = $this->connection->fetchAssociative('SELECT * FROM product_category WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
-        static::assertNotEmpty($record);
+        static::assertNotFalse($record);
         static::assertSame($record['product_id'], Uuid::fromHexToBytes($id));
         static::assertSame($record['category_id'], Uuid::fromHexToBytes($id));
 
         $record = $this->connection->fetchAssociative('SELECT * FROM category WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
-        static::assertNotEmpty($record);
+        static::assertNotFalse($record);
     }
 
     public function testWriteProductWithDifferentTaxFormat(): void
@@ -1062,7 +1061,7 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals(['c' . Defaults::CURRENCY => $greenPrice], json_decode($row['price'], true, 512, \JSON_THROW_ON_ERROR));
 
         $row = $this->connection->fetchAssociative('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
-        static::assertEmpty($row);
+        static::assertFalse($row);
     }
 
     public function testInsertAndUpdateInOneStep(): void

@@ -137,12 +137,6 @@ class ProductControllerTest extends TestCase
             ]
         );
 
-        $expectedDuplicatedRequestData = [
-            'options' => $options,
-            'switchedGroup' => $ids->get('element'),
-        ];
-        $expectedClonedRequest = $request->duplicate($expectedDuplicatedRequestData);
-
         $this->findVariantRouteMock->method('load')
             ->willReturn(
                 new FindProductVariantRouteResponse(new FoundCombination($ids->get('variantId'), $options))

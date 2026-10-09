@@ -67,7 +67,7 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
         ], [
             'names' => ArrayParameterType::BINARY,
         ]);
-        static::assertNotEmpty($units);
+        static::assertNotCount(0, $units);
 
         foreach ($units as $shortName => $unitType) {
             $configKey = $unitType === 'length' ? 'core.measurementUnits.length' : 'core.measurementUnits.weight';

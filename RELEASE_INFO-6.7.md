@@ -603,6 +603,21 @@ migrate it to `useCmsElement` by hand.
 
 The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
 
+### Result descriptions for entity selects and rule conditions
+
+`sw-entity-single-select` and `sw-entity-multi-select` accept the new props `descriptionProperty`, `descriptionFormatter` and `descriptionFormatterArgs`. They render a description below each search result: the value of `descriptionProperty`, optionally passed through the `Shopware.Filter` named in `descriptionFormatter`, with `descriptionFormatterArgs` as additional arguments. A new `breadcrumb` filter joins a breadcrumb with an optional separator, which defaults to ` / `.
+
+Rule conditions using `RuleConfig::entitySelectField()` can set the same keys in their field config to show a description in the rule builder:
+
+```php
+->entitySelectField('categoryIds', CategoryDefinition::ENTITY_NAME, true, [
+    'descriptionProperty' => 'breadcrumb',
+    'descriptionFormatter' => 'breadcrumb',
+]);
+```
+
+The "Item in category" condition uses this to show the category breadcrumb again.
+
 ### Meteor Component Library updated to 5.8.0
 
 The Administration now uses Meteor Component Library `5.8.0`, Meteor Admin SDK `6.15.0` and Meteor Icon Kit `5.11.0`.

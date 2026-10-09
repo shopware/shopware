@@ -329,7 +329,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
      */
     private function getAppAdministrationSnippetRepository(array $snippetsFromApp = [], array $newSnippets = [], array $deletesSnippetIds = [], bool $updatedSnippets = false): EntityRepository
     {
-        $repository = static::createStub(EntityRepository::class);
+        $repository = static::createMock(EntityRepository::class);
 
         $appSnippets = [];
         foreach ($snippetsFromApp as $snippet) {
@@ -367,7 +367,9 @@ class AppAdministrationSnippetPersisterTest extends TestCase
         }
 
         $repository
-            ->method('delete');
+            ->expects($this->atMost(1))
+            ->method('delete')
+            ->with($deletesSnippetIds, static::anything());
 
         return $repository;
     }

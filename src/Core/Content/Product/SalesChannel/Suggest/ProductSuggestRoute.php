@@ -47,11 +47,11 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
         return $this->extensions->publish(
             name: ProductSuggestRouteExtension::NAME,
             extension: new ProductSuggestRouteExtension($request, $context, $criteria),
-            function: $this->_load(...),
+            function: fn (Request $request, SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse => $this->_load($context, $criteria),
         );
     }
 
-    private function _load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse
+    private function _load(SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse
     {
         $result = $this->productListingLoader->load($criteria, $context);
 

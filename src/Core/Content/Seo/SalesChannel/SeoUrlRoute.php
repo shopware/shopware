@@ -45,11 +45,11 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
         return $this->extensions->publish(
             name: SeoUrlRouteExtension::NAME,
             extension: new SeoUrlRouteExtension($request, $context, $criteria),
-            function: $this->_load(...),
+            function: fn (Request $request, SalesChannelContext $context, Criteria $criteria): SeoUrlRouteResponse => $this->_load($context, $criteria),
         );
     }
 
-    private function _load(Request $request, SalesChannelContext $context, Criteria $criteria): SeoUrlRouteResponse
+    private function _load(SalesChannelContext $context, Criteria $criteria): SeoUrlRouteResponse
     {
         return new SeoUrlRouteResponse($this->salesChannelRepository->search($criteria, $context));
     }

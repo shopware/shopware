@@ -224,6 +224,7 @@ class EntityWrittenContainerEvent extends NestedEvent
     /**
      * @param array<string, list<EntityWriteResult>> $identifiers
      * @param array<mixed> $errors
+     * @param class-string<EntityWrittenEvent> $event
      */
     private static function createEvents(array $identifiers, Context $context, array $errors, string $event): self
     {

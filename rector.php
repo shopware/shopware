@@ -44,8 +44,6 @@ return RectorConfig::configure()
         // Guards against the deprecated collection surface of EntitySearchResult (see #18655)
         EntitySearchResultGetEntitiesRector::class,
         ClassConstantToSelfClassRector::class,
-        DisallowedEmptyRuleFixerRector::class,
-        CountArrayToEmptyArrayComparisonRector::class,
         SimplifyEmptyArrayCheckRector::class,
         SimplifyEmptyCheckOnEmptyArrayRector::class,
         StrlenZeroToIdenticalEmptyStringRector::class,

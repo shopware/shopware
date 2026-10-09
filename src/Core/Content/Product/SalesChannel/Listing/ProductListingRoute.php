@@ -66,11 +66,11 @@ class ProductListingRoute extends AbstractProductListingRoute
         return $this->extensions->publish(
             name: ProductListingRouteExtension::NAME,
             extension: new ProductListingRouteExtension($categoryId, $request, $context, $criteria),
-            function: $this->_load(...),
+            function: fn (string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse => $this->_load($categoryId, $context, $criteria),
         );
     }
 
-    private function _load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
+    private function _load(string $categoryId, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
     {
         $this->cacheTagCollector->addTag(self::buildName($categoryId));
 

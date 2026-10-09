@@ -223,7 +223,7 @@ class MailService extends AbstractMailService
      */
     private function createMail(array &$data, array $templateData, Context $context, ?SalesChannelEntity $salesChannel): ?Email
     {
-        $testMode = $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG) || ($data['testMode'] ?? false);
+        $testMode = $this->isTestMode($data);
 
         $templateData['salesChannel'] = $salesChannel;
         $templateData['salesChannelId'] = $salesChannel?->getId();
@@ -268,7 +268,7 @@ class MailService extends AbstractMailService
                     ),
                     $context,
                     $templateData,
-                    $data[$renderDataIndex],
+                    $data[$renderDataIndex] ?? null,
                     $e,
                     Level::Warning,
                 );
@@ -329,6 +329,14 @@ class MailService extends AbstractMailService
         }
 
         return $mail;
+    }
+
+    /**
+     * @param ValidatedMailData $data
+     */
+    private function isTestMode(array $data): bool
+    {
+        return $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG) || ($data['testMode'] ?? false);
     }
 
     /**

@@ -259,7 +259,6 @@ class ImportExportLogRepositoryTest extends TestCase
 
     public function testImportExportLogUpdatePartial(): void
     {
-        $upsertData = [];
         $origDate = $data = $this->prepareImportExportLogTestData();
         $item = array_pop($data);
         static::assertNotNull($item);

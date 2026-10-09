@@ -223,9 +223,4 @@ parameters:
             message: "#Offset 'source' might not exist on array{status: string, code: #"
             path: tests
 
-        - # @deprecated tag:v6.8.0 - Should be fixed, once the parent class changes
-            message: '#Parameter .* expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*>, Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*> given#'
-            identifier: argument.type
-        -
-            message: '#Method .* should return Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*> but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*>#'
-            identifier: return.type
+        - identifier: phpunit.assertEmpty

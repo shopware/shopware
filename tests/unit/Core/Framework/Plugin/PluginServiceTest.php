@@ -9,6 +9,7 @@ use Composer\Package\Version\VersionParser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -19,7 +20,6 @@ use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -188,6 +188,49 @@ class PluginServiceTest extends TestCase
         static::assertSame('2.0.0', $pluginRepo->upserts[0][0]['upgradeVersion']);
     }
 
+    public function testRefreshPluginsLooksUpEachLocaleOnce(): void
+    {
+        $plugins = [];
+        foreach (['foo', 'bar'] as $name) {
+            $package = new CompletePackage($name, '1.0.0', '1.0.0');
+            $package->setAutoload(['psr-4' => [ucfirst($name) . '\\' => 'src']]);
+            $package->setExtra([
+                'label' => ['en-GB' => $name, 'de-DE' => $name],
+                'description' => ['en-GB' => $name, 'de-DE' => $name],
+            ]);
+
+            $plugin = new PluginFromFileSystemStruct();
+            $plugin->assign(['baseClass' => $name, 'path' => __DIR__, 'composerPackage' => $package, 'managedByComposer' => true]);
+            $plugins[] = $plugin;
+        }
+
+        $pluginFinder = static::createStub(PluginFinder::class);
+        $pluginFinder->method('findPlugins')->willReturn($plugins);
+
+        $languageLookups = [];
+        $languageSearch = static function (Criteria $criteria) use (&$languageLookups): array {
+            $languageLookups[] = $criteria;
+
+            return ['foo'];
+        };
+
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepo */
+        $languageRepo = new StaticEntityRepository(array_fill(0, 8, $languageSearch));
+
+        $pluginService = new PluginService(
+            __DIR__,
+            __DIR__,
+            new StaticEntityRepository([new PluginCollection()]),
+            $languageRepo,
+            $pluginFinder,
+            new VersionSanitizer()
+        );
+
+        $pluginService->refreshPlugins(Context::createDefaultContext(), static::createStub(IOInterface::class));
+
+        static::assertCount(2, $languageLookups);
+    }
+
     private function getComposerPackage(string $version = '1.0.0'): CompletePackage
     {
         $completePackage = new CompletePackage('foo', $version, $version);
@@ -241,10 +284,8 @@ class PluginServiceTest extends TestCase
      */
     private function getLanguageRepository(): StaticEntityRepository
     {
-        $language = new LanguageEntity();
-        $language->setId('foo');
-
-        $repo = new StaticEntityRepository([new LanguageCollection([$language]), new LanguageCollection([$language])]);
+        /** @var StaticEntityRepository<LanguageCollection> $repo */
+        $repo = new StaticEntityRepository([['foo'], ['foo']]);
 
         return $repo;
     }

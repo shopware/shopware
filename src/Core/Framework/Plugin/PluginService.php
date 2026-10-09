@@ -30,6 +30,11 @@ class PluginService
     final public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';
 
     /**
+     * @var array<string, string>
+     */
+    private array $languageIdsByLocale = [];
+
+    /**
      * @param EntityRepository<PluginCollection> $pluginRepo
      * @param EntityRepository<LanguageCollection> $languageRepo
      */
@@ -46,6 +51,7 @@ class PluginService
     public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): ExceptionCollection
     {
         $errors = new ExceptionCollection();
+        $this->languageIdsByLocale = [];
         $pluginsFromFileSystem = $this->pluginFinder->findPlugins($this->pluginDir, $this->projectDir, $errors, $composerIO);
 
         $installedPlugins = $this->getPlugins(new Criteria(), $shopwareContext);
@@ -172,15 +178,14 @@ class PluginService
 
     private function getLanguageIdForLocale(string $locale, Context $context): string
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('language.translationCode.code', $locale));
-        $languageEntity = $this->languageRepo->search($criteria, $context)->getEntities()->first();
-
-        if ($languageEntity === null) {
-            return '';
+        if (\array_key_exists($locale, $this->languageIdsByLocale)) {
+            return $this->languageIdsByLocale[$locale];
         }
 
-        return $languageEntity->getId();
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('language.translationCode.code', $locale));
+
+        return $this->languageIdsByLocale[$locale] = $this->languageRepo->searchIds($criteria, $context)->firstId() ?? '';
     }
 
     private function getPluginIconRaw(string $pluginIconPath): ?string

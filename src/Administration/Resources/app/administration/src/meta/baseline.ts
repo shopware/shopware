@@ -89,7 +89,6 @@ const missingTests = [
     'src/app/component/utils/sw-step-item/index.js',
     'src/app/component/utils/sw-text-preview/index.js',
     'src/app/component/utils/sw-upload-listener/index.js',
-    'src/app/component/utils/sw-verify-user-modal/index.js',
     'src/app/component/utils/sw-vnode-renderer/index.js',
     'src/app/component/wizard/sw-wizard-dot-navigation/index.js',
     'src/app/component/wizard/sw-wizard-page/index.js',

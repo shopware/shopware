@@ -27,7 +27,6 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
@@ -130,11 +129,15 @@ class Kernel extends HttpKernel
         return $this->projectDir;
     }
 
-    public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
+    /**
+     * Boots first so that plugins are initialized before `parent::handle()` builds the container,
+     * `parent::handle()` itself keeps Symfony's service reset bookkeeping between requests.
+     */
+    public function handle(Request $request, int $type = self::MAIN_REQUEST, bool $catch = true): Response
     {
         $this->boot();
 
-        return $this->getHttpKernel()->handle($request, $type, $catch);
+        return parent::handle($request, $type, $catch);
     }
 
     public function boot(): void

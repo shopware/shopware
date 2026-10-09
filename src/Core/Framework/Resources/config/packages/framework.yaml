@@ -14,7 +14,9 @@ framework:
     fragments: ~
     assets: ~
     http_cache:
-        enabled: true
+        # only controls Symfony's own `http_cache` service (must stay off, see Kernel::handle());
+        # the other options of this block configure Shopware's HttpCacheKernel
+        enabled: false
     session:
         name: 'session-'
         handler_id: ~

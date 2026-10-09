@@ -15,13 +15,19 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
 use Shopware\Core\Framework\App\Lifecycle\Registration\PrivateHandshake;
 use Shopware\Core\Framework\App\Lifecycle\Registration\StoreHandshake;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
+use Shopware\Core\Framework\App\Url\VerificationState;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
+use Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -54,9 +60,14 @@ class AppRegistrationServiceTest extends TestCase
 
     private AppEntity $testApp;
 
+    private AppUrlVerifier&Stub $appUrlVerifier;
+
+    private string $appServerIp = '127.0.0.1';
+
     protected function setUp(): void
     {
         $this->handshakeFactoryMock = $this->createMock(HandshakeFactory::class);
+        $this->appUrlVerifier = static::createStub(AppUrlVerifier::class);
 
         $this->mockHandler = new MockHandler([]);
         $this->appRepositoryMock = static::createStub(EntityRepository::class);
@@ -623,6 +634,79 @@ class AppRegistrationServiceTest extends TestCase
             ->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
+    public function testRegistersWithAPublicAppServerOnceTheAppUrlIsVerified(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+        $this->appServerIp = '93.184.215.14';
+        $this->appUrlVerifier->method('forceVerify')->willReturn(
+            new VerificationState(VerificationStatus::PASS, 1, new \DateTimeImmutable())
+        );
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willThrowException(AppException::registrationFailed('test', 'handshake'));
+
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'handshake'));
+
+        $this->appRegistrationService
+            ->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+    }
+
+    public function testFailsTheRegistrationWhenTheAppUrlVerificationSoftFailed(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+        $this->appServerIp = '93.184.215.14';
+
+        $this->appUrlVerifier->method('forceVerify')->willReturn(
+            new VerificationState(VerificationStatus::SOFT_FAIL, 1, new \DateTimeImmutable(), 'Failed to connect to APP_URL: timeout')
+        );
+
+        $this->handshakeFactoryMock->expects($this->never())->method('create');
+
+        $this->expectExceptionObject(AppException::registrationFailed(
+            'test',
+            'APP_URL "https://shopware.swag" is incorrect or does not reach this installation (Failed to connect to APP_URL: timeout)',
+        ));
+
+        $this->appRegistrationService
+            ->reRegisterWithAppHeldSecret($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext(), 'app-held-secret');
+    }
+
+    public function testFailsTheRegistrationWhenTheShopIdChangeIsSuggested(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+        $this->appServerIp = '93.184.215.14';
+
+        $exception = new ShopIdChangeSuggestedException(ShopId::v2('shop-id'), new FingerprintComparisonResult([], [], 75));
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
+        $shopIdProvider->method('getShopId')->willThrowException($exception);
+
+        $this->handshakeFactoryMock->expects($this->never())->method('create');
+
+        $this->expectExceptionObject(AppException::registrationFailed('test', $exception->getMessage()));
+
+        $this->createService($this->appRepositoryMock, $shopIdProvider)
+            ->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+    }
+
+    public function testRegistersWithAPrivateAppServerWithoutVerifyingTheAppUrl(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+
+        $this->appUrlVerifier->method('forceVerify')->willReturn(
+            new VerificationState(VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'APP_URL is invalid: HTTPS is required.')
+        );
+
+        $this->handshakeFactoryMock->expects($this->once())
+            ->method('create')
+            ->willThrowException(AppException::registrationFailed('test', 'handshake'));
+
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'handshake'));
+
+        $this->appRegistrationService
+            ->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+    }
+
     /**
      * @param EntityRepository<AppCollection> $appRepository
      */
@@ -642,6 +726,8 @@ class AppRegistrationServiceTest extends TestCase
             '6.5.2.0',
             new NativeClock(),
             new NullLogger(),
+            $this->appUrlVerifier,
+            new SecureUrlValidator(fn (): array => [['ip' => $this->appServerIp]]),
         );
     }
 

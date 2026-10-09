@@ -17,6 +17,9 @@ use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
+use Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -47,6 +50,8 @@ class AppRegistrationService
         private readonly string $shopwareVersion,
         private readonly ClockInterface $clock,
         private readonly LoggerInterface $logger,
+        private readonly AppUrlVerifier $appUrlVerifier,
+        private readonly SecureUrlValidator $secureUrlValidator,
     ) {
     }
 
@@ -86,6 +91,8 @@ class AppRegistrationService
         }
 
         $app = $this->fetchApp($id, $context);
+        $this->verifyAppUrl($manifest, $app);
+
         $currentSecret = $appHeldSecret ?? $app->getAppSecret();
         $logContext = ['appId' => $app->getId(), 'appName' => $app->getName()];
 
@@ -141,6 +148,31 @@ class AppRegistrationService
         $this->commitAppSecret($app->getId(), $context, $secret);
 
         $this->logger->info('App secret committed after confirmation', $logContext);
+    }
+
+    private function verifyAppUrl(Manifest $manifest, AppEntity $app): void
+    {
+        $setup = $manifest->getSetup();
+        \assert($setup !== null);
+
+        if (!$this->secureUrlValidator->isValidTarget($setup->getRegistrationUrl())) {
+            return;
+        }
+
+        try {
+            $shopId = $this->shopIdProvider->getShopId();
+        } catch (ShopIdChangeSuggestedException $e) {
+            throw AppException::registrationFailed($app->getName(), $e->getMessage());
+        }
+
+        $state = $this->appUrlVerifier->forceVerify($shopId);
+
+        if (!$state->is(VerificationStatus::PASS)) {
+            throw AppException::registrationFailed(
+                $app->getName(),
+                \sprintf('APP_URL "%s" is incorrect or does not reach this installation (%s)', $this->shopUrl, $state->info ?? $state->status->name),
+            );
+        }
     }
 
     private function registrationFailedFromResponse(AppEntity $app, GuzzleException $e): AppException

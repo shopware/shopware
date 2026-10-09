@@ -740,6 +740,9 @@ This applies to all translated app texts, including flow actions and their confi
 ### App events are only delivered to the app they are about
 
 The app events `app.installed`, `app.updated`, `app.activated`, `app.deactivated`, `app.deleted`, `app.permissions.updated` and `app.config.changed` are now only delivered to app webhooks. Webhooks created through the Admin API no longer receive them. Apps keep subscribing to them in their manifest, as before.
+### App registration requires a verified `APP_URL`
+
+Shopware now verifies that `APP_URL` uses `https` and reaches this installation before it registers the shop with a public app server, such as the Shopware service registry. App servers on private addresses, reserved domains or plain `http`, such as a local development setup, are not affected. If the verification fails, the registration is aborted with the reason. Run `bin/console app:url:verify` to check the configuration.
 
 # 6.7.15.0
 

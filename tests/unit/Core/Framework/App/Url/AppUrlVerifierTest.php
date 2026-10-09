@@ -17,7 +17,9 @@ use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Component\Lock\Exception\LockAcquiringException;
 use Symfony\Component\Lock\Exception\LockConflictedException;
+use Symfony\Component\Lock\Exception\LockReleasingException;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
 use Symfony\Component\Lock\Store\InMemoryStore;
@@ -40,21 +42,6 @@ class AppUrlVerifierTest extends TestCase
 
         $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), $clock);
         static::assertTrue($verifier->verify($shopId));
-    }
-
-    public function testVerifyReturnsFalseIfnNoAppUrl(): void
-    {
-        $cache = new ArrayAdapter();
-        $clock = new MockClock();
-        $http = new MockHttpClient(new MockResponse('', ['http_code' => 204]));
-        $lockFactory = new LockFactory(new InMemoryStore());
-
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), $clock);
-
-        $shopId = ShopId::v2('shop-id');
-        $result = $verifier->verify($shopId);
-
-        static::assertFalse($result);
     }
 
     public function testVerifyReturnsTrueIfLockCannotBeAcquired(): void
@@ -416,26 +403,11 @@ class AppUrlVerifierTest extends TestCase
         $clock->sleep(2);
 
         $result = $verifier->forceVerify($shop);
-        $state = $verifier->getCurrentState();
-        static::assertTrue($result);
-        self::assertState(['status' => VerificationStatus::PASS, 'tries' => 1, 'at' => $clock->now()], $state);
+        self::assertState(['status' => VerificationStatus::PASS, 'tries' => 1, 'at' => $clock->now()], $result);
+        static::assertEquals($result, $verifier->getCurrentState());
     }
 
-    public function testVerifyNowDoesNothingAndReturnsTrueForNonProdEnvironments(): void
-    {
-        $cache = new ArrayAdapter();
-        $clock = new MockClock();
-        $locks = new LockFactory(new InMemoryStore());
-
-        $http = new MockHttpClient();
-        $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
-        $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-
-        static::assertTrue($verifier->forceVerify($shop));
-        static::assertSame(0, $http->getRequestsCount());
-    }
-
-    public function testVerifyNowWithSkipEnvCheck(): void
+    public function testVerifyNowRunsInNonProdEnvironments(): void
     {
         $cache = new ArrayAdapter();
         $clock = new MockClock();
@@ -445,11 +417,94 @@ class AppUrlVerifierTest extends TestCase
         $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
         $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
 
-        $result = $verifier->forceVerify($shop, true);
-        $state = $verifier->getCurrentState();
-        static::assertTrue($result);
-        self::assertState(['status' => VerificationStatus::PASS, 'tries' => 1, 'at' => $clock->now()], $state);
+        $result = $verifier->forceVerify($shop);
+        self::assertState(['status' => VerificationStatus::PASS, 'tries' => 1, 'at' => $clock->now()], $result);
         static::assertSame(1, $http->getRequestsCount());
+    }
+
+    public function testVerifyNowRecordsASoftFailIfTheLockCannotBeAcquired(): void
+    {
+        $lock = static::createStub(SharedLockInterface::class);
+        $lock->method('acquire')->willThrowException(new LockAcquiringException('store unavailable'));
+
+        $lockFactory = static::createStub(LockFactory::class);
+        $lockFactory->method('createLock')->willReturn($lock);
+
+        $cache = new ArrayAdapter();
+        $cache->save($cache->getItem(AppUrlVerifier::VERIFICATION_RESULT_CACHE_KEY)->set(
+            new VerificationState(VerificationStatus::PASS, 1, new \DateTimeImmutable())
+        ));
+
+        $http = new MockHttpClient();
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), new MockClock());
+
+        $state = $verifier->forceVerify(ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']));
+
+        self::assertState(['status' => VerificationStatus::SOFT_FAIL, 'info' => 'Could not acquire the verification lock: store unavailable'], $state);
+        static::assertEquals($state, $verifier->getCurrentState());
+        static::assertSame(0, $http->getRequestsCount());
+    }
+
+    public function testVerifyNowIgnoresLockReleaseFailures(): void
+    {
+        $lock = static::createStub(SharedLockInterface::class);
+        $lock->method('acquire')->willReturn(true);
+        $lock->method('release')->willThrowException(new LockReleasingException('store unavailable'));
+
+        $lockFactory = static::createStub(LockFactory::class);
+        $lockFactory->method('createLock')->willReturn($lock);
+
+        $http = new MockHttpClient(new MockResponse('', ['http_code' => 204]));
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', new ArrayAdapter(), $http, $lockFactory, static::createStub(LoggerInterface::class), new MockClock());
+
+        $state = $verifier->forceVerify(ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']));
+
+        self::assertState(['status' => VerificationStatus::PASS], $state);
+    }
+
+    public function testVerifyNowReusesAPass(): void
+    {
+        $http = new MockHttpClient(new MockResponse('', ['http_code' => 204]));
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', new ArrayAdapter(), $http, new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock());
+        $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
+
+        $first = $verifier->forceVerify($shop);
+        $second = $verifier->forceVerify($shop);
+
+        self::assertState(['status' => VerificationStatus::PASS], $second);
+        static::assertSame($first, $second);
+        static::assertSame(1, $http->getRequestsCount());
+    }
+
+    public function testVerifyNowRetriesAfterAFailure(): void
+    {
+        $http = new MockHttpClient([
+            new MockResponse('not found', ['http_code' => 404]),
+            new MockResponse('', ['http_code' => 204]),
+        ]);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', new ArrayAdapter(), $http, new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock());
+        $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
+
+        self::assertState(['status' => VerificationStatus::HARD_FAIL], $verifier->forceVerify($shop));
+        self::assertState(['status' => VerificationStatus::PASS], $verifier->forceVerify($shop));
+        static::assertSame(2, $http->getRequestsCount());
+    }
+
+    public function testVerifyNowVerifiesAgainAfterReset(): void
+    {
+        $http = new MockHttpClient([
+            new MockResponse('', ['http_code' => 204]),
+            new MockResponse('not found', ['http_code' => 404]),
+        ]);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', new ArrayAdapter(), $http, new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock());
+        $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
+
+        self::assertState(['status' => VerificationStatus::PASS], $verifier->forceVerify($shop));
+
+        $verifier->reset();
+
+        self::assertState(['status' => VerificationStatus::HARD_FAIL], $verifier->forceVerify($shop));
+        static::assertSame(2, $http->getRequestsCount());
     }
 
     public function testGetCurrentStateReturnsNullWhenCacheEmpty(): void

@@ -38,15 +38,7 @@ class AppUrlVerifyCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $shopId = $this->shopIdProvider->getShopId();
-        $this->appUrlVerifier->forceVerify($shopId, true);
-
-        $state = $this->appUrlVerifier->getCurrentState();
-
-        if ($state === null) {
-            $io->warning('No verification state found. Check your cache configuration.');
-
-            return Command::SUCCESS;
-        }
+        $state = $this->appUrlVerifier->forceVerify($shopId);
 
         $this->printer->print($io, $state, true);
 

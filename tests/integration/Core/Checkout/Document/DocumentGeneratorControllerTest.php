@@ -136,9 +136,9 @@ class DocumentGeneratorControllerTest extends TestCase
         );
 
         $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
-        static::assertNotEmpty($response);
-        static::assertNotEmpty($data = $response['data']);
-        static::assertNotEmpty($item = $data[0]);
+        static::assertNotCount(0, $response);
+        static::assertNotCount(0, $data = $response['data']);
+        static::assertNotCount(0, $item = $data[0]);
 
         $filename = 'invoice';
         $expectedFileContent = 'simple invoice';
@@ -155,7 +155,8 @@ class DocumentGeneratorControllerTest extends TestCase
 
         $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($response['documentMediaId']);
+        static::assertIsString($response['documentMediaId']);
+        static::assertNotSame('', $response['documentMediaId']);
         $this->getBrowser()->request('GET', $baseResource . '_action/document/' . $response['documentId'] . '/' . $response['documentDeepLink']);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(200, $response->getStatusCode());
@@ -199,15 +200,15 @@ class DocumentGeneratorControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(200, $response->getStatusCode());
         $response = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
-        static::assertNotEmpty($response);
+        static::assertNotCount(0, $response);
         $data = $response['data'];
-        static::assertNotEmpty($data);
+        static::assertNotCount(0, $data);
         static::assertCount(2, $data);
 
         $documentIds = $this->getDocumentIds($data);
         $documents = $this->getDocumentByDocumentIds($documentIds);
 
-        static::assertNotEmpty($documents);
+        static::assertNotCount(0, $documents);
         static::assertCount(2, $documents);
     }
 
@@ -258,7 +259,7 @@ class DocumentGeneratorControllerTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
-        static::assertNotEmpty($response['errors']);
+        static::assertNotCount(0, $response['errors']);
         static::assertSame('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
     }
 
@@ -287,7 +288,7 @@ class DocumentGeneratorControllerTest extends TestCase
         static::assertArrayHasKey('errors', $response);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
 
-        static::assertNotEmpty($response['errors']);
+        static::assertNotCount(0, $response['errors']);
         static::assertCount(2, $response['errors']);
 
         static::assertSame('VIOLATION::INVALID_TYPE_ERROR', $response['errors'][0]['code']);
@@ -309,7 +310,7 @@ class DocumentGeneratorControllerTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
-        static::assertNotEmpty($response['errors']);
+        static::assertNotCount(0, $response['errors']);
         static::assertSame(DocumentException::INVALID_REQUEST_PARAMETER_CODE, $response['errors'][0]['code']);
     }
 

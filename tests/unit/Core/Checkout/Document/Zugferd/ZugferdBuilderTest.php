@@ -106,7 +106,7 @@ class ZugferdBuilderTest extends TestCase
         }
 
         $customerData = \array_filter($order->getOrderCustomer()?->getVars() ?? []);
-        static::assertNotEmpty($customerData);
+        static::assertNotCount(0, $customerData);
 
         foreach ($customerData as $value) {
             static::assertStringContainsString($value, $xmlContent);

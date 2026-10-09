@@ -62,7 +62,7 @@ class ReferenceInvoiceLoaderTest extends TestCase
 
         $invoice = $this->referenceInvoiceLoader->load($orderId);
 
-        static::assertEmpty($invoice);
+        static::assertCount(0, $invoice);
     }
 
     public function testLoadWithoutReferenceDocumentIdWithUnsentDocuments(): void
@@ -77,7 +77,7 @@ class ReferenceInvoiceLoaderTest extends TestCase
         static::assertNotNull($invoiceStructLatest);
         $invoice = $this->referenceInvoiceLoader->load($orderId);
 
-        static::assertNotEmpty($invoice['id']);
+        static::assertNotSame('', $invoice['id']);
         static::assertSame($invoice['id'], $invoiceStructLatest->getId());
     }
 
@@ -98,7 +98,7 @@ class ReferenceInvoiceLoaderTest extends TestCase
 
         $invoice = $this->referenceInvoiceLoader->load($orderId);
 
-        static::assertNotEmpty($invoice['id']);
+        static::assertNotSame('', $invoice['id']);
         static::assertSame($invoice['id'], $invoiceStruct->getId());
     }
 
@@ -117,7 +117,7 @@ class ReferenceInvoiceLoaderTest extends TestCase
         static::assertSame($invoiceStruct->getId(), $invoice['id']);
         static::assertSame($orderId, $invoice['orderId']);
         static::assertSame(Defaults::LIVE_VERSION, $invoice['orderVersionId']);
-        static::assertNotEmpty($invoice['documentNumber']);
+        static::assertNotSame('', $invoice['documentNumber']);
     }
 
     public function testLoadWithEmbeddedZugferdReferenceDocumentId(): void
@@ -139,7 +139,7 @@ class ReferenceInvoiceLoaderTest extends TestCase
         static::assertSame($invoiceStruct->getId(), $invoice['id']);
         static::assertSame($orderId, $invoice['orderId']);
         static::assertSame(Defaults::LIVE_VERSION, $invoice['orderVersionId']);
-        static::assertNotEmpty($invoice['documentNumber']);
+        static::assertNotSame('', $invoice['documentNumber']);
     }
 
     public function testLoadWithZugferdReferenceDocumentId(): void
@@ -161,6 +161,6 @@ class ReferenceInvoiceLoaderTest extends TestCase
         static::assertSame($invoiceStruct->getId(), $invoice['id']);
         static::assertSame($orderId, $invoice['orderId']);
         static::assertSame(Defaults::LIVE_VERSION, $invoice['orderVersionId']);
-        static::assertNotEmpty($invoice['documentNumber']);
+        static::assertNotSame('', $invoice['documentNumber']);
     }
 }

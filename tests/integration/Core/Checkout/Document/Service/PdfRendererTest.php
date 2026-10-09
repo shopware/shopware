@@ -99,7 +99,7 @@ class PdfRendererTest extends TestCase
         $rendered = $processedTemplate->getSuccess()[$orderId];
 
         $generatorOutput = $this->pdfRenderer->render($rendered);
-        static::assertNotEmpty($generatorOutput);
+        static::assertNotSame('', $generatorOutput);
 
         $finfo = new \finfo(\FILEINFO_MIME_TYPE);
         static::assertSame('application/pdf', $finfo->buffer($generatorOutput));

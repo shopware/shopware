@@ -66,7 +66,7 @@ class NewsletterRecipientStorerTest extends TestCase
 
         $this->storer->restore($storable);
 
-        static::assertEmpty($storable->data());
+        static::assertCount(0, $storable->data());
     }
 
     public function testLazyLoadEntity(): void

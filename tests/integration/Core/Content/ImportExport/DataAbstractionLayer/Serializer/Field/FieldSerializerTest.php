@@ -95,7 +95,7 @@ class FieldSerializerTest extends TestCase
         $delivery->setId($deliveryId);
 
         $result = \iterator_to_array($fieldSerializer->serialize($config, $field, new OrderDeliveryCollection([$delivery])));
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testInvalidPropertyNameOneToManyAssociation(): void
@@ -113,7 +113,7 @@ class FieldSerializerTest extends TestCase
         $delivery->setId($deliveryId);
 
         $result = \iterator_to_array($fieldSerializer->serialize($config, $field, new OrderDeliveryCollection([$delivery])));
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testNullValueOneToManyAssociation(): void
@@ -127,7 +127,7 @@ class FieldSerializerTest extends TestCase
         $field->compile($registry);
 
         $result = \iterator_to_array($fieldSerializer->serialize($config, $field, null));
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     private function getFieldSerializer(): FieldSerializer

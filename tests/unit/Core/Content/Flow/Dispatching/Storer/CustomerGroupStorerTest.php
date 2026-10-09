@@ -64,7 +64,7 @@ class CustomerGroupStorerTest extends TestCase
         $storable = new StorableFlow('name', Context::createDefaultContext());
 
         $this->storer->restore($storable);
-        static::assertEmpty($storable->data());
+        static::assertCount(0, $storable->data());
     }
 
     public function testLazyLoadEntity(): void

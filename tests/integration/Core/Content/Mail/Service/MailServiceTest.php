@@ -386,7 +386,7 @@ class MailServiceTest extends TestCase
         ], Context::createDefaultContext());
 
         static::assertNotNull($snippetSetIdWhileRendering);
-        static::assertEmpty($translator->getSnippetSetId());
+        static::assertNull($translator->getSnippetSetId());
     }
 }
 

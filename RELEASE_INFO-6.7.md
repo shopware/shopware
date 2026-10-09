@@ -615,6 +615,14 @@ Check your Administration extensions for these changes:
 
 The deliverability card of digital products has a new "Allow multiple units per order" switch. Turn it on to set `minPurchase`, `purchaseSteps` and `maxPurchase`, or off to limit the digital product to one unit per order. Bulk edit no longer hides these fields for digital products.
 
+### Extensions can add items to the product media grid
+
+`sw-product-media-form` has new extension points for showing further items between the product media without replacing the whole grid:
+
+- The computed property `galleryItems` returns the grid items in display order. The grid and its placeholders are built from it.
+- The Twig block `sw_product_media_form_grid_item` renders a single grid item, so an override can render its own items and keep `{% parent %}` for the product media.
+- The method `moveGalleryItem(item, position)` moves a grid item when it is dragged or marked as cover. Override it together with `galleryItems` when your items share the position space with the product media.
+
 ## Storefront
 
 ### Improved extensibility of buy widget form

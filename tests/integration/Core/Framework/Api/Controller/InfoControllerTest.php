@@ -32,8 +32,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Envelope;
@@ -172,35 +172,26 @@ class InfoControllerTest extends TestCase
 
     public function testGetConfigIncludesMimeTypesForEventAddedPrivateExtensions(): void
     {
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-        static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
-
-        $listener = static function (MediaFileExtensionWhitelistEvent $event): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MediaFileExtensionWhitelistEvent::class, static function (MediaFileExtensionWhitelistEvent $event): void {
             $extensions = $event->getWhitelist();
             $extensions[] = 'epub';
 
             $event->setWhitelist($extensions);
-        };
+        });
 
-        $eventDispatcher->addListener(MediaFileExtensionWhitelistEvent::class, $listener);
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/config');
 
-        try {
-            $client = $this->getBrowser();
-            $client->request(Request::METHOD_GET, '/api/_info/config');
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
 
-            $content = $client->getResponse()->getContent();
-            static::assertNotFalse($content);
-
-            $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-            static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-            static::assertContains('epub', $decodedResponse['settings']['private_allowed_extensions']);
-            static::assertSame(
-                ['application/epub+zip'],
-                $decodedResponse['settings']['private_allowed_mime_types_by_extension']['epub']
-            );
-        } finally {
-            $eventDispatcher->removeListener(MediaFileExtensionWhitelistEvent::class, $listener);
-        }
+        $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        static::assertContains('epub', $decodedResponse['settings']['private_allowed_extensions']);
+        static::assertSame(
+            ['application/epub+zip'],
+            $decodedResponse['settings']['private_allowed_mime_types_by_extension']['epub']
+        );
     }
 
     public function testGetConfigWithPermissions(): void

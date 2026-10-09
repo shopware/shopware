@@ -20,15 +20,18 @@ class NoAssertionInEventHookRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/NoAssertionInEventHookRule/Cases.php'], [
             // the subscriber declared in AssertingSubscriberElsewhere.php, reported in that file
             [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertTrue'), 21],
-            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertInstanceOf'), 26],
-            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertSame'), 27],
-            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertNotNull'), 33],
-            [\sprintf(NoAssertionInEventHookRule::ERROR, 'fail'), 39],
-            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertInstanceOf'), 76],
-            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertNotNull'), 91],
-            // NOT flagged: 50-51 (capture, assert after), 56 (a callable that is not a closure), 62 (on() of
-            // another object), 108 (asserting on what a subscriber captured), 115 (a listener on a plain
-            // dispatcher is another rule's business)
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertInstanceOf'), 28],
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertSame'), 29],
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertNotNull'), 35],
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'fail'), 41],
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertInstanceOf'), 78],
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertNotNull'), 93],
+            // helpers of the test class called from a hook, followed transitively and reported once
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertFalse'), 144],
+            [\sprintf(NoAssertionInEventHookRule::ERROR, 'assertNotNull'), 155],
+            // NOT flagged: 52-53 (capture, assert after), 58 (a callable that is not a closure), 64 (on() of
+            // another object), 110 (asserting on what a subscriber captured), 129 (a helper without assertion),
+            // 138 (a listener on a plain dispatcher is another rule's business)
         ]);
     }
 

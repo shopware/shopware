@@ -8,8 +8,11 @@ use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
 use PHPStan\Parser\Parser;
@@ -24,8 +27,9 @@ use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 /**
  * An event hook runs inside dispatch(), so the code under test can catch the failed assertion and keep the test
  * green: SendMailAction logs every exception around MailSentEvent, flow actions and message handlers do the same.
- * The hook captures the event, the test asserts after the code under test ran. Covers the closure given to on()
- * and the listener methods of the subscriber given to subscribe(), wherever that subscriber class is declared.
+ * The hook captures the event, the test asserts after the code under test ran. Covers the closure given to on(),
+ * the helpers of the test class it calls, and the methods of the subscriber given to subscribe(), wherever that
+ * subscriber class is declared.
  *
  * @implements Rule<MethodCall>
  *
@@ -75,7 +79,9 @@ class NoAssertionInEventHookRule implements Rule
                 return [];
             }
 
-            return $this->assertionsIn($hook, null);
+            $owner = $scope->getClassReflection();
+
+            return $this->assertionsIn($hook, $owner === null ? null : $this->findClassNode($owner), null);
         }
 
         $subscriber = $node->getArgs()[0]->value ?? null;
@@ -85,7 +91,7 @@ class NoAssertionInEventHookRule implements Rule
 
         // an anonymous class written inline is already in hand
         if ($subscriber instanceof New_ && $subscriber->class instanceof Class_) {
-            return $this->assertionsIn($subscriber->class, null);
+            return $this->assertionsIn($subscriber->class, null, null);
         }
 
         $errors = [];
@@ -96,16 +102,21 @@ class NoAssertionInEventHookRule implements Rule
             }
 
             $file = $classReflection->getFileName();
-            $errors = [...$errors, ...$this->assertionsIn($class, $file === $scope->getFile() ? null : $file)];
+            $errors = [...$errors, ...$this->assertionsIn($class, null, $file === $scope->getFile() ? null : $file)];
         }
 
         return $errors;
     }
 
     /**
+     * Assertions in the hook itself and, for a closure, in the methods of the test class it calls through $this,
+     * self or static, followed transitively. A subscriber class is scanned whole, helpers included, so no owner.
+     *
+     * @param array<string, true> $visited
+     *
      * @return list<RuleError>
      */
-    private function assertionsIn(Node $hook, ?string $file): array
+    private function assertionsIn(Node $hook, ?Class_ $owner, ?string $file, array &$visited = []): array
     {
         $errors = [];
         foreach ((new NodeFinder())->find($hook, self::isAssertion(...)) as $assertion) {
@@ -120,6 +131,21 @@ class NoAssertionInEventHookRule implements Rule
             }
 
             $errors[] = $error->build();
+        }
+
+        if ($owner === null) {
+            return $errors;
+        }
+
+        foreach ((new NodeFinder())->find($hook, self::isOwnMethodCall(...)) as $call) {
+            \assert(($call instanceof StaticCall || $call instanceof MethodCall) && $call->name instanceof Identifier);
+            $helper = $owner->getMethod($call->name->toString());
+            if ($helper === null || isset($visited[$helper->name->toString()])) {
+                continue;
+            }
+
+            $visited[$helper->name->toString()] = true;
+            $errors = [...$errors, ...$this->assertionsIn($helper, $owner, $file, $visited)];
         }
 
         return $errors;
@@ -167,5 +193,20 @@ class NoAssertionInEventHookRule implements Rule
         $method = $node->name->toString();
 
         return \str_starts_with($method, 'assert') || $method === 'fail';
+    }
+
+    /**
+     * $this->helper(), self::helper() and static::helper(): a method of the test class that owns the hook.
+     */
+    private static function isOwnMethodCall(Node $node): bool
+    {
+        if ($node instanceof MethodCall) {
+            return $node->var instanceof Variable && $node->var->name === 'this' && $node->name instanceof Identifier;
+        }
+
+        return $node instanceof StaticCall
+            && $node->class instanceof Name
+            && \in_array($node->class->toLowerString(), ['self', 'static'], true)
+            && $node->name instanceof Identifier;
     }
 }

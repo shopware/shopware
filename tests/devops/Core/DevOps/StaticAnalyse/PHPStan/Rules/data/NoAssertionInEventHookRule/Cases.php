@@ -15,6 +15,8 @@ class Cases extends TestCase
 {
     private EventHookDispatcher $hooks;
 
+    private ?Event $seen = null;
+
     protected function setUp(): void
     {
         $this->hooks = new EventHookDispatcher(new EventDispatcher());
@@ -108,11 +110,53 @@ class Cases extends TestCase
         static::assertNotNull($subscriber->seen);
     }
 
+    public function assertionInAHelperTheHookCalls(): void
+    {
+        $this->hooks->on(Event::class, function (Event $event): void {
+            $this->checkEventIsValid($event);
+        });
+    }
+
+    public function assertionBehindTwoHelpers(): void
+    {
+        $this->hooks->on(Event::class, static function (Event $event): void {
+            self::checkTwice($event);
+        });
+    }
+
+    public function helperWithoutAssertion(): void
+    {
+        $this->hooks->on(Event::class, function (Event $event): void {
+            $this->remember($event);
+        });
+    }
+
     public function listenerOnAPlainDispatcher(): void
     {
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(Event::class, static function (): void {
             static::assertTrue(true);
         });
+    }
+
+    private function checkEventIsValid(Event $event): void
+    {
+        static::assertFalse($event->isPropagationStopped());
+    }
+
+    private static function checkTwice(Event $event): void
+    {
+        self::checkOnce($event);
+        self::checkOnce($event);
+    }
+
+    private static function checkOnce(Event $event): void
+    {
+        static::assertNotNull($event);
+    }
+
+    private function remember(Event $event): void
+    {
+        $this->seen = $event;
     }
 }

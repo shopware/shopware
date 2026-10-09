@@ -170,7 +170,7 @@ class ControllerRateLimiterTest extends TestCase
         static::assertInstanceOf(Session::class, $session);
         $flashBag = $session->getFlashBag();
 
-        static::assertNotEmpty($flash = $flashBag->get('info'));
+        static::assertNotCount(0, $flash = $flashBag->get('info'));
         static::assertSame($this->translator->trans('error.rateLimitExceeded', ['%seconds%' => 10]), $flash[0]);
     }
 

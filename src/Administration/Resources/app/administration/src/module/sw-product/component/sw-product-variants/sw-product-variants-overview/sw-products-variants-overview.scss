@@ -57,7 +57,8 @@ $base-size: calc(var(--scale-size-224) + var(--scale-size-56));
             vertical-align: middle;
         }
 
-        .sw-price-field .sw-field .sw-field__addition {
+        .sw-price-field .sw-field .sw-field__addition,
+        .sw-price-field .mt-field__addition {
             display: none;
         }
 

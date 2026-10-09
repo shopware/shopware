@@ -72,7 +72,8 @@
         gap: var(--scale-size-18);
     }
 
-    .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content .sw-field__addition {
+    .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content .sw-field__addition,
+    .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content .mt-field__addition {
         display: none;
     }
 

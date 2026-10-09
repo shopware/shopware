@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -241,8 +242,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->never())->method('__invoke');
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $this->addEventListener($dispatcher, NewsletterRegisterEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(NewsletterRegisterEvent::class, $listener);
 
         $context = Context::createDefaultContext();
         $newsletterRecipientRepository = static::getContainer()->get('newsletter_recipient.repository');
@@ -327,10 +327,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->systemConfig->set('core.newsletter.doubleOptIn', true);
             $this->systemConfig->set('core.newsletter.subscribeUrl', '/custom-newsletter/confirm/%%HASHEDEMAIL%%/%%SUBSCRIBEHASH%%');
 
-            $dispatcher = static::getContainer()->get('event_dispatcher');
-
-            $this->addEventListener(
-                $dispatcher,
+            EventHookDispatcher::fromContainer(static::getContainer())->on(
                 NewsletterSubscribeUrlEvent::class,
                 static function (NewsletterSubscribeUrlEvent $event): void {
                     $event->setSubscribeUrl($event->getSubscribeUrl() . '?specialParam=false');
@@ -338,8 +335,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             );
 
             $caughtEvent = null;
-            $this->addEventListener(
-                $dispatcher,
+            EventHookDispatcher::fromContainer(static::getContainer())->on(
                 NewsletterRegisterEvent::class,
                 static function (NewsletterRegisterEvent $event) use (&$caughtEvent): void {
                     $caughtEvent = $event;
@@ -374,11 +370,8 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->systemConfig->set('core.newsletter.doubleOptIn', true);
             $this->systemConfig->set('core.newsletter.doubleOptInDomain', 'http://test.test');
 
-            $dispatcher = static::getContainer()->get('event_dispatcher');
-
             $caughtEvent = null;
-            $this->addEventListener(
-                $dispatcher,
+            EventHookDispatcher::fromContainer(static::getContainer())->on(
                 NewsletterRegisterEvent::class,
                 static function (NewsletterRegisterEvent $event) use (&$caughtEvent): void {
                     $caughtEvent = $event;

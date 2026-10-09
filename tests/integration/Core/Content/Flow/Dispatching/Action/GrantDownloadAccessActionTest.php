@@ -46,9 +46,9 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -87,8 +87,6 @@ class GrantDownloadAccessActionTest extends TestCase
 
     private OrderTransactionStateHandler $orderTransactionStateHandler;
 
-    private EventDispatcherInterface $eventDispatcher;
-
     private AbstractDownloadRoute $downloadRoute;
 
     private FileFetcher $fileFetcher;
@@ -107,7 +105,6 @@ class GrantDownloadAccessActionTest extends TestCase
         $this->customerId = $this->createCustomer();
         $this->salesChannelContext = $this->createDefaultSalesChannelContext();
         $this->orderTransactionStateHandler = static::getContainer()->get(OrderTransactionStateHandler::class);
-        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
         $this->downloadRoute = static::getContainer()->get(DownloadRoute::class);
         $this->fileSaver = static::getContainer()->get(FileSaver::class);
         $this->fileFetcher = static::getContainer()->get(FileFetcher::class);
@@ -131,7 +128,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 $flowEvent = $event;
             }
         };
-        $this->addEventListener($this->eventDispatcher, FlowSendMailActionEvent::class, $flowListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, $flowListener);
 
         $mailEvent = null;
         $mailListener = function (MailBeforeSentEvent $event) use (&$mailEvent): void {
@@ -141,11 +138,9 @@ class GrantDownloadAccessActionTest extends TestCase
                 $mailEvent = $event;
             }
         };
-        $this->addEventListener($this->eventDispatcher, MailBeforeSentEvent::class, $mailListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MailBeforeSentEvent::class, $mailListener);
 
         $this->changeTransactionStateToPaid($orderId);
-
-        $this->resetEventDispatcher();
 
         $this->assertDispatchedFlowEvent($productDownloads, $flowEvent);
         $this->assertDispatchedMailEvent($productDownloads, $mailEvent);
@@ -169,7 +164,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 $flowEvent = $event;
             }
         };
-        $this->addEventListener($this->eventDispatcher, FlowSendMailActionEvent::class, $flowListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, $flowListener);
 
         $mailEvent = null;
         $mailListener = function (MailBeforeSentEvent $event) use (&$mailEvent): void {
@@ -179,11 +174,9 @@ class GrantDownloadAccessActionTest extends TestCase
                 $mailEvent = $event;
             }
         };
-        $this->addEventListener($this->eventDispatcher, MailBeforeSentEvent::class, $mailListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MailBeforeSentEvent::class, $mailListener);
 
         $orderId = $this->placeOrder($productDownloads);
-
-        $this->resetEventDispatcher();
 
         $this->assertDispatchedFlowEvent($productDownloads, $flowEvent);
         $this->assertDispatchedMailEvent($productDownloads, $mailEvent);

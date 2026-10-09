@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -42,7 +43,7 @@ class ApiControllerVersionTest extends TestCase
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertSame('http://localhost/api/category/' . $id, $response->headers->get('Location'));
 
         $this->getBrowser()->jsonRequest(
             'POST',
@@ -76,7 +77,7 @@ class ApiControllerVersionTest extends TestCase
         $browser->jsonRequest('POST', '/api/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($browser, 'product', $id);
@@ -95,7 +96,7 @@ class ApiControllerVersionTest extends TestCase
         $browser->jsonRequest('POST', '/api/_action/version/' . $response['versionId'] . '/product/' . $id);
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertEmpty($response);
+        static::assertSame([], $response);
 
         $this->assertEntityExists($browser, 'product', $id);
 
@@ -152,6 +153,26 @@ class ApiControllerVersionTest extends TestCase
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(ApiException::deleteLiveVersion()->getErrorCode(), $content['errors'][0]['code']);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function malformedDeleteVersionPathProvider(): iterable
+    {
+        $id = Uuid::randomHex();
+
+        yield 'malformed version id' => [\sprintf('/api/_action/version/not-a-uuid/product/%s', $id)];
+        yield 'malformed entity id' => [\sprintf('/api/_action/version/%s/product/not-a-uuid', $id)];
+    }
+
+    #[DataProvider('malformedDeleteVersionPathProvider')]
+    public function testDeleteVersionWithAMalformedIdIsNotRouted(string $path): void
+    {
+        $browser = $this->getBrowser();
+        $browser->jsonRequest('POST', $path);
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
     }
 
     public function testMergeCannotResurrectADiscardedVersion(): void

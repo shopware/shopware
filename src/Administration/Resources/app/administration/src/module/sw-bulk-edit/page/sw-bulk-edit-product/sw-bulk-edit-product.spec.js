@@ -633,6 +633,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         const productEntity = {
             guaranteeMonths: 36,
             guaranteeConfirmed: true,
+            guaranteeTermsMediaId: 'termsMediaId',
+            guaranteeTermsUrl: 'https://example.com/guarantee-terms',
         };
         const wrapper = await createWrapper(productEntity, {
             name: 'sw.bulk.edit.product',
@@ -645,11 +647,29 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.guaranteeFormFields.map((field) => field.name)).toEqual([
             'guaranteeMonths',
             'guaranteeConfirmed',
+            'guaranteeTermsMediaId',
+            'guaranteeTermsUrl',
         ]);
+        expect(wrapper.vm.guaranteeFormFields[2].config).toEqual(
+            expect.objectContaining({ componentName: 'sw-media-field', fileAccept: 'application/pdf' }),
+        );
 
         wrapper.vm.bulkEditProduct.guaranteeMonths.isChanged = true;
         wrapper.vm.bulkEditProduct.guaranteeConfirmed.isChanged = true;
+        wrapper.vm.bulkEditProduct.guaranteeTermsMediaId.isChanged = true;
+        wrapper.vm.bulkEditProduct.guaranteeTermsUrl.isChanged = true;
         wrapper.vm.onProcessData();
+
+        expect(wrapper.vm.bulkEditSelected).toContainEqual({
+            field: 'guaranteeTermsMediaId',
+            type: 'overwrite',
+            value: 'termsMediaId',
+        });
+        expect(wrapper.vm.bulkEditSelected).toContainEqual({
+            field: 'guaranteeTermsUrl',
+            type: 'overwrite',
+            value: 'https://example.com/guarantee-terms',
+        });
 
         expect(wrapper.vm.bulkEditSelected).toContainEqual({
             field: 'guaranteeMonths',
@@ -708,6 +728,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             expect.arrayContaining([
                 expect.objectContaining({ name: 'guaranteeMonths', canInherit: true }),
                 expect.objectContaining({ name: 'guaranteeConfirmed', canInherit: true }),
+                expect.objectContaining({ name: 'guaranteeTermsMediaId', canInherit: true }),
+                expect.objectContaining({ name: 'guaranteeTermsUrl', canInherit: true }),
             ]),
         );
 
@@ -1229,8 +1251,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.deliverabilityFormFields).toHaveLength(1);
-        expect(wrapper.vm.deliverabilityFormFields[0].name).toBe('deliveryTimeId');
+        expect(wrapper.vm.deliverabilityFormFields.map((field) => field.name)).toEqual([
+            'deliveryTimeId',
+            'minPurchase',
+            'purchaseSteps',
+            'maxPurchase',
+        ]);
     });
 
     it('should set route meta module when component created', async () => {

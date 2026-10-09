@@ -136,7 +136,6 @@ const missingTests = [
     'src/core/factory/shortcut.factory.js',
     'src/core/factory/state-deprecated.factory.js',
     'src/core/factory/state.factory.ts',
-    'src/core/factory/template.factory.js',
     'src/core/feature.ts',
     'src/core/helper/device.helper.js',
     'src/core/helper/middleware.helper.js',

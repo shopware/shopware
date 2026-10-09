@@ -4,16 +4,18 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Generation;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
-use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentDefinition;
-use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentDefinition;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
@@ -25,6 +27,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -42,8 +45,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\DocumentConfigLoaderFactory;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticReferencedSnapshotDocumentDataProvider;
@@ -57,14 +62,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(DocumentGenerator::class)]
 class DocumentGeneratorTest extends TestCase
 {
-    public function testGenerate(): void
+    #[DataProvider('sourceVersionProvider')]
+    public function testGenerate(string $sourceVersionId): void
     {
         $orderId = Uuid::randomHex();
         $createdOrderVersionId = Uuid::randomHex();
         $salesChannelId = Uuid::randomHex();
         $documentTypeId = Uuid::randomHex();
         $orderLanguageId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
+        $context = Context::createDefaultContext()->createWithVersionId($sourceVersionId);
 
         $generationRequest = new DocumentGenerationRequest(
             $orderId,
@@ -86,14 +92,15 @@ class DocumentGeneratorTest extends TestCase
             ->willReturn($createdOrderVersionId);
 
         $orderRepository
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(3))
             ->method('search')
             ->willReturnCallback(function (
                 Criteria $criteria,
                 Context $searchContext,
-            ) use ($order, $orderId, $createdOrderVersionId): EntitySearchResult {
+            ) use ($order, $orderId, $createdOrderVersionId, $sourceVersionId): EntitySearchResult {
                 static::assertSame([$orderId], $criteria->getIds());
-                static::assertSame($createdOrderVersionId, $searchContext->getVersionId());
+                static $searchCount = 0;
+                static::assertSame(++$searchCount === 3 ? $createdOrderVersionId : $sourceVersionId, $searchContext->getVersionId());
 
                 return new EntitySearchResult(
                     OrderDefinition::ENTITY_NAME,
@@ -151,13 +158,61 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotSame('', $documentFileRepository->creates[0][0]['mediaId']);
     }
 
-    public function testPreview(): void
+    /**
+     * @param array<string, string> $companyInfo
+     */
+    #[DataProvider('invalidConfigurationProvider')]
+    public function testInvalidConfigurationDoesNotAllocateNumberOrCreateVersion(array $companyInfo, string $pageSize, string $target, string $field): void
+    {
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setSalesChannelId(Uuid::randomHex());
+        $order->setLanguageId(Uuid::randomHex());
+
+        $orderRepository = $this->createOrderRepository($order, $order->getId(), Defaults::LIVE_VERSION, $order->getLanguageId());
+        $numberGenerator = $this->createMock(NumberRangeValueGeneratorInterface::class);
+        $numberGenerator->expects($this->never())->method('getValue');
+
+        [$generator, $documents, $files] = $this->createGenerator(
+            $orderRepository,
+            $numberGenerator,
+            Uuid::randomHex(),
+            new DocumentEntity(),
+            companyInfo: $companyInfo,
+            pageSize: $pageSize,
+        );
+
+        $this->expectExceptionObject(DocumentV2Exception::configMissingRequiredFields($target, 'invoice', $field));
+
+        try {
+            $generator->generate(
+                new DocumentGenerationRequest($order->getId(), DocumentType::INVOICE, [DocumentFormat::PDF]),
+                Context::createDefaultContext(),
+            );
+        } finally {
+            static::assertCount(0, $documents->creates);
+            static::assertCount(0, $files->creates);
+        }
+    }
+
+    /**
+     * @return \Generator<string, array{array<string, string>, string, class-string, string}>
+     */
+    public static function invalidConfigurationProvider(): \Generator
+    {
+        yield 'missing company name' => [['companyName' => ''], 'A4', DocumentCompanyInfo::class, 'companyName'];
+        yield 'invalid company country' => [['companyCountryId' => 'invalid'], 'A4', DocumentCompanyInfo::class, 'companyCountry'];
+        yield 'missing page size' => [[], '', DocumentConfig::class, 'pageSize'];
+    }
+
+    #[DataProvider('sourceVersionProvider')]
+    public function testPreview(string $sourceVersionId): void
     {
         $orderId = Uuid::randomHex();
         $salesChannelId = Uuid::randomHex();
         $documentTypeId = Uuid::randomHex();
         $orderLanguageId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
+        $context = Context::createDefaultContext()->createWithVersionId($sourceVersionId);
 
         $generationRequest = new DocumentGenerationRequest(
             $orderId,
@@ -234,6 +289,15 @@ class DocumentGeneratorTest extends TestCase
         static::assertCount(0, $documentFileRepository->creates);
     }
 
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function sourceVersionProvider(): \Generator
+    {
+        yield 'live order context' => [Defaults::LIVE_VERSION];
+        yield 'draft order context' => [Uuid::randomHex()];
+    }
+
     public function testGenerateThrowsExceptionForMissingFormats(): void
     {
         $orderRepository = StaticEntityRepository::of(OrderCollection::class, [], new OrderDefinition());
@@ -285,10 +349,11 @@ class DocumentGeneratorTest extends TestCase
         );
     }
 
-    public function testGenerateForAReferencingTypeRendersAndPersistsTheReferencedSnapshot(): void
+    #[DataProvider('referencedVersionProvider')]
+    public function testGenerateForAReferencingTypeRendersAndPersistsTheReferencedSnapshot(bool $liveVersion): void
     {
         $orderId = Uuid::randomHex();
-        $referencedVersionId = Uuid::randomHex();
+        $referencedVersionId = $liveVersion ? Defaults::LIVE_VERSION : Uuid::randomHex();
         $referencedDocumentId = Uuid::randomHex();
         $orderLanguageId = Uuid::randomHex();
 
@@ -333,6 +398,15 @@ class DocumentGeneratorTest extends TestCase
         static::assertCount(1, $documentRepository->creates);
         static::assertSame($referencedVersionId, $documentRepository->creates[0][0]['orderVersionId']);
         static::assertSame($referencedDocumentId, $documentRepository->creates[0][0]['referencedDocumentId']);
+    }
+
+    /**
+     * @return \Generator<string, array{bool}>
+     */
+    public static function referencedVersionProvider(): \Generator
+    {
+        yield 'invoice with a snapshot' => [false];
+        yield 'invoice stored at the live version' => [true];
     }
 
     public function testPreviewForAReferencingTypeRendersTheReferencedSnapshot(): void
@@ -407,14 +481,15 @@ class DocumentGeneratorTest extends TestCase
             ->willReturn($createdOrderVersionId);
 
         $orderRepository
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(3))
             ->method('search')
             ->willReturnCallback(function (
                 Criteria $criteria,
                 Context $searchContext,
             ) use ($order, $orderId, $createdOrderVersionId): EntitySearchResult {
                 static::assertSame([$orderId], $criteria->getIds());
-                static::assertSame($createdOrderVersionId, $searchContext->getVersionId());
+                static $searchCount = 0;
+                static::assertSame(++$searchCount === 3 ? $createdOrderVersionId : Defaults::LIVE_VERSION, $searchContext->getVersionId());
 
                 return new EntitySearchResult(
                     OrderDefinition::ENTITY_NAME,
@@ -514,6 +589,7 @@ class DocumentGeneratorTest extends TestCase
      * @param EntityRepository<OrderCollection> $orderRepository
      * @param list<StaticDocumentDataProvider>|null $providers
      * @param list<array<string, string>> $referenceRows
+     * @param array<string, string> $companyInfo
      *
      * @return array{
      *     0: DocumentGenerator,
@@ -528,6 +604,8 @@ class DocumentGeneratorTest extends TestCase
         DocumentEntity $document,
         ?array $providers = null,
         array $referenceRows = [],
+        array $companyInfo = [],
+        string $pageSize = 'A4',
     ): array {
         $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             [],
@@ -581,6 +659,7 @@ class DocumentGeneratorTest extends TestCase
 
         $connection = static::createStub(Connection::class);
         $connection->method('createQueryBuilder')->willReturn(new FakeQueryBuilder($connection, $referenceRows));
+        $connection->method('fetchOne')->willReturn(Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
 
         $generator = new DocumentGenerator(
             $providerRegistry,
@@ -599,6 +678,7 @@ class DocumentGeneratorTest extends TestCase
             new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),
             $orderRepository,
             static::createStub(ScriptExecutor::class),
+            DocumentConfigLoaderFactory::create($documentTypeRegistry, static::createStub(SystemConfigService::class), $companyInfo, $pageSize),
         );
 
         return [$generator, $documentRepository, $documentFileRepository];

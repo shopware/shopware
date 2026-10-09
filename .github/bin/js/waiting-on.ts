@@ -1,8 +1,8 @@
 /**
  * Decide who an open pull request is waiting for: its author, us, or nobody.
  *
- * This module only reports. It writes no labels and posts no comments — the point is to
- * agree on the rule before anything acts on it.
+ * The verdict is written back as one `waiting-on/*` label per pull request, so it can be
+ * filtered on in the GitHub UI. Nothing else is written: no comments, no closing.
  *
  * ## Why not `updated_at`
  *
@@ -93,6 +93,9 @@
  * CONTRIBUTOR, which is fine for a report and not good enough to route a reminder on.
  */
 
+import { applyProjectChanges, fetchProject, planProjectChanges, summarizeProjectChanges } from './waiting-on-project.ts';
+import { parseChannels, planReminders, postSlackMessage, renderReminder, type Slack } from './waiting-on-slack.ts';
+
 export type WaitingOn = 'author' | 'shopware' | 'nobody';
 
 export type WaitingOnReason =
@@ -109,7 +112,8 @@ export type WaitingOnReason =
     | 'author-turn'
     | 'our-turn';
 
-/** What stage 3 would set. Defined here so the report shows the label it would apply; nothing writes it yet. */
+export const WAITING_ON_LABEL_PREFIX = 'waiting-on/';
+
 export const WAITING_ON_LABEL: Record<WaitingOn, string> = {
     author: 'waiting-on/author',
     shopware: 'waiting-on/shopware',
@@ -370,6 +374,7 @@ const OPEN_PULL_REQUESTS_QUERY = `
             pullRequests(states: OPEN, first: 15, after: $after) {
                 pageInfo { hasNextPage endCursor }
                 nodes {
+                    id
                     number
                     title
                     url
@@ -421,7 +426,8 @@ type ReviewThreadNode = {
     comments: { nodes: { createdAt: string; author?: { login: string; __typename: string } | null }[] };
 };
 
-type PullRequestNode = {
+export type PullRequestNode = {
+    id: string;
     number: number;
     title: string;
     url: string;
@@ -505,9 +511,19 @@ type GraphqlClient = {
     graphql<T>(query: string, variables: Record<string, unknown>): Promise<T>;
 };
 
+type IssuesClient = {
+    rest: {
+        issues: {
+            addLabels(options: { owner: string; repo: string; issue_number: number; labels: string[] }): Promise<unknown>;
+            removeLabel(options: { owner: string; repo: string; issue_number: number; name: string }): Promise<unknown>;
+        };
+    };
+};
+
 type Core = {
     info(message: string): void;
     warning(message: string): void;
+    error(message: string): void;
     setOutput(name: string, value: string): void;
     summary: {
         addRaw(text: string, addEOL?: boolean): unknown;
@@ -565,11 +581,14 @@ export async function resolveMergeability(github: GraphqlClient, core: Core, rep
 }
 
 export type Row = {
+    /** The GraphQL node id, which the project sync adds items by. */
+    id: string;
     number: number;
     title: string;
     url: string;
     author: string;
     authorAssociation: string;
+    labels: string[];
     waitingOn: WaitingOn;
     reason: WaitingOnReason;
     label: string;
@@ -592,11 +611,13 @@ export function buildRows(nodes: PullRequestNode[], now: Date): Row[] {
             const verdict = classifyPullRequest(factsOf(node));
 
             return {
+                id: node.id,
                 number: node.number,
                 title: node.title,
                 url: node.url,
                 author: node.author.login,
                 authorAssociation: node.authorAssociation,
+                labels: node.labels.nodes.map((label) => label.name),
                 waitingOn: verdict.waitingOn,
                 reason: verdict.reason,
                 label: WAITING_ON_LABEL[verdict.waitingOn],
@@ -643,11 +664,87 @@ export function renderReport(rows: Row[]): string {
     return lines.join('\n');
 }
 
+export type LabelChange = {
+    number: number;
+    add?: string;
+    remove: string[];
+};
+
 /**
- * Nothing here is labelled, commented on or closed. The `rows` output carries the verdicts
- * as JSON so a later stage can consume them without this having to change.
+ * The label edits that bring every open pull request in line with its verdict. A pull
+ * request without a row — one a bot opened — loses any `waiting-on/*` label it carries.
  */
-export async function reportWaitingOn({ github, core, context }: { github: GraphqlClient; core: Core; context: Context }): Promise<void> {
+export function planLabelChanges(nodes: PullRequestNode[], rows: Row[]): LabelChange[] {
+    const targets = new Map(rows.map((row) => [row.number, row.label]));
+    const changes: LabelChange[] = [];
+
+    for (const node of nodes) {
+        const target = targets.get(node.number);
+        const current = node.labels.nodes.map((label) => label.name).filter((name) => name.startsWith(WAITING_ON_LABEL_PREFIX));
+
+        const add = target !== undefined && !current.includes(target) ? target : undefined;
+        const remove = current.filter((name) => name !== target);
+
+        if (add !== undefined || remove.length > 0) {
+            changes.push({ number: node.number, add, remove });
+        }
+    }
+
+    return changes;
+}
+
+const sleep = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+/**
+ * The first run touches every open pull request, so writes are spaced out to stay clear of
+ * GitHub's secondary rate limit on mutating requests.
+ */
+export async function applyLabelChanges(
+    github: IssuesClient,
+    core: Core,
+    repo: Context['repo'],
+    changes: LabelChange[],
+    pauseMilliseconds = 1000,
+): Promise<number[]> {
+    const failed: number[] = [];
+
+    for (const change of changes) {
+        // One pull request failing must not hide the rest.
+        try {
+            if (change.add !== undefined) {
+                await github.rest.issues.addLabels({ ...repo, issue_number: change.number, labels: [change.add] });
+                core.info(`Set \`${change.add}\` on #${change.number}`);
+                await sleep(pauseMilliseconds);
+            }
+
+            for (const stale of change.remove) {
+                await github.rest.issues.removeLabel({ ...repo, issue_number: change.number, name: stale });
+                core.info(`Removed \`${stale}\` from #${change.number}`);
+                await sleep(pauseMilliseconds);
+            }
+        } catch (error) {
+            failed.push(change.number);
+            core.error(`Failed to update the waiting-on label on #${change.number}: ${error instanceof Error ? error.message : String(error)}`);
+        }
+    }
+
+    return failed;
+}
+
+export type ReportOptions = {
+    dryRun?: boolean;
+    /** The organization project to mirror the verdicts into, with a client allowed to write it. */
+    project?: { github: GraphqlClient; number: number };
+    /** Where the reminders for external pull requests go; see waiting-on-slack.ts. */
+    reminders?: { slack: Slack; channels: string | undefined };
+};
+
+/**
+ * Labels every open pull request with its verdict and mirrors it into the project, unless
+ * `dryRun` is set. The `rows` output carries the verdicts as JSON so a later stage can
+ * consume them without this having to change.
+ */
+export async function reportWaitingOn({ github, core, context }: { github: GraphqlClient & IssuesClient; core: Core; context: Context }, { dryRun = false, project, reminders }: ReportOptions = {}): Promise<void> {
     const nodes = await fetchOpenPullRequests(github, context.repo);
     core.info(`Read ${nodes.length} open pull request(s).`);
 
@@ -668,7 +765,48 @@ export async function reportWaitingOn({ github, core, context }: { github: Graph
     }
     core.info(`Counted as human: ${[...humans].sort().join(', ')}`);
 
+    const changes = planLabelChanges(nodes, rows);
+    const failedLabels = dryRun ? [] : await applyLabelChanges(github, core, context.repo, changes);
+
     core.summary.addRaw(renderReport(rows));
+    core.summary.addRaw(`\n${changes.length} pull request(s) ${dryRun ? 'would have had their label changed (dry run)' : 'had their label changed'}.\n`);
+
+    let failedItems: string[] = [];
+    if (project !== undefined) {
+        const { owner, repo } = context.repo;
+        const { schema, items } = await fetchProject(project.github, owner, project.number, `${owner}/${repo}`);
+        const projectChanges = planProjectChanges(rows, items);
+
+        failedItems = dryRun ? [] : await applyProjectChanges(project.github, core, schema, projectChanges);
+        core.summary.addRaw(`\nProject ${owner}/${project.number}${dryRun ? ' (dry run, nothing written)' : ''}: ${summarizeProjectChanges(projectChanges)}.\n`);
+    }
+
+    const failedReminders: string[] = [];
+    if (reminders !== undefined) {
+        const boardUrl = project !== undefined ? `https://github.com/orgs/${context.repo.owner}/projects/${project.number}` : undefined;
+        const planned = planReminders(rows, parseChannels(reminders.channels), new Date());
+
+        for (const reminder of planned) {
+            // One channel failing must not keep the others from their reminders.
+            try {
+                await postSlackMessage(dryRun ? {} : reminders.slack, core, reminder.channel, renderReminder(reminder, boardUrl));
+            } catch (error) {
+                failedReminders.push(reminder.channel);
+                core.error(error instanceof Error ? error.message : String(error));
+            }
+        }
+        core.summary.addRaw(`\n${planned.reduce((sum, reminder) => sum + reminder.rows.length, 0)} external pull request(s) due for a Slack reminder${dryRun ? ' (dry run, nothing sent)' : ''}.\n`);
+    }
+
     await core.summary.write();
     core.setOutput('rows', JSON.stringify(rows));
+
+    const failures = [
+        ...(failedLabels.length > 0 ? [`the waiting-on label on ${failedLabels.map((number) => `#${number}`).join(', ')}`] : []),
+        ...(failedItems.length > 0 ? [`the project for ${failedItems.join(', ')}`] : []),
+        ...(failedReminders.length > 0 ? [`the Slack reminder for ${failedReminders.join(', ')}`] : []),
+    ];
+    if (failures.length > 0) {
+        throw new Error(`Failed to update ${failures.join(' and ')}`);
+    }
 }

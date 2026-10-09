@@ -132,6 +132,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CategoryBreadcrumbUpdater::class)
         ->args([
             service(Connection::class),
+            service('category.repository'),
+            service('language.repository'),
         ]);
 
     $services->set(TreeUpdater::class)

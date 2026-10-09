@@ -2,8 +2,9 @@
  * Mirror the waiting-on verdicts into an organization project, so a board can group the
  * open pull requests by who they are waiting on and a view can filter them by team label.
  *
- * The project is the one named by `WAITING_ON_PROJECT_NUMBER`. It needs three fields, set
- * up by hand once: `Waiting on` and `Reason` as single selects whose options match the
+ * The project is the one named by `WAITING_ON_PROJECT_NUMBER`; it gets every pull request.
+ * `WAITING_ON_TEAM_PROJECTS` adds one project per team label, which gets only the pull
+ * requests carrying that label. Every project needs three fields, set up by hand once: `Waiting on` and `Reason` as single selects whose options match the
  * verdict and reason codes, and `Waiting since` as a date. A missing field fails the run;
  * a missing option only skips that one value.
  *
@@ -51,7 +52,23 @@ export function valuesOf(row: Row): Required<FieldValues> {
     return { waitingOn: row.waitingOn, reason: row.reason, since: toDate(row.since) };
 }
 
-export function planProjectChanges(rows: Row[], items: ProjectItem[]): ProjectChange[] {
+/** A team's own project is curated by the team, so what the sweep did not produce is left alone there. */
+export type PlanOptions = { archive?: boolean };
+
+export function parseTeamProjects(json: string | undefined): Map<string, number> {
+    if (json === undefined || json.trim() === '') {
+        return new Map();
+    }
+
+    const parsed: unknown = JSON.parse(json);
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed) || !Object.values(parsed).every((value) => Number.isInteger(value) && (value as number) > 0)) {
+        throw new Error('WAITING_ON_TEAM_PROJECTS must be a JSON object from a label to a project number.');
+    }
+
+    return new Map(Object.entries(parsed as Record<string, number>));
+}
+
+export function planProjectChanges(rows: Row[], items: ProjectItem[], { archive = true }: PlanOptions = {}): ProjectChange[] {
     const itemsByPullRequest = new Map(items.map((item) => [item.pullRequestId, item]));
     const changes: ProjectChange[] = [];
 
@@ -74,6 +91,10 @@ export function planProjectChanges(rows: Row[], items: ProjectItem[]): ProjectCh
         if (Object.keys(set).length > 0) {
             changes.push({ kind: 'update', itemId: item.id, row, set });
         }
+    }
+
+    if (!archive) {
+        return changes;
     }
 
     const current = new Set(rows.map((row) => row.id));

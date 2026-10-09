@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import {
     applyProjectChanges,
     buildFieldMutation,
+    parseTeamProjects,
     planProjectChanges,
     type ProjectItem,
     type ProjectSchema,
@@ -60,6 +61,22 @@ test('only the fields that changed are written', () => {
 
 test('an item whose pull request is no longer open is archived', () => {
     assert.deepEqual(planProjectChanges([row()], [item(), item({ id: 'ITEM_2', pullRequestId: 'PR_2' })]), [{ kind: 'archive', itemId: 'ITEM_2' }]);
+});
+
+test('a team project leaves items the sweep did not produce alone', () => {
+    assert.deepEqual(planProjectChanges([row()], [item(), item({ id: 'ITEM_2', pullRequestId: 'PR_2' })], { archive: false }), []);
+});
+
+test('parseTeamProjects maps a team label to a project number', () => {
+    assert.deepEqual(parseTeamProjects('{"domain/crm-after-sales":43}'), new Map([['domain/crm-after-sales', 43]]));
+    assert.deepEqual(parseTeamProjects(undefined), new Map());
+    assert.deepEqual(parseTeamProjects(' '), new Map());
+});
+
+test('parseTeamProjects rejects anything but a label to a project number', () => {
+    assert.throws(() => parseTeamProjects('[43]'), /from a label to a project number/);
+    assert.throws(() => parseTeamProjects('{"domain/crm-after-sales":"43"}'), /from a label to a project number/);
+    assert.throws(() => parseTeamProjects('{"domain/crm-after-sales":0}'), /from a label to a project number/);
 });
 
 test('resolveSchema names the field it cannot find', () => {

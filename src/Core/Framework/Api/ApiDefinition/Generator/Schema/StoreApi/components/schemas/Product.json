@@ -92,6 +92,11 @@
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
+                    "guaranteeTermsMediaId": {
+                        "description": "Unique identity of the document with the producer commercial durability guarantee terms.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
                     "productNumber": {
                         "description": "Unique number assigned to individual products. Define rules for automatic assignment of every product creation as per your number range.",
                         "type": "string"
@@ -132,6 +137,19 @@
                     },
                     "manufacturerNumber": {
                         "description": "Unique number that describes the manufacturer.",
+                        "type": "string"
+                    },
+                    "guaranteeMonths": {
+                        "description": "Commercial durability guarantee duration in months.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "guaranteeConfirmed": {
+                        "description": "Merchant confirmation that the producer commercial durability guarantee information is accurate and has been made available.",
+                        "type": "boolean"
+                    },
+                    "guaranteeTermsUrl": {
+                        "description": "URL of the producer commercial durability guarantee terms.",
                         "type": "string"
                     },
                     "ean": {
@@ -468,6 +486,10 @@
                     "openGraphMedia": {
                         "$ref": "#/components/schemas/Media",
                         "description": "Open Graph image for social media sharing"
+                    },
+                    "guaranteeTermsMedia": {
+                        "$ref": "#/components/schemas/Media",
+                        "description": "Document with the producer commercial durability guarantee terms"
                     },
                     "cmsPage": {
                         "$ref": "#/components/schemas/CmsPage",

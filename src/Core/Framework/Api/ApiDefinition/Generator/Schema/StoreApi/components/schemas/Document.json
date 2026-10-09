@@ -22,6 +22,10 @@
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
+                    "typeName": {
+                        "description": "Technical name of the document type, for example `invoice`, `delivery_note`, `credit_note` or `storno`. Plugins and apps can add their own types.",
+                        "type": "string"
+                    },
                     "referencedDocumentId": {
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"

@@ -37,6 +37,12 @@
       "tagFilter": {
         "label": "Tags",
         "placeholder": "Select tags..."
+      },
+      "duplicateFilter": {
+        "label": "Potential duplicates",
+        "placeholder": "Select...",
+        "textHasCriteria": "Has rules with identical conditions",
+        "textNoCriteria": "Has no rules with identical conditions"
       }
     },
     "list": {
@@ -104,6 +110,11 @@
       },
       "deprecatedConditionWarning": "The condition \"{label}\" is deprecated and will be removed in {version}. Please use \"{replacement}\" instead.",
       "deprecatedConditionWarningNoReplacement": "The condition \"{label}\" is deprecated and will be removed in {version}.",
+      "duplicateHint": {
+        "title": "Rules with identical conditions",
+        "message": "The following rules have the same conditions as this rule. This can be intended, e.g. for different assignments. Otherwise, consider using one rule instead:",
+        "more": "… and {count} more rule | … and {count} more rules"
+      },
       "flowOnlyConditionsWarning": "The following conditions in this rule require a flow context: {conditions}. Outside of a flow (for example in shipping methods, payment methods, or promotion assignments) they will always evaluate to false.",
       "tabGeneral": "General",
       "tabAssignments": "Assignments",

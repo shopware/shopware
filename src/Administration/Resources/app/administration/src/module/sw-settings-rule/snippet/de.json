@@ -37,6 +37,12 @@
       "tagFilter": {
         "label": "Tags",
         "placeholder": "Tags auswählen ..."
+      },
+      "duplicateFilter": {
+        "label": "Mögliche Duplikate",
+        "placeholder": "Auswählen ...",
+        "textHasCriteria": "Hat Regeln mit identischen Bedingungen",
+        "textNoCriteria": "Hat keine Regeln mit identischen Bedingungen"
       }
     },
     "list": {
@@ -104,6 +110,11 @@
       },
       "deprecatedConditionWarning": "Die Bedingung \"{label}\" ist veraltet und wird mit {version} entfernt. Bitte nutze stattdessen \"{replacement}\".",
       "deprecatedConditionWarningNoReplacement": "Die Bedingung \"{label}\" ist veraltet und wird mit {version} entfernt.",
+      "duplicateHint": {
+        "title": "Regeln mit identischen Bedingungen",
+        "message": "Die folgenden Regeln haben dieselben Bedingungen wie diese Regel. Das kann gewollt sein, z. B. für unterschiedliche Zuweisungen. Andernfalls kannst du stattdessen eine einzige Regel verwenden:",
+        "more": "… und {count} weitere Regel | … und {count} weitere Regeln"
+      },
       "flowOnlyConditionsWarning": "Folgende Bedingungen dieser Regel benötigen einen Flow-Kontext: {conditions}. Außerhalb eines Flows (z. B. in Versandarten, Zahlungsarten oder Aktions-Zuweisungen) werden sie immer zu \"falsch\" ausgewertet.",
       "tabGeneral": "Allgemein",
       "tabAssignments": "Zuweisungen",

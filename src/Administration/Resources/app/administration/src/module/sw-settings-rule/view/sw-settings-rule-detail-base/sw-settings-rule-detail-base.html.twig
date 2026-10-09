@@ -126,6 +126,10 @@
             </mt-banner>
         </div>
 
+        {% block sw_settings_rule_detail_base_duplicate_hint %}
+        <sw-settings-rule-duplicate-hint :rule="rule" />
+        {% endblock %}
+
         <div
             v-if="flowOnlyConditionLabels?.length > 0"
             class="sw-settings-rule-detail-base__flow-only-warning"

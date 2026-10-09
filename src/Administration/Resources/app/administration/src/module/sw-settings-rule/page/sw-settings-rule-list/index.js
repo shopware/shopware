@@ -33,6 +33,7 @@ export default {
                 'conditionGroups',
                 'assignments',
                 'tags',
+                'duplicates',
             ],
             filterCriteria: [],
         };
@@ -132,6 +133,14 @@ export default {
                     placeholder: this.$t('sw-settings-rule.filter.tagFilter.placeholder'),
                     criteria: new Criteria(1, 25).addSorting(Criteria.sort('name')),
                 },
+                duplicates: {
+                    property: 'configHash',
+                    label: this.$t('sw-settings-rule.filter.duplicateFilter.label'),
+                    placeholder: this.$t('sw-settings-rule.filter.duplicateFilter.placeholder'),
+                    type: 'existence-filter',
+                    optionHasCriteria: this.$t('sw-settings-rule.filter.duplicateFilter.textHasCriteria'),
+                    optionNoCriteria: this.$t('sw-settings-rule.filter.duplicateFilter.textNoCriteria'),
+                },
             };
 
             return this.filterFactory.create('rule', filters);
@@ -187,8 +196,8 @@ export default {
 
             this.activeFilterNumber = criteria.filters.length;
 
-            this.ruleRepository
-                .search(criteria)
+            this.resolveDuplicateFilter(criteria)
+                .then(() => this.ruleRepository.search(criteria))
                 .then((items) => {
                     this.total = items.total;
                     this.rules = items;
@@ -240,6 +249,58 @@ export default {
                         message: this.$t('sw-settings-rule.detail.messageSaveError'),
                     });
                 });
+        },
+
+        async resolveDuplicateFilter(criteria) {
+            const index = criteria.filters.findIndex((filter) => {
+                const query = filter.type === 'not' ? filter.queries[0] : filter;
+
+                return query.type === 'equals' && query.field === 'configHash' && query.value === null;
+            });
+
+            if (index === -1) {
+                return;
+            }
+
+            const hashes = await this.fetchDuplicateHashes();
+            const hasDuplicates = criteria.filters[index].type === 'not';
+
+            if (hasDuplicates) {
+                criteria.filters.splice(
+                    index,
+                    1,
+                    hashes.length > 0 ? Criteria.equalsAny('configHash', hashes) : Criteria.equals('id', null),
+                );
+
+                return;
+            }
+
+            if (hashes.length === 0) {
+                criteria.filters.splice(index, 1);
+
+                return;
+            }
+
+            criteria.filters.splice(
+                index,
+                1,
+                Criteria.multi('OR', [
+                    Criteria.equals('configHash', null),
+                    Criteria.not('AND', [Criteria.equalsAny('configHash', hashes)]),
+                ]),
+            );
+        },
+
+        async fetchDuplicateHashes() {
+            const criteria = new Criteria(1, 1);
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('configHash', null)]));
+            criteria.addAggregation(Criteria.terms('configHashes', 'configHash'));
+
+            const result = await this.ruleRepository.search(criteria);
+
+            return (result.aggregations?.configHashes?.buckets ?? [])
+                .filter((bucket) => bucket.count > 1)
+                .map((bucket) => bucket.key);
         },
 
         updateCriteria(criteria) {

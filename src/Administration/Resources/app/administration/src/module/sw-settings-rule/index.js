@@ -18,6 +18,7 @@ Shopware.Component.extend(
     () => import('./component/sw-settings-rule-assignment-listing'),
 );
 Shopware.Component.register('sw-settings-rule-category-tree', () => import('./component/sw-settings-rule-category-tree'));
+Shopware.Component.register('sw-settings-rule-duplicate-hint', () => import('./component/sw-settings-rule-duplicate-hint'));
 Shopware.Component.extend(
     'sw-settings-rule-tree-item',
     'sw-tree-item',

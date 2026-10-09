@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -242,6 +243,68 @@ class ProductDetailRouteTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
         static::assertSame('variant-2', $response['product']['productNumber']);
+    }
+
+    /**
+     * @param array<string, mixed> $variantListingConfig
+     */
+    #[DataProvider('variantListingConfigProvider')]
+    public function testLoadParentReturnsNotFoundWhenAllVariantsAreInactive(array $variantListingConfig): void
+    {
+        $this->createVariantProducts($variantListingConfig);
+
+        static::getContainer()->get('product.repository')->update([
+            ['id' => $this->ids->get('variant-1'), 'active' => false],
+            ['id' => $this->ids->get('variant-2'), 'active' => false],
+            ['id' => $this->ids->get('variant-3'), 'active' => false],
+        ], Context::createDefaultContext());
+
+        $this->browser->request('POST', $this->getUrl($this->ids->get('variants')));
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function variantListingConfigProvider(): iterable
+    {
+        yield 'display parent' => [['displayParent' => true]];
+        yield 'without variant listing config' => [[]];
+    }
+
+    public function testLoadParentReturnsNotFoundWhenAllVariantsAreHiddenCloseouts(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
+
+        $this->createVariantProducts(['displayParent' => true]);
+
+        static::getContainer()->get('product.repository')->update([
+            ['id' => $this->ids->get('variant-2'), 'stock' => 0],
+            ['id' => $this->ids->get('variant-3'), 'stock' => 0],
+        ], Context::createDefaultContext());
+
+        $this->browser->request('POST', $this->getUrl($this->ids->get('variants')));
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
+    }
+
+    public function testLoadParentResolvesRemainingActiveVariant(): void
+    {
+        $this->createVariantProducts(['displayParent' => true]);
+
+        static::getContainer()->get('product.repository')->update([
+            ['id' => $this->ids->get('variant-1'), 'active' => false],
+            ['id' => $this->ids->get('variant-2'), 'active' => false],
+        ], Context::createDefaultContext());
+
+        $this->browser->request('POST', $this->getUrl($this->ids->get('variants')));
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
+        static::assertSame('variant-3', $response['product']['productNumber']);
     }
 
     public function testIncludes(): void

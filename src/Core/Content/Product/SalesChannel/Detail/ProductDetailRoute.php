@@ -142,7 +142,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                 $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
             }
 
-            if (!$product instanceof SalesChannelProductEntity) {
+            if (!$product instanceof SalesChannelProductEntity || $this->isParentWithoutResolvedVariant($product, $resolveVariantIdEvent)) {
                 throw ProductException::productNotFound($productId);
             }
 
@@ -304,6 +304,17 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $variantId = $this->productRepository->searchIds($criteria, $context);
 
         return $variantId->firstId() ?? $productId;
+    }
+
+    /**
+     * The parent itself is only loaded when no variant could be resolved, e.g. because all variants are inactive.
+     * Such a parent cannot be bought, so it is treated like an inactive product.
+     */
+    private function isParentWithoutResolvedVariant(SalesChannelProductEntity $product, ResolveVariantIdEvent $event): bool
+    {
+        return $product->getParentId() === null
+            && $product->getChildCount() > 0
+            && $product->getId() !== $event->getResolvedVariantId();
     }
 
     private function findBestVariantByTerm(string $term, string $productId, SalesChannelContext $context): ?string

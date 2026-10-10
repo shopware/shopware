@@ -25,6 +25,16 @@
       // exports map. "node" resolution ignores that map, so without this mapping
       // every DIVE type that touches three degrades to `any`.
       "three/webgpu": ["./node_modules/@types/three/build/three.webgpu.d.ts"],
+      // Vite 8 and its plugins expose their (ESM) types only through the exports map, too.
+      "vite": ["./node_modules/vite/dist/node/index.d.ts"],
+      "@vitejs/plugin-vue": ["./node_modules/@vitejs/plugin-vue/dist/index.d.mts"],
+      "@vitejs/plugin-basic-ssl": ["./node_modules/@vitejs/plugin-basic-ssl/dist/index.d.mts"],
+      "rolldown": ["./node_modules/rolldown/dist/index.d.mts"],
+      "rolldown/experimental": ["./node_modules/rolldown/dist/experimental-index.d.mts"],
+      "rolldown/filter": ["./node_modules/rolldown/dist/filter-index.d.mts"],
+      "rolldown/parseAst": ["./node_modules/rolldown/dist/parse-ast-index.d.mts"],
+      "rolldown/plugins": ["./node_modules/rolldown/dist/plugins-index.d.mts"],
+      "rolldown/utils": ["./node_modules/rolldown/dist/utils-index.d.mts"],
       "@tiptap/vue-3": ["./node_modules/@tiptap/vue-3/dist/index.d.ts", "./node_modules/@shopware-ag/meteor-component-library/node_modules/@tiptap/vue-3/dist/index.d.ts"],
       "@tiptap/extension-link": ["./node_modules/@tiptap/extension-link/dist/index.d.ts", "./node_modules/@shopware-ag/meteor-component-library/node_modules/@tiptap/extension-link/dist/index.d.ts"],
     },

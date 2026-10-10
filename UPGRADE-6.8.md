@@ -28,6 +28,61 @@ The PHPUnit version provided by the Shopware platform was upgraded to 13. If you
 
 Alternatively, decouple your test runner from the platform by explicitly requiring the PHPUnit version you expect in your plugin and using that separate installation in your test pipeline. Managing PHPUnit separately can be preferable when testing across multiple Shopware and PHP versions: choose a PHPUnit version compatible with your supported PHP versions and any Shopware test helpers your tests use, rather than adopting PHPUnit 13 for every test run.
 
+## Administration build updated to Vite 8
+
+The Administration and the Administration code of plugins and apps were built with Vite 6 before and are built with Vite 8 now. Vite 8 uses Rolldown and Oxc instead of Rollup and esbuild. Building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
+
+The watcher serves the Administration at `https://localhost:5173` instead of `http://localhost:5173` now. Accept the self-signed certificate once in the browser.
+
+The most important changes at a glance:
+
+| What breaks | How to fix it |
+|---|---|
+| Building with Node.js below 20.19 or 22.12 fails. | Update Node.js to `^20.19.0 \|\| >=22.12.0`. |
+| `import.meta.glob` with extglob patterns like `!(*.spec)` silently matches no files. | Use negated patterns: `['./**/*.ts', '!./**/*.spec.ts']`. |
+| Default imports of CommonJS dependencies return a different value. | Check default imports of CommonJS packages and use named imports or `.default` where needed. |
+| The watcher is no longer reachable at `http://localhost:5173`. | Open `https://localhost:5173` and accept the self-signed certificate once. |
+| Your own `vite.config.*` logs deprecation warnings for `rollupOptions`, `esbuildOptions`, or `esbuild`. | Rename them to `rolldownOptions`, `optimizeDeps.rolldownOptions`, and `oxc`. |
+| Your own `vite.config.*` uses the object form of `manualChunks`, the legacy Sass API, or `splitVendorChunkPlugin`. | Use `codeSplitting`, remove the Sass `api` option, and remove `splitVendorChunkPlugin`. |
+| Your own Vite plugins fail to load or behave differently. | Update them to a version that supports Vite 8 and check the plugin hook changes below. |
+
+Check the Administration code of your plugin for these changes:
+
+* Extglob patterns in `import.meta.glob` no longer match anything. Replace them with negated patterns:
+
+  ```js
+  // Before
+  import.meta.glob('./**/!(*.spec).{j,t}s', { eager: true });
+  // After
+  import.meta.glob(['./**/*.{j,t}s', '!./**/*.spec.{j,t}s'], { eager: true });
+  ```
+
+* A default import of a CommonJS module resolves to `module.exports` if the importing file is an `.mjs`/`.mts` file, the nearest `package.json` sets `"type": "module"`, or the module does not set `__esModule`. Otherwise it resolves to `module.exports.default`. Check default imports of CommonJS dependencies.
+* The `browser` and `module` fields of dependencies are no longer sniffed for their format. The order of `resolve.mainFields` is always respected.
+* Passing a URL to `import.meta.hot.accept()` was removed. Pass the module ID instead.
+* Native decorators are no longer transpiled.
+* The minimum supported browsers were raised to Chrome 111, Edge 111, Firefox 114, and Safari 16.4, so newer syntax is no longer transpiled for older browsers.
+
+Plugins and apps can add their own Vite config (`vite.config.*` in `Resources/app/administration/src` or `Resources/app/meteor-app`), which is merged with the Shopware config. If your plugin does this, also check:
+
+* `build.rollupOptions`, `worker.rollupOptions`, `optimizeDeps.esbuildOptions`, and `esbuild` are deprecated. Use `build.rolldownOptions`, `worker.rolldownOptions`, `optimizeDeps.rolldownOptions`, and `oxc` instead. The `esbuild` options `banner`, `footer`, and `supported` are no longer supported.
+* `build.commonjsOptions` and `build.dynamicImportVarsOptions.warnOnError` have no effect anymore.
+* The object form of `output.manualChunks` was removed, and the function form is deprecated. Use `codeSplitting` instead.
+* `resolve.alias[].customResolver` is deprecated. Use a plugin with a `resolveId` hook and `enforce: 'pre'` instead.
+* The legacy Sass API was removed. Remove the `api` option from `css.preprocessorOptions.sass` and `css.preprocessorOptions.scss`.
+* `optimizeDeps.entries` only accepts globs.
+* `splitVendorChunkPlugin` was removed.
+* esbuild is no longer installed as a dependency of Vite. Vite plugins that call `transformWithEsbuild` need `esbuild` as their own dependency, or use `transformWithOxc` instead.
+
+If your plugin uses its own Vite plugins, also check:
+
+* Your Vite plugins have to support Vite 8.
+* The `transformIndexHtml` hook no longer supports `enforce` and `transform` on the hook object. Use `order` and `handler` instead.
+* The Rollup hooks `shouldTransformCachedModule`, `resolveImportMeta`, `renderDynamicImport`, and `resolveFileUrl` are no longer called.
+* `load` and `transform` hooks that return JavaScript for non-JavaScript files may need to return `moduleType: 'js'`.
+
+For details, see the [Vite 7](https://v7.vite.dev/guide/migration) and [Vite 8](https://vite.dev/guide/migration) migration guides.
+
 # Changed Functionality
 
 <details>

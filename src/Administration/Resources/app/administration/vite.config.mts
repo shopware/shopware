@@ -7,6 +7,7 @@ import { createHtmlPlugin } from 'vite-plugin-html';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import svgLoader from 'vite-svg-loader';
 import vue from '@vitejs/plugin-vue';
+import basicSsl from '@vitejs/plugin-basic-ssl';
 import * as path from 'path';
 import * as fs from 'fs';
 import symfonyPlugin from 'vite-plugin-symfony';
@@ -19,6 +20,7 @@ import ImageDeprecationPlugin from './build/vite-plugins/image-deprecation';
 import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postprocess-plugin';
 import ShopwareSetupPlugin from './build/vite-plugins/shopware-setup';
 import VirtualShopwareModulesPlugin from './build/vite-plugins/virtual-shopware-modules';
+import NodeEnvDefinePlugin from './build/vite-plugins/node-env-define';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
 
@@ -55,9 +57,14 @@ export default defineConfig(({ command }) => {
         (isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||
         (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
     const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1' && !isInsideDockerContainer();
+    const useBundledDev = isDev && process.env.SHOPWARE_ADMIN_BUNDLED_DEV === '1';
 
     if (isProd) {
         console.log(colors.yellow('# Production mode activated 🚀'));
+    }
+
+    if (useBundledDev) {
+        console.log(colors.yellow('# Experimental bundled dev mode activated'));
     }
 
     // We only load extensions here to display the successful injection
@@ -78,6 +85,10 @@ export default defineConfig(({ command }) => {
         base,
 
         logLevel: isProd ? 'warn' : 'info',
+
+        experimental: {
+            bundledDev: useBundledDev,
+        },
 
         server: {
             open: openBrowserForWatch,
@@ -114,6 +125,16 @@ export default defineConfig(({ command }) => {
 
                 // Twig.JS loads node modules, so we need to polyfill them
                 nodePolyfills({
+                    // In the unbundled dev mode, the globals are only provided via the pre-bundled dependencies.
+                    // Injecting them into every source module costs a lot of time on each server start.
+                    globals:
+                        isDev && !useBundledDev
+                            ? {
+                                  Buffer: 'dev',
+                                  global: 'dev',
+                                  process: 'dev',
+                              }
+                            : undefined,
                     // To add only specific polyfills, add them here. If no option is passed, adds all polyfills
                     include: [
                         'path',
@@ -128,6 +149,14 @@ export default defineConfig(({ command }) => {
                 // dev plugins
                 return [
                     ...sharedPlugins,
+
+                    NodeEnvDefinePlugin(),
+
+                    // Browsers only use HTTP/2 over TLS, so the dev server needs a certificate
+                    basicSsl({
+                        name: 'localhost',
+                        domains: ['localhost'],
+                    }),
 
                     // used to serve index.html and link index.vite.ts automatically
                     createHtmlPlugin({
@@ -194,6 +223,13 @@ export default defineConfig(({ command }) => {
             ],
         },
 
+        css: {
+            // Lightning CSS minifies the CSS since Vite 8. It fails on invalid rules, which esbuild and browsers just drop.
+            lightningcss: {
+                errorRecovery: true,
+            },
+        },
+
         optimizeDeps: {
             include: [
                 'vue-router',
@@ -209,17 +245,19 @@ export default defineConfig(({ command }) => {
             exclude: ['@shopware-ag/dive'],
             // This avoids full-page reload but the browser can't process more requests in parallel
             holdUntilCrawlEnd: true,
-            esbuildOptions: {
-                // Node.js global to browser globalThis
-                define: {
-                    global: 'globalThis',
+            rolldownOptions: {
+                transform: {
+                    // Node.js global to browser globalThis
+                    define: {
+                        global: 'globalThis',
+                    },
                 },
             },
         },
 
         worker: {
             format: 'es',
-            rollupOptions: {
+            rolldownOptions: {
                 output: {
                     format: 'iife',
                 },
@@ -237,10 +275,10 @@ export default defineConfig(({ command }) => {
             // generate .vite/manifest.json in outDir
             manifest: true,
             sourcemap: useSourceMap,
-            rollupOptions: {
-                // overwrite default .html entry
+            rolldownOptions: {
+                // overwrite default .html entry, except for the bundled dev mode, which serves the index.html from the bundle
                 input: {
-                    administration: 'src/index.ts',
+                    administration: useBundledDev ? 'index.html' : 'src/index.ts',
                 },
                 output: {
                     entryFileNames: 'assets/[name]-[hash].js',

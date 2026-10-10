@@ -541,9 +541,10 @@ class ReplaceElementTest extends TestCase
     #[TestDox('rejects wiring whose key the new type declares as a primitive property and reports the key as dropped')]
     public function testReplaceRejectsWiringUnderADeclaredPrimitiveKey(): void
     {
-        // headline is a declared string primitive of Sw:New, so the wiring carry-over must keep reference keys only.
+        // headline is a declared string primitive of Sw:New, so the wiring carry-over must keep only keys
+        // with no enforceable type.
         // The key IS present in the new type, so the presence check alone would carry this requirement onto a
-        // primitive property; only the isPrimitive() operand rejects it.
+        // primitive property; only the enforceableTypes() operand rejects it.
         $requirement = new DataRequirement('headline', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old', ['headline' => $requirement])]);
 
@@ -552,6 +553,19 @@ class ReplaceElementTest extends TestCase
 
         static::assertSame([], $result->roots[0]->dataRequirements);
         static::assertSame(['headline'], $replace->droppedWiring());
+    }
+
+    #[TestDox('drops wiring whose key the new type declares as an all-primitive union and reports the key')]
+    public function testReplaceDropsWiringUnderAnAllPrimitiveUnionKey(): void
+    {
+        $requirement = new DataRequirement('level', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
+        $tree = new StoredTree([new StoredElement('el', 'Sw:Old', ['level' => $requirement])]);
+
+        $replace = new ReplaceElement($this->unionRegistry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertSame([], $result->roots[0]->dataRequirements);
+        static::assertSame(['level'], $replace->droppedWiring());
     }
 
     #[TestDox('drops a stored value whose storage key comes from a binding config with an invalid non-string property')]

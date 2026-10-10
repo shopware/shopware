@@ -10,12 +10,13 @@ rules rather than a placement. The other operations are in [operations.md](opera
 Swaps an element's component to `$newType`, keeping the same id. `requireRegistered($newType)`; the element must
 exist (`mutationTargetNotFound`); carries over a property whose key the new type declares with an enforceable
 type and whose value that type admits (`PropertyType::enforceableTypes()` / `admits()`, the same rule the write gate
-and the diagnostics apply), wiring (data requirements, providers, consumers) keyed to a non-primitive new-type
-property, and children of slots present in the new type, then seeds the new type's stored defaults for any key it does
-not carry (a carried or authored value wins). A lone primitive and an all-primitive union are enforceable, so a value
-matching any member of the union carries. A key the new type declares as `object`, an FQCN, or a union carrying
-either has no enforceable type, so nothing can vouch for the value's shape and it is dropped and reported rather than
-carried across unexamined.
+and the diagnostics apply), wiring (data requirements, providers, consumers) keyed to a new-type property with no
+enforceable type (`object`, an FQCN, or a union carrying either), and children of slots present in the new type, then
+seeds the new type's stored defaults for any key it does not carry (a carried or authored value wins). A lone
+primitive and an all-primitive union are enforceable, so a value matching any member of the union carries, and wiring
+keyed to one is dropped and reported in `droppedWiring()`. A key the new type declares as `object`, an FQCN, or a union
+carrying either has no enforceable type, so nothing can vouch for the value's shape and it is dropped and reported
+rather than carried across unexamined.
 
 Two consequences follow from the predicate, not from a rule of this operation. A translatable property carries its
 whole language map when the new type declares that key translatable and its declared primitive admits every entry; a

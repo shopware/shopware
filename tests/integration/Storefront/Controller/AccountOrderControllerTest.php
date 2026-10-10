@@ -437,6 +437,32 @@ class AccountOrderControllerTest extends TestCase
         static::assertSame($paymentMethodId, $crawler->filter('#confirmOrderForm input[name="paymentMethodId"]')->attr('value'));
     }
 
+    public function testEditOrderPageRendersTheLegalGuaranteeNoticeModal(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+        $salesChannelId = $this->getStorefrontSalesChannelId($context);
+
+        $paymentMethodId = $this->createAfterOrderPaymentMethod($context, $salesChannelId, 'Payment method of the order');
+        $orderId = $this->createOrderWithTransaction($context, $customer, $salesChannelId, $paymentMethodId);
+
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
+        $systemConfig->set('core.cart.showLegalGuaranteeNotice', true);
+        $systemConfig->set('core.cart.showLegalGuaranteeNoticeInline', false);
+
+        $browser = $this->login($customer->getEmail());
+        $crawler = $browser->request('GET', '/account/order/edit/' . $orderId);
+
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+
+        static::assertCount(1, $crawler->filter('#legalGuaranteeNoticeModal.modal'));
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            // the notice link of the confirm page is inherited and has to open the modal rendered above
+            static::assertCount(1, $crawler->filter('.legal-guarantee-notice [data-bs-toggle="modal"][data-bs-target="#legalGuaranteeNoticeModal"]'));
+        }
+    }
+
     public function testEditOrderPageShowsThePaymentMethodTheCustomerSelected(): void
     {
         $context = Context::createDefaultContext();

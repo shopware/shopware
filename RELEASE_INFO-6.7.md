@@ -14,6 +14,10 @@ The conditions now evaluate a line item by the data it carries instead of by its
 
 ## Features
 
+### TypeScript 7 Administration type checking
+
+The Administration's `npm run lint:types` command now uses the native TypeScript 7 compiler. Its separate configuration preserves CommonJS and the existing package lookup behavior. TypeScript 5.7 remains available to build scripts, compiler API consumers, and extension tooling. Extensions continue to use their existing compiler and configuration.
+
 ### System configuration tabs
 
 With the newly added tabs feature, plugin developers can now add another layer of organization to the already existing cards in the system configuration. This allows to group related cards into individual tabs and provide a better overview for merchants when configuring a plugin. The feature is fully optional to use and works with partial usage as well - any cards not added to a tab are automatically gathered in a "General" tab.

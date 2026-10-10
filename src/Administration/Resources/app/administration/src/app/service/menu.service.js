@@ -7,7 +7,6 @@
  * @memberOf module:app/service/menu
  * @param moduleFactory
  * @returns {{getMainMenu: getMainMenu, addItem: FlatTree.add, removeItem: FlatTree.remove}}
- * @constructor
  */
 export default function createMenuService(moduleFactory) {
     return {

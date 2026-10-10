@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { defineComponent } from 'vue';
+import { defineComponent, type ComponentPublicInstance } from 'vue';
 
 /* @private */
 export {};
@@ -20,7 +20,7 @@ export default Shopware.Mixin.register(
             }
         },
 
-        $apiErrorHandler($vm: typeof this) {
+        $apiErrorHandler($vm: ComponentPublicInstance) {
             let property = 'value';
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if ($vm.$options.model?.prop) {

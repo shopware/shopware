@@ -10,7 +10,6 @@ const shortcutsDisabledStorageKey = 'sw-admin-keyboard-shortcuts-disabled';
 /**
  * @private
  * @memberOf module:core/service/shortcut
- * @constructor
  * @method createShortcutService
  * @param {Object} shortcutFactory
  * @param {Number} [keystrokeDelay=1000]

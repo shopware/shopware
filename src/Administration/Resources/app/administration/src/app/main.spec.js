@@ -419,5 +419,17 @@ describe('src/app/main.ts', () => {
         expect(serviceMocks.FileValidationService).not.toHaveBeenCalled();
         Shopware.Service('fileValidationService');
         expect(serviceMocks.FileValidationService).toHaveBeenCalled();
+
+        [
+            serviceMocks.MenuService,
+            serviceMocks.ProductStreamConditionService,
+            serviceMocks.CustomFieldService,
+            serviceMocks.SearchTypeService,
+            serviceMocks.ShortcutService,
+            serviceMocks.SearchRankingService,
+            serviceMocks.SearchPreferencesService,
+        ].forEach((factory) => {
+            expect(factory.mock.contexts[0]).not.toBeInstanceOf(factory);
+        });
     });
 });

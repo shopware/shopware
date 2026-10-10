@@ -280,7 +280,7 @@ describe('app/service/search-ranking.service.js', () => {
 
     it('Should get default user search preferences', async () => {
         createModules(searchRankingModules);
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
 
         const actual = await service.getUserSearchPreference();
         const expected = {
@@ -308,7 +308,7 @@ describe('app/service/search-ranking.service.js', () => {
                 },
             };
             createModules([module]);
-            const service = new SearchRankingService();
+            const service = SearchRankingService();
 
             const actual = await service.getSearchFieldsByEntity('product');
             expect(actual).toEqual(expected);
@@ -317,7 +317,7 @@ describe('app/service/search-ranking.service.js', () => {
 
     it('Should return empty query when building global search query score with term less than 2 characters', async () => {
         createModules(searchRankingModules);
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
 
         const userSearchPreference = await service.getUserSearchPreference();
         const actual = service.buildGlobalSearchQueries(userSearchPreference, 'd');
@@ -328,7 +328,7 @@ describe('app/service/search-ranking.service.js', () => {
 
     it('Should building global search query score with term more than 2 characters', async () => {
         createModules(searchRankingModules);
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
 
         const userSearchPreference = await service.getUserSearchPreference();
         const actual = service.buildGlobalSearchQueries(userSearchPreference, 'order');
@@ -371,7 +371,7 @@ describe('app/service/search-ranking.service.js', () => {
     it.each(buildingCriteriaScoreQueryCase)(
         'Should building search query for entity when %',
         (testName, term, queryScores, newCriteria) => {
-            const service = new SearchRankingService();
+            const service = SearchRankingService();
 
             const criteria = service.buildSearchQueriesForEntity(queryScores, term, new Criteria(1, 25).setTerm(term));
             expect(criteria.parse()).toEqual(newCriteria.parse());
@@ -379,7 +379,7 @@ describe('app/service/search-ranking.service.js', () => {
     );
 
     it('Should cache the result when get search fields by entity', async () => {
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
 
         // Create module with name._searchable = true
         let module = {
@@ -417,7 +417,7 @@ describe('app/service/search-ranking.service.js', () => {
     });
 
     it('Should cache the result when get global search fields', async () => {
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
 
         // Create module with name._searchable = true
         let module = {
@@ -474,7 +474,7 @@ describe('app/service/search-ranking.service.js', () => {
                     },
                 },
             ]);
-            const newService = new SearchRankingService();
+            const newService = SearchRankingService();
             const actual = await newService.getSearchFieldsByEntity('product');
 
             expect(actual).toEqual(expected);
@@ -500,7 +500,7 @@ describe('app/service/search-ranking.service.js', () => {
             },
         ]);
 
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
         const actual = await service.getUserSearchPreference();
 
         expect(actual).toEqual({
@@ -542,7 +542,7 @@ describe('app/service/search-ranking.service.js', () => {
             },
         ]);
 
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
         const actual = await service.getUserSearchPreference();
 
         expect(actual).toEqual({
@@ -579,7 +579,7 @@ describe('app/service/search-ranking.service.js', () => {
             },
         ]);
 
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
         const actual = await service.getUserSearchPreference();
 
         expect(actual).toEqual({
@@ -617,7 +617,7 @@ describe('app/service/search-ranking.service.js', () => {
             },
         ]);
 
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
         const actual = await service.getUserSearchPreference();
 
         expect(actual).toEqual({
@@ -662,7 +662,7 @@ describe('app/service/search-ranking.service.js', () => {
             },
         ]);
 
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
         const actual = await service.getUserSearchPreference();
 
         expect(actual).toEqual({
@@ -701,7 +701,7 @@ describe('app/service/search-ranking.service.js', () => {
             },
         ]);
 
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
         const actual = await service.getSearchFieldsByEntity('product');
 
         expect(actual).toEqual({
@@ -738,7 +738,7 @@ describe('app/service/search-ranking.service.js', () => {
             },
         ]);
 
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
         const userSearchPreference = await service.getUserSearchPreference();
         const actual = service.buildGlobalSearchQueries(userSearchPreference, 'order');
 
@@ -787,7 +787,7 @@ describe('app/service/search-ranking.service.js', () => {
             },
         ]);
 
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
         const actual = await service.getUserSearchPreference();
 
         expect(actual).toEqual({
@@ -819,7 +819,7 @@ describe('app/service/search-ranking.service.js', () => {
                 },
             },
         ]);
-        const newService = new SearchRankingService();
+        const newService = SearchRankingService();
         let actual = await newService.getSearchFieldsByEntity('product');
         const expected = {
             'product.name': searchRankingPoint.LOW_SEARCH_RANKING,
@@ -869,7 +869,7 @@ describe('app/service/search-ranking.service.js', () => {
                 },
             },
         ]);
-        const newService = new SearchRankingService();
+        const newService = SearchRankingService();
         let actual = await newService.getSearchFieldsByEntity('product');
 
         expect(actual).toEqual({
@@ -896,7 +896,7 @@ describe('app/service/search-ranking.service.js', () => {
     });
 
     it('should validate search terms correctly', async () => {
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
         await service.getMinSearchTermLength();
 
         expect(service.isValidTerm('ab')).toBe(true);
@@ -907,7 +907,7 @@ describe('app/service/search-ranking.service.js', () => {
     it('should get minSearchTermLength from app config', async () => {
         Shopware.Context.app.config.settings.minSearchTermLength = 1;
 
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
         await service.getMinSearchTermLength();
 
         expect(service.isValidTerm('a')).toBe(true);
@@ -917,7 +917,7 @@ describe('app/service/search-ranking.service.js', () => {
         const originalService = Shopware.Service('systemConfigApiService');
         originalService.getValues = jest.fn();
 
-        new SearchRankingService();
+        SearchRankingService();
 
         expect(originalService.getValues).not.toHaveBeenCalled();
     });
@@ -926,7 +926,7 @@ describe('app/service/search-ranking.service.js', () => {
         const originalService = Shopware.Service('systemConfigApiService');
         originalService.saveValues = jest.fn();
 
-        const service = new SearchRankingService();
+        const service = SearchRankingService();
         await service.saveMinSearchTermLength(3);
 
         expect(originalService.saveValues).toHaveBeenCalledWith({ 'core.search.minSearchTermLength': 3 });

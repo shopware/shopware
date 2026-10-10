@@ -6,7 +6,6 @@
 /**
  *
  * @memberOf module:core/service/search-type
- * @constructor
  * @method createSearchTypeService
  * @returns {Object}
  */

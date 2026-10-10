@@ -113,7 +113,7 @@ Application.addServiceProvider('feature', () => {
         return new CustomEntityDefinitionService();
     })
     .addServiceProvider('menuService', () => {
-        return new MenuService(factoryContainer.module);
+        return MenuService(factoryContainer.module);
     })
     .addServiceProvider('privileges', () => {
         return new PrivilegesService();
@@ -156,7 +156,7 @@ Application.addServiceProvider('feature', () => {
         return new RuleConditionService();
     })
     .addServiceProvider('productStreamConditionService', () => {
-        return new ProductStreamConditionService();
+        return ProductStreamConditionService();
     })
     .addServiceProvider('productTypeService', () => {
         const initContainer = Shopware.Application.getContainer('init');
@@ -164,7 +164,7 @@ Application.addServiceProvider('feature', () => {
         return new ProductTypeApiService(initContainer.httpClient, Shopware.Service('loginService'));
     })
     .addServiceProvider('customFieldDataProviderService', () => {
-        return new CustomFieldService();
+        return CustomFieldService();
     })
     .addServiceProvider('extensionHelperService', () => {
         return new ExtensionHelperService({
@@ -181,7 +181,7 @@ Application.addServiceProvider('feature', () => {
         return new StateStyleService();
     })
     .addServiceProvider('searchTypeService', () => {
-        return new SearchTypeService();
+        return SearchTypeService();
     })
     .addServiceProvider('localeToLanguageService', () => {
         return LocaleToLanguageService();
@@ -191,7 +191,7 @@ Application.addServiceProvider('feature', () => {
     })
     .addServiceProvider('shortcutService', () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        return new ShortcutService(factoryContainer.shortcut);
+        return ShortcutService(factoryContainer.shortcut);
     })
     .addServiceProvider('licenseViolationService', () => {
         return LicenseViolationsService(Application.getContainer('service').storeService);
@@ -225,13 +225,13 @@ Application.addServiceProvider('feature', () => {
         return new ShopwareDiscountCampaignService();
     })
     .addServiceProvider('searchRankingService', () => {
-        return new SearchRankingService();
+        return SearchRankingService();
     })
     .addServiceProvider('recentlySearchService', () => {
         return new RecentlySearchService();
     })
     .addServiceProvider('searchPreferencesService', () => {
-        return new SearchPreferencesService();
+        return SearchPreferencesService();
     })
     .addServiceProvider('userActivityService', () => {
         return new UserActivityService();

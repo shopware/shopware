@@ -13,7 +13,7 @@ there.
 
 Inserts a fresh element of `$type` (stored defaults seeded from the type, no wiring) into a parent slot at an
 index, or appended to the root. `requireRegistered`; scaffolds via `scaffoldElement`, then always fill-applies the
-type's default binding specification regardless of `$bindingSpecificationId` (`resolveDefaultSpecification()`,
+type's default binding specification, after the named one when `$bindingSpecificationId` is given (`resolveDefaultSpecification()`,
 `byType(type)` filtered by `isDefault()`: zero is a no-op, one is fill-applied and attributed to its own qualified
 id via `BindingApplicator::applyFillOnly()`, more than one throws `bindingSpecificationDefaultAmbiguous` `409`).
 With no parent it inserts at root; otherwise `$slot` is required (`mutationSlotRequired`), the parent must exist
@@ -21,8 +21,9 @@ With no parent it inserts at root; otherwise `$slot` is required (`mutationSlotR
 
 When `$bindingSpecificationId` is also given, the named specification is resolved **first**, before any tree change
 (unregistered → `bindingSpecificationNotFound`; `type()` ≠ `$type` → `bindingTypeMismatch`; both `400`), then applied
-on top of the fill-applied default via `BindingApplicator::apply()` (overwrite), so shared keys belong to the
-explicit choice. Both steps precede insertion, so a bound insert is atomic: nothing is inserted on a `400`.
+before the default is fill-applied, via `BindingApplicator::apply()` (overwrite), so shared keys (data requirements,
+attribution and `inputs` defaults alike) belong to the explicit choice and a default key it wires is never resolved
+against the root source. Both steps precede insertion, so a bound insert is atomic: nothing is inserted on a `400`.
 
 ## RemoveElement
 
@@ -90,12 +91,14 @@ The context the container *provided* is not reported, a carve-out stated with th
 
 `__construct(AbstractContentSystemElementTypeRegistry $registry, StoredElement $element, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator, ?string $parentElementId = null, ?string $slot = null, ?int $index = null)`.
 
-Splices a caller-supplied element subtree into a parent slot (or the root), reminting every id, then fill-applies the
-type default binding to every element of the subtree (`applyDefaultBindingToSubtree()`; wiring the subtree already
-carries wins, more than one default throws `bindingSpecificationDefaultAmbiguous` `409`). The inverse of the
-detachment a replace reports through `orphaned`: it re-places a detached subtree, or a copied one, without trusting
-client ids. `requireRegistered($this->element->component)`: the supplied root's component must be a registered type,
-else `mutationUnknownType`, matching the check insert/replace/wrap run. Clients never supply ids; the server-minted
+Splices a caller-supplied element subtree into a parent slot (or the root): it fill-applies the type default binding
+to every element of the subtree (`applyDefaultBindingToSubtree()`; wiring the subtree already carries wins, more than
+one default throws `bindingSpecificationDefaultAmbiguous` `409`), then remints every id (`cloneWithNewIds()`). The
+binding runs first so a rejection such as `bindingRootSourceNotScoped` names the element id the caller supplied; the
+two steps touch disjoint fields, so the order does not change the placed subtree. The inverse of the detachment a
+replace reports through `orphaned`: it re-places a detached subtree, or a copied one, without trusting client ids.
+`requireRegistered($this->element->component)`: the supplied root's component must be a registered type, else
+`mutationUnknownType`, matching the check insert/replace/wrap run. No caller-supplied id is placed; the server-minted
 ids come back in `affected = subtreeIds($clone)`, and `created` carries the same full re-minted set, every node in
 the spliced subtree being new to the layout. Placement mirrors `Op/InsertElement` (slot required with a parent →
 `mutationSlotRequired`; parent must exist → `mutationTargetNotFound`). Detaches nothing:

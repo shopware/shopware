@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Binding;
 
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\Binding\Validation\TypeConsistentBindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -35,7 +36,7 @@ final class BindingApplicator
 
     public function apply(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId, ?string $rootSource = null): StoredElement
     {
-        $dataRequirements = array_replace($element->dataRequirements, $this->resolveDataRequirements($specification, $rootSource));
+        $dataRequirements = array_replace($element->dataRequirements, $this->resolveDataRequirements($specification->resolves(), $rootSource, $bindingSpecificationId, $element->id));
         $properties = array_replace($this->seedInputDefaults($element, $specification), $element->properties());
         $attributedSpecifications = array_replace($element->attributedSpecifications, $this->attributionFor(array_keys($specification->resolves()), $bindingSpecificationId));
 
@@ -46,16 +47,17 @@ final class BindingApplicator
      * Wires a `resolves` entry only into a key the element carries no data requirement for yet, and attributes only
      * those keys — carried or already-bound wiring, and its attribution, is left untouched. The merge is the same
      * existing-wins idiom {@see LayoutDefaultSeeder} uses for property seeding: the element's own value always wins
-     * over a wired/seeded one.
+     * over a wired/seeded one. Only the entries that get written are resolved against the root source, so a scoped
+     * config value of a key the element already wires never reaches {@see RootSourceConfigMap::collapse()}.
      */
     public function applyFillOnly(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId, ?string $rootSource = null): StoredElement
     {
         $existingDataRequirements = $element->dataRequirements;
-        $wiredKeys = array_diff(array_keys($specification->resolves()), array_keys($existingDataRequirements));
+        $unwired = array_diff_key($specification->resolves(), $existingDataRequirements);
 
-        $dataRequirements = $existingDataRequirements + $this->resolveDataRequirements($specification, $rootSource);
+        $dataRequirements = $existingDataRequirements + $this->resolveDataRequirements($unwired, $rootSource, $bindingSpecificationId, $element->id);
         $properties = array_replace($this->seedInputDefaults($element, $specification), $element->properties());
-        $attributedSpecifications = $element->attributedSpecifications + $this->attributionFor($wiredKeys, $bindingSpecificationId);
+        $attributedSpecifications = $element->attributedSpecifications + $this->attributionFor(array_keys($unwired), $bindingSpecificationId);
 
         return $this->rebuild($element, $dataRequirements, $properties, $attributedSpecifications);
     }
@@ -74,14 +76,16 @@ final class BindingApplicator
     }
 
     /**
+     * @param array<string, LoaderBinding> $resolves
+     *
      * @return array<string, DataRequirement>
      */
-    private function resolveDataRequirements(BindingSpecification $specification, ?string $rootSource): array
+    private function resolveDataRequirements(array $resolves, ?string $rootSource, string $bindingSpecificationId, string $elementId): array
     {
         $dataRequirements = [];
 
-        foreach ($specification->resolves() as $key => $binding) {
-            $config = RootSourceConfigMap::collapse($binding->config, $rootSource);
+        foreach ($resolves as $key => $binding) {
+            $config = RootSourceConfigMap::collapse($binding->config, $rootSource, $bindingSpecificationId, $key, $elementId);
             $dataRequirements[$key] = new DataRequirement($key, $binding->loader, $this->configSerializerProvider->decode($binding->loader, $config));
         }
 

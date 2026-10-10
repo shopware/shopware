@@ -144,31 +144,64 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
 
         $knownRootSources = $this->rootSourceRegistry->entityRootSources();
 
-        if (!$this->validateScopedMaps($id, $key, $config, $knownRootSources, $constraint)) {
+        if (!$this->validateScopedMaps($id, $key, $loader, $config, $knownRootSources, $constraint)) {
             return;
         }
 
-        foreach ($this->configBranches($config) as $branchConfig) {
+        foreach (RootSourceConfigMap::branches($config, $id, $key) as $branchConfig) {
             $this->validateConfigBranch($id, $key, $loader, $branchConfig, $declaredType, $type, $constraint);
         }
     }
 
     /**
+     * A scoped map is admitted only on a Literal config key of a registered loader. An unregistered loader leaves
+     * the kind unknown, so that check is skipped and `decodeConfig()` reports the loader instead. Every scoped map
+     * of one config must name the same root sources: applying the binding collapses the whole config for one root
+     * source, so a key scoped over fewer root sources than its sibling would fail per request for the others.
+     *
      * @param array<string, mixed> $config
      * @param list<string> $knownRootSources
      */
-    private function validateScopedMaps(string $id, string $key, array $config, array $knownRootSources, TypeConsistentBindingSpecification $constraint): bool
+    private function validateScopedMaps(string $id, string $key, string $loader, array $config, array $knownRootSources, TypeConsistentBindingSpecification $constraint): bool
     {
         $valid = true;
+        $rootSourceSets = [];
 
         foreach ($config as $configKey => $value) {
             $map = RootSourceConfigMap::scopeMap($value);
 
             if ($map === null) {
+                if ($this->nestsScopedMap($value)) {
+                    $this->context->buildViolation($constraint->resolvesEntryNestedRootSourceMapMessage)
+                        ->setParameter('{{ key }}', $key)
+                        ->setParameter('{{ configKey }}', (string) $configKey)
+                        ->atPath($this->path($id, 'resolves[' . $key . '].config.' . $configKey))
+                        ->addViolation();
+
+                    $valid = false;
+                }
+
+                continue;
+            }
+
+            if (!$this->admitsScopedMap($loader, (string) $configKey)) {
+                $this->context->buildViolation($constraint->resolvesEntryRootSourceMapNotLiteralMessage)
+                    ->setParameter('{{ key }}', $key)
+                    ->setParameter('{{ configKey }}', (string) $configKey)
+                    ->setParameter('{{ loader }}', $loader)
+                    ->atPath($this->path($id, 'resolves[' . $key . '].config.' . $configKey))
+                    ->addViolation();
+
+                $valid = false;
+
                 continue;
             }
 
             if ($map !== [] && $this->onlyRootSourceKeys($map, $knownRootSources) && $this->allStringValues($map)) {
+                $rootSources = array_keys($map);
+                sort($rootSources);
+                $rootSourceSets[(string) $configKey] = $rootSources;
+
                 continue;
             }
 
@@ -182,41 +215,67 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
             $valid = false;
         }
 
+        if (\count(array_unique($rootSourceSets, \SORT_REGULAR)) > 1) {
+            $sets = [];
+
+            foreach ($rootSourceSets as $configKey => $rootSources) {
+                $sets[] = $configKey . ': ' . implode(', ', $rootSources);
+            }
+
+            $this->context->buildViolation($constraint->resolvesEntryRootSourceSetsDifferMessage)
+                ->setParameter('{{ key }}', $key)
+                ->setParameter('{{ sets }}', implode('; ', $sets))
+                ->atPath($this->path($id, 'resolves[' . $key . '].config'))
+                ->addViolation();
+
+            $valid = false;
+        }
+
         return $valid;
     }
 
     /**
-     * @param array<string, mixed> $config
-     *
-     * @return list<array<string, mixed>>
+     * Whether a config value that is not itself a scoped map carries one at any depth. `ScopedConfigNormalizer`
+     * converts every `!scoped` tag, but only a direct config value is validated and collapsed.
      */
-    private function configBranches(array $config): array
+    private function nestsScopedMap(mixed $value): bool
     {
-        $rootSources = [];
+        if (!\is_array($value)) {
+            return false;
+        }
 
-        foreach ($config as $value) {
-            $map = RootSourceConfigMap::scopeMap($value);
+        if (\array_key_exists(RootSourceConfigMap::MARKER, $value)) {
+            return true;
+        }
 
-            if ($map === null) {
-                continue;
+        foreach ($value as $item) {
+            if ($this->nestsScopedMap($item)) {
+                return true;
             }
+        }
 
-            foreach (array_keys($map) as $rootSource) {
-                $rootSources[$rootSource] = true;
+        return false;
+    }
+
+    /**
+     * Whether the config key is a Literal key of the loader. An unregistered loader admits it, because its kinds
+     * are unknown and `decodeConfig()` reports the loader itself.
+     */
+    private function admitsScopedMap(string $loader, string $configKey): bool
+    {
+        $specification = $this->mapResolver->resolve()->sourceToConfigSpecifications[$loader] ?? null;
+
+        if ($specification === null) {
+            return true;
+        }
+
+        foreach ($specification->keysOfKind(ConfigKeyKind::Literal) as $literalKey) {
+            if ($literalKey->name === $configKey) {
+                return true;
             }
         }
 
-        if ($rootSources === []) {
-            return [$config];
-        }
-
-        $branches = [];
-
-        foreach (array_keys($rootSources) as $rootSource) {
-            $branches[] = RootSourceConfigMap::collapse($config, (string) $rootSource);
-        }
-
-        return $branches;
+        return false;
     }
 
     /**

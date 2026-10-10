@@ -32,6 +32,12 @@ final class TypeConsistentBindingSpecification extends Constraint
 
     public string $resolvesEntryRootSourceMapMessage = 'resolves entry "{{ key }}" config key "{{ configKey }}" must be a map of root source to string, with keys limited to {{ rootSources }}';
 
+    public string $resolvesEntryRootSourceMapNotLiteralMessage = 'resolves entry "{{ key }}" config key "{{ configKey }}" is a map of root source to value, which only a literal config key of loader "{{ loader }}" may be';
+
+    public string $resolvesEntryNestedRootSourceMapMessage = 'resolves entry "{{ key }}" config key "{{ configKey }}" nests a scoped map inside its value, but a scoped map may only be the direct value of a config key';
+
+    public string $resolvesEntryRootSourceSetsDifferMessage = 'resolves entry "{{ key }}" config scopes its keys over different root-source sets ({{ sets }}), but every scoped key of one config must name the same root sources';
+
     public string $resolvesEntryContextFormMessage = 'resolves entry "{{ key }}" uses the "context" form, which is not yet supported';
 
     public string $inputsEntryNotPrimitivePropertyMessage = 'inputs entry "{{ key }}" does not name a primitive property of type "{{ type }}"';

@@ -82,6 +82,27 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
+    #[TestDox('carries a null root source or element as null and a named root source verbatim in the parameters')]
+    public function testBindingRootSourceNotScopedParameters(): void
+    {
+        $absent = ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', null);
+        $named = ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', 'none');
+        $withoutElement = ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', null, 'none');
+
+        static::assertSame(
+            ['bindingSpecificationId' => 'core:Sw:Navigation:Breadcrumb', 'key' => 'breadcrumb', 'elementId' => 'crumb-1', 'rootSource' => null],
+            $absent->getParameters()
+        );
+        static::assertSame(
+            ['bindingSpecificationId' => 'core:Sw:Navigation:Breadcrumb', 'key' => 'breadcrumb', 'elementId' => 'crumb-1', 'rootSource' => 'none'],
+            $named->getParameters()
+        );
+        static::assertSame(
+            ['bindingSpecificationId' => 'core:Sw:Navigation:Breadcrumb', 'key' => 'breadcrumb', 'elementId' => null, 'rootSource' => 'none'],
+            $withoutElement->getParameters()
+        );
+    }
+
     #[TestDox('propagates previous throwable when loading element type fails')]
     public function testPreservesPreviousThrowableOnLoadFailed(): void
     {
@@ -650,6 +671,41 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_CONFLICT,
             'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS',
             'core:a, core:b',
+        ];
+
+        yield 'binding root source not scoped' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', 'landing_page'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb" of element "crumb-1": its config is scoped by root source, but carries no value for root source "landing_page".',
+        ];
+
+        yield 'binding root source not scoped, without a root source' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', null),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb" of element "crumb-1": its config is scoped by root source, but the layout has no root source.',
+        ];
+
+        yield 'binding root source not scoped, for the root source named none' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', 'none'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb" of element "crumb-1": its config is scoped by root source, but carries no value for root source "none".',
+        ];
+
+        yield 'binding root source not scoped, without an element' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', null, 'landing_page'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb": its config is scoped by root source, but carries no value for root source "landing_page".',
+        ];
+
+        yield 'binding root source not scoped, without an element and without a root source' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', null, null),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb": its config is scoped by root source, but the layout has no root source.',
         ];
     }
 

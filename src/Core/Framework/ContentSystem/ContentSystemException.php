@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem;
 
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
@@ -101,6 +102,7 @@ class ContentSystemException extends HttpException
     public const BINDING_SPECIFICATION_CANONICALIZATION_FAILED = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_CANONICALIZATION_FAILED';
     public const BINDING_SPECIFICATION_RESERVED_ID = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID';
     public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
+    public const BINDING_ROOT_SOURCE_NOT_SCOPED = 'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED';
     public const BOX_SPACING_TOKENIZATION_FAILED = 'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED';
     public const LAYOUT_WRITE_MEMO_MISSING = 'CONTENT_SYSTEM__LAYOUT_WRITE_MEMO_MISSING';
     public const LOADER_INPUT_NOT_DECLARED = 'CONTENT_SYSTEM__LOADER_INPUT_NOT_DECLARED';
@@ -1236,6 +1238,30 @@ class ContentSystemException extends HttpException
             self::BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS,
             'Element type "{{ type }}" has more than one default binding specification ({{ qualifiedIds }}), but at most one specification may be default per type.',
             ['type' => $type, 'qualifiedIds' => implode(', ', $qualifiedIds)]
+        );
+    }
+
+    /**
+     * The 400 for applying a binding whose `!scoped` config value carries no entry for the layout's root source,
+     * or onto a layout with no root source at all: no value can be picked, and dropping the key would hand the
+     * loader a config nobody declared. Thrown by {@see RootSourceConfigMap::collapse()}, naming the specification
+     * and the `resolves` key it would wire, plus the element when the binding is applied to one. A
+     * binding-application error like {@see bindingTypeMismatch()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     * A null root source gets its own message, because `none` is the name of a real root source.
+     */
+    public static function bindingRootSourceNotScoped(string $bindingSpecificationId, string $key, ?string $elementId, ?string $rootSource): self
+    {
+        $subject = $elementId === null
+            ? 'Binding specification "{{ bindingSpecificationId }}" cannot wire key "{{ key }}"'
+            : 'Binding specification "{{ bindingSpecificationId }}" cannot wire key "{{ key }}" of element "{{ elementId }}"';
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::BINDING_ROOT_SOURCE_NOT_SCOPED,
+            $subject . ($rootSource === null
+                ? ': its config is scoped by root source, but the layout has no root source.'
+                : ': its config is scoped by root source, but carries no value for root source "{{ rootSource }}".'),
+            ['bindingSpecificationId' => $bindingSpecificationId, 'key' => $key, 'elementId' => $elementId, 'rootSource' => $rootSource]
         );
     }
 

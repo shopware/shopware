@@ -189,7 +189,7 @@ class AttributionReconciler
         $source = $binding->loader;
         $encoded = [];
 
-        foreach (RootSourceConfigMap::branches($binding->config) as $branch) {
+        foreach (RootSourceConfigMap::branches($binding->config, $specificationId, $key) as $branch) {
             $configObject = $this->configSerializerProvider->decode($source, $branch);
             $encoded[] = $this->configCanonicalizer->canonicalize($this->configSerializerProvider->encode($source, $configObject));
         }

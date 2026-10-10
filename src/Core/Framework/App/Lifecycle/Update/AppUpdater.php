@@ -38,12 +38,23 @@ class AppUpdater extends AbstractAppUpdater
 
         $outdatedApps = [];
 
+        $localIds = [];
+        foreach ($extensions as $extension) {
+            if ($localId = $extension->getLocalId()) {
+                $localIds[] = $localId;
+            }
+        }
+
+        $localApps = $localIds === []
+            ? new AppCollection()
+            : $this->appRepo->search(new Criteria($localIds), $context)->getEntities();
+
         foreach ($extensions as $extension) {
             $id = $extension->getLocalId();
             if (!$id) {
                 continue;
             }
-            $localApp = $this->appRepo->search(new Criteria([$id]), $context)->getEntities()->first();
+            $localApp = $localApps->get($id);
             if ($localApp === null) {
                 continue;
             }

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Handler;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ScriptLifecycleHandler;
@@ -45,6 +46,28 @@ class ScriptLifecycleHandlerTest extends TestCase
             ['id' => $scriptIds[0], 'active' => false],
             ['id' => $scriptIds[1], 'active' => false],
         ], $scriptRepository->getPayloads(StaticEntityRepository::UPDATE));
+    }
+
+    public function testRefreshLoadsTheScriptsOfEveryAppWithOneSearch(): void
+    {
+        $firstApp = $this->buildApp();
+        $firstApp->setScripts(new ScriptCollection());
+        $secondApp = $this->buildApp();
+        $secondApp->setScripts(new ScriptCollection());
+
+        $appRepository = new StaticEntityRepository([]);
+        // the ids of the active apps, then the scripts of all of them in one search
+        $appRepository->addSearch([$firstApp->getId(), $secondApp->getId()]);
+        $appRepository->addSearch(new AppCollection([$firstApp, $secondApp]));
+
+        $scriptReader = static::createStub(ScriptFileReader::class);
+        $scriptReader->method('getScriptPathsForApp')->willReturn([]);
+
+        $handler = new ScriptLifecycleHandler($scriptReader, new StaticEntityRepository([]), $appRepository);
+        $handler->refresh();
+
+        // every queued search was consumed: the id lookup and one search for the scripts of both apps
+        static::assertSame([], $appRepository->searches);
     }
 
     /**

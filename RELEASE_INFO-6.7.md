@@ -330,6 +330,11 @@ The order confirmation mail reads the GARAN label from the new `garanLabels` tem
 
 If you customized the order confirmation mail, replace `nestedItem.productId|sw_garan_label_mail(context)` with `garanLabels[nestedItem.productId] ?? null`, and `lineItem.productId|sw_garan_label_mail(context)` with `garanLabels[lineItem.productId] ?? null` in the plain text version. `garanLabels` is passed to every mail template that references it and has an `order` in its data.
 
+### Order line items keep the GARAN label they were ordered with
+
+Product line items now store the GARAN label values in `payload.garanLabel`: `guaranteeMonths`, `brand` and `modelIdentifier`, or `null` if the product had no label. The payload is copied to the order line item, so the storefront shows the label the order was placed with, even after the product's guarantee changes or the product is deleted. Editing an order keeps the stored values. Line items from before this change have no `garanLabel` key and still show the product's current label.
+
+Headless frontends can read the stored values from the order line item's payload instead of `/store-api/product/{productId}/garan-label`.
 ### GARAN guarantee terms per product
 
 Product's new fields for the guarantee terms, inherited by variants: `guaranteeTermsMediaId` for a PDF and `guaranteeTermsUrl` for a web page. `guaranteeTermsUrl` only accepts `http://` and `https://` URLs; other values are rejected with the `INVALID_GARAN_GUARANTEE_TERMS_URL` violation.

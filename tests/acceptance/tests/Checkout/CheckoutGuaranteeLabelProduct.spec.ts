@@ -1,4 +1,4 @@
-import { test, getLanguageCode, getLocale, type Product } from '@fixtures/AcceptanceTest';
+import { test, expect, getLanguageCode, getLocale, type Product } from '@fixtures/AcceptanceTest';
 
 const testLegalGuaranteeNotice = (showTosCheckbox: boolean) =>
     test(
@@ -12,6 +12,7 @@ const testLegalGuaranteeNotice = (showTosCheckbox: boolean) =>
         async ({
             ShopCustomer,
             TestDataService,
+            AdminApiContext,
             InstanceMeta,
             StorefrontProductDetail,
             StorefrontCheckoutConfirm,
@@ -153,6 +154,18 @@ const testLegalGuaranteeNotice = (showTosCheckbox: boolean) =>
 
                 await ShopCustomer.presses(orderLocators.lineItemGaranLabel.getByRole('button'));
                 await ShopCustomer.expects(garanLabelModal).toContainText('ACME-36');
+            });
+
+            await test.step('Account order detail keeps the GARAN label the order was placed with.', async () => {
+                const response = await AdminApiContext.patch(`product/${product.id}`, {
+                    data: { guaranteeMonths: 48 },
+                });
+                expect(response.ok()).toBeTruthy();
+
+                await ShopCustomer.goesTo(StorefrontAccountOrder.url());
+                const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber, product.productNumber);
+                await ShopCustomer.presses(orderLocators.orderDetailButton);
+                await ShopCustomer.expects(orderLocators.lineItemGaranLabel).toHaveText(expectedGuaranteeDuration);
             });
         },
     );

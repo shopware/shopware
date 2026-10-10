@@ -368,7 +368,8 @@ class NavigationRouteTest extends TestCase
 
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_CATEGORY) {
-                static::assertNotEmpty($category['seoUrl']);
+                static::assertIsString($category['seoUrl']);
+                static::assertNotSame('', $category['seoUrl']);
             }
         }
 

@@ -171,7 +171,7 @@ export default {
             return requirements;
         },
 
-        ...mapPropertyErrors('product', ['guaranteeMonths', 'guaranteeConfirmed']),
+        ...mapPropertyErrors('product', ['guaranteeMonths', 'guaranteeConfirmed', 'guaranteeTermsUrl']),
     },
 
     mounted() {

@@ -199,6 +199,16 @@ class TwigComponentRenderEventListenerTest extends TestCase
             'Sw:Filter:Panel',
         ];
 
+        yield 'anonymous component index template' => [
+            'components/Sw/Foo/index.html.twig',
+            'Sw:Foo',
+        ];
+
+        yield 'anonymous component index template without components prefix' => [
+            'Sw/Foo/index.html.twig',
+            'Sw:Foo',
+        ];
+
         yield 'path without components prefix' => [
             'Sw/Filter/Panel.html.twig',
             'Sw:Filter:Panel',

@@ -2,6 +2,10 @@
 
 ## Critical Fixes
 
+### Sales channel contexts expose the default currency again
+
+`SalesChannelContext::getSalesChannel()->getCurrency()` returns the sales channel's default currency again, including when another currency is selected for the context. This restores the behavior before 6.7.15.0 for extensions that read the default currency. Use `SalesChannelContext::getCurrency()` for the currently selected currency.
+
 ### Line item conditions evaluate line items by the data they carry
 
 Since 6.7.14.0, most line item conditions of the Rule Builder evaluated only line items of the type `product`. Custom and credit line items and line items that extensions add to the cart no longer matched them, and a single custom line item could hide shipping methods or block promotions under a negated condition such as "Item with tag / All / Are none of".
@@ -55,6 +59,32 @@ With the newly added tabs feature, plugin developers can now add another layer o
 ```
 
 ## Core
+
+### Homepage hreflang links restored for existing `HreflangLoaderParameter` callers
+
+When `HreflangLoaderParameter` is constructed without the `$homepage` argument, `isHomepage()` again detects the homepage from the `frontend.home.page` route name, so homepage hreflang links are generated for these callers. This fallback is deprecated and will be removed in 6.8. If you construct `HreflangLoaderParameter` yourself, pass `$homepage` explicitly.
+
+### Snippets can be provided through the private filesystem
+
+Administration and storefront snippets are now also loaded from the private filesystem (`shopware.filesystem.private`, by default `files/`):
+
+- Administration: `snippets/administration/<source>/<language>.json` (or `<locale>.json`), for example `files/snippets/administration/MyIntegration/de.json`
+- Storefront: `snippets/storefront/<source>/<name>.<language>.json` (or `.<locale>.json`, optionally `.base.json`), for example `files/snippets/storefront/MyIntegration/storefront.de.json`
+
+They form the lowest-priority layer, so snippet files shipped by the core, plugins or apps always win. Use them for keys nobody else provides. The source directory becomes the author and technical name of storefront snippets. Files survive updates and deployments and are never cleaned up by Shopware, except for the administration subdirectories it writes itself for themes, which are named after the theme's technical name, so pick a different source name. Run `cache:clear` after adding or changing a file (for administration snippets, invalidating the `admin-snippet` cache tag is enough). The constants live in `Shopware\Core\System\Snippet\Files\FilesystemAdministrationSnippets` and `FilesystemStorefrontSnippets`. `snippet:validate` ignores these files.
+### Asset installation on S3-compatible storage
+
+Asset installation now overwrites existing files without deleting their directory first when using `--force` or rebuilding a missing asset manifest. This prevents delayed storage deletions from removing freshly uploaded files. Obsolete files are still removed, and no configuration changes are required.
+
+Deactivating a plugin now removes its asset manifest entry but retains its public files until uninstall. This avoids a pending directory deletion removing files uploaded after reactivation. Uninstall still removes the plugin's public files.
+
+### Product stream builders can migrate without dropping the legacy contract
+
+`AbstractProductStreamBuilder` now implements the deprecated `ProductStreamBuilderInterface` and forwards `buildFilters()` to `enrichCriteria()`. Extensions can therefore migrate their implementations to the abstract class while remaining compatible with code that still consumes the legacy interface.
+
+### Feature flags can belong to a major version
+
+Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatically when `V6_8_0_0=1` is set. An explicit setting for the individual flag still takes precedence, so `JSON_LD_DATA=0` keeps that feature off. Standalone major flags are recognized by their version-shaped names; the `major` field is only for sub-features and must name a parent version flag. Flags without a parent omit `major` from their metadata and the feature-flag API response. `FEATURE_ALL` now activates every registered feature for any truthy value; use a version flag to test only that major's changes.
 
 ### Unlimited DAL searches with next-pages totals
 
@@ -146,6 +176,10 @@ The deprecated endpoint `GET /api/_action/system-config/schema` and its successo
 The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` are deprecated and will be removed in Shopware 6.8.
 Use `getSystemConfigDefinition()` and `getResolvedSystemConfigDefinition()`, respectively.
 
+### Property sorting keeps its default locale
+
+The BC attribute for `PropertyGroupCollection::sortByConfig()` now correctly marks the upcoming `localeCode` parameter as optional, with the default `'en_GB'`. Calls without arguments remain compatible with 6.8. Overrides need to declare the optional parameter when the parent signature changes.
+
 ### Array values in static system configuration
 
 `shopware.system_config` entries in `config/packages` now accept arrays, including `[]`. An empty sales-channel value clears an array from the default scope; a more specific sales-channel key still overrides an empty default parent.
@@ -230,6 +264,14 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Order contexts keep the order's own addresses
+
+When an address of an order no longer matches an address of its customer, for example because the customer edited it, `OrderConverter::assembleSalesChannelContext()` now uses the order's own address instead of the customer's default address. This applies to the billing address and to the shipping address of the order's delivery. Orders without a delivery still fall back to the customer's default shipping address. Recalculations, flows and payment handling of that order therefore use the tax state, tax rules, cash rounding and address rules of the address the order was placed with.
+
+In that case, `getActiveBillingAddress()` and `getActiveShippingAddress()` of the order context's customer return the order's address as a `CustomerAddressEntity`. Its ID is the ID of the `order_address`, not of a `customer_address`. Payment handlers and checkout gateway apps that load or update a customer address by this ID have to handle IDs that are not customer address IDs.
+
+The options passed to `AbstractSalesChannelContextFactory::create()` and returned by `BeforeSalesChannelContextAssembledEvent::getOptions()` can now contain `CustomerAddressEntity` objects under the internal keys `SalesChannelContextService::BILLING_ADDRESS` and `SalesChannelContextService::SHIPPING_ADDRESS`. Decorators and listeners that read these options should not assume that every value is a string or an array.
+
 ### Sales-channel scoped limits for `system_config` rate limiters
 
 The cart setting "Maximum addable products to cart per minute through API" can be set per sales channel, but only the global value took effect.
@@ -258,6 +300,12 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 ### Duplicate document number errors name the document type
 
 When a document cannot be generated because its number is already taken, the error now names the document type, for example `Document number 1000 has already been allocated for document type "invoice".`, and carries `number` and `documentType` as parameters. The order document card in the Administration names the document type as well. `DocumentException::documentNumberAlreadyExistsException()` is deprecated for v6.8.0, use `DocumentException::documentNumberAlreadyExistsExceptionForType()` instead.
+### `SalesChannelContextRestorer::restoreByOrder()` is deprecated
+
+`SalesChannelContextRestorer::restoreByOrder()` now builds the context with `OrderConverter::assembleSalesChannelContext()` and re-evaluates the rules afterwards, as before. Its contexts therefore match every other order context: they use the customer addresses that match the order's addresses instead of the customer's default addresses, and dispatch `BeforeSalesChannelContextAssembledEvent` and `SalesChannelContextAssembledEvent`. They also keep the order's tax status, except that the re-evaluation still drops tax-free when the order no longer qualifies for it. Like the converter, it now fails with `CHECKOUT__CUSTOMER_ADDRESS_NOT_FOUND` when the order's billing address does not exist.
+
+`restoreByOrder()` and `SalesChannelContextRestorerOrderCriteriaEvent` are deprecated and will be removed in 6.8.0.0. Load the order yourself and pass it to `OrderConverter::assembleSalesChannelContext()` instead.
+
 ### Creating a language no longer fails on a drifted Elasticsearch/OpenSearch mapping
 
 Creating a language could return an uncaught `500` when an Elasticsearch/OpenSearch-indexed entity's live index mapping had drifted from its current definition, for example a sales channel created after the last full reindex. `LanguageSubscriber` now catches the same known-unresolvable mapping conflicts `IndexMappingUpdater` already handles elsewhere, schedules the affected entity for a reindex instead of throwing, and only logs unexpected errors. The language is created successfully; the delayed reindex is picked up by the next indexing run or a manual `es:index`.
@@ -284,11 +332,62 @@ Digital products are no longer limited to one unit per order regardless of `maxP
 The order confirmation mail reads the GARAN label from the new `garanLabels` template variable. The `sw_garan_label_mail` Twig filter is deprecated. A migration updates the template for shops that never edited it.
 
 If you customized the order confirmation mail, replace `nestedItem.productId|sw_garan_label_mail(context)` with `garanLabels[nestedItem.productId] ?? null`, and `lineItem.productId|sw_garan_label_mail(context)` with `garanLabels[lineItem.productId] ?? null` in the plain text version. `garanLabels` is passed to every mail template that references it and has an `order` in its data.
+
+### GARAN guarantee terms per product
+
+Product's new fields for the guarantee terms, inherited by variants: `guaranteeTermsMediaId` for a PDF and `guaranteeTermsUrl` for a web page. `guaranteeTermsUrl` only accepts `http://` and `https://` URLs; other values are rejected with the `INVALID_GARAN_GUARANTEE_TERMS_URL` violation.
+
+Each `garanLabels` entry has a new `termsUrl` key: the URL, or the PDF's URL if no URL is set. Mails that reference `garanLabels` attach the PDFs of the products. A migration adds the terms link to the order confirmation mail for shops that never edited it.
+If you customized the template, add the link below the GARAN label:
+
+```twig
+{% if garanLabel.termsUrl %}<a href="{{ garanLabel.termsUrl }}">Guarantee terms</a>{% endif %}
+```
+
+The product detail page links the terms below the GARAN label, in the new block `buy_widget_garan_label_terms_link`.
+
 ### Customer login publishes an extension event
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### Shared order restoration for Store API routes
+
+`Shopware\Core\Checkout\Cart\Order\OrderRestorer::restore()` builds the sales channel context and cart of an existing order through `OrderConverter`, so its decorators and the context assembled events keep being invoked; `addRequiredAssociations()` adds the associations the order has to be loaded with. Read-only Store API routes opt in with the route default `_allowOrderRestoration`. For a request with an `orderId`, the restored objects are stored as `sw-effective-sales-channel-context`, `sw-effective-context` and `sw-effective-cart` and injected by the `SalesChannelContext`, `Context`, `Cart` and `Criteria` argument resolvers; the session attributes and `sw-context-token` stay untouched. A failing restoration answers `CHECKOUT__ORDER_RESTORATION_FAILED`.
+
+`AccountEditOrderPageLoader` and `SetPaymentOrderRoute` take `OrderRestorer` instead of `OrderConverter` and `CartService` in their constructors; the restored cart they pass to the checkout gateway now carries the order's deliveries.
+
+### Sorting by `product.price` works with Elasticsearch
+
+The product index now contains `product.price`, so sorting, filtering and aggregating on it work with Elasticsearch. Before, a sorting on `product.price` (e.g. the "Default price" listing sorting) failed with `No mapping found for [price.c_....gross]`.
+
+Run `bin/console es:index` after deploying. Existing documents have no price until they are reindexed.
+
+### Reduced remote thumbnail URL generation overhead
+
+Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
+
+### Mail sent and mail error events carry the mail context
+
+`MailSentEvent` and `MailErrorEvent` now expose the data a mail was sent with, so subscribers can tell which template, event and sales channel a mail belongs to:
+
+- `MailSentEvent`: `getData()` (the mail data, e.g. `templateId`), `getTemplateData()`, `getMessage()`, `getEventName()`, `getTemplateId()` and `getSalesChannelId()`
+- `MailErrorEvent`: `getData()`, `getMail()` (the mail as far as it was built, `null` if the error happened earlier), `getEventName()`, `getTemplateId()` and `getSalesChannelId()`
+
+### Extensions can add their own spatial media types
+
+A media type that implements `Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface` is shown by the spatial viewer instead of as a picture. `MediaEntity::isSpatial()` checks for it in PHP and in Twig, while `MediaEntity::isSpatialObject()` still matches GLB files only. `SpatialObjectType` implements the interface.
+
+Both are experimental and become stable with 6.8.0.
+
+### GLB uploads with external references are rejected
+
+GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_INVALID_FILE` if it is not a valid binary glTF 2.0 container or if the `uri` of a buffer or image points to something other than an embedded `data:` URI. Self-contained models, which keep their buffers and textures in the binary chunk, are not affected and URLs in other fields such as `extras` or `asset.copyright` are still allowed.
+
 ## API
+
+### Generated document number in the V2 creation response
+
+The `POST /api/_action/order/document-v2/create` response now includes `documentNumber`, allowing clients to compare the assigned number with a previously displayed preview.
 
 ### HTML in customer name and address fields is rejected with a dedicated violation
 
@@ -314,6 +413,14 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 The new route `GET /api/_action/number-range/pattern-collisions?typeId=…&pattern=…&numberRangeId=…` returns the other number ranges of the same document type that use the given pattern, as `{"collisions": [{"id": "…", "name": "…"}]}`. Such ranges, for example two `document_invoice` ranges assigned to different sales channels, generate the same document numbers and document generation fails once they meet. `numberRangeId` is optional and excludes the number range being edited. Non-document number range types never collide and return an empty list. The route requires the `number_range:read` privilege.
 
 The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern. Saving is not blocked.
+### Store API resolves the context from the storefront session on request
+
+A Store API request that sends the storefront session cookie together with `sw-access-key` and the new header `sw-context-source: session` is resolved with the context token held in that session, so a client embedded in a storefront page shares the shopper's cart and login without managing a token. Login, registration, logout and password changes made this way are written back into the session.
+
+The session is resumed, never created, so this only works alongside a storefront. When it cannot be used the request fails with `FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE` (HTTP 400) instead of falling back to a new context, for example without a session cookie, when `sw-context-token` is sent alongside, or when the session holds no token for the sales channel. Requests without the header are unaffected. Deployments that widen the default CORS configuration must keep `sw-context-source` out of the allowed headers.
+
+Session-resolved responses carry no `sw-context-token` header. The HTTP cache treats these requests like any other, keyed by the `sw-cache-hash` cookie they share with the storefront page, so a cacheable route can be answered from the cache without the session being resolved. The responses also keep the storefront's HTTP cache cookies current, so the next storefront page reflects a login or cart change made this way.
+
 ### Regulation price contains the saving
 
 `regulationPrice` of a calculated price now contains `discount` and `percentage` next to `price`, calculated against the unit price like `listPrice`. `percentage` is negative when the unit price is above the regulation price, so only show a saving when it is greater than `0`.
@@ -321,6 +428,14 @@ The number range detail page in the Administration uses it to show a warning whe
 Store API responses contain the new properties wherever they contain a regulation price: in `calculatedPrice`, `calculatedPrices` and `calculatedCheapestPrice` of products, for example in the product listing, search and detail responses, and in `price` of cart and order line items.
 
 `Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice` is created with `RegulationPrice::createFromUnitPrice($unitPrice, $regulationPrice)`, which calculates both values. Its constructor becomes private in `v6.8.0`.
+
+### REST API indexing behavior header is honored
+
+The `indexing-behavior` header now supports `use-queue-indexing` and `disable-indexing` on REST API writes, matching the existing Sync API behavior. Requests without this header retain the current synchronous indexing behavior.
+
+### Store API payment, shipping and checkout gateway routes accept an `orderId`
+
+`/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
 
 ## Administration
 
@@ -369,6 +484,12 @@ Shopware.Component.override('sw-cms-list', {
 ```
 
 Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
+
+### Category SEO form shows the recommended meta length
+
+The meta title and meta description fields of the category SEO form show how many characters they contain against the recommended length of 70 and 150 characters, and highlight the hint when the recommendation is exceeded. The `n/255` counter for the stored maximum stays unchanged.
+
+Extensions can customize the hints through the new Twig blocks `sw_category_seo_form_meta_title_hint` and `sw_category_seo_form_meta_description_hint`.
 
 ### Admin list and card empty states use `mt-empty-state`
 
@@ -419,6 +540,12 @@ The category menu entry moved from position `20` to `25` so that it no longer ti
 The group order in the permissions grid of Settings > Users & permissions follows the main navigation (Products, Orders, Customers, Content, Marketing, Settings) instead of the alphabetical order of the translated labels, with groups of extensions sorted alphabetically after them and "Other" last.
 
 The order is the `parentOrder` computed of `sw-users-permissions-permissions-grid`, and label lookups go through its `parentLabel()` method; both can be overridden to place an extension's group.
+
+### Runtime guards for Administration deprecations
+
+`Shopware.Feature.triggerDeprecationOrThrow(majorFlag, message)` warns about a deprecated Administration API in development builds and throws once the major flag is active, like its PHP counterpart.
+
+The `deprecated` option of components and props now follows the same lifecycle: it used to only warn and now throws in next-major mode. See the [coding guidelines](coding-guidelines/administration/feature-flags-and-deprecations.md#runtime-guards) for usage.
 ### Order line items are paginated
 
 The line item list on the order detail page shows 10 items per page once an order has more than 10 top-level line items. A pagination with an items-per-page selection appears below the list. Searching or adding a line item returns to the first page.
@@ -480,7 +607,75 @@ extension component looks like a migrated Administration one. In an extension, a
 the `cms-element` mixin is skipped, because its `useCmsElementDeprecated` replacement is not published;
 migrate it to `useCmsElement` by hand.
 
+### Mail template trigger event is preselected
+
+The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
+
+### Result descriptions for entity selects and rule conditions
+
+`sw-entity-single-select` and `sw-entity-multi-select` accept the new props `descriptionProperty`, `descriptionFormatter` and `descriptionFormatterArgs`. They render a description below each search result: the value of `descriptionProperty`, optionally passed through the `Shopware.Filter` named in `descriptionFormatter`, with `descriptionFormatterArgs` as additional arguments. A new `breadcrumb` filter joins a breadcrumb with an optional separator, which defaults to ` / `.
+
+Rule conditions using `RuleConfig::entitySelectField()` can set the same keys in their field config to show a description in the rule builder:
+
+```php
+->entitySelectField('categoryIds', CategoryDefinition::ENTITY_NAME, true, [
+    'descriptionProperty' => 'breadcrumb',
+    'descriptionFormatter' => 'breadcrumb',
+]);
+```
+
+The "Item in category" condition uses this to show the category breadcrumb again.
+
+### Meteor Component Library updated to 5.8.0
+
+The Administration now uses Meteor Component Library `5.8.0`, Meteor Admin SDK `6.15.0` and Meteor Icon Kit `5.11.0`.
+Autofilled form fields are now readable in dark mode.
+
+Check your Administration extensions for these changes:
+
+- The global font settings changed, so some glyphs look different and text renders slightly narrower, for example a single-storey `a` and closed digits.
+- `mt-select` centers its content, and small selects (`size="small"`) have a height of 32px. Remove custom paddings that only compensated for the previous alignment.
+- The time zone hint of datetime `mt-datepicker` fields is rendered by `mt-field-hint`. Styles targeting `.mt-datepicker__hint-icon` or `.mt-datepicker__hint p` no longer apply; `data-testid="time-zone-hint"` is unchanged.
+- The search input of `mt-select` gets the field's `name`, or a generated id, as its `id` and opts out of browser autofill.
+- Text-entry fields forward the `autocomplete` attribute to the native input.
+
+### Order quantities of digital products can be set in the Administration
+
+The deliverability card of digital products has a new "Allow multiple units per order" switch. Turn it on to set `minPurchase`, `purchaseSteps` and `maxPurchase`, or off to limit the digital product to one unit per order. Bulk edit no longer hides these fields for digital products.
+
+### Extensions can add items to the product media grid
+
+`sw-product-media-form` has new extension points for showing further items between the product media without replacing the whole grid:
+
+- The computed property `galleryItems` returns the grid items in display order. The grid and its placeholders are built from it.
+- The Twig block `sw_product_media_form_grid_item` renders a single grid item, so an override can render its own items and keep `{% parent %}` for the product media.
+- The method `moveGalleryItem(item, position)` moves a grid item when it is dragged or marked as cover. Override it together with `galleryItems` when your items share the position space with the product media.
+
 ## Storefront
+
+### Improved extensibility of buy widget form
+
+Extensibility of the `buy-widget-form.html.twig` template has been improved for extension developers. It is now possible to extend `data-add-to-cart-options` and `data-quantity-selector-options` objects via the respective twig variables `addToCartOptions` and `quantitySelectorOptions`. Additionally, the following new blocks have been added to the quantity selector input group:
+
+- `buy_widget_buy_quantity_input_group_legend`
+- `buy_widget_buy_quantity_input_group_button_minus`
+- `buy_widget_buy_quantity_input_group_input`
+- `buy_widget_buy_quantity_input_group_button_plus`
+- `buy_widget_buy_quantity_input_group_unit`
+
+### Legacy theme.json translations keep working and can be migrated with a command
+
+Themes that still define `label` or `helpText` in their `theme.json` show their labels in the theme manager again. On `theme:refresh`, plugin installation and plugin update, Shopware generates the matching administration snippets from those properties into the private filesystem (`snippets/administration/<technicalName>/<locale>.json`, see "Snippets can be provided through the private filesystem") and loads them as the lowest-priority snippet layer, so snippet files shipped by the theme always win. A warning is logged while a theme relies on the generated snippets. Snippet files shipped with the theme are the recommended way to provide these translations. The `labels` and `helpTexts` fields of the `theme` and `theme_translation` entities, which carried the legacy translations, are deprecated and will be removed in 6.8.
+
+The new command `theme:migrate-translations <technicalName>` writes the snippets into `Resources/app/administration/src/snippet/<locale>.json` of the theme and keeps every snippet the theme already maintains there. Use `--strip` to also remove the deprecated properties from the `theme.json`, and `--dry-run` to preview the result.
+
+### Extension component aliases work in the dev server
+
+The unified Storefront component dev server now applies aliases from each extension's `vite.components.config.mts` only to imports from that extension's resource tree. Extensions can use the same alias name for different module paths, including imports between modules under `Resources/app/storefront/src`, in development and production builds.
+
+### Anonymous index components use their directory name
+
+Asset entry names for index components were not resolved correctly to the directory name and still used "index" in their names. Storefront components using an `index.js` or `index.ts` layout are now registered under their directory name, for example `Sw:Comp`. The former `Sw:Comp:index` import-map key is no longer generated, including for existing build manifests. If you used `data-component="Sw:Comp:index"` as a workaround, change it to `data-component="Sw:Comp"`.
 
 ### New line item reference price block
 
@@ -512,6 +707,10 @@ The new `CheckoutCustomerStorageReset` plugin drops that data and is bound via `
 
 The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
 
+### Storefront session handling moved to Core
+
+`Shopware\Core\Framework\Routing\SessionContextTokenSubscriber` now starts the storefront session, keeps its context token and follows token rotations on login, registration, logout and password changes; `Shopware\Storefront\Framework\Routing\StorefrontSubscriber` no longer handles the session. The `sw-sales-channel-id` session key is no longer written. With `core.systemWideLoginRegistration.isCustomerBoundToSalesChannel` enabled, a password change now updates the sales channel bound session token instead of leaving a revoked one behind.
+
 ### Legal guarantee notice on the registration and other privacy notices
 
 `component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.
@@ -524,11 +723,41 @@ The snippet `general.listPricePreviously` now reads "Lowest price (last 30 days)
 
 If you override `buy-widget-price`, `block-price`, `price-unit` or `badges`: `isListPrice` is `false` while a regulation price is set, the new `isRegulationPriceSaving` tells whether there is a saving against it, and the regulation price section renders a `list-price-percentage` element.
 
+### Nested GARAN label opens the full label
+
+The nested GARAN label is now a button that shows the full label. On line items it opens a modal loaded from the new route `frontend.product.garan-label` (template `storefront/component/product/garan-label-modal.html.twig`); on the product detail page it expands the full label.
+
+If you override `component_line_item_garan_label`, `buy_widget_garan_label_preview` or `buy_widget_garan_label_full`, take over the new button and link markup.
+
 ## App system
 
 ### App requests keep body and signature across redirects
 
 Shopware now follows a `301` or `302` from an app endpoint without dropping the `POST` method, the request body or the `shopware-shop-signature` header, so the redirect target receives the same signed request.
+
+### SEO URLs for app storefront routes
+
+Apps can give their script-rendered storefront pages SEO URLs by declaring `<seo-url>` and `<entity-seo-url>` elements inside `<storefront>` in `manifest.xml`.
+
+```xml
+<storefront>
+    <seo-url name="imprint">
+        <path>imprint</path>
+        <path lang="de-DE">impressum</path>
+    </seo-url>
+    <entity-seo-url name="blog-detail" entity="ce_blog">
+        <default-template>blog/{{ ceBlog.translated.title }}</default-template>
+    </entity-seo-url>
+</storefront>
+```
+
+A `<seo-url>` maps its path to the script hook `storefront-<name>` on every storefront sales channel domain, using the path of the domain's language; the `hook` attribute overrides the hook name. Installing or updating an app fails when one of its paths is already used by a storefront route, another app or an existing SEO URL.
+
+An `<entity-seo-url>` generates one SEO URL per entity. The app needs `read` permission for the entity and for every association its default template uses, otherwise the install or update fails; its own custom entities are covered automatically. A script hook can be claimed by one app only. Its default template is only seeded: merchants adjust it per sales channel in Settings > SEO, where the route is listed as `storefront.app.<appName>.<name>`, and app updates don't overwrite it. Changing the entity of a route resets all of its templates, including sales channel overrides. The template context exposes the entity under its camel-cased name, for example `ceBlog`. The URLs follow entity writes and the indexing behaviour like the core SEO URLs, get rebuilt by `dal:refresh:index`, and are marked as deleted while the app is inactive or after it is uninstalled.
+
+The script receives the entity id as `hook.query.id`. Templates link to such pages with `seoUrl('frontend.script_endpoint', { hook: 'blog-detail', id: entity.id })`; the placeholder is replaced with the SEO path like for products and categories.
+
+Four supporting changes apply to all SEO URLs: query parameters stored in `seo_url.path_info` are merged into the request when the SEO URL is resolved and take precedence over the browser's query string, `seo_url.route_name` now allows 255 characters, updating the SEO URLs of one route no longer marks the SEO URLs of other routes for the same entity as deleted or restores them, and the SEO URLs of an entity follow a changed technical target (`path_info`) without losing merchant-edited paths. Editing a canonical URL via `PATCH /api/_action/seo-url/canonical` now keeps the requested route when several storefront routes serve one entity.
 
 ### App translations fall back to the closest language
 

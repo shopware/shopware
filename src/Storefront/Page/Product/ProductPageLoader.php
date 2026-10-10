@@ -80,7 +80,8 @@ class ProductPageLoader
             ->addAssociation('properties.group')
             ->addAssociation('mainCategories.category')
             ->addAssociation('media.media')
-            ->addAssociation('openGraphMedia');
+            ->addAssociation('openGraphMedia')
+            ->addAssociation('guaranteeTermsMedia');
 
         $criteria->getAssociation('media')->addSorting(
             new FieldSorting('position')
@@ -108,7 +109,7 @@ class ProductPageLoader
         if ($category = $product->getSeoCategory()) {
             $request->request->set('navigationId', $category->getId());
 
-            if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
+            if (Feature::isActive('BREADCRUMB_REWORK')) {
                 $page->setBreadcrumb($this->breadcrumbBuilder->getCategoryBreadcrumbUrls($category, $context->getContext(), $context->getSalesChannel()));
             }
         }

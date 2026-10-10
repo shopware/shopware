@@ -64,7 +64,6 @@ class CacheInvalidationSubscriberTest extends TestCase
 
         $this->connection->expects($this->never())->method('fetchAllAssociative');
 
-        $cacheInvalidator = static::createStub(CacheInvalidator::class);
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
             ->with(

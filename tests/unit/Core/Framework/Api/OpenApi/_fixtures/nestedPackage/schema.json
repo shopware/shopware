@@ -1,0 +1,23 @@
+{
+    "openapi": "3.1.0",
+    "info": {},
+    "paths": {},
+    "components": {
+        "schemas": {
+            "RangeFilter": {
+                "x-dto-package": "framework",
+                "type": "object",
+                "properties": {
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "gte": {
+                                "type": "number"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

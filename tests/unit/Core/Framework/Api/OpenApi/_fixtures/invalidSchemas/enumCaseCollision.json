@@ -1,0 +1,14 @@
+{
+    "components": {
+        "schemas": {
+            "CollidingValue": {
+                "x-dto-namespace": "App\\DTO",
+                "type": "string",
+                "enum": [
+                    "foo-bar",
+                    "foo_bar"
+                ]
+            }
+        }
+    }
+}

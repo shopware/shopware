@@ -1,22 +1,18 @@
 {
-    "openapi": "3.2.0",
-    "info": [],
-    "paths": [],
+    "openapi": "3.1.0",
+    "info": {},
+    "paths": {},
     "components": {
         "schemas": {
-            "AccountNewsletterRecipient": {
+            "Response": {
                 "type": "object",
                 "properties": {
-                    "status": {
-                        "$ref": "#/components/schemas/NewsletterStatus"
-                    },
                     "apiAlias": {
                         "type": "string",
                         "const": "account_newsletter_recipient"
                     }
                 },
                 "required": [
-                    "status",
                     "apiAlias"
                 ]
             }

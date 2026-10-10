@@ -19,11 +19,12 @@
 
                 {% set isCompany = false %}
 
-                {% if page.address.company or data.company is not empty %}
+                {% if onlyCompanyRegistration %}
                     {% set isCompany = true %}
-                {% endif %}
-
-                {% if onlyCompanyRegistration or (accountType and accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')) %}
+                {% elseif accountType %}
+                    {# A given account type, e.g. the submitted one after a validation error, wins over the stored company #}
+                    {% set isCompany = accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
+                {% elseif page.address.company or data.company is not empty %}
                     {% set isCompany = true %}
                 {% endif %}
 
@@ -219,7 +220,7 @@
                                     label: 'address.companyNameLabel'|trans|sw_sanitize,
                                     id: idPrefix ~ prefix ~ '-company',
                                     name: 'company',
-                                    value: data.get('company'),
+                                    value: formViolations.getInputData()['company'] ?? data.get('company'),
                                     autocomplete: 'section-personal organization',
                                     violationPath: violationPath,
                                     validationRules: 'required',

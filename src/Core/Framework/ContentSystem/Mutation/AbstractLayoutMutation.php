@@ -172,15 +172,14 @@ abstract class AbstractLayoutMutation implements LayoutMutation
      * Every key of a translatable property's language map must be a language id in lowercase UUID hex, else
      * `mutationPropertyLanguageKeyInvalid` names the first offending one: the key rule the DAL write path enforces in
      * {@see PropertyTypeConformanceValidator}, so the draft and persisted routes answer a malformed key the same way.
-     * A map key PHP holds as an integer, such as "42", is checked and reported as the string it arrived as. Whether
-     * the id names an existing language stays a diagnostics warning ({@see ViolationCode::DanglingLanguage}), never
-     * a rejection. $value must already be admitted by {@see PropertyType::admits()} as a map, or `asMap()` throws.
+     * The keys are read through {@see PropertyType::languageKeys()}, so a map key PHP holds as an integer, such as
+     * "42", is checked and reported as the string it arrived as, and a non-translatable $type or a $value that is
+     * not a map holds none and is never rejected. Whether the id names an existing language stays a diagnostics
+     * warning ({@see ViolationCode::DanglingLanguage}), never a rejection.
      */
-    protected function rejectNonLanguageKeys(string $elementId, string $key, StoredValue $value): void
+    protected function rejectNonLanguageKeys(string $elementId, string $key, PropertyType $type, StoredValue $value): void
     {
-        foreach (array_keys($value->asMap()) as $rawKey) {
-            $languageKey = (string) $rawKey;
-
+        foreach ($type->languageKeys($value) as $languageKey) {
             if (Uuid::isValid($languageKey)) {
                 continue;
             }

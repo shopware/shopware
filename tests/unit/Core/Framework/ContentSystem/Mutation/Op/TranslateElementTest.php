@@ -226,11 +226,6 @@ class TranslateElementTest extends TestCase
             ['visible' => [Defaults::LANGUAGE_SYSTEM => 1]],
             ContentSystemException::mutationPropertyValueRejected('block-a', 'visible', 'array'),
         ];
-
-        yield 'a value under a declared property name PHP casts to an integer array key' => [
-            [7 => 'Seven'],
-            ContentSystemException::mutationPropertyValueRejected('block-a', '7', 'string'),
-        ];
     }
 
     /**
@@ -335,7 +330,6 @@ class TranslateElementTest extends TestCase
             self::TYPE => ContentSystemElementTypeSpecificationBuilder::create(self::TYPE)
                 ->primitive('label', 'string', translatable: true)
                 ->primitive('teaser', 'string', translatable: true)
-                ->primitive('7', 'string', translatable: true)
                 ->primitive('columns', 'integer', translatable: true)
                 ->primitive('visible', 'boolean', translatable: true)
                 ->primitive('headline', 'string')

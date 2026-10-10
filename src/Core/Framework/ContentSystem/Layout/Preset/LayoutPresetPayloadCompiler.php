@@ -79,7 +79,7 @@ class LayoutPresetPayloadCompiler
         }
 
         foreach ($this->elementTypes->get($component)->properties() as $key => $property) {
-            if (!$property->type()->translatable() || !\array_key_exists($key, $properties)) {
+            if (!\array_key_exists($key, $properties)) {
                 continue;
             }
 

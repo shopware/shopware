@@ -390,6 +390,46 @@ class PropertyTypeTest extends TestCase
         ];
     }
 
+    #[TestDox('lists the keys of a translatable language map as strings, an integer key cast, in map order')]
+    public function testLanguageKeysListsTheMapKeysAsStrings(): void
+    {
+        $type = new PropertyType('string', true, null, null);
+        $map = StoredValue::ofMap([
+            Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen'),
+            42 => StoredValue::ofString('Welcome'),
+        ]);
+
+        static::assertSame([Defaults::LANGUAGE_SYSTEM, '42'], $type->languageKeys($map));
+    }
+
+    #[TestDox('lists no language keys for a map under a non-translatable declaration')]
+    public function testLanguageKeysIsEmptyForANonTranslatableDeclaration(): void
+    {
+        $type = new PropertyType('string', false, null, null);
+        $map = StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen')]);
+
+        static::assertSame([], $type->languageKeys($map));
+    }
+
+    #[DataProvider('nonMapValueProvider')]
+    #[TestDox('lists no language keys for a translatable declaration holding $_dataName')]
+    public function testLanguageKeysIsEmptyForAValueThatIsNotAMap(StoredValue $value): void
+    {
+        static::assertSame([], (new PropertyType('string', true, null, null))->languageKeys($value));
+    }
+
+    /**
+     * @return iterable<string, array{StoredValue}>
+     */
+    public static function nonMapValueProvider(): iterable
+    {
+        yield 'a bare string' => [StoredValue::ofString('Willkommen')];
+
+        yield 'a list' => [StoredValue::ofList([StoredValue::ofString('Willkommen')])];
+
+        yield 'the null variant' => [StoredValue::ofNull()];
+    }
+
     #[TestDox('reports the nested member declarations of an object declaration through its schema')]
     public function testToSchemaReportsTheNestedMemberDeclarations(): void
     {

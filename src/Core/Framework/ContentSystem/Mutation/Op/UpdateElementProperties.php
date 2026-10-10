@@ -87,9 +87,7 @@ final class UpdateElementProperties extends AbstractLayoutMutation
         // rejection ahead of every language-key rejection, across keys, so key iteration order must not
         // decide which of the two reports.
         foreach ($wrapped as $key => $value) {
-            if ($declared[$key]->type()->translatable()) {
-                $this->rejectNonLanguageKeys($this->elementId, $key, $value);
-            }
+            $this->rejectNonLanguageKeys($this->elementId, $key, $declared[$key]->type(), $value);
 
             $properties[$key] = $value;
         }

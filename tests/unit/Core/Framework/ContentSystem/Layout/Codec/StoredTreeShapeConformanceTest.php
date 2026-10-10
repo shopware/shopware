@@ -786,6 +786,13 @@ class StoredTreeShapeConformanceTest extends TestCase
             self::DESCRIPTOR_ONLY,
             self::TYPE_BLIND_DECODE,
         ];
+
+        // PHP holds "42" as the integer array key 42, which the key rule reads back as the string it arrived as.
+        yield 'an integer-keyed language map on a translatable property' => [
+            self::translatableForest([42 => 'Hallo']),
+            self::DESCRIPTOR_ONLY,
+            self::TYPE_BLIND_DECODE,
+        ];
     }
 
     /**

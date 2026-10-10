@@ -198,7 +198,7 @@ class LayoutDiagnostics
         }
 
         foreach ($element->dataRequirements as $key => $requirement) {
-            $violation = $this->storedRequirementViolation($element, (string) $key, $requirement);
+            $violation = $this->storedRequirementViolation($element, $key, $requirement);
 
             if ($violation !== null) {
                 $violations[] = $violation;
@@ -261,7 +261,7 @@ class LayoutDiagnostics
             $violations[] = new Violation(
                 ViolationCode::MismatchedPropertyType,
                 $element->id,
-                (string) $key,
+                $key,
                 \sprintf(
                     'Property "%s" is declared as "%s" but carries a value of type "%s".',
                     $key,
@@ -299,17 +299,11 @@ class LayoutDiagnostics
         foreach ($element->properties() as $key => $value) {
             $specification = $declared[$key] ?? null;
 
-            if ($specification === null || !$specification->type()->translatable()) {
+            if ($specification === null) {
                 continue;
             }
 
-            if (!$value->isMap()) {
-                continue;
-            }
-
-            foreach (array_keys($value->asMap()) as $rawKey) {
-                $languageId = (string) $rawKey;
-
+            foreach ($specification->type()->languageKeys($value) as $languageId) {
                 if (\array_key_exists($languageId, $languageIds())) {
                     continue;
                 }
@@ -317,7 +311,7 @@ class LayoutDiagnostics
                 $violations[] = new Violation(
                     ViolationCode::DanglingLanguage,
                     $element->id,
-                    (string) $key,
+                    $key,
                     \sprintf('Property "%s" carries a translation for language "%s", which does not exist.', $key, $languageId),
                 );
             }

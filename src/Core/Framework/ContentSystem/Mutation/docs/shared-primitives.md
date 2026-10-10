@@ -20,9 +20,11 @@ and the ops call them there.
   one.
 - `requireRegistered(registry, string $type): void` - throws `ContentSystemException::mutationUnknownType` when the
   type is unregistered.
-- `rejectNonLanguageKeys(string $elementId, string $key, StoredValue $value): void` - throws
-  `ContentSystemException::mutationPropertyLanguageKeyInvalid` for the first language-map key that is not a lowercase
-  hex UUID, the key rule the DAL write path enforces. Shared by `Op/UpdateElementProperties` and `Op/TranslateElement`.
+- `rejectNonLanguageKeys(string $elementId, string $key, PropertyType $type, StoredValue $value): void` - throws
+  `ContentSystemException::mutationPropertyLanguageKeyInvalid` for the first key of `PropertyType::languageKeys()`
+  that is not a lowercase hex UUID, the key rule the DAL write path enforces. It rejects nothing for a
+  non-translatable `$type` or a `$value` that is not a map. Shared by `Op/UpdateElementProperties` and
+  `Op/TranslateElement`.
 - `resolveDefaultSpecification(bindingRegistry, string $type): ?BindingSpecification` - the type's default binding
   specification: zero is `null`, one is returned, more than one throws `bindingSpecificationDefaultAmbiguous`.
 - `childList(StoredElement $node): list<StoredElement>` - every direct child across all slots, in slot order.

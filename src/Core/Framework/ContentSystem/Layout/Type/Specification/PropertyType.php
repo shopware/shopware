@@ -18,8 +18,9 @@ use Shopware\Core\Framework\Log\Package;
  * {@see inStoredShape()} is the one shape rule for a default in storage ({@see storedDefault()} applies it to the
  * declared default), {@see admits()} is the one
  * conformance predicate answering whether a stored value matches this declared type, {@see admitsMapEntry()}
- * judges one language-map entry against the declared primitive, and {@see describe()} renders the declaration
- * for the violation messages both reporters share.
+ * judges one language-map entry against the declared primitive, {@see languageKeys()} lists the keys of a
+ * language map as strings, and {@see describe()} renders the declaration for the violation messages both
+ * reporters share.
  *
  * @phpstan-type PropertyTypeSchema = array{
  *     type: string|list<string>,
@@ -196,6 +197,23 @@ final readonly class PropertyType
         }
 
         return $this->matchesPrimitive($entry->jsonSerialize(), $this->type);
+    }
+
+    /**
+     * The keys of a translatable property's language map, each cast to string, in map order. PHP holds a map key
+     * such as "42" as an integer, so a caller that judges or reports a language key reads it here as the string it
+     * arrived as. A non-translatable declaration and a value that is not a map hold no language keys, and
+     * answer the empty list.
+     *
+     * @return list<string>
+     */
+    public function languageKeys(StoredValue $value): array
+    {
+        if (!$this->translatable || !$value->isMap()) {
+            return [];
+        }
+
+        return array_map(strval(...), array_keys($value->asMap()));
     }
 
     /**

@@ -65,9 +65,11 @@ final class PropertyTypeConformanceValidator extends ConstraintValidator
             // it here; that 500 is the accepted limitation in Api/docs/mutation-errors.md. A list-shaped
             // payload never carries one this far: the write's first decode already admitted its values
             // (see Layout/Field/README.md).
-            if (!$type->admits(StoredValue::fromDecoded($raw))) {
+            $stored = StoredValue::fromDecoded($raw);
+
+            if (!$type->admits($stored)) {
                 $this->context->buildViolation($constraint->message)
-                    ->setParameter('{{ key }}', (string) $key)
+                    ->setParameter('{{ key }}', $key)
                     ->setParameter('{{ declaredType }}', $type->describe())
                     ->setParameter('{{ actualType }}', get_debug_type($raw))
                     ->atPath('[properties][' . $key . ']')
@@ -76,17 +78,7 @@ final class PropertyTypeConformanceValidator extends ConstraintValidator
                 continue;
             }
 
-            if (!$type->translatable()) {
-                continue;
-            }
-
-            if (!\is_array($raw)) {
-                // Unreachable: admits() already established a translatable value is a map before this point.
-                // The check exists only so PHPStan narrows $raw for reportNonLanguageKeys().
-                continue;
-            }
-
-            $this->reportNonLanguageKeys($constraint, (string) $key, $raw);
+            $this->reportNonLanguageKeys($constraint, $key, $type->languageKeys($stored));
         }
     }
 
@@ -94,15 +86,14 @@ final class PropertyTypeConformanceValidator extends ConstraintValidator
      * One violation per key that is not a language id, so a client can name and correct each. Only the key
      * format is judged: whether the id names an existing language is a diagnostics warning, never a write
      * rejection. No separate case check accompanies the domain test — {@see Uuid::VALID_PATTERN} is anchored
-     * lowercase-only hex, so an upper-case key already fails it.
+     * lowercase-only hex, so an upper-case key already fails it. The keys come from
+     * {@see PropertyType::languageKeys()}, which holds none for a non-translatable property.
      *
-     * @param array<array-key, mixed> $map
+     * @param list<string> $languageKeys
      */
-    private function reportNonLanguageKeys(PropertyTypeConformance $constraint, string $key, array $map): void
+    private function reportNonLanguageKeys(PropertyTypeConformance $constraint, string $key, array $languageKeys): void
     {
-        foreach (array_keys($map) as $rawKey) {
-            $languageKey = (string) $rawKey;
-
+        foreach ($languageKeys as $languageKey) {
             if (Uuid::isValid($languageKey)) {
                 continue;
             }

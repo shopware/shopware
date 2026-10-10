@@ -239,7 +239,7 @@ class UpdateElementPropertiesTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $values
+     * @param array<array-key, mixed> $values
      */
     #[DataProvider('rejectedValueProvider')]
     #[TestDox('rejects $_dataName, naming the element, the key and the actual type')]
@@ -252,7 +252,7 @@ class UpdateElementPropertiesTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>, ContentSystemException}>
+     * @return iterable<string, array{array<array-key, mixed>, ContentSystemException}>
      */
     public static function rejectedValueProvider(): iterable
     {

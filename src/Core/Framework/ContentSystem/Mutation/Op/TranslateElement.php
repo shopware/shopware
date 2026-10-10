@@ -44,7 +44,7 @@ final class TranslateElement extends AbstractLayoutMutation
 
         $declared = $this->registry->get($node->component)->properties();
 
-        // A client key like "42" arrives as the integer array key 42. Every check and report below reads the cast
+        // A client key like "42" arrives as the integer array key 42. The gate loop below reads the cast
         // string, so such a key is judged like any other, an undeclared one reported as not translatable.
         foreach (array_keys($this->values) as $rawKey) {
             $key = (string) $rawKey;
@@ -56,8 +56,7 @@ final class TranslateElement extends AbstractLayoutMutation
 
         $properties = $node->properties();
 
-        foreach ($this->values as $rawKey => $value) {
-            $key = (string) $rawKey;
+        foreach ($this->values as $key => $value) {
             $candidate = StoredValue::fromDecoded($value);
 
             if (!$declared[$key]->type()->admits($candidate)) {
@@ -69,10 +68,8 @@ final class TranslateElement extends AbstractLayoutMutation
 
         // A separate pass, so every value rejection reports ahead of every language-key rejection across keys and
         // key iteration order does not decide which of the two reports.
-        foreach (array_keys($this->values) as $rawKey) {
-            $key = (string) $rawKey;
-
-            $this->rejectNonLanguageKeys($this->elementId, $key, $properties[$key]);
+        foreach (array_keys($this->values) as $key) {
+            $this->rejectNonLanguageKeys($this->elementId, $key, $declared[$key]->type(), $properties[$key]);
         }
 
         $this->affected = [$this->elementId];

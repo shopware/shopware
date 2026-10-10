@@ -106,12 +106,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download v0.13.0 --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf ./*.tar.gz
+          set -euo pipefail
+          gh release download v0.14.0 --repo MalteJanz/ludtwig --pattern '*unknown-linux-gnu.tar.gz'
+          tar xf ./*.tar.gz
           mv ./ludtwig /usr/local/bin
 
       - name: Run ludtwig linter
         id: ludtwigStep
         run: |
+          set -euo pipefail
           cd ./src/Storefront/Resources/views
           ludtwig .
 
@@ -122,7 +125,6 @@ jobs:
           echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
           echo "And then composer run ludtwig:storefront or ludtwig:storefront:fix"
           echo "Alternatively you also can run these in the DevEnv shell"
-          exit "$status"  # Fail the job if ludtwig . failed
 
   jest:
     name: "Jest Storefront"

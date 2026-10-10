@@ -26,7 +26,7 @@
 
 # -------------------------------
 # Ludtwig configuration
-version = "0.13.0"
+version = "0.14.0"
 # -------------------------------
 [general]
 active-rules = [
@@ -36,9 +36,9 @@ active-rules = [
 #    "indentation",
     "twig-block-line-breaks",
     "twig-block-name-snake-case",
-    "html-attribute-name-kebab-case",
     "twig-logic-and",
     "twig-logic-or",
+    "twig-no-break",
     "twig-string-quotation",
     "html-string-quotation",
     "twig-hash-key-no-quotes",
@@ -46,6 +46,7 @@ active-rules = [
     "twig-block-duplicate",
     "twig-json-encode-escape-js",
     "html-duplicate-id",
+    "html-tag-fragments",
     "twig-variable-definition-naming",
     "twig-valid-filter",
     "twig-valid-test",

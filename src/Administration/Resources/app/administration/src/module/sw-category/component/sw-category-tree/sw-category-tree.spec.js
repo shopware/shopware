@@ -55,7 +55,32 @@ const interactiveCategories = {
     }),
 };
 
-async function createWrapper(categories = null, props = {}) {
+function createCategoryPage(parentId, page, size) {
+    return Array.from({ length: size }, (_, index) => {
+        return createCategory({
+            id: `${parentId ?? 'root'}-${page}-${index}`,
+            name: `Category ${page}-${index}`,
+            parentId,
+        });
+    });
+}
+
+// Simulates the Admin API, which caps every search at its max limit of 500 and reports the real total
+function createPagedSearch(totals) {
+    return jest.fn((criteria) => {
+        const parentId = criteria.filters.find((filter) => filter.field === 'parentId')?.value ?? null;
+        const total = totals[parentId] ?? 0;
+        const page = criteria.page ?? 1;
+        const limit = Math.min(criteria.limit ?? 500, 500);
+        const offset = (page - 1) * limit;
+        const result = createCategoryPage(parentId, page, Math.max(0, Math.min(limit, total - offset)));
+        result.total = total;
+
+        return Promise.resolve(result);
+    });
+}
+
+async function createWrapper(categories = null, props = {}, repository = {}) {
     const routes = [
         {
             name: 'sw.category.detail',
@@ -114,6 +139,7 @@ async function createWrapper(categories = null, props = {}) {
                         },
                         saveAll: () => Promise.resolve(),
                         syncDeleted: () => Promise.resolve(),
+                        ...repository,
                     }),
                 },
             },
@@ -625,6 +651,53 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
         expect(wrapper.vm.loadedCategories[3].afterCategoryId).toBe('1');
         expect(wrapper.vm.loadedCategories[6].afterCategoryId).toBe('3');
+    });
+
+    it('should load every root category when there are more than fit into one request', async () => {
+        const search = createPagedSearch({ null: 1001 });
+        const wrapper = await createWrapper(null, {}, { search });
+        await flushPromises();
+
+        expect(search).toHaveBeenCalledTimes(3);
+        expect(search.mock.calls.map(([criteria]) => [criteria.page, criteria.limit])).toEqual([
+            [1, 500],
+            [2, 500],
+            [3, 500],
+        ]);
+        expect(search.mock.calls[0][0].sortings).toEqual([expect.objectContaining({ field: 'id' })]);
+        expect(Object.keys(wrapper.vm.loadedCategories)).toHaveLength(1001);
+    });
+
+    it('should load every child category of a level when there are more than fit into one request', async () => {
+        const search = createPagedSearch({ parent: 501 });
+        const wrapper = await createWrapper(null, {}, { search });
+        await flushPromises();
+        search.mockClear();
+
+        await wrapper.vm.onGetTreeItems('parent');
+
+        expect(search).toHaveBeenCalledTimes(2);
+        expect(search.mock.calls.map(([criteria]) => criteria.page)).toEqual([
+            1,
+            2,
+        ]);
+        expect(wrapper.vm.categories.filter((category) => category.parentId === 'parent')).toHaveLength(501);
+        expect(wrapper.vm.loadedParentIds).toContain('parent');
+    });
+
+    it('should load a tree level with a single request when it fits into one request', async () => {
+        const search = createPagedSearch({ null: 500, parent: 3 });
+        const wrapper = await createWrapper(null, {}, { search });
+        await flushPromises();
+
+        expect(search).toHaveBeenCalledTimes(1);
+        expect(Object.keys(wrapper.vm.loadedCategories)).toHaveLength(500);
+
+        search.mockClear();
+        await wrapper.vm.onGetTreeItems('parent');
+
+        expect(search).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.categories.filter((category) => category.parentId === 'parent')).toHaveLength(3);
     });
 
     it('should open the tree for active category on category change', async () => {

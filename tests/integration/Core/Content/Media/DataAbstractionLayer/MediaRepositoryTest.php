@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -21,9 +22,16 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Sync\SyncBehavior;
+use Shopware\Core\Framework\Api\Sync\SyncOperation;
+use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -73,6 +81,89 @@ class MediaRepositoryTest extends TestCase
         $this->documentRepository = static::getContainer()->get('document.repository');
         $this->orderRepository = static::getContainer()->get('order.repository');
         $this->context = Context::createDefaultContext();
+    }
+
+    public function testDeletingTheCoverMediaRemovesTheProductCover(): void
+    {
+        $ids = new IdsCollection();
+        $connection = static::getContainer()->get(Connection::class);
+
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+        $productRepository->create([
+            (new ProductBuilder($ids, 'cover-product'))->price(100)->cover('cover-media')->build(),
+        ], $this->context);
+
+        $mediaId = $connection->fetchOne(
+            'SELECT LOWER(HEX(media_id)) FROM product_media WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($ids->get('cover-media'))]
+        );
+        static::assertIsString($mediaId);
+
+        $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
+
+        $product = $productRepository->search(new Criteria([$ids->get('cover-product')]), $this->context)->getEntities()->first();
+        static::assertNotNull($product);
+        static::assertNull($product->getCoverId());
+    }
+
+    public function testDeletingAProductWithACoverReportsTheProductAsDeleted(): void
+    {
+        $ids = new IdsCollection();
+
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+        $productRepository->create([
+            (new ProductBuilder($ids, 'cover-product'))->price(100)->cover('cover-media')->build(),
+        ], $this->context);
+
+        $event = $productRepository->delete([['id' => $ids->get('cover-product')]], $this->context);
+
+        static::assertSame([$ids->get('cover-product')], $event->getDeletedPrimaryKeys('product'));
+        static::assertSame([], $this->getProductUpdates($event));
+        static::assertNull($productRepository->search(new Criteria([$ids->get('cover-product')]), $this->context)->getEntities()->first());
+    }
+
+    public function testDeletingAProductWithACoverThroughTheSyncApiReportsItAsDeleted(): void
+    {
+        $ids = new IdsCollection();
+
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+        $productRepository->create([
+            (new ProductBuilder($ids, 'cover-product'))->price(100)->cover('cover-media')->build(),
+        ], $this->context);
+
+        $result = static::getContainer()->get(SyncService::class)->sync([
+            new SyncOperation('delete-product', 'product', SyncOperation::ACTION_DELETE, [['id' => $ids->get('cover-product')]]),
+        ], $this->context, new SyncBehavior());
+
+        static::assertSame([$ids->get('cover-product')], $result->getDeleted()['product'] ?? []);
+        static::assertArrayNotHasKey('product', $result->getData());
+    }
+
+    public function testDeletingAParentReportsItsVariantWithItsOwnCoverAsDeleted(): void
+    {
+        $ids = new IdsCollection();
+
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+        $productRepository->create([
+            (new ProductBuilder($ids, 'parent'))
+                ->price(100)
+                ->variant((new ProductBuilder($ids, 'variant'))->price(100)->cover('variant-cover')->build())
+                ->build(),
+        ], $this->context);
+
+        $event = $productRepository->delete([['id' => $ids->get('parent')]], $this->context);
+
+        $deleted = $event->getDeletedPrimaryKeys('product');
+        sort($deleted);
+        $expected = [$ids->get('parent'), $ids->get('variant')];
+        sort($expected);
+
+        static::assertSame($expected, $deleted);
+        static::assertSame([], $this->getProductUpdates($event));
     }
 
     public function testPrivateMediaNotReadable(): void
@@ -777,6 +868,22 @@ class MediaRepositoryTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->first();
         static::assertNotNull($media);
         static::assertSame(str_repeat('a', 255), $media->getAlt());
+    }
+
+    /**
+     * @return list<EntityWriteResult>
+     */
+    private function getProductUpdates(EntityWrittenContainerEvent $event): array
+    {
+        $productEvent = $event->getEventByEntityName('product');
+        if ($productEvent === null) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            $productEvent->getWriteResults(),
+            static fn (EntityWriteResult $result): bool => $result->getOperation() !== EntityWriteResult::OPERATION_DELETE,
+        ));
     }
 
     /**

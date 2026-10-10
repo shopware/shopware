@@ -529,7 +529,7 @@ class InsertElementTest extends TestCase
             'core:media-picker',
         );
 
-        $this->expectExceptionObject(ContentSystemException::bindingTypeMismatch('core:media-picker', 'Sw:Other', 'Sw:Media:Image'));
+        $this->expectExceptionObject(ContentSystemException::bindingTypeMismatch('core:media-picker', 'Sw:Other', 'Sw:Media:Image', null));
         $insert->apply(new StoredTree([new StoredElement('existing', 'Sw:Block')]));
     }
 

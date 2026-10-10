@@ -115,7 +115,7 @@ class BindElementTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $bind = new BindElement($this->registry(), 'spec-1', 'el', $this->applicator($config));
 
-        $this->expectExceptionObject(ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Product', 'Sw:Other'));
+        $this->expectExceptionObject(ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Product', 'Sw:Other', 'el'));
         $bind->apply(new StoredTree([new StoredElement('el', 'Sw:Other')]));
     }
 

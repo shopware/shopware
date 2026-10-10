@@ -1215,13 +1215,20 @@ class ContentSystemException extends HttpException
         );
     }
 
-    public static function bindingTypeMismatch(string $bindingSpecificationId, string $specificationType, string $elementComponent): self
+    /**
+     * A null element id means the element does not exist yet: InsertElement checks the type before it scaffolds.
+     */
+    public static function bindingTypeMismatch(string $bindingSpecificationId, string $specificationType, string $elementComponent, ?string $elementId): self
     {
+        $element = $elementId === null
+            ? 'the target element'
+            : 'the target element "{{ elementId }}"';
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::BINDING_TYPE_MISMATCH,
-            'Binding specification "{{ bindingSpecificationId }}" applies to type "{{ specificationType }}", but the target element is of type "{{ elementComponent }}".',
-            ['bindingSpecificationId' => $bindingSpecificationId, 'specificationType' => $specificationType, 'elementComponent' => $elementComponent]
+            'Binding specification "{{ bindingSpecificationId }}" applies to type "{{ specificationType }}", but ' . $element . ' is of type "{{ elementComponent }}".',
+            ['bindingSpecificationId' => $bindingSpecificationId, 'specificationType' => $specificationType, 'elementComponent' => $elementComponent, 'elementId' => $elementId]
         );
     }
 

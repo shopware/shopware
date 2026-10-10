@@ -103,6 +103,30 @@ class ContentSystemExceptionTest extends TestCase
         );
     }
 
+    #[TestDox('names the target element in the type-mismatch message and parameters, and omits it when the element does not exist yet')]
+    public function testBindingTypeMismatchMessageForms(): void
+    {
+        $named = ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Media:Image', 'Sw:Product', 'el-1');
+        $unnamed = ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Media:Image', 'Sw:Product', null);
+
+        static::assertSame(
+            'Binding specification "spec-1" applies to type "Sw:Media:Image", but the target element "el-1" is of type "Sw:Product".',
+            $named->getMessage()
+        );
+        static::assertSame(
+            ['bindingSpecificationId' => 'spec-1', 'specificationType' => 'Sw:Media:Image', 'elementComponent' => 'Sw:Product', 'elementId' => 'el-1'],
+            $named->getParameters()
+        );
+        static::assertSame(
+            'Binding specification "spec-1" applies to type "Sw:Media:Image", but the target element is of type "Sw:Product".',
+            $unnamed->getMessage()
+        );
+        static::assertSame(
+            ['bindingSpecificationId' => 'spec-1', 'specificationType' => 'Sw:Media:Image', 'elementComponent' => 'Sw:Product', 'elementId' => null],
+            $unnamed->getParameters()
+        );
+    }
+
     #[TestDox('propagates previous throwable when loading element type fails')]
     public function testPreservesPreviousThrowableOnLoadFailed(): void
     {
@@ -556,7 +580,7 @@ class ContentSystemExceptionTest extends TestCase
         ];
 
         yield 'binding type mismatch' => [
-            ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Media:Image', 'Sw:Product'),
+            ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Media:Image', 'Sw:Product', 'el-1'),
             Response::HTTP_BAD_REQUEST,
             'CONTENT_SYSTEM__BINDING_TYPE_MISMATCH',
             'Sw:Media:Image',

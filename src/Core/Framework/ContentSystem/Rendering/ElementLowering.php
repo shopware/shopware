@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
@@ -27,13 +29,16 @@ use Symfony\Component\HttpFoundation\Request;
  * rather than resolving them itself, and this class is what fills that argument.
  *
  * THE PAGE-LEVEL DATA IS RESOLVED HERE TOO, and separately. It belongs to the rendering specification rather
- * than to any element, so it arrives as an argument beside the forest and is run once per render against the
+ * than to any element, so it arrives as an argument beside the forest and is run against the
  * {@see VirtualRootWrapper} element, whose placeholder values are what its loaders' `propertyReference` inputs
- * dereference against. The resulting map is handed to {@see ContextDeliveryResolver::resolve()} as the
- * root-ambient context, which is the only route by which it reaches an element. It is an explicit input on
- * that call rather than something read off the tree, so the partial prune cannot take root context with it.
- * The same map is also filed into the forest's loader values under the wrapper's own id, which on a partial
- * render that pruned the wrapper away addresses no element of that forest and is read by nothing.
+ * dereference against. Only the requirements a root-scoped consumer on the page reads are resolved: one no
+ * consumer reads never loads, so it runs no query and contributes no cache tag. Consumption is judged over the
+ * wrapper's pre-prune forest, so a partial render resolves the same set as the full render. The resulting map
+ * is handed to {@see ContextDeliveryResolver::resolve()} as the root-ambient context, which is the only route
+ * by which it reaches an element. It is an explicit input on that call rather than something read off the tree,
+ * so the partial prune cannot take root context with it. The same map is also filed into the forest's loader
+ * values under the wrapper's own id, which on a partial render that pruned the wrapper away addresses no
+ * element of that forest and is read by nothing.
  *
  * The data walk is pre-order and descends slot by slot: an element loads before the elements under it, and
  * each slot's children load in declaration order. What that order buys is narrower than it looks:
@@ -51,6 +56,7 @@ final readonly class ElementLowering
         private ElementDataResolver $dataResolver,
         private ContextDeliveryResolver $deliveryResolver,
         private RenderedTreeFactory $treeFactory,
+        private ContextPathResolver $pathResolver,
     ) {
     }
 
@@ -84,20 +90,26 @@ final readonly class ElementLowering
         $loaderValues = $this->resolveLoaderValues($forest, $context, $request, $cacheContext);
         $ambient = [];
 
-        // No wrapper or no page-level requirements: nothing ambient to resolve.
-        if ($virtualRoot !== null && $pageDataRequirements !== []) {
-            $ambient = $this->dataResolver->resolveRequirements(
-                $virtualRoot,
-                $this->indexByRequirementKey($pageDataRequirements),
-                $context,
-                $request,
-                $cacheContext,
-            );
+        // No wrapper, or no page-level requirement a root-scoped consumer reads: nothing ambient to resolve.
+        // The wrapper comes from the pre-prune forest, so consumption is judged over the whole page and a
+        // partial render loads the same requirements as the full render.
+        if ($virtualRoot !== null) {
+            $consumed = $this->consumedRequirements([$virtualRoot], $pageDataRequirements);
 
-            // Filed under the wrapper's id because that is the element these values were resolved against,
-            // which keeps the map's "loader values by element id" contract true. The wrapper carries no data
-            // requirements of its own, so this entry adds no rendered property to it and nothing loads twice.
-            $loaderValues[$virtualRoot->id] = $ambient;
+            if ($consumed !== []) {
+                $ambient = $this->dataResolver->resolveRequirements(
+                    $virtualRoot,
+                    $this->indexByRequirementKey($consumed),
+                    $context,
+                    $request,
+                    $cacheContext,
+                );
+
+                // Filed under the wrapper's id because that is the element these values were resolved against,
+                // which keeps the map's "loader values by element id" contract true. The wrapper carries no data
+                // requirements of its own, so this entry adds no rendered property to it and nothing loads twice.
+                $loaderValues[$virtualRoot->id] = $ambient;
+            }
         }
 
         // Context distribution is about dataflow, not about where a value came from, so it sees the plain
@@ -125,6 +137,60 @@ final readonly class ElementLowering
         }
 
         return $indexed;
+    }
+
+    /**
+     * @param list<StoredElement> $forest
+     * @param list<DataRequirement> $pageDataRequirements
+     *
+     * @return list<DataRequirement>
+     */
+    private function consumedRequirements(array $forest, array $pageDataRequirements): array
+    {
+        $rootConsumerKeys = $this->rootConsumerKeys($forest);
+
+        return array_values(array_filter(
+            $pageDataRequirements,
+            fn (DataRequirement $requirement): bool => $this->isConsumed($requirement, $rootConsumerKeys),
+        ));
+    }
+
+    /**
+     * Uses the predicate {@see ContextDeliveryResolver::overlayRootContext()} delivers by: the same resolver
+     * call with the same argument order, over root-scoped consumers only. Any other predicate can drop a
+     * requirement that delivery would have handed to a consumer.
+     *
+     * @param list<string> $rootConsumerKeys
+     */
+    private function isConsumed(DataRequirement $requirement, array $rootConsumerKeys): bool
+    {
+        foreach ($rootConsumerKeys as $consumerKey) {
+            if ($this->pathResolver->matches($requirement->key, $consumerKey)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param list<StoredElement> $elements
+     *
+     * @return list<string>
+     */
+    private function rootConsumerKeys(array $elements): array
+    {
+        $keys = [];
+
+        foreach ($elements as $element) {
+            $keys[] = $element->contextDefinitions->getConsumerKeysByScope(ConsumerScope::Root);
+
+            foreach ($element->slots as $children) {
+                $keys[] = $this->rootConsumerKeys($children);
+            }
+        }
+
+        return array_values(array_unique(array_merge([], ...$keys)));
     }
 
     /**

@@ -346,6 +346,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ElementDataResolver::class),
             service(ContextDeliveryResolver::class),
             service(RenderedTreeFactory::class),
+            service(ContextPathResolver::class),
         ]);
 
     $services->set(WiringPlanner::class)
@@ -638,6 +639,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DataLoaderConfigSerializerProvider::class),
             service(RootContextMapper::class),
             service(ContentSystemDataLoaderMapResolver::class),
+            service(RootSourceRegistry::class),
         ])
         ->tag('validator.constraint_validator');
 

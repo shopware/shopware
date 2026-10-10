@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDtoCollection;
 use Shopware\Core\Framework\ContentSystem\Binding\Validation\TypeConsistentBindingSpecification;
@@ -595,6 +597,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             $provider,
             static::createStub(RootContextMapper::class),
             static::createStub(AbstractContentSystemDataLoaderMapResolver::class),
+            static::createStub(RootSourceRegistry::class),
         );
         $validator->initialize(static::createStub(ExecutionContextInterface::class));
 
@@ -694,6 +697,74 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertCount(1, $violations);
         static::assertSame('bindings[' . self::ID . '].resolves[media].config', $violations->get(0)->getPropertyPath());
         static::assertStringContainsString('config is invalid', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('passes a resolves entry whose config value is a scoped map with root-source keys and string values')]
+    public function testResolvesEntryScopedMapPasses(): void
+    {
+        $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => [RootSourceConfigMap::MARKER => ['product' => 'mediaId', 'category' => 'mediaId']]]]],
+            inputs: [],
+        );
+
+        static::assertCount(0, $this->validateWith($dto, $validator));
+    }
+
+    #[TestDox('flags a scoped map whose key is not a registered root source as a violation')]
+    public function testResolvesEntryScopedMapUnknownKeyIsViolation(): void
+    {
+        $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => [RootSourceConfigMap::MARKER => ['product' => 'mediaId', 'bogus' => 'mediaId']]]]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config.property', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('map of root source', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('flags a scoped map with a non-string value as a violation')]
+    public function testResolvesEntryScopedMapNonStringValueIsViolation(): void
+    {
+        $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => [RootSourceConfigMap::MARKER => ['product' => ['mediaId']]]]]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config.property', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('map of root source', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('treats an unscoped array config as an ordinary loader argument, not a scoped map')]
+    public function testResolvesEntryUnscopedArrayConfigIsNotTreatedAsScopedMap(): void
+    {
+        $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId', 'associations' => ['manufacturer', 'cover']]]],
+            inputs: [],
+        );
+
+        static::assertCount(0, $this->validateWith($dto, $validator));
     }
 
     /**
@@ -810,7 +881,31 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
         $mapResolver->method('resolve')->willReturn($map);
 
-        return new TypeConsistentBindingSpecificationValidator($registry, $provider, $rootContextMapper, $mapResolver);
+        return new TypeConsistentBindingSpecificationValidator($registry, $provider, $rootContextMapper, $mapResolver, static::createStub(RootSourceRegistry::class));
+    }
+
+    /**
+     * @param list<string> $rootSources
+     */
+    private function validatorWithRootSources(array $rootSources): TypeConsistentBindingSpecificationValidator
+    {
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('get')->willReturn($this->imageType());
+
+        $provider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $provider->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));
+
+        $rootContextMapper = static::createStub(RootContextMapper::class);
+        $rootContextMapper->method('resolveType')->willReturn(MediaEntity::class);
+
+        $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
+        $mapResolver->method('resolve')->willReturn($this->map(['entity' => $this->loaderSpec()]));
+
+        $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
+        $rootSourceRegistry->method('entityRootSources')->willReturn($rootSources);
+
+        return new TypeConsistentBindingSpecificationValidator($registry, $provider, $rootContextMapper, $mapResolver, $rootSourceRegistry);
     }
 
     /**
@@ -830,7 +925,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
         $mapResolver->method('resolve')->willReturn($this->map(['entity' => $this->loaderSpec()]));
 
-        return new TypeConsistentBindingSpecificationValidator($registry, $provider, $rootContextMapper, $mapResolver);
+        return new TypeConsistentBindingSpecificationValidator($registry, $provider, $rootContextMapper, $mapResolver, static::createStub(RootSourceRegistry::class));
     }
 
     private function validatorFailingDecodeWith(ContentSystemException $exception): TypeConsistentBindingSpecificationValidator
@@ -848,6 +943,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             $provider,
             static::createStub(RootContextMapper::class),
             $mapResolver,
+            static::createStub(RootSourceRegistry::class),
         );
     }
 
@@ -864,7 +960,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
         $mapResolver->method('resolve')->willReturn($this->map(['entity' => $this->loaderSpec()]));
 
-        return new TypeConsistentBindingSpecificationValidator($registry, $provider, $rootContextMapper, $mapResolver);
+        return new TypeConsistentBindingSpecificationValidator($registry, $provider, $rootContextMapper, $mapResolver, static::createStub(RootSourceRegistry::class));
     }
 
     /**

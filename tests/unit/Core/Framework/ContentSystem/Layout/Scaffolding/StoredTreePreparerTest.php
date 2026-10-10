@@ -194,6 +194,8 @@ class StoredTreePreparerTest extends TestCase
     {
         yield 'no declared value matches it' => ['Category {{categoryId}}', ['productId' => 'prod-1']];
         yield 'the placeholder values map is empty' => ['Product {{productId}}', []];
+        // A trailing newline makes the token embedded text, not the whole value, so it must not collapse to null.
+        yield 'a lone token is followed by a newline' => ["{{categoryId}}\n", ['productId' => 'prod-1']];
     }
 
     #[TestDox('keeps a token carried by a substituted value literal, even when that token is declared')]
@@ -206,6 +208,33 @@ class StoredTreePreparerTest extends TestCase
         $prepared = $this->prepare([$element], ['productId' => '{{categoryId}}', 'categoryId' => 'cat-1']);
 
         static::assertSame('Product {{categoryId}}', $prepared[0]->property('title')?->asString());
+    }
+
+    #[TestDox('collapses a value that is entirely one unresolved token to the null variant')]
+    public function testPrepareCollapsesLoneUnresolvedTokenToNull(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', '{{categoryId}}')
+            ->build();
+
+        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
+
+        $value = $prepared[0]->property('title');
+        // Present under its key and holding the null variant: an absent key would be a different outcome.
+        static::assertNotNull($value);
+        static::assertTrue($value->isNull());
+    }
+
+    #[TestDox('keeps a declared value that is itself a lone token literal instead of collapsing it to null')]
+    public function testPrepareKeepsADeclaredLoneTokenValueLiteral(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', '{{productId}}')
+            ->build();
+
+        $prepared = $this->prepare([$element], ['productId' => '{{categoryId}}']);
+
+        static::assertSame('{{categoryId}}', $prepared[0]->property('title')?->asString());
     }
 
     #[TestDox('records that the virtual root did not survive a prune that cut it away')]

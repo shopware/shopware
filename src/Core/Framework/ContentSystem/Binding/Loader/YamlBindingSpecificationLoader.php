@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Binding\Loader;
 
 use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingSpecificationSynthesizer;
+use Shopware\Core\Framework\ContentSystem\Binding\ScopedConfigNormalizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
@@ -228,7 +229,7 @@ class YamlBindingSpecificationLoader extends AbstractContentSystemBindingSpecifi
         $content = $filesystem->read($relativePath);
 
         try {
-            $data = Yaml::parse($content);
+            $data = ScopedConfigNormalizer::normalize(Yaml::parse($content, Yaml::PARSE_CUSTOM_TAGS));
         } catch (ParseException $e) {
             throw ContentSystemException::bindingSpecificationLoadFailed($filesystem->path($relativePath), 'Invalid YAML syntax: ' . $e->getMessage(), $e);
         }

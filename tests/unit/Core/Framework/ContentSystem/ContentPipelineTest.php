@@ -1593,6 +1593,7 @@ class ContentPipelineTest extends TestCase
                 new ContextPathResolver()
             ),
             new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry())),
+            new ContextPathResolver(),
         );
     }
 

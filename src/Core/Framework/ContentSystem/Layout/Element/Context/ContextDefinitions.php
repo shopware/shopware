@@ -36,6 +36,19 @@ final readonly class ContextDefinitions
     }
 
     /**
+     * @internal
+     *
+     * @return list<string>
+     */
+    public function getConsumerKeysByScope(ConsumerScope $scope): array
+    {
+        return array_keys(array_filter(
+            $this->consumers,
+            static fn (ContextConsumer $consumer): bool => $consumer->scope === $scope,
+        ));
+    }
+
+    /**
      * @param array<string, ContextProvider> $additionalProviders
      */
     public function withAddedProviders(array $additionalProviders): self

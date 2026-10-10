@@ -219,6 +219,7 @@ abstract class AbstractLayoutMutation implements LayoutMutation
         AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         BindingApplicator $bindingApplicator,
         StoredElement $element,
+        ?string $rootSource = null,
     ): StoredElement {
         $default = $this->resolveDefaultSpecification($bindingRegistry, $element->component);
 
@@ -226,20 +227,21 @@ abstract class AbstractLayoutMutation implements LayoutMutation
             return $element;
         }
 
-        return $bindingApplicator->applyFillOnly($element, $default, $default->qualifiedId());
+        return $bindingApplicator->applyFillOnly($element, $default, $default->qualifiedId(), $rootSource);
     }
 
     protected function applyDefaultBindingToSubtree(
         AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         BindingApplicator $bindingApplicator,
         StoredElement $element,
+        ?string $rootSource = null,
     ): StoredElement {
-        $bound = $this->applyDefaultBinding($bindingRegistry, $bindingApplicator, $element);
+        $bound = $this->applyDefaultBinding($bindingRegistry, $bindingApplicator, $element, $rootSource);
 
         $slots = [];
         foreach ($bound->slots as $name => $children) {
             $slots[$name] = array_values(array_map(
-                fn (StoredElement $child): StoredElement => $this->applyDefaultBindingToSubtree($bindingRegistry, $bindingApplicator, $child),
+                fn (StoredElement $child): StoredElement => $this->applyDefaultBindingToSubtree($bindingRegistry, $bindingApplicator, $child, $rootSource),
                 $children,
             ));
         }

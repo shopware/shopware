@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Binding\Validation;
 
+use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDtoCollection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -32,6 +34,7 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
         private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
         private readonly RootContextMapper $rootContextMapper,
         private readonly AbstractContentSystemDataLoaderMapResolver $mapResolver,
+        private readonly RootSourceRegistry $rootSourceRegistry,
     ) {
     }
 
@@ -139,6 +142,103 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
         $config = $entry['config'] ?? [];
         $config = \is_array($config) ? $config : [];
 
+        $knownRootSources = $this->rootSourceRegistry->entityRootSources();
+
+        if (!$this->validateScopedMaps($id, $key, $config, $knownRootSources, $constraint)) {
+            return;
+        }
+
+        foreach ($this->configBranches($config) as $branchConfig) {
+            $this->validateConfigBranch($id, $key, $loader, $branchConfig, $declaredType, $type, $constraint);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     * @param list<string> $knownRootSources
+     */
+    private function validateScopedMaps(string $id, string $key, array $config, array $knownRootSources, TypeConsistentBindingSpecification $constraint): bool
+    {
+        $valid = true;
+
+        foreach ($config as $configKey => $value) {
+            $map = RootSourceConfigMap::scopeMap($value);
+
+            if ($map === null) {
+                continue;
+            }
+
+            if ($map !== [] && $this->onlyRootSourceKeys($map, $knownRootSources) && $this->allStringValues($map)) {
+                continue;
+            }
+
+            $this->context->buildViolation($constraint->resolvesEntryRootSourceMapMessage)
+                ->setParameter('{{ key }}', $key)
+                ->setParameter('{{ configKey }}', (string) $configKey)
+                ->setParameter('{{ rootSources }}', implode(', ', $knownRootSources))
+                ->atPath($this->path($id, 'resolves[' . $key . '].config.' . $configKey))
+                ->addViolation();
+
+            $valid = false;
+        }
+
+        return $valid;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function configBranches(array $config): array
+    {
+        $rootSources = [];
+
+        foreach ($config as $value) {
+            $map = RootSourceConfigMap::scopeMap($value);
+
+            if ($map === null) {
+                continue;
+            }
+
+            foreach (array_keys($map) as $rootSource) {
+                $rootSources[$rootSource] = true;
+            }
+        }
+
+        if ($rootSources === []) {
+            return [$config];
+        }
+
+        $branches = [];
+
+        foreach (array_keys($rootSources) as $rootSource) {
+            $branches[] = RootSourceConfigMap::collapse($config, (string) $rootSource);
+        }
+
+        return $branches;
+    }
+
+    /**
+     * @param array<array-key, mixed> $map
+     * @param list<string> $knownRootSources
+     */
+    private function onlyRootSourceKeys(array $map, array $knownRootSources): bool
+    {
+        foreach (array_keys($map) as $key) {
+            if (!\is_string($key) || !\in_array($key, $knownRootSources, true)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function validateConfigBranch(string $id, string $key, string $loader, array $config, string $declaredType, ContentSystemElementTypeSpecification $type, TypeConsistentBindingSpecification $constraint): void
+    {
         $configObject = $this->decodeConfig($id, $key, $loader, $config, $constraint);
 
         if ($configObject === null) {
@@ -163,6 +263,20 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
         }
 
         $this->validatePropertyReferenceKeys($id, $key, $loader, $config, $type, $constraint);
+    }
+
+    /**
+     * @param array<array-key, mixed> $value
+     */
+    private function allStringValues(array $value): bool
+    {
+        foreach ($value as $item) {
+            if (!\is_string($item)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

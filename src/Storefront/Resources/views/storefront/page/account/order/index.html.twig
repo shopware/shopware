@@ -104,6 +104,11 @@
 {% endblock %}
 
 {% block page_checkout_aside_actions %}
+    {# The legal guarantee notice link is inherited from the confirm page, so its modal has to be rendered here as well #}
+    {% block page_checkout_confirm_legal_guarantee_notice %}
+        {{ parent() }}
+    {% endblock %}
+
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"
               action="{{ path('frontend.account.edit-order.update-order', { orderId: page.order.id }) }}"

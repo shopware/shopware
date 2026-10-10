@@ -48,6 +48,10 @@ export default {
     },
 
     computed: {
+        adminEsEnable() {
+            return Shopware.Context.app.adminEsEnable ?? false;
+        },
+
         identifier() {
             return this.placeholder(this.propertyGroup, 'name');
         },

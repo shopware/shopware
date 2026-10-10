@@ -51,9 +51,10 @@ async function createWrapper(order = {}, { routeName = 'sw.order.detail.general'
                 },
             },
             stubs: {
+                'sw-search-bar': true,
                 'sw-page': {
                     template: `
-                        <div class="sw-page">
+                        <div class="sw-page"><slot name="search-bar"></slot>
                             <slot name="smart-bar-header"></slot>
                             <slot name="smart-bar-actions"></slot>
                             <slot name="content"></slot>
@@ -834,6 +835,24 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(createNotificationErrorMock).toHaveBeenCalledWith({
             message: expect.stringContaining('failed'),
         });
+    });
+
+    it('should render the search bar only when the admin search is enabled', async () => {
+        Shopware.Context.app.adminEsEnable = true;
+        const enabledWrapper = await createWrapper();
+        await flushPromises();
+
+        const searchBar = enabledWrapper.find('sw-search-bar-stub');
+        expect(searchBar.exists()).toBe(true);
+        expect(searchBar.attributes('initial-search-type')).toBe('order');
+        enabledWrapper.unmount();
+
+        Shopware.Context.app.adminEsEnable = false;
+        const disabledWrapper = await createWrapper();
+        await flushPromises();
+
+        expect(disabledWrapper.find('sw-search-bar-stub').exists()).toBe(false);
+        disabledWrapper.unmount();
     });
 });
 

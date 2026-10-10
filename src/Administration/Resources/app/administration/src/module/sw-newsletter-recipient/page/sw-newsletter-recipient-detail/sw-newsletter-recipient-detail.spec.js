@@ -34,8 +34,10 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
+                    'sw-search-bar': true,
                     'sw-page': {
-                        template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
+                        template:
+                            '<div><slot name="search-bar"></slot><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
                     },
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
                     'sw-data-grid': await wrapTestComponent('sw-data-grid', {
@@ -136,5 +138,23 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail
 
         await saveButton.trigger('click');
         expect(saveButton.attributes('is-loading')).toBe('true');
+    });
+
+    it('should render the search bar only when the admin search is enabled', async () => {
+        Shopware.Context.app.adminEsEnable = true;
+        const enabledWrapper = await createWrapper();
+        await flushPromises();
+
+        const searchBar = enabledWrapper.find('sw-search-bar-stub');
+        expect(searchBar.exists()).toBe(true);
+        expect(searchBar.attributes('initial-search-type')).toBe('newsletter_recipient');
+        enabledWrapper.unmount();
+
+        Shopware.Context.app.adminEsEnable = false;
+        const disabledWrapper = await createWrapper();
+        await flushPromises();
+
+        expect(disabledWrapper.find('sw-search-bar-stub').exists()).toBe(false);
+        disabledWrapper.unmount();
     });
 });

@@ -1,5 +1,10 @@
 {% block sw_settings_payment_detail %}
 <sw-page class="sw-settings-payment-detail">
+    {% block sw_settings_payment_detail_search_bar %}
+    <template v-if="adminEsEnable" #search-bar>
+        <sw-search-bar initial-search-type="payment_method" />
+    </template>
+    {% endblock %}
 
     {% block sw_settings_payment_detail_header %}
     <template #smart-bar-header>

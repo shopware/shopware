@@ -1,5 +1,11 @@
 {% block sw_newsletter_recipient_detail %}
 <sw-page class="sw-newsletter-recipient-detail">
+    {% block sw_newsletter_recipient_detail_search_bar %}
+    <template v-if="adminEsEnable" #search-bar>
+        <sw-search-bar initial-search-type="newsletter_recipient" />
+    </template>
+    {% endblock %}
+
     {% block sw_newsletter_recipient_detail_header %}
     <template #smart-bar-header>
         <h2 v-if="newsletterRecipient">

@@ -211,7 +211,7 @@ Open questions before implementing:
 - Overlap: when does the admin MCP + store-API proxy (current approach) become insufficient vs. needing a real customer-scoped MCP?
 
 ### SDK-ready features (no upstream changes needed)
-The symfony-mcp-bundle (v0.8.0) and mcp/sdk (v0.4.0) already implement the following — Shopware just needs to wire them up:
+symfony/mcp-bundle and mcp/sdk (see `composer.json` for the versions in use) already implement the following — Shopware just needs to wire them up:
 
 - **`listChanged` notifications** — SDK has `ToolListChangedNotification`, `ResourceListChangedNotification`, `PromptListChangedNotification` in `vendor/mcp/sdk/src/Schema/Notification/`. Call `$protocol->sendNotification()` from an event listener when capabilities change (e.g. after app install/uninstall). Lets AI clients refresh their tool list without reconnecting.
 - **Resource subscriptions** — SDK has `ResourceSubscribeHandler` and `ResourceUnsubscribeHandler` (`vendor/mcp/sdk`). Resource templates (`#[McpResourceTemplate]`) are already wired up in core — see `ToolResultResource` and `Resource/AGENTS.md`. Subscriptions remain to be wired up if clients need push notifications when resources change.

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\Log\Package;
@@ -191,9 +192,8 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     /**
      * The type's default binding specification (`byType($type)` filtered by `isDefault()`), read as zero, one, or
      * more: zero returns null (nothing to fill-apply), one is returned, more than one throws — never a first-wins
-     * pick. Shared by {@see InsertElement} and
-     * {@see ReplaceElement}, the two ops that auto-apply a
-     * type's default at scaffold.
+     * pick. Shared by {@see InsertElement} and {@see ReplaceElement}, which auto-apply a type's default at scaffold, and
+     * by {@see AttachElement}, which applies it to every element of the attached cloned subtree.
      */
     protected function resolveDefaultSpecification(AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, string $type): ?BindingSpecification
     {

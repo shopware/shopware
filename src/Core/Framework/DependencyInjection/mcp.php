@@ -19,6 +19,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\McpResourcePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistListRequestHandler;
@@ -315,6 +316,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.server.store_api.registry')->nullOnInvalid(),
             service('mcp.store_api.capability_catalog')->nullOnInvalid(),
             param('mcp.servers.unassigned'),
+            param(McpToolDiscoveryCompilerPass::DEMOTED_DISCOVERY_TOOLS_PARAMETER),
         ])
         ->tag('console.command');
 

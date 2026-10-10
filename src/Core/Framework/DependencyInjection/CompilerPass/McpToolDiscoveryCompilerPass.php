@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -25,6 +27,11 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 #[BecomesInternal(version: 'v6.8.0')]
 class McpToolDiscoveryCompilerPass implements CompilerPassInterface
 {
+    /**
+     * Scope => tool name => class of extension tools moved out of the reserved discovery group.
+     */
+    final public const DEMOTED_DISCOVERY_TOOLS_PARAMETER = 'shopware.mcp.demoted_discovery_tools';
+
     /**
      * The element kinds the bundle's McpPass resolves against the configured patterns, by the tag it
      * reads each one from. "apps" is replayed there purely so an app pattern counts as used, so it
@@ -46,6 +53,7 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
             $container->setParameter($paramPrefix . 'advertised_tools', []);
             $container->setParameter($paramPrefix . 'tool_groups', []);
         }
+        $container->setParameter(self::DEMOTED_DISCOVERY_TOOLS_PARAMETER, []);
 
         if (!$container->hasDefinition('mcp.server.admin.builder')) {
             return;
@@ -88,10 +96,13 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
         // The ids are re-read because the allowlist may have removed services.
         $storeApiToolIds = array_keys($container->findTaggedServiceIds('shopware.store_api_mcp.tool'));
 
-        foreach ([[$this->adminToolIds($container), 'shopware.mcp.advertised_tools'], [$storeApiToolIds, 'shopware.store_api_mcp.advertised_tools']] as [$serviceIds, $advertisedParam]) {
+        $demoted = [];
+        foreach ([[ApiRouteScope::ID, $this->adminToolIds($container), 'shopware.mcp.advertised_tools'], [StoreApiRouteScope::ID, $storeApiToolIds, 'shopware.store_api_mcp.advertised_tools']] as [$scope, $serviceIds, $advertisedParam]) {
             $this->detectToolNameConflicts($container, $serviceIds);
-            $this->buildAdvertisedTools($container, $serviceIds, $advertisedParam);
+            $demoted[$scope] = $this->buildAdvertisedTools($container, $serviceIds, $advertisedParam);
         }
+
+        $container->setParameter(self::DEMOTED_DISCOVERY_TOOLS_PARAMETER, array_filter($demoted));
     }
 
     /**
@@ -356,16 +367,19 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * The initial tools/list surface is exactly the discovery group (tool-search + toolsets-list/
-     * -enable). Every other tool is deferred and only advertised once its toolset is enabled, so a
-     * domain tool cannot leak into the default surface — group membership is the single gate.
-     */
-    /**
+     * Advertises only the core discovery tools on the initial tools/list. Returns the other tools in
+     * the discovery group (tool name => class), which move to the fallback toolset.
+     *
+     * @see McpToolAnalysisCompilerPass
+     *
      * @param list<string> $serviceIds
+     *
+     * @return array<string, string>
      */
-    private function buildAdvertisedTools(ContainerBuilder $container, array $serviceIds, string $advertisedParam): void
+    private function buildAdvertisedTools(ContainerBuilder $container, array $serviceIds, string $advertisedParam): array
     {
         $advertisedTools = [];
+        $demoted = [];
 
         foreach ($serviceIds as $serviceId) {
             $definition = $container->getDefinition($serviceId);
@@ -378,11 +392,28 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
 
             $groupInfo = McpToolAttributeReader::resolveInfo($class, McpToolGroup::class, ['group']);
 
-            if ($groupInfo !== null && ($groupInfo['group'] ?? null) === McpToolsetRegistry::DISCOVERY_GROUP) {
-                $advertisedTools[] = $toolInfo['name'];
+            if ($groupInfo === null || ($groupInfo['group'] ?? null) !== McpToolsetRegistry::DISCOVERY_GROUP) {
+                continue;
             }
+
+            if (\in_array($toolInfo['name'], McpToolsetRegistry::DISCOVERY_META_TOOLS, true)) {
+                $advertisedTools[] = $toolInfo['name'];
+
+                continue;
+            }
+
+            $demoted[$toolInfo['name']] = $class;
+            $container->log($this, \sprintf(
+                'MCP tool "%s" (%s) is moved from the reserved "%s" group to "%s".',
+                $toolInfo['name'],
+                $class,
+                McpToolsetRegistry::DISCOVERY_GROUP,
+                McpToolsetRegistry::FALLBACK_GROUP,
+            ));
         }
 
         $container->setParameter($advertisedParam, array_values(array_unique($advertisedTools)));
+
+        return $demoted;
     }
 }

@@ -522,6 +522,30 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         });
     });
 
+    it('reports an unscoped binding root source with its own message', () => {
+        const createNotificationError = jest.fn();
+        const $t = jest.fn((key: string) => `translated:${key}`);
+
+        methods.notifyMutationError.call({ createNotificationError, $t }, [
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+        ]);
+
+        expect(createNotificationError).toHaveBeenCalledWith({
+            message: 'translated:sw-experience-studio.detail.messageBindingRootSourceNotScoped',
+        });
+    });
+
+    it('reports an unrelated mutation error code with the generic message', () => {
+        const createNotificationError = jest.fn();
+        const $t = jest.fn((key: string) => `translated:${key}`);
+
+        methods.notifyMutationError.call({ createNotificationError, $t }, ['CONTENT_SYSTEM__SOME_OTHER_CODE']);
+
+        expect(createNotificationError).toHaveBeenCalledWith({
+            message: 'The layout edit failed. Please try again.',
+        });
+    });
+
     it('sends the update-properties mutation with the layout envelope', async () => {
         const element: ContentElementNode = {
             id: 'element-1',

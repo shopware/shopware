@@ -1051,6 +1051,14 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         notifyMutationError(codes: string[]): void {
+            if (codes.includes('CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED')) {
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.messageBindingRootSourceNotScoped'),
+                });
+
+                return;
+            }
+
             const structuralErrorCodes = new Set([
                 'CONTENT_SYSTEM__MUTATION_TARGET_NOT_FOUND',
                 'CONTENT_SYSTEM__MUTATION_CYCLE',

@@ -3,6 +3,11 @@ import './sw-category-tree.scss';
 
 const { Criteria } = Shopware.Data;
 
+// shopware.api.max_limit caps every Admin API request, rejecting anything higher instead of clamping.
+// It is configurable but defaults to 500, which the Administration hardcodes everywhere; stay consistent
+// with that until the value is exposed to the client.
+const PAGE_SIZE = 500;
+
 /**
  * @sw-package discovery
  */
@@ -428,8 +433,7 @@ export default {
             // reset all ids so categories can be found solely by parentId
             criteria.setIds([]);
 
-            return this.categoryRepository.search(criteria).then((children) => {
-                this.addCategories(children);
+            return this.searchAllCategories(criteria).then(() => {
                 this.loadedParentIds.push(parentId);
             });
         },
@@ -441,9 +445,27 @@ export default {
         loadRootCategories() {
             const criteria = Criteria.fromCriteria(this.criteria).addFilter(Criteria.equals('parentId', null));
 
-            return this.categoryRepository.search(criteria).then((result) => {
+            return this.searchAllCategories(criteria);
+        },
+
+        // A search without a limit is capped at the API max limit, so a tree level with more categories
+        // is loaded page by page until its total is covered. For every other level this is a single request.
+        async searchAllCategories(criteria) {
+            let page = 1;
+            let loaded = 0;
+            let result;
+
+            do {
+                const pageCriteria = Criteria.fromCriteria(criteria).setPage(page).setLimit(PAGE_SIZE);
+                // Paging without a stable order can skip or repeat categories between pages.
+                pageCriteria.addSorting(Criteria.sort('id'));
+
+                result = await this.categoryRepository.search(pageCriteria);
+
                 this.addCategories(result);
-            });
+                loaded += result.length;
+                page += 1;
+            } while (result.length === PAGE_SIZE && loaded < (result.total ?? loaded));
         },
 
         createNewElement(contextItem, parentId, name = '') {

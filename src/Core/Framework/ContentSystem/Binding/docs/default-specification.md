@@ -12,7 +12,7 @@ Fill-only application wires a `resolves` entry only into a key the element carri
 
 Auto-application of the default supersedes the earlier stance that every binding application is an explicit client act; that stance now applies only to a non-default specification, applied via `bind-element` or an explicit `bindingSpecificationId`.
 
-## The seven core defaults
+## The core defaults
 
 Core ships no dedicated binding-specification directory and no authored inline `bindings:` entry, so every core binding specification is a synthesized default, each from the `resolvedBy` properties of one file under `Layout/Type/Definitions/`:
 
@@ -25,8 +25,9 @@ Core ships no dedicated binding-specification directory and no authored inline `
 | `core:Sw:Media:Gallery` | `mediaItems` from `mediaIds` | `media/gallery.yaml` | `entity_collection` |
 | `core:Sw:Product:Slider` | `products` from `productIds` | `product/slider.yaml` | `entity_collection` |
 | `core:Sw:Navigation:Tree` | `navigationTree` | `navigation/tree.yaml` | `navigation` |
+| `core:Sw:Navigation:Breadcrumb` | `breadcrumb` | `navigation/breadcrumb.yaml` | `breadcrumb` |
 
-The `entity` properties are each a `MediaEntity`. `Sw:Media:Gallery` and `Sw:Product:Slider` wire `entity_collection`, their properties being a `MediaCollection` and a `SalesChannelProductCollection`. `Sw:Navigation:Tree` names no storage key: its `resolvedBy` is a tier-B loader block (`navigation: {rootId: main-navigation}`), so it wires the `navigation` loader.
+The `entity` properties are each a `MediaEntity`. `Sw:Media:Gallery` and `Sw:Product:Slider` wire `entity_collection`, their properties being a `MediaCollection` and a `SalesChannelProductCollection`. `Sw:Navigation:Tree` names no storage key: its `resolvedBy` is a tier-B loader block (`navigation: {rootId: main-navigation}`), so it wires the `navigation` loader. `Sw:Navigation:Breadcrumb` names none either: its tier-B block wires the `breadcrumb` loader, its `property` and `type` config values `!scoped` over the `product` and `category` root sources (see [resolved-by.md](resolved-by.md)), so applying it to an element that does not yet wire `breadcrumb`, on a layout with any other root source or none, fails with `bindingRootSourceNotScoped` (400).
 
 ## Overriding a core default
 

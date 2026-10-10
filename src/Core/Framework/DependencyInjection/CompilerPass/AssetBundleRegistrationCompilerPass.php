@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -16,7 +17,7 @@ class AssetBundleRegistrationCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        /** @var array<class-string<Bundle>> $bundles */
+        /** @var array<class-string<FrameworkBundle|Bundle>> $bundles */
         // @phpstan-ignore varTag.type (ReflectionClass requires a class-string, but the bundles are already validated strings)
         $bundles = $container->getParameter('kernel.bundles');
 

@@ -52,6 +52,10 @@ describe('Experience Studio detail mutation errors', () => {
             'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE',
             'sw-experience-studio.detail.mutationErrors.invalidStructure',
         ],
+        [
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'sw-experience-studio.detail.messageBindingRootSourceNotScoped',
+        ],
     ])('shows translated mutation guidance for %s', (code, snippetKey) => {
         const createNotificationError = jest.fn();
         const vm = {

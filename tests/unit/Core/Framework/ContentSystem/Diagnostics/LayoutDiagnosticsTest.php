@@ -837,6 +837,83 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::MismatchedPropertyType, $this->single($report->violations)->code);
     }
 
+    #[TestDox('reports a dangling_language warning for a translatable property that follows a non-translatable property')]
+    public function testDanglingLanguageIsReportedForTranslatablePropertyAfterNonTranslatableProperty(): void
+    {
+        $danglingLanguageId = Uuid::randomHex();
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('headline', 'Hallo')
+            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => 'Hallo', $danglingLanguageId => 'Ciao'])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->primitive('headline', 'string')
+                ->primitive('text', 'string', translatable: true)
+                ->build()],
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
+        )->analyze([$element], null)->report;
+
+        $warning = $this->single(array_filter($report->violations, static fn (Violation $v): bool => $v->code === ViolationCode::DanglingLanguage));
+        static::assertSame('el-1', $warning->elementId);
+        static::assertSame('text', $warning->key);
+        static::assertSame(
+            \sprintf('Property "text" carries a translation for language "%s", which does not exist.', $danglingLanguageId),
+            $warning->message,
+        );
+    }
+
+    #[TestDox('reports a dangling_language warning for a translatable property that follows a translatable property holding a bare value')]
+    public function testDanglingLanguageIsReportedForTranslatablePropertyAfterNonMapTranslatableProperty(): void
+    {
+        $danglingLanguageId = Uuid::randomHex();
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('subtitle', 'Hallo')
+            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => 'Hallo', $danglingLanguageId => 'Ciao'])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->primitive('subtitle', 'string', translatable: true)
+                ->primitive('text', 'string', translatable: true)
+                ->build()],
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
+        )->analyze([$element], null)->report;
+
+        $warning = $this->single(array_filter($report->violations, static fn (Violation $v): bool => $v->code === ViolationCode::DanglingLanguage));
+        static::assertSame('text', $warning->key);
+        static::assertSame(
+            \sprintf('Property "text" carries a translation for language "%s", which does not exist.', $danglingLanguageId),
+            $warning->message,
+        );
+    }
+
+    #[TestDox('reports one dangling_language warning per unknown language key on a single element')]
+    public function testDanglingLanguageIsReportedForEveryUnknownKeyOnAnElement(): void
+    {
+        $firstDanglingLanguageId = Uuid::randomHex();
+        $secondDanglingLanguageId = Uuid::randomHex();
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => 'Hallo', $firstDanglingLanguageId => 'Ciao', $secondDanglingLanguageId => 'Hola'])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', translatable: true)->build()],
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
+        )->analyze([$element], null)->report;
+
+        $warnings = array_values(array_filter($report->violations, static fn (Violation $v): bool => $v->code === ViolationCode::DanglingLanguage));
+        static::assertCount(2, $warnings);
+        static::assertSame(
+            \sprintf('Property "text" carries a translation for language "%s", which does not exist.', $firstDanglingLanguageId),
+            $warnings[0]->message,
+        );
+        static::assertSame(
+            \sprintf('Property "text" carries a translation for language "%s", which does not exist.', $secondDanglingLanguageId),
+            $warnings[1]->message,
+        );
+    }
+
     #[TestDox('reports no violation for a property key the component does not declare')]
     public function testPropertyUnderAnUndeclaredKeyProducesNoViolation(): void
     {
@@ -1013,6 +1090,24 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
         static::assertSame('productId', $error->key);
         static::assertSame('Required property "product" is wired from "productId", which has no value.', $error->message);
+    }
+
+    #[TestDox('produces an unresolved_required binding error for a required translatable property whose key is absent from the stored property map')]
+    public function testRequiredTranslatableWithAbsentKeyIsUnresolved(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')->build();
+
+        // Pins the fixture's state: an absent key, which the storage model reports as a null property.
+        static::assertNull($element->property('text'));
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', required: true, translatable: true)->build()],
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
+        )->analyze([$element], [])->report;
+
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::UnresolvedRequired, $error->code);
+        static::assertSame('text', $error->key);
     }
 
     #[DataProvider('acceptsAnchorTranslationProvider')]
@@ -1232,6 +1327,29 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
         static::assertSame('product', $error->key);
         static::assertSame('Required property "product" is wired from "ghostProperty", which has no value.', $error->message);
+    }
+
+    #[TestDox('emits no unfilled_required_input when the wired property is not declared on the type but holds a stored value')]
+    public function testStoredValueUnderUndeclaredWiredPropertySatisfiesInput(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withProperty('ghostProperty', 'a-product-id')
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: true)
+                ->build()],
+            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['property' => 'ghostProperty']),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+        )->analyze([$element], [])->report;
+
+        static::assertTrue($report->isResolvable());
+        static::assertSame([], $report->bindingErrors());
     }
 
     #[TestDox('reports a style option the registry does not know as an intrinsic error keyed on the option name')]

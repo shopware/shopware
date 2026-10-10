@@ -143,6 +143,47 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertCount(0, $this->validateWith($dto, $validator));
     }
 
+    #[TestDox('flags a later propertyReference config key when an earlier key names a property that can hold its referenced type')]
+    public function testLaterPropertyReferenceKeyIsCheckedAfterAcceptedKey(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->twoPropertyReferenceLoaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId', 'fallback' => 'width']]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config.fallback', $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            'resolves config key "fallback" must name a property of type "image" that can hold a "string" value, but "width" is declared "integer"',
+            (string) $violations->get(0)->getMessage(),
+        );
+    }
+
+    #[TestDox('flags every propertyReference config key that names a non-primitive property or a property that cannot hold its referenced type')]
+    public function testEveryViolatingPropertyReferenceKeyIsReported(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->twoPropertyReferenceLoaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'media', 'fallback' => 'width']]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(2, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config.property', $violations->get(0)->getPropertyPath());
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config.fallback', $violations->get(1)->getPropertyPath());
+    }
+
     #[TestDox('resolves the declared type from the overlay when the registry does not carry it')]
     public function testResolvesTypeFromOverlayWhenRegistryLacksIt(): void
     {
@@ -847,6 +888,15 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         return new LoaderConfigSpecification([
             new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
             new ConfigKeySpecification('ids', ConfigKeyKind::PropertyReference, 'string', required: true, referencedType: 'list<string>'),
+        ]);
+    }
+
+    private function twoPropertyReferenceLoaderSpec(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
+            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            new ConfigKeySpecification('fallback', ConfigKeyKind::PropertyReference, 'string', required: true),
         ]);
     }
 

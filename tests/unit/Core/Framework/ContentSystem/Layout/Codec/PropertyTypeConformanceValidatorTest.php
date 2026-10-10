@@ -168,6 +168,19 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         );
     }
 
+    #[TestDox('reports a non-language key on a translatable property that follows a conforming non-translatable property')]
+    public function testRejectsANonLanguageMapKeyAfterAConformingNonTranslatableProperty(): void
+    {
+        $violations = $this->validate($this->element(['headline' => 'Hi', 'text' => ['de-DE' => 'Hallo']]));
+
+        static::assertCount(1, $violations);
+        static::assertSame('[properties][text]', $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            'Property "text" is translatable, so every key of its value must be a language id in lowercase UUID hex; "de-DE" is not.',
+            (string) $violations->get(0)->getMessage()
+        );
+    }
+
     /**
      * @return iterable<string, array{string}>
      */
@@ -176,6 +189,7 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'an upper-case UUID hex key' => [strtoupper(Defaults::LANGUAGE_SYSTEM)];
         yield 'a key that is not UUID hex at all' => ['de-DE'];
         yield 'a UUID hex key one character short' => [substr(Defaults::LANGUAGE_SYSTEM, 0, 31)];
+        yield 'an integer-like key, which PHP stores as an integer array key' => ['42'];
     }
 
     /**

@@ -357,6 +357,12 @@ class UpdateElementPropertiesTest extends TestCase
             ContentSystemException::mutationPropertyConflict('block-a', 'columns'),
         ];
 
+        yield 'the conflict on a later removal key behind a removal key the request does not set' => [
+            ['columns' => 3],
+            ['headline', 'columns'],
+            ContentSystemException::mutationPropertyConflict('block-a', 'columns'),
+        ];
+
         // The failures sit on different keys in different lists, which a per-key evaluation cannot tell from the
         // spec's per-rule one when one key breaks both: an implementation that judged the value map before
         // scanning the removal list would report the rejection instead.

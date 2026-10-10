@@ -120,6 +120,28 @@ class LayoutPresetPayloadCompilerTest extends TestCase
         );
     }
 
+    #[TestDox('keys a translatable property declared after a non-translatable one under the system language')]
+    public function testCompileWrapsATranslatablePropertyDeclaredAfterANonTranslatableOne(): void
+    {
+        $captured = [];
+        $registry = TestElementTypeRegistry::of([
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                ->primitive('alignment', 'string')
+                ->primitive('text', 'string', translatable: true)
+                ->build(),
+        ]);
+        $compiler = $this->createCompiler($this->capturingDecoder($captured), $registry);
+
+        $compiler->compile([
+            ['component' => 'Sw:Content:Text', 'properties' => ['alignment' => 'left', 'text' => '<p>hi</p>']],
+        ]);
+
+        static::assertSame(
+            ['alignment' => 'left', 'text' => [Defaults::LANGUAGE_SYSTEM => '<p>hi</p>']],
+            $captured[0]['properties'],
+        );
+    }
+
     #[TestDox('keys a translatable property of an element nested in a slot under the system language')]
     public function testCompileWrapsATranslatablePropertyOfANestedElement(): void
     {

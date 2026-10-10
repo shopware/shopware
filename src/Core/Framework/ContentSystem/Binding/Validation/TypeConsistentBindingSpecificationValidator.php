@@ -212,7 +212,10 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
 
             $declared = $property->type()->type();
 
-            if (\is_string($declared) && $configKey->admitsDeclaredPrimitive($declared)) {
+            // The isPrimitive() gate above admits only a lone primitive type name.
+            \assert(\is_string($declared));
+
+            if ($configKey->admitsDeclaredPrimitive($declared)) {
                 continue;
             }
 
@@ -334,17 +337,20 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
 
         $primitiveType = $this->getSinglePrimitiveType($property);
 
-        if ($primitiveType !== null && $this->matchesType($default, $primitiveType)) {
+        if ($this->matchesType($default, $primitiveType)) {
             return;
         }
 
         $this->context->buildViolation($constraint->inputsEntryDefaultTypeMessage)
             ->setParameter('{{ key }}', $key)
-            ->setParameter('{{ type }}', $primitiveType ?? '')
+            ->setParameter('{{ type }}', $primitiveType)
             ->atPath($this->path($id, 'inputs[' . $key . '].default'))
             ->addViolation();
     }
 
+    /**
+     * @param 'string'|'integer'|'number'|'boolean' $type
+     */
     private function matchesType(string|int|float|bool $value, string $type): bool
     {
         return match ($type) {
@@ -352,26 +358,20 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
             'integer' => \is_int($value),
             'boolean' => \is_bool($value),
             'number' => \is_int($value) || \is_float($value),
-            default => false,
         };
     }
 
-    private function getSinglePrimitiveType(PropertySpecification $property): ?string
+    /**
+     * @return 'string'|'integer'|'number'|'boolean'
+     */
+    private function getSinglePrimitiveType(PropertySpecification $property): string
     {
         $declaredType = $property->type()->type();
-        $types = \is_string($declaredType) ? [$declaredType] : array_values($declaredType);
 
-        if (\count($types) !== 1) {
-            return null;
-        }
+        // The caller's isPrimitive() gate admits only a lone primitive type name.
+        \assert(\in_array($declaredType, PropertyType::PRIMITIVE_TYPES, true));
 
-        $resolvedType = $types[0];
-
-        if (!\in_array($resolvedType, PropertyType::PRIMITIVE_TYPES, true)) {
-            return null;
-        }
-
-        return $resolvedType;
+        return $declaredType;
     }
 
     private function path(string $id, string $suffix): string

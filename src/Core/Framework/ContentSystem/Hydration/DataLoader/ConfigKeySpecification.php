@@ -64,7 +64,6 @@ final readonly class ConfigKeySpecification
     {
         return match ($this->referencedType) {
             'string' => $primitive === 'string',
-            'list<string>' => false,
             default => false,
         };
     }

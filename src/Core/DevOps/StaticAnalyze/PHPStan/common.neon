@@ -85,6 +85,10 @@ parameters:
         # their tests no longer use reflection
         reflectionInUnitTestsEnabledNamespaces:
             - 'Shopware\Tests\Unit\'
+        # narrows NoRuntimeListenerOnSharedEventDispatcherRule to the suites that run against the container; a
+        # unit test only ever holds a dispatcher it built itself
+        runtimeListenerOnSharedEventDispatcherEnabledNamespaces:
+            - 'Shopware\Tests\Integration\'
 
 services:
     -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
@@ -100,4 +104,5 @@ parametersSchema:
         featureSkipInUnitTestsEnabledNamespaces: list(string),
         kernelInUnitTestsEnabledNamespaces: list(string),
         reflectionInUnitTestsEnabledNamespaces: list(string),
+        runtimeListenerOnSharedEventDispatcherEnabledNamespaces: list(string),
 ])

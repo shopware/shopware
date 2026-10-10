@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -170,6 +171,31 @@ class AttachElementTest extends TestCase
         static::assertSame(['media' => 'core:Sw:Card'], $attached->attributedSpecifications);
         static::assertEquals($wiring, $child->dataRequirements);
         static::assertSame(['media' => 'core:Sw:Card'], $child->attributedSpecifications);
+    }
+
+    #[TestDox('names the element id the caller supplied when the type default binding rejects the root source')]
+    public function testAttachRejectionNamesTheSuppliedElementId(): void
+    {
+        $default = new BindingSpecification(
+            'Sw:Card',
+            'Sw:Card',
+            'Card',
+            ['media' => new LoaderBinding('entity', ['entity' => [RootSourceConfigMap::MARKER => ['product' => 'media']]])],
+            [],
+            'core',
+        );
+        $bindingRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $bindingRegistry->method('all')->willReturn(['core:Sw:Card' => $default]);
+
+        $attach = new AttachElement(
+            $this->registry(),
+            new StoredElement('incoming', 'Sw:Card'),
+            $bindingRegistry,
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', 'incoming', 'category'));
+        $attach->apply(new StoredTree([], 'category'));
     }
 
     #[TestDox('detaches nothing: orphaned and dropped wiring stay empty')]

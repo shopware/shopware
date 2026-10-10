@@ -8,17 +8,18 @@ A [result channel](../README.md#result-channels) an operation's section omits st
 
 Inserts a fresh element of `$type` (stored defaults seeded from the type, no wiring) into a parent slot at an
 index, or appended to the root. `requireRegistered`; scaffolds via `scaffoldElement`, then always fill-applies the
-type's default binding specification regardless of `$bindingSpecificationId` (`resolveDefaultSpecification()`,
-`byType(type)` filtered by `isDefault()`). Zero is a no-op, one is fill-applied and attributed to its own qualified
-id via `BindingApplicator::applyFillOnly()`, more than one throws `bindingSpecificationDefaultAmbiguous` `409`.
+type's default binding specification, after the named one when `$bindingSpecificationId` is given
+(`resolveDefaultSpecification()`, `byType(type)` filtered by `isDefault()`). Zero is a no-op, one is fill-applied and
+attributed to its own qualified id via `BindingApplicator::applyFillOnly()`, more than one throws
+`bindingSpecificationDefaultAmbiguous` `409`.
 With no parent it inserts at root; otherwise `$slot` is required (`mutationSlotRequired`), the parent must exist
 (`mutationTargetNotFound`), then it inserts into the slot. `affected = [newId]`; `created = [newId]`; `freshlyScaffolded = [newId]`.
 
 When `$bindingSpecificationId` is also given, the named specification is resolved **first**, before any tree change
 (unregistered → `bindingSpecificationNotFound`; `type()` ≠ `$type` → `bindingTypeMismatch`; both `400`, neither a
-client-defect code). It is then applied
-over the fill-applied default via `BindingApplicator::apply()` (overwrite), so shared keys belong to the
-explicit choice. Both steps precede insertion, so a bound insert is atomic: nothing is inserted on a `400`.
+client-defect code). It is then applied via `BindingApplicator::apply()` (overwrite) before the default is
+fill-applied (default underneath, explicit on top: [applying.md](../../Binding/docs/applying.md#applying-a-binding)), so a
+default key it wires is never resolved against the root source. Both steps precede insertion, so a bound insert is atomic: nothing is inserted on a `400`.
 
 ## RemoveElement
 
@@ -76,15 +77,18 @@ is bound.
 
 ## AttachElement
 
-Splices a caller-supplied element subtree into a parent slot (or the root), replacing every id, then fill-applies the
-type default binding to every element of the subtree (`applyDefaultBindingToSubtree()`; wiring the subtree already
-carries wins, more than one default throws `bindingSpecificationDefaultAmbiguous` `409`). It inverts the
-detachment a replace reports through `orphaned`: it re-places a detached subtree, or a copied one, without trusting
-client ids. The supplied root's component must be a registered type, else `mutationUnknownType`, matching the check
-insert/replace/wrap run. Clients never supply ids. The server-issued ids come back in `affected = subtreeIds($clone)`,
-and `created` carries the same full new-id set: every node in the spliced subtree is new to the layout. Placement
-mirrors `Op/InsertElement` (slot required with a parent → `mutationSlotRequired`; parent must exist →
-`mutationTargetNotFound`). Detaches nothing: `orphaned`/`droppedWiring`/`droppedProperties` stay empty.
+Splices a caller-supplied element subtree into a parent slot (or the root). It fill-applies the type default binding
+to every element of the subtree (`applyDefaultBindingToSubtree()`; wiring the subtree already carries wins, more than
+one default throws `bindingSpecificationDefaultAmbiguous` `409`), then replaces every id (`cloneWithNewIds()`). The
+binding runs before the id replacement ([applying.md](../../Binding/docs/applying.md#applying-a-binding)).
+The two steps touch disjoint fields, so the order does not change the placed subtree. It inverts the detachment a
+replace reports through `orphaned`: it re-places a detached subtree, or a copied one, without trusting client ids.
+The supplied root's component must be a registered type, else `mutationUnknownType`, matching the check
+insert/replace/wrap run. No caller-supplied id is placed. The server-issued ids come back in
+`affected = subtreeIds($clone)`, and `created` carries the same full new-id set: every node in the spliced subtree
+is new to the layout. Placement mirrors `Op/InsertElement` (slot required with a parent → `mutationSlotRequired`;
+parent must exist → `mutationTargetNotFound`). Detaches nothing: `orphaned`/`droppedWiring`/`droppedProperties`
+stay empty.
 
 Ordinary attachment preserves authored mapping state, including a selected entity and deliberate unmapping. New IDs appear in `created()` but not `freshlyScaffolded()`, so mapping defaults and mirrored consumers are not recreated. Preset insertion passes the internal `isNewScaffold: true` option to initialize newly inserted content.
 

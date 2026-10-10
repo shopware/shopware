@@ -1,7 +1,11 @@
 {# @sw-package framework #}
 
-{# @deprecated tag:v6.8.0 - Use `parent.name` instead of `parent.snippet_name`. Support for `parent.snippet_name` will be removed. #}
-{% set parentName = parent.snippet_name ?? parent.name %}
+{% if not feature('v6.8.0.0') %}
+    {# @deprecated tag:v6.8.0 - Use `parent.name` instead of `parent.snippet_name`. Support for `parent.snippet_name` will be removed. #}
+    {% set parentName = parent.snippet_name ?? parent.name %}
+{% else %}
+    {% set parentName = parent.name %}
+{% endif %}
 {% set name = parentName ? parentName|trans|sw_sanitize : parent.cookie %}
 {% set identifier = parent.cookie ? parent.cookie : name|replace({' ': '-'})|lower %}
 

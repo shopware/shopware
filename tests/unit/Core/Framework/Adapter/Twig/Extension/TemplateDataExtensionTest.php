@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Doctrine\FakeConnection;
 use Shopware\Storefront\Controller\NavigationController;
@@ -101,10 +102,8 @@ class TemplateDataExtensionTest extends TestCase
         static::assertArrayHasKey('themeId', $globals);
         static::assertSame($themeId, $globals['themeId']);
 
-        static::assertArrayHasKey('controllerName', $globals);
-        static::assertSame('Navigation', $globals['controllerName']);
-        static::assertArrayHasKey('controllerAction', $globals);
-        static::assertSame('index', $globals['controllerAction']);
+        static::assertArrayNotHasKey('controllerName', $globals);
+        static::assertArrayNotHasKey('controllerAction', $globals);
 
         static::assertArrayHasKey('context', $globals);
         static::assertSame($salesChannelContext, $globals['context']);
@@ -114,6 +113,24 @@ class TemplateDataExtensionTest extends TestCase
 
         static::assertArrayHasKey('formViolations', $globals);
         static::assertNull($globals['formViolations']);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLegacyControllerGlobalsAreAvailableBeforeV68(): void
+    {
+        $request = new Request(attributes: [
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => Generator::generateSalesChannelContext(),
+            '_controller' => NavigationController::class . '::index',
+        ]);
+
+        $globals = (new TemplateDataExtension(
+            new RequestStack([$request]),
+            true,
+            new FakeConnection([]),
+        ))->getGlobals();
+
+        static::assertSame('Navigation', $globals['controllerName']);
+        static::assertSame('index', $globals['controllerAction']);
     }
 
     public function testLandingPageResolvesNavigationIdFromLinkedCategory(): void

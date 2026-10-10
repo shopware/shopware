@@ -2,10 +2,15 @@
 
 {% if child.cookie is not empty and child.hidden is not same as(true) %}
     {% set cookie = child.cookie %}
-    {# @deprecated tag:v6.8.0 - Use `child.name` instead of `child.snippet_name`. Support for `child.snippet_name` will be removed. #}
-    {% set childName = child.snippet_name ?? child.name %}
-    {# @deprecated tag:v6.8.0 - Use `child.description` instead of `child.snippet_description`. Support for `child.snippet_description` will be removed. #}
-    {% set childDescription = child.snippet_description ?? child.description %}
+    {% if not feature('v6.8.0.0') %}
+        {# @deprecated tag:v6.8.0 - Use `child.name` instead of `child.snippet_name`. Support for `child.snippet_name` will be removed. #}
+        {% set childName = child.snippet_name ?? child.name %}
+        {# @deprecated tag:v6.8.0 - Use `child.description` instead of `child.snippet_description`. Support for `child.snippet_description` will be removed. #}
+        {% set childDescription = child.snippet_description ?? child.description %}
+    {% else %}
+        {% set childName = child.name %}
+        {% set childDescription = child.description %}
+    {% endif %}
     <div class="offcanvas-cookie-entry form-check form-switch">
         <input
             type="checkbox"

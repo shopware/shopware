@@ -4,10 +4,10 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper({ featureActive = false } = {}) {
+async function createWrapper({ featureActive = false, product = {}, save = () => Promise.resolve({}) } = {}) {
     return mount(await wrapTestComponent('sw-product-modal-delivery', { sync: true }), {
         props: {
-            product: {},
+            product,
             selectedGroups: [],
         },
         global: {
@@ -15,7 +15,7 @@ async function createWrapper({ featureActive = false } = {}) {
                 repositoryFactory: {
                     create: () => ({
                         create: () => ({ id: 'id' }),
-                        save: () => Promise.resolve({}),
+                        save,
                     }),
                 },
                 feature: {
@@ -180,5 +180,92 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
         await saveButton.trigger('click');
         const emitted = wrapper.emitted()['configuration-close'];
         expect(emitted).toBeTruthy();
+    });
+
+    describe('storefront presentation in product listings', () => {
+        function createExpandedGroup() {
+            return { id: 'group-id', expressionForListings: true, representation: 'box' };
+        }
+
+        async function saveVariantListingConfig(product) {
+            global.activeAclRoles = ['product.editor'];
+            const save = jest.fn(() => Promise.resolve({}));
+            const wrapper = await createWrapper({ product, save });
+            await flushPromises();
+
+            await wrapper.find('.sw-product-modal-delivery__save-button').trigger('click');
+
+            expect(save).toHaveBeenCalledTimes(1);
+
+            return save.mock.calls[0][0];
+        }
+
+        it('should save a single variant and disable the properties for listings', async () => {
+            const savedProduct = await saveVariantListingConfig({
+                listingMode: 'single',
+                variantListingConfig: {
+                    displayParent: null,
+                    mainVariantId: null,
+                    configuratorGroupConfig: [createExpandedGroup()],
+                },
+            });
+
+            expect(savedProduct.listingMode).toBeUndefined();
+            expect(savedProduct.variantListingConfig).toEqual({
+                displayParent: false,
+                mainVariantId: null,
+                configuratorGroupConfig: [{ ...createExpandedGroup(), expressionForListings: false }],
+            });
+        });
+
+        it('should keep the main product when a single product is saved', async () => {
+            const savedProduct = await saveVariantListingConfig({
+                listingMode: 'single',
+                variantListingConfig: {
+                    displayParent: true,
+                    mainVariantId: 'variant-id',
+                    configuratorGroupConfig: null,
+                },
+            });
+
+            expect(savedProduct.variantListingConfig).toEqual({
+                displayParent: true,
+                mainVariantId: 'variant-id',
+                configuratorGroupConfig: null,
+            });
+        });
+
+        it('should keep the properties for listings when the expanded variants are saved', async () => {
+            const savedProduct = await saveVariantListingConfig({
+                listingMode: 'expanded',
+                variantListingConfig: {
+                    displayParent: false,
+                    mainVariantId: 'variant-id',
+                    configuratorGroupConfig: [createExpandedGroup()],
+                },
+            });
+
+            expect(savedProduct.variantListingConfig).toEqual({
+                displayParent: null,
+                mainVariantId: null,
+                configuratorGroupConfig: [createExpandedGroup()],
+            });
+        });
+
+        it('should keep the configuration when the product listings tab was not opened', async () => {
+            const savedProduct = await saveVariantListingConfig({
+                variantListingConfig: {
+                    displayParent: null,
+                    mainVariantId: null,
+                    configuratorGroupConfig: [createExpandedGroup()],
+                },
+            });
+
+            expect(savedProduct.variantListingConfig).toEqual({
+                displayParent: null,
+                mainVariantId: null,
+                configuratorGroupConfig: [createExpandedGroup()],
+            });
+        });
     });
 });

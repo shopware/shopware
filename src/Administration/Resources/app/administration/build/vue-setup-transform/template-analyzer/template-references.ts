@@ -23,6 +23,7 @@ import {
     collectPatternReferences,
     parseBindingPattern,
 } from '../flow-analysis';
+import type { SourceRange } from '../utils/source-range';
 
 /**
  * The setup references an override slot reads, plus the ones it writes to (assignment/update targets).
@@ -30,10 +31,10 @@ import {
 type TemplateReferences = {
     references: Set<string>;
     /**
-     * Write targets mapped to the template offset of the expression that writes them, so a rejection can
+     * Write targets mapped to their original identifier range in the template, so a rejection can
      * point at the author's `@click="count = 1"` rather than at the enclosing block.
      */
-    writeTargets: Map<string, number>;
+    writeTargets: Map<string, SourceRange>;
 };
 
 type DirectiveNode = CoreDirectiveNode & {
@@ -197,7 +198,7 @@ function collectDirectiveReferences(directive: DirectiveNode, templateScope: Set
  */
 function collectTemplateReferences(children: TemplateChildNode[], initialScope: Set<string>): TemplateReferences {
     const references = new Set<string>();
-    const writeTargets = new Map<string, number>();
+    const writeTargets = new Map<string, SourceRange>();
 
     function visit(node: TemplateChildNode, scope: Set<string>): void {
         if (node.type === NodeTypes.INTERPOLATION) {
@@ -230,13 +231,21 @@ function collectTemplateReferences(children: TemplateChildNode[], initialScope: 
 
             collectDirectiveReferences(directive, childScope).forEach((name) => references.add(name));
 
-            // Assignment/update targets in a directive expression (e.g. `@click="count = count + 1"`).
+            // Explicit assignments/updates and the implicit assignment performed by v-model.
             if (directive.exp?.content) {
-                const expressionOffset = directive.exp.loc.start.offset;
+                const { content, loc } = directive.exp;
+                // Babel offsets are relative to the decoded value; with entities they no longer map onto
+                // the raw attribute, so the whole expression is pointed at instead.
+                const decoded = loc.source !== content;
 
-                collectExpressionWriteTargets(directive.exp.content, childScope).forEach((name) => {
+                collectExpressionWriteTargets(content, childScope, directive.name === 'model').forEach((range, name) => {
                     if (!writeTargets.has(name)) {
-                        writeTargets.set(name, expressionOffset);
+                        writeTargets.set(
+                            name,
+                            decoded
+                                ? { start: loc.start.offset, end: loc.end.offset }
+                                : { start: loc.start.offset + range.start, end: loc.start.offset + range.end },
+                        );
                     }
                 });
             }

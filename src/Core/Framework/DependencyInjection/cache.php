@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessageHandler
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyServiceFactory;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacadeHookFactory;
 use Shopware\Core\Framework\Adapter\Cache\Script\ScriptCacheInvalidationSubscriber;
@@ -64,6 +65,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service_locator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_locator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -294,6 +296,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AbstractReverseProxyGateway::class),
             param('shopware.cache.invalidation.http_cache'),
             service(CacheTagCollector::class),
+            param('shopware.http_cache.reverse_proxy.enabled'),
         ])
         ->tag('kernel.event_listener');
 
@@ -319,7 +322,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set('shopware.reverse_proxy.http_client', Client::class);
 
-    $services->set(AbstractReverseProxyGateway::class, VarnishReverseProxyGateway::class)
+    $services->set(AbstractReverseProxyGateway::class)
+        ->factory([ReverseProxyServiceFactory::class, 'createGateway'])
+        ->args([
+            param('shopware.http_cache.reverse_proxy.fastly.enabled'),
+            service_locator([
+                ReverseProxyServiceFactory::VARNISH_GATEWAY => service(VarnishReverseProxyGateway::class),
+                ReverseProxyServiceFactory::FASTLY_GATEWAY => service(FastlyReverseProxyGateway::class),
+            ]),
+        ]);
+
+    $services->set(VarnishReverseProxyGateway::class)
         ->args([
             param('shopware.http_cache.reverse_proxy.hosts'),
             param('shopware.http_cache.reverse_proxy.max_parallel_invalidations'),

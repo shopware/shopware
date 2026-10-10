@@ -214,6 +214,66 @@ class AccountProfileControllerTest extends TestCase
         static::assertCount(0, $crawler->filter('label[for="vatIds"] .form-required-label'));
     }
 
+    public function testProfileFormKeepsTheSubmittedBusinessAccountTypeAfterAViolation(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.loginRegistration.showAccountTypeSelection', true);
+
+        $browser = $this->login($customer->getEmail());
+
+        // the missing last name is rejected, so the profile page is rendered again with the violation
+        $crawler = $browser->request(
+            'POST',
+            '/account/profile',
+            $this->tokenize('frontend.account.profile.save', [
+                'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Max',
+                'lastName' => '',
+                'company' => 'Submitted Company',
+            ])
+        );
+
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+        $selectedAccountType = $crawler->filter('select[name="accountType"] option[selected]');
+        static::assertCount(1, $selectedAccountType);
+        static::assertSame(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $selectedAccountType->attr('value'));
+        static::assertSame('Submitted Company', $crawler->filter('input[name="company"]')->attr('value'));
+    }
+
+    public function testProfileFormKeepsTheSubmittedPrivateAccountTypeAfterAViolation(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createBusinessCustomer($context, false);
+
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.loginRegistration.showAccountTypeSelection', true);
+
+        $browser = $this->login($customer->getEmail());
+
+        // the missing last name is rejected, so the profile page is rendered again with the violation
+        $crawler = $browser->request(
+            'POST',
+            '/account/profile',
+            $this->tokenize('frontend.account.profile.save', [
+                'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Max',
+                'lastName' => '',
+            ])
+        );
+
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+        $selectedAccountType = $crawler->filter('select[name="accountType"] option[selected]');
+        static::assertCount(1, $selectedAccountType);
+        static::assertSame(CustomerEntity::ACCOUNT_TYPE_PRIVATE, $selectedAccountType->attr('value'));
+    }
+
     private function login(string $email): KernelBrowser
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());

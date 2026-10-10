@@ -43,6 +43,7 @@ export default {
             isLoading: false,
             isSaveSuccessful: false,
             customFieldSets: null,
+            collidingNumberRangeNames: [],
         };
     },
 
@@ -173,6 +174,10 @@ export default {
             return !!this.numberRange.id && this.numberRange.isLoading !== true;
         },
 
+        hasPatternCollision() {
+            return this.collidingNumberRangeNames.length > 0;
+        },
+
         ...mapPropertyErrors('numberRange', ['name', 'typeId']),
 
         stateInput: {
@@ -230,7 +235,7 @@ export default {
 
             this.getState();
             this.splitPattern();
-            await this.loadSalesChannels();
+            await Promise.all([this.loadSalesChannels(), this.checkPatternCollision()]);
         },
 
         loadCustomFieldSets() {
@@ -271,6 +276,19 @@ export default {
                 .then((response) => {
                     this.preview = response.number;
                 });
+        },
+
+        checkPatternCollision() {
+            this.collidingNumberRangeNames = [];
+
+            const { typeId, pattern, id } = this.numberRange;
+            if (!typeId || !pattern) {
+                return Promise.resolve();
+            }
+
+            return this.numberRangeService.patternCollisions(typeId, pattern, id).then(({ collisions }) => {
+                this.collidingNumberRangeNames = collisions.map((collision) => collision.name);
+            });
         },
 
         getState() {

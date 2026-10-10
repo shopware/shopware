@@ -297,6 +297,9 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 
 `bin/console dal:validate` no longer skips attribute entities. They are held to the same rules as `EntityDefinition` classes, for example that a many-to-one must not cascade deletes, and violations name them by their entity class instead of `AttributeEntityDefinition`, also when another definition's check mentions them. If your CI fails on `dal:validate`, or ignores messages that contain `AttributeEntityDefinition`, run it against your extension before updating.
 
+### Duplicate document number errors name the document type
+
+When a document cannot be generated because its number is already taken, the error now names the document type, for example `Document number 1000 has already been allocated for document type "invoice".`, and carries `number` and `documentType` as parameters. The order document card in the Administration names the document type as well. `DocumentException::documentNumberAlreadyExistsException()` is deprecated for v6.8.0, use `DocumentException::documentNumberAlreadyExistsExceptionForType()` instead.
 ### `SalesChannelContextRestorer::restoreByOrder()` is deprecated
 
 `SalesChannelContextRestorer::restoreByOrder()` now builds the context with `OrderConverter::assembleSalesChannelContext()` and re-evaluates the rules afterwards, as before. Its contexts therefore match every other order context: they use the customer addresses that match the order's addresses instead of the customer's default addresses, and dispatch `BeforeSalesChannelContextAssembledEvent` and `SalesChannelContextAssembledEvent`. They also keep the order's tax status, except that the re-evaluation still drops tax-free when the order no longer qualifies for it. Like the converter, it now fails with `CHECKOUT__CUSTOMER_ADDRESS_NOT_FOUND` when the order's billing address does not exist.
@@ -405,6 +408,11 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
+### Check a number range pattern for collisions
+
+The new route `GET /api/_action/number-range/pattern-collisions?typeId=…&pattern=…&numberRangeId=…` returns the other number ranges of the same document type that use the given pattern, as `{"collisions": [{"id": "…", "name": "…"}]}`. Such ranges, for example two `document_invoice` ranges assigned to different sales channels, generate the same document numbers and document generation fails once they meet. `numberRangeId` is optional and excludes the number range being edited. Non-document number range types never collide and return an empty list. The route requires the `number_range:read` privilege.
+
+The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern. Saving is not blocked.
 ### Store API resolves the context from the storefront session on request
 
 A Store API request that sends the storefront session cookie together with `sw-access-key` and the new header `sw-context-source: session` is resolved with the context token held in that session, so a client embedded in a storefront page shares the shopper's cart and login without managing a token. Login, registration, logout and password changes made this way are written back into the session.

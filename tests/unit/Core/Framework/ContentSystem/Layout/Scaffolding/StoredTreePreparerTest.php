@@ -194,7 +194,7 @@ class StoredTreePreparerTest extends TestCase
     {
         yield 'no declared value matches it' => ['Category {{categoryId}}', ['productId' => 'prod-1']];
         yield 'the placeholder values map is empty' => ['Product {{productId}}', []];
-        // A trailing newline makes the token embedded text, not the whole value, so it must not collapse to null.
+        // A trailing newline makes the token embedded text, not the whole value.
         yield 'a lone token is followed by a newline' => ["{{categoryId}}\n", ['productId' => 'prod-1']];
     }
 
@@ -210,8 +210,8 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame('Product {{categoryId}}', $prepared[0]->property('title')?->asString());
     }
 
-    #[TestDox('collapses a value that is entirely one unresolved token to the null variant')]
-    public function testPrepareCollapsesLoneUnresolvedTokenToNull(): void
+    #[TestDox('keeps a property value that is entirely one unresolved token verbatim')]
+    public function testPrepareKeepsALoneUnresolvedTokenPropertyVerbatim(): void
     {
         $element = StoredElementBuilder::create('text', 'root-id')
             ->withProperty('title', '{{categoryId}}')
@@ -219,13 +219,10 @@ class StoredTreePreparerTest extends TestCase
 
         $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
 
-        $value = $prepared[0]->property('title');
-        // Present under its key and holding the null variant: an absent key would be a different outcome.
-        static::assertNotNull($value);
-        static::assertTrue($value->isNull());
+        static::assertSame('{{categoryId}}', $prepared[0]->property('title')?->asString());
     }
 
-    #[TestDox('keeps a declared value that is itself a lone token literal instead of collapsing it to null')]
+    #[TestDox('keeps a declared value that is itself a lone token literal')]
     public function testPrepareKeepsADeclaredLoneTokenValueLiteral(): void
     {
         $element = StoredElementBuilder::create('text', 'root-id')
@@ -461,6 +458,60 @@ class StoredTreePreparerTest extends TestCase
         $resolved = $prepared[0]->dataRequirements['navigationTree']->config;
 
         static::assertSame('cat-42', $resolved->jsonSerialize()['rootId']);
+    }
+
+    #[TestDox('inserts a declared value that is itself a lone token into a Literal loader-config value verbatim')]
+    public function testPrepareKeepsADeclaredLoneTokenLiteralConfigValue(): void
+    {
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withDataRequirement('navigationTree', 'test_literal', new NavigationLoaderConfig('{{rootId}}'))
+            ->build();
+
+        $prepared = $this->prepare([$element], ['rootId' => '{{categoryId}}']);
+
+        static::assertSame(['rootId' => '{{categoryId}}'], $prepared[0]->dataRequirements['navigationTree']->config->jsonSerialize());
+    }
+
+    /**
+     * Only a value that is entirely one `{{token}}` is unset. Each row embeds the undeclared token in a longer
+     * string, so the key stays and its value is left as authored: dropping the `^` anchor fails the prefix row,
+     * dropping the `$` anchor fails the suffix row, dropping the `D` modifier fails the trailing-newline row.
+     *
+     * @param non-empty-string $rootId
+     */
+    #[DataProvider('embeddedUnresolvedTokenProvider')]
+    #[TestDox('keeps a Literal loader-config value verbatim when $_dataName')]
+    public function testPrepareKeepsAnEmbeddedUnresolvedTokenLiteralConfigValue(string $rootId): void
+    {
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withDataRequirement('navigationTree', 'test_literal', new NavigationLoaderConfig($rootId))
+            ->build();
+
+        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
+
+        static::assertSame(['rootId' => $rootId], $prepared[0]->dataRequirements['navigationTree']->config->jsonSerialize());
+    }
+
+    /**
+     * @return iterable<string, array{non-empty-string}>
+     */
+    public static function embeddedUnresolvedTokenProvider(): iterable
+    {
+        yield 'the token follows other text' => ['x {{rootId}}'];
+        yield 'the token precedes other text' => ['{{rootId}} x'];
+        yield 'the token is followed by a newline' => ["{{rootId}}\n"];
+    }
+
+    #[TestDox('removes a Literal loader-config key whose value is entirely one unresolved token')]
+    public function testPrepareRemovesALoneUnresolvedTokenLiteralConfigKey(): void
+    {
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withDataRequirement('navigationTree', 'test_literal', new NavigationLoaderConfig('{{rootId}}', 3))
+            ->build();
+
+        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
+
+        static::assertSame(['depth' => 3], $prepared[0]->dataRequirements['navigationTree']->config->jsonSerialize());
     }
 
     /**

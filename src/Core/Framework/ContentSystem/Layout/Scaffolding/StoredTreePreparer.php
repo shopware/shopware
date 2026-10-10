@@ -268,14 +268,18 @@ final class StoredTreePreparer
      * A list or map property value is handed on untouched, string leaves inside it included: a placeholder is
      * a property of the authored value, and reaching into a container would resolve tokens the authoring
      * surface never offered to resolve.
+     *
+     * A property value that is entirely one unresolved `{{token}}` stays verbatim, like any other unresolved
+     * token. A Literal config value of that shape is removed before the config is decoded instead: an optional
+     * key then decodes as absent (its declared default, or null when it declares none), and a required key
+     * fails in the loader config serializer's decode.
      */
     private function resolvePlaceholders(StoredElement $element, PlaceholderValues $values): StoredElement
     {
         $properties = [];
         foreach ($element->properties() as $key => $value) {
             if ($value->isString()) {
-                $substituted = $this->substitute($value->asString(), $values);
-                $value = $substituted === null ? StoredValue::ofNull() : StoredValue::ofString($substituted);
+                $value = StoredValue::ofString($this->substitute($value->asString(), $values));
             }
 
             $properties[$key] = $value;
@@ -306,9 +310,16 @@ final class StoredTreePreparer
         }
 
         $config = $this->configSerializerProvider->encode($requirement->source, $requirement->config);
-        $substitutedConfig = [];
+        $changed = false;
         foreach ($config as $key => $value) {
             if (!\in_array($key, $literalKeys, true) || !\is_string($value)) {
+                continue;
+            }
+
+            if ($this->isLoneUnresolvedToken($value, $values)) {
+                unset($config[$key]);
+                $changed = true;
+
                 continue;
             }
 
@@ -318,20 +329,15 @@ final class StoredTreePreparer
                 continue;
             }
 
-            $substitutedConfig[$key] = $newValue;
+            $config[$key] = $newValue;
+            $changed = true;
         }
 
-        if ($substitutedConfig === []) {
+        if (!$changed) {
             return $requirement;
         }
 
-        foreach ($substitutedConfig as $key => $value) {
-            if ($value === null) {
-                unset($config[$key], $substitutedConfig[$key]);
-            }
-        }
-
-        $newConfig = $this->configSerializerProvider->decode($requirement->source, array_merge($config, $substitutedConfig));
+        $newConfig = $this->configSerializerProvider->decode($requirement->source, $config);
 
         return new DataRequirement($requirement->key, $requirement->source, $newConfig);
     }
@@ -351,21 +357,25 @@ final class StoredTreePreparer
 
     /**
      * One pass over the declared keys, no recursion into what a substitution produced: a declared value that
-     * itself reads as a `{{token}}` is inserted verbatim. An input that is entirely a single `{{token}}` whose
-     * key carries no value collapses to null; an unresolved token embedded in other text stays verbatim.
+     * itself reads as a `{{token}}` is inserted verbatim. An unresolved token stays verbatim.
      */
-    private function substitute(string $input, PlaceholderValues $values): ?string
+    private function substitute(string $input, PlaceholderValues $values): string
     {
         $replacements = [];
         foreach ($values->all() as $key => $value) {
             $replacements['{{' . $key . '}}'] = (string) $value;
         }
 
-        // Judged on the input, never on the strtr output: a declared value that is itself a token must survive.
-        if (preg_match('/^\{\{[^{}]+\}\}$/D', $input) === 1 && !\array_key_exists($input, $replacements)) {
-            return null;
-        }
-
         return strtr($input, $replacements);
+    }
+
+    /**
+     * Whether the input is entirely one `{{token}}` whose key carries no value. Judged on the input, never on
+     * a substitution output: a declared value that is itself a token is a resolved value.
+     */
+    private function isLoneUnresolvedToken(string $input, PlaceholderValues $values): bool
+    {
+        return preg_match('/^\{\{([^{}]+)\}\}$/D', $input, $match) === 1
+            && !\array_key_exists($match[1], $values->all());
     }
 }

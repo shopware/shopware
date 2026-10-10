@@ -50,6 +50,15 @@ export type ContentLayoutDraftMovePayload = ContentLayoutDraftMutationEnvelope &
 /**
  * @private
  */
+export type ContentLayoutDraftUpdatePropertiesPayload = ContentLayoutDraftMutationEnvelope & {
+    elementId: string;
+    values?: Record<string, unknown>;
+    removeKeys?: string[];
+};
+
+/**
+ * @private
+ */
 export type ContentLayoutDraftInsertPresetPayload = ContentLayoutDraftMutationEnvelope & {
     presetId: string;
     parentElementId?: string | null;
@@ -132,6 +141,12 @@ class ContentSystemLayoutDraftMutationApiService extends ApiService {
 
     moveElement(payload: ContentLayoutDraftMovePayload): Promise<ContentLayoutDraftMutationResponse> {
         return this.mutate('move-element', payload);
+    }
+
+    updateElementProperties(
+        payload: ContentLayoutDraftUpdatePropertiesPayload,
+    ): Promise<ContentLayoutDraftMutationResponse> {
+        return this.mutate('update-element-properties', payload);
     }
 
     insertPreset(payload: ContentLayoutDraftInsertPresetPayload): Promise<ContentLayoutDraftMutationResponse> {

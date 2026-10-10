@@ -9,18 +9,4 @@ Three loading tiers, one registry, discovered by one compiler pass — the same 
 
 3. **Compiler Pass** — `Framework/DependencyInjection/CompilerPass/ContentSystemCompilerPass` is the single pass that discovers the element-type directories and injects them into both the type loader and `YamlBindingSpecificationLoader` (each loader gets its own directory-VO definition instances); the binding loader scans those same directories' files for their inline `bindings:` sections. The directory set is core `Layout/Type/Definitions` (prefix `Sw`), each non-plugin bundle's `Resources/content-system/types` (prefix `Sw`), each active plugin's `Plugin::getContentTypeDirectory()` (prefix = plugin name), and (dev only) each active app's `Resources/content-system/types` (prefix = app name).
 
-## What Core Ships
-
-Core ships no dedicated binding-specification directory and no authored inline `bindings:` entry. Every core binding specification is a synthesized default — seven in all, each from the `resolvedBy` properties of one file under `Layout/Type/Definitions/`:
-
-| Specification | Property from storage key | File | Loader |
-|---|---|---|---|
-| `core:Sw:Media:Image` | `media` from `mediaId` | `media/image.yaml` | `entity` |
-| `core:Sw:Grid:Container` | `backgroundImage` from `backgroundImageId` | `grid/container.yaml` | `entity` |
-| `core:Sw:Media:Youtube` | `previewMedia` from `previewMediaId` | `media/youtube.yaml` | `entity` |
-| `core:Sw:Media:Vimeo` | `previewMedia` from `previewMediaId` | `media/vimeo.yaml` | `entity` |
-| `core:Sw:Media:Gallery` | `mediaItems` from `mediaIds` | `media/gallery.yaml` | `entity_collection` |
-| `core:Sw:Navigation:Tree` | `navigationTree` | `navigation/tree.yaml` | `navigation` |
-| `core:Sw:Product:Slider` | `products` from `productIds` | `product/slider.yaml` | `entity_collection` |
-
-`Sw:Media:Gallery` uses `entity_collection` because its property is a `MediaCollection` rather than a `MediaEntity`. `Sw:Navigation:Tree` is the one whose `resolvedBy` is a tier-B loader block (`navigation: {rootId: main-navigation}`) rather than a bare storage key — it wires the `navigation` loader and names no storage key at all.
+Core ships no dedicated binding-specification directory and no authored inline `bindings:` entry; every core binding specification is a synthesized default, inventoried with its loader in [default-specification.md](default-specification.md).

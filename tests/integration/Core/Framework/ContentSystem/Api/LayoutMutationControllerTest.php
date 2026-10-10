@@ -4,7 +4,13 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
@@ -192,7 +198,81 @@ class LayoutMutationControllerTest extends TestCase
         static::assertContains(ContentSystemException::LAYOUT_PRESET_NOT_FOUND, array_column($body['errors'], 'code'));
     }
 
-    #[TestDox('rejects a structural impossibility with a 400 without persisting')]
+    #[TestDox('inserts an element at the requested index of a container slot')]
+    public function testInsertElementIntoContainerSlotAtIndex(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $container = $this->element('container', $component);
+        $container['slots'] = ['content' => [$this->element('block-b', $component)]];
+
+        $body = $this->mutate('insert-element', [
+            'layout' => [$container],
+            'type' => $component,
+            'parentElementId' => 'container',
+            'slot' => 'content',
+            'index' => 0,
+        ]);
+
+        static::assertCount(1, $body['layout']);
+        static::assertSame([$body['affectedElementIds'][0], 'block-b'], array_column($body['layout'][0]['slots']['content'], 'id'));
+    }
+
+    #[TestDox('moves a root element to the requested index of a container slot')]
+    public function testMoveElementIntoContainerSlotAtIndex(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $container = $this->element('container', $component);
+        $container['slots'] = ['content' => [$this->element('block-b', $component)]];
+
+        $body = $this->mutate('move-element', [
+            'layout' => [$container, $this->element('block-a', $component)],
+            'elementId' => 'block-a',
+            'newParentId' => 'container',
+            'newSlot' => 'content',
+            'index' => 0,
+        ]);
+
+        static::assertSame(['container'], array_column($body['layout'], 'id'));
+        static::assertSame(['block-a', 'block-b'], array_column($body['layout'][0]['slots']['content'], 'id'));
+    }
+
+    #[TestDox('attaches a supplied subtree at the requested index of a container slot')]
+    public function testAttachElementIntoContainerSlotAtIndex(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $container = $this->element('container', $component);
+        $container['slots'] = ['content' => [$this->element('block-b', $component)]];
+
+        $body = $this->mutate('attach-element', [
+            'layout' => [$container],
+            'element' => $this->element('incoming', $component),
+            'parentElementId' => 'container',
+            'slot' => 'content',
+            'index' => 0,
+        ]);
+
+        static::assertCount(1, $body['layout']);
+        static::assertSame([$body['affectedElementIds'][0], 'block-b'], array_column($body['layout'][0]['slots']['content'], 'id'));
+    }
+
+    #[TestDox('inserts a core preset subtree into a container slot')]
+    public function testInsertPresetIntoContainerSlot(): void
+    {
+        $body = $this->mutate('insert-preset', [
+            'layout' => [$this->element('container', TestElementTypeLoader::RESOLVABLE)],
+            'presetId' => 'Sw:MediaAndText',
+            'parentElementId' => 'container',
+            'slot' => 'content',
+        ]);
+
+        static::assertCount(1, $body['layout']);
+        static::assertSame([$body['affectedElementIds'][0]], array_column($body['layout'][0]['slots']['content'], 'id'));
+    }
+
+    #[TestDox('rejects a structural impossibility with a 400')]
     public function testStructuralImpossibilityReturns400(): void
     {
         $component = TestElementTypeLoader::RESOLVABLE;
@@ -201,8 +281,12 @@ class LayoutMutationControllerTest extends TestCase
             'layout' => [$this->element('block-a', $component)],
             'elementId' => 'ghost',
         ]);
+        $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::MUTATION_TARGET_NOT_FOUND, array_column($body['errors'], 'code'));
     }
 
     #[TestDox('rejects a numeric wiring key in the draft layout with a 400 invalidLayoutStructure before any mutation runs')]
@@ -386,8 +470,19 @@ class LayoutMutationControllerTest extends TestCase
             'containerType' => $component,
             'slot' => 'content',
         ]);
+        $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        // the ids 1 and 2 are absent from the layout, so a request that passed the boundary would be refused by the
+        // op with mutationTargetNotFound: only the type violation names the string requirement
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        // one violation per id, joined into the single error entry's detail
+        static::assertSame(
+            ["This value should be of type string.\nThis value should be of type string."],
+            array_column($body['errors'], 'detail'),
+        );
+        static::assertNotContains(ContentSystemException::MUTATION_TARGET_NOT_FOUND, array_column($body['errors'], 'code'));
     }
 
     #[TestDox('rejects an unknown rootSource with a 400 and the unknownRootSource code, never reaching resolve')]
@@ -462,6 +557,196 @@ class LayoutMutationControllerTest extends TestCase
         static::assertContains(ContentSystemException::BINDING_TYPE_MISMATCH, array_column($body['errors'], 'code'));
     }
 
+    #[TestDox('rejects an update-element-properties request that writes nothing and removes nothing with a 400')]
+    public function testUpdatePropertiesRejectsAnEmptyRequest(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'update-element-properties', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::DEFAULTED_PRIMITIVE)],
+            'elementId' => 'block-a',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('updateElementPropertiesEmpty', (string) $response->getContent());
+    }
+
+    #[TestDox('rejects a non-array values map on update-element-properties with a 400 at denormalization')]
+    public function testUpdatePropertiesRejectsNonArrayValues(): void
+    {
+        // removeKeys names a primitive key the element type declares, so the request is non-empty and
+        // the UpdateElementPropertiesNotEmpty constraint cannot supply the 400: only the non-array
+        // values can.
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'update-element-properties', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::DEFAULTED_PRIMITIVE)],
+            'elementId' => 'block-a',
+            'values' => 'not-a-map',
+            'removeKeys' => ['headline'],
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+    }
+
+    #[TestDox('rejects an unknown request field on update-element-properties with a 400 and the unknownRequestField code')]
+    public function testUpdatePropertiesRejectsUnknownRequestField(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'update-element-properties', [
+            'layout' => [$this->element('block-a', $component)],
+            'elementId' => 'block-a',
+            'removeKeys' => ['headline'],
+            'entityType' => 'product',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
+        // the reported field name, not just the code: a rejection naming any other field must fail here
+        static::assertContains(
+            'The request contains unknown field(s): entityType. This endpoint rejects fields it does not declare.',
+            array_column($body['errors'], 'detail'),
+        );
+    }
+
+    #[TestDox('leaves a removed key carrying a type default absent in the draft response tree')]
+    public function testUpdatePropertiesLeavesRemovedDefaultedKeyAbsent(): void
+    {
+        $element = $this->element('block-a', TestElementTypeLoader::DEFAULTED_PRIMITIVE);
+        // carriedNote is undeclared on purpose: DEFAULTED_PRIMITIVE declares headline alone, so an undeclared
+        // property is the only second key this element can carry past the route's declared-key gate.
+        $element['properties'] = ['headline' => 'Authored headline', 'carriedNote' => 'Carried through untouched'];
+
+        // the draft route runs no write boundary, so nothing reseeds the type default the removal dropped
+        $body = $this->mutate('update-element-properties', [
+            'layout' => [$element],
+            'elementId' => 'block-a',
+            'removeKeys' => ['headline'],
+        ]);
+
+        // the exact surviving map, not merely an empty one: a route that dropped every property would fail here
+        static::assertSame(['carriedNote' => 'Carried through untouched'], $body['layout'][0]['properties']);
+    }
+
+    #[TestDox('writes a supplied primitive value onto the target element and returns it in the draft response tree')]
+    public function testUpdatePropertiesWritesSuppliedPrimitiveValue(): void
+    {
+        $body = $this->mutate('update-element-properties', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::DEFAULTED_PRIMITIVE)],
+            'elementId' => 'block-a',
+            'values' => ['headline' => 'Authored headline'],
+        ]);
+
+        static::assertSame(['headline' => 'Authored headline'], $body['layout'][0]['properties']);
+        static::assertSame(['block-a'], $body['affectedElementIds']);
+    }
+
+    #[TestDox('rejects a language map carrying a non-language key with a 400 and the mutationPropertyLanguageKeyInvalid code')]
+    public function testUpdatePropertiesRejectsANonLanguageMapKey(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'update-element-properties', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::DEFAULTED_TRANSLATABLE)],
+            'elementId' => 'block-a',
+            'values' => ['tagline' => [Defaults::LANGUAGE_SYSTEM => 'Hallo', 'de-DE' => 'Hallo']],
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $errors = array_values(array_filter(
+            $body['errors'],
+            static fn (array $error): bool => $error['code'] === ContentSystemException::MUTATION_PROPERTY_LANGUAGE_KEY_INVALID,
+        ));
+
+        static::assertCount(1, $errors);
+        // the reported map key on the error entry itself, not a whole-body substring: a rejection naming the
+        // wrong key, or one merely echoing the payload back, must fail here
+        static::assertSame('de-DE', $errors[0]['meta']['parameters']['languageKey'] ?? null);
+    }
+
+    #[TestDox('replaces a translatable property\'s language map on the target element, dropping a stored entry the supplied map omits, and returns it in the draft response tree')]
+    public function testTranslateElementReplacesTheLanguageMap(): void
+    {
+        $element = $this->element('block-a', TestElementTypeLoader::DEFAULTED_TRANSLATABLE);
+        $element['properties'] = ['tagline' => [Defaults::LANGUAGE_SYSTEM => 'Hello', $this->secondLanguageId() => 'Hallo']];
+
+        // the supplied map omits the stored second-language entry, so a merge into the stored map would keep it
+        $body = $this->mutate('translate-element', [
+            'layout' => [$element],
+            'elementId' => 'block-a',
+            'values' => ['tagline' => [Defaults::LANGUAGE_SYSTEM => 'Hi']],
+        ]);
+
+        static::assertEquals(['tagline' => [Defaults::LANGUAGE_SYSTEM => 'Hi']], $body['layout'][0]['properties']);
+        static::assertSame(['block-a'], $body['affectedElementIds']);
+    }
+
+    #[TestDox('rejects a translate-element value for a declared non-translatable property with a 400 and the mutationPropertyNotTranslatable code')]
+    public function testTranslateElementRejectsANonTranslatableProperty(): void
+    {
+        // headline is declared but not translatable, so only the translate route's translatable-key gate rejects it,
+        // with mutationPropertyNotTranslatable
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'translate-element', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::DEFAULTED_PRIMITIVE)],
+            'elementId' => 'block-a',
+            'values' => ['headline' => [Defaults::LANGUAGE_SYSTEM => 'Hello']],
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $errors = array_values(array_filter(
+            $body['errors'],
+            static fn (array $error): bool => $error['code'] === ContentSystemException::MUTATION_PROPERTY_NOT_TRANSLATABLE,
+        ));
+
+        static::assertCount(1, $errors);
+        static::assertSame('headline', $errors[0]['meta']['parameters']['key'] ?? null);
+    }
+
+    #[TestDox('rejects a translate-element request with an empty values map with a 400 carrying the values count violation')]
+    public function testTranslateElementRejectsEmptyValues(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'translate-element', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::DEFAULTED_TRANSLATABLE)],
+            'elementId' => 'block-a',
+            'values' => [],
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        // values carries the request's only Count constraint, so this message is the values violation
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(['This collection should contain 1 element or more.'], array_column($body['errors'], 'detail'));
+    }
+
+    #[TestDox('rejects an unknown request field on translate-element with a 400 and the unknownRequestField code')]
+    public function testTranslateElementRejectsUnknownRequestField(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'translate-element', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::DEFAULTED_TRANSLATABLE)],
+            'elementId' => 'block-a',
+            'values' => ['tagline' => [Defaults::LANGUAGE_SYSTEM => 'Hello']],
+            'entityType' => 'product',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
+        // the reported field name, not just the code: a rejection naming any other field must fail here
+        static::assertContains(
+            'The request contains unknown field(s): entityType. This endpoint rejects fields it does not declare.',
+            array_column($body['errors'], 'detail'),
+        );
+    }
+
     /**
      * @param array<string, mixed> $payload
      *
@@ -475,6 +760,21 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         return json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+    }
+
+    private function secondLanguageId(): string
+    {
+        $repository = $this->getContainer()->get('language.repository');
+        static::assertInstanceOf(EntityRepository::class, $repository);
+
+        $criteria = (new Criteria())
+            ->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM)]))
+            ->setLimit(1);
+
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        static::assertIsString($id, 'the base data carries a second language row beside the system language');
+
+        return $id;
     }
 
     /**
@@ -492,12 +792,10 @@ class LayoutMutationControllerTest extends TestCase
      */
     private function resolutionFor(array $resolutions, string $key): array
     {
-        foreach ($resolutions as $resolution) {
-            if ($resolution['key'] === $key) {
-                return $resolution;
-            }
-        }
+        $resolutionsByKey = array_column($resolutions, null, 'key');
+        static::assertArrayHasKey($key, $resolutionsByKey, \sprintf('No resolution found for key "%s"', $key));
+        static::assertIsArray($resolutionsByKey[$key]);
 
-        static::fail(\sprintf('No resolution found for key "%s"', $key));
+        return $resolutionsByKey[$key];
     }
 }

@@ -3,19 +3,27 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Binding;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeRegistry;
 
 /**
  * @internal
@@ -36,7 +44,7 @@ class BindingApplicatorTest extends TestCase
         static::assertSame(['media' => 'core:media-picker'], $result->attributedSpecifications);
     }
 
-    #[TestDox('seeds the input default onto an input key the element does not yet carry')]
+    #[TestDox('seeds the scalar input default verbatim onto an absent key whose target property is not translatable')]
     public function testSeedsInputDefaultOntoAbsentKey(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
@@ -47,20 +55,42 @@ class BindingApplicatorTest extends TestCase
         static::assertSame('seeded', $result->property('mediaId')?->jsonSerialize());
     }
 
-    #[TestDox('overwrites the wiring and attribution of a key already bound by a different specification')]
-    public function testOverwritesWiringAndAttributionForAlreadyBoundKey(): void
+    #[TestDox('seeds a scalar input default under the anchor language key when the target property is translatable')]
+    public function testSeedsTranslatableInputDefaultAsAnchorMap(): void
     {
-        $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $element = $this->boundImageElement($oldConfig);
+        $element = new StoredElement('text-1', 'Sw:Content:Text');
 
-        $result = $this->applicator($newConfig)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
+        $result = $this->applicator($this->config(), $this->textRegistry())->apply($element, $this->textSpecification(), 'core:text-seed');
 
-        static::assertSame(['media'], array_keys($result->dataRequirements));
-        static::assertSame('media', $result->dataRequirements['media']->key);
-        static::assertSame('entity', $result->dataRequirements['media']->source);
-        static::assertSame($newConfig, $result->dataRequirements['media']->config);
-        static::assertSame(['media' => 'core:media-picker'], $result->attributedSpecifications);
+        static::assertSame([Defaults::LANGUAGE_SYSTEM => 'Autumn sale'], $result->property('text')?->jsonSerialize());
+    }
+
+    #[TestDox('fill-only: seeds a scalar input default under the anchor language key when the target property is translatable')]
+    public function testFillOnlySeedsTranslatableInputDefaultAsAnchorMap(): void
+    {
+        $element = new StoredElement('text-1', 'Sw:Content:Text');
+
+        $result = $this->applicator($this->config(), $this->textRegistry())->applyFillOnly($element, $this->textSpecification(), 'core:text-seed');
+
+        static::assertSame([Defaults::LANGUAGE_SYSTEM => 'Autumn sale'], $result->property('text')?->jsonSerialize());
+    }
+
+    #[TestDox('keeps the wiring of keys the specification does not declare')]
+    public function testKeepsWiringOfKeysOutsideTheSpecification(): void
+    {
+        $galleryConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $mediaConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $element = StoredElementBuilder::create('Sw:Media:Image', 'img-1')
+            ->withDataRequirement('gallery', 'entity_collection', $galleryConfig)
+            ->withAttributedSpecification('gallery', 'core:gallery-spec')
+            ->build();
+
+        $result = $this->applicator($mediaConfig)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
+
+        static::assertSame(['gallery', 'media'], array_keys($result->dataRequirements));
+        static::assertSame($galleryConfig, $result->dataRequirements['gallery']->config);
+        static::assertSame($mediaConfig, $result->dataRequirements['media']->config);
+        static::assertSame(['gallery' => 'core:gallery-spec', 'media' => 'core:media-picker'], $result->attributedSpecifications);
     }
 
     #[TestDox('fill-only: wires a resolves entry into a key the element has no data requirement for, and attributes it')]
@@ -109,6 +139,27 @@ class BindingApplicatorTest extends TestCase
         static::assertSame($newConfig, $result->dataRequirements['gallery']->config);
     }
 
+    #[TestDox('fill-only: leaves an already wired key unattributed when it carries no prior attribution entry')]
+    public function testFillOnlyLeavesAnAlreadyWiredButUnattributedKeyUnattributed(): void
+    {
+        // 'media' already has a data requirement but no attribution entry. applyFillOnly()'s wiredKeys is
+        // array_diff'd against the existing data requirement keys, so it excludes 'media' and attributionFor()
+        // mints no entry for it. Every fill-only test that exercises an already-bound key builds it via
+        // boundImageElement(), which sets an attribution alongside the data requirement, so the `+` union of the
+        // attribution maps in applyFillOnly() masks whether wiredKeys correctly excluded the key: replacing it with
+        // array_keys($specification->resolves()) would mint an attribution entry here that the key never had, and
+        // the old entry's absence would then show.
+        $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $element = StoredElementBuilder::create('Sw:Media:Image', 'img-1')
+            ->withDataRequirement('media', 'entity', $oldConfig)
+            ->build();
+
+        $result = $this->applicator($newConfig)->applyFillOnly($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
+
+        static::assertSame([], $result->attributedSpecifications);
+    }
+
     #[TestDox('does not seed an input whose specification declares no default')]
     public function testDoesNotSeedInputWithoutDefault(): void
     {
@@ -131,15 +182,40 @@ class BindingApplicatorTest extends TestCase
         static::assertSame('authored', $result->property('mediaId')?->jsonSerialize());
     }
 
-    #[TestDox('keeps an authored explicit null on the input key instead of overwriting it with the default')]
-    public function testKeepsAuthoredExplicitNullOverDefault(): void
+    #[TestDox('seeds a later input default after an input that declares no default')]
+    public function testSeedsLaterInputDefaultAfterInputWithoutDefault(): void
     {
-        $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $element = StoredElementBuilder::create('Sw:Media:Image', 'img-1')->withProperty('mediaId', null)->build();
+        $element = new StoredElement('img-1', 'Sw:Media:Image');
+        $specification = new BindingSpecification(
+            'media-picker',
+            'Sw:Media:Image',
+            'Media picker',
+            [],
+            ['first' => new BindingInput(false, null, false), 'mediaId' => new BindingInput(true, 'seeded', false)],
+            'core',
+        );
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:media-picker');
+        $result = $this->applicator($this->config())->apply($element, $specification, 'core:media-picker');
 
-        static::assertTrue($result->property('mediaId')?->isNull());
+        static::assertSame('seeded', $result->property('mediaId')?->jsonSerialize());
+    }
+
+    #[TestDox('seeds a later input default after an input the element already carries')]
+    public function testSeedsLaterInputDefaultAfterAlreadyAuthoredInput(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Media:Image', 'img-1')->withProperty('first', 'authored')->build();
+        $specification = new BindingSpecification(
+            'media-picker',
+            'Sw:Media:Image',
+            'Media picker',
+            [],
+            ['first' => new BindingInput(true, 'seeded', false), 'mediaId' => new BindingInput(true, 'seeded', false)],
+            'core',
+        );
+
+        $result = $this->applicator($this->config())->apply($element, $specification, 'core:media-picker');
+
+        static::assertSame('seeded', $result->property('mediaId')?->jsonSerialize());
     }
 
     #[TestDox('rebuilds the element preserving its id, component, slots, style, and context definitions')]
@@ -161,6 +237,151 @@ class BindingApplicatorTest extends TestCase
         static::assertSame($element->contextDefinitions, $result->contextDefinitions);
     }
 
+    #[TestDox('seeds the raw input default when the element component is not a registered type')]
+    public function testSeedsRawInputDefaultForUnregisteredComponent(): void
+    {
+        // Same specification and element as the anchor-map test, against a registry that carries no type: without
+        // the registry lookup the seed cannot be told to be a language map, so the declared shape is unknowable.
+        $element = new StoredElement('text-1', 'Sw:Content:Text');
+
+        $result = $this->applicator($this->config(), $this->typeRegistry([]))->apply($element, $this->textSpecification(), 'core:text-seed');
+
+        static::assertSame('Autumn sale', $result->property('text')?->jsonSerialize());
+    }
+
+    #[TestDox('overwrites the wiring and attribution of a key already bound by a different specification')]
+    public function testOverwritesWiringAndAttributionForAlreadyBoundKey(): void
+    {
+        $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $element = $this->boundImageElement($oldConfig);
+
+        $result = $this->applicator($newConfig)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
+
+        static::assertSame(['media'], array_keys($result->dataRequirements));
+        static::assertSame('media', $result->dataRequirements['media']->key);
+        static::assertSame('entity', $result->dataRequirements['media']->source);
+        static::assertSame($newConfig, $result->dataRequirements['media']->config);
+        static::assertSame(['media' => 'core:media-picker'], $result->attributedSpecifications);
+    }
+
+    #[TestDox('decodes each resolves entry with its own loader and config')]
+    public function testDecodesEachResolvesEntryWithItsOwnBinding(): void
+    {
+        $mediaConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $galleryConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $serializers->method('decode')->willReturnMap([
+            ['entity', ['entity' => 'media', 'property' => 'mediaId'], $mediaConfig],
+            ['entity_collection', ['entity' => 'media', 'property' => 'galleryIds'], $galleryConfig],
+        ]);
+        $element = new StoredElement('img-1', 'Sw:Media:Image');
+
+        $result = (new BindingApplicator($serializers, $this->imageRegistry()))->apply($element, $this->twoKeySpecification(), 'core:media-picker');
+
+        static::assertSame($mediaConfig, $result->dataRequirements['media']->config);
+        static::assertSame($galleryConfig, $result->dataRequirements['gallery']->config);
+    }
+
+    #[TestDox('seeds the raw input default when the input key is not among the registered type\'s declared properties')]
+    public function testSeedsRawInputDefaultForKeyAbsentFromRegisteredTypeProperties(): void
+    {
+        // Sw:Content:Text IS registered (textRegistry), but its only declared property is 'text'; 'caption' is not
+        // among registry->get($element->component)->properties(), so $properties['caption'] ?? null in
+        // seedInputDefaults() evaluates to null just as it does for an unregistered component. Every other
+        // seed test either targets a declared translatable key or an unregistered component wholesale, so this
+        // key-not-declared branch of the coalescing fallback is otherwise never reached.
+        $element = new StoredElement('text-1', 'Sw:Content:Text');
+        $specification = new BindingSpecification('caption-seed', 'Sw:Content:Text', 'Caption seed', [], ['caption' => new BindingInput(true, 'Autumn sale', false)], 'core');
+
+        $result = $this->applicator($this->config(), $this->textRegistry())->apply($element, $specification, 'core:caption-seed');
+
+        static::assertSame('Autumn sale', $result->property('caption')?->jsonSerialize());
+    }
+
+    #[TestDox('does not wrap a null input default on a translatable property into a language map')]
+    public function testDoesNotWrapNullInputDefaultOnTranslatableProperty(): void
+    {
+        // TypeConsistentBindingSpecification rejects this declaration, so the seed never runs in production; the
+        // guard exists so no path can mint a map whose only entry is null, which is not a valid entry.
+        $element = new StoredElement('text-1', 'Sw:Content:Text');
+        $specification = new BindingSpecification('text-seed', 'Sw:Content:Text', 'Text seed', [], ['text' => new BindingInput(true, null, false)], 'core');
+
+        $result = $this->applicator($this->config(), $this->textRegistry())->apply($element, $specification, 'core:text-seed');
+
+        static::assertTrue($result->property('text')?->isNull());
+    }
+
+    #[TestDox('keeps an authored explicit null on the input key instead of overwriting it with the default')]
+    public function testKeepsAuthoredExplicitNullOverDefault(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $element = StoredElementBuilder::create('Sw:Media:Image', 'img-1')->withProperty('mediaId', null)->build();
+
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:media-picker');
+
+        static::assertTrue($result->property('mediaId')?->isNull());
+    }
+
+    #[TestDox('propagates the error when a scoped config value has no entry for the layout\'s root source')]
+    public function testPropagatesScopedConfigWithoutRootSourceEntry(): void
+    {
+        $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', 'landing_page'));
+
+        $this->applicator($this->config())->apply($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', 'landing_page');
+    }
+
+    #[DataProvider('unscopedRootSourceProvider')]
+    #[TestDox('fill-only: leaves a key the element already wires untouched when its scoped config has no entry for the root source ($_dataName)')]
+    public function testFillOnlyIgnoresTheScopedConfigOfAnAlreadyWiredKey(?string $rootSource): void
+    {
+        $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $element = StoredElementBuilder::create('Sw:Navigation:Breadcrumb', 'crumb-1')
+            ->withDataRequirement('breadcrumb', 'breadcrumb', $oldConfig)
+            ->withAttributedSpecification('breadcrumb', 'core:old-spec')
+            ->build();
+
+        $result = $this->applicator($this->config())->applyFillOnly($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', $rootSource);
+
+        static::assertSame(['breadcrumb'], array_keys($result->dataRequirements));
+        static::assertSame($oldConfig, $result->dataRequirements['breadcrumb']->config);
+        static::assertSame(['breadcrumb' => 'core:old-spec'], $result->attributedSpecifications);
+    }
+
+    #[DataProvider('unscopedRootSourceProvider')]
+    #[TestDox('fill-only: throws when the scoped config of a key it would wire has no entry for the root source ($_dataName)')]
+    public function testFillOnlyThrowsForTheScopedConfigOfAnUnwiredKey(?string $rootSource): void
+    {
+        $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', $rootSource));
+
+        $this->applicator($this->config())->applyFillOnly($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', $rootSource);
+    }
+
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function unscopedRootSourceProvider(): iterable
+    {
+        yield 'no root source' => [null];
+        yield 'a root source the map does not name' => ['landing_page'];
+    }
+
+    private function scopedSpecification(): BindingSpecification
+    {
+        return new BindingSpecification(
+            'Sw:Navigation:Breadcrumb',
+            'Sw:Navigation:Breadcrumb',
+            'Breadcrumb',
+            ['breadcrumb' => new LoaderBinding('breadcrumb', ['type' => [RootSourceConfigMap::MARKER => ['product' => 'product', 'category' => 'category']]])],
+            [],
+            'core',
+        );
+    }
+
     private function boundImageElement(AbstractContentDataLoaderConfig $oldConfig): StoredElement
     {
         return StoredElementBuilder::create('Sw:Media:Image', 'img-1')
@@ -169,12 +390,51 @@ class BindingApplicatorTest extends TestCase
             ->build();
     }
 
-    private function applicator(AbstractContentDataLoaderConfig $config): BindingApplicator
+    private function config(): AbstractContentDataLoaderConfig
+    {
+        return static::createStub(AbstractContentDataLoaderConfig::class);
+    }
+
+    private function applicator(AbstractContentDataLoaderConfig $config, ?AbstractContentSystemElementTypeRegistry $registry = null): BindingApplicator
     {
         $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
         $serializers->method('decode')->willReturn($config);
 
-        return new BindingApplicator($serializers);
+        return new BindingApplicator($serializers, $registry ?? $this->imageRegistry());
+    }
+
+    private function imageRegistry(): AbstractContentSystemElementTypeRegistry
+    {
+        return $this->typeRegistry([
+            'Sw:Media:Image' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Media:Image')->primitive('mediaId', 'string')->build(),
+        ]);
+    }
+
+    private function textRegistry(): AbstractContentSystemElementTypeRegistry
+    {
+        return $this->typeRegistry([
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')->primitive('text', 'string', translatable: true)->build(),
+        ]);
+    }
+
+    /**
+     * @param array<string, ContentSystemElementTypeSpecification> $specs
+     */
+    private function typeRegistry(array $specs): AbstractContentSystemElementTypeRegistry
+    {
+        return TestElementTypeRegistry::of($specs);
+    }
+
+    private function textSpecification(): BindingSpecification
+    {
+        return new BindingSpecification(
+            'text-seed',
+            'Sw:Content:Text',
+            'Text seed',
+            [],
+            ['text' => new BindingInput(true, 'Autumn sale', false)],
+            'core',
+        );
     }
 
     private function specification(BindingInput $mediaIdInput): BindingSpecification

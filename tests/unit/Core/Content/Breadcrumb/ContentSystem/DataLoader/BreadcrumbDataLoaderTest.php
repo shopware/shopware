@@ -176,20 +176,6 @@ class BreadcrumbDataLoaderTest extends TestCase
         static::assertFalse($this->capturedRequest->query->has('referrerCategoryId'));
     }
 
-    #[TestDox('ignores an invalid referrer input, still loading the breadcrumb without the referrerCategoryId query')]
-    public function testLoadIgnoresInvalidReferrerInput(): void
-    {
-        $this->loader->load(
-            self::inputs(Uuid::randomHex(), referrerCategoryProperty: '{{categoryId}}'),
-            self::requirement(),
-            Generator::generateSalesChannelContext(),
-            new Request(),
-        );
-
-        static::assertInstanceOf(Request::class, $this->capturedRequest);
-        static::assertFalse($this->capturedRequest->query->has('referrerCategoryId'));
-    }
-
     #[TestDox('lowercases entity ID before passing it to the breadcrumb route')]
     public function testLoadCallsBreadcrumbRouteWithLowercasedEntityId(): void
     {
@@ -316,6 +302,11 @@ class BreadcrumbDataLoaderTest extends TestCase
 
         yield 'the resolved entity ID is not a valid uuid' => [
             self::inputs('{{productId}}'),
+        ];
+
+        // The entity ID is a valid uuid, so only the referrer can carry this row to notFound.
+        yield 'a resolved referrer category ID is not a valid uuid' => [
+            self::inputs(Uuid::randomHex(), referrerCategoryProperty: '{{categoryId}}'),
         ];
     }
 

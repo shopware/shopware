@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Type;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -41,6 +42,24 @@ class StoredSchemaResolverTest extends TestCase
         ], $this->resolver([])->resolve($type));
     }
 
+    /**
+     * The flag beside a non-string `type` reads "a language map of that primitive", the shape PropertyType::admits()
+     * accepts for the same declaration, so the fold has to carry the declared primitive unchanged.
+     */
+    #[TestDox('marks a translatable non-string property entry with the flag beside its declared primitive')]
+    public function testResolveMarksATranslatableNonStringPropertyEntryBesideItsDeclaredPrimitive(): void
+    {
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Banner')
+            ->primitive('visible', 'boolean', default: false, translatable: true)
+            ->primitive('columns', 'integer', translatable: true)
+            ->build();
+
+        static::assertSame([
+            'visible' => ['kind' => 'property', 'type' => 'boolean', 'required' => false, 'default' => false, 'translatable' => true],
+            'columns' => ['kind' => 'property', 'type' => 'integer', 'required' => false, 'translatable' => true],
+        ], $this->resolver([])->resolve($type));
+    }
+
     #[TestDox('omits a declared FQCN property from the storage schema, because nothing is stored under the reference key')]
     public function testResolveOmitsDeclaredReferencePropertyFromEntries(): void
     {
@@ -74,6 +93,101 @@ class StoredSchemaResolverTest extends TestCase
         static::assertSame([
             'mediaId' => ['kind' => 'resolvedByStorage', 'type' => 'string', 'required' => true],
         ], $this->resolver(['core:Sw:Media:Image' => $specification], $this->entityLoaderKeys())->resolve($type));
+    }
+
+    #[TestDox('prefers the property entry over a binding token naming the same stored key')]
+    public function testResolvePrefersPropertyEntryOverBindingTokenOnSameStoredKey(): void
+    {
+        // The listing loader's 'property' key defaults to the token 'navigationId', which this type also
+        // declares as a primitive property — the collision the property tier resolves.
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Product:Listing')
+            ->reference('products', ProductListingResult::class)
+            ->primitive('navigationId', 'string', required: true)
+            ->build();
+
+        $specification = new BindingSpecification(
+            'listing-with-associations',
+            'Sw:Product:Listing',
+            'Product Listing',
+            ['products' => new LoaderBinding('product_listing', [])],
+            [],
+            'core',
+        );
+
+        // The losing candidate is a config entry with required false; the winner is required true.
+        static::assertSame([
+            'navigationId' => ['kind' => 'property', 'type' => 'string', 'required' => true],
+            'associations' => ['kind' => 'config', 'type' => 'list<string>', 'required' => false],
+        ], $this->resolver(['core:listing-with-associations' => $specification], $this->listingLoaderKeys())->resolve($type));
+    }
+
+    #[TestDox('skips a binding token naming a declared FQCN property, which claims storage where none exists')]
+    public function testResolveSkipsBindingTokenNamingDeclaredReferenceProperty(): void
+    {
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Media:Image')
+            ->reference('media', MediaEntity::class, required: true)
+            ->primitive('height', 'string', default: 'auto')
+            ->build();
+
+        $specification = new BindingSpecification(
+            'media-picker',
+            'Sw:Media:Image',
+            'Media Picker',
+            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'media'])],
+            [],
+            'core',
+        );
+
+        static::assertSame([
+            'height' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto'],
+        ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
+    }
+
+    /**
+     * @param array<string, mixed> $loaderConfig
+     */
+    #[DataProvider('unstoredBindingTokenProvider')]
+    #[TestDox('skips a binding token that names no stored key: $_dataName')]
+    public function testResolveSkipsABindingTokenThatNamesNoStoredKey(array $loaderConfig): void
+    {
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Media:Image')
+            ->reference('media', MediaEntity::class, required: true)
+            ->primitive('height', 'string', default: 'auto')
+            ->build();
+
+        $specification = new BindingSpecification(
+            'media-picker',
+            'Sw:Media:Image',
+            'Media Picker',
+            ['media' => new LoaderBinding('entity', $loaderConfig)],
+            [],
+            'core',
+        );
+
+        static::assertSame([
+            'height' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto'],
+        ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function unstoredBindingTokenProvider(): iterable
+    {
+        yield 'an integer-like token, which no stored key can be' => [['entity' => 'media', 'property' => '42']];
+
+        yield 'a negative integer-like token, which no stored key can be' => [['entity' => 'media', 'property' => '-1']];
+
+        // 'property' is declared hasDefault: false, so an omitted config value leaves the token null.
+        // Deleting the `!\is_string($token)` operand from StoredSchemaResolver::namesStoredKey() would let
+        // this null token pass and publish an entry under the coerced key '', which the assertion would
+        // then fail to match.
+        yield 'an absent token without a key default' => [['entity' => 'media']];
+
+        // Deleting the `$token === ''` operand from StoredSchemaResolver::namesStoredKey() would let this
+        // empty token pass and publish an entry under the coerced key '', which the assertion would
+        // then fail to match.
+        yield 'an empty token' => [['entity' => 'media', 'property' => '']];
     }
 
     #[TestDox('publishes the reference token of an authored specification as a config entry')]
@@ -121,32 +235,6 @@ class StoredSchemaResolverTest extends TestCase
         ], $this->resolver(['core:listing-with-associations' => $specification], $this->listingLoaderKeys())->resolve($type));
     }
 
-    #[TestDox('prefers the property entry over a binding token naming the same stored key')]
-    public function testResolvePrefersPropertyEntryOverBindingTokenOnSameStoredKey(): void
-    {
-        // The listing loader's 'property' key defaults to the token 'navigationId', which this type also
-        // declares as a primitive property — the collision the property tier resolves.
-        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Product:Listing')
-            ->reference('products', ProductListingResult::class)
-            ->primitive('navigationId', 'string', required: true)
-            ->build();
-
-        $specification = new BindingSpecification(
-            'listing-with-associations',
-            'Sw:Product:Listing',
-            'Product Listing',
-            ['products' => new LoaderBinding('product_listing', [])],
-            [],
-            'core',
-        );
-
-        // The losing candidate is a config entry with required false; the winner is required true.
-        static::assertSame([
-            'navigationId' => ['kind' => 'property', 'type' => 'string', 'required' => true],
-            'associations' => ['kind' => 'config', 'type' => 'list<string>', 'required' => false],
-        ], $this->resolver(['core:listing-with-associations' => $specification], $this->listingLoaderKeys())->resolve($type));
-    }
-
     #[TestDox('prefers the resolvedByStorage entry over a config entry naming the same stored key')]
     public function testResolvePrefersResolvedByStorageEntryOverConfigEntryOnSameStoredKey(): void
     {
@@ -184,48 +272,42 @@ class StoredSchemaResolverTest extends TestCase
         )->resolve($type));
     }
 
-    #[TestDox('skips a binding token naming a declared FQCN property, which claims storage where none exists')]
-    public function testResolveSkipsBindingTokenNamingDeclaredReferenceProperty(): void
+    #[TestDox('ignores a config key that is not a property reference, even when its value could name a stored key')]
+    public function testResolveIgnoresNonPropertyReferenceConfigKey(): void
     {
         $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Media:Image')
             ->reference('media', MediaEntity::class, required: true)
             ->primitive('height', 'string', default: 'auto')
             ->build();
 
+        // The entityName key's value 'product' passes every token check a property reference key's value would.
         $specification = new BindingSpecification(
             'media-picker',
             'Sw:Media:Image',
             'Media Picker',
-            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'media'])],
+            ['media' => new LoaderBinding('entity', ['entity' => 'product', 'property' => 'mediaId'])],
             [],
             'core',
         );
 
         static::assertSame([
+            'mediaId' => ['kind' => 'config', 'type' => 'string', 'required' => true],
             'height' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto'],
         ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
     }
 
-    #[TestDox('skips an integer-like binding token, which no stored key can be')]
-    public function testResolveSkipsIntegerLikeToken(): void
+    #[TestDox('marks a translatable property entry with the flag and leaves the key off a non-translatable one')]
+    public function testResolveMarksOnlyTranslatablePropertyEntriesWithTheFlag(): void
     {
-        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Media:Image')
-            ->reference('media', MediaEntity::class, required: true)
-            ->primitive('height', 'string', default: 'auto')
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+            ->primitive('text', 'string', default: '<p>Willkommen</p>', translatable: true)
+            ->primitive('mode', 'string', default: 'auto-fit')
             ->build();
 
-        $specification = new BindingSpecification(
-            'media-picker',
-            'Sw:Media:Image',
-            'Media Picker',
-            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => '42'])],
-            [],
-            'core',
-        );
-
         static::assertSame([
-            'height' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto'],
-        ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
+            'text' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => '<p>Willkommen</p>', 'translatable' => true],
+            'mode' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto-fit'],
+        ], $this->resolver([])->resolve($type));
     }
 
     #[TestDox('resolves a type with neither primitives nor binding specifications to an empty map')]

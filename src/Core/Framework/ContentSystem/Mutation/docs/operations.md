@@ -4,7 +4,8 @@
 
 One section per operation in `Op/`: what it does, its constructor, the errors it throws, and the result channels it
 fills. A channel an operation is not named for stays empty. Constructor types are named short; the binding types
-live in `Binding/`. `ReplaceElement` carries enough carry-over rules to need its own file and routes there.
+live in `Binding/`. `ReplaceElement` and `TranslateElement` carry enough rules to need their own files and route
+there.
 
 ## InsertElement
 
@@ -12,7 +13,7 @@ live in `Binding/`. `ReplaceElement` carries enough carry-over rules to need its
 
 Inserts a fresh element of `$type` (stored defaults seeded from the type, no wiring) into a parent slot at an
 index, or appended to the root. `requireRegistered`; scaffolds via `scaffoldElement`, then always fill-applies the
-type's default binding specification regardless of `$bindingSpecificationId` (`resolveDefaultSpecification()`,
+type's default binding specification, after the named one when `$bindingSpecificationId` is given (`resolveDefaultSpecification()`,
 `byType(type)` filtered by `isDefault()`: zero is a no-op, one is fill-applied and attributed to its own qualified
 id via `BindingApplicator::applyFillOnly()`, more than one throws `bindingSpecificationDefaultAmbiguous` `409`).
 With no parent it inserts at root; otherwise `$slot` is required (`mutationSlotRequired`), the parent must exist
@@ -20,8 +21,9 @@ With no parent it inserts at root; otherwise `$slot` is required (`mutationSlotR
 
 When `$bindingSpecificationId` is also given, the named specification is resolved **first**, before any tree change
 (unregistered → `bindingSpecificationNotFound`; `type()` ≠ `$type` → `bindingTypeMismatch`; both `400`), then applied
-on top of the fill-applied default via `BindingApplicator::apply()` (overwrite), so shared keys belong to the
-explicit choice. Both steps precede insertion, so a bound insert is atomic: nothing is inserted on a `400`.
+before the default is fill-applied, via `BindingApplicator::apply()` (overwrite), so shared keys (data requirements,
+attribution and `inputs` defaults alike) belong to the explicit choice and a default key it wires is never resolved
+against the root source. Both steps precede insertion, so a bound insert is atomic: nothing is inserted on a `400`.
 
 ## RemoveElement
 
@@ -87,16 +89,26 @@ The context the container *provided* is not reported, a carve-out stated with th
 
 ## AttachElement
 
-`__construct(AbstractContentSystemElementTypeRegistry $registry, StoredElement $element, ?string $parentElementId = null, ?string $slot = null, ?int $index = null)`.
+`__construct(AbstractContentSystemElementTypeRegistry $registry, StoredElement $element, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator, ?string $parentElementId = null, ?string $slot = null, ?int $index = null)`.
 
-Splices a caller-supplied element subtree into a parent slot (or the root), reminting every id. The inverse of the
-detachment a replace reports through `orphaned`: it re-places a detached subtree, or a copied one, without trusting
-client ids. `requireRegistered($this->element->component)`: the supplied root's component must be a registered type,
-else `mutationUnknownType`, matching the check insert/replace/wrap run. Clients never supply ids; the server-minted
+Splices a caller-supplied element subtree into a parent slot (or the root): it fill-applies the type default binding
+to every element of the subtree (`applyDefaultBindingToSubtree()`; wiring the subtree already carries wins, more than
+one default throws `bindingSpecificationDefaultAmbiguous` `409`), then remints every id (`cloneWithNewIds()`). The
+binding runs first so a rejection such as `bindingRootSourceNotScoped` names the element id the caller supplied; the
+two steps touch disjoint fields, so the order does not change the placed subtree. The inverse of the detachment a
+replace reports through `orphaned`: it re-places a detached subtree, or a copied one, without trusting client ids.
+`requireRegistered($this->element->component)`: the supplied root's component must be a registered type, else
+`mutationUnknownType`, matching the check insert/replace/wrap run. No caller-supplied id is placed; the server-minted
 ids come back in `affected = subtreeIds($clone)`, and `created` carries the same full re-minted set, every node in
 the spliced subtree being new to the layout. Placement mirrors `Op/InsertElement` (slot required with a parent →
 `mutationSlotRequired`; parent must exist → `mutationTargetNotFound`). Detaches nothing:
 `orphaned`/`droppedWiring`/`droppedProperties` stay empty.
+
+## AttachElements
+
+`__construct(AbstractContentSystemElementTypeRegistry $registry, array $elements, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator, ?string $parentElementId = null, ?string $slot = null, ?int $index = null)`.
+
+Attaches a list of caller-supplied element subtrees by running `AttachElement` over each one in list order, into the same parent slot (or the root). Every rule, error and result of `AttachElement` applies per element, so the first element that fails aborts the whole operation. With an `$index`, element `n` of the list is placed at `$index + n`, keeping list order; with none, each is appended. `affected` and `created` are the unions of the per-element sets. An empty list changes nothing. The preset-insert route is its caller.
 
 ## BindElement
 
@@ -117,3 +129,27 @@ attribution is recorded into `attributedSpecifications`, also merged and overwri
 
 Keeps the same id. `affected = [elementId]`; `created` stays the empty default (the element node is wired, not
 minted); `orphaned`/`droppedWiring`/`droppedProperties` stay empty, because binding only adds wiring.
+
+## UpdateElementProperties
+
+`__construct(AbstractContentSystemElementTypeRegistry $registry, string $elementId, array $values, array $removeKeys)`.
+
+Replaces each key in `$values` on one element and drops each key in `$removeKeys`, writing a value as supplied in its
+stored shape; every property key named in neither list carries verbatim, unread. Rules, in this order, each a `400`:
+target must exist (`mutationTargetNotFound`); the element's component must be registered (`mutationUnknownType`, via
+`requireRegistered`); every key in `$values` and `$removeKeys` must name a primitive property the type declares
+(`mutationPropertyUnknown`); a key present in both lists throws `mutationPropertyConflict`; each `$values` entry must
+satisfy `PropertyType::admits()` for its declared type (`mutationPropertyValueRejected`, carrying the element id, key
+and actual type) — the one value the operation reads, judged through the shared predicate `ReplaceElement` also uses;
+every key of a translatable property's language map must be a language id in lowercase UUID hex
+(`mutationPropertyLanguageKeyInvalid`, carrying the element id, property key and offending map key) — the same key
+rule the DAL write path enforces in `PropertyTypeConformanceValidator`, while key existence stays a
+`dangling_language` diagnostics warning. `affected = [elementId]`; `created` stays the empty default;
+`orphaned`/`droppedWiring`/`droppedProperties` stay empty.
+
+## TranslateElement
+
+Replaces the language maps of properties the element's type declares translatable, and its own edit changes nothing else
+in the tree, writing in system scope on the persisted route once the caller's `content_layout:translate` privilege is
+checked. Key gate, rejection order and write privilege:
+[translate-element.md](translate-element.md).

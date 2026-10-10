@@ -86,6 +86,92 @@ export function getElementPropertyStorageKey(
 }
 
 /**
+ * A translatable property value: a map from language id to a string, number or boolean entry.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export type LanguageMap = Record<string, string | number | boolean>;
+
+/**
+ * Resolves a translatable property value along a language chain in serving order,
+ * returning the first chain language carrying an entry, or `undefined` when none does.
+ *
+ * A value that is neither `undefined` nor a non-empty map of string, number or
+ * boolean entries throws: neither the server nor the write gate produces such a
+ * value on a translatable property, so meeting one is a fault rather than a
+ * missing entry.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function resolveTranslatableEntry(value: unknown, chain: readonly string[]): string | number | boolean | undefined {
+    if (value === undefined) {
+        return undefined;
+    }
+
+    if (!isLanguageMap(value)) {
+        throw new Error(
+            `A translatable property value must be undefined or a non-empty language map of primitive values, received ${describeTranslatableValue(value)}.`,
+        );
+    }
+
+    for (const languageId of chain) {
+        const entry = value[languageId];
+
+        if (entry !== undefined) {
+            return entry;
+        }
+    }
+
+    return undefined;
+}
+
+/**
+ * Sets the entry of one language, or removes it when `entry` is `null`.
+ *
+ * Every other entry travels verbatim; the write route judges whether an entry
+ * matches the declared property type. Removing the anchor entry throws, since no
+ * studio action offers it. A `current` that is neither `undefined` nor a
+ * non-empty map of string, number or boolean entries throws, the strictness the
+ * reader already holds.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function withLanguageEntry(
+    current: unknown,
+    languageId: string,
+    entry: string | number | boolean | null,
+): LanguageMap {
+    if (entry === null && languageId === anchorLanguageId()) {
+        throw new Error('The anchor language entry of a translatable property cannot be removed.');
+    }
+
+    let languageMap: LanguageMap = {};
+
+    if (current !== undefined) {
+        if (!isLanguageMap(current)) {
+            throw new Error(
+                `A translatable property value must be undefined or a non-empty language map of primitive values, received ${describeTranslatableValue(current)}.`,
+            );
+        }
+
+        languageMap = { ...current };
+    }
+
+    if (entry === null) {
+        delete languageMap[languageId];
+
+        return languageMap;
+    }
+
+    languageMap[languageId] = entry;
+
+    return languageMap;
+}
+
+/**
  * @private
  * @sw-package discovery
  */
@@ -209,6 +295,54 @@ export function getInitialPropertyValue(
     }
 
     return null;
+}
+
+/**
+ * The language a studio write targets and an unqualified read resolves against.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function anchorLanguageId(): string {
+    return Shopware.Defaults.systemLanguageId;
+}
+
+/**
+ * The languages a translatable property value resolves through, in serving order.
+ *
+ * The chain is the anchor language alone today; multi-language editing widens it here, and the write
+ * path targets the chain head, so reads and writes widen together.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function editingLanguageChain(): readonly [string, ...string[]] {
+    return [anchorLanguageId()];
+}
+
+function isLanguageMap(value: unknown): value is LanguageMap {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        return false;
+    }
+
+    const entries = Object.values(value);
+
+    return (
+        entries.length > 0 &&
+        entries.every((entry) => typeof entry === 'string' || typeof entry === 'number' || typeof entry === 'boolean')
+    );
+}
+
+function describeTranslatableValue(value: unknown): string {
+    if (value === null) {
+        return 'null';
+    }
+
+    if (Array.isArray(value)) {
+        return 'an array';
+    }
+
+    return typeof value === 'object' ? 'an object that is not a map of primitive entries' : `a ${typeof value}`;
 }
 
 function propertyHasType(property: ContentSystemElementTypeProperty, type: string): boolean {

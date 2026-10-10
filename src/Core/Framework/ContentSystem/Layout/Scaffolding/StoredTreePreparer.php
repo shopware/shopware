@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Scaffolding;
 
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
@@ -9,20 +10,28 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvide
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
+use Shopware\Core\Framework\ContentSystem\Rendering\ElementLowering;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * Brings a stored forest into the state the rendering steps require, and hands stored forests back. Its
  * steps are ordered and internal: a caller asks for a prepared tree, never for one of the steps.
  *
- * The order is placeholder resolution, then the virtual-root wrap, then the partial prune, and finally the
- * scaffolding the finishing steps read. Placeholder resolution runs in FULL mode only. The skeleton response
- * carries a tree's structure and its style, never a property value, so resolving into values it discards is
- * work no reader can observe.
+ * The order is language reduction, then placeholder resolution, then the virtual-root wrap, then the partial
+ * prune, and finally the scaffolding the finishing steps read. The first two run in FULL mode only. The
+ * skeleton response carries a tree's structure and its style, never a property value, so collapsing and
+ * resolving into values it discards is work no reader can observe.
+ *
+ * Language reduction is a value-level collapse inside preparation, which is why it is not named a lowering:
+ * that role name belongs to the stored-to-rendered model translation, which {@see ElementLowering} runs. The
+ * two passes are distinct.
  *
  * @internal
  */
@@ -30,6 +39,7 @@ use Shopware\Core\Framework\Log\Package;
 final class StoredTreePreparer
 {
     public function __construct(
+        private readonly AbstractContentSystemElementTypeRegistry $typeRegistry,
         private readonly VirtualRootWrapper $virtualRootWrapper,
         private readonly PartialRenderer $partialRenderer,
         private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
@@ -40,9 +50,18 @@ final class StoredTreePreparer
     /**
      * @param list<StoredElement> $tree
      */
-    public function prepare(array $tree, RenderingSpecification $specification, RenderingMode $mode): TreePreparationResult
-    {
-        $tree = $this->resolveTreePlaceholders($tree, $specification, $mode);
+    public function prepare(
+        array $tree,
+        RenderingSpecification $specification,
+        RenderingMode $mode,
+        SalesChannelContext $salesChannelContext,
+    ): TreePreparationResult {
+        // Placeholders substitute into string values and never descend into a map, so they see a translatable
+        // property only once reduction has collapsed it to the selected entry.
+        if ($mode === RenderingMode::FULL) {
+            $tree = $this->reduceTreeLanguage($tree, $salesChannelContext);
+            $tree = $this->resolveTreePlaceholders($tree, $specification);
+        }
 
         $virtualRootWrapped = $this->virtualRootWrapper->requiresWrapping($specification, $tree);
 
@@ -67,12 +86,119 @@ final class StoredTreePreparer
      *
      * @return list<StoredElement>
      */
-    private function resolveTreePlaceholders(array $tree, RenderingSpecification $specification, RenderingMode $mode): array
+    private function reduceTreeLanguage(array $tree, SalesChannelContext $salesChannelContext): array
     {
-        if ($mode !== RenderingMode::FULL) {
-            return $tree;
+        return array_map(
+            fn (StoredElement $element): StoredElement => $this->reduceLanguage($element, $salesChannelContext),
+            $tree
+        );
+    }
+
+    /**
+     * Collapses one element's translatable properties to the request language and recurses into its slot
+     * children. Each element is judged by its own component, so an unregistered parent still has its
+     * registered children reduced.
+     */
+    private function reduceLanguage(StoredElement $element, SalesChannelContext $salesChannelContext): StoredElement
+    {
+        $slots = [];
+        foreach ($element->slots as $slotName => $children) {
+            $slots[$slotName] = array_map(
+                fn (StoredElement $child): StoredElement => $this->reduceLanguage($child, $salesChannelContext),
+                $children
+            );
         }
 
+        return $element
+            ->withProperties($this->reduceProperties($element, $salesChannelContext))
+            ->withSlots($slots);
+    }
+
+    /**
+     * A component no type declares keeps every value it carries: nothing says which of its keys are
+     * translatable, so collapsing one would be a guess.
+     *
+     * @return array<string, StoredValue>
+     */
+    private function reduceProperties(StoredElement $element, SalesChannelContext $salesChannelContext): array
+    {
+        if (!$this->typeRegistry->has($element->component)) {
+            return $element->properties();
+        }
+
+        $declared = $this->typeRegistry->get($element->component)->properties();
+        $chain = $salesChannelContext->getLanguageIdChain();
+        $properties = [];
+
+        foreach ($element->properties() as $key => $value) {
+            $type = isset($declared[$key]) ? $declared[$key]->type() : null;
+
+            $properties[$key] = $type !== null && $type->translatable()
+                ? $this->selectTranslation($element->id, $key, $type, $value, $chain)
+                : $value;
+        }
+
+        return $properties;
+    }
+
+    /**
+     * The value of the first chain entry the map carries, verbatim. A key outside the chain is never
+     * selected, so a dangling language id cannot reach serving, and a map carrying no chain entry collapses
+     * to the null variant, which the rendered-tree mint skips.
+     *
+     * Anything but a map variant, and a selected entry that does not match the declared primitive, is an
+     * internal fault: every client-supplied path rejects both on a translatable property before a render can
+     * reach one.
+     *
+     * @param non-empty-list<string> $languageIdChain
+     */
+    private function selectTranslation(string $elementId, string $key, PropertyType $type, StoredValue $value, array $languageIdChain): StoredValue
+    {
+        if (!$value->isMap()) {
+            $raw = $value->jsonSerialize();
+
+            throw ContentSystemException::translationShapeInvalid(
+                $elementId,
+                $key,
+                $type->describe(),
+                \is_array($raw) ? 'list' : get_debug_type($raw)
+            );
+        }
+
+        $map = $value->asMap();
+
+        foreach ($languageIdChain as $languageId) {
+            if (!\array_key_exists($languageId, $map)) {
+                continue;
+            }
+
+            $selected = $map[$languageId];
+
+            // The map shape alone does not make every downstream stage see a plain value of the declared
+            // primitive: the entry is what is served, so an entry of another shape is the same internal fault
+            // as a non-map value.
+            if (!$type->admitsMapEntry($selected)) {
+                throw ContentSystemException::translationShapeInvalid(
+                    $elementId,
+                    $key,
+                    $type->describe(),
+                    'a map whose selected entry is ' . get_debug_type($selected->jsonSerialize())
+                );
+            }
+
+            return $selected;
+        }
+
+        return StoredValue::ofNull();
+    }
+
+    /**
+     * @param list<StoredElement> $tree
+     *
+     * @return list<StoredElement>
+     */
+    private function resolveTreePlaceholders(array $tree, RenderingSpecification $specification): array
+    {
         return array_map(
             fn (StoredElement $element): StoredElement => $this->resolvePlaceholders($element, $specification->placeholderValues),
             $tree
@@ -136,19 +262,24 @@ final class StoredTreePreparer
     }
 
     /**
-     * Rewrites the string values of an element's own property map and recurses into its slot children.
+     * Rewrites the string values of an element's own property map and the string values of the Literal-kind
+     * config keys of its data requirements, then recurses into its slot children.
      *
-     * A list or map value is handed on untouched, string leaves inside it included: a placeholder is a
-     * property of the authored value, and reaching into a container would resolve tokens the authoring
+     * A list or map property value is handed on untouched, string leaves inside it included: a placeholder is
+     * a property of the authored value, and reaching into a container would resolve tokens the authoring
      * surface never offered to resolve.
+     *
+     * A property value that is entirely one unresolved `{{token}}` stays verbatim, like any other unresolved
+     * token. A Literal config value of that shape is removed before the config is decoded instead: an optional
+     * key then decodes as absent (its declared default, or null when it declares none), and a required key
+     * fails in the loader config serializer's decode.
      */
     private function resolvePlaceholders(StoredElement $element, PlaceholderValues $values): StoredElement
     {
         $properties = [];
         foreach ($element->properties() as $key => $value) {
             if ($value->isString()) {
-                $substituted = $this->substitute($value->asString(), $values);
-                $value = $substituted === null ? StoredValue::ofNull() : StoredValue::ofString($substituted);
+                $value = StoredValue::ofString($this->substitute($value->asString(), $values));
             }
 
             $properties[$key] = $value;
@@ -179,9 +310,16 @@ final class StoredTreePreparer
         }
 
         $config = $this->configSerializerProvider->encode($requirement->source, $requirement->config);
-        $substitutedConfig = [];
+        $changed = false;
         foreach ($config as $key => $value) {
             if (!\in_array($key, $literalKeys, true) || !\is_string($value)) {
+                continue;
+            }
+
+            if ($this->isLoneUnresolvedToken($value, $values)) {
+                unset($config[$key]);
+                $changed = true;
+
                 continue;
             }
 
@@ -191,20 +329,15 @@ final class StoredTreePreparer
                 continue;
             }
 
-            $substitutedConfig[$key] = $newValue;
+            $config[$key] = $newValue;
+            $changed = true;
         }
 
-        if ($substitutedConfig === []) {
+        if (!$changed) {
             return $requirement;
         }
 
-        foreach ($substitutedConfig as $key => $value) {
-            if ($value === null) {
-                unset($config[$key], $substitutedConfig[$key]);
-            }
-        }
-
-        $newConfig = $this->configSerializerProvider->decode($requirement->source, array_merge($config, $substitutedConfig));
+        $newConfig = $this->configSerializerProvider->decode($requirement->source, $config);
 
         return new DataRequirement($requirement->key, $requirement->source, $newConfig);
     }
@@ -223,20 +356,26 @@ final class StoredTreePreparer
     }
 
     /**
-     * One pass over the declared keys, no recursion into what a substitution produced. A value that is
-     * entirely a single unresolved `{{token}}` collapses to null; an unresolved token embedded in other text
-     * stays verbatim.
+     * One pass over the declared keys, no recursion into what a substitution produced: a declared value that
+     * itself reads as a `{{token}}` is inserted verbatim. An unresolved token stays verbatim.
      */
-    private function substitute(string $input, PlaceholderValues $values): ?string
+    private function substitute(string $input, PlaceholderValues $values): string
     {
+        $replacements = [];
         foreach ($values->all() as $key => $value) {
-            $input = str_replace('{{' . $key . '}}', (string) $value, $input);
+            $replacements['{{' . $key . '}}'] = (string) $value;
         }
 
-        if (preg_match('/^\{\{[^{}]+\}\}$/', $input) === 1) {
-            return null;
-        }
+        return strtr($input, $replacements);
+    }
 
-        return $input;
+    /**
+     * Whether the input is entirely one `{{token}}` whose key carries no value. Judged on the input, never on
+     * a substitution output: a declared value that is itself a token is a resolved value.
+     */
+    private function isLoneUnresolvedToken(string $input, PlaceholderValues $values): bool
+    {
+        return preg_match('/^\{\{([^{}]+)\}\}$/D', $input, $match) === 1
+            && !\array_key_exists($match[1], $values->all());
     }
 }

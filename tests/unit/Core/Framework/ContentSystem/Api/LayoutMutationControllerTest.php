@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Api\LayoutMutationController;
 use Shopware\Core\Framework\ContentSystem\Api\MoveElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\RemoveElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ReplaceElementRequest;
+use Shopware\Core\Framework\ContentSystem\Api\TranslateElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\UnwrapElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\WrapElementsRequest;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
@@ -45,6 +46,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\TranslateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\WrapElements;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
@@ -98,6 +100,49 @@ class LayoutMutationControllerTest extends TestCase
     }
 
     /**
+     * @param list<ProvidedContext>|null $resolved
+     */
+    #[DataProvider('threadsResolvedRootContextProvider')]
+    #[TestDox('threads what the registry resolves for the request root source into the mutation pipeline: $_dataName')]
+    public function testThreadsResolvedRootContext(?string $rootSource, ?array $resolved): void
+    {
+        $registry = static::createStub(RootSourceRegistry::class);
+        $registry->method('resolveGated')->willReturnCallback(
+            function (?string $passedRootSource, Context $context) use ($rootSource, $resolved): ?array {
+                static::assertSame($rootSource, $passedRootSource);
+
+                return $resolved;
+            }
+        );
+
+        $threadedRootContext = 'unset';
+        $controller = $this->controller($this->capturingPipeline($threadedRootContext), $registry);
+
+        $controller->insert(new InsertElementRequest('Sw:Card', rootSource: $rootSource), Context::createDefaultContext());
+
+        static::assertSame($resolved, $threadedRootContext);
+    }
+
+    /**
+     * @return iterable<string, array{string|null, list<ProvidedContext>|null}>
+     */
+    public static function threadsResolvedRootContextProvider(): iterable
+    {
+        yield 'a named root source resolves to a bound context' => [
+            'product',
+            [new ProvidedContext(
+                contextKey: 'product',
+                fqcn: StoredElement::class,
+                contextType: ContextType::Single,
+                providerElementId: null,
+                distribution: DistributionStrategy::Broadcast,
+            )],
+        ];
+
+        yield 'an absent root source resolves to no bound context' => [null, null];
+    }
+
+    /**
      * @param \Closure(mixed): mixed $accessor
      */
     #[DataProvider('replaceOptionalFieldsProvider')]
@@ -109,46 +154,6 @@ class LayoutMutationControllerTest extends TestCase
         $response = $controller->replace(new ReplaceElementRequest('el', 'Sw:New'), Context::createDefaultContext());
 
         static::assertSame($expected, $accessor($this->decode($response)[$field]));
-    }
-
-    #[TestDox('threads the root source context resolved from the registry into the mutation pipeline')]
-    public function testResolvesRootSource(): void
-    {
-        $rootContext = [new ProvidedContext(
-            contextKey: 'product',
-            fqcn: StoredElement::class,
-            contextType: ContextType::Single,
-            providerElementId: null,
-            distribution: DistributionStrategy::Broadcast,
-        )];
-
-        $registry = static::createStub(RootSourceRegistry::class);
-        $registry->method('resolveGated')->willReturnCallback(function (?string $rootSource, Context $context) use ($rootContext): array {
-            static::assertSame('product', $rootSource);
-
-            return $rootContext;
-        });
-
-        $threadedRootContext = false;
-        $controller = $this->controller($this->capturingPipeline($threadedRootContext), $registry);
-
-        $controller->insert(new InsertElementRequest('Sw:Card', rootSource: 'product'), Context::createDefaultContext());
-
-        static::assertSame($rootContext, $threadedRootContext);
-    }
-
-    #[TestDox('threads a null context into the pipeline when the registry resolves no bound source')]
-    public function testWithoutRootSourceThreadsNullContext(): void
-    {
-        $registry = static::createStub(RootSourceRegistry::class);
-        $registry->method('resolveGated')->willReturn(null);
-
-        $threadedRootContext = 'unset';
-        $controller = $this->controller($this->capturingPipeline($threadedRootContext), $registry);
-
-        $controller->insert(new InsertElementRequest('Sw:Card'), Context::createDefaultContext());
-
-        static::assertNull($threadedRootContext);
     }
 
     #[TestDox('encodes an empty resolutions map as a JSON object, not an array')]
@@ -198,6 +203,7 @@ class LayoutMutationControllerTest extends TestCase
         yield 'unwrap' => [static fn (LayoutMutationController $c): Response => $c->unwrap(new UnwrapElementRequest('el'), $context), UnwrapElement::class];
         yield 'attach' => [static fn (LayoutMutationController $c): Response => $c->attach(new AttachElementRequest(['id' => 'incoming', 'component' => 'Sw:Card']), $context), AttachElement::class];
         yield 'bind' => [static fn (LayoutMutationController $c): Response => $c->bind(new BindElementRequest('el', 'source:spec'), $context), BindElement::class];
+        yield 'translate' => [static fn (LayoutMutationController $c): Response => $c->translate(new TranslateElementRequest('el', values: ['headline' => []]), $context), TranslateElement::class];
     }
 
     /**
@@ -239,7 +245,7 @@ class LayoutMutationControllerTest extends TestCase
             $this->elementCodec(),
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
             // BindingApplicator is final: a real instance over a stubbed serializer provider.
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), static::createStub(AbstractContentSystemElementTypeRegistry::class)),
             static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
         );
     }

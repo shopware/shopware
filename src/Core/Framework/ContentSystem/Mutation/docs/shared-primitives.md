@@ -14,9 +14,17 @@ and the ops call them there.
 - `storedDefaults(AbstractContentSystemElementTypeRegistry $registry, string $type): array<string, StoredValue>` -
   the type's defaults keyed by property key and wrapped for storage. Delegates to the single per-type rule
   `Layout/Type/StoredDefaultProvider::forType`, shared with `scaffoldElement`, `Op/ReplaceElement`, and the
-  write-boundary `Layout/LayoutDefaultSeeder`, so a type's stored defaults are defined once.
+  write-boundary `Layout/LayoutDefaultSeeder`, so a type's stored defaults are defined once. Each value arrives in the
+  shape storage holds rather than as the declared scalar, so a translatable property's default is a single-entry
+  language map under the anchor language (`PropertyType::storedDefault()`) and no scaffold produces a bare value for
+  one.
 - `requireRegistered(registry, string $type): void` - throws `ContentSystemException::mutationUnknownType` when the
   type is unregistered.
+- `rejectNonLanguageKeys(string $elementId, string $key, PropertyType $type, StoredValue $value): void` - throws
+  `ContentSystemException::mutationPropertyLanguageKeyInvalid` for the first key of `PropertyType::languageKeys()`
+  that is not a lowercase hex UUID, the key rule the DAL write path enforces. It rejects nothing for a
+  non-translatable `$type` or a `$value` that is not a map. Shared by `Op/UpdateElementProperties` and
+  `Op/TranslateElement`.
 - `resolveDefaultSpecification(bindingRegistry, string $type): ?BindingSpecification` - the type's default binding
   specification: zero is `null`, one is returned, more than one throws `bindingSpecificationDefaultAmbiguous`.
 - `childList(StoredElement $node): list<StoredElement>` - every direct child across all slots, in slot order.

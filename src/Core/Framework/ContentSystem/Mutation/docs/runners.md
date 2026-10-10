@@ -31,14 +31,24 @@ from a request draft or a loaded `content_layout`. Stateless: it never persists.
 `LockFactory $lockFactory, EntityRepository<ContentLayoutCollection> $contentLayoutRepository, RootSourceRegistry $rootSourceRegistry, LayoutDiagnostics $diagnostics`.
 
 `mutate(string $layoutId, ?string $expectedVersion, LayoutMutation $mutation, Context $context): MutationResult`
-serializes concurrent writers for the layout id under a `lock.factory` named lock so the load → version-check →
-commit span is atomic, closing the lost-update window. It then loads by id
+first checks the mutation's declared write privilege (below), then serializes concurrent writers for the layout id
+under a `lock.factory` named lock so the load → version-check → commit span is atomic, closing the lost-update window.
+It then loads by id
 (`ContentSystemException::contentLayoutNotFound`, 404, if absent), guards the optimistic-concurrency token against
 the row's `updatedAt` (`layoutVersionConflict`, 409, without writing on a mismatch; an unparseable token is a `400`
 `invalidVersionToken`; a `null` token matches a never-updated row), applies the op to the loaded `getLayout()` tree
 as it is (the entity and the operations speak the same stored model), then persists the mutated tree's `roots` via
 `update()`, which runs the resolvability gates and rejects a resolvability-breaking edit, and returns the
 `MutationResult`.
+
+A mutation may declare a write privilege through `LayoutMutation::writePrivilege()`; only `Op/TranslateElement` does
+(`content_layout:translate`). `mutate()` throws `ContentSystemException::missingPrivileges` (`403`) when
+`Context::isAllowed()` denies it, before the lock, the load, the version guard and `apply()`, so a caller lacking it
+gets the `403` ahead of any read, `404`, `409` or `400`. The private `commit()` then runs the `update()` call alone in
+`Context::SYSTEM_SCOPE` through `Context::scope()`: the load before it and the post-commit `diagnose()` stay on the caller's context, because
+`Context::scope()` switches the very context it is called on. In system scope `AclWriteValidator` checks no privilege,
+while `Validation/ContentLayoutWriteValidator`, the lock and the version guard run as for every write. A `null`
+privilege writes on the caller's context unchanged. `MutationPipeline` persists nothing and never reads the privilege.
 
 The token is compared at storage precision: `content_layout.updated_at` is `DATETIME(3)`, and the Admin API
 serializes `updatedAt` at millisecond precision, so seconds plus milliseconds are compared rather than

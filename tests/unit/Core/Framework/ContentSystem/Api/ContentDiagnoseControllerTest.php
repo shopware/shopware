@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
@@ -39,6 +40,7 @@ use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -114,21 +116,26 @@ class ContentDiagnoseControllerTest extends TestCase
         );
     }
 
-    #[TestDox('threads the root source context resolved from the registry into the diagnostics analysis')]
-    public function testDiagnoseResolvesRootSource(): void
+    /**
+     * @param list<ProvidedContext>|null $rootContext
+     */
+    #[DataProvider('threadsRootContextProvider')]
+    #[TestDox('threads the root context the registry resolves into the diagnostics analysis: $_dataName')]
+    public function testDiagnoseThreadsRootContext(?array $rootContext, ?string $rootSource): void
     {
-        $rootContext = [new ProvidedContext(
-            contextKey: 'product',
-            fqcn: StoredElement::class,
-            contextType: ContextType::Single,
-            providerElementId: null,
-            distribution: DistributionStrategy::Broadcast,
-        )];
+        $context = Context::createDefaultContext();
 
         $registry = static::createStub(RootSourceRegistry::class);
-        $registry->method('resolveGated')->willReturn($rootContext);
+        $registry->method('resolveGated')->willReturnCallback(
+            static function (?string $passedRootSource, Context $passedContext) use ($rootSource, $context, $rootContext): ?array {
+                static::assertSame($rootSource, $passedRootSource);
+                static::assertSame($context, $passedContext);
 
-        $threadedRootContext = false;
+                return $rootContext;
+            }
+        );
+
+        $threadedRootContext = 'unset';
         $diagnostics = static::createStub(LayoutDiagnostics::class);
         $diagnostics->method('analyze')->willReturnCallback(
             function (array $tree, ?array $analyzedRootContext) use (&$threadedRootContext): LayoutAnalysis {
@@ -144,11 +151,30 @@ class ContentDiagnoseControllerTest extends TestCase
         );
 
         $controller->diagnose(
-            new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']], rootSource: 'product'),
-            Context::createDefaultContext(),
+            new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']], rootSource: $rootSource),
+            $context,
         );
 
         static::assertSame($rootContext, $threadedRootContext);
+    }
+
+    /**
+     * @return iterable<string, array{list<ProvidedContext>|null, string|null}>
+     */
+    public static function threadsRootContextProvider(): iterable
+    {
+        yield 'bound source threads its context' => [
+            [new ProvidedContext(
+                contextKey: 'product',
+                fqcn: StoredElement::class,
+                contextType: ContextType::Single,
+                providerElementId: null,
+                distribution: DistributionStrategy::Broadcast,
+            )],
+            'product',
+        ];
+
+        yield 'no bound source threads null' => [null, null];
     }
 
     #[TestDox('maps a per-element decode client-defect to an invalid_config diagnostic without failing the request')]
@@ -173,30 +199,30 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertSame(ViolationCode::InvalidConfig->value, $body['diagnostics']['violations'][0]['code']);
     }
 
-    #[TestDox('threads a null root context into the analysis when the registry resolves no bound source')]
-    public function testDiagnoseWithoutRootSourceThreadsNullContext(): void
+    #[TestDox('reports decode violations ahead of analysis violations when both are present')]
+    public function testDiagnoseConcatenatesDecodeAndAnalysisViolations(): void
     {
-        $registry = static::createStub(RootSourceRegistry::class);
-        $registry->method('resolveGated')->willReturn(null);
-
-        $threadedRootContext = 'unset';
-        $diagnostics = static::createStub(LayoutDiagnostics::class);
-        $diagnostics->method('analyze')->willReturnCallback(
-            function (array $tree, ?array $analyzedRootContext) use (&$threadedRootContext): LayoutAnalysis {
-                $threadedRootContext = $analyzedRootContext;
-
-                return new LayoutAnalysis(new DiagnosticsReport([]), []);
-            }
-        );
+        $configProvider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $configProvider->method('decode')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
 
         $controller = $this->controller(
-            diagnostics: $diagnostics,
-            rootSourceRegistry: $registry,
+            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(
+                new DiagnosticsReport([new Violation(ViolationCode::DuplicateElementId, 'el-1', null, 'dup')]),
+                [],
+            )),
+            configProvider: $configProvider,
         );
 
-        $controller->diagnose(new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
+        $response = $controller->diagnose(new ContentDiagnoseRequest([[
+            'id' => 'el-1',
+            'component' => 'Sw:Block',
+            'dataRequirements' => ['product' => ['source' => 'entity', 'config' => ['entity' => 'prodct']]],
+        ]]), Context::createDefaultContext());
 
-        static::assertNull($threadedRootContext);
+        static::assertSame(
+            [ViolationCode::InvalidConfig->value, ViolationCode::DuplicateElementId->value],
+            array_column($this->decode($response)['diagnostics']['violations'], 'code'),
+        );
     }
 
     #[TestDox('propagates the registry unknownRootSource exception instead of swallowing it into a 200')]
@@ -295,6 +321,7 @@ class ContentDiagnoseControllerTest extends TestCase
             static::createStub(DataLoaderConfigSerializerProvider::class),
             static::createStub(AbstractContentSystemStyleOptionRegistry::class),
             new ContextPathResolver(),
+            static::createStub(LanguageLoaderInterface::class),
         );
     }
 

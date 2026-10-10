@@ -6,11 +6,30 @@ The one specification per element type the system applies on its own, with no cl
 
 At most one default exists per type, guaranteed by four mechanisms rather than a runtime check: type names are globally unique across sources; a synthesized specification's type is always its own containing file's type, so only the owning source can synthesize it; the app persister and validator resolve app types through the app's own overlay only; and the dev/prod loader split means an app's specifications come from exactly one loader per environment. A database row created outside the app lifecycle that fakes `id === type` for a foreign type is the one case these mechanisms do not prevent, and its effect splits on whether that type already has a legitimate default: where one coexists, the fake collides into the ambiguity throw below (`bindingSpecificationDefaultAmbiguous`, 409); where the type has no legitimate default, the lone fake *is* the sole default the application-time read finds, and is silently fill-applied as the type's default with no legitimacy check. It is otherwise indistinguishable from a legitimate specification.
 
-At application time — `InsertElement` fill-applying a fresh element's type default, `ReplaceElement` fill-applying the new type's default after carrying wiring over — the default set for a type (`byType(type)` filtered by `isDefault()`) is read as zero, one, or more: zero is a no-op, one is fill-applied, more than one throws `ContentSystemException::bindingSpecificationDefaultAmbiguous` (409, naming the type plus the colliding qualified ids). There is no fallback and no first-wins pick.
+At application time — `InsertElement` fill-applying a fresh element's type default, `ReplaceElement` fill-applying the new type's default after carrying wiring over, `AttachElement` fill-applying each element's type default across the attached subtree — the default set for a type (`byType(type)` filtered by `isDefault()`) is read as zero, one, or more: zero is a no-op, one is fill-applied, more than one throws `ContentSystemException::bindingSpecificationDefaultAmbiguous` (409, naming the type plus the colliding qualified ids). There is no fallback and no first-wins pick.
 
-Fill-only application wires a `resolves` entry only into a key the element carries no wiring for yet, and attributes only those wired keys — carried or already-bound wiring is left untouched (`BindingApplicator::applyFillOnly()`, the same existing-wins idiom `Layout/LayoutDefaultSeeder` uses for property seeding; see [applying.md](applying.md)). `InsertElement` fill-applies the type's default at scaffold; an explicit `bindingSpecificationId` on the same request is applied on top afterward with overwrite semantics, so the default sits underneath and the explicit choice wins the shared keys. `ReplaceElement` fill-applies the new type's default after carrying the old element's wiring over, so carried wiring is never overwritten by the default — even when the default would correct a renamed storage key.
+Fill-only application wires a `resolves` entry only into a key the element carries no wiring for yet, and attributes only those wired keys — carried or already-bound wiring is left untouched (`BindingApplicator::applyFillOnly()`, the same existing-wins idiom `Layout/LayoutDefaultSeeder` uses for property seeding; see [applying.md](applying.md)). `InsertElement` fill-applies the type's default at scaffold; with an explicit `bindingSpecificationId` on the same request, the named specification is applied first with overwrite semantics and the default is fill-applied after it, so the default sits underneath and the explicit choice wins the shared keys (data requirements, attribution and `inputs` defaults alike). `ReplaceElement` fill-applies the new type's default after carrying the old element's wiring over, so carried wiring is never overwritten by the default — even when the default would correct a renamed storage key.
 
-Auto-application at scaffold supersedes the earlier stance that every binding application is an explicit client act; that stance now applies only to a non-default specification, applied via `bind-element` or an explicit `bindingSpecificationId`.
+Auto-application of the default supersedes the earlier stance that every binding application is an explicit client act; that stance now applies only to a non-default specification, applied via `bind-element` or an explicit `bindingSpecificationId`.
+
+## The core defaults
+
+Core ships no dedicated binding-specification directory and no authored inline `bindings:` entry, so every core binding specification is a synthesized default, each from the `resolvedBy` properties of one file under `Layout/Type/Definitions/`:
+
+| Specification | Property from storage key | File | Loader |
+|---|---|---|---|
+| `core:Sw:Media:Image` | `media` from `mediaId` | `media/image.yaml` | `entity` |
+| `core:Sw:Grid:Container` | `backgroundImage` from `backgroundImageId` | `grid/container.yaml` | `entity` |
+| `core:Sw:Media:Youtube` | `previewMedia` from `previewMediaId` | `media/youtube.yaml` | `entity` |
+| `core:Sw:Media:Vimeo` | `previewMedia` from `previewMediaId` | `media/vimeo.yaml` | `entity` |
+| `core:Sw:Media:Gallery` | `mediaItems` from `mediaIds` | `media/gallery.yaml` | `entity_collection` |
+| `core:Sw:Product:Slider` | `products` from `productIds` | `product/slider.yaml` | `entity_collection` |
+| `core:Sw:Navigation:Tree` | `navigationTree` | `navigation/tree.yaml` | `navigation` |
+| `core:Sw:Navigation:Breadcrumb` | `breadcrumb` | `navigation/breadcrumb.yaml` | `breadcrumb` |
+
+The `entity` properties are each a `MediaEntity`. `Sw:Media:Gallery` and `Sw:Product:Slider` wire `entity_collection`, their properties being a `MediaCollection` and a `SalesChannelProductCollection`. `Sw:Navigation:Tree` names no storage key: its `resolvedBy` is a tier-B loader block (`navigation: {rootId: main-navigation}`), so it wires the `navigation` loader. `Sw:Navigation:Breadcrumb` names none either: its tier-B block wires the `breadcrumb` loader, its `property` and `type` config values `!scoped` over the `product` and `category` root sources (see [resolved-by.md](resolved-by.md)), so applying it to an element that does not yet wire `breadcrumb`, on a layout with any other root source or none, fails with `bindingRootSourceNotScoped` (400).
+
+## Overriding a core default
 
 A plugin overriding a *core* default is intentionally impossible in this cut — a synthesized specification's type is always its own containing file's type, and an authored `bindings:` entry can never claim the reserved id; an explicit replacement mechanism is a future item.
 

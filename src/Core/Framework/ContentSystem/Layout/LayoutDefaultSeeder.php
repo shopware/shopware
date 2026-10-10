@@ -14,7 +14,8 @@ use Shopware\Core\Framework\Log\Package;
  * fixtures) — the paths that never pass through the layout mutations. Per node it fills each primitive property and
  * nested object member of the node's component type whose default is non-null and whose key is absent, then recurses
  * every slot's children; an existing value is never overwritten and an unregistered component is left untouched (the
- * write gate reports that separately).
+ * write gate reports that separately). A translatable property's default seeds as a one-entry language map under the
+ * anchor language, the stored shape the provider hands back.
  *
  * A {@see StoredElement} is immutable, so seeding it rebuilds the subtree through its `with*()` methods and hands
  * back a new forest rather than filling the one it was given. Shares the per-type rule with the layout mutations

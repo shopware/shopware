@@ -61,305 +61,6 @@ class InfoControllerTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
-    public function testGetConfig(): void
-    {
-        $this->setEnvVars([
-            'APP_URL' => 'https://test-app.url',
-        ]);
-
-        $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
-
-        $expected = [
-            'version' => '6.7.9999999.9999999-dev',
-            'shopId' => $shopId->id,
-            'appUrl' => 'https://test-app.url',
-            'versionRevision' => str_repeat('0', 32),
-            'adminWorker' => [
-                'enableAdminWorker' => true,
-                'enableNotificationWorker' => true,
-                'transports' => Feature::isActive('WEBHOOKS_REWORK')
-                    ? ['webhook', 'async', 'low_priority']
-                    : ['async', 'low_priority'],
-                'enableQueueStatsWorker' => true,
-            ],
-            'bundles' => [],
-            'settings' => [
-                'enableUrlFeature' => true,
-                'presignedUploadSupported' => false,
-                'appUrlReachable' => true,
-                'appsRequireAppUrl' => false,
-                'firstMigrationDate' => null,
-                'private_allowed_extensions' => [
-                    'jpg',
-                    'jpeg',
-                    'png',
-                    'webp',
-                    'avif',
-                    'gif',
-                    'svg',
-                    'bmp',
-                    'tiff',
-                    'tif',
-                    'eps',
-                    'webm',
-                    'mkv',
-                    'flv',
-                    'ogv',
-                    'ogg',
-                    'mov',
-                    'mp4',
-                    'avi',
-                    'wmv',
-                    'pdf',
-                    'aac',
-                    'mp3',
-                    'wav',
-                    'flac',
-                    'oga',
-                    'wma',
-                    'txt',
-                    'doc',
-                    'docx',
-                    'ico',
-                    'glb',
-                    'zip',
-                    'rar',
-                    'csv',
-                    'xls',
-                    'xlsx',
-                    'html',
-                    'xml',
-                    'vtt',
-                    'srt',
-                    'sub',
-                    'ass',
-                    'ssa',
-                    'step',
-                    'stp',
-                ],
-                'enableHtmlSanitizer' => true,
-                'enableStagingMode' => false,
-                'disableExtensionManagement' => false,
-                'minSearchTermLength' => 2,
-            ],
-            'inAppPurchases' => [],
-        ];
-
-        if (Feature::isActive('v6.8.0.0')) {
-            unset($expected['adminWorker']['enableQueueStatsWorker']);
-        }
-
-        $url = '/api/_info/config';
-        $client = $this->getBrowser();
-        $client->request(Request::METHOD_GET, $url);
-
-        $content = $client->getResponse()->getContent();
-        static::assertNotFalse($content);
-        static::assertJson($content);
-
-        $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-        static::assertArrayHasKey('private_allowed_mime_types_by_extension', $decodedResponse['settings']);
-        static::assertIsArray($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
-        static::assertContains('application/pdf', $decodedResponse['settings']['private_allowed_mime_types_by_extension']['pdf']);
-
-        // reset environment-based mismatch
-        $decodedResponse['bundles'] = [];
-        $decodedResponse['versionRevision'] = $expected['versionRevision'];
-        $expected['settings']['firstMigrationDate'] = $decodedResponse['settings']['firstMigrationDate'];
-        unset($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
-
-        static::assertSame($expected, $decodedResponse);
-    }
-
-    public function testGetConfigIncludesMimeTypesForEventAddedPrivateExtensions(): void
-    {
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-        static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
-
-        $listener = static function (MediaFileExtensionWhitelistEvent $event): void {
-            $extensions = $event->getWhitelist();
-            $extensions[] = 'epub';
-
-            $event->setWhitelist($extensions);
-        };
-
-        $eventDispatcher->addListener(MediaFileExtensionWhitelistEvent::class, $listener);
-
-        try {
-            $client = $this->getBrowser();
-            $client->request(Request::METHOD_GET, '/api/_info/config');
-
-            $content = $client->getResponse()->getContent();
-            static::assertNotFalse($content);
-
-            $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-            static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-            static::assertContains('epub', $decodedResponse['settings']['private_allowed_extensions']);
-            static::assertSame(
-                ['application/epub+zip'],
-                $decodedResponse['settings']['private_allowed_mime_types_by_extension']['epub']
-            );
-        } finally {
-            $eventDispatcher->removeListener(MediaFileExtensionWhitelistEvent::class, $listener);
-        }
-    }
-
-    public function testGetConfigWithPermissions(): void
-    {
-        $ids = new IdsCollection();
-        $appRepository = static::getContainer()->get('app.repository');
-        $appRepository->create([
-            [
-                'name' => 'PHPUnit',
-                'path' => '/foo/bar',
-                'active' => true,
-                'configurable' => false,
-                'version' => '1.0.0',
-                'label' => 'PHPUnit',
-                'integration' => [
-                    'id' => $ids->create('integration'),
-                    'label' => 'foo',
-                    'accessKey' => '123',
-                    'secretAccessKey' => '456',
-                ],
-                'aclRole' => [
-                    'name' => 'PHPUnitRole',
-                    'privileges' => [
-                        'user:create',
-                        'user:read',
-                        'user:update',
-                        'user:delete',
-                        'user_change_me',
-                    ],
-                ],
-                'baseAppUrl' => 'https://example.com',
-            ],
-        ], Context::createDefaultContext());
-
-        $appUrl = EnvironmentHelper::getVariable('APP_URL');
-        static::assertIsString($appUrl);
-
-        $bundle = [
-            'active' => true,
-            'integrationId' => $ids->get('integration'),
-            'type' => 'app',
-            'sourceType' => 'local',
-            'baseUrl' => 'https://example.com',
-            'permissions' => [
-                'create' => ['user'],
-                'read' => ['user'],
-                'update' => ['user'],
-                'delete' => ['user'],
-                'additional' => ['user_change_me'],
-            ],
-            'version' => '1.0.0',
-            'name' => 'PHPUnit',
-        ];
-
-        $expected = [
-            'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
-            'versionRevision' => str_repeat('0', 32),
-            'adminWorker' => [
-                'enableAdminWorker' => true,
-                'transports' => [],
-            ],
-            'bundles' => $bundle,
-            'settings' => [
-                'enableUrlFeature' => true,
-                'enableHtmlSanitizer' => true,
-            ],
-        ];
-
-        $url = '/api/_info/config';
-        $client = $this->getBrowser();
-        $client->request(Request::METHOD_GET, $url);
-
-        $content = $client->getResponse()->getContent();
-        static::assertNotFalse($content);
-        static::assertJson($content);
-
-        $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-
-        foreach (array_keys($expected) as $key) {
-            static::assertArrayHasKey($key, $decodedResponse);
-        }
-
-        $bundles = $decodedResponse['bundles'];
-        static::assertIsArray($bundles);
-        static::assertArrayHasKey('PHPUnit', $bundles);
-        static::assertIsArray($bundles['PHPUnit']);
-        static::assertSame($bundle, $bundles['PHPUnit']);
-    }
-
-    public function testGetConfigWithServiceSourceType(): void
-    {
-        $ids = new IdsCollection();
-        $appRepository = static::getContainer()->get('app.repository');
-        $appRepository->create([
-            [
-                'name' => 'PHPUnitService',
-                'path' => '/foo/bar',
-                'active' => true,
-                'configurable' => false,
-                'version' => '1.0.0',
-                'label' => 'PHPUnitService',
-                'sourceType' => 'service',
-                // Service apps are self-managed; this excludes them from the automatic script
-                // refresh (ScriptLifecycleHandler::refresh) which would otherwise try to resolve
-                // the service filesystem and fail without a full source config.
-                'selfManaged' => true,
-                'integration' => [
-                    'id' => $ids->create('integration'),
-                    'label' => 'foo',
-                    'accessKey' => '123',
-                    'secretAccessKey' => '456',
-                ],
-                'aclRole' => [
-                    'name' => 'PHPUnitServiceRole',
-                    'privileges' => [
-                        'user:read',
-                    ],
-                ],
-                'baseAppUrl' => 'https://example.com',
-            ],
-        ], Context::createDefaultContext());
-
-        $bundle = [
-            'active' => true,
-            'integrationId' => $ids->get('integration'),
-            'type' => 'app',
-            'sourceType' => 'service',
-            'baseUrl' => 'https://example.com',
-            'permissions' => [
-                'read' => ['user'],
-            ],
-            'version' => '1.0.0',
-            'name' => 'PHPUnitService',
-        ];
-
-        $url = '/api/_info/config';
-        $client = $this->getBrowser();
-        $client->request(Request::METHOD_GET, $url);
-
-        $content = $client->getResponse()->getContent();
-        static::assertNotFalse($content);
-        static::assertJson($content);
-
-        $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-
-        $bundles = $decodedResponse['bundles'];
-        static::assertIsArray($bundles);
-        static::assertArrayHasKey('PHPUnitService', $bundles);
-        static::assertIsArray($bundles['PHPUnitService']);
-        static::assertSame($bundle, $bundles['PHPUnitService']);
-    }
-
     public function testGetShopwareVersion(): void
     {
         $expected = [
@@ -790,38 +491,9 @@ class InfoControllerTest extends TestCase
         static::assertStringContainsString('"bindingSpecifications":{}', $content);
     }
 
-    public function testContentSystemElementTypesStorageSchema(): void
+    public function testDerivesResolvedByStorageKeyFromMediaSpecification(): void
     {
-        $client = $this->getBrowser();
-        $client->request(Request::METHOD_GET, '/api/_info/content-system-element-types.json');
-
-        $response = $client->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertIsArray($data);
-        static::assertArrayHasKey('types', $data);
-        static::assertIsArray($data['types']);
-
-        $typesByName = [];
-        foreach ($data['types'] as $type) {
-            static::assertArrayHasKey('storageSchema', $type);
-            $typesByName[$type['name']] = $type;
-        }
-
-        // content/text.yaml declares `text` as a translatable string with a default and no `required`, so the
-        // property tier publishes it as a non-required string carrying its default. The default itself is a
-        // long editorial paragraph, so only its presence and type are pinned.
-        static::assertArrayHasKey('Sw:Content:Text', $typesByName);
-        $text = $typesByName['Sw:Content:Text']['storageSchema']['text'];
-        static::assertSame('property', $text['kind']);
-        static::assertSame('string', $text['type']);
-        static::assertFalse($text['required']);
-        static::assertArrayHasKey('default', $text);
-        static::assertIsString($text['default']);
+        [$typesByName] = $this->requestElementTypesWithStorageSchema();
 
         // media/image.yaml declares `media` with `resolvedBy: mediaId`, so the storage key is derived from the
         // synthesized `core:Sw:Media:Image` specification's `resolves.media.config.property`, and its type is
@@ -872,6 +544,378 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('type', $stats['stats']['messageTypeStats'][0]);
         static::assertSame('stdClass', $stats['stats']['messageTypeStats'][0]['type']);
         static::assertArrayHasKey('count', $stats['stats']['messageTypeStats'][0]);
+    }
+
+    public function testPublishesTranslatableFlagForTranslatableProperty(): void
+    {
+        [$typesByName] = $this->requestElementTypesWithStorageSchema();
+
+        // content/text.yaml declares `text` as a translatable string with a default and no `required`, so the
+        // property tier publishes it as a non-required string carrying its default, flagged translatable so a
+        // client knows the stored value is a language map of that scalar. The default itself is a long
+        // editorial paragraph, so only its presence and type are pinned.
+        static::assertArrayHasKey('Sw:Content:Text', $typesByName);
+        $text = $typesByName['Sw:Content:Text']['storageSchema']['text'];
+        static::assertSame('property', $text['kind']);
+        static::assertSame('string', $text['type']);
+        static::assertFalse($text['required']);
+        static::assertArrayHasKey('default', $text);
+        static::assertIsString($text['default']);
+        static::assertTrue($text['translatable']);
+    }
+
+    public function testOmitsTranslatableFlagForPlainStringProperty(): void
+    {
+        [$typesByName] = $this->requestElementTypesWithStorageSchema();
+
+        // grid/container.yaml declares `mode` as a plain string, so the flag is omitted rather than published
+        // as false — the same treatment `default` gets where none is declared.
+        static::assertArrayHasKey('Sw:Grid:Container', $typesByName);
+        static::assertArrayNotHasKey(
+            'translatable',
+            $typesByName['Sw:Grid:Container']['storageSchema']['mode'],
+        );
+    }
+
+    public function testGetConfig(): void
+    {
+        $this->setEnvVars([
+            'APP_URL' => 'https://test-app.url',
+        ]);
+
+        $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
+
+        $expected = [
+            'version' => '6.7.9999999.9999999-dev',
+            'shopId' => $shopId->id,
+            'appUrl' => 'https://test-app.url',
+            'versionRevision' => str_repeat('0', 32),
+            'adminWorker' => [
+                'enableAdminWorker' => true,
+                'enableNotificationWorker' => true,
+                'transports' => Feature::isActive('WEBHOOKS_REWORK')
+                    ? ['webhook', 'async', 'low_priority']
+                    : ['async', 'low_priority'],
+                'enableQueueStatsWorker' => true,
+            ],
+            'bundles' => [],
+            'settings' => [
+                'enableUrlFeature' => true,
+                'presignedUploadSupported' => false,
+                'appUrlReachable' => true,
+                'appsRequireAppUrl' => false,
+                'firstMigrationDate' => null,
+                'private_allowed_extensions' => [
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'webp',
+                    'avif',
+                    'gif',
+                    'svg',
+                    'bmp',
+                    'tiff',
+                    'tif',
+                    'eps',
+                    'webm',
+                    'mkv',
+                    'flv',
+                    'ogv',
+                    'ogg',
+                    'mov',
+                    'mp4',
+                    'avi',
+                    'wmv',
+                    'pdf',
+                    'aac',
+                    'mp3',
+                    'wav',
+                    'flac',
+                    'oga',
+                    'wma',
+                    'txt',
+                    'doc',
+                    'docx',
+                    'ico',
+                    'glb',
+                    'zip',
+                    'rar',
+                    'csv',
+                    'xls',
+                    'xlsx',
+                    'html',
+                    'xml',
+                    'vtt',
+                    'srt',
+                    'sub',
+                    'ass',
+                    'ssa',
+                    'step',
+                    'stp',
+                ],
+                'enableHtmlSanitizer' => true,
+                'enableStagingMode' => false,
+                'disableExtensionManagement' => false,
+                'minSearchTermLength' => 2,
+            ],
+            'inAppPurchases' => [],
+        ];
+
+        if (Feature::isActive('v6.8.0.0')) {
+            unset($expected['adminWorker']['enableQueueStatsWorker']);
+        }
+
+        $url = '/api/_info/config';
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, $url);
+
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
+
+        $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        static::assertArrayHasKey('private_allowed_mime_types_by_extension', $decodedResponse['settings']);
+        static::assertIsArray($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
+        static::assertContains('application/pdf', $decodedResponse['settings']['private_allowed_mime_types_by_extension']['pdf']);
+
+        // reset environment-based mismatch
+        $decodedResponse['bundles'] = [];
+        $decodedResponse['versionRevision'] = $expected['versionRevision'];
+        $expected['settings']['firstMigrationDate'] = $decodedResponse['settings']['firstMigrationDate'];
+        unset($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
+
+        static::assertSame($expected, $decodedResponse);
+    }
+
+    public function testGetConfigIncludesMimeTypesForEventAddedPrivateExtensions(): void
+    {
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
+        static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
+
+        $listener = static function (MediaFileExtensionWhitelistEvent $event): void {
+            $extensions = $event->getWhitelist();
+            $extensions[] = 'epub';
+
+            $event->setWhitelist($extensions);
+        };
+
+        $eventDispatcher->addListener(MediaFileExtensionWhitelistEvent::class, $listener);
+
+        try {
+            $client = $this->getBrowser();
+            $client->request(Request::METHOD_GET, '/api/_info/config');
+
+            $content = $client->getResponse()->getContent();
+            static::assertNotFalse($content);
+
+            $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+            static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+            static::assertContains('epub', $decodedResponse['settings']['private_allowed_extensions']);
+            static::assertSame(
+                ['application/epub+zip'],
+                $decodedResponse['settings']['private_allowed_mime_types_by_extension']['epub']
+            );
+        } finally {
+            $eventDispatcher->removeListener(MediaFileExtensionWhitelistEvent::class, $listener);
+        }
+    }
+
+    public function testGetConfigWithPermissions(): void
+    {
+        $ids = new IdsCollection();
+        $appRepository = static::getContainer()->get('app.repository');
+        $appRepository->create([
+            [
+                'name' => 'PHPUnit',
+                'path' => '/foo/bar',
+                'active' => true,
+                'configurable' => false,
+                'version' => '1.0.0',
+                'label' => 'PHPUnit',
+                'integration' => [
+                    'id' => $ids->create('integration'),
+                    'label' => 'foo',
+                    'accessKey' => '123',
+                    'secretAccessKey' => '456',
+                ],
+                'aclRole' => [
+                    'name' => 'PHPUnitRole',
+                    'privileges' => [
+                        'user:create',
+                        'user:read',
+                        'user:update',
+                        'user:delete',
+                        'user_change_me',
+                    ],
+                ],
+                'baseAppUrl' => 'https://example.com',
+            ],
+        ], Context::createDefaultContext());
+
+        $appUrl = EnvironmentHelper::getVariable('APP_URL');
+        static::assertIsString($appUrl);
+
+        $bundle = [
+            'active' => true,
+            'integrationId' => $ids->get('integration'),
+            'type' => 'app',
+            'sourceType' => 'local',
+            'baseUrl' => 'https://example.com',
+            'permissions' => [
+                'create' => ['user'],
+                'read' => ['user'],
+                'update' => ['user'],
+                'delete' => ['user'],
+                'additional' => ['user_change_me'],
+            ],
+            'version' => '1.0.0',
+            'name' => 'PHPUnit',
+        ];
+
+        $expected = [
+            'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
+            'versionRevision' => str_repeat('0', 32),
+            'adminWorker' => [
+                'enableAdminWorker' => true,
+                'transports' => [],
+            ],
+            'bundles' => $bundle,
+            'settings' => [
+                'enableUrlFeature' => true,
+                'enableHtmlSanitizer' => true,
+            ],
+        ];
+
+        $url = '/api/_info/config';
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, $url);
+
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
+
+        $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+
+        foreach (array_keys($expected) as $key) {
+            static::assertArrayHasKey($key, $decodedResponse);
+        }
+
+        $bundles = $decodedResponse['bundles'];
+        static::assertIsArray($bundles);
+        static::assertArrayHasKey('PHPUnit', $bundles);
+        static::assertIsArray($bundles['PHPUnit']);
+        static::assertSame($bundle, $bundles['PHPUnit']);
+    }
+
+    public function testGetConfigWithServiceSourceType(): void
+    {
+        $ids = new IdsCollection();
+        $appRepository = static::getContainer()->get('app.repository');
+        $appRepository->create([
+            [
+                'name' => 'PHPUnitService',
+                'path' => '/foo/bar',
+                'active' => true,
+                'configurable' => false,
+                'version' => '1.0.0',
+                'label' => 'PHPUnitService',
+                'sourceType' => 'service',
+                // Service apps are self-managed; this excludes them from the automatic script
+                // refresh (ScriptLifecycleHandler::refresh) which would otherwise try to resolve
+                // the service filesystem and fail without a full source config.
+                'selfManaged' => true,
+                'integration' => [
+                    'id' => $ids->create('integration'),
+                    'label' => 'foo',
+                    'accessKey' => '123',
+                    'secretAccessKey' => '456',
+                ],
+                'aclRole' => [
+                    'name' => 'PHPUnitServiceRole',
+                    'privileges' => [
+                        'user:read',
+                    ],
+                ],
+                'baseAppUrl' => 'https://example.com',
+            ],
+        ], Context::createDefaultContext());
+
+        $bundle = [
+            'active' => true,
+            'integrationId' => $ids->get('integration'),
+            'type' => 'app',
+            'sourceType' => 'service',
+            'baseUrl' => 'https://example.com',
+            'permissions' => [
+                'read' => ['user'],
+            ],
+            'version' => '1.0.0',
+            'name' => 'PHPUnitService',
+        ];
+
+        $url = '/api/_info/config';
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, $url);
+
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
+
+        $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+
+        $bundles = $decodedResponse['bundles'];
+        static::assertIsArray($bundles);
+        static::assertArrayHasKey('PHPUnitService', $bundles);
+        static::assertIsArray($bundles['PHPUnitService']);
+        static::assertSame($bundle, $bundles['PHPUnitService']);
+    }
+
+    public function testEncodesEmptyStorageSchemaAsObject(): void
+    {
+        [$typesByName, $content] = $this->requestElementTypesWithStorageSchema();
+
+        // quantity-selector.yaml declares only `product`, an FQCN filled by the pipeline, so it contributes no
+        // property entry; no binding specification for this type names a propertyReference key either, so
+        // storageSchema resolves to []. InfoController::elementTypeSchema() casts it to (object) before
+        // encoding, so an empty schema must reach the wire as {} rather than [] — this pins that encoding.
+        static::assertArrayHasKey('Sw:Product:QuantitySelector', $typesByName);
+        static::assertSame([], $typesByName['Sw:Product:QuantitySelector']['storageSchema']);
+        static::assertStringContainsString('"storageSchema":{}', $content);
+    }
+
+    /**
+     * @return array{array<string, array<string, mixed>>, string}
+     */
+    private function requestElementTypesWithStorageSchema(): array
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-element-types.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('types', $data);
+        static::assertIsArray($data['types']);
+
+        $typesByName = [];
+        foreach ($data['types'] as $type) {
+            static::assertIsArray($type);
+            static::assertArrayHasKey('storageSchema', $type);
+            $typesByName[$type['name']] = $type;
+        }
+
+        return [$typesByName, $content];
     }
 
     private function createApp(string $appId, string $aclRoleId): void

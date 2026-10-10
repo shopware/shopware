@@ -124,7 +124,9 @@ class ProductContentLayoutGenerator implements DemodataGeneratorInterface
                             'id' => Uuid::randomHex(),
                             'component' => 'Sw:Content:Text',
                             'properties' => [
-                                'text' => '<p>' . $faker->paragraph(20) . '</p>',
+                                // `text` is translatable, so it stores one string per language keyed by
+                                // language id; the demo run authors the system language alone.
+                                'text' => [Defaults::LANGUAGE_SYSTEM => '<p>' . $faker->paragraph(20) . '</p>'],
                             ],
                         ],
                     ],

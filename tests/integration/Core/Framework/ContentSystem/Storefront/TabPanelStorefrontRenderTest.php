@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Storefront;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\Context;
@@ -103,26 +104,6 @@ class TabPanelStorefrontRenderTest extends TestCase
         );
     }
 
-    #[TestDox('opens the first tab even when a later tab still carries a leftover stored active flag')]
-    public function testFirstTabOpensEvenWhenALaterTabWasFlaggedActiveInStorage(): void
-    {
-        $this->persistLayout([[
-            'id' => $this->ids->get('panel'),
-            'component' => 'Sw:Tabs:Panel',
-            'properties' => [],
-            'slots' => [
-                'tabs' => [
-                    $this->tab('description', 'Description'),
-                    $this->tab('reviews', 'Reviews', leftoverActive: true),
-                ],
-            ],
-        ]]);
-
-        $xpath = $this->renderedLayout();
-
-        static::assertSame('sw-tab-' . $this->ids->get('description'), $this->openNavigationItem($xpath)->getAttribute('id'));
-    }
-
     #[TestDox('renders the shipped tab panel preset as a panel with two paired tabs')]
     public function testShippedPresetRendersAWorkingPanel(): void
     {
@@ -148,6 +129,30 @@ class TabPanelStorefrontRenderTest extends TestCase
         }
 
         static::assertSame('Description', trim($this->openNavigationItem($xpath)->textContent));
+    }
+
+    #[TestDox('opens the first tab even when a later tab still carries a leftover stored active flag')]
+    public function testFirstTabOpensEvenWhenALaterTabWasFlaggedActiveInStorage(): void
+    {
+        $this->persistLeftoverActiveLayout();
+
+        $xpath = $this->renderedLayout();
+
+        static::assertSame('sw-tab-' . $this->ids->get('description'), $this->openNavigationItem($xpath)->getAttribute('id'));
+    }
+
+    #[TestDox('marks no pane active when a later tab still carries a leftover stored active flag')]
+    public function testNoPaneIsActiveWhenALaterTabCarriesALeftoverActiveFlag(): void
+    {
+        $this->persistLeftoverActiveLayout();
+
+        $xpath = $this->renderedLayout();
+
+        $contentPanes = '//div[contains(concat(" ", normalize-space(@class), " "), " sw-tabs__content ")]/div';
+
+        $activePanes = $xpath->query($contentPanes . '[contains(concat(" ", normalize-space(@class), " "), " active ")]');
+        static::assertInstanceOf(\DOMNodeList::class, $activePanes);
+        static::assertCount(0, $activePanes);
     }
 
     /**
@@ -210,6 +215,21 @@ class TabPanelStorefrontRenderTest extends TestCase
         ]]);
     }
 
+    private function persistLeftoverActiveLayout(): void
+    {
+        $this->persistLayout([[
+            'id' => $this->ids->get('panel'),
+            'component' => 'Sw:Tabs:Panel',
+            'properties' => [],
+            'slots' => [
+                'tabs' => [
+                    $this->tab('description', 'Description'),
+                    $this->tab('reviews', 'Reviews', ['active' => true]),
+                ],
+            ],
+        ]]);
+    }
+
     /**
      * @param list<array<string, mixed>> $elements
      */
@@ -248,14 +268,13 @@ class TabPanelStorefrontRenderTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $extraProperties
+     *
      * @return array<string, mixed>
      */
-    private function tab(string $key, string $title, bool $leftoverActive = false): array
+    private function tab(string $key, string $title, array $extraProperties = []): array
     {
-        $properties = ['title' => $title];
-        if ($leftoverActive) {
-            $properties['active'] = true;
-        }
+        $properties = ['title' => [Defaults::LANGUAGE_SYSTEM => $title]] + $extraProperties;
 
         return [
             'id' => $this->ids->get($key),
@@ -266,7 +285,7 @@ class TabPanelStorefrontRenderTest extends TestCase
                     'id' => $this->ids->get($key . '-text'),
                     'component' => 'Sw:Content:Text',
                     'properties' => [
-                        'text' => '<p>' . $title . ' content</p>',
+                        'text' => [Defaults::LANGUAGE_SYSTEM => '<p>' . $title . ' content</p>'],
                     ],
                 ]],
             ],

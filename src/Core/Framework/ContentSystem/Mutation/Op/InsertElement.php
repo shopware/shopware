@@ -19,9 +19,10 @@ use Shopware\Core\Framework\Log\Package;
  *
  * The type's default binding specification, when it has exactly one, is fill-applied onto the fresh element via
  * {@see BindingApplicator::applyFillOnly()} before insertion (zero defaults is a no-op; more than one throws).
- * When $bindingSpecificationId is also given, the named specification's wiring is then applied on top,
- * atomically after scaffold, via {@see BindingApplicator::apply()} (overwrite), so shared keys belong to the
- * explicit choice.
+ * When $bindingSpecificationId is also given, the named specification is applied first via
+ * {@see BindingApplicator::apply()} and the default is fill-applied after it, atomically after scaffold, so the
+ * default sits underneath and shared keys (wiring, attribution and input defaults) belong to the explicit choice.
+ * A default key the named specification wires is never resolved against the root source.
  *
  * @internal
  */
@@ -79,12 +80,15 @@ final class InsertElement extends AbstractLayoutMutation
         }
 
         if ($specification->type() !== $this->type) {
-            throw ContentSystemException::bindingTypeMismatch($bindingSpecificationId, $specification->type(), $this->type);
+            throw ContentSystemException::bindingTypeMismatch($bindingSpecificationId, $specification->type(), $this->type, null);
         }
 
-        // The explicit path scaffolds with the default underneath too, so a key the explicit specification leaves
-        // unset keeps the default's wiring; apply() (overwrite) only replaces the keys they share.
-        return $this->bindingApplicator->apply($this->scaffoldWithDefault($this->type, $rootSource), $specification, $bindingSpecificationId, $rootSource);
+        return $this->applyDefaultBinding(
+            $this->bindingRegistry,
+            $this->bindingApplicator,
+            $this->bindingApplicator->apply($this->scaffoldElement($this->registry, $this->type), $specification, $bindingSpecificationId, $rootSource),
+            $rootSource,
+        );
     }
 
     /**

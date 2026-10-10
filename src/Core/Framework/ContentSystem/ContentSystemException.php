@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\ContentSystem;
 
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
@@ -69,6 +71,12 @@ class ContentSystemException extends HttpException
     public const MUTATION_SLOT_REQUIRED = 'CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED';
     public const MUTATION_INVALID_WRAP_TARGETS = 'CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS';
     public const MUTATION_UNKNOWN_TYPE = 'CONTENT_SYSTEM__MUTATION_UNKNOWN_TYPE';
+    public const MUTATION_PROPERTY_UNKNOWN = 'CONTENT_SYSTEM__MUTATION_PROPERTY_UNKNOWN';
+    public const MUTATION_PROPERTY_CONFLICT = 'CONTENT_SYSTEM__MUTATION_PROPERTY_CONFLICT';
+    public const MUTATION_PROPERTY_VALUE_REJECTED = 'CONTENT_SYSTEM__MUTATION_PROPERTY_VALUE_REJECTED';
+    public const MUTATION_PROPERTY_LANGUAGE_KEY_INVALID = 'CONTENT_SYSTEM__MUTATION_PROPERTY_LANGUAGE_KEY_INVALID';
+    public const MUTATION_PROPERTY_NOT_TRANSLATABLE = 'CONTENT_SYSTEM__MUTATION_PROPERTY_NOT_TRANSLATABLE';
+
     public const LAYOUT_VERSION_CONFLICT = 'CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT';
     public const INVALID_VERSION_TOKEN = 'CONTENT_SYSTEM__INVALID_VERSION_TOKEN';
     public const CONTENT_LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_NOT_FOUND';
@@ -94,6 +102,7 @@ class ContentSystemException extends HttpException
     public const BINDING_SPECIFICATION_CANONICALIZATION_FAILED = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_CANONICALIZATION_FAILED';
     public const BINDING_SPECIFICATION_RESERVED_ID = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID';
     public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
+    public const BINDING_ROOT_SOURCE_NOT_SCOPED = 'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED';
     public const BOX_SPACING_TOKENIZATION_FAILED = 'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED';
     public const LAYOUT_WRITE_MEMO_MISSING = 'CONTENT_SYSTEM__LAYOUT_WRITE_MEMO_MISSING';
     public const LOADER_INPUT_NOT_DECLARED = 'CONTENT_SYSTEM__LOADER_INPUT_NOT_DECLARED';
@@ -104,6 +113,7 @@ class ContentSystemException extends HttpException
     public const FIELD_SELECTION_NOT_SUPPORTED = 'CONTENT_SYSTEM__FIELD_SELECTION_NOT_SUPPORTED';
     public const UNSUPPORTED_PROPERTY_VALUE_TYPE = 'CONTENT_SYSTEM__UNSUPPORTED_PROPERTY_VALUE_TYPE';
     public const INVALID_ELEMENT_ID = 'CONTENT_SYSTEM__INVALID_ELEMENT_ID';
+    public const TRANSLATION_SHAPE_INVALID = 'CONTENT_SYSTEM__TRANSLATION_SHAPE_INVALID';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
@@ -395,6 +405,26 @@ class ContentSystemException extends HttpException
             self::DUPLICATE_ELEMENT_ID,
             'Served forest is corrupt: element ID "{{ elementId }}" appears more than once, and element IDs must be unique across a forest. Re-save the layout through the DAL write, which rejects a repeated ID, and make sure no rendering listener that replaces the tree introduces one.',
             ['elementId' => $elementId]
+        );
+    }
+
+    /**
+     * A translatable property holds one value per language as a language map, and serving collapses that map
+     * to the request language before any rendering step runs. Where the collapse runs, a value that is not a
+     * language map, or whose selected entry does not match the declared primitive, is an internal fault rather
+     * than a client defect, and is deliberately absent from {@see self::CLIENT_DEFECT_CODES} — the same reading
+     * {@see invalidElementId()} and {@see duplicateElementId()} state. Every client-supplied path rejects the
+     * wrong shape earlier, the strict write with a 400 and the draft routes with a reported violation, so a wrong
+     * shape here means the write constraints were bypassed or a preparation listener introduced it after a
+     * conforming read.
+     */
+    public static function translationShapeInvalid(string $elementId, string $key, string $declaredType, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::TRANSLATION_SHAPE_INVALID,
+            'Property "{{ key }}" of element "{{ elementId }}" is declared {{ declaredType }} and must hold a language map of its primitive, but holds {{ actualType }}.',
+            ['elementId' => $elementId, 'key' => $key, 'declaredType' => $declaredType, 'actualType' => $actualType]
         );
     }
 
@@ -819,6 +849,79 @@ class ContentSystemException extends HttpException
         );
     }
 
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyUnknown(string $elementId, string $key): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_UNKNOWN,
+            'Property "{{ key }}" is not a primitive property declared by the type of element "{{ elementId }}".',
+            ['elementId' => $elementId, 'key' => $key]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyConflict(string $elementId, string $key): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_CONFLICT,
+            'Property "{{ key }}" of element "{{ elementId }}" is both written and removed by the same update.',
+            ['elementId' => $elementId, 'key' => $key]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyValueRejected(string $elementId, string $key, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_VALUE_REJECTED,
+            'Value for property "{{ key }}" of element "{{ elementId }}" does not match its declared type, but is {{ actualType }}.',
+            ['elementId' => $elementId, 'key' => $key, 'actualType' => $actualType]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyLanguageKeyInvalid(string $elementId, string $key, string $languageKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_LANGUAGE_KEY_INVALID,
+            'Language key "{{ languageKey }}" of translatable property "{{ key }}" of element "{{ elementId }}" is not a language id in lowercase UUID hex.',
+            ['elementId' => $elementId, 'key' => $key, 'languageKey' => $languageKey]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyNotTranslatable(string $elementId, string $key): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_NOT_TRANSLATABLE,
+            'Property "{{ key }}" is not a translatable property declared by the type of element "{{ elementId }}".',
+            ['elementId' => $elementId, 'key' => $key]
+        );
+    }
+
+    /**
+     * @param list<string> $privileges
+     */
+    public static function missingPrivileges(array $privileges): MissingPrivilegeException
+    {
+        return new MissingPrivilegeException($privileges);
+    }
+
     public static function layoutVersionConflict(string $layoutId): self
     {
         return new self(
@@ -1112,13 +1215,20 @@ class ContentSystemException extends HttpException
         );
     }
 
-    public static function bindingTypeMismatch(string $bindingSpecificationId, string $specificationType, string $elementComponent): self
+    /**
+     * A null element id means the element does not exist yet: InsertElement checks the type before it scaffolds.
+     */
+    public static function bindingTypeMismatch(string $bindingSpecificationId, string $specificationType, string $elementComponent, ?string $elementId): self
     {
+        $element = $elementId === null
+            ? 'the target element'
+            : 'the target element "{{ elementId }}"';
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::BINDING_TYPE_MISMATCH,
-            'Binding specification "{{ bindingSpecificationId }}" applies to type "{{ specificationType }}", but the target element is of type "{{ elementComponent }}".',
-            ['bindingSpecificationId' => $bindingSpecificationId, 'specificationType' => $specificationType, 'elementComponent' => $elementComponent]
+            'Binding specification "{{ bindingSpecificationId }}" applies to type "{{ specificationType }}", but ' . $element . ' is of type "{{ elementComponent }}".',
+            ['bindingSpecificationId' => $bindingSpecificationId, 'specificationType' => $specificationType, 'elementComponent' => $elementComponent, 'elementId' => $elementId]
         );
     }
 
@@ -1135,6 +1245,30 @@ class ContentSystemException extends HttpException
             self::BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS,
             'Element type "{{ type }}" has more than one default binding specification ({{ qualifiedIds }}), but at most one specification may be default per type.',
             ['type' => $type, 'qualifiedIds' => implode(', ', $qualifiedIds)]
+        );
+    }
+
+    /**
+     * The 400 for applying a binding whose `!scoped` config value carries no entry for the layout's root source,
+     * or onto a layout with no root source at all: no value can be picked, and dropping the key would hand the
+     * loader a config nobody declared. Thrown by {@see RootSourceConfigMap::collapse()}, naming the specification
+     * and the `resolves` key it would wire, plus the element when the binding is applied to one. A
+     * binding-application error like {@see bindingTypeMismatch()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     * A null root source gets its own message, because `none` is the name of a real root source.
+     */
+    public static function bindingRootSourceNotScoped(string $bindingSpecificationId, string $key, ?string $elementId, ?string $rootSource): self
+    {
+        $subject = $elementId === null
+            ? 'Binding specification "{{ bindingSpecificationId }}" cannot wire key "{{ key }}"'
+            : 'Binding specification "{{ bindingSpecificationId }}" cannot wire key "{{ key }}" of element "{{ elementId }}"';
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::BINDING_ROOT_SOURCE_NOT_SCOPED,
+            $subject . ($rootSource === null
+                ? ': its config is scoped by root source, but the layout has no root source.'
+                : ': its config is scoped by root source, but carries no value for root source "{{ rootSource }}".'),
+            ['bindingSpecificationId' => $bindingSpecificationId, 'key' => $key, 'elementId' => $elementId, 'rootSource' => $rootSource]
         );
     }
 

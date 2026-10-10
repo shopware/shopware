@@ -3,14 +3,20 @@ import type { ContentSystemElementTypeSpecification } from 'src/core/service/api
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { SettingsFieldDefinition } from '../sw-experience-studio-settings-fields';
 import {
+    editingLanguageChain,
     getElementPropertyStorageKey,
     getInitialPropertyValue,
     getPropertyControlType,
     isPropertyVisible,
+    resolveTranslatableEntry,
 } from '../../util/element-settings.util';
 import { getEditableStyleFields } from '../../util/style-settings.util';
 import template from './sw-experience-studio-element-settings.html.twig';
 import './sw-experience-studio-element-settings.scss';
+
+function projectTranslatableValue(value: unknown): string | number | boolean | undefined {
+    return resolveTranslatableEntry(value, editingLanguageChain());
+}
 
 /**
  * @private
@@ -118,11 +124,25 @@ export default Shopware.Component.wrapComponentConfig({
                 return values;
             }
 
-            for (const key of Object.keys(typeSpecification.properties)) {
+            for (const [
+                key,
+                property,
+            ] of Object.entries(typeSpecification.properties)) {
                 const storageKey = getElementPropertyStorageKey(typeSpecification, key);
 
                 if (storageKey !== key && Object.prototype.hasOwnProperty.call(properties, storageKey)) {
                     values[key] = properties[storageKey];
+                }
+
+                // An absent key stays absent so the field controls still fall back to the declared default.
+                if (property.translatable && Object.prototype.hasOwnProperty.call(values, key)) {
+                    const projectedValue = projectTranslatableValue(values[key]);
+
+                    if (projectedValue === undefined) {
+                        delete values[key];
+                    } else {
+                        values[key] = projectedValue;
+                    }
                 }
             }
 
@@ -151,9 +171,8 @@ export default Shopware.Component.wrapComponentConfig({
                 ) => {
                     const storageKey = getElementPropertyStorageKey(typeSpecification, key);
                     const elementProperties = selectedElement?.properties ?? {};
-                    const currentValue = Object.prototype.hasOwnProperty.call(elementProperties, storageKey)
-                        ? elementProperties[storageKey]
-                        : elementProperties[key];
+                    const storedValue = elementProperties[storageKey];
+                    const currentValue = property.translatable ? projectTranslatableValue(storedValue) : storedValue;
                     accumulator[key] = getInitialPropertyValue(property, currentValue);
 
                     return accumulator;
@@ -245,9 +264,8 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.$emit('update-properties', {
                 elementId: selectedElement.id,
-                properties: {
-                    [storageKey]: payload.value,
-                },
+                propertyKey: storageKey,
+                value: payload.value,
             });
         },
 

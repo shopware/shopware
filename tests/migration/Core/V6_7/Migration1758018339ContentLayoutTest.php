@@ -54,18 +54,29 @@ class Migration1758018339ContentLayoutTest extends TestCase
             static::assertTrue(TableHelper::columnExists($this->connection, 'content_layout', 'name'));
             static::assertTrue(TableHelper::columnExists($this->connection, 'content_layout', 'version'));
             static::assertTrue(TableHelper::columnExists($this->connection, 'content_layout', 'layout'));
-            static::assertTrue(TableHelper::columnExists($this->connection, 'content_layout', 'schema'));
+            static::assertTrue(TableHelper::columnExists($this->connection, 'content_layout', 'root_source'));
             static::assertTrue(TableHelper::columnExists($this->connection, 'content_layout', 'created_at'));
             static::assertTrue(TableHelper::columnExists($this->connection, 'content_layout', 'updated_at'));
+
+            // root_source is NOT NULL with no column default: it is a Required field, so every DAL write supplies it.
+            $rootSource = TableHelper::getColumnOfTable($this->connection, 'content_layout', 'root_source');
+            static::assertTrue($rootSource->isNotNull);
+            static::assertNull($rootSource->defaultValue);
+
+            // No entity field maps `schema`, so the table does not carry the column.
+            static::assertFalse(TableHelper::columnExists($this->connection, 'content_layout', 'schema'));
 
             static::assertTrue(
                 TableHelper::indexExists($this->connection, 'content_layout', 'uniq.content_layout.name_version'),
                 'Unique index on (name, version) must exist',
             );
         } finally {
-            // restore the parent table so its dependents and sibling tests keep a consistent schema, then re-enable enforcement
-            $migration->update($this->connection);
-            $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');
+            // restore the parent table so its dependents keep a consistent schema, then re-enable enforcement
+            try {
+                $migration->update($this->connection);
+            } finally {
+                $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');
+            }
         }
     }
 }

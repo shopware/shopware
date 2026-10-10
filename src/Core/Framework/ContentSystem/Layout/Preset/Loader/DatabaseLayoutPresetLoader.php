@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader;
 
 use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
@@ -25,7 +25,6 @@ class DatabaseLayoutPresetLoader extends AbstractContentSystemLayoutPresetLoader
         private readonly ValidatorInterface $validator,
         private readonly Connection $connection,
         private readonly string $environment,
-        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -54,37 +53,27 @@ class DatabaseLayoutPresetLoader extends AbstractContentSystemLayoutPresetLoader
             try {
                 $data = json_decode($row['schema'], true, 512, \JSON_THROW_ON_ERROR);
             } catch (\JsonException $e) {
-                $this->logger->warning(\sprintf('Skipping layout preset "%s": invalid JSON data: %s', $identifier, $e->getMessage()));
-
-                continue;
+                throw ContentSystemException::layoutPresetLoadFailed($identifier, 'Invalid JSON data: ' . $e->getMessage(), $e);
             }
 
             if (!\is_array($data)) {
-                $this->logger->warning(\sprintf('Skipping layout preset "%s": persisted data must decode to an array/map, got %s', $identifier, get_debug_type($data)));
-
-                continue;
+                throw ContentSystemException::layoutPresetLoadFailed($identifier, 'Persisted data must decode to an array/map, got ' . get_debug_type($data));
             }
 
             $dto = $this->serializer->denormalize($data);
 
             $violations = $this->validator->validate(new LayoutPresetSpecificationDtoCollection([$row['name'] => $dto]));
             if ($violations->count() > 0) {
-                $this->logger->warning(\sprintf('Skipping layout preset "%s": %s', $identifier, (string) $violations));
-
-                continue;
+                throw ContentSystemException::layoutPresetsInvalid($violations);
             }
 
-            try {
-                $presets[] = new ContentSystemLayoutPresetSpecification(
-                    $row['name'],
-                    $dto->name,
-                    $dto->description,
-                    $dto->icon,
-                    $this->compiler->compile($dto->layout),
-                );
-            } catch (\Throwable $e) {
-                $this->logger->warning(\sprintf('Skipping layout preset "%s": %s', $identifier, $e->getMessage()));
-            }
+            $presets[] = new ContentSystemLayoutPresetSpecification(
+                $row['name'],
+                $dto->name,
+                $dto->description,
+                $dto->icon,
+                $this->compiler->compile($dto->layout),
+            );
         }
 
         return $presets;

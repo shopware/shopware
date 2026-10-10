@@ -137,7 +137,7 @@ final class ReplaceElement extends AbstractLayoutMutation
             $type = $newTypeProperties[$key]->type();
 
             // Under `object` or an FQCN nothing can check the value's shape, so it drops rather than cross unexamined.
-            if ($type->enforceableTypes() === null || !$type->admits($value->jsonSerialize())) {
+            if ($type->enforceableTypes() === null || !$type->admits($value)) {
                 $this->droppedProperties[$key] = $value;
 
                 continue;
@@ -197,7 +197,7 @@ final class ReplaceElement extends AbstractLayoutMutation
         $kept = [];
 
         foreach ($wiring as $key => $value) {
-            if (isset($newTypeProperties[$key]) && !$newTypeProperties[$key]->type()->isPrimitive()) {
+            if (isset($newTypeProperties[$key]) && $newTypeProperties[$key]->type()->enforceableTypes() === null) {
                 $kept[$key] = $value;
             }
         }

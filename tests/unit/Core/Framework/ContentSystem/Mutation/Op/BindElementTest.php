@@ -16,9 +16,13 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\BindElement;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeRegistry;
 
 /**
  * @internal
@@ -111,7 +115,7 @@ class BindElementTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $bind = new BindElement($this->registry(), 'spec-1', 'el', $this->applicator($config));
 
-        $this->expectExceptionObject(ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Product', 'Sw:Other'));
+        $this->expectExceptionObject(ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Product', 'Sw:Other', 'el'));
         $bind->apply(new StoredTree([new StoredElement('el', 'Sw:Other')]));
     }
 
@@ -175,6 +179,21 @@ class BindElementTest extends TestCase
         $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
         $serializers->method('decode')->willReturn($config);
 
-        return new BindingApplicator($serializers);
+        return new BindingApplicator($serializers, $this->productTypeRegistry());
+    }
+
+    private function productTypeRegistry(): AbstractContentSystemElementTypeRegistry
+    {
+        return $this->typeRegistry([
+            'Sw:Product' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Product')->primitive('mediaId', 'string')->build(),
+        ]);
+    }
+
+    /**
+     * @param array<string, ContentSystemElementTypeSpecification> $specs
+     */
+    private function typeRegistry(array $specs): AbstractContentSystemElementTypeRegistry
+    {
+        return TestElementTypeRegistry::of($specs);
     }
 }

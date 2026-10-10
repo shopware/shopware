@@ -234,6 +234,29 @@ class OpenAiProductExportValidatorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    public function testValidateAddsErrorsForValuesWithATrailingNewline(): void
+    {
+        $entity = $this->createProductExportEntity();
+        $content = $this->createValidRow([
+            'price' => "10.99 EUR\n",
+            'store_country' => "DE\n",
+            'target_countries' => ["DE\n"],
+        ]);
+
+        $errors = new ErrorCollection();
+
+        (new OpenAiProductExportValidator(new JsonlRowParser()))->validate($entity, $content, $errors);
+
+        static::assertEqualsCanonicalizing(
+            ['price', 'store_country', 'target_countries'],
+            array_map(
+                static fn (ProviderValidationError $error): string => (string) $error->getParameters()['field'],
+                array_values(array_filter($errors->getElements(), static fn (mixed $error): bool => $error instanceof ProviderValidationError))
+            )
+        );
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorWhenTargetCountriesAreEmpty(): void
     {
         $entity = $this->createProductExportEntity();

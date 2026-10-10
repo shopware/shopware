@@ -200,6 +200,7 @@ class ThemeCreateCommandTest extends TestCase
         yield 'lowercase theme name fails validation' => ['name' => 'abc', 'expectedMessage' => 'The name must start with an uppercase character'];
         yield 'short theme name fails with length and character message' => ['name' => 'Abc', 'expectedMessage' => 'Theme name is too short (min 4 characters), contains invalid characters'];
         yield 'theme name starting with a digit fails validation' => ['name' => '1Digital', 'expectedMessage' => 'The name must start with an uppercase character'];
+        yield 'theme name with a trailing newline fails validation' => ['name' => "MyTheme\n", 'expectedMessage' => 'Theme name is too short (min 4 characters), contains invalid characters'];
     }
 
     private function removeTheme(): bool

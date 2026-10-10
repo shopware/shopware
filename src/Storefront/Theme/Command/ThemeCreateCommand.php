@@ -67,7 +67,7 @@ class ThemeCreateCommand extends Command
             return self::FAILURE;
         }
 
-        if (preg_match('/^[A-Za-z]\w{3,}$/', (string) $themeName) !== 1) {
+        if (preg_match('/^[A-Za-z]\w{3,}$/D', (string) $themeName) !== 1) {
             $io->error('Theme name is too short (min 4 characters), contains invalid characters');
 
             return self::FAILURE;

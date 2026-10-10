@@ -307,6 +307,14 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 
 Creating a language could return an uncaught `500` when an Elasticsearch/OpenSearch-indexed entity's live index mapping had drifted from its current definition, for example a sales channel created after the last full reindex. `LanguageSubscriber` now catches the same known-unresolvable mapping conflicts `IndexMappingUpdater` already handles elsewhere, schedules the affected entity for a reindex instead of throwing, and only logs unexpected errors. The language is created successfully; the delayed reindex is picked up by the next indexing run or a manual `es:index`.
 
+### MCP endpoints are rate-limited with a sliding window
+
+`mcp_admin_api` and `mcp_store_api` in `shopware.api.rate_limiter` now use the `sliding_window` policy: 300 requests per minute per OAuth token on `/api/_mcp`, and 120 per minute per sales-channel context and per IP on `/store-api/_mcp`. Before, they used `time_backoff`, which accepts only one request per interval once the first limit is reached and keeps that state for an hour. A busy MCP client therefore got HTTP 429 on almost every call, including the handshake of a new session.
+
+If you override these limits in your configuration, set `policy`, `limit` and `interval` for the new policy. The `reset` and `limits` keys only apply to `time_backoff`.
+
+The additional 10-minute limits of the old configuration (1000 and 600 requests) are gone, so the sustained maximum is now 300 and 120 requests per minute.
+
 ### Every Store API route publishes an extension event
 
 All Store API routes in core now publish an extension event, so you can extend a route with a subscriber instead of decorating its abstract route class. Each route has a `<Route>Extension` in the `Extension` namespace of its domain that carries the route's input parameters, for example `Shopware\Core\Content\Product\Extension\ProductListingRouteExtension`:

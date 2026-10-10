@@ -98,33 +98,20 @@ class FallbackUrlPackageTest extends TestCase
     {
         $requestStack = new RequestStack();
         $requestStack->push(Request::create('https://first.example'));
+        // UrlPackage picks the base URL by crc32 of the path: logo.png maps to index 0, style.css to index 1
         $package = new FallbackUrlPackage(['https://cdn.example', ''], new EmptyVersionStrategy(), $requestStack);
 
-        $cdnPath = $this->findPathForBaseUrl($package, 'https://cdn.example');
-        $fallbackPath = $this->findPathForBaseUrl($package, 'https://first.example');
+        static::assertSame('https://first.example/style.css', $package->getUrl('style.css'));
 
         $requestStack->pop();
         $requestStack->push(Request::create('https://second.example'));
 
-        static::assertSame('https://cdn.example/' . $cdnPath, $package->getUrl($cdnPath));
-        static::assertSame('https://second.example/' . $fallbackPath, $package->getUrl($fallbackPath));
+        static::assertSame('https://cdn.example/logo.png', $package->getUrl('logo.png'));
+        static::assertSame('https://second.example/style.css', $package->getUrl('style.css'));
     }
 
     private function createPackage(string $url = '', ?RequestStack $requestStack = null): FallbackUrlPackage
     {
         return new FallbackUrlPackage([$url], new EmptyVersionStrategy(), $requestStack);
-    }
-
-    private function findPathForBaseUrl(FallbackUrlPackage $package, string $baseUrl): string
-    {
-        for ($i = 0; $i < 100; ++$i) {
-            $path = 'file-' . $i;
-
-            if ($package->getBaseUrl($path) === $baseUrl) {
-                return $path;
-            }
-        }
-
-        static::fail(\sprintf('No path found for base URL "%s"', $baseUrl));
     }
 }

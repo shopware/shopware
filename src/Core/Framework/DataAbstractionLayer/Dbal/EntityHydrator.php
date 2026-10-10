@@ -571,13 +571,24 @@ class EntityHydrator
             throw DataAbstractionLayerException::entityHydratorError(\sprintf('Hydrator for entity %s not registered', $definition->getEntityName()));
         }
 
-        $identifier = implode('-', self::buildUniqueIdentifier($definition, $row, $root));
-
-        $cacheKey = $root . '::' . $identifier;
+        // Deduplicate rows by the association path ($root) plus the raw primary-key storage values, so
+        // a referenced entity shared across many rows (e.g. one manufacturer or tax on thousands of
+        // products) is hydrated only once. Keying on the raw bytes keeps the lookup free of the
+        // per-field serializer decode, which only runs on a cache miss below. self::$hydrated is reset
+        // per hydrate() call, so the key only needs to be consistent within a single call.
+        $cacheKey = $root;
+        foreach ($definition->getPrimaryKeys() as $primaryKeyField) {
+            if ($primaryKeyField instanceof VersionField || $primaryKeyField instanceof ReferenceVersionField) {
+                continue;
+            }
+            $cacheKey .= '::' . $row[$root . '.' . $primaryKeyField->getPropertyName()];
+        }
 
         if (isset(self::$hydrated[$cacheKey])) {
             return self::$hydrated[$cacheKey];
         }
+
+        $identifier = implode('-', self::buildUniqueIdentifier($definition, $row, $root));
 
         $entity = new $entityClass();
 

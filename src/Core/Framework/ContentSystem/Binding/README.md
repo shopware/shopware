@@ -12,7 +12,7 @@ The binding specification system. A binding specification is an authored declara
 - [docs/loading-and-apps.md](docs/loading-and-apps.md) - Loaders, the decorated registry, the compiler pass, and the app lifecycle.
 - [docs/resolved-by.md](docs/resolved-by.md) - The `resolvedBy` shorthand that needs no authored `bindings:` entry.
 - [docs/inline-bindings.md](docs/inline-bindings.md) - Authoring a specification inline in its element-type file, including the app type overlay.
-- [docs/applying.md](docs/applying.md) - The two applicator modes and the three mutation operations that drive them.
+- [docs/applying.md](docs/applying.md) - The two applicator modes and the mutation operations that drive them.
 - [docs/write-boundary.md](docs/write-boundary.md) - Attribution reconciliation at the DAL write seam, and the diagnostics tie-ins.
 - [docs/introspection.md](docs/introspection.md) - The `bindingSpecifications` fold clients read to discover applicable specifications.
 - [docs/custom-specifications.md](docs/custom-specifications.md) - The plugin- and app-facing authoring guide.

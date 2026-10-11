@@ -1,6 +1,6 @@
 # Applying a Binding
 
-The merge that writes one specification's wiring onto an element, its two modes, and the three mutation operations that drive it.
+The merge that writes one specification's wiring onto an element, its two modes, and the mutation operations that drive it.
 
 `BindingApplicator` owns the merge that applies one specification's wiring onto an element. It rebuilds the element through `StoredElement`'s own copiers — `withDataRequirements()`, `withProperties()`, `withAttributedSpecifications()` — so its id, component, slots, context definitions and style ride across untouched and the input is never mutated, keeping the mutation immutability invariant. Two modes:
 
@@ -9,16 +9,17 @@ The merge that writes one specification's wiring onto an element, its two modes,
 
 Both modes seed `inputs` defaults the same way: each entry with a default seeds that primitive property, but only when the element does not already carry the key (a `StoredElement::property()` presence check, not a check on the value — an authored explicit `null` is a present `StoredValue`, so it is never overwritten).
 
-Three mutation operations drive the applicator, all through the same draft/persisted mutation machinery as every other structural edit:
+The mutation operations below drive the applicator, all through the same draft/persisted mutation machinery as every other structural edit:
 
-- `Mutation/Op/BindElement` (the ninth `Mutation/Op`) applies a specification onto an existing element via `apply()`. Exposed by the draft `POST /api/_action/content-system/layout/bind-element` and the persisted `POST /api/_action/content-system/layout/{layoutId}/bind-element`.
+- `Mutation/Op/BindElement` applies a specification onto an existing element via `apply()`. Exposed by the draft `POST /api/_action/content-system/layout/bind-element` and the persisted `POST /api/_action/content-system/layout/{layoutId}/bind-element`.
 - `Mutation/Op/InsertElement` fill-applies the type's default (when it has exactly one) onto every freshly scaffolded element via `applyFillOnly()`. An explicit `bindingSpecificationId` on the same request is then applied on top via `apply()`, atomically in the same edit — the specification is resolved first, before any tree change, so nothing is inserted (or, on the persisted route, persisted) when it fails. Default underneath, explicit on top: shared keys belong to the explicit choice.
 - `Mutation/Op/ReplaceElement` fill-applies the new type's default (when it has exactly one) after carrying the old element's wiring over (`carryWiring()`), via `applyFillOnly()` — carried wiring is never overwritten by the default, even when the default would correct a renamed storage key. It also carries a stored value under one of the new type's `resolvedBy` storage keys forward when the value's shape matches the loader branch (a string for `entity`, a list of strings for `entity_collection`); otherwise the value is dropped and reported via `droppedProperties`. That per-branch shape check (`ResolvedByLoaderBranch::matchesStoredValueShape()`) is deliberately stricter than the tolerant list-filtering the `entity_collection` loader applies at serve time.
+- `Mutation/Op/AttachElement` fill-applies each element's type default (when it has exactly one, found through `AbstractLayoutMutation::resolveDefaultSpecification()`) to every element of the attached, re-id'd subtree via `applyFillOnly()`; wiring the subtree already carries wins.
 
-`BindElement` and `InsertElement`'s explicit path perform the specification lookup and the type check themselves (they differ per op): an unregistered `bindingSpecificationId` (`bindingSpecificationNotFound`) or a specification whose declared `type` does not match the target element's `component` (`bindingTypeMismatch`) is rejected with `400`. `BindingApplicator` is the apply-side of that decision, extracted so the ops share one merge (naming rationale in [NAMING.md](../../NAMING.md)). The four exposing route actions build their op from the injected `AbstractContentSystemBindingSpecificationRegistry` and `BindingApplicator`.
+`BindElement` and `InsertElement`'s explicit path perform the specification lookup and the type check themselves (they differ per op): an unregistered `bindingSpecificationId` (`bindingSpecificationNotFound`) or a specification whose declared `type` does not match the target element's `component` (`bindingTypeMismatch`) is rejected with `400`. `BindingApplicator` is the apply-side of that decision, extracted so the ops share one merge (naming rationale in [NAMING.md](../../NAMING.md)). The route actions that expose these ops build their op from the injected `AbstractContentSystemBindingSpecificationRegistry` and `BindingApplicator`.
 
 ## The Mutation Op
 
 `Mutation/Op/BindElement` extends `Mutation/AbstractLayoutMutation`. Its `apply()` looks up the specification (`bindingSpecificationNotFound`), locates the target node (`mutationTargetNotFound`), and checks that `specification->type()` equals the node's component (`bindingTypeMismatch`) — all three are 400s.
 
-`Mutation/Op/InsertElement` and `Mutation/Op/ReplaceElement` fill-apply the type's default through `AbstractLayoutMutation::resolveDefaultSpecification()`. `InsertElement` additionally applies a request's explicit `bindingSpecificationId` on top, with the same lookup and type check.
+`Mutation/Op/InsertElement`, `Mutation/Op/ReplaceElement` and `Mutation/Op/AttachElement` fill-apply the type's default through `AbstractLayoutMutation::resolveDefaultSpecification()`. `InsertElement` additionally applies a request's explicit `bindingSpecificationId` on top, with the same lookup and type check.

@@ -523,7 +523,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('validator'),
             service(Connection::class),
             param('kernel.environment'),
-            service('logger'),
         ])
         ->tag('content_system.layout_preset_loader');
 

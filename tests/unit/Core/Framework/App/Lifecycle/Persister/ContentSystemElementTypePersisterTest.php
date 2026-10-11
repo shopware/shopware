@@ -70,23 +70,26 @@ class ContentSystemElementTypePersisterTest extends TestCase
     #[TestDox('inserts new element type with correct payload')]
     public function testInsertsNewTypeWhenNoneExist(): void
     {
+        $appId = $this->ids->get('app');
+
         /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
-            static function (Criteria $criteria, Context $context): AppContentSystemElementTypeCollection {
+            static function (Criteria $criteria, Context $context) use ($appId): AppContentSystemElementTypeCollection {
                 static::assertCount(1, $criteria->getFilters());
                 $filter = $criteria->getFilters()[0];
                 static::assertInstanceOf(EqualsFilter::class, $filter);
                 static::assertSame('appId', $filter->getField());
+                static::assertSame($appId, $filter->getValue());
 
                 return new AppContentSystemElementTypeCollection();
             },
-            static function (Criteria $criteria, Context $context): AppContentSystemElementTypeCollection {
+            static function (Criteria $criteria, Context $context) use ($appId): AppContentSystemElementTypeCollection {
                 $filters = $criteria->getFilters();
-                static::assertCount(2, $filters);
-                static::assertInstanceOf(EqualsFilter::class, $filters[0]);
-                static::assertSame('app.active', $filters[0]->getField());
-                static::assertInstanceOf(NotFilter::class, $filters[1]);
                 static::assertArrayHasKey('app', $criteria->getAssociations());
+                static::assertEquals([
+                    new EqualsFilter('app.active', false),
+                    new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('appId', $appId)]),
+                ], $filters);
 
                 return new AppContentSystemElementTypeCollection();
             },
@@ -402,7 +405,10 @@ class ContentSystemElementTypePersisterTest extends TestCase
             new AppContentSystemElementTypeCollection(),
         ]);
 
-        $persister = $this->buildPersister($repo, loader: $loader);
+        $connection = static::createMock(Connection::class);
+        $connection->expects($this->never())->method('transactional');
+
+        $persister = $this->buildPersister($repo, loader: $loader, connection: $connection);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
 
         static::assertSame([], $repo->upserts);

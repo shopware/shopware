@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
@@ -333,6 +334,25 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame('product', $warning->key);
     }
 
+    #[TestDox('emits no orphaned_provider warning for a provider whose key a grandchild consumes')]
+    public function testProviderConsumedByAGrandchildIsNotOrphaned(): void
+    {
+        $grandchild = StoredElementBuilder::create('Sw:Block', 'grandchild-1')
+            ->withConsumer('product', ContextType::Single)
+            ->build();
+        $child = StoredElementBuilder::create('Sw:Block', 'child-1')
+            ->withSlot('content', [$grandchild])
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Block', 'root-1')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('content', [$child])
+            ->build();
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])->analyze([$root], null)->report;
+
+        static::assertSame([], array_values(array_filter($report->violations, static fn (Violation $v): bool => $v->code === ViolationCode::OrphanedProvider)));
+    }
+
     #[TestDox('counts a Root candidate as usable, so two competing root-ambient offers are ambiguous_required rather than unresolved_required')]
     public function testTwoRootCandidatesAreAmbiguousRequired(): void
     {
@@ -605,6 +625,48 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertCount(2, $error->candidates);
     }
 
+    #[TestDox('emits an unresolved_optional warning naming the element and key for an optional reference with no candidate, without blocking resolvability')]
+    public function testOptionalReferenceWithoutCandidateIsUnresolvedOptional(): void
+    {
+        $tree = [new StoredElement('el-1', 'Sw:Block')];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class)->build()])
+            ->analyze($tree, [])->report;
+
+        $warning = $this->single($report->violations);
+        static::assertSame(ViolationCode::UnresolvedOptional, $warning->code);
+        static::assertSame('el-1', $warning->elementId);
+        static::assertSame('product', $warning->key);
+        static::assertSame('Optional property "product" has no source.', $warning->message);
+        static::assertSame([], $warning->candidates);
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('emits no unresolved_optional warning for an optional reference whose competing candidates leave it unresolved')]
+    public function testOptionalReferenceWithAmbiguousCandidatesIsNotUnresolvedOptional(): void
+    {
+        $rootContext = [
+            $this->rootAmbientProductContext()[0],
+            new ProvidedContext(
+                contextKey: 'featuredProduct',
+                fqcn: SalesChannelProductEntity::class,
+                contextType: ContextType::Single,
+                providerElementId: null,
+                distribution: DistributionStrategy::Broadcast,
+                root: true,
+            ),
+        ];
+
+        $analysis = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class)->build()])
+            ->analyze([new StoredElement('el-1', 'Sw:Block')], $rootContext);
+
+        // Pins the state this case turns on: the optional reference is unresolved while candidates exist, so only
+        // the empty-candidates condition keeps the unresolved_optional warning from firing.
+        static::assertNull($analysis->resolutions['el-1'][0]->resolved);
+        static::assertCount(2, $analysis->resolutions['el-1'][0]->candidates);
+        static::assertSame([], $analysis->report->violations);
+    }
+
     #[TestDox('raises an independent mismatched_reference_type intrinsic violation and unresolved_required binding violation for a required reference whose applied wiring produces the wrong type')]
     public function testMismatchedAppliedWiringRaisesIntrinsicAndBindingViolationsIndependently(): void
     {
@@ -620,9 +682,74 @@ class LayoutDiagnosticsTest extends TestCase
             loaderProvider: $this->loaderProvider($loader),
         )->analyze([$element], [])->report;
 
+        $mismatch = $this->onlyIntrinsicError($report->intrinsicErrors());
+
         static::assertFalse($report->isWellFormed());
-        static::assertSame(ViolationCode::MismatchedReferenceType, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
+        static::assertSame(ViolationCode::MismatchedReferenceType, $mismatch->code);
+        static::assertSame('product', $mismatch->key);
+        static::assertSame(
+            \sprintf('Stored wiring for "product" produces "%s", which is not assignable to declared type "%s".', CategoryEntity::class, SalesChannelProductEntity::class),
+            $mismatch->message,
+        );
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('reports no intrinsic error for applied wiring whose produced type is a subclass of the declared reference type')]
+    public function testAppliedWiringProducingASubclassOfTheDeclaredTypeIsWellFormed(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', ProductEntity::class)->build()],
+            loaderProvider: $this->loaderProvider($loader),
+        )->analyze([$element], null)->report;
+
+        static::assertSame([], $report->intrinsicErrors());
+    }
+
+    /**
+     * @param string|list<string> $declaredType
+     */
+    #[DataProvider('nonReferenceDeclarationProvider')]
+    #[TestDox('reports no intrinsic error for applied wiring stored under a key declared as $_dataName')]
+    public function testAppliedWiringUnderANonReferenceDeclarationIsWellFormed(string|array $declaredType): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->declared('product', $declaredType)->build()],
+            loaderProvider: $this->loaderProvider($loader),
+        )->analyze([$element], null)->report;
+
+        static::assertSame([], $report->intrinsicErrors());
+    }
+
+    #[TestDox('reports no intrinsic error for applied wiring stored under a key the component does not declare')]
+    public function testAppliedWiringUnderAnUndeclaredKeyIsWellFormed(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()],
+            loaderProvider: $this->loaderProvider($loader),
+        )->analyze([$element], null)->report;
+
+        static::assertSame([], $report->intrinsicErrors());
     }
 
     #[TestDox('emits one unfilled_required_input per unfilled required propertyReference key for a multi-reference loader')]
@@ -897,6 +1024,29 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame('Required property "product" is wired from "ghostProperty", which has no value.', $error->message);
     }
 
+    #[TestDox('emits no unfilled_required_input when the wired property is not declared on the type but holds a stored value')]
+    public function testStoredValueUnderUndeclaredWiredPropertySatisfiesInput(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withProperty('ghostProperty', 'a-product-id')
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: true)
+                ->build()],
+            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['property' => 'ghostProperty']),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+        )->analyze([$element], [])->report;
+
+        static::assertTrue($report->isResolvable());
+        static::assertSame([], $report->bindingErrors());
+    }
+
     #[TestDox('reports a style option the registry does not know as an intrinsic error keyed on the option name')]
     public function testUnknownStyleOptionIsIntrinsicError(): void
     {
@@ -1035,6 +1185,16 @@ class LayoutDiagnosticsTest extends TestCase
     {
         yield 'non-empty stored value' => ['a-product-id'];
         yield 'empty string counts as filled (null is the sole empty sentinel)' => [''];
+    }
+
+    /**
+     * @return iterable<string, array{string|list<string>}>
+     */
+    public static function nonReferenceDeclarationProvider(): iterable
+    {
+        yield 'a primitive' => ['string'];
+        yield 'a bare object' => ['object'];
+        yield 'a union carrying object' => [['integer', 'object']];
     }
 
     /**

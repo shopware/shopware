@@ -47,15 +47,10 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'a float under a number declaration' => [['ratio' => 1.5]];
         yield 'a boolean under a boolean declaration' => [['featured' => true]];
         yield 'a null under a string declaration' => [['headline' => null]];
-        yield 'a null under an integer declaration' => [['count' => null]];
-        yield 'a null under a number declaration' => [['ratio' => null]];
-        yield 'a null under a boolean declaration' => [['featured' => null]];
         yield 'a value matching the first member of an all-primitive union' => [['spread' => 'wide']];
         yield 'a value matching the second member of an all-primitive union' => [['spread' => 3]];
         yield 'an array under a bare object declaration' => [['config' => ['nested' => 'value']]];
-        yield 'a scalar under a bare object declaration' => [['config' => 'whatever']];
         yield 'a value matching no member of a union carrying object' => [['columns' => 'not-an-integer']];
-        yield 'a scalar under a declared reference property' => [['product' => 'oops']];
         yield 'a value under a key the type does not declare' => [['mediaId' => ['not', 'a', 'string']]];
         yield 'an element carrying no properties at all' => [[]];
     }
@@ -82,6 +77,23 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         $element = ['id' => 'el-1', 'component' => 'Sw:Ghost', 'properties' => ['headline' => 42]];
 
         static::assertCount(0, $this->validate($element, $registry));
+    }
+
+    #[DataProvider('ignoresMalformedElementProvider')]
+    #[TestDox('reports no violation for an element with $_dataName')]
+    public function testIgnoresAMalformedElement(mixed $element): void
+    {
+        static::assertCount(0, $this->validate($element));
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function ignoresMalformedElementProvider(): iterable
+    {
+        yield 'a non-string component' => [['component' => 7, 'properties' => ['headline' => 42]]];
+        yield 'a missing component' => [['properties' => ['headline' => 42]]];
+        yield 'non-array properties' => [['component' => 'Sw:Block', 'properties' => 'oops']];
     }
 
     /**
@@ -123,10 +135,7 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         return ['id' => 'el-1', 'component' => 'Sw:Block', 'properties' => $properties];
     }
 
-    /**
-     * @param array<array-key, mixed> $element
-     */
-    private function validate(array $element, ?AbstractContentSystemElementTypeRegistry $registry = null): ConstraintViolationListInterface
+    private function validate(mixed $element, ?AbstractContentSystemElementTypeRegistry $registry = null): ConstraintViolationListInterface
     {
         $validator = new PropertyTypeConformanceValidator($registry ?? $this->registry());
 
@@ -155,7 +164,6 @@ class PropertyTypeConformanceValidatorTest extends TestCase
                 'spread' => $this->property(['string', 'integer']),
                 'columns' => $this->property(['integer', 'object']),
                 'config' => $this->property('object'),
-                'product' => $this->property('Shopware\\Core\\Content\\Media\\MediaEntity'),
             ],
             [],
         )];

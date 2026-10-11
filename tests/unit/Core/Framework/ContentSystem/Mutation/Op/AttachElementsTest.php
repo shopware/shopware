@@ -66,7 +66,7 @@ class AttachElementsTest extends TestCase
         static::assertSame('first', $children[2]->id);
     }
 
-    #[TestDox('an empty element list leaves the tree untouched')]
+    #[TestDox('leaves the tree untouched for an empty element list')]
     public function testEmptyListInsertsNothing(): void
     {
         $op = $this->op([]);

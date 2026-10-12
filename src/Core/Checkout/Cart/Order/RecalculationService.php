@@ -520,6 +520,10 @@ class RecalculationService
 
         $state = $order->getTransactions()?->get($primaryOrderTransactionId)?->getStateMachineState()?->getTechnicalName();
 
-        return \in_array($state, [OrderTransactionStates::STATE_OPEN, OrderTransactionStates::STATE_REMINDED], true);
+        return \in_array($state, [
+            OrderTransactionStates::STATE_OPEN,
+            OrderTransactionStates::STATE_REMINDED,
+            OrderTransactionStates::STATE_PARTIALLY_PAID,
+        ], true);
     }
 }

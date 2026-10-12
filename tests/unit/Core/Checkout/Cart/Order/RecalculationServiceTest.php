@@ -430,6 +430,7 @@ class RecalculationServiceTest extends TestCase
     {
         yield 'an open payment follows the new order total' => [OrderTransactionStates::STATE_OPEN, true];
         yield 'a reminded payment follows the new order total' => [OrderTransactionStates::STATE_REMINDED, true];
+        yield 'a partially paid payment follows the new order total, the rest is still due' => [OrderTransactionStates::STATE_PARTIALLY_PAID, true];
         yield 'a payment in progress keeps the amount the payment provider got' => [OrderTransactionStates::STATE_IN_PROGRESS, false];
         yield 'an authorized payment keeps the authorized amount' => [OrderTransactionStates::STATE_AUTHORIZED, false];
         yield 'a paid payment keeps the paid amount' => [OrderTransactionStates::STATE_PAID, false];

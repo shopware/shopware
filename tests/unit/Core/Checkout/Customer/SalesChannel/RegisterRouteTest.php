@@ -1196,10 +1196,10 @@ class RegisterRouteTest extends TestCase
 
     /**
      * @param list<string> $vatIds
-     * @param list<string>|null $expected
+     * @param list<string> $expected
      */
     #[DataProvider('businessVatIdsProvider')]
-    public function testRegisterWritesTheVatIdsOfABusinessCustomer(array $vatIds, ?array $expected): void
+    public function testRegisterWritesTheVatIdsOfABusinessCustomer(array $vatIds, array $expected): void
     {
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -1232,13 +1232,13 @@ class RegisterRouteTest extends TestCase
         $customer = $customerRepository->creates[0][0];
         static::assertIsArray($customer);
         static::assertSame('Test Company', $customer['company']);
-        static::assertSame($expected, $customer['vatIds'] ?? null);
+        static::assertSame($expected, $customer['vatIds']);
     }
 
     public static function businessVatIdsProvider(): \Generator
     {
         yield 'VAT IDs are written as a list' => [['DE123456789'], ['DE123456789']];
-        yield 'an empty VAT ID list is not written' => [[], null];
+        yield 'an empty VAT ID list is written as an empty list' => [[], []];
     }
 
     #[TestDox('Accepts customer names with the maximum allowed length of 255 characters')]

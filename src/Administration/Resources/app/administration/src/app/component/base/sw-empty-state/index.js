@@ -84,7 +84,7 @@ export default {
     created() {
         if (Shopware.Feature.isActive('V6_8_0_0')) {
             Shopware.Utils.debug.warn(
-                'sw-empty-state',
+                'Deprecation',
                 'The "sw-empty-state" component is deprecated and will be removed in v6.9.0.0. Please use "mt-empty-state" instead.',
             );
         }

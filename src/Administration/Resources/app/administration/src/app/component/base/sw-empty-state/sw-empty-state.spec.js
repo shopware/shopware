@@ -88,7 +88,7 @@ describe('components/base/sw-empty-state deprecation', () => {
         const wrapper = await createWrapper();
 
         expect(warnSpy).toHaveBeenCalledWith(
-            'sw-empty-state',
+            'Deprecation',
             'The "sw-empty-state" component is deprecated and will be removed in v6.9.0.0. Please use "mt-empty-state" instead.',
         );
         expect(wrapper.find('.sw-empty-state__title').text()).toBe('Oh no, nothing was found.');

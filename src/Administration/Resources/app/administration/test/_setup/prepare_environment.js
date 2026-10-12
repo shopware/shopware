@@ -474,9 +474,10 @@ global.allowedErrors = [
                 return false;
             }
 
-            const deprecationPattern = /is deprecated and will be removed in v6\.[89]\.0\.0\. Please use/;
-
-            return deprecationPattern.test(msg0) || (typeof msg1 === 'string' && deprecationPattern.test(msg1));
+            return (
+                msg0?.includes('is deprecated and will be removed in v6.8.0.0. Please use') ||
+                msg1?.includes?.('is deprecated and will be removed in v6.8.0.0. Please use')
+            );
         },
     },
     /*

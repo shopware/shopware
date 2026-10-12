@@ -625,12 +625,37 @@ class AdministrationControllerTest extends TestCase
 
     public function testSnippetFinderAddsEnglishSnippetWhenLocaleIsDifferent(): void
     {
-        $controller = $this->createAdministrationController();
+        $snippetFinder = $this->createMock(SnippetFinderInterface::class);
+        $snippetFinder
+            ->expects($this->exactly(2))
+            ->method('findSnippets')
+            ->willReturnCallback(static fn (string $locale): array => ['global' => [$locale => 'x']]);
+
+        $controller = $this->createAdministrationController(snippetFinder: $snippetFinder);
 
         $response = $controller->snippets(new Request(query: ['locale' => 'de-DE']));
 
         static::assertNotFalse($response->getContent());
-        static::assertJsonStringEqualsJsonString('{"de-DE":[],"en-GB":[]}', $response->getContent());
+        static::assertJsonStringEqualsJsonString(
+            '{"de-DE":{"global":{"de-DE":"x"}},"en-GB":{"global":{"en-GB":"x"}}}',
+            $response->getContent()
+        );
+    }
+
+    public function testSnippetsOmitsLocalesWithoutRemainingSnippets(): void
+    {
+        $snippetFinder = $this->createMock(SnippetFinderInterface::class);
+        $snippetFinder
+            ->expects($this->exactly(2))
+            ->method('findSnippets')
+            ->willReturnCallback(static fn (string $locale): array => ['global' => ['title' => 'Title']]);
+
+        $controller = $this->createAdministrationController(snippetFinder: $snippetFinder);
+
+        $response = $controller->snippets(new Request(query: ['locale' => 'de-DE']));
+
+        static::assertNotFalse($response->getContent());
+        static::assertJsonStringEqualsJsonString('{"de-DE":{"global":{"title":"Title"}}}', $response->getContent());
     }
 
     public function testGetUnauthenticatedSnippetsWithoutAuthentication(): void
@@ -644,6 +669,74 @@ class AdministrationControllerTest extends TestCase
         static::assertCount(2, $snippets);
         static::assertArrayHasKey('global', $snippets);
         static::assertArrayHasKey('sw-login', $snippets);
+    }
+
+    public function testSnippetsRemovesKeysFromFallbackWhichAreAlreadyProvidedByRequestedLocale(): void
+    {
+        $snippetFinder = $this->createMock(SnippetFinderInterface::class);
+        $snippetFinder
+            ->expects($this->exactly(2))
+            ->method('findSnippets')
+            ->willReturnCallback(static fn (string $locale): array => match ($locale) {
+                'de-DE' => [
+                    'global' => ['title' => 'Titel', 'nested' => ['a' => 'A-de']],
+                    'sw-login' => ['hello' => 'Hallo'],
+                ],
+                default => [
+                    'global' => ['title' => 'Title', 'nested' => ['a' => 'A-en', 'b' => 'B-en'], 'only' => 'Only-en'],
+                    'sw-login' => ['hello' => 'Hello'],
+                    'sw-product' => ['name' => 'Name'],
+                ],
+            });
+
+        $controller = $this->createAdministrationController(snippetFinder: $snippetFinder);
+
+        $response = $controller->snippets(new Request(query: ['locale' => 'de-DE']));
+
+        static::assertNotFalse($response->getContent());
+        static::assertJsonStringEqualsJsonString(
+            (string) \json_encode([
+                'de-DE' => [
+                    'global' => ['title' => 'Titel', 'nested' => ['a' => 'A-de']],
+                    'sw-login' => ['hello' => 'Hallo'],
+                ],
+                'en-GB' => [
+                    'global' => ['nested' => ['b' => 'B-en'], 'only' => 'Only-en'],
+                    'sw-product' => ['name' => 'Name'],
+                ],
+            ]),
+            $response->getContent()
+        );
+    }
+
+    public function testGetUnauthenticatedSnippetsFiltersRequestedLocaleAndFallback(): void
+    {
+        $snippetFinder = $this->createMock(SnippetFinderInterface::class);
+        $snippetFinder
+            ->expects($this->exactly(2))
+            ->method('findSnippets')
+            ->willReturnCallback(static fn (string $locale): array => [
+                'global' => [$locale => 'x'],
+                'sw-login' => [$locale => 'y'],
+                'sw-product' => [$locale => 'z'],
+            ]);
+
+        $tokenValidator = $this->createMock(SymfonyBearerTokenValidator::class);
+        $tokenValidator
+            ->expects($this->once())
+            ->method('validateAuthorization')
+            ->willThrowException(new OAuthServerException('', 0, ''));
+
+        $controller = $this->createAdministrationController(
+            snippetFinder: $snippetFinder,
+            tokenValidator: $tokenValidator,
+        );
+
+        $response = $controller->snippets(new Request(query: ['locale' => 'de-DE']));
+        $snippets = \json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(['global', 'sw-login'], \array_keys($snippets['de-DE']));
+        static::assertSame(['global', 'sw-login'], \array_keys($snippets['en-GB']));
     }
 
     public function testGetAllActivatedLanguagesLocales(): void

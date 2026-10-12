@@ -58,6 +58,8 @@ class AdministrationController extends AbstractController
      */
     public const CACHE_ID_ADMINISTRATION = 'administration';
 
+    private const FALLBACK_LOCALE = 'en-GB';
+
     private const UNAUTHENTICATED_SNIPPET_NAMESPACES = [
         'sw-login',
         'global',
@@ -174,15 +176,15 @@ class AdministrationController extends AbstractController
     public function snippets(Request $request): Response
     {
         $snippets = [];
-        $locale = (string) $request->query->get('locale', 'en-GB');
+        $locale = (string) $request->query->get('locale', self::FALLBACK_LOCALE);
         $snippets[$locale] = $this->snippetFinder->findSnippets($locale);
 
-        if ($locale !== 'en-GB') {
-            $snippets['en-GB'] = $this->snippetFinder->findSnippets('en-GB');
-            $snippets = $this->filterByAuthentication($request, $snippets, 'en-GB');
+        if ($locale !== self::FALLBACK_LOCALE) {
+            $snippets[self::FALLBACK_LOCALE] = $this->snippetFinder->findSnippets(self::FALLBACK_LOCALE);
         }
 
-        $snippets = $this->filterByAuthentication($request, $snippets, $locale);
+        $snippets = $this->filterByAuthentication($request, $snippets);
+        $snippets = $this->filterFallbackSnippets($snippets, $locale);
 
         return new JsonResponse($snippets);
     }
@@ -444,16 +446,71 @@ class AdministrationController extends AbstractController
      *
      * @return array<string, mixed>
      */
-    private function filterByAuthentication(Request $request, array $snippets, string $locale): array
+    private function filterByAuthentication(Request $request, array $snippets): array
     {
         try {
             $this->tokenValidator->validateAuthorization($request);
         } catch (OAuthServerException) {
-            $snippets[$locale] = \array_filter(
-                $snippets[$locale],
-                static fn (string $key) => \in_array($key, self::UNAUTHENTICATED_SNIPPET_NAMESPACES, true),
-                \ARRAY_FILTER_USE_KEY
-            );
+            foreach ($snippets as $locale => $localeSnippets) {
+                $snippets[$locale] = \array_filter(
+                    $localeSnippets,
+                    static fn (string $key) => \in_array($key, self::UNAUTHENTICATED_SNIPPET_NAMESPACES, true),
+                    \ARRAY_FILTER_USE_KEY
+                );
+            }
+        }
+
+        return $snippets;
+    }
+
+    /**
+     * @description Removes every snippet key (deep) from the fallback locale that is already provided by the requested locale, as it can never be reached as a fallback. Locales without any remaining snippets are omitted.
+     *
+     * @param array<string, array<string, mixed>> $snippets
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function filterFallbackSnippets(array $snippets, string $locale): array
+    {
+        if ($locale !== self::FALLBACK_LOCALE && isset($snippets[$locale], $snippets[self::FALLBACK_LOCALE])) {
+            $snippets[self::FALLBACK_LOCALE] = $this->removeKnownKeys($snippets[self::FALLBACK_LOCALE], $snippets[$locale]);
+        }
+
+        return \array_filter($snippets);
+    }
+
+    /**
+     * @param array<string, mixed> $snippets
+     * @param array<string, mixed> $known
+     *
+     * @return array<string, mixed>
+     */
+    private function removeKnownKeys(array $snippets, array $known): array
+    {
+        foreach ($snippets as $key => $value) {
+            if (!isset($known[$key])) {
+                continue;
+            }
+
+            if (!\is_array($value)) {
+                if (!\is_array($known[$key])) {
+                    unset($snippets[$key]);
+                }
+
+                continue;
+            }
+
+            if (!\is_array($known[$key])) {
+                continue;
+            }
+
+            $value = $this->removeKnownKeys($value, $known[$key]);
+
+            if ($value === []) {
+                unset($snippets[$key]);
+            } else {
+                $snippets[$key] = $value;
+            }
         }
 
         return $snippets;

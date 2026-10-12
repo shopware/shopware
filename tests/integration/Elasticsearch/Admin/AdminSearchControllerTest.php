@@ -95,8 +95,8 @@ class AdminSearchControllerTest extends TestCase
         $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('data', $content, print_r($content, true));
-        static::assertNotEmpty($content['data']);
-        static::assertNotEmpty($content['data']['promotion']);
+        static::assertIsArray($content['data']);
+        static::assertIsArray($content['data']['promotion']);
 
         $content = $content['data']['promotion'];
 
@@ -104,7 +104,7 @@ class AdminSearchControllerTest extends TestCase
 
         foreach ($expectedPromotions as $expectedPromotion) {
             $id = $ids->get($expectedPromotion);
-            static::assertNotEmpty($content['data'][$id]);
+            static::assertIsArray($content['data'][$id]);
             static::assertSame($id, $content['data'][$id]['id']);
         }
     }

@@ -25,7 +25,7 @@ class WriteAuthorizerTest extends TestCase
     public function testAppWebhookCannotBeModified(): void
     {
         $violations = $this->authorize(
-            new Ownership(self::WEBHOOK_ID, Uuid::randomHex(), null, null),
+            new Ownership(self::WEBHOOK_ID, Uuid::randomHex(), null),
             $this->userSource(Uuid::randomHex())
         );
 
@@ -35,7 +35,7 @@ class WriteAuthorizerTest extends TestCase
     public function testAppWebhookCannotBeModifiedEvenByAnAdmin(): void
     {
         $violations = $this->authorize(
-            new Ownership(self::WEBHOOK_ID, Uuid::randomHex(), null, null),
+            new Ownership(self::WEBHOOK_ID, Uuid::randomHex(), null),
             $this->userSource(Uuid::randomHex(), isAdmin: true)
         );
 
@@ -47,7 +47,7 @@ class WriteAuthorizerTest extends TestCase
         $userId = Uuid::randomHex();
 
         $violations = $this->authorize(
-            new Ownership(self::WEBHOOK_ID, null, $userId, null),
+            new Ownership(self::WEBHOOK_ID, null, $userId),
             $this->userSource($userId)
         );
 
@@ -57,7 +57,7 @@ class WriteAuthorizerTest extends TestCase
     public function testAnotherUserMayNotModify(): void
     {
         $violations = $this->authorize(
-            new Ownership(self::WEBHOOK_ID, null, Uuid::randomHex(), null),
+            new Ownership(self::WEBHOOK_ID, null, Uuid::randomHex()),
             $this->userSource(Uuid::randomHex())
         );
 
@@ -69,7 +69,7 @@ class WriteAuthorizerTest extends TestCase
         $integrationId = Uuid::randomHex();
 
         $violations = $this->authorize(
-            new Ownership(self::WEBHOOK_ID, null, null, $integrationId),
+            new Ownership(self::WEBHOOK_ID, null, $integrationId),
             new AdminApiSource(null, $integrationId)
         );
 
@@ -79,7 +79,7 @@ class WriteAuthorizerTest extends TestCase
     public function testAnotherIntegrationMayNotModify(): void
     {
         $violations = $this->authorize(
-            new Ownership(self::WEBHOOK_ID, null, null, Uuid::randomHex()),
+            new Ownership(self::WEBHOOK_ID, null, Uuid::randomHex()),
             new AdminApiSource(null, Uuid::randomHex())
         );
 
@@ -89,7 +89,7 @@ class WriteAuthorizerTest extends TestCase
     public function testWebhookWithoutOwnerMayNotBeModified(): void
     {
         $violations = $this->authorize(
-            new Ownership(self::WEBHOOK_ID, null, null, null),
+            new Ownership(self::WEBHOOK_ID, null, null),
             $this->userSource(Uuid::randomHex())
         );
 
@@ -99,7 +99,7 @@ class WriteAuthorizerTest extends TestCase
     public function testAdminMayModifyAWebhookItDoesNotOwn(): void
     {
         $violations = $this->authorize(
-            new Ownership(self::WEBHOOK_ID, null, Uuid::randomHex(), null),
+            new Ownership(self::WEBHOOK_ID, null, Uuid::randomHex()),
             $this->userSource(Uuid::randomHex(), isAdmin: true)
         );
 

@@ -18,14 +18,14 @@ class OwnershipTest extends TestCase
 {
     public function testAWebhookWithAnAppBelongsToIt(): void
     {
-        $ownership = new Ownership(Uuid::randomHex(), Uuid::randomHex(), null, null);
+        $ownership = new Ownership(Uuid::randomHex(), Uuid::randomHex(), null);
 
         static::assertTrue($ownership->belongsToApp());
     }
 
     public function testAWebhookWithoutAnAppDoesNotBelongToOne(): void
     {
-        $ownership = new Ownership(Uuid::randomHex(), null, Uuid::randomHex(), null);
+        $ownership = new Ownership(Uuid::randomHex(), null, Uuid::randomHex());
 
         static::assertFalse($ownership->belongsToApp());
     }
@@ -33,14 +33,14 @@ class OwnershipTest extends TestCase
     public function testTheOwningUserOwnsIt(): void
     {
         $userId = Uuid::randomHex();
-        $ownership = new Ownership(Uuid::randomHex(), null, $userId, null);
+        $ownership = new Ownership(Uuid::randomHex(), null, $userId);
 
         static::assertTrue($ownership->isOwnedBy(new AdminApiSource($userId)));
     }
 
     public function testAnotherUserDoesNotOwnIt(): void
     {
-        $ownership = new Ownership(Uuid::randomHex(), null, Uuid::randomHex(), null);
+        $ownership = new Ownership(Uuid::randomHex(), null, Uuid::randomHex());
 
         static::assertFalse($ownership->isOwnedBy(new AdminApiSource(Uuid::randomHex())));
     }
@@ -48,32 +48,39 @@ class OwnershipTest extends TestCase
     public function testTheOwningIntegrationOwnsIt(): void
     {
         $integrationId = Uuid::randomHex();
-        $ownership = new Ownership(Uuid::randomHex(), null, null, $integrationId);
+        $ownership = new Ownership(Uuid::randomHex(), null, $integrationId);
 
         static::assertTrue($ownership->isOwnedBy(new AdminApiSource(null, $integrationId)));
     }
 
     public function testAnotherIntegrationDoesNotOwnIt(): void
     {
-        $ownership = new Ownership(Uuid::randomHex(), null, null, Uuid::randomHex());
+        $ownership = new Ownership(Uuid::randomHex(), null, Uuid::randomHex());
 
         static::assertFalse($ownership->isOwnedBy(new AdminApiSource(null, Uuid::randomHex())));
     }
 
     public function testAWebhookWithoutAnOwnerIsOwnedByNobody(): void
     {
-        $ownership = new Ownership(Uuid::randomHex(), null, null, null);
+        $ownership = new Ownership(Uuid::randomHex(), null, null);
 
         static::assertFalse($ownership->isOwnedBy(new AdminApiSource(Uuid::randomHex())));
         static::assertFalse($ownership->isOwnedBy(new AdminApiSource(null, Uuid::randomHex())));
     }
 
-    public function testARecordedUserIsCheckedEvenWhenTheSourceAlsoCarriesAnIntegration(): void
+    public function testAnIntegrationNamingTheOwningUserDoesNotOwnIt(): void
     {
         $userId = Uuid::randomHex();
-        $ownership = new Ownership(Uuid::randomHex(), null, $userId, null);
+        $ownership = new Ownership(Uuid::randomHex(), null, $userId);
 
-        static::assertTrue($ownership->isOwnedBy(new AdminApiSource($userId, Uuid::randomHex())));
-        static::assertFalse($ownership->isOwnedBy(new AdminApiSource(Uuid::randomHex(), Uuid::randomHex())));
+        static::assertFalse($ownership->isOwnedBy(new AdminApiSource($userId, Uuid::randomHex())));
+    }
+
+    public function testTheOwningIntegrationOwnsItWhileNamingAUser(): void
+    {
+        $integrationId = Uuid::randomHex();
+        $ownership = new Ownership(Uuid::randomHex(), null, $integrationId);
+
+        static::assertTrue($ownership->isOwnedBy(new AdminApiSource(Uuid::randomHex(), $integrationId)));
     }
 }

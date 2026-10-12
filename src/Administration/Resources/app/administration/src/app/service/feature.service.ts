@@ -20,4 +20,12 @@ export default class FeatureService {
     isActive(flagName: string): boolean {
         return this.Feature.isActive(flagName);
     }
+
+    isRegistered(flagName: string): boolean {
+        return this.Feature.isRegistered(flagName);
+    }
+
+    triggerDeprecationOrThrow(majorFlag: string, message: string): void {
+        this.Feature.triggerDeprecationOrThrow(majorFlag, message);
+    }
 }

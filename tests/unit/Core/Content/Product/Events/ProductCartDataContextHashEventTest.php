@@ -40,9 +40,9 @@ class ProductCartDataContextHashEventTest extends TestCase
     {
         $event = new ProductCartDataContextHashEvent(new CartDataCollection(), new Cart('test'), Generator::generateSalesChannelContext(), new CartBehavior());
 
-        $event->add('b', 'second');
-        $event->add('a', ['first']);
-        $event->add('b', 2);
+        $event->addPart('b', 'second');
+        $event->addPart('a', ['first']);
+        $event->addPart('b', 2);
 
         static::assertSame(['a' => ['first'], 'b' => 2], $event->getParts());
     }

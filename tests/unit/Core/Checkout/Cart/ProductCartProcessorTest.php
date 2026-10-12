@@ -460,7 +460,7 @@ class ProductCartProcessorTest extends TestCase
         $hash = function (array $order): ?string {
             return $this->collectDataContextHash(static function (ProductCartDataContextHashEvent $event) use ($order): void {
                 foreach ($order as $name) {
-                    $event->add($name, $name);
+                    $event->addPart($name, $name);
                 }
             });
         };
@@ -473,7 +473,7 @@ class ProductCartProcessorTest extends TestCase
         $dispatcher = new EventDispatcher();
         if (\is_string($listener)) {
             $dispatcher->addListener(ProductCartDataContextHashEvent::class, static function (ProductCartDataContextHashEvent $event) use ($listener): void {
-                $event->add('plugin', $listener);
+                $event->addPart('plugin', $listener);
             });
         } elseif ($listener instanceof \Closure) {
             $dispatcher->addListener(ProductCartDataContextHashEvent::class, $listener);

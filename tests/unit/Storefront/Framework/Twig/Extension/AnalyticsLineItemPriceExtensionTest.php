@@ -12,7 +12,7 @@ use Shopware\Storefront\Framework\Twig\Extension\AnalyticsLineItemPriceExtension
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('discovery')]
 #[CoversClass(AnalyticsLineItemPriceExtension::class)]
 class AnalyticsLineItemPriceExtensionTest extends TestCase
 {

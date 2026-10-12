@@ -26,7 +26,7 @@ use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPriceCalculator;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('discovery')]
 #[CoversClass(AnalyticsLineItemPriceCalculator::class)]
 class AnalyticsLineItemPriceCalculatorTest extends TestCase
 {

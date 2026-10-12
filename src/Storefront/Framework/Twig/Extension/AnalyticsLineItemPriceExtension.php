@@ -13,7 +13,7 @@ use Twig\TwigFunction;
  *
  * @internal
  */
-#[Package('checkout')]
+#[Package('discovery')]
 class AnalyticsLineItemPriceExtension extends AbstractExtension
 {
     public function __construct(private readonly AnalyticsLineItemPriceCalculator $calculator)

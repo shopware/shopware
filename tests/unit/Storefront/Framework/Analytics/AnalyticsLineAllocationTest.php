@@ -10,7 +10,7 @@ use Shopware\Storefront\Framework\Analytics\AnalyticsLineAllocation;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('discovery')]
 #[CoversClass(AnalyticsLineAllocation::class)]
 class AnalyticsLineAllocationTest extends TestCase
 {

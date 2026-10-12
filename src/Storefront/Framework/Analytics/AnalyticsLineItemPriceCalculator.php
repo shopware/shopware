@@ -25,7 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @internal
  */
-#[Package('checkout')]
+#[Package('discovery')]
 class AnalyticsLineItemPriceCalculator
 {
     public function __construct(private readonly CashRounding $rounding)

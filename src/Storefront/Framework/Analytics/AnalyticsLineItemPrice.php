@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('checkout')]
+#[Package('discovery')]
 final readonly class AnalyticsLineItemPrice
 {
     /**

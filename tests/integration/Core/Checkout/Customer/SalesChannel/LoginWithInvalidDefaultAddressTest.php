@@ -135,7 +135,7 @@ class LoginWithInvalidDefaultAddressTest extends TestCase
         $this->deleteAddress('shipping-address');
         static::assertSame(200, $this->login());
 
-        static::assertNotEmpty($this->addProductToCart());
+        static::assertNotCount(0, $this->addProductToCart());
 
         $this->browser->request('POST', '/store-api/account/address', [
             'firstName' => 'Max',

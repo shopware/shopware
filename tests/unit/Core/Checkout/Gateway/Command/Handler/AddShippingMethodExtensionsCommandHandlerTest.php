@@ -65,7 +65,7 @@ class AddShippingMethodExtensionsCommandHandlerTest extends TestCase
         $expected = new ArrayStruct(['foo' => 'bar', 1 => 2]);
 
         static::assertEquals(['foo_key' => $expected], $shipping1->getExtensions());
-        static::assertEmpty($shipping2->getExtensions());
+        static::assertCount(0, $shipping2->getExtensions());
     }
 
     public function testUnknownMethodIsLogged(): void

@@ -481,7 +481,7 @@ class StorefrontControllerTest extends TestCase
         $request = new Request();
         $params = $this->controller->testDecodeParam($request, 'foo');
 
-        static::assertEmpty($params);
+        static::assertCount(0, $params);
     }
 
     public function testDecodeParamsNumeric(): void
@@ -489,7 +489,7 @@ class StorefrontControllerTest extends TestCase
         $request = new Request(['foobar' => 1]);
         $params = $this->controller->testDecodeParam($request, 'foobar');
 
-        static::assertEmpty($params);
+        static::assertCount(0, $params);
     }
 
     public function testDecodeParamsArray(): void

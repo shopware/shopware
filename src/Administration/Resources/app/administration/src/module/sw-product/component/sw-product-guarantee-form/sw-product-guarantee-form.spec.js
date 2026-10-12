@@ -58,6 +58,25 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                     'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
                     'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
                     'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
+                    'sw-url-field': await wrapTestComponent('sw-url-field', { sync: true }),
+                    'sw-url-field-deprecated': await wrapTestComponent('sw-url-field-deprecated', { sync: true }),
+                    'sw-media-field': {
+                        template: `
+                            <div class="sw-media-field">
+                                <span class="sw-media-field__value">{{ value }}</span>
+                                <button
+                                    class="sw-media-field__select"
+                                    :disabled="disabled"
+                                    @click="$emit('update:value', 'selected-media-id')"
+                                ></button>
+                            </div>`,
+                        props: [
+                            'value',
+                            'disabled',
+                            'fileAccept',
+                            'defaultFolder',
+                        ],
+                    },
                     'sw-ai-copilot-badge': true,
                     'sw-field-copyable': true,
                     'sw-help-text': true,
@@ -164,6 +183,67 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         expect(
             wrapper.find('.sw-product-guarantee-form__switches .sw-inheritance-switch--is-not-inherited').exists(),
         ).toBe(true);
+    });
+
+    describe('guarantee terms', () => {
+        it('should store the selected terms document and URL', async () => {
+            expect(wrapper.findComponent('.sw-media-field').props('fileAccept')).toBe('application/pdf');
+
+            await wrapper.find('.sw-media-field__select').trigger('click');
+            const urlField = wrapper.find('.sw-field--url input');
+            await urlField.setValue('https://example.com/guarantee-terms');
+            await urlField.trigger('blur');
+
+            expect(store.product.guaranteeTermsMediaId).toBe('selected-media-id');
+            expect(store.product.guaranteeTermsUrl).toBe('https://example.com/guarantee-terms');
+        });
+
+        it('should store an emptied terms URL as null', async () => {
+            const urlField = wrapper.find('.sw-field--url input');
+
+            await urlField.setValue('https://example.com/guarantee-terms');
+            await urlField.trigger('blur');
+            await urlField.setValue('');
+            await urlField.trigger('blur');
+
+            expect(store.product.guaranteeTermsUrl).toBeNull();
+        });
+
+        it('should lock the terms a variant inherits from its parent product', async () => {
+            store.product.guaranteeTermsMediaId = null;
+            store.product.guaranteeTermsUrl = null;
+            store.parentProduct = {
+                id: 'parentId',
+                guaranteeTermsMediaId: 'parent-media-id',
+                guaranteeTermsUrl: 'https://example.com/parent-guarantee-terms',
+            };
+            await flushPromises();
+
+            expect(wrapper.find('.sw-media-field__select').element.disabled).toBe(true);
+            expect(wrapper.find('.sw-field--url input').element.disabled).toBe(true);
+        });
+
+        it('should show the error of an invalid terms URL', async () => {
+            State.commit('error/addApiError', {
+                expression: 'product.productId.guaranteeTermsUrl',
+                error: new ShopwareError({
+                    code: 'INVALID_GARAN_GUARANTEE_TERMS_URL',
+                    detail: 'The GARAN guarantee terms URL must be empty or an http(s) URL.',
+                }),
+            });
+            await flushPromises();
+
+            expect(wrapper.find('.sw-field--url .sw-field__error').text()).toBe(
+                'The GARAN guarantee terms URL must be empty or an http(s) URL.',
+            );
+        });
+
+        it('should disable the terms fields when allowEdit is false', async () => {
+            wrapper = await createWrapper({ allowEdit: false }, ['product.editor']);
+
+            expect(wrapper.find('.sw-media-field__select').element.disabled).toBe(true);
+            expect(wrapper.find('.sw-field--url input').element.disabled).toBe(true);
+        });
     });
 
     describe('unmet label requirements notice', () => {

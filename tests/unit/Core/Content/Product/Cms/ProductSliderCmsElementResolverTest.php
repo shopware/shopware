@@ -17,6 +17,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
@@ -369,6 +370,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $container->set(ProductMediaDefinition::class, $this->createMock(ProductMediaDefinition::class));
         $container->set(ProductFeatureSetDefinition::class, $this->createMock(ProductFeatureSetDefinition::class));
         $container->set(CmsPageDefinition::class, $this->createMock(CmsPageDefinition::class));
+        $container->set(MediaDefinition::class, $this->createMock(MediaDefinition::class));
 
         $productDefinition->compile(new DefinitionInstanceRegistry($container, [], []));
         $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $productDefinition, $product);

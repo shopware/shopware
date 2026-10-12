@@ -21,6 +21,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductCo
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
@@ -169,6 +170,8 @@ class MediaEntity extends Entity
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $productMedia;
+
+    protected ?ProductCollection $productGuaranteeTerms = null;
 
     /**
      * @var UserCollection|null
@@ -488,6 +491,16 @@ class MediaEntity extends Entity
     public function setProductMedia(ProductMediaCollection $productMedia): void
     {
         $this->productMedia = $productMedia;
+    }
+
+    public function getProductGuaranteeTerms(): ?ProductCollection
+    {
+        return $this->productGuaranteeTerms;
+    }
+
+    public function setProductGuaranteeTerms(ProductCollection $productGuaranteeTerms): void
+    {
+        $this->productGuaranteeTerms = $productGuaranteeTerms;
     }
 
     public function getAvatarUsers(): ?UserCollection

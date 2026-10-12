@@ -273,6 +273,19 @@
                                 </span>
                             </button>
                         {% endblock %}
+
+                        {% block buy_widget_garan_label_terms_link %}
+                            {% set garanTermsUrl = product.guaranteeTermsUrl ?: (product.guaranteeTermsMedia.url ?? null) %}
+
+                            {% if garanTermsUrl %}
+                                <a href="{{ garanTermsUrl }}"
+                                   class="product-detail-garan-terms-link d-block mb-3"
+                                   target="_blank"
+                                   rel="noopener">
+                                    {{ 'detail.garanTermsLink'|trans|sw_sanitize }}
+                                </a>
+                            {% endif %}
+                        {% endblock %}
                     </div>
                 {% endblock %}
             {% endif %}

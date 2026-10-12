@@ -137,14 +137,12 @@ module.exports = {
     create(context) {
         const registry = loadRegistry();
         const usages = filterMigrations(registry.templateBlockMigrations).flatMap((migration) => {
-            return migration.usage
-                .filter((usage) => usage.kind !== 'replace-template-block')
-                .map((usage) => {
-                    return {
-                        migration,
-                        usage,
-                    };
-                });
+            return migration.usage.map((usage) => {
+                return {
+                    migration,
+                    usage,
+                };
+            });
         });
 
         return {

@@ -6,11 +6,43 @@ const { loadRegistry } = require('./registry/load-registry');
 const { filterMigrations } = require('./registry/filter-migrations');
 const { appendRegistryContext } = require('./registry/format-migration-message');
 
-function buildMessage(migration, usage, additionalMessage = '') {
+/**
+ * Builds the report message; empty hints are skipped by appendRegistryContext.
+ *
+ * @example
+ * buildMessage(migration, usage, [usage.message, objectVOnMessage]);
+ */
+function buildMessage(migration, usage, hints = []) {
     return appendRegistryContext(
-        [`[${usage.component}] The "${usage.from}" event is deprecated. Use "${usage.to}" instead.`, additionalMessage],
+        [
+            `[${usage.component}] The "${usage.from}" event is deprecated. Use "${usage.to}" instead.`,
+            ...hints,
+        ],
         migration,
     );
+}
+
+/**
+ * Tells whether the usage may be rewritten by `--fix`; 'manual' usages are only reported.
+ *
+ * @example
+ * usageFixesAutomatically({ fix: 'unsafe-auto' }); // true
+ */
+function usageFixesAutomatically(usage) {
+    return usage.fix !== 'manual';
+}
+
+/**
+ * Tells whether the element already listens to the replacement event; renaming would then produce a
+ * duplicate attribute, which the Vue template compiler rejects.
+ *
+ * @example
+ * hasReplacementListener(node, 'update:value'); // true for <sw-text-field @input="a" @update:value="b" />
+ */
+function hasReplacementListener(node, eventName) {
+    return node.startTag.attributes.some((attribute) => {
+        return attribute.key?.name?.name === 'on' && attribute.key?.argument?.name === eventName;
+    });
 }
 
 function getEventName(attribute) {
@@ -87,12 +119,26 @@ module.exports = {
 
                     context.report({
                         node: attribute,
-                        message: buildMessage(match.migration, match.usage, objectVOnMessage),
+                        message: buildMessage(match.migration, match.usage, [
+                            match.usage.message,
+                            objectVOnMessage,
+                        ]),
                         *fix(fixer) {
                             if (context.options.includes('disableFix')) return;
+                            if (!usageFixesAutomatically(match.usage)) return;
                             if (objectVOnMessage) return;
+                            if (hasReplacementListener(node, match.usage.to)) return;
 
                             yield fixer.replaceText(attribute.key.argument, match.usage.to);
+
+                            if (match.usage.fix === 'unsafe-auto') {
+                                const reviewHint = match.usage.message ?? 'Verify this automatic event rename.';
+
+                                yield fixer.insertTextBefore(
+                                    node,
+                                    `<!-- TODO Codemod: ${reviewHint} -->\n${' '.repeat(node.loc.start.column)}`,
+                                );
+                            }
                         },
                     });
                 });

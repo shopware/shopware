@@ -154,20 +154,6 @@ export function removeAsset({
     return usage('remove-asset', { to: null, fix, message });
 }
 
-export function replaceTemplateBlock({
-    from,
-    to,
-    fix = 'manual',
-    message,
-}: {
-    from: string;
-    to: string;
-    fix?: FixLevel;
-    message?: string;
-}): DeprecationUsage {
-    return usage('replace-template-block', { from, to, fix, message });
-}
-
 export function removeTemplateBlock({
     from,
     fix = 'manual',

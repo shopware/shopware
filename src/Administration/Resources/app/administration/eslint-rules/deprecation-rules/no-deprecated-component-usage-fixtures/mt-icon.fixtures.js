@@ -15,6 +15,15 @@ const mtIconValidTests = [
                 <mt-icon name="regular-times-s" />
             </template>`,
     },
+    {
+        name: '"mt-icon" without a size prop is not changed once the "Converted from sw-icon" comment is resolved',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <!-- Close button -->
+                <mt-icon name="regular-times-s" />
+            </template>`,
+    },
 ];
 
 const mtIconInvalidTests = [
@@ -161,7 +170,8 @@ const mtIconInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-icon] The "small" API is deprecated. Use "size" instead.\nExpression-bound prop values can be false at runtime. Review the expression and replace it with "16px" manually if needed.',
+                message:
+                    '[mt-icon] The "small" API is deprecated. Use "size" instead.\nExpression-bound prop values can be false at runtime. Review the expression and replace it with "16px" manually if needed.',
             },
         ],
     },
@@ -371,12 +381,14 @@ const mtIconInvalidTests = [
         output: `
             <template>
                 <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
-                <!-- TODO Codemod: size="24px" keeps the sw-icon default size. Keep it, or remove it to use the mt-icon default size. -->
+                <!-- TODO Codemod: size="24px" keeps the sw-icon default size. Keep it, or remove it to use the mt-icon default size, and remove the "Converted from sw-icon" comment so the size is not added again. -->
                 <mt-icon name="regular-times-s" size="24px" />
             </template>`,
-        errors: [{
-            message: '[mt-icon] Add size="24px" when no size is set to preserve the previous default icon size.',
-        }]
+        errors: [
+            {
+                message: '[mt-icon] Add size="24px" when no size is set to preserve the previous default icon size.',
+            },
+        ],
     },
     {
         name: '"mt-icon" converted from "sw-icon" without a size prop gets size 24px [disableFix]',
@@ -387,9 +399,11 @@ const mtIconInvalidTests = [
                 <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                 <mt-icon name="regular-times-s" />
             </template>`,
-        errors: [{
-            message: '[mt-icon] Add size="24px" when no size is set to preserve the previous default icon size.',
-        }]
+        errors: [
+            {
+                message: '[mt-icon] Add size="24px" when no size is set to preserve the previous default icon size.',
+            },
+        ],
     },
     {
         name: '"mt-icon" converted from "sw-icon" without a size prop gets size 24px [nested]',
@@ -404,14 +418,16 @@ const mtIconInvalidTests = [
         output: `
             <template>
                 <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
-                <!-- TODO Codemod: size="24px" keeps the sw-icon default size. Keep it, or remove it to use the mt-icon default size. -->
+                <!-- TODO Codemod: size="24px" keeps the sw-icon default size. Keep it, or remove it to use the mt-icon default size, and remove the "Converted from sw-icon" comment so the size is not added again. -->
                 <mt-icon
                     name="regular-times-s" size="24px"
                 />
             </template>`,
-        errors: [{
-            message: '[mt-icon] Add size="24px" when no size is set to preserve the previous default icon size.',
-        }]
+        errors: [
+            {
+                message: '[mt-icon] Add size="24px" when no size is set to preserve the previous default icon size.',
+            },
+        ],
     },
     {
         name: '"mt-icon" converted from "sw-icon" without any attribute gets size 24px',
@@ -424,16 +440,18 @@ const mtIconInvalidTests = [
         output: `
             <template>
                 <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
-                <!-- TODO Codemod: size="24px" keeps the sw-icon default size. Keep it, or remove it to use the mt-icon default size. -->
+                <!-- TODO Codemod: size="24px" keeps the sw-icon default size. Keep it, or remove it to use the mt-icon default size, and remove the "Converted from sw-icon" comment so the size is not added again. -->
                 <mt-icon size="24px" />
             </template>`,
-        errors: [{
-            message: '[mt-icon] Add size="24px" when no size is set to preserve the previous default icon size.',
-        }]
+        errors: [
+            {
+                message: '[mt-icon] Add size="24px" when no size is set to preserve the previous default icon size.',
+            },
+        ],
     },
 ];
 
 module.exports = {
     mtIconValidTests,
-    mtIconInvalidTests
+    mtIconInvalidTests,
 };

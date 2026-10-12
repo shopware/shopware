@@ -1,30 +1,30 @@
 const { withRegistryMessageContext } = require('../registry/with-registry-message-context');
 const { rule, tester } = require('./tester');
 
-tester.run('no-deprecated-components (invalid select and feedback components)', rule, {
+tester.run('no-deprecated-components (invalid layout and feedback components)', rule, {
     valid: [],
     invalid: [
         ...withRegistryMessageContext([
             {
-                name: '"sw-select-field" usage is not allowed',
+                name: '"sw-card" usage is not allowed',
                 filename: 'test.html.twig',
                 code: `
 <template>
-    <sw-select-field />
+    <sw-card>Hello</sw-card>
 </template>`,
                 output: `
 <template>
-    <!-- TODO Codemod: Converted from sw-select-field - please check if everything works correctly -->
-    <mt-select />
+    <!-- TODO Codemod: Converted from sw-card - please check if everything works correctly -->
+    <mt-card>Hello</mt-card>
 </template>`,
                 errors: [
                     {
-                        message: '"sw-select-field" is deprecated. Please use "mt-select" instead.',
+                        message: '"sw-card" is deprecated. Please use "mt-card" instead.',
                     },
                 ],
             },
             {
-                name: '"sw-select-field" usage is not allowed [disableFix]',
+                name: '"sw-card" usage is not allowed [disableFix]',
                 filename: 'test.html.twig',
                 options: [
                     {
@@ -33,34 +33,30 @@ tester.run('no-deprecated-components (invalid select and feedback components)', 
                 ],
                 code: `
 <template>
-    <sw-select-field />
+    <sw-card>Hello</sw-card>
 </template>`,
                 errors: [
                     {
-                        message: '"sw-select-field" is deprecated. Please use "mt-select" instead.',
+                        message: '"sw-card" is deprecated. Please use "mt-card" instead.',
                     },
                 ],
             },
             {
-                name: '"sw-textarea-field" usage is not allowed',
+                name: '"sw-tabs" usage is not allowed without autofix because tab metadata needs manual migration',
                 filename: 'test.html.twig',
                 code: `
 <template>
-    <sw-textarea-field />
+    <sw-tabs />
 </template>`,
-                output: `
-<template>
-    <!-- TODO Codemod: Converted from sw-textarea-field - please check if everything works correctly -->
-    <mt-textarea />
-</template>`,
+                output: null,
                 errors: [
                     {
-                        message: '"sw-textarea-field" is deprecated. Please use "mt-textarea" instead.',
+                        message: '"sw-tabs" is deprecated. Please use "mt-tabs" instead.',
                     },
                 ],
             },
             {
-                name: '"sw-textarea-field" usage is not allowed [disableFix]',
+                name: '"sw-tabs" usage is not allowed [disableFix]',
                 filename: 'test.html.twig',
                 options: [
                     {
@@ -69,11 +65,83 @@ tester.run('no-deprecated-components (invalid select and feedback components)', 
                 ],
                 code: `
 <template>
-    <sw-textarea-field />
+    <sw-tabs />
 </template>`,
                 errors: [
                     {
-                        message: '"sw-textarea-field" is deprecated. Please use "mt-textarea" instead.',
+                        message: '"sw-tabs" is deprecated. Please use "mt-tabs" instead.',
+                    },
+                ],
+            },
+            {
+                name: '"sw-loader" usage is not allowed',
+                filename: 'test.html.twig',
+                code: `
+<template>
+    <sw-loader />
+</template>`,
+                output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-loader - please check if everything works correctly -->
+    <mt-loader />
+</template>`,
+                errors: [
+                    {
+                        message: '"sw-loader" is deprecated. Please use "mt-loader" instead.',
+                    },
+                ],
+            },
+            {
+                name: '"sw-loader" usage is not allowed [disableFix]',
+                filename: 'test.html.twig',
+                options: [
+                    {
+                        fix: false,
+                    },
+                ],
+                code: `
+<template>
+    <sw-loader />
+</template>`,
+                errors: [
+                    {
+                        message: '"sw-loader" is deprecated. Please use "mt-loader" instead.',
+                    },
+                ],
+            },
+            {
+                name: '"sw-icon" usage is not allowed',
+                filename: 'test.html.twig',
+                code: `
+<template>
+    <sw-icon name="regular-times-s" />
+</template>`,
+                output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+    <mt-icon name="regular-times-s" />
+</template>`,
+                errors: [
+                    {
+                        message: '"sw-icon" is deprecated. Please use "mt-icon" instead.',
+                    },
+                ],
+            },
+            {
+                name: '"sw-icon" usage is not allowed [disableFix]',
+                filename: 'test.html.twig',
+                options: [
+                    {
+                        fix: false,
+                    },
+                ],
+                code: `
+<template>
+    <sw-icon name="regular-times-s" />
+</template>`,
+                errors: [
+                    {
+                        message: '"sw-icon" is deprecated. Please use "mt-icon" instead.',
                     },
                 ],
             },
@@ -110,204 +178,6 @@ tester.run('no-deprecated-components (invalid select and feedback components)', 
                 errors: [
                     {
                         message: '"sw-alert" is deprecated. Please use "mt-banner" instead.',
-                    },
-                ],
-            },
-            {
-                name: '"sw-email-field" usage is not allowed',
-                filename: 'test.html.twig',
-                code: `
-<template>
-    <sw-email-field />
-</template>`,
-                output: `
-<template>
-    <!-- TODO Codemod: Converted from sw-email-field - please check if everything works correctly -->
-    <mt-email-field />
-</template>`,
-                errors: [
-                    {
-                        message: '"sw-email-field" is deprecated. Please use "mt-email-field" instead.',
-                    },
-                ],
-            },
-            {
-                name: '"sw-email-field" usage is not allowed [disableFix]',
-                filename: 'test.html.twig',
-                options: [
-                    {
-                        fix: false,
-                    },
-                ],
-                code: `
-<template>
-    <sw-email-field />
-</template>`,
-                errors: [
-                    {
-                        message: '"sw-email-field" is deprecated. Please use "mt-email-field" instead.',
-                    },
-                ],
-            },
-            {
-                name: '"sw-skeleton-bar" usage is not allowed',
-                filename: 'test.html.twig',
-                code: `
-<template>
-    <sw-skeleton-bar />
-</template>`,
-                output: `
-<template>
-    <!-- TODO Codemod: Converted from sw-skeleton-bar - please check if everything works correctly -->
-    <mt-skeleton-bar />
-</template>`,
-                errors: [
-                    {
-                        message: '"sw-skeleton-bar" is deprecated. Please use "mt-skeleton-bar" instead.',
-                    },
-                ],
-            },
-            {
-                name: '"sw-skeleton-bar" usage is not allowed [disableFix]',
-                filename: 'test.html.twig',
-                options: [
-                    {
-                        fix: false,
-                    },
-                ],
-                code: `
-<template>
-    <sw-skeleton-bar />
-</template>`,
-                errors: [
-                    {
-                        message: '"sw-skeleton-bar" is deprecated. Please use "mt-skeleton-bar" instead.',
-                    },
-                ],
-            },
-            {
-                name: '"sw-password-field" usage is not allowed',
-                filename: 'test.html.twig',
-                code: `
-<template>
-    <sw-password-field />
-</template>`,
-                output: `
-<template>
-    <!-- TODO Codemod: Converted from sw-password-field - please check if everything works correctly -->
-    <mt-password-field />
-</template>`,
-                errors: [
-                    {
-                        message: '"sw-password-field" is deprecated. Please use "mt-password-field" instead.',
-                    },
-                ],
-            },
-            {
-                name: '"sw-password-field" converts to mt-password-field and keeps its "hint" slot',
-                filename: 'test.html.twig',
-                code: `
-<template>
-    <sw-password-field><template #hint>Min 8 chars</template></sw-password-field>
-</template>`,
-                output: `
-<template>
-    <!-- TODO Codemod: Converted from sw-password-field - please check if everything works correctly -->
-    <mt-password-field><template #hint>Min 8 chars</template></mt-password-field>
-</template>`,
-                errors: [
-                    {
-                        message: '"sw-password-field" is deprecated. Please use "mt-password-field" instead.',
-                    },
-                ],
-            },
-            {
-                name: '"sw-password-field" usage is not allowed [disableFix]',
-                filename: 'test.html.twig',
-                options: [
-                    {
-                        fix: false,
-                    },
-                ],
-                code: `
-<template>
-    <sw-password-field />
-</template>`,
-                errors: [
-                    {
-                        message: '"sw-password-field" is deprecated. Please use "mt-password-field" instead.',
-                    },
-                ],
-            },
-            {
-                name: '"sw-url-field" usage is not allowed',
-                filename: 'test.html.twig',
-                code: `
-<template>
-    <sw-url-field />
-</template>`,
-                output: `
-<template>
-    <!-- TODO Codemod: Converted from sw-url-field - please check if everything works correctly -->
-    <mt-url-field />
-</template>`,
-                errors: [
-                    {
-                        message: '"sw-url-field" is deprecated. Please use "mt-url-field" instead.',
-                    },
-                ],
-            },
-            {
-                name: '"sw-url-field" usage is not allowed [disableFix]',
-                filename: 'test.html.twig',
-                options: [
-                    {
-                        fix: false,
-                    },
-                ],
-                code: `
-<template>
-    <sw-url-field />
-</template>`,
-                errors: [
-                    {
-                        message: '"sw-url-field" is deprecated. Please use "mt-url-field" instead.',
-                    },
-                ],
-            },
-            {
-                name: '"sw-progress-bar" usage is not allowed',
-                filename: 'test.html.twig',
-                code: `
-<template>
-    <sw-progress-bar />
-</template>`,
-                output: `
-<template>
-    <!-- TODO Codemod: Converted from sw-progress-bar - please check if everything works correctly -->
-    <mt-progress-bar />
-</template>`,
-                errors: [
-                    {
-                        message: '"sw-progress-bar" is deprecated. Please use "mt-progress-bar" instead.',
-                    },
-                ],
-            },
-            {
-                name: '"sw-progress-bar" usage is not allowed [disableFix]',
-                filename: 'test.html.twig',
-                options: [
-                    {
-                        fix: false,
-                    },
-                ],
-                code: `
-<template>
-    <sw-progress-bar />
-</template>`,
-                errors: [
-                    {
-                        message: '"sw-progress-bar" is deprecated. Please use "mt-progress-bar" instead.',
                     },
                 ],
             },
@@ -387,6 +257,78 @@ tester.run('no-deprecated-components (invalid select and feedback components)', 
                 errors: [
                     {
                         message: '"sw-popover" is deprecated. Please use "mt-floating-ui" instead.',
+                    },
+                ],
+            },
+            {
+                name: '"sw-progress-bar" usage is not allowed',
+                filename: 'test.html.twig',
+                code: `
+<template>
+    <sw-progress-bar />
+</template>`,
+                output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-progress-bar - please check if everything works correctly -->
+    <mt-progress-bar />
+</template>`,
+                errors: [
+                    {
+                        message: '"sw-progress-bar" is deprecated. Please use "mt-progress-bar" instead.',
+                    },
+                ],
+            },
+            {
+                name: '"sw-progress-bar" usage is not allowed [disableFix]',
+                filename: 'test.html.twig',
+                options: [
+                    {
+                        fix: false,
+                    },
+                ],
+                code: `
+<template>
+    <sw-progress-bar />
+</template>`,
+                errors: [
+                    {
+                        message: '"sw-progress-bar" is deprecated. Please use "mt-progress-bar" instead.',
+                    },
+                ],
+            },
+            {
+                name: '"sw-skeleton-bar" usage is not allowed',
+                filename: 'test.html.twig',
+                code: `
+<template>
+    <sw-skeleton-bar />
+</template>`,
+                output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-skeleton-bar - please check if everything works correctly -->
+    <mt-skeleton-bar />
+</template>`,
+                errors: [
+                    {
+                        message: '"sw-skeleton-bar" is deprecated. Please use "mt-skeleton-bar" instead.',
+                    },
+                ],
+            },
+            {
+                name: '"sw-skeleton-bar" usage is not allowed [disableFix]',
+                filename: 'test.html.twig',
+                options: [
+                    {
+                        fix: false,
+                    },
+                ],
+                code: `
+<template>
+    <sw-skeleton-bar />
+</template>`,
+                errors: [
+                    {
+                        message: '"sw-skeleton-bar" is deprecated. Please use "mt-skeleton-bar" instead.',
                     },
                 ],
             },

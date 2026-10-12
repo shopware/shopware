@@ -212,8 +212,7 @@ function getPropCodemodNames(migration) {
 function hasComponentCodemod(componentMigrations, componentName) {
     return componentMigrations.some((migration) => {
         return (
-            migration.component === componentName &&
-            migration.usage.some((usage) => COMPONENT_CODEMOD_KINDS.has(usage.kind))
+            migration.component === componentName && migration.usage.some((usage) => COMPONENT_CODEMOD_KINDS.has(usage.kind))
         );
     });
 }
@@ -232,9 +231,11 @@ function hasPropCodemod(componentMigrations, componentName, propName) {
 
 module.exports = {
     findComponentDefinitions,
+    findProperty,
     getDeprecatedOption,
     getPropCodemodNames,
     getPropDefinitions,
+    getStringLiteral,
     hasComponentCodemod,
     hasPropCodemod,
     toPropName,

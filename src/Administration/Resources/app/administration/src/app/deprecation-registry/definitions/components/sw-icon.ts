@@ -47,7 +47,8 @@ export default componentMigration({
                 fix: 'unsafe-auto',
                 message: 'Add size="24px" when no size is set to preserve the previous default icon size.',
                 reviewHint:
-                    'size="24px" keeps the sw-icon default size. Keep it, or remove it to use the mt-icon default size.',
+                    'size="24px" keeps the sw-icon default size. Keep it, or remove it to use the mt-icon default size, ' +
+                    'and remove the "Converted from sw-icon" comment so the size is not added again.',
             }),
         ),
     ],

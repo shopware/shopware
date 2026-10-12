@@ -5,19 +5,17 @@
 const fs = require('fs');
 const path = require('path');
 const { parse } = require('@typescript-eslint/typescript-estree');
-const { findComponentDefinitions, getDeprecatedOption, getPropDefinitions } = require('./component-deprecations');
+const {
+    findComponentDefinitions,
+    findProperty,
+    getDeprecatedOption,
+    getPropDefinitions,
+    getStringLiteral,
+} = require('./component-deprecations');
 
 const ADMINISTRATION_SOURCES = path.resolve(__dirname, '../../../src');
 
 const indexesBySourceRoot = new Map();
-
-function getPropertyString(objectExpression, name) {
-    const property = objectExpression.properties.find((candidate) => {
-        return candidate.type === 'Property' && !candidate.computed && candidate.key.name === name;
-    });
-
-    return property?.value.type === 'Literal' && typeof property.value.value === 'string' ? property.value.value : '';
-}
 
 /**
  * Reads the value of a `deprecated` option in both of its forms: a version string, or an object
@@ -29,8 +27,8 @@ function getPropertyString(objectExpression, name) {
 function readDeprecation(option) {
     if (option.value.type === 'ObjectExpression') {
         return {
-            version: getPropertyString(option.value, 'version'),
-            comment: getPropertyString(option.value, 'comment'),
+            version: getStringLiteral(findProperty(option.value, 'version')?.value) ?? '',
+            comment: getStringLiteral(findProperty(option.value, 'comment')?.value) ?? '',
         };
     }
 

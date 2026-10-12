@@ -105,6 +105,17 @@ tester.run('no-deprecated-template-events', rule, {
             ],
         },
         {
+            name: 'does not fix when the element already listens to the replacement event',
+            filename: 'test.html.twig',
+            code: '<template><sw-single-select @change="onChange" @update:value="onUpdate" /></template>',
+            output: null,
+            errors: [
+                {
+                    message: /Use "update:value" instead/,
+                },
+            ],
+        },
+        {
             name: 'does not fix when object v-on can hide deprecated listeners',
             filename: 'test.html.twig',
             code: '<template><sw-text-field v-on="listeners" @input="onInput" /></template>',
@@ -116,4 +127,99 @@ tester.run('no-deprecated-template-events', rule, {
             ],
         },
     ],
+});
+
+describe('no-deprecated-template-events with fix levels', () => {
+    let fixLevelRule;
+
+    jest.isolateModules(() => {
+        jest.doMock('./registry/load-registry', () => {
+            const actual = jest.requireActual('./registry/load-registry');
+
+            return {
+                loadRegistry: () => ({
+                    ...actual.loadRegistry(),
+                    templateEventMigrations: [
+                        {
+                            id: 'template-event.test-fix-levels',
+                            deprecatedIn: '6.7.0',
+                            removedIn: '6.8.0',
+                            description: 'Test migration.',
+                            references: [],
+                            usage: [
+                                {
+                                    component: 'sw-test-manual',
+                                    from: 'change',
+                                    to: 'update:value',
+                                    fix: 'manual',
+                                    message: 'The payload changed. Rename the listener and adapt the handler.',
+                                },
+                                {
+                                    component: 'sw-test-unsafe',
+                                    from: 'change',
+                                    to: 'update:value',
+                                    fix: 'unsafe-auto',
+                                    message: 'Check that the handler accepts the new payload.',
+                                },
+                                {
+                                    component: 'sw-test-auto',
+                                    from: 'change',
+                                    to: 'update:value',
+                                    fix: 'auto',
+                                },
+                            ],
+                        },
+                    ],
+                }),
+            };
+        });
+
+        fixLevelRule = require('./no-deprecated-template-events');
+    });
+
+    tester.run('no-deprecated-template-events', fixLevelRule, {
+        valid: [],
+        invalid: [
+            {
+                name: 'reports a manual usage with its hint and does not fix it',
+                filename: 'test.html.twig',
+                code: '<template><sw-test-manual @change="onChange" /></template>',
+                output: null,
+                errors: [
+                    {
+                        message: /The payload changed\. Rename the listener and adapt the handler\./,
+                    },
+                ],
+            },
+            {
+                name: 'renames an unsafe-auto usage and adds a TODO Codemod review hint',
+                filename: 'test.html.twig',
+                code: `
+<template>
+    <sw-test-unsafe @change="onChange" />
+</template>`,
+                output: `
+<template>
+    <!-- TODO Codemod: Check that the handler accepts the new payload. -->
+    <sw-test-unsafe @update:value="onChange" />
+</template>`,
+                errors: [
+                    {
+                        message: /Check that the handler accepts the new payload\./,
+                    },
+                ],
+            },
+            {
+                name: 'renames an auto usage without a review hint',
+                filename: 'test.html.twig',
+                code: '<template><sw-test-auto @change="onChange" /></template>',
+                output: '<template><sw-test-auto @update:value="onChange" /></template>',
+                errors: [
+                    {
+                        message: /Use "update:value" instead/,
+                    },
+                ],
+            },
+        ],
+    });
 });

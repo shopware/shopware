@@ -83,17 +83,6 @@ export default {
             this.loadUneceCodeNames();
         },
 
-        loadUneceCodeNames() {
-            this.unitUneceCodeService
-                .getUneceCodes()
-                .then((uneceCodes) => {
-                    this.uneceCodeNames = Object.fromEntries(uneceCodes.map(({ code, name }) => [code, name]));
-                })
-                .catch(() => {
-                    this.uneceCodeNames = {};
-                });
-        },
-
         createUnitsCriteria() {
             const criteria = new Criteria(1, 500);
 
@@ -110,6 +99,17 @@ export default {
                 this.placeholderAmount = searchResult.total;
                 this.isLoading = false;
             });
+        },
+
+        loadUneceCodeNames() {
+            this.unitUneceCodeService
+                .getUneceCodes()
+                .then((uneceCodes) => {
+                    this.uneceCodeNames = Object.fromEntries(uneceCodes.map(({ code, name }) => [code, name]));
+                })
+                .catch(() => {
+                    this.uneceCodeNames = {};
+                });
         },
 
         createNewUnit() {

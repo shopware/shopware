@@ -36,6 +36,6 @@ export default class LoginEvent extends EventAwareAnalyticsEvent
             return;
         }
 
-        gtag('event', 'login', { method: 'mail'});
+        this.pushEvent('login', { method: 'mail'}, { ecommerce: false });
     }
 }

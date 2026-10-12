@@ -25,7 +25,7 @@ export default class CheckoutProgressEvent extends AnalyticsEvent
             return;
         }
 
-        gtag('event', 'checkout_progress', {
+        this.pushEvent('checkout_progress', {
             'items': LineItemHelper.getLineItems(),
         });
     }

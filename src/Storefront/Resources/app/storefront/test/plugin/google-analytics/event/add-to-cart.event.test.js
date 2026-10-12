@@ -57,8 +57,8 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
 
     test('fires add_to_cart event when AddToCart plugin emits beforeFormSubmit', () => {
         document.body.innerHTML = `
-            <meta itemprop="priceCurrency" content="EUR">
-            <meta itemprop="price" content="99.99">
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
         `;
 
         const addToCartInstance = createMockPluginInstance();
@@ -78,12 +78,14 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
             'currency': 'EUR',
+            'value': 199.98,
             'items': expect.arrayContaining([
                 expect.objectContaining({
-                    'id': 'product-123',
-                    'name': 'Test Product',
-                    'quantity': '2',
-                    'brand': 'Test Brand',
+                    'item_id': 'product-123',
+                    'item_name': 'Test Product',
+                    'quantity': 2,
+                    'price': 99.99,
+                    'item_brand': 'Test Brand',
                 }),
             ]),
         }));
@@ -129,7 +131,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         // Verify it subscribed to the Listing plugin's afterRenderResponse event
         expect(subscribeSpy).toHaveBeenCalledWith(
             'Listing/afterRenderResponse',
-            expect.any(Function)
+            expect.any(Function),
         );
     });
 
@@ -172,7 +174,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         expect(window.gtag).toHaveBeenCalledTimes(2);
         expect(window.gtag).toHaveBeenLastCalledWith('event', 'add_to_cart', expect.objectContaining({
             'items': expect.arrayContaining([
-                expect.objectContaining({ 'id': 'product-new' }),
+                expect.objectContaining({ 'item_id': 'product-new' }),
             ]),
         }));
     });
@@ -214,5 +216,212 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
 
         expect(window.gtag).toHaveBeenCalledTimes(1);
+    });
+
+    test.each([
+        ['1', 10, 10],
+        ['10', 10, 100],
+        ['11', 8, 88],
+        ['50', 5, 250],
+    ])('reports the graduated price for a quantity of %s', (quantity, price, value) => {
+        // the meta tag carries the cheapest tier, which only applies from 50 units on
+        document.body.innerHTML = `
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="5">
+            <div class="product-detail-buy"
+                 data-product-prices='[{"quantity":10,"price":10},{"quantity":49,"price":8},{"quantity":50,"price":5}]'>
+                <form class="buy-widget"></form>
+            </div>
+        `;
+
+        const form = document.querySelector('.buy-widget');
+        const addToCartInstance = { el: form, $emitter: new NativeEventEmitter(form) };
+        addToCartInstances.push(addToCartInstance);
+
+        new AddToCartEvent().execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+        formData.append('lineItems[product-123][quantity]', quantity);
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
+            'value': value,
+            'items': [expect.objectContaining({ 'price': price })],
+        }));
+    });
+
+    test('selects the price tier from the quantity the cart line will hold', () => {
+        // 9 in the cart plus 2 added are priced as 11 units by the cart
+        document.body.innerHTML = `
+            <meta property="product:price:currency" content="EUR">
+            <div class="product-detail-buy"
+                 data-product-prices='[{"quantity":10,"price":10},{"quantity":11,"price":8}]'>
+                <form class="buy-widget"></form>
+            </div>
+            <div class="hidden-line-items-information">
+                <span class="hidden-line-item" data-id="product-123" data-line-item-id="product-123" data-quantity="9"></span>
+            </div>
+        `;
+
+        const form = document.querySelector('.buy-widget');
+        const addToCartInstance = { el: form, $emitter: new NativeEventEmitter(form) };
+        addToCartInstances.push(addToCartInstance);
+
+        new AddToCartEvent().execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+        formData.append('lineItems[product-123][quantity]', '2');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
+            'value': 16,
+            'items': [expect.objectContaining({ 'price': 8, 'quantity': 2 })],
+        }));
+    });
+
+    test.each([
+        ['a line an API client added under its own id', 'data-id="product-123" data-line-item-id="custom-line"', 10],
+        ['a theme markup without the line item id', 'data-id="product-123"', 8],
+    ])('only counts the cart line the add stacks onto, not %s', (label, attributes, price) => {
+        document.body.innerHTML = `
+            <div class="product-detail-buy"
+                 data-product-prices='[{"quantity":10,"price":10},{"quantity":11,"price":8}]'>
+                <form class="buy-widget"></form>
+            </div>
+            <div class="hidden-line-items-information">
+                <span class="hidden-line-item" ${attributes} data-quantity="9"></span>
+            </div>
+        `;
+
+        const form = document.querySelector('.buy-widget');
+        const addToCartInstance = { el: form, $emitter: new NativeEventEmitter(form) };
+        addToCartInstances.push(addToCartInstance);
+
+        new AddToCartEvent().execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+        formData.append('lineItems[product-123][quantity]', '2');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
+            'items': [expect.objectContaining({ 'price': price })],
+        }));
+    });
+
+    describe('hands brand and category to the cart', () => {
+        const breadcrumb = `
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Damen</span>
+                <span class="breadcrumb-title">Schuhe</span>
+            </nav>
+        `;
+
+        function renderCard() {
+            return `
+                <div class="product-box" data-product-information='{"id":"product-123","name":"Boot","brand":"Acme","price":10,"sku":"SW1"}'>
+                    <form class="buy-form"></form>
+                </div>
+            `;
+        }
+
+        function submit(formData) {
+            const form = document.querySelector('.buy-form');
+            const addToCartInstance = { el: form, $emitter: new NativeEventEmitter(form) };
+            addToCartInstances.push(addToCartInstance);
+            new AddToCartEvent().execute();
+            addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+            return formData;
+        }
+
+        function formFor(productId = 'product-123') {
+            const formData = new FormData();
+            formData.append(`lineItems[${productId}][id]`, productId);
+            formData.append(`lineItems[${productId}][quantity]`, '1');
+
+            return formData;
+        }
+
+        afterEach(() => {
+            delete window.activeRoute;
+        });
+
+        test('adds the card brand and the listing breadcrumb to the payload', () => {
+            window.activeRoute = 'frontend.navigation.page';
+            document.body.innerHTML = breadcrumb + renderCard();
+
+            const formData = submit(formFor());
+
+            expect(formData.get('lineItems[product-123][payload][manufacturerName]')).toBe('Acme');
+            expect(formData.get('lineItems[product-123][payload][categoryNames][0]')).toBe('Damen');
+            expect(formData.get('lineItems[product-123][payload][categoryNames][1]')).toBe('Schuhe');
+        });
+
+        test('sends the brand but no category on a page without breadcrumb', () => {
+            window.activeRoute = 'frontend.home.page';
+            document.body.innerHTML = renderCard();
+
+            const formData = submit(formFor());
+
+            expect(formData.get('lineItems[product-123][payload][manufacturerName]')).toBe('Acme');
+            expect([...formData.keys()].some(key => key.includes('[categoryNames]'))).toBe(false);
+        });
+
+        test('sends no category for a cross selling card on a product detail page', () => {
+            // the breadcrumb of a product detail page belongs to the product of the page
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = breadcrumb + renderCard();
+
+            const formData = submit(formFor());
+
+            expect(formData.get('lineItems[product-123][payload][manufacturerName]')).toBe('Acme');
+            expect([...formData.keys()].some(key => key.includes('[categoryNames]'))).toBe(false);
+        });
+
+        test('keeps what the form already posts', () => {
+            window.activeRoute = 'frontend.navigation.page';
+            document.body.innerHTML = breadcrumb + renderCard();
+
+            const formData = formFor();
+            formData.append('lineItems[product-123][payload][manufacturerName]', 'Posted');
+            formData.append('lineItems[product-123][payload][categoryNames][0]', 'Posted category');
+            submit(formData);
+
+            expect(formData.getAll('lineItems[product-123][payload][manufacturerName]')).toEqual(['Posted']);
+            expect(formData.get('lineItems[product-123][payload][categoryNames][0]')).toBe('Posted category');
+            expect(formData.has('lineItems[product-123][payload][categoryNames][1]')).toBe(false);
+        });
+
+        test('leaves the buy widget of the product detail page alone', () => {
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = breadcrumb + '<div class="product-detail-buy"><form class="buy-form"></form></div>';
+
+            const formData = submit(formFor());
+
+            expect([...formData.keys()].some(key => key.includes('[payload]'))).toBe(false);
+        });
+
+        test('sends nothing extra when the event is disabled, for example without consent', () => {
+            window.activeRoute = 'frontend.navigation.page';
+            document.body.innerHTML = breadcrumb + renderCard();
+
+            const form = document.querySelector('.buy-form');
+            const addToCartInstance = { el: form, $emitter: new NativeEventEmitter(form) };
+            addToCartInstances.push(addToCartInstance);
+            const event = new AddToCartEvent();
+            event.execute();
+            event.disable();
+
+            const formData = formFor();
+            addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+            expect([...formData.keys()].some(key => key.includes('[payload]'))).toBe(false);
+        });
     });
 });

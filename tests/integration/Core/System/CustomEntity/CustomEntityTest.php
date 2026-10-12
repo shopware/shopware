@@ -477,9 +477,9 @@ class CustomEntityTest extends TestCase
         $event = $container->get('product.repository')
             ->upsert([$product], Context::createDefaultContext());
 
-        static::assertNotEmpty($event->getPrimaryKeys('product'));
-        static::assertNotEmpty($event->getPrimaryKeys('custom_entity_blog'));
-        static::assertNotEmpty($event->getPrimaryKeys('custom_entity_blog_inherited_products'));
+        static::assertNotCount(0, $event->getPrimaryKeys('product'));
+        static::assertNotCount(0, $event->getPrimaryKeys('custom_entity_blog'));
+        static::assertNotCount(0, $event->getPrimaryKeys('custom_entity_blog_inherited_products'));
 
         static::assertContains($ids->get('inh.blog.1'), $event->getPrimaryKeys('custom_entity_blog'));
         static::assertContains($ids->get('inh.blog.2'), $event->getPrimaryKeys('custom_entity_blog'));
@@ -555,8 +555,8 @@ class CustomEntityTest extends TestCase
         $event = $container->get('product.repository')
             ->upsert([$product], Context::createDefaultContext());
 
-        static::assertNotEmpty($event->getPrimaryKeys('product'));
-        static::assertNotEmpty($event->getPrimaryKeys('custom_entity_blog'));
+        static::assertNotCount(0, $event->getPrimaryKeys('product'));
+        static::assertNotCount(0, $event->getPrimaryKeys('custom_entity_blog'));
 
         static::assertContains($ids->get('inh.one-to-one.1'), $event->getPrimaryKeys('custom_entity_blog'));
         static::assertContains($ids->get('inh.one-to-one.2'), $event->getPrimaryKeys('custom_entity_blog'));
@@ -625,8 +625,8 @@ class CustomEntityTest extends TestCase
         $event = $container->get('product.repository')
             ->upsert([$product], Context::createDefaultContext());
 
-        static::assertNotEmpty($event->getPrimaryKeys('product'));
-        static::assertNotEmpty($event->getPrimaryKeys('custom_entity_blog'));
+        static::assertNotCount(0, $event->getPrimaryKeys('product'));
+        static::assertNotCount(0, $event->getPrimaryKeys('custom_entity_blog'));
 
         static::assertContains($ids->get('inh.many-to-one.1'), $event->getPrimaryKeys('custom_entity_blog'));
         static::assertContains($ids->get('inh.many-to-one.2'), $event->getPrimaryKeys('custom_entity_blog'));

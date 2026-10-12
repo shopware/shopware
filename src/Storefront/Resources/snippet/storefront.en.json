@@ -145,6 +145,7 @@
     "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "The order with the order number \"%orderNumber%\" was already paid and cannot be edited afterwards.",
     "CHECKOUT__ORDER_ORDER_CANCELLED": "The order with the order number \"%orderNumber%\" was canceled and cannot be edited afterwards.",
     "CHECKOUT__ORDER_ORDER_NOT_FOUND": "This order could not be found.",
+    "CHECKOUT__ORDER_RESTORATION_FAILED": "The order with the order number \"%orderNumber%\" could not be loaded for a payment change.",
     "CHECKOUT__CART_HASH_MISMATCH": "Products or prices in your shopping cart may have changed. Please check your shopping cart before placing your order.",
     "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "The quantity (%quantity%) is incorrect.",
     "urlNotAllowed": "Please do not enter a URL in this field."
@@ -519,7 +520,7 @@
     "customerCommentHeader": "Additional information",
     "customerCommentLabel": "Would you like to tell us anything about your order?",
     "customerCommentPlaceholder": "Comment here...",
-    "cart-merged-hint": "The current shopping cart might contain additional products that have been added and saved during a previous visit.",
+    "cart-merged-hint": "The current shopping cart contains additional products that have been added and saved during a previous visit.",
     "collapseTriggerMore": "Show more",
     "collapseTriggerLess": "Show less",
     "createAccountHeading": "To accelerate future purchases create a user account.",
@@ -626,6 +627,9 @@
   "detail": {
     "garanLabelShowLink": "Show GARAN label",
     "garanLabelHideLink": "Hide GARAN label",
+    "garanLabelTitle": "GARAN label",
+    "garanLabelYourEuropeLink": "Information about the commercial guarantee of durability on Your Europe (opens in a new tab)",
+    "garanTermsLink": "Guarantee terms",
     "ordernumberLabel": "Product number:",
     "productNumberLabel": "Product number:",
     "addProduct": "Add to shopping cart",

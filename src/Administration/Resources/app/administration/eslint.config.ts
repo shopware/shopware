@@ -555,8 +555,8 @@ export default [
                     ],
                 },
             ],
-            // The registry checks still report core templates awaiting migration review;
-            // `npm run deprecation:migrate` runs them on demand.
+            // Core templates still pass removed mt-banner props (`show-icon`, `notification-index`);
+            // `npm run deprecation:migrate` runs these checks on demand.
             'sw-deprecation-rules/no-deprecated-component-usage': 'off',
             'sw-deprecation-rules/no-deprecated-component-option-usage': 'error',
             'sw-deprecation-rules/no-sw-tabs-usage': 'error',

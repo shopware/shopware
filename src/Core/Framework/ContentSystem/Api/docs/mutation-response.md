@@ -2,6 +2,8 @@
 
 The response body every stateless draft mutation action ([mutation.md](mutation.md)) returns.
 
+`MutationResponse` is a `\JsonSerializable` value object (`@final`, `#[Package('framework')]`, not a service), built per request by both mutation controllers via a private constructor plus a `fromResult(MutationResult, StoredElementCodec)` factory: `layout` and `orphaned` are serialized through `StoredElementCodec::encode()`, `resolutions` and `diagnostics` through `LayoutDiagnosticsResultNormalizer`, and `jsonSerialize()` casts `resolutions` and `droppedProperties` to `(object)` when empty. It is output-only: serialized to the response and discarded, never cached, stored in a `SerializedField`, or denormalized with `StructNormalizer::denormalize()`.
+
 `200 OK`, never persisted, never cached:
 
 ```json

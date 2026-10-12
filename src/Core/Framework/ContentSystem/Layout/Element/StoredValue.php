@@ -74,18 +74,34 @@ final readonly class StoredValue implements \JsonSerializable
     }
 
     /**
+     * A keyed array is refused rather than reindexed: a list variant carrying keyed items would serialize
+     * as a JSON object ({@see jsonSerialize()} preserves keys) while {@see asList()} and {@see equals()}
+     * read it positionally — one value, two shapes.
+     *
      * @param list<self> $values
      */
     public static function ofList(array $values): self
     {
+        if (!array_is_list($values)) {
+            throw ContentSystemException::invalidFieldValueType('StoredValue', 'list', 'keyed array');
+        }
+
         return new self(self::VARIANT_LIST, null, $values);
     }
 
     /**
+     * The empty map is deliberately unrepresentable: `[]` is the list variant everywhere —
+     * {@see fromDecoded()} and the storage round trip both read it that way — and no write gate admits an
+     * empty map, so a caller handing one over holds a shape defect rather than an empty collection.
+     *
      * @param array<array-key, self> $values
      */
     public static function ofMap(array $values): self
     {
+        if ($values === []) {
+            throw ContentSystemException::invalidFieldValueType('StoredValue', 'non-empty map', 'empty array');
+        }
+
         return new self(self::VARIANT_MAP, null, $values);
     }
 
@@ -137,6 +153,11 @@ final readonly class StoredValue implements \JsonSerializable
     public function isString(): bool
     {
         return $this->variant === self::VARIANT_STRING;
+    }
+
+    public function isMap(): bool
+    {
+        return $this->variant === self::VARIANT_MAP;
     }
 
     public function asString(): string
@@ -224,8 +245,8 @@ final readonly class StoredValue implements \JsonSerializable
 
     /**
      * Unwraps recursively into the raw PHP value the storage column, the admin responses and the rendered
-     * seam all read. An empty map unwraps to `[]`, never to an object: the DAL validates these fields as
-     * arrays, so `[]` is the single canonical empty shape.
+     * seam all read. `[]` is the single canonical empty shape the DAL's array validation expects, and it is
+     * only ever the empty list: the empty map is unrepresentable ({@see ofMap()}).
      */
     public function jsonSerialize(): mixed
     {

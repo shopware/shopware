@@ -6,9 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
@@ -74,7 +77,7 @@ class StoredTreeTest extends TestCase
     public function testLocateReportsADeeplyNestedElement(): void
     {
         // 'grandchild-1' is not a direct child of a root, so this only resolves through locateUnder()'s second,
-        // recursive loop at StoredTree.php:181-189; deleting that loop would leave this locate() call returning
+        // recursive loop over the slot children; deleting that loop would leave this locate() call returning
         // null even though the fixture carries the id two levels down.
         $location = $this->tree()->locate('grandchild-1');
 
@@ -162,9 +165,9 @@ class StoredTreeTest extends TestCase
     public function testInsertIntoSlotPlacesNodesUnderANestedParent(): void
     {
         // Every other insertIntoSlot test targets a root-level parent ('root-1', 'root-2'), so the recursive
-        // descent in insertInto() at StoredTree.php:255 never runs against a matching subtree. Targeting 'child-a',
-        // which is nested under root-1, forces that recursive branch; replacing it with a plain pass-through would
-        // leave 'child-a' unmodified and this insert would silently not happen.
+        // descent in insertInto() (its mapSlots() pass over a non-matching node) never runs against a matching
+        // subtree. Targeting 'child-a', which is nested under root-1, forces that recursive branch; replacing it
+        // with a plain pass-through would leave 'child-a' unmodified and this insert would silently not happen.
         $inserted = $this->tree()->insertIntoSlot('child-a', 'inner', null, [$this->element('grandchild-2')]);
 
         static::assertSame(
@@ -199,6 +202,21 @@ class StoredTreeTest extends TestCase
         ));
     }
 
+    #[TestDox('insertIntoSlot leaves a sibling language-map property value unchanged while rebuilding the slot')]
+    public function testInsertIntoSlotLeavesASiblingLanguageMapUnchanged(): void
+    {
+        $german = Uuid::randomHex();
+        $translations = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $german => 'Herbstschlussverkauf'];
+        $sibling = StoredElementBuilder::create('core:text', 'child-a')->withProperty('text', $translations)->build();
+        $tree = new StoredTree([StoredElementBuilder::create('core:section', 'root-1')->withSlot('main', [$sibling])->build()]);
+
+        $inserted = $tree->insertIntoSlot('root-1', 'main', null, [$this->element('child-new')]);
+
+        $carried = $inserted->find('child-a')?->property('text');
+        static::assertNotNull($carried);
+        static::assertTrue($carried->equals(StoredValue::fromDecoded($translations)));
+    }
+
     #[TestDox('insertIntoSlot returns a structurally unchanged forest for a parent id the forest does not carry')]
     public function testInsertIntoSlotIsANoOpForAnUnknownParentId(): void
     {
@@ -223,6 +241,17 @@ class StoredTreeTest extends TestCase
         $replaced = $this->tree()->replace('root-2', $this->element('root-z'));
 
         static::assertSame(['root-1', 'child-a', 'grandchild-1', 'child-b', 'root-z'], $replaced->ids());
+    }
+
+    #[TestDox('replace preserves an untargeted root by value')]
+    public function testReplacePreservesAnUntargetedRootByValue(): void
+    {
+        $untargeted = $this->element('root-2');
+        $tree = new StoredTree([$this->element('root-1'), $untargeted]);
+
+        $replaced = $tree->replace('root-1', $this->element('root-z'));
+
+        static::assertEquals($untargeted, $replaced->roots[1]);
     }
 
     #[TestDox('replace returns a structurally unchanged forest for an id the forest does not carry')]

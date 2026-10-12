@@ -14,7 +14,9 @@ use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutMoveRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutMutationController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutRemoveRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutReplaceRequest;
+use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutTranslateElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutUnwrapRequest;
+use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutUpdateElementPropertiesRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutWrapElementsRequest;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
@@ -40,7 +42,9 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\TranslateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\UpdateElementProperties;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\WrapElements;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
@@ -131,6 +135,8 @@ class ContentLayoutMutationControllerTest extends TestCase
         yield 'unwrap' => [static fn (ContentLayoutMutationController $c): Response => $c->unwrap('l', new ContentLayoutUnwrapRequest('el', null), $context), UnwrapElement::class];
         yield 'attach' => [static fn (ContentLayoutMutationController $c): Response => $c->attach('l', new ContentLayoutAttachRequest(['id' => 'incoming', 'component' => 'Sw:Card'], null), $context), AttachElement::class];
         yield 'bind' => [static fn (ContentLayoutMutationController $c): Response => $c->bind('l', new ContentLayoutBindRequest('el', 'core:hero', null), $context), BindElement::class];
+        yield 'translate' => [static fn (ContentLayoutMutationController $c): Response => $c->translate('l', new ContentLayoutTranslateElementRequest('el', null, ['headline' => []]), $context), TranslateElement::class];
+        yield 'update properties' => [static fn (ContentLayoutMutationController $c): Response => $c->updateProperties('l', new ContentLayoutUpdateElementPropertiesRequest('el', null, ['headline' => []], []), $context), UpdateElementProperties::class];
     }
 
     /**
@@ -248,7 +254,7 @@ class ContentLayoutMutationControllerTest extends TestCase
             $this->decoder(),
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
             // BindingApplicator is final: a real instance over a stubbed serializer provider.
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), static::createStub(AbstractContentSystemElementTypeRegistry::class)),
         );
     }
 

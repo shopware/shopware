@@ -85,7 +85,7 @@ class AttachElementsTest extends TestCase
             $this->registry(),
             $elements,
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
             $parentElementId,
             $slot,
             $index,

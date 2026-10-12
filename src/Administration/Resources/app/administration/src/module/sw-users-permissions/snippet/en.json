@@ -259,6 +259,10 @@
             "orders": {
                 "label": "Orders"
             },
+            "experience_studio": {
+                "label": "Experience Studio",
+                "translator": "Translate layouts"
+            },
             "routes": {
                 "label": "Routes",
                 "api_action_access-key_integration": "Create API keys",

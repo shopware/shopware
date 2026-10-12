@@ -70,16 +70,7 @@ final readonly class LoaderInputResolver
             return null;
         }
 
-        return $this->matchesReferencedType($key->referencedType, $value) ? $value : null;
-    }
-
-    private function matchesReferencedType(string $referencedType, mixed $value): bool
-    {
-        return match ($referencedType) {
-            'string' => \is_string($value),
-            'list<string>' => \is_array($value) && array_is_list($value) && array_filter($value, 'is_string') === $value,
-            default => false,
-        };
+        return $key->admitsReferencedValue($value) ? $value : null;
     }
 
     /**

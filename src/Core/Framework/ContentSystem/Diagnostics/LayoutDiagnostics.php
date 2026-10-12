@@ -2,14 +2,18 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Diagnostics;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformance;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
@@ -27,6 +31,7 @@ use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 
 /**
  * With a null root context only the intrinsic (well-formedness) subset runs; binding checks require a
@@ -48,6 +53,7 @@ class LayoutDiagnostics
         private readonly DataLoaderConfigSerializerProvider $configSerializers,
         private readonly AbstractContentSystemStyleOptionRegistry $styleOptionRegistry,
         private readonly ContextPathResolver $contextPathResolver,
+        private readonly LanguageLoaderInterface $languageLoader,
     ) {
     }
 
@@ -67,12 +73,21 @@ class LayoutDiagnostics
         // constraint descriptor reads, so the two cannot disagree about which options exist.
         $styleOptions = $this->styleOptionRegistry->all();
 
+        // Read at most once per analysis, and only when a tree carries a translatable property: the memo keeps
+        // the per-analyze() freshness the loader read promises while a tree with no translatable property pays
+        // no language read. The loader caches internally and invalidates on LANGUAGE_WRITTEN/LANGUAGE_DELETED,
+        // so that invalidation defines freshness.
+        $languageIdsMemo = null;
+        $languageIds = function () use (&$languageIdsMemo): array {
+            return $languageIdsMemo ??= $this->existingLanguageIds();
+        };
+
         foreach ((new StoredTree($tree))->duplicateElementIds() as $id) {
             $violations[] = Violation::duplicateElementId($id);
         }
 
         foreach ($elements as $element) {
-            foreach ($this->intrinsicElementViolations($element, $styleOptions) as $violation) {
+            foreach ($this->intrinsicElementViolations($element, $styleOptions, $languageIds) as $violation) {
                 $violations[] = $violation;
             }
 
@@ -143,15 +158,37 @@ class LayoutDiagnostics
     }
 
     /**
+     * The set of language ids that exist, backed by the platform's cached language loader. The loader keys its
+     * result by language id in the same lowercase-hex shape a stored language map is keyed by, so an entry key
+     * matches by string identity.
+     *
+     * Read lazily per `analyze()` and never cached on the instance: a long-lived instance caching the set would
+     * report a freshly created language as dangling. Freshness itself follows the loader, which invalidates its
+     * cache on LANGUAGE_WRITTEN_EVENT and LANGUAGE_DELETED_EVENT; a language row written without the DAL fires
+     * no event and leaves the cached set stale until the next invalidation.
+     *
+     * @return array<string, true>
+     */
+    private function existingLanguageIds(): array
+    {
+        return array_fill_keys(array_keys($this->languageLoader->loadLanguages()), true);
+    }
+
+    /**
      * @param array<string, StyleOptionSpecification> $styleOptions
+     * @param \Closure(): array<string, true> $languageIds
      *
      * @return list<Violation>
      */
-    private function intrinsicElementViolations(StoredElement $element, array $styleOptions): array
+    private function intrinsicElementViolations(StoredElement $element, array $styleOptions, \Closure $languageIds): array
     {
         $violations = [];
 
-        if (!$this->registry->has($element->component)) {
+        // Derived once and shared by both property checks below, so they judge one declaration snapshot. A null
+        // map is the unregistered case, which is the same condition the violation reports.
+        $declared = $this->declaredProperties($element->component);
+
+        if ($declared === null) {
             $violations[] = new Violation(
                 ViolationCode::UnregisteredComponent,
                 $element->id,
@@ -161,14 +198,14 @@ class LayoutDiagnostics
         }
 
         foreach ($element->dataRequirements as $key => $requirement) {
-            $violation = $this->storedRequirementViolation($element, (string) $key, $requirement);
+            $violation = $this->storedRequirementViolation($element, $key, $requirement);
 
             if ($violation !== null) {
                 $violations[] = $violation;
             }
         }
 
-        foreach ($this->mismatchedPropertyTypeViolations($element) as $violation) {
+        foreach ($this->mismatchedPropertyTypeViolations($element, $declared) as $violation) {
             $violations[] = $violation;
         }
 
@@ -180,26 +217,32 @@ class LayoutDiagnostics
             $violations[] = $violation;
         }
 
+        foreach ($this->danglingLanguageViolations($element, $declared, $languageIds) as $violation) {
+            $violations[] = $violation;
+        }
+
         return $violations;
     }
 
     /**
-     * A stored property value that disagrees with the primitive type its component declares for that key,
-     * reported per key so a client can name and correct the one that broke. It is the diagnosis counterpart of
-     * the write-path {@see PropertyTypeConformance} rule and applies the same boundary, which both take from
-     * {@see PropertyType::enforceableTypes()} and {@see PropertyType::admits()}. Like
-     * {@see ViolationCode::UnknownStyleOption} it never fires on a DAL write: the constraint pass
-     * refuses the tree inside `encode()`, before the gate that reaches this class.
+     * A stored property value the type its component declares for that key does not admit, reported per key so
+     * a client can name and correct the one that broke. It is the diagnosis counterpart of the write-path
+     * {@see PropertyTypeConformance} rule and shares its one predicate, {@see PropertyType::admits()}: an
+     * unconstraining declaration (a bare `object`, an FQCN, a union carrying either) admits whatever the client
+     * authored, a non-translatable declaration admits the null variant, and a translatable declaration admits
+     * only a non-empty language map. Like {@see ViolationCode::UnknownStyleOption} it never fires on a DAL
+     * write: the constraint pass refuses the tree inside `encode()`, before the gate that reaches this class.
+     *
+     * @param array<string, PropertySpecification>|null $declared the component's declared properties, or null when unregistered
      *
      * @return list<Violation>
      */
-    private function mismatchedPropertyTypeViolations(StoredElement $element): array
+    private function mismatchedPropertyTypeViolations(StoredElement $element, ?array $declared): array
     {
-        if (!$this->registry->has($element->component)) {
+        if ($declared === null) {
             return [];
         }
 
-        $declared = $this->registry->get($element->component)->properties();
         $violations = [];
 
         foreach ($element->properties() as $key => $value) {
@@ -209,19 +252,69 @@ class LayoutDiagnostics
                 continue;
             }
 
-            $types = $specification->type()->enforceableTypes();
-            $raw = $value->jsonSerialize();
+            $type = $specification->type();
 
-            if ($types === null || $specification->type()->admits($raw)) {
+            if ($type->admits($value)) {
                 continue;
             }
 
             $violations[] = new Violation(
                 ViolationCode::MismatchedPropertyType,
                 $element->id,
-                (string) $key,
-                \sprintf('Property "%s" is declared as "%s" but carries a value of type "%s".', $key, implode('|', $types), get_debug_type($raw)),
+                $key,
+                \sprintf(
+                    'Property "%s" is declared as "%s" but carries a value of type "%s".',
+                    $key,
+                    $type->describe(),
+                    get_debug_type($value->jsonSerialize()),
+                ),
             );
+        }
+
+        return $violations;
+    }
+
+    /**
+     * A language map entry keyed by an id no `language` row carries. It is a warning rather than an error:
+     * key existence is not a write constraint, reduction never selects a key outside the request's language
+     * chain, and the layout serves correctly with the entry sitting unread.
+     *
+     * Only a map variant is walked. A bare value, a list (the wire shape of an empty map included) and the
+     * null variant are wrong shapes for a translatable property, already reported as
+     * {@see ViolationCode::MismatchedPropertyType}, and carry no language keys.
+     *
+     * @param array<string, PropertySpecification>|null $declared the component's declared properties, or null when unregistered
+     * @param \Closure(): array<string, true> $languageIds
+     *
+     * @return list<Violation>
+     */
+    private function danglingLanguageViolations(StoredElement $element, ?array $declared, \Closure $languageIds): array
+    {
+        if ($declared === null) {
+            return [];
+        }
+
+        $violations = [];
+
+        foreach ($element->properties() as $key => $value) {
+            $specification = $declared[$key] ?? null;
+
+            if ($specification === null) {
+                continue;
+            }
+
+            foreach ($specification->type()->languageKeys($value) as $languageId) {
+                if (\array_key_exists($languageId, $languageIds())) {
+                    continue;
+                }
+
+                $violations[] = new Violation(
+                    ViolationCode::DanglingLanguage,
+                    $element->id,
+                    $key,
+                    \sprintf('Property "%s" carries a translation for language "%s", which does not exist.', $key, $languageId),
+                );
+            }
         }
 
         return $violations;
@@ -294,13 +387,9 @@ class LayoutDiagnostics
      */
     private function declaredReferenceFqcn(string $component, string $key): ?string
     {
-        if (!$this->registry->has($component)) {
-            return null;
-        }
+        $property = $this->declaredProperty($component, $key);
 
-        $property = $this->registry->get($component)->properties()[$key] ?? null;
-
-        if (!$property instanceof PropertySpecification) {
+        if ($property === null) {
             return null;
         }
 
@@ -385,20 +474,28 @@ class LayoutDiagnostics
     private function propertyBindingViolation(StoredElement $element, PropertyResolution $resolution): ?Violation
     {
         if ($resolution->kind === PropertyKind::Primitive) {
-            // Satisfied iff a value is stored on the element: serving applies no type default, so only a stored
-            // value renders. The type default is a creation-time seed (scaffold + the write-boundary seeder),
-            // not a render-time fallback, and so is not consulted here. A stored explicit null counts as no value
-            // (it renders empty), so a required primitive authored as null is reported unresolved.
-            if ($resolution->required && !$this->hasStoredValue($element, $resolution->key)) {
-                return new Violation(
-                    ViolationCode::UnresolvedRequired,
-                    $element->id,
-                    $resolution->key,
-                    \sprintf('Required property "%s" has no value.', $resolution->key),
-                );
+            // Satisfied iff the element holds a value for the key under the rule {@see hasStoredValue()} states
+            // — for a translatable property, its language map carrying the anchor entry. Serving applies no
+            // type default, so only a stored value renders. The type default is a creation-time seed (scaffold
+            // + the write-boundary seeder), not a render-time fallback, and so is not consulted here. A stored
+            // explicit null counts as no value (it renders empty), so a required primitive authored as null is
+            // reported unresolved.
+            if (!$resolution->required) {
+                return null;
             }
 
-            return null;
+            $type = $this->declaredProperty($element->component, $resolution->key)?->type();
+
+            if ($this->hasStoredValue($this->loaderReadValue($element->property($resolution->key), $type), $type)) {
+                return null;
+            }
+
+            return new Violation(
+                ViolationCode::UnresolvedRequired,
+                $element->id,
+                $resolution->key,
+                \sprintf('Required property "%s" has no value.', $resolution->key),
+            );
         }
 
         if ($resolution->resolved !== null) {
@@ -432,10 +529,10 @@ class LayoutDiagnostics
     /**
      * A required reference satisfied by its own stored wiring (a {@see CandidateOrigin::Stored} pick) is
      * resolvable, but the loader still needs a value for each element property its config references. Every
-     * required propertyReference config key whose configured property holds no value would serve an empty
-     * element; each is one unfilled required input. Only a Stored resolution reaches this rule: a reference
-     * satisfied by parent context or picked from a loader candidate never does, so those never gate, and an
-     * optional or defaulted reference never gates either.
+     * required propertyReference config key whose configured property holds no value the loader is handed would
+     * serve an empty element; each is one unfilled required input. Only a Stored resolution reaches this rule: a
+     * reference satisfied by parent context or picked from a loader candidate never does, so those never gate,
+     * and an optional or defaulted reference never gates either.
      *
      * @return list<Violation>
      */
@@ -481,7 +578,7 @@ class LayoutDiagnostics
                 continue;
             }
 
-            $violation = $this->unfilledInputViolation($element, $resolution->key, $configured);
+            $violation = $this->unfilledInputViolation($element, $resolution->key, $configKey, $configured);
 
             if ($violation !== null) {
                 $violations[] = $violation;
@@ -497,15 +594,25 @@ class LayoutDiagnostics
      * validated) keyed on the reference property that does exist, naming the empty storage key in the message.
      * A resolvedBy reference's storage key is undeclared by design, so an empty value there is the normal
      * pre-fill state before the value is set and saved; a typo'd key is indistinguishable and reads the same
-     * way. A stored explicit null counts as no value, mirroring the strict primitive rule above.
+     * way. Emptiness is the same rule the strict primitive check above uses ({@see hasStoredValue()}): a stored
+     * explicit null counts as no value, and a translatable property counts as filled only through its anchor
+     * entry. A stored value also has to be one the loader is handed: {@see LoaderInputResolver} passes on only a
+     * value {@see ConfigKeySpecification::admitsReferencedValue()} admits and nulls any other, so a stored integer
+     * or boolean under a `string` key reads as unfilled too. Only a lone primitive declaration is value-bearing
+     * here: a union answers false to {@see PropertyType::isPrimitive()} even though the serving side treats every
+     * non-reference declaration as authored ({@see RenderedElementFactory}), so a union-typed input property takes
+     * the reference-property keying.
      */
-    private function unfilledInputViolation(StoredElement $element, string $referenceKey, string $configuredProperty): ?Violation
+    private function unfilledInputViolation(StoredElement $element, string $referenceKey, ConfigKeySpecification $configKey, string $configuredProperty): ?Violation
     {
-        if ($this->hasStoredValue($element, $configuredProperty)) {
+        $type = $this->declaredProperty($element->component, $configuredProperty)?->type();
+        $read = $this->loaderReadValue($element->property($configuredProperty), $type);
+
+        if ($this->hasStoredValue($read, $type) && $configKey->admitsReferencedValue($read->jsonSerialize())) {
             return null;
         }
 
-        if ($this->isDeclaredPrimitiveProperty($element->component, $configuredProperty)) {
+        if ($type?->isPrimitive() ?? false) {
             return new Violation(
                 ViolationCode::UnfilledRequiredInput,
                 $element->id,
@@ -523,39 +630,93 @@ class LayoutDiagnostics
     }
 
     /**
-     * The one statement of "the element holds a value for this key", called from both satisfaction rules above.
+     * The one statement of "the element holds a value for this key", called from both satisfaction rules above
+     * with the value {@see loaderReadValue()} resolves and the key's declaration, read through the element-type
+     * registry; an unregistered component and an undeclared key (a null declaration) take the untranslated rule.
+     *
+     * Untranslated, a value counts when the key is present AND its variant is not null.
      * {@see StoredElement::property()} separates the two empty cases the older model conflated: `null` means the
      * key is absent, while an authored explicit null comes back as a present stored value answering true to
-     * `isNull()`. Both are "no value" for satisfaction, so a value counts only when the key is present AND its
-     * variant is not null — a single-term `property($key) === null` test would silently credit an authored null.
+     * `isNull()`. Both are "no value", so a single-term `property($key) === null` test would silently credit an
+     * authored null.
+     *
+     * Translatable, a value counts when it is a language map carrying the anchor entry
+     * `Defaults::LANGUAGE_SYSTEM` and that entry matches the declared primitive, judged by
+     * {@see PropertyType::admitsMapEntry()}. The anchor terminates every language chain a `SalesChannelContext`
+     * is built with, so an anchor entry resolves on every request while any other entry may not. The test is a
+     * type test, never truthiness: an empty string, `false` and `0` each satisfy. An anchor entry holding the
+     * null variant does not satisfy and an absent anchor key does not satisfy; the two are distinct stored states
+     * that this rule maps to the same answer.
+     *
+     * @phpstan-assert-if-true !null $read
      */
-    private function hasStoredValue(StoredElement $element, string $key): bool
+    private function hasStoredValue(?StoredValue $read, ?PropertyType $type): bool
     {
-        $value = $element->property($key);
+        if ($read === null) {
+            return false;
+        }
 
-        return $value !== null && !$value->isNull();
+        if ($type === null || !$type->translatable()) {
+            return !$read->isNull();
+        }
+
+        return $type->admitsMapEntry($read);
     }
 
     /**
-     * True only for a single-primitive declared type: a union answers false here even though the serving
-     * side treats every non-reference declaration as authored ({@see RenderedElementFactory}). The one
-     * consequence is keying — a union-typed configured input property takes the reference-property
-     * fallback at the call site instead of being keyed on itself. Consolidating this predicate onto
-     * {@see PropertyType} beside the conformance rules is planned post-merge work.
+     * The stored value that stands in for what a loader reads for the key: the stored value itself, or for a
+     * translatable property its `Defaults::LANGUAGE_SYSTEM` anchor entry, the one entry that resolves on every
+     * request. At render time the loader can be handed another translation or a placeholder-substituted string
+     * instead; neither changes the verdict of {@see ConfigKeySpecification::admitsReferencedValue()}. Substitution
+     * yields a string from a string, and every entry of a map {@see PropertyType::admits()} accepts matches the one
+     * declared primitive, so under a `string` declaration every entry is a string and under any other every entry
+     * is a non-string scalar. Null when the key is absent, or when a translatable property's stored value is not a
+     * language map or carries no anchor entry; an untranslated stored explicit null comes back as the null variant.
      */
-    private function isDeclaredPrimitiveProperty(string $component, string $key): bool
+    private function loaderReadValue(?StoredValue $value, ?PropertyType $type): ?StoredValue
+    {
+        if ($value === null || $type === null || !$type->translatable()) {
+            return $value;
+        }
+
+        if (!$value->isMap()) {
+            return null;
+        }
+
+        return $value->asMap()[Defaults::LANGUAGE_SYSTEM] ?? null;
+    }
+
+    /**
+     * The component's declared-property map, or null when the registry does not know the component. The one
+     * has-guarded registry read the property lookups share; every caller treats the null as "declares nothing"
+     * rather than reporting it — the unregistered case is {@see intrinsicElementViolations()}'s violation.
+     *
+     * @return array<string, PropertySpecification>|null
+     */
+    private function declaredProperties(string $component): ?array
     {
         if (!$this->registry->has($component)) {
-            return false;
+            return null;
         }
 
-        $property = $this->registry->get($component)->properties()[$key] ?? null;
+        return $this->registry->get($component)->properties();
+    }
 
-        if (!$property instanceof PropertySpecification) {
-            return false;
+    /**
+     * The declared property for a component's key, or null when the component is unregistered, the key is not
+     * declared, or the entry is not a {@see PropertySpecification}.
+     */
+    private function declaredProperty(string $component, string $key): ?PropertySpecification
+    {
+        $properties = $this->declaredProperties($component);
+
+        if ($properties === null) {
+            return null;
         }
 
-        return $property->type()->isPrimitive();
+        $property = $properties[$key] ?? null;
+
+        return $property instanceof PropertySpecification ? $property : null;
     }
 
     /**

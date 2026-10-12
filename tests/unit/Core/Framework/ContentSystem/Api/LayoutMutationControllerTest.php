@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Api\LayoutMutationController;
 use Shopware\Core\Framework\ContentSystem\Api\MoveElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\RemoveElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ReplaceElementRequest;
+use Shopware\Core\Framework\ContentSystem\Api\TranslateElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\UnwrapElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\WrapElementsRequest;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
@@ -45,6 +46,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\TranslateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\WrapElements;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
@@ -201,6 +203,7 @@ class LayoutMutationControllerTest extends TestCase
         yield 'unwrap' => [static fn (LayoutMutationController $c): Response => $c->unwrap(new UnwrapElementRequest('el'), $context), UnwrapElement::class];
         yield 'attach' => [static fn (LayoutMutationController $c): Response => $c->attach(new AttachElementRequest(['id' => 'incoming', 'component' => 'Sw:Card']), $context), AttachElement::class];
         yield 'bind' => [static fn (LayoutMutationController $c): Response => $c->bind(new BindElementRequest('el', 'source:spec'), $context), BindElement::class];
+        yield 'translate' => [static fn (LayoutMutationController $c): Response => $c->translate(new TranslateElementRequest('el', values: ['headline' => []]), $context), TranslateElement::class];
     }
 
     /**
@@ -242,7 +245,7 @@ class LayoutMutationControllerTest extends TestCase
             $this->elementCodec(),
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
             // BindingApplicator is final: a real instance over a stubbed serializer provider.
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), static::createStub(AbstractContentSystemElementTypeRegistry::class)),
             static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
         );
     }

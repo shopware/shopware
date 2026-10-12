@@ -60,6 +60,7 @@ class ViolationCodeTest extends TestCase
         yield 'mismatched_property_type' => [ViolationCode::MismatchedPropertyType, ViolationScope::Intrinsic];
         yield 'unknown_style_option' => [ViolationCode::UnknownStyleOption, ViolationScope::Intrinsic];
         yield 'orphaned_provider' => [ViolationCode::OrphanedProvider, ViolationScope::Intrinsic];
+        yield 'dangling_language' => [ViolationCode::DanglingLanguage, ViolationScope::Intrinsic];
         yield 'unresolved_required' => [ViolationCode::UnresolvedRequired, ViolationScope::Binding];
         yield 'ambiguous_required' => [ViolationCode::AmbiguousRequired, ViolationScope::Binding];
         yield 'broken_required_chain' => [ViolationCode::BrokenRequiredChain, ViolationScope::Binding];
@@ -84,5 +85,6 @@ class ViolationCodeTest extends TestCase
         yield 'unfilled_required_input' => [ViolationCode::UnfilledRequiredInput, ViolationSeverity::Error];
         yield 'unresolved_optional' => [ViolationCode::UnresolvedOptional, ViolationSeverity::Warning];
         yield 'orphaned_provider' => [ViolationCode::OrphanedProvider, ViolationSeverity::Warning];
+        yield 'dangling_language' => [ViolationCode::DanglingLanguage, ViolationSeverity::Warning];
     }
 }

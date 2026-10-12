@@ -153,7 +153,8 @@
       "messageSaved": "Inhaltslayout erfolgreich gespeichert.",
       "messageSaveError": "Das Inhaltslayout konnte nicht gespeichert werden.",
       "messageSaveErrorDetail": "Das Inhaltslayout konnte nicht gespeichert werden: {detail}",
-      "messageReloadError": "Das Inhaltslayout wurde gespeichert, konnte aber nicht neu geladen werden."
+      "messageReloadError": "Das Inhaltslayout wurde gespeichert, konnte aber nicht neu geladen werden.",
+      "messageBindingRootSourceNotScoped": "Dieses Element ist für diesen Layout-Typ nicht verfügbar. Wähle ein anderes Element oder eine andere Vorlage."
     }
   }
 }

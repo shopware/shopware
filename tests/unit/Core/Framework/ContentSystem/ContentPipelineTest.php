@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -51,6 +53,7 @@ use Shopware\Core\Framework\ContentSystem\Rendering\RenderedTreeFactory;
 use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
@@ -251,6 +254,69 @@ class ContentPipelineTest extends TestCase
         // Fixture guard: the placeholder really was resolvable, so the step ran after the dispatch.
         $elements = $result->tree;
         static::assertSame('resolved-product', $elements[0]->properties['title']);
+    }
+
+    #[TestDox('exposes an unreduced language map to preparation subscribers')]
+    public function testPreparationSubscribersSeeTheLanguageMap(): void
+    {
+        $root = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'anchor copy'])
+            ->build();
+        $layout = $this->createSingleRootLayout($root);
+
+        $observed = null;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ContentTreePreparationEvent::class,
+            static function (ContentTreePreparationEvent $event) use (&$observed): void {
+                $observed = $event->tree()[0]->property('headline')?->jsonSerialize();
+            }
+        );
+
+        $result = $this->createPipeline($dispatcher)->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            false,
+            Generator::generateSalesChannelContext()
+        );
+
+        static::assertSame([Defaults::LANGUAGE_SYSTEM => 'anchor copy'], $observed);
+        // Fixture guard: the map really was reducible, so the step ran after the dispatch.
+        static::assertSame('anchor copy', $result->tree[0]->properties['headline']);
+    }
+
+    /**
+     * The context is the pipeline's own argument rather than anything it derives, and only a chain the
+     * default context does not carry can tell the two apart: reducing against a fabricated default would
+     * serve the anchor entry here.
+     */
+    #[TestDox('reduces a language map against the sales-channel context load() received')]
+    public function testLoadReducesAgainstTheContextItReceived(): void
+    {
+        $root = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('headline', [
+                Defaults::LANGUAGE_SYSTEM => 'anchor copy',
+                'language-child' => 'child copy',
+            ])
+            ->build();
+        $layout = $this->createSingleRootLayout($root);
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            false,
+            Generator::generateSalesChannelContext(
+                new Context(new SystemSource(), [], Defaults::CURRENCY, ['language-child', Defaults::LANGUAGE_SYSTEM])
+            )
+        );
+
+        static::assertSame('child copy', $result->tree[0]->properties['headline']);
     }
 
     #[TestDox('exposes unexpanded redistribute consumers to preparation subscribers')]
@@ -939,11 +1005,12 @@ class ContentPipelineTest extends TestCase
         );
 
         $preparation = (new StoredTreePreparer(
+            $this->typeRegistry(),
             new VirtualRootWrapper(),
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
             $this->configSerializerProvider(),
             $this->dataLoaderProvider(),
-        ))->prepare($layout->elements, $specification, RenderingMode::FULL);
+        ))->prepare($layout->elements, $specification, RenderingMode::FULL, Generator::generateSalesChannelContext());
 
         $pageData = new StubStruct();
         $this->lowering = $this->createLowering(['language' => $this->pageLoaderReturning($pageData)]);
@@ -1079,11 +1146,12 @@ class ContentPipelineTest extends TestCase
         $wrapper = new VirtualRootWrapper();
 
         $preparation = (new StoredTreePreparer(
+            $this->typeRegistry(),
             $wrapper,
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
             $this->configSerializerProvider(),
             $this->dataLoaderProvider(),
-        ))->prepare($layout->elements, $specification, RenderingMode::SKELETON);
+        ))->prepare($layout->elements, $specification, RenderingMode::SKELETON, Generator::generateSalesChannelContext());
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
@@ -1475,6 +1543,7 @@ class ContentPipelineTest extends TestCase
         return new ContentPipeline(
             $dispatcher ?? $this->eventDispatcher,
             new StoredTreePreparer(
+                $this->typeRegistry(),
                 new VirtualRootWrapper(),
                 new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
                 $this->configSerializerProvider(),
@@ -1530,15 +1599,17 @@ class ContentPipelineTest extends TestCase
 
     /**
      * A rendered property map is derived from the element's type, not copied from storage, so a stored key
-     * only renders where the type declares it. `text` therefore declares the one primitive whose stored
-     * value a test below reads back off the served element. Every other component these fixtures use stores
-     * nothing it serves and stays unregistered, which is also the shape the virtual root is in.
+     * only renders where the type declares it. `text` therefore declares the two primitives whose stored
+     * values a test below reads back off the served element, one plain and one translatable. Every other
+     * component these fixtures use stores nothing it serves and stays unregistered, which is also the shape
+     * the virtual root is in.
      */
     private function typeRegistry(): AbstractContentSystemElementTypeRegistry
     {
         $specs = [
             'text' => ContentSystemElementTypeSpecificationBuilder::create('text')
                 ->primitive('title', 'string')
+                ->primitive('headline', 'string', translatable: true)
                 ->build(),
         ];
 

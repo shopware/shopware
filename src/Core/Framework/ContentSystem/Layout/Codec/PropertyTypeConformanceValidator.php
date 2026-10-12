@@ -3,13 +3,20 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Codec;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
+ * Two rules per declared property. The value rule is {@see PropertyType::admits()}, the one conformance
+ * predicate, so this pass keeps no match table of its own. The key rule applies to a translatable property
+ * alone: its value is a language map, and every key must be a language id in lowercase UUID hex.
+ *
  * The registry lookup is `has()`-guarded and silent on a miss: an unregistered component is
  * {@see LayoutDiagnostics}' to report, and an unguarded
  * `get()` would throw `elementTypeNotFound` — a structured 404, but the wrong status and error code for the
@@ -52,16 +59,48 @@ final class PropertyTypeConformanceValidator extends ConstraintValidator
                 continue;
             }
 
-            $types = $specification->type()->enforceableTypes();
+            $type = $specification->type();
 
-            if ($types === null || $specification->type()->admits($raw)) {
+            // fromDecoded() throws for a non-finite float (a JSON 1e400 decodes to INF) and nothing catches
+            // it here; that 500 is the accepted limitation in Api/docs/mutation-errors.md. A list-shaped
+            // payload never carries one this far: the write's first decode already admitted its values
+            // (see Layout/Field/README.md).
+            $stored = StoredValue::fromDecoded($raw);
+
+            if (!$type->admits($stored)) {
+                $this->context->buildViolation($constraint->message)
+                    ->setParameter('{{ key }}', $key)
+                    ->setParameter('{{ declaredType }}', $type->describe())
+                    ->setParameter('{{ actualType }}', get_debug_type($raw))
+                    ->atPath('[properties][' . $key . ']')
+                    ->addViolation();
+
                 continue;
             }
 
-            $this->context->buildViolation($constraint->message)
-                ->setParameter('{{ key }}', (string) $key)
-                ->setParameter('{{ declaredType }}', implode('|', $types))
-                ->setParameter('{{ actualType }}', get_debug_type($raw))
+            $this->reportNonLanguageKeys($constraint, $key, $type->languageKeys($stored));
+        }
+    }
+
+    /**
+     * One violation per key that is not a language id, so a client can name and correct each. Only the key
+     * format is judged: whether the id names an existing language is a diagnostics warning, never a write
+     * rejection. No separate case check accompanies the domain test — {@see Uuid::VALID_PATTERN} is anchored
+     * lowercase-only hex, so an upper-case key already fails it. The keys come from
+     * {@see PropertyType::languageKeys()}, which holds none for a non-translatable property.
+     *
+     * @param list<string> $languageKeys
+     */
+    private function reportNonLanguageKeys(PropertyTypeConformance $constraint, string $key, array $languageKeys): void
+    {
+        foreach ($languageKeys as $languageKey) {
+            if (Uuid::isValid($languageKey)) {
+                continue;
+            }
+
+            $this->context->buildViolation($constraint->languageKeyMessage)
+                ->setParameter('{{ key }}', $key)
+                ->setParameter('{{ languageKey }}', $languageKey)
                 ->atPath('[properties][' . $key . ']')
                 ->addViolation();
         }

@@ -1,12 +1,26 @@
 import type { ContentSystemElementTypeProperty } from 'src/core/service/api/content-system-element-type.api.service';
 import {
+    anchorLanguageId,
+    editingLanguageChain,
     getAdminUiHelpText,
     getAdminUiProps,
     getElementPropertyStorageKey,
     getInitialPropertyValue,
     getPropertyControlType,
     isPropertyVisible,
+    resolveTranslatableEntry,
+    withLanguageEntry,
 } from './element-settings.util';
+
+const ANCHOR_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+const GERMAN_LANGUAGE_ID = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
+const FRENCH_LANGUAGE_ID = 'c3d4e5f60718293a4b5c6d7e8f90a1b2';
+const ITALIAN_LANGUAGE_ID = 'd4e5f60718293a4b5c6d7e8f90a1b2c3';
+const LANGUAGE_CHAIN = [
+    FRENCH_LANGUAGE_ID,
+    GERMAN_LANGUAGE_ID,
+    ANCHOR_LANGUAGE_ID,
+];
 
 describe('module/sw-experience-studio/util/element-settings.util', () => {
     const stringProperty: ContentSystemElementTypeProperty = {
@@ -616,5 +630,232 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
                 { mode: 'explicit' },
             ),
         ).toBe(true);
+    });
+
+    it('returns the entry of the chain head', () => {
+        expect(
+            resolveTranslatableEntry(
+                {
+                    [FRENCH_LANGUAGE_ID]: 'Bonjour',
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                },
+                LANGUAGE_CHAIN,
+            ),
+        ).toBe('Bonjour');
+    });
+
+    it('returns the earliest chain language entry instead of a later one', () => {
+        expect(
+            resolveTranslatableEntry(
+                {
+                    // the later chain language is written first, so a map-key-order lookup would answer with the anchor entry
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    [GERMAN_LANGUAGE_ID]: 'Hallo',
+                },
+                LANGUAGE_CHAIN,
+            ),
+        ).toBe('Hallo');
+    });
+
+    it('returns undefined when no chain language carries an entry', () => {
+        expect(resolveTranslatableEntry({ [ITALIAN_LANGUAGE_ID]: 'Ciao' }, LANGUAGE_CHAIN)).toBeUndefined();
+    });
+
+    it('returns undefined for an undefined value', () => {
+        expect(resolveTranslatableEntry(undefined, LANGUAGE_CHAIN)).toBeUndefined();
+    });
+
+    it.each([
+        [
+            'boolean',
+            false,
+            true,
+        ],
+        [
+            'number',
+            3,
+            12,
+        ],
+    ])('returns the earliest chain language %s entry', (_label, earlierEntry, laterEntry) => {
+        expect(
+            resolveTranslatableEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: laterEntry,
+                    [GERMAN_LANGUAGE_ID]: earlierEntry,
+                },
+                LANGUAGE_CHAIN,
+            ),
+        ).toBe(earlierEntry);
+    });
+
+    it('resolves a map mixing string and boolean entries per language', () => {
+        const value = {
+            [ANCHOR_LANGUAGE_ID]: true,
+            [GERMAN_LANGUAGE_ID]: 'ja',
+        };
+
+        expect(resolveTranslatableEntry(value, LANGUAGE_CHAIN)).toBe('ja');
+        expect(resolveTranslatableEntry(value, [ANCHOR_LANGUAGE_ID])).toBe(true);
+    });
+
+    it.each([
+        [
+            'a null entry',
+            null,
+        ],
+        [
+            'an object entry',
+            { value: 'Hello' },
+        ],
+        [
+            'an array entry',
+            ['Hello'],
+        ],
+    ])('throws when the language map carries %s', (_label, entry) => {
+        expect(() =>
+            resolveTranslatableEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    [GERMAN_LANGUAGE_ID]: entry,
+                },
+                LANGUAGE_CHAIN,
+            ),
+        ).toThrow(/must be undefined or a non-empty language map of primitive values/);
+    });
+
+    it('exposes the anchor language id as the language a write targets', () => {
+        expect(anchorLanguageId()).toBe(ANCHOR_LANGUAGE_ID);
+    });
+
+    it('builds the editing language chain from the anchor language', () => {
+        expect(editingLanguageChain()).toEqual([ANCHOR_LANGUAGE_ID]);
+    });
+
+    it.each([
+        [
+            'a bare string',
+            'Hello',
+        ],
+        [
+            'a list',
+            ['Hello'],
+        ],
+    ])('throws when resolving %s instead of a language map', (_label, value) => {
+        expect(() => resolveTranslatableEntry(value, LANGUAGE_CHAIN)).toThrow(
+            /must be undefined or a non-empty language map of primitive values/,
+        );
+    });
+
+    it('sets the entry of the given language and keeps every other entry', () => {
+        expect(
+            withLanguageEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    [FRENCH_LANGUAGE_ID]: 'Bonjour',
+                },
+                GERMAN_LANGUAGE_ID,
+                'Hallo',
+            ),
+        ).toEqual({
+            [ANCHOR_LANGUAGE_ID]: 'Hello',
+            [FRENCH_LANGUAGE_ID]: 'Bonjour',
+            [GERMAN_LANGUAGE_ID]: 'Hallo',
+        });
+    });
+
+    it('removes the entry of the given language when the entry is null', () => {
+        expect(
+            withLanguageEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    [GERMAN_LANGUAGE_ID]: 'Hallo',
+                },
+                GERMAN_LANGUAGE_ID,
+                null,
+            ),
+        ).toEqual({ [ANCHOR_LANGUAGE_ID]: 'Hello' });
+    });
+
+    it.each([
+        [
+            'boolean',
+            false,
+        ],
+        [
+            'number',
+            0,
+        ],
+    ])('sets a %s entry of the given language and keeps every other entry', (_label, entry) => {
+        expect(
+            withLanguageEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: true,
+                    [FRENCH_LANGUAGE_ID]: 'oui',
+                },
+                GERMAN_LANGUAGE_ID,
+                entry,
+            ),
+        ).toEqual({
+            [ANCHOR_LANGUAGE_ID]: true,
+            [FRENCH_LANGUAGE_ID]: 'oui',
+            [GERMAN_LANGUAGE_ID]: entry,
+        });
+    });
+
+    it('removes a boolean entry of the given language when the entry is null', () => {
+        expect(
+            withLanguageEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: true,
+                    [GERMAN_LANGUAGE_ID]: false,
+                },
+                GERMAN_LANGUAGE_ID,
+                null,
+            ),
+        ).toEqual({ [ANCHOR_LANGUAGE_ID]: true });
+    });
+
+    it('throws when writing over a language map carrying a null entry', () => {
+        expect(() =>
+            withLanguageEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    [GERMAN_LANGUAGE_ID]: null,
+                },
+                ANCHOR_LANGUAGE_ID,
+                'Hello again',
+            ),
+        ).toThrow(/must be undefined or a non-empty language map of primitive values/);
+    });
+
+    it('writes a single-entry language map over an undefined current value', () => {
+        expect(withLanguageEntry(undefined, ANCHOR_LANGUAGE_ID, 'Hello again')).toEqual({
+            [ANCHOR_LANGUAGE_ID]: 'Hello again',
+        });
+    });
+
+    it.each([
+        [
+            'a bare string',
+            'Hello',
+        ],
+        [
+            'a list',
+            ['Hello'],
+        ],
+        [
+            'null',
+            null,
+        ],
+    ])('throws when writing over %s instead of a language map', (_label, current) => {
+        expect(() => withLanguageEntry(current, ANCHOR_LANGUAGE_ID, 'Hello again')).toThrow(
+            /must be undefined or a non-empty language map of primitive values/,
+        );
+    });
+
+    it('throws when the anchor language entry is removed', () => {
+        expect(() => withLanguageEntry({ [ANCHOR_LANGUAGE_ID]: 'Hello' }, ANCHOR_LANGUAGE_ID, null)).toThrow(
+            /anchor language entry of a translatable property cannot be removed/,
+        );
     });
 });

@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraint;
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class TranslatableType extends Constraint
 {
-    public string $message = 'translatable is only valid with type "string"';
+    public string $message = 'translatable is only valid on a lone primitive type';
 
     public function getTargets(): string
     {

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformance;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpeci
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
@@ -53,6 +55,12 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'a value matching no member of a union carrying object' => [['columns' => 'not-an-integer']];
         yield 'a value under a key the type does not declare' => [['mediaId' => ['not', 'a', 'string']]];
         yield 'an element carrying no properties at all' => [[]];
+        // A map under a string declaration passes only through the conformance predicate on the declared type;
+        // a private match table would reject it.
+        yield 'a single-entry anchor map under a translatable declaration' => [['text' => [Defaults::LANGUAGE_SYSTEM => 'Hallo']]];
+        // A map with a second language key passes only through the conformance predicate on the declared type;
+        // a private match table would reject it.
+        yield 'a multi-entry language map under a translatable declaration' => [['text' => [Defaults::LANGUAGE_SYSTEM => 'Hallo', Uuid::randomHex() => 'Ciao']]];
     }
 
     #[TestDox('reports one violation per disagreeing key rather than one for the element')]
@@ -96,6 +104,16 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'non-array properties' => [['component' => 'Sw:Block', 'properties' => 'oops']];
     }
 
+    #[TestDox('reports one violation per non-language key, and none for a language key beside them')]
+    public function testReportsOneViolationPerNonLanguageKey(): void
+    {
+        $violations = $this->validate($this->element(['text' => [Defaults::LANGUAGE_SYSTEM => 'Hallo', 'de-DE' => 'Hallo', 'en-GB' => 'Hi']]));
+
+        static::assertCount(2, $violations);
+        static::assertStringContainsString('"de-DE" is not', (string) $violations->get(0)->getMessage());
+        static::assertStringContainsString('"en-GB" is not', (string) $violations->get(1)->getMessage());
+    }
+
     /**
      * @param array<array-key, mixed> $properties
      */
@@ -123,6 +141,55 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'a string under a number declaration' => [['ratio' => '1.5'], 'ratio', 'number', 'string'];
         yield 'an integer under a boolean declaration' => [['featured' => 1], 'featured', 'boolean', 'int'];
         yield 'a value matching no member of an all-primitive union' => [['spread' => true], 'spread', 'string|integer', 'bool'];
+        // Proves the violation is built from PropertyType::admits(): a surviving private match table would
+        // judge a bare string under a translatable declaration with a different message.
+        yield 'a bare string under a translatable declaration' => [['text' => 'Hallo'], 'text', 'string (translatable)', 'string'];
+        // Pins the violation a client reads for an empty map: the declared type, the actual type and the path,
+        // none of which the predicate's boolean verdict expresses.
+        yield 'an empty language map, refused because absence rather than an empty map means no translations' => [['text' => []], 'text', 'string (translatable)', 'array'];
+        // A map entry that fails the type check is reported once as a type violation, not again for its non-language key.
+        yield 'a language map with a non-string entry under a non-language key, reported once as a type violation' => [['text' => ['de-DE' => 5]], 'text', 'string (translatable)', 'array'];
+    }
+
+    #[DataProvider('rejectsLanguageKeyProvider')]
+    #[TestDox('reports one violation naming the offending key for $_dataName')]
+    public function testRejectsANonLanguageMapKey(string $languageKey): void
+    {
+        $violations = $this->validate($this->element(['text' => [$languageKey => 'Hallo']]));
+
+        static::assertCount(1, $violations);
+        static::assertSame('[properties][text]', $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            \sprintf(
+                'Property "text" is translatable, so every key of its value must be a language id in lowercase UUID hex; "%s" is not.',
+                $languageKey
+            ),
+            (string) $violations->get(0)->getMessage()
+        );
+    }
+
+    #[TestDox('reports a non-language key on a translatable property that follows a conforming non-translatable property')]
+    public function testRejectsANonLanguageMapKeyAfterAConformingNonTranslatableProperty(): void
+    {
+        $violations = $this->validate($this->element(['headline' => 'Hi', 'text' => ['de-DE' => 'Hallo']]));
+
+        static::assertCount(1, $violations);
+        static::assertSame('[properties][text]', $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            'Property "text" is translatable, so every key of its value must be a language id in lowercase UUID hex; "de-DE" is not.',
+            (string) $violations->get(0)->getMessage()
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function rejectsLanguageKeyProvider(): iterable
+    {
+        yield 'an upper-case UUID hex key' => [strtoupper(Defaults::LANGUAGE_SYSTEM)];
+        yield 'a key that is not UUID hex at all' => ['de-DE'];
+        yield 'a UUID hex key one character short' => [substr(Defaults::LANGUAGE_SYSTEM, 0, 31)];
+        yield 'an integer-like key, which PHP stores as an integer array key' => ['42'];
     }
 
     /**
@@ -164,6 +231,7 @@ class PropertyTypeConformanceValidatorTest extends TestCase
                 'spread' => $this->property(['string', 'integer']),
                 'columns' => $this->property(['integer', 'object']),
                 'config' => $this->property('object'),
+                'text' => $this->property('string', translatable: true),
             ],
             [],
         )];
@@ -178,8 +246,8 @@ class PropertyTypeConformanceValidatorTest extends TestCase
     /**
      * @param string|list<string> $type
      */
-    private function property(string|array $type): PropertySpecification
+    private function property(string|array $type, bool $translatable = false): PropertySpecification
     {
-        return new PropertySpecification('prop', new PropertyType($type, false, null, null), false, '', '', null);
+        return new PropertySpecification('prop', new PropertyType($type, $translatable, null, null), false, '', '', null);
     }
 }

@@ -42,6 +42,24 @@ class StoredSchemaResolverTest extends TestCase
         ], $this->resolver([])->resolve($type));
     }
 
+    /**
+     * The flag beside a non-string `type` reads "a language map of that primitive", the shape PropertyType::admits()
+     * accepts for the same declaration, so the fold has to carry the declared primitive unchanged.
+     */
+    #[TestDox('marks a translatable non-string property entry with the flag beside its declared primitive')]
+    public function testResolveMarksATranslatableNonStringPropertyEntryBesideItsDeclaredPrimitive(): void
+    {
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Banner')
+            ->primitive('visible', 'boolean', default: false, translatable: true)
+            ->primitive('columns', 'integer', translatable: true)
+            ->build();
+
+        static::assertSame([
+            'visible' => ['kind' => 'property', 'type' => 'boolean', 'required' => false, 'default' => false, 'translatable' => true],
+            'columns' => ['kind' => 'property', 'type' => 'integer', 'required' => false, 'translatable' => true],
+        ], $this->resolver([])->resolve($type));
+    }
+
     #[TestDox('omits a declared FQCN property from the storage schema, because nothing is stored under the reference key')]
     public function testResolveOmitsDeclaredReferencePropertyFromEntries(): void
     {
@@ -276,6 +294,20 @@ class StoredSchemaResolverTest extends TestCase
             'mediaId' => ['kind' => 'config', 'type' => 'string', 'required' => true],
             'height' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto'],
         ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
+    }
+
+    #[TestDox('marks a translatable property entry with the flag and leaves the key off a non-translatable one')]
+    public function testResolveMarksOnlyTranslatablePropertyEntriesWithTheFlag(): void
+    {
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+            ->primitive('text', 'string', default: '<p>Willkommen</p>', translatable: true)
+            ->primitive('mode', 'string', default: 'auto-fit')
+            ->build();
+
+        static::assertSame([
+            'text' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => '<p>Willkommen</p>', 'translatable' => true],
+            'mode' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto-fit'],
+        ], $this->resolver([])->resolve($type));
     }
 
     #[TestDox('resolves a type with neither primitives nor binding specifications to an empty map')]

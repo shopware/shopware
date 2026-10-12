@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleO
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\Validation;
@@ -47,6 +49,16 @@ class StoredTreeShapeConformanceTest extends TestCase
     private const REJECTED = 'rejected by both sides';
 
     private const DESCRIPTOR_ONLY = 'rejected on write, still readable';
+
+    /**
+     * The one component the type registry below knows. Every other payload in this table names a component it
+     * does not, which keeps the property-type rule inert for them.
+     */
+    private const TRANSLATABLE_COMPONENT = 'core:translatable';
+
+    private const TYPE_BLIND_DECODE = 'the declared-type rules are registry-aware write-boundary rules; decode '
+        . 'reads a property value without consulting any declaration, so a nonconforming value already stored '
+        . 'still reads';
 
     /**
      * @param array<array-key, mixed> $forest
@@ -703,6 +715,100 @@ class StoredTreeShapeConformanceTest extends TestCase
             self::REJECTED,
             '',
         ];
+
+        // The one registry-aware tier this table covers on the element itself: a translatable property's stored
+        // shape. Every rejected row here is descriptor-only, because the codec decodes a property value without
+        // reading any declaration and so cannot tell a language map from any other map.
+        yield 'a single-entry anchor language map on a translatable property' => [
+            self::translatableForest([Defaults::LANGUAGE_SYSTEM => 'Hallo']),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a bare string on a translatable property' => [
+            self::translatableForest('Hallo'),
+            self::DESCRIPTOR_ONLY,
+            self::TYPE_BLIND_DECODE,
+        ];
+
+        yield 'an empty map on a translatable property' => [
+            self::translatableForest([]),
+            self::DESCRIPTOR_ONLY,
+            self::TYPE_BLIND_DECODE,
+        ];
+
+        yield 'a present null on a translatable property' => [
+            self::translatableForest(null),
+            self::DESCRIPTOR_ONLY,
+            self::TYPE_BLIND_DECODE,
+        ];
+
+        // The entry type follows the declared primitive: an integer entry is a defect under the translatable
+        // string and the accepted shape under the translatable integer.
+        yield 'an integer entry in a translatable string language map' => [
+            self::translatableForest([Defaults::LANGUAGE_SYSTEM => 5]),
+            self::DESCRIPTOR_ONLY,
+            self::TYPE_BLIND_DECODE,
+        ];
+
+        yield 'an integer language map on a translatable integer property' => [
+            self::translatableForest([Defaults::LANGUAGE_SYSTEM => 5], key: 'count'),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a string entry in a translatable integer language map' => [
+            self::translatableForest([Defaults::LANGUAGE_SYSTEM => '5'], key: 'count'),
+            self::DESCRIPTOR_ONLY,
+            self::TYPE_BLIND_DECODE,
+        ];
+
+        yield 'a boolean language map on a translatable boolean property' => [
+            self::translatableForest([Defaults::LANGUAGE_SYSTEM => false], key: 'visible'),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a string entry in a translatable boolean language map' => [
+            self::translatableForest([Defaults::LANGUAGE_SYSTEM => 'false'], key: 'visible'),
+            self::DESCRIPTOR_ONLY,
+            self::TYPE_BLIND_DECODE,
+        ];
+
+        yield 'an upper-case UUID key on a translatable property' => [
+            self::translatableForest([strtoupper(Defaults::LANGUAGE_SYSTEM) => 'Hallo']),
+            self::DESCRIPTOR_ONLY,
+            self::TYPE_BLIND_DECODE,
+        ];
+
+        yield 'a non-UUID key on a translatable property' => [
+            self::translatableForest(['de-DE' => 'Hallo']),
+            self::DESCRIPTOR_ONLY,
+            self::TYPE_BLIND_DECODE,
+        ];
+
+        // PHP holds "42" as the integer array key 42, which the key rule reads back as the string it arrived as.
+        yield 'an integer-keyed language map on a translatable property' => [
+            self::translatableForest([42 => 'Hallo']),
+            self::DESCRIPTOR_ONLY,
+            self::TYPE_BLIND_DECODE,
+        ];
+    }
+
+    /**
+     * A single-root forest whose one element names the only component the type registry knows, carrying
+     * `$value` under one of that type's translatable properties: `text` (string), `count` (integer) or
+     * `visible` (boolean).
+     *
+     * @return array<array-key, mixed>
+     */
+    private static function translatableForest(mixed $value, string $key = 'text'): array
+    {
+        return [[
+            'id' => 'root-1',
+            'component' => self::TRANSLATABLE_COMPONENT,
+            'properties' => [$key => $value],
+        ]];
     }
 
     /**
@@ -804,14 +910,22 @@ class StoredTreeShapeConformanceTest extends TestCase
 
     /**
      * The descriptor attaches a constraint whose validator carries the element-type registry, so the default
-     * factory (which builds every validator with `new`) cannot supply it. The registry here knows no type at
-     * all, which keeps that rule inert: this table is about the wire shape both sides own, and what a declared
-     * property type admits is neither the codec's business nor this table's.
+     * factory (which builds every validator with `new`) cannot supply it. The registry here knows exactly one
+     * type, {@see TRANSLATABLE_COMPONENT}, so the property-type rule stays inert for every row that names any
+     * other component: those rows are about the wire shape both sides own, and what a declared property type
+     * admits is neither the codec's business nor theirs.
      */
     private function validator(): ValidatorInterface
     {
+        $translatable = ContentSystemElementTypeSpecificationBuilder::create(self::TRANSLATABLE_COMPONENT)
+            ->primitive('text', 'string', translatable: true)
+            ->primitive('count', 'integer', translatable: true)
+            ->primitive('visible', 'boolean', translatable: true)
+            ->build();
+
         $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $typeRegistry->method('has')->willReturn(false);
+        $typeRegistry->method('has')->willReturnCallback(static fn (string $name): bool => $name === self::TRANSLATABLE_COMPONENT);
+        $typeRegistry->method('get')->willReturn($translatable);
 
         return Validation::createValidatorBuilder()
             ->setConstraintValidatorFactory(new ConstraintValidatorFactory([

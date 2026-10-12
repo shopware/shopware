@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
@@ -293,11 +293,10 @@ class ReplaceElementTest extends TestCase
     #[TestDox('reports a wiring key dropped from two channels only once')]
     public function testReplaceReportsAKeyDroppedFromBothWiringChannelsOnce(): void
     {
-        // droppedWiringKeys() at ReplaceElement.php:216 is array_values(array_unique(array_diff($oldKeys,
-        // $keptKeys))). Every other dropped-wiring test uses distinct key names per channel, so array_diff never
-        // produces a duplicate for array_unique to collapse. Wiring 'legacy' as both a data requirement and a
-        // context consumer makes it appear twice in $oldKeys; without array_unique(), droppedWiring() would report
-        // it twice.
+        // droppedWiringKeys() is array_values(array_unique(array_diff($oldKeys, $keptKeys))). Every other
+        // dropped-wiring test uses distinct key names per channel, so array_diff never produces a duplicate for
+        // array_unique to collapse. Wiring 'legacy' as both a data requirement and a context consumer makes it
+        // appear twice in $oldKeys; without array_unique(), droppedWiring() would report it twice.
         $requirement = new DataRequirement('legacy', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
         $definitions = new ContextDefinitions([], ['legacy' => new ContextConsumer(ContextType::Single, true)]);
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old', ['legacy' => $requirement], [], [], $definitions)]);
@@ -338,7 +337,7 @@ class ReplaceElementTest extends TestCase
     #[TestDox('excludes an orphaned slot child from the affected set')]
     public function testReplaceAffectedExcludesOrphanedChildren(): void
     {
-        // $this->affected = $this->subtreeIds($replacement) at ReplaceElement.php:95 walks the REPLACEMENT node.
+        // apply() sets $this->affected = $this->subtreeIds($replacement), which walks the REPLACEMENT node.
         // testReplaceOrphansAbsentSlotChildren already drops this same 'legacy' child but only asserts orphaned(),
         // never affected(); testReplaceAffectedCoversKeptSubtree uses a slot the new type keeps, so the original
         // node and the replacement are indistinguishable there. Computing affected() over the pre-replace node
@@ -351,6 +350,50 @@ class ReplaceElementTest extends TestCase
         $replace->apply($tree);
 
         static::assertSame(['el'], $replace->affected());
+    }
+
+    #[TestDox('carries a language map over to a new type that declares the property as translatable')]
+    public function testReplaceCarriesTranslatableLanguageMap(): void
+    {
+        $authored = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', 'language-de' => 'Herbstschlussverkauf'];
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('text', $authored)->build()]);
+
+        $replace = new ReplaceElement($this->translatableRegistry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        // The carried map differs from the type's own anchor-only default, so a dropped-then-reseeded value would
+        // not reproduce it.
+        static::assertSame($authored, $result->roots[0]->property('text')?->jsonSerialize());
+        static::assertSame([], $replace->droppedProperties());
+    }
+
+    #[TestDox('drops and reports a language map when the new type declares the key as a non-translatable string')]
+    public function testReplaceDropsLanguageMapUnderNonTranslatableStringKey(): void
+    {
+        $authored = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'];
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('headline', $authored)->build()]);
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertNull($result->roots[0]->property('headline'));
+        static::assertSame(['headline' => $authored], $this->rawDrops($replace->droppedProperties()));
+    }
+
+    /**
+     * @param array<string, mixed> $expectedDrops
+     */
+    #[DataProvider('translatableDeclaredPrimitiveProvider')]
+    #[TestDox('judges a carried language map by the declared primitive of the new type, keeping a matching map and dropping a mismatched one')]
+    public function testReplaceJudgesTranslatableMapByDeclaredPrimitiveEntry(mixed $authored, mixed $expectedValue, array $expectedDrops): void
+    {
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('count', $authored)->build()]);
+
+        $replace = new ReplaceElement($this->translatableRegistry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertSame($expectedValue, $result->roots[0]->property('count')?->jsonSerialize());
+        static::assertSame($expectedDrops, $this->rawDrops($replace->droppedProperties()));
     }
 
     #[TestDox('preserves carried wiring for a shared key but still fill-applies the default for a key the carry left unwired')]
@@ -450,56 +493,55 @@ class ReplaceElementTest extends TestCase
     #[TestDox('drops wiring whose key the new type declares as an all-primitive union and reports the key')]
     public function testReplaceDropsWiringUnderAnAllPrimitiveUnionKey(): void
     {
-        // flexible is declared string|integer in Sw:New: a union, so isPrimitive() is false for it, yet every member is
-        // enforceable. A check on isPrimitive() alone would carry this requirement; enforceableTypes() drops it.
-        $requirement = new DataRequirement('flexible', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
-        $tree = new StoredTree([new StoredElement('el', 'Sw:Old', ['flexible' => $requirement])]);
+        $requirement = new DataRequirement('level', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
+        $tree = new StoredTree([new StoredElement('el', 'Sw:Old', ['level' => $requirement])]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $replace = new ReplaceElement($this->unionRegistry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
         $result = $replace->apply($tree);
 
         static::assertSame([], $result->roots[0]->dataRequirements);
-        static::assertSame(['flexible'], $replace->droppedWiring());
+        static::assertSame(['level'], $replace->droppedWiring());
     }
 
-    #[TestDox('carries a null stored under a key the new type declares as a primitive')]
-    public function testReplaceCarriesANullUnderADeclaredPrimitive(): void
+    #[TestDox('carries an authored present null under a declared non-translatable string key and does not reseed the type default')]
+    public function testReplaceCarriesAuthoredNullOverNewTypeDefault(): void
     {
         $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('headline', null)->build()]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $replace = new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
         $result = $replace->apply($tree);
 
-        static::assertTrue($result->roots[0]->property('headline')?->isNull());
-        static::assertSame([], $this->rawDrops($replace->droppedProperties()));
+        $headline = $result->roots[0]->property('headline');
+
+        static::assertNotNull($headline);
+        static::assertTrue($headline->isNull());
+        static::assertSame([], $replace->droppedProperties());
     }
 
-    #[TestWith(['wide'])]
-    #[TestWith([42])]
-    #[TestDox('carries $value matching one member of an all-primitive union')]
-    public function testReplaceCarriesAValueMatchingAnAllPrimitiveUnion(string|int $value): void
+    /**
+     * @param array<string, mixed> $expectedDrops
+     */
+    #[DataProvider('allPrimitiveUnionCarryOverProvider')]
+    #[TestDox('judges a carried value against the members of an all-primitive union: $_dataName')]
+    public function testReplaceJudgesCarriedValueAgainstAllPrimitiveUnionMembers(mixed $authored, mixed $expectedValue, array $expectedDrops): void
     {
-        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('flexible', $value)->build()]);
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('level', $authored)->build()]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $replace = new ReplaceElement($this->unionRegistry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
         $result = $replace->apply($tree);
 
-        static::assertSame($value, $result->roots[0]->property('flexible')?->jsonSerialize());
-        static::assertSame([], $this->rawDrops($replace->droppedProperties()));
+        static::assertSame($expectedValue, $result->roots[0]->property('level')?->jsonSerialize());
+        static::assertSame($expectedDrops, $this->rawDrops($replace->droppedProperties()));
     }
 
-    #[TestWith([1.5])]
-    #[TestWith([true])]
-    #[TestDox('drops $value matching no member of an all-primitive union')]
-    public function testReplaceDropsAValueMatchingNoUnionMember(float|bool $value): void
+    #[TestDox('fills an absent translatable key with the anchor language map rather than the bare scalar default')]
+    public function testReplaceSeedsTranslatableDefaultAsAnchorMap(): void
     {
-        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('flexible', $value)->build()]);
+        $tree = new StoredTree([new StoredElement('el', 'Sw:Old')]);
 
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
-        $result = $replace->apply($tree);
+        $result = (new ReplaceElement($this->translatableRegistry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
 
-        static::assertNull($result->roots[0]->property('flexible'));
-        static::assertSame(['flexible' => $value], $this->rawDrops($replace->droppedProperties()));
+        static::assertSame([Defaults::LANGUAGE_SYSTEM => 'Default text'], $result->roots[0]->property('text')?->jsonSerialize());
     }
 
     #[TestDox('drops a value under a key the new type declares as a bare object')]
@@ -617,6 +659,41 @@ class ReplaceElementTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{array<string, mixed>, mixed, array<string, mixed>}>
+     */
+    public static function translatableDeclaredPrimitiveProvider(): iterable
+    {
+        // count is a declared translatable integer, and carryProperties() consults only the NEW type's declaration
+        // (its enforceableTypes() and admits() gate on a declared key): an integer entry clears the declared primitive,
+        // so the whole map carries verbatim; a string entry fails it, so the whole map is dropped and reported.
+        // The pair is the falsifier set: the first row fails if the entry check were string-only, the second if it
+        // admitted any scalar regardless of the declared primitive.
+        yield 'integer entries onto a translatable integer carried verbatim' => [
+            [Defaults::LANGUAGE_SYSTEM => 28, 'language-de' => 30],
+            [Defaults::LANGUAGE_SYSTEM => 28, 'language-de' => 30],
+            [],
+        ];
+        yield 'string entries onto a translatable integer dropped and reported' => [
+            [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'],
+            null,
+            ['count' => [Defaults::LANGUAGE_SYSTEM => 'Autumn sale']],
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{mixed, mixed, array<string, mixed>}>
+     */
+    public static function allPrimitiveUnionCarryOverProvider(): iterable
+    {
+        // level is declared `[string, integer]`, which answers false to isPrimitive(). The two carried rows match
+        // one member each, so a check that only the first member counts, or that rejects every union, fails here.
+        yield 'string matching the first member carried' => ['wide', 'wide', []];
+        yield 'integer matching the second member carried' => [5, 5, []];
+        yield 'float matching no member dropped and reported' => [1.5, null, ['level' => 1.5]];
+        yield 'boolean matching no member dropped and reported' => [true, null, ['level' => true]];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function rawProperties(StoredElement $element): array
@@ -648,7 +725,6 @@ class ReplaceElementTest extends TestCase
                 'count' => $this->primitive('integer'),
                 'ratio' => $this->primitive('number'),
                 'featured' => $this->primitive('boolean'),
-                'flexible' => $this->union(['string', 'integer']),
                 'payload' => $this->primitive('object'),
                 'product' => $this->reference(),
             ],
@@ -667,17 +743,24 @@ class ReplaceElementTest extends TestCase
             ->build()]);
     }
 
+    private function unionRegistry(): AbstractContentSystemElementTypeRegistry
+    {
+        return TestElementTypeRegistry::of(['Sw:New' => ContentSystemElementTypeSpecificationBuilder::create('Sw:New')
+            ->declared('level', ['string', 'integer'])
+            ->build()]);
+    }
+
+    private function translatableRegistry(): AbstractContentSystemElementTypeRegistry
+    {
+        return TestElementTypeRegistry::of(['Sw:New' => ContentSystemElementTypeSpecificationBuilder::create('Sw:New')
+            ->primitive('text', 'string', default: 'Default text', translatable: true)
+            ->primitive('count', 'integer', translatable: true)
+            ->build()]);
+    }
+
     private function primitive(string $type): PropertySpecification
     {
         return new PropertySpecification('prop', new PropertyType($type, false, null, null), false, '', '', null);
-    }
-
-    /**
-     * @param list<string> $types
-     */
-    private function union(array $types): PropertySpecification
-    {
-        return new PropertySpecification('prop', new PropertyType($types, false, null, null), false, '', '', null);
     }
 
     private function reference(): PropertySpecification
@@ -701,11 +784,11 @@ class ReplaceElementTest extends TestCase
         $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
         $serializers->method('decode')->willReturn($config);
 
-        return new BindingApplicator($serializers);
+        return new BindingApplicator($serializers, $this->registry());
     }
 
     private function unboundApplicator(): BindingApplicator
     {
-        return new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class));
+        return new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry());
     }
 }

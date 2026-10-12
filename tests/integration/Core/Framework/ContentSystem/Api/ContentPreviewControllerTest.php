@@ -4,10 +4,12 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -148,6 +150,67 @@ class ContentPreviewControllerTest extends TestCase
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($body);
         static::assertArrayHasKey('errors', $body);
+    }
+
+    /**
+     * `Sw:Content:Text.text` is declared translatable, so its stored shape is a language map and a bare string
+     * is a mismatched property type. The codec decodes any value shape, so the draft reaches the check intact
+     * and the check is the only thing that can refuse it.
+     *
+     * The 400 is what pins that the refusal precedes the pipeline: a bare string reaching language reduction
+     * throws `translationShapeInvalid`, a 500, so a pipeline that ran first could not produce this status.
+     */
+    #[TestDox('previewUrl rejects a bare string on a translatable property with 400 elementTypesInvalid')]
+    public function testPreviewUrlReturns400ForABareStringOnATranslatableProperty(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::PREVIEW_URL_URL, [
+            'layout' => [[
+                'id' => 'el-1',
+                'component' => 'Sw:Content:Text',
+                'properties' => ['text' => 'A bare string where a language map belongs'],
+            ]],
+            'entityType' => 'product',
+            'entityId' => 'some-product-id',
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        // The message quotes the declared type, so it is compared after decoding rather than against the
+        // JSON-escaped body.
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($body);
+        static::assertContains(ContentSystemException::ELEMENT_TYPES_INVALID, array_column($body['errors'], 'code'));
+        static::assertStringContainsString(
+            'Property "text" is declared as "string (translatable)" but carries a value of type "string".',
+            implode("\n", array_column($body['errors'], 'detail')),
+        );
+        static::assertStringNotContainsString('"url"', (string) $response->getContent());
+    }
+
+    #[TestDox('previewUrl mints a token for a language map on a translatable property')]
+    public function testPreviewUrlMintsATokenForALanguageMapOnATranslatableProperty(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::PREVIEW_URL_URL, [
+            'layout' => [[
+                'id' => 'el-1',
+                'component' => 'Sw:Content:Text',
+                'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => 'Some text']],
+            ]],
+            'entityType' => 'product',
+            'entityId' => Uuid::fromStringToHex('preview-product'),
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsString($body['url'] ?? null);
+        static::assertStringContainsString('/content-system/preview/', $body['url']);
     }
 
     #[TestDox('previewUrl rejects a draft carrying an unregistered style option with 400')]

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Validation;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\PropertySpecificationDto;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -24,24 +25,14 @@ final class TranslatableTypeValidator extends ConstraintValidator
             throw new UnexpectedTypeException($value, PropertySpecificationDto::class); // @phpstan-ignore shopware.domainException (Symfony ConstraintValidator convention)
         }
 
-        if ($value->translatable && $this->normalizeTypes($value->type) !== ['string']) {
+        // A lone primitive only: a union carrying a single primitive member still declares a union, and the stored
+        // language map judges its entries against one declared primitive.
+        $lonePrimitive = \in_array($value->type, PropertyType::PRIMITIVE_TYPES, true);
+
+        if ($value->translatable && !$lonePrimitive) {
             $this->context->buildViolation($constraint->message)
                 ->atPath('translatable')
                 ->addViolation();
         }
-    }
-
-    /**
-     * @param string|list<string> $type
-     *
-     * @return list<string>
-     */
-    private function normalizeTypes(string|array $type): array
-    {
-        if (\is_string($type)) {
-            return [$type];
-        }
-
-        return array_values($type);
     }
 }

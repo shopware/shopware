@@ -85,6 +85,107 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertStringContainsString('primitive property', (string) $violations->get(0)->getMessage());
     }
 
+    #[DataProvider('rejectsPrimitiveOutsideStringReferencedTypeProvider')]
+    #[TestDox('flags a string-referencing propertyReference config key naming $_dataName as a violation')]
+    public function testStringPropertyReferenceKeyNamingNonStringPrimitiveIsViolation(string $propertyValue, string $declaredType): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => $propertyValue]]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config.property', $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            \sprintf('resolves config key "property" must name a property of type "image" that can hold a "string" value, but "%s" is declared "%s"', $propertyValue, $declaredType),
+            (string) $violations->get(0)->getMessage(),
+        );
+    }
+
+    #[TestDox('flags a list-referencing propertyReference config key naming a string property as a violation, since no primitive holds a list')]
+    public function testListPropertyReferenceKeyNamingStringPropertyIsViolation(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->listLoaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'ids' => 'mediaId']]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config.ids', $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            'resolves config key "ids" must name a property of type "image" that can hold a "list<string>" value, but "mediaId" is declared "string"',
+            (string) $violations->get(0)->getMessage(),
+        );
+    }
+
+    #[TestDox('passes a list-referencing propertyReference config key naming an undeclared key')]
+    public function testListPropertyReferenceKeyNamingUndeclaredKeyPasses(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->listLoaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'ids' => 'mediaIds']]],
+            inputs: [],
+        );
+
+        static::assertCount(0, $this->validateWith($dto, $validator));
+    }
+
+    #[TestDox('flags a later propertyReference config key when an earlier key names a property that can hold its referenced type')]
+    public function testLaterPropertyReferenceKeyIsCheckedAfterAcceptedKey(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->twoPropertyReferenceLoaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId', 'fallback' => 'width']]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config.fallback', $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            'resolves config key "fallback" must name a property of type "image" that can hold a "string" value, but "width" is declared "integer"',
+            (string) $violations->get(0)->getMessage(),
+        );
+    }
+
+    #[TestDox('flags every propertyReference config key that names a non-primitive property or a property that cannot hold its referenced type')]
+    public function testEveryViolatingPropertyReferenceKeyIsReported(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->twoPropertyReferenceLoaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'media', 'fallback' => 'width']]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(2, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config.property', $violations->get(0)->getPropertyPath());
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config.fallback', $violations->get(1)->getPropertyPath());
+    }
+
     #[TestDox('resolves the declared type from the overlay when the registry does not carry it')]
     public function testResolvesTypeFromOverlayWhenRegistryLacksIt(): void
     {
@@ -549,6 +650,55 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertSame('inputs entry "ratio" default value must match the declared type "number"', (string) $violations->get(0)->getMessage());
     }
 
+    #[TestDox('accepts an inputs entry whose scalar default targets a translatable property')]
+    public function testInputsEntryScalarDefaultOnTranslatableTargetIsAccepted(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: [],
+            inputs: ['caption' => ['default' => 'Autumn sale']],
+        );
+
+        static::assertCount(0, $this->validateWith($dto, $validator));
+    }
+
+    #[TestDox('flags a null inputs default on a translatable target as a violation')]
+    public function testInputsEntryNullDefaultOnTranslatableTargetIsViolation(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: [],
+            inputs: ['caption' => ['default' => null]],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].inputs[caption].default', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('not a valid language-map entry', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('accepts a null inputs default on a non-translatable target')]
+    public function testInputsEntryNullDefaultOnNonTranslatableTargetIsAccepted(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: [],
+            inputs: ['mediaId' => ['default' => null]],
+        );
+
+        static::assertCount(0, $this->validateWith($dto, $validator));
+    }
+
     #[TestDox('passes a resolves entry whose config value is a scoped map with root-source keys and string values')]
     public function testResolvesEntryScopedMapPasses(): void
     {
@@ -557,11 +707,94 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         $dto = new BindingSpecificationDto(
             type: 'image',
             label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => [RootSourceConfigMap::MARKER => ['product' => 'mediaId', 'category' => 'mediaId']]]]],
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => ['product' => 'wide', 'category' => 'narrow']]]]],
             inputs: [],
         );
 
         static::assertCount(0, $this->validateWith($dto, $validator));
+    }
+
+    #[TestDox('passes a resolves entry whose scoped maps name the same root sources in a different order')]
+    public function testResolvesEntryScopedMapsNamingTheSameRootSourcesPass(): void
+    {
+        $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => [
+                'entity' => 'media',
+                'property' => 'mediaId',
+                'variant' => [RootSourceConfigMap::MARKER => ['product' => 'wide', 'category' => 'narrow']],
+                'format' => [RootSourceConfigMap::MARKER => ['category' => 'png', 'product' => 'jpg']],
+            ]]],
+            inputs: [],
+        );
+
+        static::assertCount(0, $this->validateWith($dto, $validator));
+    }
+
+    /**
+     * @param array<array-key, mixed> $value
+     */
+    #[DataProvider('nestedScopedMapProvider')]
+    #[TestDox('flags a scoped map nested $_dataName as a violation at the config key that contains it')]
+    public function testResolvesEntryNestedScopedMapIsViolation(array $value): void
+    {
+        $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId', 'variant' => $value]]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config.variant', $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            'resolves entry "media" config key "variant" nests a scoped map inside its value, but a scoped map may only be the direct value of a config key',
+            (string) $violations->get(0)->getMessage()
+        );
+    }
+
+    /**
+     * @return iterable<string, array{array<array-key, mixed>}>
+     */
+    public static function nestedScopedMapProvider(): iterable
+    {
+        yield 'in a map' => [['size' => [RootSourceConfigMap::MARKER => ['product' => 'wide']]]];
+        yield 'in a list' => [[[RootSourceConfigMap::MARKER => ['product' => 'wide']]]];
+        yield 'two levels down' => [['size' => ['inner' => [RootSourceConfigMap::MARKER => ['product' => 'wide']]]]];
+    }
+
+    #[TestDox('flags scoped maps in one config that name different root-source sets as a violation at the config')]
+    public function testResolvesEntryScopedMapsNamingDifferentRootSourcesIsViolation(): void
+    {
+        $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => [
+                'entity' => 'media',
+                'property' => 'mediaId',
+                'variant' => [RootSourceConfigMap::MARKER => ['product' => 'wide', 'category' => 'narrow']],
+                'format' => [RootSourceConfigMap::MARKER => ['product' => 'jpg']],
+            ]]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config', $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            'resolves entry "media" config scopes its keys over different root-source sets (variant: category, product; format: product), but every scoped key of one config must name the same root sources',
+            (string) $violations->get(0)->getMessage()
+        );
     }
 
     #[TestDox('flags a scoped map whose key is not a registered root source as a violation')]
@@ -572,15 +805,15 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         $dto = new BindingSpecificationDto(
             type: 'image',
             label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => [RootSourceConfigMap::MARKER => ['product' => 'mediaId', 'bogus' => 'mediaId']]]]],
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => ['product' => 'wide', 'bogus' => 'narrow']]]]],
             inputs: [],
         );
 
         $violations = $this->validateWith($dto, $validator);
 
         static::assertCount(1, $violations);
-        static::assertSame('bindings[' . self::ID . '].resolves[media].config.property', $violations->get(0)->getPropertyPath());
-        static::assertStringContainsString('map of root source', (string) $violations->get(0)->getMessage());
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config.variant', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('must be a map of root source to string', (string) $violations->get(0)->getMessage());
     }
 
     #[TestDox('flags a scoped map with a non-string value as a violation')]
@@ -591,15 +824,60 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         $dto = new BindingSpecificationDto(
             type: 'image',
             label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => [RootSourceConfigMap::MARKER => ['product' => ['mediaId']]]]]],
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => ['product' => ['wide']]]]]],
             inputs: [],
         );
 
         $violations = $this->validateWith($dto, $validator);
 
         static::assertCount(1, $violations);
-        static::assertSame('bindings[' . self::ID . '].resolves[media].config.property', $violations->get(0)->getPropertyPath());
-        static::assertStringContainsString('map of root source', (string) $violations->get(0)->getMessage());
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config.variant', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('must be a map of root source to string', (string) $violations->get(0)->getMessage());
+    }
+
+    #[DataProvider('rejectsScopedMapOnNonLiteralKeyProvider')]
+    #[TestDox('flags a scoped map on $_dataName as a violation')]
+    public function testResolvesEntryScopedMapOnNonLiteralKeyIsViolation(string $configKey): void
+    {
+        $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', $configKey => [RootSourceConfigMap::MARKER => ['product' => 'mediaId', 'category' => 'mediaId']]]]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config.' . $configKey, $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            'resolves entry "media" config key "' . $configKey . '" is a map of root source to value, which only a literal config key of loader "entity" may be',
+            (string) $violations->get(0)->getMessage()
+        );
+    }
+
+    #[TestDox('flags a scoped map on a key of an unregistered loader as the unregistered-loader violation')]
+    public function testResolvesEntryScopedMapOnUnregisteredLoaderIsLoaderNotRegisteredViolation(): void
+    {
+        $validator = $this->validatorFailingDecodeWith(ContentSystemException::configSerializerNotRegistered('ghost-loader'), ['product']);
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'ghost-loader', 'config' => ['variant' => [RootSourceConfigMap::MARKER => ['product' => 'wide']]]]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media]', $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            'resolves entry "media" names loader "ghost-loader", which is not a registered data loader',
+            (string) $violations->get(0)->getMessage()
+        );
     }
 
     #[TestDox('treats an unscoped array config as an ordinary loader argument, not a scoped map')]
@@ -620,10 +898,32 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
     /**
      * @return iterable<string, array{string}>
      */
+    public static function rejectsScopedMapOnNonLiteralKeyProvider(): iterable
+    {
+        yield 'a propertyReference key' => ['property'];
+        yield 'an entityName key' => ['entity'];
+        yield 'a key the loader does not declare' => ['ghost'];
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
     public static function passesPropertyReferenceKeyNamingProvider(): iterable
     {
-        yield 'a primitive property' => ['mediaId'];
+        yield 'a string property' => ['mediaId'];
+        yield 'a translatable string property' => ['caption'];
         yield 'an undeclared key' => ['ghost'];
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function rejectsPrimitiveOutsideStringReferencedTypeProvider(): iterable
+    {
+        yield 'an integer property' => ['width', 'integer'];
+        yield 'a boolean property' => ['autoplay', 'boolean'];
+        yield 'a number property' => ['ratio', 'number'];
+        yield 'a translatable integer property' => ['position', 'integer (translatable)'];
     }
 
     /**
@@ -766,7 +1066,10 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         return new TypeConsistentBindingSpecificationValidator($registry, $provider, $rootContextMapper, $mapResolver, static::createStub(RootSourceRegistry::class));
     }
 
-    private function validatorFailingDecodeWith(ContentSystemException $exception): TypeConsistentBindingSpecificationValidator
+    /**
+     * @param list<string> $rootSources
+     */
+    private function validatorFailingDecodeWith(ContentSystemException $exception, array $rootSources = []): TypeConsistentBindingSpecificationValidator
     {
         $registry = $this->registryServing($this->imageType());
 
@@ -776,12 +1079,15 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
         $mapResolver->method('resolve')->willReturn($this->map(['entity' => $this->loaderSpec()]));
 
+        $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
+        $rootSourceRegistry->method('entityRootSources')->willReturn($rootSources);
+
         return new TypeConsistentBindingSpecificationValidator(
             $registry,
             $provider,
             static::createStub(RootContextMapper::class),
             $mapResolver,
-            static::createStub(RootSourceRegistry::class),
+            $rootSourceRegistry,
         );
     }
 
@@ -814,6 +1120,25 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         return new LoaderConfigSpecification([
             new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
             new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            new ConfigKeySpecification('variant', ConfigKeyKind::Literal, 'string', required: false),
+            new ConfigKeySpecification('format', ConfigKeyKind::Literal, 'string', required: false),
+        ]);
+    }
+
+    private function listLoaderSpec(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
+            new ConfigKeySpecification('ids', ConfigKeyKind::PropertyReference, 'string', required: true, referencedType: 'list<string>'),
+        ]);
+    }
+
+    private function twoPropertyReferenceLoaderSpec(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
+            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            new ConfigKeySpecification('fallback', ConfigKeyKind::PropertyReference, 'string', required: true),
         ]);
     }
 
@@ -829,9 +1154,11 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             [
                 'media' => new PropertySpecification('media', new PropertyType(MediaEntity::class, false, null, null), false, '', '', null),
                 'mediaId' => new PropertySpecification('mediaId', new PropertyType('string', false, null, null), false, '', '', null),
+                'caption' => new PropertySpecification('caption', new PropertyType('string', true, null, null), false, '', '', null),
                 'width' => new PropertySpecification('width', new PropertyType('integer', false, null, null), false, '', '', null),
                 'autoplay' => new PropertySpecification('autoplay', new PropertyType('boolean', false, null, null), false, '', '', null),
                 'ratio' => new PropertySpecification('ratio', new PropertyType('number', false, null, null), false, '', '', null),
+                'position' => new PropertySpecification('position', new PropertyType('integer', true, null, null), false, '', '', null),
             ],
             [],
         );

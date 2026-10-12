@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
@@ -51,6 +52,14 @@ class LayoutDefaultSeederTest extends TestCase
         $seeded = $this->seeder()->seed([$element]);
 
         static::assertSame(['headline' => null], $this->rawProperties($seeded[0]));
+    }
+
+    #[TestDox('seeds a missing translatable default as a language map under the anchor language')]
+    public function testSeedsTranslatableDefaultUnderTheAnchorLanguage(): void
+    {
+        $seeded = $this->seeder()->seed([StoredElementBuilder::create('Sw:Text', 'el')->build()]);
+
+        static::assertSame(['title' => [Defaults::LANGUAGE_SYSTEM => 'Willkommen']], $this->rawProperties($seeded[0]));
     }
 
     #[TestDox('seeds missing nested property defaults on a stored element')]
@@ -118,6 +127,9 @@ class LayoutDefaultSeederTest extends TestCase
             'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Block')
                 ->primitive('headline', 'string', default: 'Default headline')
                 ->declared('product', SalesChannelProductEntity::class)
+                ->build(),
+            'Sw:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Text')
+                ->primitive('title', 'string', default: 'Willkommen', translatable: true)
                 ->build(),
             'Sw:Grid:Container' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Grid:Container', 'Grid Container')
                 ->declared('padding', ['string', 'object'], properties: $nestedProperties)

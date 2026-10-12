@@ -60,7 +60,7 @@ slots:
 
 **`meta`** (required): `label`, `description` are required. `icon`, `category`, `copilot` are optional.
 
-**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (string only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`, `resolvedBy` (reference properties only — the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)).
+**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (string only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`, `resolvedBy` (reference properties only — the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)). A property shown as a `radio-panel` whose type is not `string` declares its values in `enum`; without one, a click on one of its options throws an error in the Administration and emits no value.
 
 The default-specification synthesizer runs on every type file, whether or not it declares a `bindings:` key, so a misused `resolvedBy` — for example on a primitive property — fails app install and `manifest:validate` outright.
 

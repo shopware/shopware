@@ -22,8 +22,6 @@ class Migration1773442200AddAppContentSystemElementTypeTableTest extends TestCas
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
-
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `app_content_system_element_type`;');
     }
 
     public function testGetCreationTimestamp(): void
@@ -33,6 +31,8 @@ class Migration1773442200AddAppContentSystemElementTypeTableTest extends TestCas
 
     public function testMigration(): void
     {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `app_content_system_element_type`;');
+
         static::assertFalse(TableHelper::tableExists($this->connection, 'app_content_system_element_type'));
 
         $migration = new Migration1773442200AddAppContentSystemElementTypeTable();

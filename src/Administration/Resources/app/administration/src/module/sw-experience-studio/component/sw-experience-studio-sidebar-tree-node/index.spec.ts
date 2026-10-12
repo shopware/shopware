@@ -185,7 +185,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
             },
         };
 
-        methods.onAddElement.call(vm, 'content', { currentTarget: trigger } as MouseEvent);
+        methods.onAddElement.call(vm, 'content', { currentTarget: trigger } as unknown as MouseEvent);
 
         expect($emit).toHaveBeenCalledWith('add-element', {
             parentElementId: 'element-id',

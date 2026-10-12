@@ -201,6 +201,205 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
         ]);
     });
 
+    it.each([
+        {
+            name: 'integer',
+            property: {
+                type: 'integer',
+                enum: [
+                    1,
+                    2,
+                    3,
+                ],
+                adminUI: {
+                    component: 'radio-panel',
+                },
+            },
+            optionKey: '2',
+            expected: 2,
+        },
+        {
+            name: 'boolean',
+            property: {
+                type: 'boolean',
+                enum: [
+                    true,
+                    false,
+                ],
+                adminUI: {
+                    component: 'radio-panel',
+                },
+            },
+            optionKey: 'false',
+            expected: false,
+        },
+        {
+            name: 'string',
+            property: {
+                type: 'string',
+                enum: [
+                    'start',
+                    'end',
+                ],
+                adminUI: {
+                    component: 'radio-panel',
+                },
+            },
+            optionKey: 'end',
+            expected: 'end',
+        },
+    ])('emits the $name enum value in its declared type when a radio panel option is selected', (testCase) => {
+        const $emit = jest.fn();
+        const vm = {
+            $emit,
+            allowEdit: true,
+            getRadioPanelEmitValue: methods.getRadioPanelEmitValue,
+            onUpdateField: methods.onUpdateField,
+        };
+
+        methods.onUpdateRadioPanelProperty.call(vm, 'columns', testCase.property, testCase.optionKey);
+
+        expect($emit).toHaveBeenCalledTimes(1);
+        expect($emit).toHaveBeenCalledWith('update-field', {
+            key: 'columns',
+            value: testCase.expected,
+        });
+    });
+
+    it('throws when a radio panel option key matches no enum entry', () => {
+        const $emit = jest.fn();
+        const vm = {
+            $emit,
+            allowEdit: true,
+            getRadioPanelEmitValue: methods.getRadioPanelEmitValue,
+            onUpdateField: methods.onUpdateField,
+        };
+        const property = {
+            type: 'integer',
+            enum: [
+                1,
+                2,
+            ],
+            adminUI: {
+                component: 'radio-panel',
+            },
+        };
+
+        expect(() => methods.onUpdateRadioPanelProperty.call(vm, 'columns', property, '3')).toThrow(
+            'The option "3" of the radio-panel property "columns" matches no enum entry.',
+        );
+        expect($emit).not.toHaveBeenCalled();
+    });
+
+    it('emits the option key for a string radio panel property without an enum', () => {
+        const $emit = jest.fn();
+        const vm = {
+            $emit,
+            allowEdit: true,
+            getRadioPanelEmitValue: methods.getRadioPanelEmitValue,
+            onUpdateField: methods.onUpdateField,
+        };
+        const property = {
+            type: 'string',
+            adminUI: {
+                component: 'radio-panel',
+            },
+        };
+
+        methods.onUpdateRadioPanelProperty.call(vm, 'mode', property, 'auto');
+
+        expect($emit).toHaveBeenCalledWith('update-field', {
+            key: 'mode',
+            value: 'auto',
+        });
+    });
+
+    it('throws when a non-string radio panel property declares no enum', () => {
+        const $emit = jest.fn();
+        const vm = {
+            $emit,
+            allowEdit: true,
+            getRadioPanelEmitValue: methods.getRadioPanelEmitValue,
+            onUpdateField: methods.onUpdateField,
+        };
+        const property = {
+            type: 'integer',
+            adminUI: {
+                component: 'radio-panel',
+            },
+        };
+
+        expect(() => methods.onUpdateRadioPanelProperty.call(vm, 'columns', property, '2')).toThrow(
+            'The radio-panel property "columns" of type "integer" declares no enum, so option "2" has no value to emit.',
+        );
+        expect($emit).not.toHaveBeenCalled();
+    });
+
+    it('keeps string option keys for a numeric enum radio panel', () => {
+        const options = methods.getRadioPanelOptions.call(
+            {
+                getControlProps: methods.getControlProps,
+            },
+            {
+                type: 'integer',
+                enum: [
+                    1,
+                    2,
+                ],
+                adminUI: {
+                    component: 'radio-panel',
+                },
+            },
+        ) as Array<{ value: unknown }>;
+
+        expect(options.map((option) => option.value)).toStrictEqual([
+            '1',
+            '2',
+        ]);
+    });
+
+    it('emits a numeric enum value from the responsive global radio panel path', () => {
+        const $emit = jest.fn();
+        const property = {
+            type: 'integer',
+            enum: [
+                1,
+                2,
+            ],
+            default: 1,
+            adminUI: {
+                component: 'radio-panel',
+            },
+        };
+        const vm = {
+            $emit,
+            allowEdit: true,
+            getControlType: methods.getControlType,
+            getRadioPanelEmitValue: methods.getRadioPanelEmitValue,
+            isResponsiveViewportMode: () => false,
+            normalizeResponsiveValue: methods.normalizeResponsiveValue,
+            persistBreakpointAwareValue: methods.persistBreakpointAwareValue,
+            onUpdateField: methods.onUpdateField,
+        };
+
+        methods.onUpdateResponsiveGlobalProperty.call(
+            vm,
+            'columns',
+            property,
+            {
+                key: 'columns',
+                property,
+            },
+            methods.getRadioPanelEmitValue.call(vm, 'columns', property, '2'),
+        );
+
+        expect($emit).toHaveBeenCalledTimes(1);
+        expect($emit).toHaveBeenCalledWith('update-field', {
+            key: 'columns',
+            value: 2,
+        });
+    });
+
     it('prefers declared options for select controls', () => {
         expect(
             methods.getSelectOptions.call(

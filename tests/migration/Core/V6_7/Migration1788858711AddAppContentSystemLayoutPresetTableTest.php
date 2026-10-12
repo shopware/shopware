@@ -22,8 +22,6 @@ class Migration1788858711AddAppContentSystemLayoutPresetTableTest extends TestCa
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
-
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `app_content_system_layout_preset`;');
     }
 
     public function testGetCreationTimestamp(): void
@@ -33,6 +31,8 @@ class Migration1788858711AddAppContentSystemLayoutPresetTableTest extends TestCa
 
     public function testMigration(): void
     {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `app_content_system_layout_preset`;');
+
         static::assertFalse(TableHelper::tableExists($this->connection, 'app_content_system_layout_preset'));
 
         $migration = new Migration1788858711AddAppContentSystemLayoutPresetTable();

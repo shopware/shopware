@@ -84,7 +84,7 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
         $this->runWorker();
 
         $urls = $this->getSeoUrls($ids->getList(['a', 'b']), $ids->get('sales-channel'));
-        static::assertNotEmpty($urls, 'baseline SEO URLs must exist before the template change');
+        static::assertNotCount(0, $urls, 'baseline SEO URLs must exist before the template change');
         $beforePaths = array_keys($urls);
 
         // Act: change the SEO URL template under Settings > Shop > SEO. The
@@ -118,7 +118,8 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
             $afterPaths,
             static fn (string $path): bool => str_starts_with($path, 'custom-prefix/')
         ));
-        static::assertNotEmpty(
+        static::assertNotCount(
+            0,
             $regenerated,
             'subscriber must regenerate SEO URLs under the custom prefix after the template change; '
                 . 'baseline=' . implode(',', $beforePaths) . ' after=' . implode(',', $afterPaths)
@@ -140,7 +141,7 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
         $this->runWorker();
 
         $urls = $this->getSeoUrls($ids->getList(['a']), $ids->get('sales-channel'));
-        static::assertNotEmpty($urls, 'baseline SEO URLs must exist before updating the template');
+        static::assertNotCount(0, $urls, 'baseline SEO URLs must exist before updating the template');
 
         $templateId = $this->findDefaultTemplateId(NavigationPageSeoUrlRoute::ROUTE_NAME);
         static::assertNotNull($templateId);
@@ -159,7 +160,8 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
             array_keys($urls),
             static fn (string $path): bool => str_starts_with($path, 'v2/')
         ));
-        static::assertNotEmpty(
+        static::assertNotCount(
+            0,
             $regenerated,
             'subscriber must regenerate SEO URLs under the v2/ prefix after the template update'
         );
@@ -180,7 +182,7 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
         $this->runWorker();
 
         $urlsBefore = $this->getSeoUrls($ids->getList(['a']), $ids->get('sales-channel'));
-        static::assertNotEmpty($urlsBefore, 'baseline SEO URLs must exist');
+        static::assertNotCount(0, $urlsBefore, 'baseline SEO URLs must exist');
 
         $templateId = $this->findDefaultTemplateId(NavigationPageSeoUrlRoute::ROUTE_NAME);
         static::assertNotNull($templateId);

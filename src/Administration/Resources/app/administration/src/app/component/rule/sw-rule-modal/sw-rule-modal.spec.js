@@ -117,4 +117,16 @@ describe('app/component/rule/sw-rule-modal', () => {
 
         expect(wrapper.emitted().save).toBeFalsy();
     });
+
+    it('should only allow whole numbers of at least 0 for the priority', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const priorityField = wrapper.findComponent({ name: 'MtNumberField' });
+
+        expect(priorityField.props('label')).toBe('sw-rule-modal.labelPriority');
+        expect(priorityField.props('step')).toBe(1);
+        expect(priorityField.props('min')).toBe(0);
+        expect(priorityField.props('numberType')).toBe('int');
+    });
 });

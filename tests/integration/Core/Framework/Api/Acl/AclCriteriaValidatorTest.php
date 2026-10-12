@@ -53,12 +53,12 @@ class AclCriteriaValidatorTest extends TestCase
         $missing = $this->validator->validate(ProductDefinition::ENTITY_NAME, $criteria, $context);
 
         if ($pass) {
-            static::assertEmpty($missing);
+            static::assertCount(0, $missing);
 
             return;
         }
 
-        static::assertNotEmpty($missing);
+        static::assertNotCount(0, $missing);
     }
 
     /**

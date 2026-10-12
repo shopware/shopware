@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -184,7 +185,11 @@ class AdministrationController extends AbstractController
 
         $snippets = $this->filterByAuthentication($request, $snippets, $locale);
 
-        return new JsonResponse($snippets);
+        $response = new JsonResponse($snippets);
+        $response->setEtag(Hasher::hash($snippets));
+        $response->isNotModified($request);
+
+        return $response;
     }
 
     #[Route(

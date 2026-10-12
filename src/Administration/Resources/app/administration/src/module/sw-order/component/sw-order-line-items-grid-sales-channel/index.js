@@ -83,6 +83,10 @@ export default {
             });
         },
 
+        lineItemIds() {
+            return this.cart.lineItems.map((item) => item.id);
+        },
+
         lineItemTypes() {
             return LineItemType;
         },
@@ -175,6 +179,14 @@ export default {
 
         currencyFilter() {
             return Shopware.Filter.getByName('currency');
+        },
+    },
+
+    watch: {
+        lineItemIds(lineItemIds) {
+            Object.values(this.selectedItems)
+                .filter((item) => !lineItemIds.includes(item.id))
+                .forEach((item) => this.$refs.dataGrid?.selectItem(false, item));
         },
     },
 

@@ -74,7 +74,7 @@ class McpToolResponseTest extends TestCase
             ->with('session-abc', static::isString())
             ->willReturn('cached-uuid-123');
 
-        $request = $this->adminMcpRequest('session-abc');
+        $request = $this->mcpRequest('session-abc');
 
         $requestStack = new RequestStack();
         $requestStack->push($request);
@@ -98,7 +98,7 @@ class McpToolResponseTest extends TestCase
         $cache = static::createStub(ToolResultCacheStorage::class);
         $cache->method('store')->willReturn('cached-uuid');
 
-        $request = $this->adminMcpRequest('session-abc');
+        $request = $this->mcpRequest('session-abc');
         $request->attributes->set(McpServerController::ATTRIBUTE_JSONRPC_BODY, [
             'method' => 'tools/call',
             'params' => [
@@ -144,8 +144,7 @@ class McpToolResponseTest extends TestCase
         $cache = $this->createMock(ToolResultCacheStorage::class);
         $cache->expects($this->never())->method('store');
 
-        $request = $this->adminMcpRequest('session-abc');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+        $request = $this->mcpRequest('session-abc', StoreApiRouteScope::ID);
 
         $requestStack = new RequestStack();
         $requestStack->push($request);
@@ -239,7 +238,7 @@ class McpToolResponseTest extends TestCase
         $cache = static::createStub(ToolResultCacheStorage::class);
         $cache->method('store')->willReturn('cached-uuid');
 
-        $request = $this->adminMcpRequest('session-abc');
+        $request = $this->mcpRequest('session-abc');
         if ($body !== null) {
             $request->attributes->set(McpServerController::ATTRIBUTE_JSONRPC_BODY, $body);
         }
@@ -411,11 +410,11 @@ class McpToolResponseTest extends TestCase
         return new Context(new AdminApiSource(null, null), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
     }
 
-    private function adminMcpRequest(string $sessionId): Request
+    private function mcpRequest(string $sessionId, string $scope = ApiRouteScope::ID): Request
     {
         $request = new Request();
         $request->headers->set('Mcp-Session-Id', $sessionId);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [$scope]);
 
         return $request;
     }

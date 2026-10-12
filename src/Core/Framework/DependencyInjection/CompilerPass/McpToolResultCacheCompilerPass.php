@@ -15,11 +15,8 @@ use Symfony\Component\DependencyInjection\Reference;
  * @internal
  *
  * Gives every MCP tool that extends {@see McpToolResponse} the tool-result cache, wherever the tool
- * is registered. The `instanceof` rule in `DependencyInjection/mcp.php` only reaches services defined
- * in that file, so plugin and bundle tools never got the cache and returned oversized results inline.
- *
- * Runs before Monolog's LoggerChannelPass (default priority), so the added `monolog.logger` tag still
- * switches the injected logger to the `mcp` channel.
+ * is registered. An `instanceof` rule in a services file only reaches the services of that file, so
+ * this pass is the one place that wires it, for core, plugin and bundle tools alike.
  */
 #[Package('framework')]
 class McpToolResultCacheCompilerPass implements CompilerPassInterface
@@ -43,15 +40,13 @@ class McpToolResultCacheCompilerPass implements CompilerPassInterface
                     continue;
                 }
 
+                // The channel logger directly, not a `monolog.logger` tag: the tag would also move every
+                // other logger the tool injects to the `mcp` channel.
                 $definition->addMethodCall(self::SETTER, [
                     new Reference(ToolResultCacheStorage::class),
                     new Reference('request_stack'),
-                    new Reference('logger'),
+                    new Reference('monolog.logger.mcp'),
                 ]);
-
-                if (!$definition->hasTag('monolog.logger')) {
-                    $definition->addTag('monolog.logger', ['channel' => 'mcp']);
-                }
             }
         }
     }

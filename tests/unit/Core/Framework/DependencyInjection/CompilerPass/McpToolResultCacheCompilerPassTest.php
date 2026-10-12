@@ -40,10 +40,10 @@ class McpToolResultCacheCompilerPassTest extends TestCase
 
         $definition = $container->getDefinition('plugin.tool');
         static::assertEquals(
-            [['setToolResultCache', [new Reference(ToolResultCacheStorage::class), new Reference('request_stack'), new Reference('logger')]]],
+            [['setToolResultCache', [new Reference(ToolResultCacheStorage::class), new Reference('request_stack'), new Reference('monolog.logger.mcp')]]],
             $definition->getMethodCalls(),
         );
-        static::assertSame([['channel' => 'mcp']], $definition->getTag('monolog.logger'));
+        static::assertFalse($definition->hasTag('monolog.logger'), 'a channel tag would also move the tool\'s own loggers');
     }
 
     public function testResolvesParameterisedClassNames(): void
@@ -60,10 +60,9 @@ class McpToolResultCacheCompilerPassTest extends TestCase
     public function testLeavesToolsAlone(): void
     {
         $container = $this->container();
-        // Already wired, for example by the instanceof rule in mcp.php, which also sets the channel.
+        // A tool that wires the setter itself.
         $container->setDefinition('core.tool', (new Definition(EntitySchemaTool::class))
             ->addTag('mcp.tool')
-            ->addTag('monolog.logger', ['channel' => 'mcp'])
             ->addMethodCall('setToolResultCache', ['existing']));
         // A tool that does not extend McpToolResponse has no cache setter.
         $container->setDefinition('other.tool', (new Definition(\stdClass::class))->addTag('shopware.mcp.tool'));
@@ -71,9 +70,7 @@ class McpToolResultCacheCompilerPassTest extends TestCase
         (new McpToolResultCacheCompilerPass())->process($container);
 
         static::assertSame([['setToolResultCache', ['existing']]], $container->getDefinition('core.tool')->getMethodCalls());
-        static::assertSame([['channel' => 'mcp']], $container->getDefinition('core.tool')->getTag('monolog.logger'));
         static::assertSame([], $container->getDefinition('other.tool')->getMethodCalls());
-        static::assertFalse($container->getDefinition('other.tool')->hasTag('monolog.logger'));
     }
 
     public function testDoesNothingWithoutTheCacheStorage(): void

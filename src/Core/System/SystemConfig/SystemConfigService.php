@@ -201,7 +201,7 @@ class SystemConfigService implements ResetInterface
     public function set(string $key, $value, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             $silent = \func_num_args() >= 4 ? (bool) func_get_arg(3) : true;
         } else {
             $silent = \func_num_args() >= 4 ? (bool) func_get_arg(3) : false;
@@ -217,7 +217,7 @@ class SystemConfigService implements ResetInterface
     public function setMultiple(array $values, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : true;
         } else {
             $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : false;
@@ -348,7 +348,7 @@ class SystemConfigService implements ResetInterface
     public function delete(string $key, ?string $salesChannel = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : true;
         } else {
             $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : false;

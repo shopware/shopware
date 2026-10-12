@@ -26,7 +26,7 @@ class NotificationTest extends TestCase
 
         $notification->newServicesInstalled();
 
-        static::assertNotEmpty($repo->creates);
+        static::assertNotCount(0, $repo->creates);
         static::assertCount(1, $repo->creates);
 
         $createdNotification = $repo->creates[0][0];

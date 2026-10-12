@@ -237,8 +237,8 @@ class StornoRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        static::assertEmpty($processedTemplate->getSuccess());
-        static::assertNotEmpty($errors = $processedTemplate->getErrors());
+        static::assertCount(0, $processedTemplate->getSuccess());
+        static::assertNotCount(0, $errors = $processedTemplate->getErrors());
         static::assertArrayHasKey($orderId, $errors);
         static::assertInstanceOf(DocumentException::class, $errors[$orderId]);
         static::assertSame(

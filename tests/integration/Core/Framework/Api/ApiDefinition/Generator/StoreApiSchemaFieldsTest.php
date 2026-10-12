@@ -20,7 +20,7 @@ class StoreApiSchemaFieldsTest extends TestCase
 
     public function testServedSchemasDocumentEveryStoreApiField(): void
     {
-        $schemaBuilder = static::getContainer()->get(OpenApiDefinitionSchemaBuilder::class);
+        $schemaBuilder = new OpenApiDefinitionSchemaBuilder();
         $spec = static::getContainer()->get(DefinitionService::class)->generate(
             'openapi-3',
             DefinitionService::STORE_API,

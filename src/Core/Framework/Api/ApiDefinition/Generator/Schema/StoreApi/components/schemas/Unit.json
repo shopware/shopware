@@ -22,7 +22,7 @@
                     "name": {
                         "type": "string"
                     },
-                    "isoCode": {
+                    "uneceCode": {
                         "description": "Internationally recognized UN/ECE Recommendation 20 or 21 unit code. For example, H87, KGM, XBX, etc.",
                         "type": "string"
                     },

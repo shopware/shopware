@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  * @internal
  */
 #[Package('inventory')]
-class Migration1791772236AddUnitIsoCode extends MigrationStep
+class Migration1791772236AddUnitUneceCode extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
@@ -19,6 +19,6 @@ class Migration1791772236AddUnitIsoCode extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColumn($connection, 'unit', 'iso_code', 'VARCHAR(3)');
+        $this->addColumn($connection, 'unit', 'unece_code', 'VARCHAR(3)');
     }
 }

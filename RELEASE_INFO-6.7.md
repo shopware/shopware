@@ -382,9 +382,9 @@ GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_I
 
 ### Units have a standard unit code
 
-The `unit` entity has a new optional field `isoCode` for the unit's UN/ECE Recommendation 20 or 21 code, for example `H87` for piece, `KGM` for kilogram or `XBX` for box. The field is not translated and is available in the Admin API and the Store API.
+The `unit` entity has a new optional field `uneceCode` for the unit's UN/ECE Recommendation 20 or 21 code, for example `H87` for piece, `KGM` for kilogram or `XBX` for box. The field is not translated and is available in the Admin API and the Store API.
 
-Only codes from these lists are saved, and they are case-sensitive. Any other value fails the write with the error code `UNIT__INVALID_ISO_CODE` on `/isoCode`. An empty value is stored as `null`.
+Only codes from these lists are saved, and they are case-sensitive. Any other value fails the write with the error code `UNIT__INVALID_UNECE_CODE` on `/uneceCode`. An empty value is stored as `null`.
 
 ## API
 

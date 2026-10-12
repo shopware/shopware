@@ -6,25 +6,25 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Unit\UnitIsoCodes;
+use Shopware\Core\System\Unit\UnitUneceCodes;
 
 /**
  * @internal
  */
 #[Package('inventory')]
-#[CoversClass(UnitIsoCodes::class)]
-class UnitIsoCodesTest extends TestCase
+#[CoversClass(UnitUneceCodes::class)]
+class UnitUneceCodesTest extends TestCase
 {
-    private UnitIsoCodes $isoCodes;
+    private UnitUneceCodes $uneceCodes;
 
     protected function setUp(): void
     {
-        $this->isoCodes = new UnitIsoCodes();
+        $this->uneceCodes = new UnitUneceCodes();
     }
 
     public function testGetCodesNamesRecommendation20And21Codes(): void
     {
-        $codes = $this->isoCodes->getCodes();
+        $codes = $this->uneceCodes->getCodes();
 
         static::assertSame('piece', $codes['H87']);
         static::assertSame('kilogram', $codes['KGM']);
@@ -44,7 +44,7 @@ class UnitIsoCodesTest extends TestCase
     #[DataProvider('validCodeProvider')]
     public function testIsValidAcceptsListedCodes(string $code): void
     {
-        static::assertTrue($this->isoCodes->isValid($code));
+        static::assertTrue($this->uneceCodes->isValid($code));
     }
 
     /**
@@ -61,6 +61,6 @@ class UnitIsoCodesTest extends TestCase
     #[DataProvider('invalidCodeProvider')]
     public function testIsValidRejectsUnlistedCodes(string $code): void
     {
-        static::assertFalse($this->isoCodes->isValid($code));
+        static::assertFalse($this->uneceCodes->isValid($code));
     }
 }

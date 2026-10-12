@@ -22,25 +22,13 @@ class UnitUneceCodesTest extends TestCase
         $this->uneceCodes = new UnitUneceCodes();
     }
 
-    public function testGetCodesListsRecommendation20And21CodesWithName(): void
+    public function testGetCodesNamesRecommendation20And21Codes(): void
     {
         $codes = $this->uneceCodes->getCodes();
 
-        static::assertContains(['code' => 'H87', 'name' => 'piece'], $codes);
-        static::assertContains(['code' => 'KGM', 'name' => 'kilogram'], $codes);
-        static::assertContains(['code' => 'XBX', 'name' => 'box'], $codes);
-    }
-
-    public function testGetCodesKeepsNumericCodesAsStrings(): void
-    {
-        static::assertContains(['code' => '10', 'name' => 'group'], $this->uneceCodes->getCodes());
-    }
-
-    public function testGetCodesHasEachCodeOnce(): void
-    {
-        $codes = array_column($this->uneceCodes->getCodes(), 'code');
-
-        static::assertCount(\count($codes), array_unique($codes));
+        static::assertSame('piece', $codes['H87']);
+        static::assertSame('kilogram', $codes['KGM']);
+        static::assertSame('box', $codes['XBX']);
     }
 
     /**

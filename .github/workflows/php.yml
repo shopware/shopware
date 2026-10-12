@@ -319,7 +319,8 @@ jobs:
     env:
       # the shared test environment (APP_ENV, DATABASE_URL, APP_SECRET, ...) is exported by
       # ./.github/actions/phpunit-prepare; only the matrix-specific part lives here
-      FEATURE_ALL: ${{ matrix.suite == 'migration' && 'major' || '' }}
+      COMPOSER_ROOT_VERSION: ${{ matrix.suite == 'migration' && '6.8.9999999-dev' || '6.7.9999999-dev' }}
+      V6_8_0_0: ${{ matrix.suite == 'migration' && '1' || '' }}
 
     services:
       elasticsearch:
@@ -399,7 +400,8 @@ jobs:
     env:
       # the shared test environment (APP_ENV, DATABASE_URL, APP_SECRET, ...) is exported by
       # ./.github/actions/phpunit-prepare; only the matrix-specific part lives here
-      FEATURE_ALL: ${{ matrix.suite == 'migration' && 'major' || '' }}
+      COMPOSER_ROOT_VERSION: ${{ matrix.suite == 'migration' && '6.8.9999999-dev' || '6.7.9999999-dev' }}
+      V6_8_0_0: ${{ matrix.suite == 'migration' && '1' || '' }}
 
     services:
       elasticsearch:

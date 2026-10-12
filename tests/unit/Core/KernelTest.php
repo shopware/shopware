@@ -99,7 +99,7 @@ class KernelTest extends TestCase
         $this->setEnvVars(['V6_8_0_0' => 'true']);
         static::assertNotSame($inactiveCacheDir, $kernel->getCacheDir());
 
-        $this->setEnvVars(['V6_8_0_0' => null, 'FEATURE_ALL' => 'v6.8.0.0']);
+        $this->setEnvVars(['V6_8_0_0' => null, 'FEATURE_ALL' => '1']);
         static::assertNotSame($inactiveCacheDir, $kernel->getCacheDir());
     }
 

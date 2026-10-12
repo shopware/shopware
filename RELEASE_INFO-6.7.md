@@ -86,6 +86,12 @@ Deactivating a plugin now removes its asset manifest entry but retains its publi
 
 Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatically when `V6_8_0_0=1` is set. An explicit setting for the individual flag still takes precedence, so `JSON_LD_DATA=0` keeps that feature off. Standalone major flags are recognized by their version-shaped names; the `major` field is only for sub-features and must name a parent version flag. Flags without a parent omit `major` from their metadata and the feature-flag API response. `FEATURE_ALL` now activates every registered feature for any truthy value; use a version flag to test only that major's changes.
 
+### Order age rule condition
+
+The Rule Builder condition `orderDaysSincePlaced` compares the order's `orderDate` with the current date in calendar days. It supports numeric comparison operators and requires a numeric `daysPassed` value, for example `operator: <=` and `daysPassed: 30` to match orders placed within the last 30 days.
+
+Extensions can evaluate `Shopware\Core\Content\Flow\Rule\OrderDaysSincePlacedRule` in a `FlowRuleScope` or a derived scope to apply date limits to existing orders.
+
 ### Unlimited DAL searches with next-pages totals
 
 Database-backed DAL searches using `Criteria::TOTAL_COUNT_MODE_NEXT_PAGES` without a limit now return all matching entities after the requested offset and report the exact total, as `TOTAL_COUNT_MODE_EXACT` does.
@@ -720,6 +726,15 @@ If you override `buy-widget-price`, `block-price`, `price-unit` or `badges`: `is
 The nested GARAN label is now a button that shows the full label. On line items it opens a modal loaded from the new route `frontend.product.garan-label` (template `storefront/component/product/garan-label-modal.html.twig`); on the product detail page it expands the full label.
 
 If you override `component_line_item_garan_label`, `buy_widget_garan_label_preview` or `buy_widget_garan_label_full`, take over the new button and link markup.
+### The image gallery renders every spatial media type
+
+`cms-element-image-gallery.html.twig` now shows every media for which `isSpatial()` is true in the spatial viewer, and derives the slider options for spatial slides from its own items instead of `page.product.media`, so static galleries get them as well. The AR button and the QR code modal are only rendered for spatial objects.
+
+To pass different options to the viewer, override the new blocks `element_image_gallery_inner_item_spatial_canvas_viewer`, `element_image_gallery_inner_single_spatial_canvas_viewer` and `element_image_gallery_inner_zoom_modal_slider_item_zoom_container_spatial_canvas_viewer`. To build the viewer from something other than a model URL, override `SpatialBaseViewerPlugin::createQuickView()`; returning `null` leaves the canvas empty.
+
+The zoom modal no longer waits for images without a source before it opens.
+
+These additions are experimental and become stable with 6.8.0.
 
 ## App system
 

@@ -119,6 +119,28 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         expect(vueAdapter.setLocaleFromUser).toHaveBeenCalled();
     });
 
+    it('initLocales should use the last known locale while the session locale is not resolved yet', async () => {
+        application = createApplication().addFactory('locale', () => {
+            return LocaleFactory;
+        });
+
+        vueAdapter = new VueAdapter(application);
+        vueAdapter.setLocaleFromUser = jest.fn();
+
+        Shopware.Store.get('session').currentLocale = null;
+        const getLastKnownLocaleSpy = jest.spyOn(LocaleFactory, 'getLastKnownLocale').mockReturnValue('de-DE');
+
+        const i18n = vueAdapter.initLocales();
+
+        expect(i18n.global.locale.value).toBe('de-DE');
+
+        // let the async setAdminLocale call settle, then reset the shared session state
+        await flushPromises();
+        getLastKnownLocaleSpy.mockRestore();
+        localStorage.removeItem('sw-admin-locale');
+        Shopware.Store.get('session').currentLocale = 'en-GB';
+    });
+
     it('setLocaleFromUser should not set the user when user does not exist', async () => {
         vueAdapter.setLocaleFromUser();
         Shopware.Store.get('session').removeCurrentUser();

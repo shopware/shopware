@@ -121,5 +121,18 @@ describe('plugin/google-analytics/events/remove-from-cart.event', () => {
 
         expect(window.gtag).not.toHaveBeenCalled();
     });
-});
 
+    test('does not fire an event for a remove button without a line item id', () => {
+        document.body.innerHTML = `
+            <button class="line-item-remove-button"></button>
+            <div class="hidden-line-items-information" data-currency="EUR">
+                <span class="hidden-line-item" data-id="product-123" data-quantity="1" data-price="10"></span>
+            </div>
+        `;
+
+        new RemoveFromCart().execute();
+        document.querySelector('.line-item-remove-button').click();
+
+        expect(window.gtag).not.toHaveBeenCalled();
+    });
+});

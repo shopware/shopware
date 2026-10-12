@@ -175,14 +175,6 @@ const duplicateReplacementInvalidTests = [
 
 const registryDrivenValidTests = [
     {
-        name: 'registry-driven mt-external-link without icon prop is allowed',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-external-link />
-            </template>`,
-    },
-    {
         name: 'registry-driven mt-progress-bar without deprecated value API is allowed',
         filename: 'test.html.twig',
         code: `
@@ -205,40 +197,6 @@ const registryDrivenValidTests = [
 ];
 
 const registryDrivenInvalidTests = [
-    {
-        name: 'registry-driven mt-external-link removes static icon prop',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-external-link icon="default-test-icon" />
-            </template>`,
-        output: `
-            <template>
-                <mt-external-link  />
-            </template>`,
-        errors: [
-            {
-                message: '[mt-external-link] The "icon" API is deprecated.',
-            },
-        ],
-    },
-    {
-        name: 'registry-driven mt-external-link removes bound icon prop',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-external-link :icon="theIcon" />
-            </template>`,
-        output: `
-            <template>
-                <mt-external-link  />
-            </template>`,
-        errors: [
-            {
-                message: '[mt-external-link] The "icon" API is deprecated.',
-            },
-        ],
-    },
     {
         name: 'registry-driven mt-progress-bar renames static value prop',
         filename: 'test.html.twig',

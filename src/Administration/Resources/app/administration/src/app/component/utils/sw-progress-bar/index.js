@@ -12,6 +12,8 @@ import './sw-progress-bar.scss';
  * @example-type dynamic
  * @component-example
  * <sw-progress-bar :value="0" :maxValue="480"></sw-progress-bar>
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-progress-bar instead.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

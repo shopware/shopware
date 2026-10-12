@@ -8,7 +8,6 @@ import sw_textarea_field from './sw-textarea-field';
 import sw_datepicker from './sw-datepicker';
 import sw_password_field from './sw-password-field';
 import sw_colorpicker from './sw-colorpicker';
-import sw_external_link from './sw-external-link';
 import sw_skeleton_bar from './sw-skeleton-bar';
 import sw_email_field from './sw-email-field';
 import sw_url_field from './sw-url-field';
@@ -44,7 +43,6 @@ export default [
     sw_datepicker,
     sw_password_field,
     sw_colorpicker,
-    sw_external_link,
     sw_skeleton_bar,
     sw_email_field,
     sw_url_field,

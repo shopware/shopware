@@ -5,6 +5,7 @@
 const { loadRegistry } = require('./registry/load-registry');
 const { hasComponentCodemod, hasPropCodemod, toPropName } = require('./registry/component-deprecations');
 const { getDeprecatedOptionIndex } = require('./registry/deprecated-option-index');
+const { getSelectedMigrationIds } = require('./registry/filter-migrations');
 
 function toKebabCase(name) {
     return name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
@@ -77,6 +78,11 @@ module.exports = {
     },
 
     create(context) {
+        // Usages without a registry codemod have no migration id, so an --id run leaves them out.
+        if (getSelectedMigrationIds().length > 0) {
+            return {};
+        }
+
         const defineTemplateBodyVisitor = context.sourceCode.parserServices?.defineTemplateBodyVisitor;
 
         if (!defineTemplateBodyVisitor) {

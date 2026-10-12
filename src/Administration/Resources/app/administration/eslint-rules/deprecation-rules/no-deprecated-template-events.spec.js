@@ -30,6 +30,11 @@ tester.run('no-deprecated-template-events', rule, {
             filename: 'test.html.twig',
             code: '<template><sw-price-field v-on:change="onChange" /></template>',
         },
+        {
+            name: 'allows change on sw-select-field, which mt-select still emits',
+            filename: 'test.html.twig',
+            code: '<template><sw-select-field @change="onChange" /></template>',
+        },
     ],
     invalid: [
         {
@@ -46,11 +51,44 @@ tester.run('no-deprecated-template-events', rule, {
         {
             name: 'migrates v-on event listener',
             filename: 'test.html.twig',
-            code: '<template><sw-select-field v-on:change="onChange" /></template>',
-            output: '<template><sw-select-field v-on:update:value="onChange" /></template>',
+            code: '<template><sw-single-select v-on:change="onChange" /></template>',
+            output: '<template><sw-single-select v-on:update:value="onChange" /></template>',
             errors: [
                 {
                     message: /Use "update:value" instead/,
+                },
+            ],
+        },
+        {
+            name: 'migrates sw-entity-multi-id-select change to the emitted update:value',
+            filename: 'test.html.twig',
+            code: '<template><sw-entity-multi-id-select @change="onChange" /></template>',
+            output: '<template><sw-entity-multi-id-select @update:value="onChange" /></template>',
+            errors: [
+                {
+                    message: /Use "update:value" instead/,
+                },
+            ],
+        },
+        {
+            name: 'migrates sw-radio-panel input to the emitted update:modelValue',
+            filename: 'test.html.twig',
+            code: '<template><sw-radio-panel @input="onSelect" /></template>',
+            output: '<template><sw-radio-panel @update:modelValue="onSelect" /></template>',
+            errors: [
+                {
+                    message: /Use "update:modelValue" instead/,
+                },
+            ],
+        },
+        {
+            name: 'migrates sw-textarea-field input to the emitted update:model-value',
+            filename: 'test.html.twig',
+            code: '<template><sw-textarea-field @input="onInput" /></template>',
+            output: '<template><sw-textarea-field @update:model-value="onInput" /></template>',
+            errors: [
+                {
+                    message: /Use "update:model-value" instead/,
                 },
             ],
         },

@@ -2,6 +2,7 @@ const path = require('path');
 const RuleTester = require('eslint').RuleTester;
 const rule = require('./no-deprecated-component-option-usage');
 const { getDeprecatedOptionIndex } = require('./registry/deprecated-option-index');
+const { describeWithSelectedDeprecationIds } = require('./registry/selected-deprecation-ids');
 
 const componentSources = path.join(__dirname, 'no-deprecated-component-option-usage-fixtures');
 
@@ -39,10 +40,7 @@ tester.run('no-deprecated-component-option-usage', rule, {
     valid: [
         templateCase('allows components without a deprecated option', '<sw-unrelated empty-icon="x" />'),
         templateCase('allows props without a deprecated option', '<sw-image placeholder-icon="x" />'),
-        templateCase(
-            'leaves a component with a registry codemod to the registry rules',
-            '<sw-alert variant="info" />',
-        ),
+        templateCase('leaves a component with a registry codemod to the registry rules', '<sw-alert variant="info" />'),
         templateCase('leaves a prop with a registry codemod to the registry rules', '<sw-entity-listing :items="items" />'),
         templateCase('ignores a v-model with a dynamic argument', '<sw-image v-model:[dynamic]="x" />'),
     ],
@@ -93,4 +91,16 @@ tester.run('no-deprecated-component-option-usage', rule, {
             errors: [{ message: /"emptyIcon"/ }, { message: /"emptyImagePath"/ }],
         }),
     ],
+});
+
+describeWithSelectedDeprecationIds('component.sw-button', () => {
+    tester.run('no-deprecated-component-option-usage with a deprecation id selected', rule, {
+        valid: [
+            templateCase(
+                'does not report usages without a registry codemod when only selected migrations run',
+                '<sw-legacy-card title="x" />',
+            ),
+        ],
+        invalid: [],
+    });
 });

@@ -29,7 +29,6 @@ function appendRegistryContext(lines, migration) {
 
     return [
         ...lines,
-        '',
         migration.description,
         `Removed in Shopware ${migration.removedIn}.`,
         references ? `References:\n${references}` : '',

@@ -40,7 +40,7 @@ export default defineDeprecations({
                 templateEventUsage({
                     component: 'sw-entity-multi-id-select',
                     from: 'change',
-                    to: 'update:ids',
+                    to: 'update:value',
                 }),
                 templateEventUsage({
                     component: 'sw-extension-rating-stars',
@@ -70,8 +70,7 @@ export default defineDeprecations({
                     from: 'change',
                     to: 'update:value',
                 }),
-                templateEventUsage({ component: 'sw-radio-panel', from: 'input', to: 'update:value' }),
-                templateEventUsage({ component: 'sw-select-field', from: 'change', to: 'update:value' }),
+                templateEventUsage({ component: 'sw-radio-panel', from: 'input', to: 'update:modelValue' }),
                 templateEventUsage({
                     component: 'sw-select-number-field',
                     from: 'change',
@@ -79,7 +78,7 @@ export default defineDeprecations({
                 }),
                 templateEventUsage({ component: 'sw-single-select', from: 'change', to: 'update:value' }),
                 templateEventUsage({ component: 'sw-tagged-field', from: 'change', to: 'update:value' }),
-                templateEventUsage({ component: 'sw-textarea-field', from: 'input', to: 'update:value' }),
+                templateEventUsage({ component: 'sw-textarea-field', from: 'input', to: 'update:model-value' }),
                 templateEventUsage({ component: 'sw-url-field', from: 'input', to: 'update:value' }),
                 templateEventUsage({
                     component: 'sw-button-process',

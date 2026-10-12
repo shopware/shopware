@@ -5,9 +5,28 @@
     "components": {
         "schemas": {
             "PromotionLineItemPayload": {
-                "description": "Payload of a `promotion` line item: the discount it applies and the promotion it belongs to. In the cart it has every listed key except `composition`. Order line items keep the payload stored with the order, so orders placed by older versions or written through the Admin API can lack keys. Other keys are extension data; extensions that declare them in their Store API schema files add them to this list.",
+                "description": "Payload of a `promotion` line item: the discount it applies and the promotion it belongs to. An order keeps the payload of the version that placed it, so orders from older versions can lack keys added since. Extensions declare the keys they add in their own Store API schema files, which adds them here; undeclared keys aren't part of this schema.",
                 "type": "object",
-                "additionalProperties": true,
+                "required": [
+                    "code",
+                    "conditionRuleIds",
+                    "discountId",
+                    "discountScope",
+                    "discountType",
+                    "exclusions",
+                    "filter",
+                    "groupId",
+                    "hasGlobalRedemptionLimit",
+                    "hasPersonaRestriction",
+                    "limitedRedemptions",
+                    "maxValue",
+                    "preventCombination",
+                    "priority",
+                    "promotionCodeType",
+                    "promotionId",
+                    "setGroups",
+                    "value"
+                ],
                 "properties": {
                     "code": {
                         "description": "Code the promotion was redeemed with. Empty for promotions without a code.",

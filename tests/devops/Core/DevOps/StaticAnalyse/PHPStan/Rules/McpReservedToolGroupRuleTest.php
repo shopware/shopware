@@ -31,6 +31,14 @@ class McpReservedToolGroupRuleTest extends RuleTestCase
         ]]);
     }
 
+    public function testToolNamedThroughASelfConstantFails(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpReservedToolGroupRule/ExtensionToolNamedThroughSelfConstant.php'], [[
+            'MCP tool "swag-search" must not use the reserved "discovery" group. Use a group of its own and select it with ?toolsets=.',
+            8,
+        ]]);
+    }
+
     public function testAttributesOnInvokeAreCheckedToo(): void
     {
         $this->analyse([__DIR__ . '/data/McpReservedToolGroupRule/ExtensionToolInDiscoveryOnInvoke.php'], [[

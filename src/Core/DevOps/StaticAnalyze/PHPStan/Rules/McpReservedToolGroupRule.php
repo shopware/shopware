@@ -7,6 +7,7 @@ use PhpParser\Node\Attribute;
 use PhpParser\Node\AttributeGroup;
 use PhpParser\Node\Stmt\Class_;
 use PHPStan\Analyser\Scope;
+use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Log\Package;
@@ -16,7 +17,9 @@ use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
  * Reports MCP tools in the `discovery` group, which is reserved for the core discovery tools. Unit tests
  * are skipped, because they claim the group on purpose to cover the fallback.
  *
- * @implements Rule<Class_>
+ * Runs on InClassNode, so the scope is inside the class and `self::` constants in the attributes resolve.
+ *
+ * @implements Rule<InClassNode>
  *
  * @internal
  */
@@ -31,7 +34,7 @@ class McpReservedToolGroupRule implements Rule
 
     public function getNodeType(): string
     {
-        return Class_::class;
+        return InClassNode::class;
     }
 
     public function processNode(Node $node, Scope $scope): array
@@ -40,13 +43,14 @@ class McpReservedToolGroupRule implements Rule
             return [];
         }
 
-        $group = $this->attributeArgument($node, self::MCP_TOOL_GROUP_ATTRIBUTE, 'group', $scope);
-        if ($group !== McpToolsetRegistry::DISCOVERY_GROUP) {
+        $class = $node->getOriginalNode();
+        if (!$class instanceof Class_) {
             return [];
         }
 
-        $name = $this->attributeArgument($node, self::MCP_TOOL_ATTRIBUTE, 'name', $scope);
-        if ($name === null || \in_array($name, McpToolsetRegistry::DISCOVERY_META_TOOLS, true)) {
+        $group = $this->attributeArgument($class, self::MCP_TOOL_GROUP_ATTRIBUTE, 'group', $scope);
+        $name = $this->attributeArgument($class, self::MCP_TOOL_ATTRIBUTE, 'name', $scope);
+        if ($name === null || !McpToolsetRegistry::isReservedGroupClaim($group, $name)) {
             return [];
         }
 

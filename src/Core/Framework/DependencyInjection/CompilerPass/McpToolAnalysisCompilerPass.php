@@ -164,7 +164,7 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
             $group = McpToolAttributeReader::resolveAttribute($class, McpToolGroup::class)?->group;
 
             // The discovery group is reserved for the core meta-tools (see McpToolDiscoveryCompilerPass).
-            if ($group === McpToolsetRegistry::DISCOVERY_GROUP && !\in_array($tool->name, McpToolsetRegistry::DISCOVERY_META_TOOLS, true)) {
+            if (McpToolsetRegistry::isReservedGroupClaim($group, $tool->name)) {
                 $group = McpToolsetRegistry::FALLBACK_GROUP;
             }
 

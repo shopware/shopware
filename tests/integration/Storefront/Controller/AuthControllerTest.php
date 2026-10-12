@@ -41,6 +41,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
@@ -120,8 +121,7 @@ class AuthControllerTest extends TestCase
         $browser = $this->login();
         $session = $this->getSession();
 
-        // Get the sales channel ID that was used for login
-        $loginSalesChannelId = $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $loginSalesChannelId = $this->getStorefrontSalesChannelId();
 
         // Get the token for the login channel - should be stored in channel-specific key
         $loginChannelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $loginSalesChannelId;
@@ -151,7 +151,7 @@ class AuthControllerTest extends TestCase
         $session = $this->getSession();
 
         $contextToken = $session->get('sw-context-token');
-        $salesChannelId = $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $salesChannelId = $this->getStorefrontSalesChannelId();
 
         // Make another request on the same channel
         $browser->request('GET', '/');
@@ -255,28 +255,22 @@ class AuthControllerTest extends TestCase
 
     /**
      * The container parameter cannot be changed at runtime, so the configured state is simulated by
-     * registering a second, configured listener instance on the real dispatcher.
+     * hooking a second, configured listener instance into the real dispatcher.
      */
     public function testLogoutSendsClearSiteDataWhenDirectivesAreConfigured(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $onResponse = (new ClearSiteDataListener(['cache', 'storage']))->onResponse(...);
-        $dispatcher->addListener(StorefrontRouteScope::ID . '.scope.response', $onResponse);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(StorefrontRouteScope::ID . '.scope.response', (new ClearSiteDataListener(['cache', 'storage']))->onResponse(...));
 
-        try {
-            $browser = $this->login();
-            $browser->setServerParameter('HTTP_SEC_FETCH_SITE', 'same-origin');
-            $browser->setServerParameter('HTTP_SEC_FETCH_MODE', 'navigate');
-            $browser->setServerParameter('HTTP_SEC_FETCH_DEST', 'document');
+        $browser = $this->login();
+        $browser->setServerParameter('HTTP_SEC_FETCH_SITE', 'same-origin');
+        $browser->setServerParameter('HTTP_SEC_FETCH_MODE', 'navigate');
+        $browser->setServerParameter('HTTP_SEC_FETCH_DEST', 'document');
 
-            $browser->request('GET', '/account/logout');
-            $response = $browser->getResponse();
+        $browser->request('GET', '/account/logout');
+        $response = $browser->getResponse();
 
-            static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
-            static::assertSame('"cache", "storage"', $response->headers->get('Clear-Site-Data'));
-        } finally {
-            $dispatcher->removeListener(StorefrontRouteScope::ID . '.scope.response', $onResponse);
-        }
+        static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame('"cache", "storage"', $response->headers->get('Clear-Site-Data'));
     }
 
     public function testOneUserUseOneContextAcrossSessions(): void
@@ -370,7 +364,7 @@ class AuthControllerTest extends TestCase
         static::getContainer()->get(AuthController::class)->login($request, $requestDataBag, $salesChannelContextNew);
         $flashBag = $session->getFlashBag();
 
-        static::assertNotEmpty($infoFlash = $flashBag->get('danger'));
+        static::assertNotCount(0, $infoFlash = $flashBag->get('danger'));
         static::assertSame(static::getContainer()->get('translator')->trans('checkout.product-not-found', ['%s%' => 'Test product']), $infoFlash[0]);
     }
 
@@ -454,7 +448,7 @@ class AuthControllerTest extends TestCase
         ]);
         $testSubscriber = new AuthTestSubscriber();
 
-        static::getContainer()->get('event_dispatcher')->addSubscriber($testSubscriber);
+        EventHookDispatcher::fromContainer(static::getContainer())->subscribe($testSubscriber);
 
         $customer = $this->createCustomer();
         static::assertNotNull($customer);
@@ -472,8 +466,6 @@ class AuthControllerTest extends TestCase
         static::getContainer()->get('request_stack')->push($request);
 
         $response = $controller->generateAccountRecovery($request, $data, $this->salesChannelContext);
-
-        static::getContainer()->get('event_dispatcher')->removeSubscriber($testSubscriber);
 
         $flashBag = $this->getSession()->getBag('flashes');
         static::assertInstanceOf(FlashBagInterface::class, $flashBag);
@@ -525,11 +517,9 @@ class AuthControllerTest extends TestCase
 
         $testSubscriber = new AuthTestSubscriber();
 
-        static::getContainer()->get('event_dispatcher')->addSubscriber($testSubscriber);
+        EventHookDispatcher::fromContainer(static::getContainer())->subscribe($testSubscriber);
 
         $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
-
-        static::getContainer()->get('event_dispatcher')->removeSubscriber($testSubscriber);
 
         static::assertSame(200, $response->getStatusCode());
         static::assertStringContainsString($recoveryCreated['hash'], (string) $response->getContent());
@@ -789,6 +779,17 @@ class AuthControllerTest extends TestCase
             ],
         ];
         static::getContainer()->get('product.repository')->create([$product], $context);
+    }
+
+    private function getStorefrontSalesChannelId(): string
+    {
+        $salesChannelId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(sales_channel_id)) FROM sales_channel_domain WHERE url = :url',
+            ['url' => EnvironmentHelper::getVariable('APP_URL')]
+        );
+        static::assertIsString($salesChannelId);
+
+        return $salesChannelId;
     }
 
     private function login(): KernelBrowser

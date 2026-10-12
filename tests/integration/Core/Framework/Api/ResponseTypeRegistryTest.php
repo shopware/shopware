@@ -117,7 +117,8 @@ class ResponseTypeRegistryTest extends TestCase
         $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertDetailJsonApiStructure($content);
-        static::assertNotEmpty($content['data']);
+        static::assertIsArray($content['data']);
+        static::assertNotCount(0, $content['data']);
         static::assertSame($id, $content['data'][0]['attributes']['name']);
         static::assertSame($self, $content['links']['self']);
         static::assertSame($self . '/' . $id, $content['data'][0]['links']['self']);

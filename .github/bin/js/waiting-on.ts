@@ -93,6 +93,9 @@
  * CONTRIBUTOR, which is fine for a report and not good enough to route a reminder on.
  */
 
+import { applyProjectChanges, fetchProject, planProjectChanges, summarizeProjectChanges } from './waiting-on-project.ts';
+import { parseChannels, planReminders, postSlackMessage, renderReminder, type Slack } from './waiting-on-slack.ts';
+
 export type WaitingOn = 'author' | 'shopware' | 'nobody';
 
 export type WaitingOnReason =
@@ -371,6 +374,7 @@ const OPEN_PULL_REQUESTS_QUERY = `
             pullRequests(states: OPEN, first: 15, after: $after) {
                 pageInfo { hasNextPage endCursor }
                 nodes {
+                    id
                     number
                     title
                     url
@@ -422,7 +426,8 @@ type ReviewThreadNode = {
     comments: { nodes: { createdAt: string; author?: { login: string; __typename: string } | null }[] };
 };
 
-type PullRequestNode = {
+export type PullRequestNode = {
+    id: string;
     number: number;
     title: string;
     url: string;
@@ -576,11 +581,14 @@ export async function resolveMergeability(github: GraphqlClient, core: Core, rep
 }
 
 export type Row = {
+    /** The GraphQL node id, which the project sync adds items by. */
+    id: string;
     number: number;
     title: string;
     url: string;
     author: string;
     authorAssociation: string;
+    labels: string[];
     waitingOn: WaitingOn;
     reason: WaitingOnReason;
     label: string;
@@ -603,11 +611,13 @@ export function buildRows(nodes: PullRequestNode[], now: Date): Row[] {
             const verdict = classifyPullRequest(factsOf(node));
 
             return {
+                id: node.id,
                 number: node.number,
                 title: node.title,
                 url: node.url,
                 author: node.author.login,
                 authorAssociation: node.authorAssociation,
+                labels: node.labels.nodes.map((label) => label.name),
                 waitingOn: verdict.waitingOn,
                 reason: verdict.reason,
                 label: WAITING_ON_LABEL[verdict.waitingOn],
@@ -721,11 +731,20 @@ export async function applyLabelChanges(
     return failed;
 }
 
+export type ReportOptions = {
+    dryRun?: boolean;
+    /** The organization project to mirror the verdicts into, with a client allowed to write it. */
+    project?: { github: GraphqlClient; number: number };
+    /** Where the reminders for external pull requests go; see waiting-on-slack.ts. */
+    reminders?: { slack: Slack; channels: string | undefined };
+};
+
 /**
- * Labels every open pull request with its verdict unless `dryRun` is set. The `rows` output
- * carries the verdicts as JSON so a later stage can consume them without this having to change.
+ * Labels every open pull request with its verdict and mirrors it into the project, unless
+ * `dryRun` is set. The `rows` output carries the verdicts as JSON so a later stage can
+ * consume them without this having to change.
  */
-export async function reportWaitingOn({ github, core, context }: { github: GraphqlClient & IssuesClient; core: Core; context: Context }, dryRun = false): Promise<void> {
+export async function reportWaitingOn({ github, core, context }: { github: GraphqlClient & IssuesClient; core: Core; context: Context }, { dryRun = false, project, reminders }: ReportOptions = {}): Promise<void> {
     const nodes = await fetchOpenPullRequests(github, context.repo);
     core.info(`Read ${nodes.length} open pull request(s).`);
 
@@ -747,14 +766,47 @@ export async function reportWaitingOn({ github, core, context }: { github: Graph
     core.info(`Counted as human: ${[...humans].sort().join(', ')}`);
 
     const changes = planLabelChanges(nodes, rows);
-    const failed = dryRun ? [] : await applyLabelChanges(github, core, context.repo, changes);
+    const failedLabels = dryRun ? [] : await applyLabelChanges(github, core, context.repo, changes);
 
     core.summary.addRaw(renderReport(rows));
     core.summary.addRaw(`\n${changes.length} pull request(s) ${dryRun ? 'would have had their label changed (dry run)' : 'had their label changed'}.\n`);
+
+    let failedItems: string[] = [];
+    if (project !== undefined) {
+        const { owner, repo } = context.repo;
+        const { schema, items } = await fetchProject(project.github, owner, project.number, `${owner}/${repo}`);
+        const projectChanges = planProjectChanges(rows, items);
+
+        failedItems = dryRun ? [] : await applyProjectChanges(project.github, core, schema, projectChanges);
+        core.summary.addRaw(`\nProject ${owner}/${project.number}${dryRun ? ' (dry run, nothing written)' : ''}: ${summarizeProjectChanges(projectChanges)}.\n`);
+    }
+
+    const failedReminders: string[] = [];
+    if (reminders !== undefined) {
+        const boardUrl = project !== undefined ? `https://github.com/orgs/${context.repo.owner}/projects/${project.number}` : undefined;
+        const planned = planReminders(rows, parseChannels(reminders.channels), new Date());
+
+        for (const reminder of planned) {
+            // One channel failing must not keep the others from their reminders.
+            try {
+                await postSlackMessage(dryRun ? {} : reminders.slack, core, reminder.channel, renderReminder(reminder, boardUrl));
+            } catch (error) {
+                failedReminders.push(reminder.channel);
+                core.error(error instanceof Error ? error.message : String(error));
+            }
+        }
+        core.summary.addRaw(`\n${planned.reduce((sum, reminder) => sum + reminder.rows.length, 0)} external pull request(s) due for a Slack reminder${dryRun ? ' (dry run, nothing sent)' : ''}.\n`);
+    }
+
     await core.summary.write();
     core.setOutput('rows', JSON.stringify(rows));
 
-    if (failed.length > 0) {
-        throw new Error(`Failed to update the waiting-on label on ${failed.length} pull request(s): ${failed.map((number) => `#${number}`).join(', ')}`);
+    const failures = [
+        ...(failedLabels.length > 0 ? [`the waiting-on label on ${failedLabels.map((number) => `#${number}`).join(', ')}`] : []),
+        ...(failedItems.length > 0 ? [`the project for ${failedItems.join(', ')}`] : []),
+        ...(failedReminders.length > 0 ? [`the Slack reminder for ${failedReminders.join(', ')}`] : []),
+    ];
+    if (failures.length > 0) {
+        throw new Error(`Failed to update ${failures.join(' and ')}`);
     }
 }

@@ -896,12 +896,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Storefront/DependencyInjection/StorefrontExtension.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Mixed variable in a `$session->getFlashBag()->...()` can skip important errors. Make sure the type is known',
-    'identifier' => 'typePerfect.noMixedMethodCaller',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Storefront/Event/CartMergedSubscriber.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
     'count' => 1,

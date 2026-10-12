@@ -489,6 +489,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service('shopware.filesystem.translation'),
             service('filesystem'),
+            service('shopware.filesystem.private'),
         ]);
 
     $services->set(SnippetController::class)
@@ -523,6 +524,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TranslationLoader::class),
             service('shopware.filesystem.translation'),
             service(StorefrontSnippetStorage::class),
+            service('shopware.filesystem.private'),
         ]);
 
     $services->set(AppSnippetFileLoader::class)

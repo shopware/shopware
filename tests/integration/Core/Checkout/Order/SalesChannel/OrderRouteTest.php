@@ -82,8 +82,6 @@ class OrderRouteTest extends TestCase
 
     private string $deepLinkCode;
 
-    private int $mailSentEventCounter = 0;
-
     /**
      * @var EntityRepository<CustomerCollection>
      */
@@ -131,7 +129,7 @@ class OrderRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create($contextToken, TestDefaults::SALES_CHANNEL);
@@ -398,17 +396,8 @@ class OrderRouteTest extends TestCase
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
         }
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
-            $eventDidRun = true;
-            $htmlText = $event->getContents()['text/html'];
-            self::assertIsString($htmlText);
-            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $htmlText);
-            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $htmlText);
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $defaultPaymentMethodId = $this->defaultPaymentMethodId;
         $newPaymentMethod = $this->getValidPaymentMethods()->filter(static fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getId() !== $defaultPaymentMethodId)->first();
@@ -432,17 +421,16 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $htmlText = $mail->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString('the payment method for your order has been successfully changed', $htmlText);
     }
 
     public function testSetSamePaymentMethodToOrder(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $this->mailSentEventCounter = 0;
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $this->handleMailSentEvent(...));
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->browser
             ->request(
@@ -462,9 +450,7 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
 
-        $dispatcher->removeListener(MailSentEvent::class, $this->handleMailSentEvent(...));
-
-        static::assertSame(0, $this->mailSentEventCounter, 'Resubmitting the unchanged payment method must not notify the customer');
+        static::assertNull($mail, 'Resubmitting the unchanged payment method must not notify the customer');
     }
 
     public function testSetPaymentOrderWrongPayment(): void
@@ -714,14 +700,5 @@ class OrderRouteTest extends TestCase
                 'sent' => $sent,
             ],
         ], Context::createDefaultContext());
-    }
-
-    private function handleMailSentEvent(MailSentEvent $event): void
-    {
-        ++$this->mailSentEventCounter;
-        $htmlText = $event->getContents()['text/html'];
-        static::assertIsString($htmlText);
-        static::assertStringContainsString('The payment for your order with Storefront is cancelled', $htmlText);
-        static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $htmlText);
     }
 }

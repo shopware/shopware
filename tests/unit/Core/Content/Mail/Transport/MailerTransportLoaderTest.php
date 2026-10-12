@@ -18,14 +18,12 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mailer\Transport\Dsn;
 use Symfony\Component\Mailer\Transport\NullTransport;
 use Symfony\Component\Mailer\Transport\NullTransportFactory;
-use Symfony\Component\Mailer\Transport\SendmailTransport;
 use Symfony\Component\Mailer\Transport\SendmailTransportFactory;
-use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
 use Symfony\Component\Mailer\Transport\TransportFactoryInterface;
-use Symfony\Component\Mailer\Transport\Transports;
 
 /**
  * @internal
@@ -52,9 +50,8 @@ class MailerTransportLoaderTest extends TestCase
 
         static::assertInstanceOf(MailerTransportDecorator::class, $trans);
 
-        $decorated = (new \ReflectionProperty(MailerTransportDecorator::class, 'decorated'))->getValue($trans);
-
-        static::assertInstanceOf(EsmtpTransport::class, $decorated);
+        // The decorator presents the wrapped transport's name.
+        static::assertSame('smtp://localhost', (string) $trans);
     }
 
     public function testFactoryWithLocal(): void
@@ -74,13 +71,11 @@ class MailerTransportLoaderTest extends TestCase
 
         static::assertInstanceOf(MailerTransportDecorator::class, $mailer);
 
-        $decorated = (new \ReflectionProperty(MailerTransportDecorator::class, 'decorated'))->getValue($mailer);
-
-        static::assertInstanceOf(SendmailTransport::class, $decorated);
+        static::assertSame('smtp://sendmail', (string) $mailer);
     }
 
     #[DataProvider('providerSmtpEncryption')]
-    public function testLoaderWithSmtpConfig(?string $encryption): void
+    public function testLoaderWithSmtpConfig(?string $encryption, string $expectedTransport): void
     {
         $transport = $this->getTransportFactory();
 
@@ -104,19 +99,14 @@ class MailerTransportLoaderTest extends TestCase
 
         static::assertInstanceOf(MailerTransportDecorator::class, $mailer);
 
-        $decorated = (new \ReflectionProperty(MailerTransportDecorator::class, 'decorated'))->getValue($mailer);
-
-        static::assertInstanceOf(EsmtpTransport::class, $decorated);
+        static::assertSame($expectedTransport, (string) $mailer);
     }
 
-    /**
-     * @return iterable<string, array{0: string|null}>
-     */
-    public static function providerSmtpEncryption(): iterable
+    public static function providerSmtpEncryption(): \Generator
     {
-        yield 'tls' => ['tls'];
-        yield 'ssl' => ['ssl'];
-        yield 'null' => [null];
+        yield 'tls' => ['tls', 'smtp://localhost:225'];
+        yield 'ssl' => ['ssl', 'smtps://localhost:225'];
+        yield 'null' => [null, 'smtp://localhost:225'];
     }
 
     public function testLoaderWithSmtpOauthConfig(): void
@@ -145,9 +135,7 @@ class MailerTransportLoaderTest extends TestCase
 
         static::assertInstanceOf(MailerTransportDecorator::class, $mailer);
 
-        $decorated = (new \ReflectionProperty(MailerTransportDecorator::class, 'decorated'))->getValue($mailer);
-
-        static::assertInstanceOf(EsmtpTransport::class, $decorated);
+        static::assertSame('smtp://localhost:225', (string) $mailer);
     }
 
     public function testFactoryWithLocalAndInvalidConfig(): void
@@ -219,15 +207,24 @@ class MailerTransportLoaderTest extends TestCase
 
         static::assertInstanceOf(MailerTransportDecorator::class, $mailer);
 
-        $decorated = (new \ReflectionProperty(MailerTransportDecorator::class, 'decorated'))->getValue($mailer);
-
-        static::assertInstanceOf(NullTransport::class, $decorated);
+        static::assertSame('null://', (string) $mailer);
     }
 
     public function testLoadMultipleMailers(): void
     {
+        $requestedDsns = [];
+        $factory = $this->createMock(TransportFactoryInterface::class);
+        $factory->method('supports')->willReturn(true);
+        $factory->expects($this->exactly(2))
+            ->method('create')
+            ->willReturnCallback(static function (Dsn $dsn) use (&$requestedDsns): NullTransport {
+                $requestedDsns[] = \sprintf('%s://%s:%s', $dsn->getScheme(), $dsn->getHost(), $dsn->getPort());
+
+                return new NullTransport();
+            });
+
         $loader = new MailerTransportLoader(
-            $this->getTransportFactory(),
+            new Transport([$factory]),
             new StaticSystemConfigService([
                 'core.mailerSettings.emailAgent' => 'smtp',
                 'core.mailerSettings.host' => 'localhost',
@@ -247,21 +244,11 @@ class MailerTransportLoaderTest extends TestCase
             'fallback' => 'null://localhost:25',
         ];
 
-        $transports = (new \ReflectionProperty(Transports::class, 'transports'))->getValue($loader->fromStrings($dsns));
-        static::assertArrayHasKey('main', $transports);
-        static::assertArrayHasKey('fallback', $transports);
+        $transports = $loader->fromStrings($dsns);
 
-        $mainMailer = $transports['main'];
-        static::assertInstanceOf(MailerTransportDecorator::class, $mainMailer);
-
-        $decorated = (new \ReflectionProperty(MailerTransportDecorator::class, 'decorated'))->getValue($mainMailer);
-        static::assertInstanceOf(EsmtpTransport::class, $decorated);
-
-        $fallbackMailer = $transports['fallback'];
-        static::assertInstanceOf(MailerTransportDecorator::class, $fallbackMailer);
-
-        $decorated = (new \ReflectionProperty(MailerTransportDecorator::class, 'decorated'))->getValue($fallbackMailer);
-        static::assertInstanceOf(NullTransport::class, $decorated);
+        static::assertSame('[main,fallback]', (string) $transports);
+        // Main is built from the system config, the fallback from its DSN.
+        static::assertSame(['smtp://localhost:225', 'null://localhost:25'], $requestedDsns);
     }
 
     /**

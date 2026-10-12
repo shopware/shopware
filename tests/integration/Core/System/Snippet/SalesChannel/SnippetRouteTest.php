@@ -88,7 +88,7 @@ class SnippetRouteTest extends TestCase
         static::assertNotSame('', $set['hash']);
 
         static::assertIsArray($set['snippets']);
-        static::assertNotEmpty($set['snippets']);
+        static::assertNotCount(0, $set['snippets']);
         // the database override of the snippet set is part of the resolved map
         static::assertSame('Custom value', $set['snippets']['myCustom.test.key']);
 
@@ -154,7 +154,7 @@ class SnippetRouteTest extends TestCase
 
         foreach ($response['sets'] as $set) {
             static::assertSame('snippet_set_result', $set['apiAlias']);
-            static::assertNotEmpty($set['snippets']);
+            static::assertNotCount(0, $set['snippets']);
         }
     }
 

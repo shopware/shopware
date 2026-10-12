@@ -1,0 +1,146 @@
+/**
+ * @sw-package framework
+ */
+
+import {
+    getFixLevel,
+    getHighestFixLevel,
+    getUsageFixLevel,
+    parseArgs,
+    selectMigrations,
+    validateSelection,
+} from './migration-selection';
+
+type Usage = { kind: string; fix?: string; transform?: () => { kind: string; fix: string } };
+
+function migration(id: string, usage: Usage[] = [{ kind: 'rename-prop', fix: 'auto' }]) {
+    return { id, usage };
+}
+
+const migrations = [
+    migration('component.sw-alert'),
+    migration('component.sw-button'),
+];
+
+describe('scripts/deprecation-migrate/migration-selection', () => {
+    describe('parseArgs', () => {
+        it('reads the boolean flags', () => {
+            expect(
+                parseArgs([
+                    '--all',
+                    '--fix',
+                    '--list',
+                    '--report',
+                    '-h',
+                ]),
+            ).toEqual({
+                all: true,
+                fix: true,
+                help: true,
+                ids: [],
+                list: true,
+                report: true,
+            });
+        });
+
+        it('reads an id given as a separate value or with an equals sign', () => {
+            expect(parseArgs(['--id', 'component.sw-alert']).ids).toEqual(['component.sw-alert']);
+            expect(parseArgs(['--id=component.sw-alert']).ids).toEqual(['component.sw-alert']);
+        });
+
+        it('collects every repeated id', () => {
+            expect(parseArgs(['--id', 'component.sw-alert', '--id=component.sw-button']).ids).toEqual([
+                'component.sw-alert',
+                'component.sw-button',
+            ]);
+        });
+
+        it('rejects an id option without a value', () => {
+            expect(() => parseArgs(['--id'])).toThrow('--id requires a registry id.');
+            expect(() => parseArgs(['--id', '--fix'])).toThrow('--id requires a registry id.');
+        });
+
+        it('rejects an unknown option', () => {
+            expect(() => parseArgs(['--dry-run'])).toThrow('Unknown option "--dry-run"');
+        });
+    });
+
+    describe('validateSelection', () => {
+        it('rejects --all together with --id', () => {
+            expect(() => validateSelection(parseArgs(['--all', '--id', 'component.sw-alert']), migrations)).toThrow(
+                'Use either --all or --id, not both.',
+            );
+        });
+
+        it('rejects a run without a selection', () => {
+            expect(() => validateSelection(parseArgs(['--fix']), migrations)).toThrow(
+                'Choose --all, --id <id>, --list, or --help.',
+            );
+        });
+
+        it('rejects --fix together with --report', () => {
+            expect(() => validateSelection(parseArgs(['--all', '--fix', '--report']), migrations)).toThrow(
+                'Use either --fix or --report, not both.',
+            );
+        });
+
+        it('accepts a selection without --fix as a report run', () => {
+            const args = parseArgs(['--all']);
+
+            expect(() => validateSelection(args, migrations)).not.toThrow();
+            expect(args.fix).toBe(false);
+        });
+
+        it('rejects unknown ids and lists them', () => {
+            expect(() =>
+                validateSelection(
+                    parseArgs([
+                        '--id',
+                        'component.sw-alert',
+                        '--id',
+                        'x',
+                        '--id',
+                        'y',
+                    ]),
+                    migrations,
+                ),
+            ).toThrow('Unknown migration id(s): x, y.');
+        });
+    });
+
+    describe('selectMigrations', () => {
+        it('selects every migration for --all and only the listed ids otherwise', () => {
+            expect(selectMigrations(parseArgs(['--all']), migrations)).toEqual(migrations);
+            expect(selectMigrations(parseArgs(['--id', 'component.sw-button']), migrations)).toEqual([migrations[1]]);
+        });
+    });
+
+    describe('fix levels', () => {
+        it('ranks manual over unsafe-auto over auto', () => {
+            expect(getHighestFixLevel(['auto', 'unsafe-auto', 'manual'])).toBe('manual');
+            expect(getHighestFixLevel(['auto', 'unsafe-auto'])).toBe('unsafe-auto');
+            expect(getHighestFixLevel(['auto'])).toBe('auto');
+        });
+
+        it('counts a usage without a fix level as manual', () => {
+            expect(getUsageFixLevel({ kind: 'remove-prop' })).toBe('manual');
+        });
+
+        it('uses the fix level a transform provides', () => {
+            const usage = { kind: 'map-prop-value', fix: 'auto', transform: () => ({ kind: 'x', fix: 'unsafe-auto' }) };
+
+            expect(getUsageFixLevel(usage)).toBe('unsafe-auto');
+        });
+
+        it('rates a migration by its least automatic usage', () => {
+            expect(
+                getFixLevel(
+                    migration('component.sw-alert', [
+                        { kind: 'rename-prop', fix: 'auto' },
+                        { kind: 'remove-slot', fix: 'unsafe-auto' },
+                    ]),
+                ),
+            ).toBe('unsafe-auto');
+        });
+    });
+});

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import {
     componentMigration,
     mapOptionsPropKeys,
@@ -19,7 +23,6 @@ export default componentMigration({
     removedIn: '6.8.0',
     description:
         'The legacy sw-select-field component is replaced by mt-select. Value binding uses Vue 3 modelValue/update:model-value semantics and options must use label/value objects.',
-    handler: 'mt-select',
     references: [
         reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-select-field' }),
     ],

@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- vue-eslint-parser template nodes and ESLint fixers are passed through as plain records */
 /**
  * @sw-package framework
  */
 
 import type { DeprecationUsage } from '../types';
-import { componentUsageMessage, usageFixesAutomatically } from '../shared';
+import { componentUsageMessage, hasObjectVBind, usageFixesAutomatically } from '../shared';
 
 function isKeyMap(value: unknown): value is Record<string, string> {
     if (!value || typeof value !== 'object') {
@@ -106,14 +106,6 @@ function getUnsafeMessage(usageConfig: DeprecationUsage): string {
     }
 
     return 'Migrate option object keys manually because this options expression is dynamic or structurally unsafe to rewrite automatically.';
-}
-
-function hasObjectVBind(api: Parameters<NonNullable<DeprecationUsage['eslint']>['report']>[0]): boolean {
-    return api.node.startTag.attributes.some((startTagAttribute: Record<string, any>) => {
-        return (
-            api.ast.getDirectiveName(startTagAttribute) === 'bind' && !api.ast.getDirectiveArgumentName(startTagAttribute)
-        );
-    });
 }
 
 export function createMapOptionsPropKeysEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {

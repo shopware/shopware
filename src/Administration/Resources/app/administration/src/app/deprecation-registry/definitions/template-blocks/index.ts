@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import importExportProfileLabel from './import-export-profile-label';
 import legacyTwigBlockShim from './legacy-twig-block-shim';
 import mailTemplatePreviewFooter from './mail-template-preview-footer';

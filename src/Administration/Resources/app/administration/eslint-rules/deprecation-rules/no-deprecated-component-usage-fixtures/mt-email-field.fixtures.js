@@ -22,7 +22,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field model-value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-email-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -34,7 +34,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-email-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -49,7 +49,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-email-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -61,7 +61,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-email-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -76,7 +76,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-email-field] The "value" API is deprecated.',
         }]
     },
     {
@@ -88,7 +88,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-email-field] The "value" API is deprecated.',
         }]
     },
     {
@@ -103,7 +103,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field size="default" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "size" prop value "medium" is deprecated. Use "default" instead.',
+            message: '[mt-email-field] The "size" API is deprecated. Use "default" instead.',
         }]
     },
     {
@@ -115,7 +115,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field size="medium" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "size" prop value "medium" is deprecated. Use "default" instead.',
+            message: '[mt-email-field] The "size" API is deprecated. Use "default" instead.',
         }]
     },
     {
@@ -130,7 +130,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field  />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "isInvalid" prop is deprecated. Remove it.',
+            message: '[mt-email-field] The "is-invalid" API is deprecated.',
         }]
     },
     {
@@ -142,7 +142,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field isInvalid />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "isInvalid" prop is deprecated. Remove it.',
+            message: '[mt-email-field] The "is-invalid" API is deprecated.',
         }]
     },
     {
@@ -157,7 +157,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field  />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "isInvalid" prop is deprecated. Remove it.',
+            message: '[mt-email-field] The "is-invalid" API is deprecated.',
         }]
     },
     {
@@ -169,7 +169,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field :isInvalid="1 == 1" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "isInvalid" prop is deprecated. Remove it.',
+            message: '[mt-email-field] The "is-invalid" API is deprecated.',
         }]
     },
     {
@@ -184,7 +184,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field  />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "aiBadge" prop is deprecated. Remove it.',
+            message: '[mt-email-field] The "ai-badge" API is deprecated.',
         }]
     },
     {
@@ -196,7 +196,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field aiBadge />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "aiBadge" prop is deprecated. Remove it.',
+            message: '[mt-email-field] The "ai-badge" API is deprecated.',
         }]
     },
     {
@@ -211,7 +211,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field  />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "aiBadge" prop is deprecated. Remove it.',
+            message: '[mt-email-field] The "ai-badge" API is deprecated.',
         }]
     },
     {
@@ -223,7 +223,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field :aiBadge="1 == 1" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "aiBadge" prop is deprecated. Remove it.',
+            message: '[mt-email-field] The "ai-badge" API is deprecated.',
         }]
     },
     {
@@ -238,7 +238,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field @update:model-value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-email-field] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }],
     },
     {
@@ -250,7 +250,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-email-field] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }],
     },
     {
@@ -265,7 +265,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field  />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "base-field-mounted" event is deprecated. Remove it.',
+            message: '[mt-email-field] The "base-field-mounted" API is deprecated.',
         }]
     },
     {
@@ -277,7 +277,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field @base-field-mounted="onFieldMounted" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "base-field-mounted" event is deprecated. Remove it.',
+            message: '[mt-email-field] The "base-field-mounted" API is deprecated.',
         }]
     },
     {
@@ -298,7 +298,7 @@ const mtEmailFieldInvalidTests = [
                 </mt-text-field>
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-email-field] The "label" API is deprecated.',
         }]
     },
     {
@@ -314,7 +314,7 @@ const mtEmailFieldInvalidTests = [
                 </mt-text-field>
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-email-field] The "label" API is deprecated.',
         }]
     },
     {
@@ -335,7 +335,7 @@ const mtEmailFieldInvalidTests = [
                 </mt-text-field>
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-email-field] The "label" API is deprecated.',
         }]
     },
     {
@@ -351,7 +351,7 @@ const mtEmailFieldInvalidTests = [
                 </mt-text-field>
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-email-field] The "label" API is deprecated.',
         }]
     },
 ];

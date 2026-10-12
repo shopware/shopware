@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import extensionApiGenericCmsElementData from './extension-api-generic-cms-element-data';
 import metaInfoObject from './meta-info-object';
 import optionsApiOverrideShim from './options-api-override-shim';

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import { reference, removeSnippetKey, snippetKeyMigration } from '../helpers';
 
 export default snippetKeyMigration({

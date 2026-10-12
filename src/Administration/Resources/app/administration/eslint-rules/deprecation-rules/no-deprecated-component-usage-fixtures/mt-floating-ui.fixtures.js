@@ -48,7 +48,7 @@ const mtFloatingUiInvalidTests = [
         errors: [
             {
                 message:
-                    '[mt-floating-ui] The floating-ui is not opened by default. Please set the "is-opened" prop to "true" to maintain backward compatibility.',
+                    '[mt-floating-ui] Add :is-opened="true" when no opened state is set to preserve the previous default visibility.',
             },
         ],
     },
@@ -63,7 +63,7 @@ const mtFloatingUiInvalidTests = [
         errors: [
             {
                 message:
-                    '[mt-floating-ui] The floating-ui is not opened by default. Please set the "is-opened" prop to "true" to maintain backward compatibility.',
+                    '[mt-floating-ui] Add :is-opened="true" when no opened state is set to preserve the previous default visibility.',
             },
         ],
     },
@@ -77,7 +77,7 @@ const mtFloatingUiInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-floating-ui] The "open" prop is deprecated. Use "is-opened" instead.',
+                message: '[mt-floating-ui] The "open" API is deprecated. Use "is-opened" instead.',
             },
         ],
     },
@@ -91,7 +91,7 @@ const mtFloatingUiInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-floating-ui] The "open" prop is deprecated. Use "is-opened" instead.',
+                message: '[mt-floating-ui] The "open" API is deprecated. Use "is-opened" instead.',
             },
         ],
     },
@@ -108,11 +108,11 @@ const mtFloatingUiInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-floating-ui] The "resize-width" prop is deprecated. Use "match-reference-width" instead.',
+                message: '[mt-floating-ui] Add :is-opened="true" when no opened state is set to preserve the previous default visibility.',
             },
             {
                 message:
-                    '[mt-floating-ui] The floating-ui is not opened by default. Please set the "is-opened" prop to "true" to maintain backward compatibility.',
+                    '[mt-floating-ui] The "resize-width" API is deprecated. Use "match-reference-width" instead.',
             },
         ],
     },
@@ -126,7 +126,7 @@ const mtFloatingUiInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-floating-ui] The "resize-width" prop is deprecated. Use "match-reference-width" instead.',
+                message: '[mt-floating-ui] The "resize-width" API is deprecated. Use "match-reference-width" instead.',
             },
         ],
     },
@@ -140,7 +140,7 @@ const mtFloatingUiInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-floating-ui] The "resize-width" prop is deprecated. Use "match-reference-width" instead.',
+                message: '[mt-floating-ui] The "resize-width" API is deprecated. Use "match-reference-width" instead.',
             },
         ],
     },
@@ -157,11 +157,11 @@ const mtFloatingUiInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-floating-ui] The "popover-class" prop is deprecated. Remove it.',
+                message: '[mt-floating-ui] Add :is-opened="true" when no opened state is set to preserve the previous default visibility.',
             },
             {
                 message:
-                    '[mt-floating-ui] The floating-ui is not opened by default. Please set the "is-opened" prop to "true" to maintain backward compatibility.',
+                    '[mt-floating-ui] The "popover-class" API is deprecated.',
             },
         ],
     },

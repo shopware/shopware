@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import {
     componentMigration,
     mapPropValue,
@@ -18,8 +22,7 @@ export default componentMigration({
     deprecatedIn: '6.7.0',
     removedIn: '6.8.0',
     description:
-        'The legacy sw-password-field component is replaced by mt-password-field. Legacy value APIs, medium size, invalid state, base-field-mounted, and text slots need migration.',
-    handler: 'mt-password-field',
+        'The legacy sw-password-field component is replaced by mt-password-field. Legacy value APIs, medium size, invalid state, base-field-mounted, and the label slot need migration.',
     references: [
         reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-password-field' }),
     ],
@@ -43,11 +46,6 @@ export default componentMigration({
         slotToProp({
             slot: 'label',
             prop: 'label',
-            fix: 'unsafe-auto',
-        }),
-        slotToProp({
-            slot: 'hint',
-            prop: 'hint',
             fix: 'unsafe-auto',
         }),
     ],

@@ -22,7 +22,7 @@ const mtNumberFieldInvalidTests = [
                 <mt-number-field model-value="5" />
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-number-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -34,7 +34,7 @@ const mtNumberFieldInvalidTests = [
                 <mt-number-field value="5" />
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-number-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -49,7 +49,7 @@ const mtNumberFieldInvalidTests = [
                 <mt-number-field :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-number-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -61,7 +61,7 @@ const mtNumberFieldInvalidTests = [
                 <mt-number-field :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-number-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -76,7 +76,7 @@ const mtNumberFieldInvalidTests = [
                 <mt-number-field v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-number-field] The "value" API is deprecated.',
         }]
     },
     {
@@ -88,7 +88,7 @@ const mtNumberFieldInvalidTests = [
                 <mt-number-field v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-number-field] The "value" API is deprecated.',
         }]
     },
     {
@@ -109,7 +109,7 @@ const mtNumberFieldInvalidTests = [
                 </mt-number-field>
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-number-field] The "label" API is deprecated.',
         }]
     },
     {
@@ -125,7 +125,7 @@ const mtNumberFieldInvalidTests = [
                 </mt-number-field>
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-number-field] The "label" API is deprecated.',
         }]
     },
     {
@@ -146,7 +146,7 @@ const mtNumberFieldInvalidTests = [
                 </mt-number-field>
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-number-field] The "label" API is deprecated.',
         }]
     },
     {
@@ -162,7 +162,7 @@ const mtNumberFieldInvalidTests = [
                 </mt-number-field>
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-number-field] The "label" API is deprecated.',
         }]
     },
     {
@@ -177,7 +177,7 @@ const mtNumberFieldInvalidTests = [
                 <mt-number-field @update:model-value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-number-field] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }],
     },
     {
@@ -189,7 +189,7 @@ const mtNumberFieldInvalidTests = [
                 <mt-number-field @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-number-field] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }],
     },
 ];

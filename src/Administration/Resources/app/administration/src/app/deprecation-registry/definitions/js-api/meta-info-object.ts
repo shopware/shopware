@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import { jsApiMigration, reference, replaceObjectOption } from '../helpers';
 
 export default jsApiMigration({

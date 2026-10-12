@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import {
     componentMigration,
     mapPropValue,
@@ -19,7 +23,6 @@ export default componentMigration({
     removedIn: '6.8.0',
     description:
         'The legacy sw-email-field component is replaced by mt-email-field. Legacy value APIs, medium size, invalid state, AI badge, base-field-mounted, and label slot need migration.',
-    handler: 'mt-email-field',
     references: [
         reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-email-field' }),
     ],

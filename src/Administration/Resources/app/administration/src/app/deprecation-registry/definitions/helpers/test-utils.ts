@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- vue-eslint-parser template nodes and ESLint fixers are passed through as plain records */
 /**
  * @sw-package framework
  */
@@ -171,7 +171,6 @@ export function createRuleApi(config: FakeApiConfig): ComponentUsageRuleApi & { 
 
             if (typeof usageConfig.transform === 'function') {
                 return usageConfig.transform({
-                    phase: 'fix',
                     valueKind: 'static',
                     hasObjectVBind: false,
                 });

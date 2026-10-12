@@ -19,9 +19,13 @@ function getRegistryPath() {
     );
 }
 
+// One registry per ESLint process; the definitions are static and transpiling index.ts per rule and file is slow.
+let cachedRegistry = null;
+
 function loadRegistry() {
-    const registryPath = getRegistryPath();
-    delete require.cache[require.resolve(registryPath)];
+    if (cachedRegistry) {
+        return cachedRegistry;
+    }
 
     const {
         componentApiMigrations,
@@ -32,9 +36,9 @@ function loadRegistry() {
         templateEventMigrations,
         snippetKeyMigrations,
         packageMigrations,
-    } = require(registryPath);
+    } = require(getRegistryPath());
 
-    return {
+    cachedRegistry = {
         componentApiMigrations,
         globalApiMigrations,
         jsApiMigrations,
@@ -47,6 +51,8 @@ function loadRegistry() {
             return componentApiMigrations.find((migration) => migration.component === componentName) ?? null;
         },
     };
+
+    return cachedRegistry;
 }
 
 module.exports = {

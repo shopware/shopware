@@ -55,7 +55,7 @@ const mtButtonInvalidChecks = [
         errors: [
             {
                 message:
-                    '[mt-button] The "variant" prop with value "ghost" is deprecated. Please use the "primary" prop in combination with "ghost" prop instead.',
+                    '[mt-button] The "variant" API is deprecated. Use "primary" instead.',
             },
         ],
     },
@@ -70,7 +70,7 @@ const mtButtonInvalidChecks = [
         errors: [
             {
                 message:
-                    '[mt-button] The "variant" prop with value "ghost" is deprecated. Please use the "primary" prop in combination with "ghost" prop instead.',
+                    '[mt-button] The "variant" API is deprecated. Use "primary" instead.',
             },
         ],
     },
@@ -88,7 +88,7 @@ const mtButtonInvalidChecks = [
         errors: [
             {
                 message:
-                    '[mt-button] The "variant" prop with value "ghost" is deprecated. Please use the "primary" prop in combination with "ghost" prop instead.',
+                    '[mt-button] The "variant" API is deprecated. Use "primary" instead.',
             },
         ],
     },
@@ -106,7 +106,7 @@ const mtButtonInvalidChecks = [
         errors: [
             {
                 message:
-                    '[mt-button] The "variant" prop with value "danger" is deprecated. Please use the "critical" prop instead.',
+                    '[mt-button] The "variant" API is deprecated. Use "critical" instead.',
             },
         ],
     },
@@ -121,7 +121,7 @@ const mtButtonInvalidChecks = [
         errors: [
             {
                 message:
-                    '[mt-button] The "variant" prop with value "danger" is deprecated. Please use the "critical" prop instead.',
+                    '[mt-button] The "variant" API is deprecated. Use "critical" instead.',
             },
         ],
     },
@@ -139,7 +139,7 @@ const mtButtonInvalidChecks = [
         errors: [
             {
                 message:
-                    '[mt-button] The "variant" prop with value "ghost-danger" is deprecated. Please use the "critical" prop in combination with "ghost" prop instead.',
+                    '[mt-button] The "variant" API is deprecated. Use "critical" instead.',
             },
         ],
     },
@@ -154,7 +154,7 @@ const mtButtonInvalidChecks = [
         errors: [
             {
                 message:
-                    '[mt-button] The "variant" prop with value "ghost-danger" is deprecated. Please use the "critical" prop in combination with "ghost" prop instead.',
+                    '[mt-button] The "variant" API is deprecated. Use "critical" instead.',
             },
         ],
     },
@@ -172,7 +172,7 @@ const mtButtonInvalidChecks = [
         errors: [
             {
                 message:
-                    '[mt-button] The "variant" prop with value "ghost-danger" is deprecated. Please use the "critical" prop in combination with "ghost" prop instead.',
+                    '[mt-button] The "variant" API is deprecated. Use "critical" instead.',
             },
         ],
     },
@@ -263,7 +263,7 @@ const mtButtonInvalidChecks = [
             </template>`,
         errors: [
             {
-                message: '[mt-button] No variant defined. Please use the "secondary" prop instead.',
+                message: '[mt-button] Add variant="secondary" when no variant is set to preserve the previous default button style.',
             },
         ],
     },
@@ -280,7 +280,7 @@ const mtButtonInvalidChecks = [
             </template>`,
         errors: [
             {
-                message: '[mt-button] No variant defined. Please use the "secondary" prop instead.',
+                message: '[mt-button] Add variant="secondary" when no variant is set to preserve the previous default button style.',
             },
         ],
     },
@@ -309,7 +309,7 @@ const mtButtonInvalidChecks = [
             </template>`,
         errors: [
             {
-                message: '[mt-button] No variant defined. Please use the "secondary" prop instead.',
+                message: '[mt-button] Add variant="secondary" when no variant is set to preserve the previous default button style.',
             },
         ],
     },
@@ -326,7 +326,7 @@ const mtButtonInvalidChecks = [
             </template>`,
         errors: [
             {
-                message: '[mt-button] The "router-link" prop is deprecated without replacement.',
+                message: '[mt-button] Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics.',
             },
         ],
     },
@@ -340,7 +340,7 @@ const mtButtonInvalidChecks = [
             </template>`,
         errors: [
             {
-                message: '[mt-button] The "router-link" prop is deprecated without replacement.',
+                message: '[mt-button] Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics.',
             },
         ],
     },
@@ -367,7 +367,7 @@ const mtButtonInvalidChecks = [
             </template>`,
         errors: [
             {
-                message: '[mt-button] The "router-link" prop is deprecated without replacement.',
+                message: '[mt-button] Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics.',
             },
         ],
     },
@@ -384,7 +384,7 @@ const mtButtonInvalidChecks = [
             </template>`,
         errors: [
             {
-                message: '[mt-button] The "router-link" prop is deprecated without replacement.',
+                message: '[mt-button] Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics.',
             },
         ],
     },
@@ -398,7 +398,7 @@ const mtButtonInvalidChecks = [
             </template>`,
         errors: [
             {
-                message: '[mt-button] The "router-link" prop is deprecated without replacement.',
+                message: '[mt-button] Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics.',
             },
         ],
     },
@@ -425,7 +425,7 @@ const mtButtonInvalidChecks = [
             </template>`,
         errors: [
             {
-                message: '[mt-button] The "router-link" prop is deprecated without replacement.',
+                message: '[mt-button] Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics.',
             },
         ],
     },
@@ -439,7 +439,7 @@ const mtButtonInvalidChecks = [
         output: null,
         errors: [
             {
-                message: '[mt-button] The "router-link" prop is deprecated without replacement.',
+                message: '[mt-button] Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics.',
             },
         ],
     },

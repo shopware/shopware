@@ -44,6 +44,7 @@ tester.run('no-deprecated-component-option-usage', rule, {
             '<sw-alert variant="info" />',
         ),
         templateCase('leaves a prop with a registry codemod to the registry rules', '<sw-entity-listing :items="items" />'),
+        templateCase('ignores a v-model with a dynamic argument', '<sw-image v-model:[dynamic]="x" />'),
     ],
     invalid: [
         templateCase('reports a deprecated component with version and comment', '<sw-legacy-card title="x" />', {
@@ -73,6 +74,12 @@ tester.run('no-deprecated-component-option-usage', rule, {
         }),
         templateCase('reports a deprecated prop bound with v-bind', '<sw-image v-bind:empty-icon="icon" />', {
             errors: [{ message: /The prop "emptyIcon"/ }],
+        }),
+        templateCase('reports a deprecated prop bound with a v-model argument', '<sw-image v-model:empty-icon="icon" />', {
+            errors: [{ message: /The prop "emptyIcon"/ }],
+        }),
+        templateCase('reports a deprecated modelValue prop bound with a plain v-model', '<sw-image v-model="value" />', {
+            errors: [{ message: /The prop "modelValue" of the component "sw-image" is deprecated/ }],
         }),
         templateCase('reports a prop deprecated with a version string only', '<sw-image empty-image-path="x" />', {
             errors: [

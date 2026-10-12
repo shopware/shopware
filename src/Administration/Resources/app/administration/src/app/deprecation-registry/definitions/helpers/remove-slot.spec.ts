@@ -2,7 +2,7 @@ import { removeSlot } from './remove-slot';
 import { createFixer, createRuleApi, createSlot } from './test-utils';
 
 describe('removeSlot', () => {
-    it('owns default fix safety and generic slot removal', () => {
+    it('auto-fixes a removed slot by replacing it with a removal comment', () => {
         const usage = removeSlot({ slot: 'actions' });
         const slot = createSlot('actions');
         const api = createRuleApi({ usage, slot });

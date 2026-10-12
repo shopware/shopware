@@ -22,7 +22,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch remove-top-margin />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "noMarginTop" prop is removed. Use "remove-top-margin" instead.',
+            message: '[mt-switch] The "no-margin-top" API is deprecated. Use "remove-top-margin" instead.',
         }]
     },
     {
@@ -34,7 +34,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch noMarginTop />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "noMarginTop" prop is removed. Use "remove-top-margin" instead.',
+            message: '[mt-switch] The "no-margin-top" API is deprecated. Use "remove-top-margin" instead.',
         }]
     },
     {
@@ -49,7 +49,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch :remove-top-margin="true" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "noMarginTop" prop is removed. Use "remove-top-margin" instead.',
+            message: '[mt-switch] The "no-margin-top" API is deprecated. Use "remove-top-margin" instead.',
         }]
     },
     {
@@ -61,7 +61,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch :noMarginTop="true" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "noMarginTop" prop is removed. Use "remove-top-margin" instead.',
+            message: '[mt-switch] The "no-margin-top" API is deprecated. Use "remove-top-margin" instead.',
         }]
     },
     {
@@ -76,7 +76,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "size" prop is removed with no replacement.',
+            message: '[mt-switch] The "size" API is deprecated.',
         }],
     },
     {
@@ -91,7 +91,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch >Test</mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "size" prop is removed with no replacement.',
+            message: '[mt-switch] The "size" API is deprecated.',
         }],
     },
     {
@@ -103,7 +103,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch size="small" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "size" prop is removed with no replacement.',
+            message: '[mt-switch] The "size" API is deprecated.',
         }],
     },
     {
@@ -118,7 +118,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "size" prop is removed with no replacement.',
+            message: '[mt-switch] The "size" API is deprecated.',
         }],
     },
     {
@@ -130,7 +130,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch size />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "size" prop is removed with no replacement.',
+            message: '[mt-switch] The "size" API is deprecated.',
         }],
     },
     {
@@ -145,7 +145,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "size" prop is removed with no replacement.',
+            message: '[mt-switch] The "size" API is deprecated.',
         }],
     },
     {
@@ -160,7 +160,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "id" prop is removed with no replacement.',
+            message: '[mt-switch] The "id" API is deprecated.',
         }],
     },
     {
@@ -172,7 +172,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch id="example-identifier" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "id" prop is removed with no replacement.',
+            message: '[mt-switch] The "id" API is deprecated.',
         }],
     },
     {
@@ -187,7 +187,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "id" prop is removed with no replacement.',
+            message: '[mt-switch] The "id" API is deprecated.',
         }],
     },
     {
@@ -199,7 +199,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch id />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "id" prop is removed with no replacement.',
+            message: '[mt-switch] The "id" API is deprecated.',
         }],
     },
     {
@@ -214,7 +214,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "id" prop is removed with no replacement.',
+            message: '[mt-switch] The "id" API is deprecated.',
         }],
     },
     {
@@ -226,7 +226,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch :id="myId" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "id" prop is removed with no replacement.',
+            message: '[mt-switch] The "id" API is deprecated.',
         }],
     },
     {
@@ -241,7 +241,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch v-model="myExampleValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "v-model" instead.',
+            message: '[mt-switch] The "value" API is deprecated.',
         }],
     },
     {
@@ -253,7 +253,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch v-model:value="myExampleValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "v-model" instead.',
+            message: '[mt-switch] The "value" API is deprecated.',
         }],
     },
     {
@@ -268,7 +268,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch model-value="true" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "model-value" instead.',
+            message: '[mt-switch] The "value" API is deprecated. Use "model-value" instead.',
         }],
     },
     {
@@ -280,7 +280,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch value="true" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "model-value" instead.',
+            message: '[mt-switch] The "value" API is deprecated. Use "model-value" instead.',
         }],
     },
     {
@@ -295,7 +295,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "model-value" instead.',
+            message: '[mt-switch] The "value" API is deprecated. Use "model-value" instead.',
         }],
     },
     {
@@ -307,7 +307,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "model-value" instead.',
+            message: '[mt-switch] The "value" API is deprecated. Use "model-value" instead.',
         }],
     },
     {
@@ -322,7 +322,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch model-value />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "model-value" instead.',
+            message: '[mt-switch] The "value" API is deprecated. Use "model-value" instead.',
         }],
     },
     {
@@ -334,7 +334,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch value />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "value" prop is removed. Use "model-value" instead.',
+            message: '[mt-switch] The "value" API is deprecated. Use "model-value" instead.',
         }],
     },
     {
@@ -349,7 +349,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "ghostValue" prop is removed.',
+            message: '[mt-switch] The "ghost-value" API is deprecated.',
         }],
     },
     {
@@ -361,7 +361,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch ghostValue="true" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "ghostValue" prop is removed.',
+            message: '[mt-switch] The "ghost-value" API is deprecated.',
         }],
     },
     {
@@ -376,7 +376,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "ghostValue" prop is removed.',
+            message: '[mt-switch] The "ghost-value" API is deprecated.',
         }],
     },
     {
@@ -388,7 +388,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch ghostValue />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "ghostValue" prop is removed.',
+            message: '[mt-switch] The "ghost-value" API is deprecated.',
         }],
     },
     {
@@ -403,7 +403,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "ghostValue" prop is removed.',
+            message: '[mt-switch] The "ghost-value" API is deprecated.',
         }],
     },
     {
@@ -415,7 +415,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch :ghostValue="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "ghostValue" prop is removed.',
+            message: '[mt-switch] The "ghost-value" API is deprecated.',
         }],
     },
     {
@@ -430,7 +430,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "padded" prop is removed.',
+            message: '[mt-switch] The "padded" API is deprecated.',
         }],
     },
     {
@@ -442,7 +442,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch padded="true" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "padded" prop is removed.',
+            message: '[mt-switch] The "padded" API is deprecated.',
         }],
     },
     {
@@ -457,7 +457,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "padded" prop is removed.',
+            message: '[mt-switch] The "padded" API is deprecated.',
         }],
     },
     {
@@ -469,7 +469,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch padded />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "padded" prop is removed.',
+            message: '[mt-switch] The "padded" API is deprecated.',
         }],
     },
     {
@@ -484,7 +484,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "padded" prop is removed.',
+            message: '[mt-switch] The "padded" API is deprecated.',
         }],
     },
     {
@@ -496,7 +496,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch :padded="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "padded" prop is removed.',
+            message: '[mt-switch] The "padded" API is deprecated.',
         }],
     },
     {
@@ -511,7 +511,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "partlyChecked" prop is removed.',
+            message: '[mt-switch] The "partly-checked" API is deprecated.',
         }],
     },
     {
@@ -523,7 +523,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch partlyChecked="true" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "partlyChecked" prop is removed.',
+            message: '[mt-switch] The "partly-checked" API is deprecated.',
         }],
     },
     {
@@ -538,7 +538,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "partlyChecked" prop is removed.',
+            message: '[mt-switch] The "partly-checked" API is deprecated.',
         }],
     },
     {
@@ -550,7 +550,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch partlyChecked />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "partlyChecked" prop is removed.',
+            message: '[mt-switch] The "partly-checked" API is deprecated.',
         }],
     },
     {
@@ -565,7 +565,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch  />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "partlyChecked" prop is removed.',
+            message: '[mt-switch] The "partly-checked" API is deprecated.',
         }],
     },
     {
@@ -577,7 +577,7 @@ const mtSwitchInvalidChecks = [
                 <mt-switch :partlyChecked="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-switch] The "partlyChecked" prop is removed.',
+            message: '[mt-switch] The "partly-checked" API is deprecated.',
         }],
     },
     {
@@ -598,7 +598,7 @@ const mtSwitchInvalidChecks = [
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "label" slot is removed. Use the "label" prop instead.',
+            message: '[mt-switch] The "label" API is deprecated.',
         }],
     },
     {
@@ -614,7 +614,7 @@ const mtSwitchInvalidChecks = [
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "label" slot is removed. Use the "label" prop instead.',
+            message: '[mt-switch] The "label" API is deprecated.',
         }],
     },
     {
@@ -635,7 +635,7 @@ const mtSwitchInvalidChecks = [
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "label" slot is removed. Use the "label" prop instead.',
+            message: '[mt-switch] The "label" API is deprecated.',
         }],
     },
     {
@@ -651,7 +651,7 @@ const mtSwitchInvalidChecks = [
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "label" slot is removed. Use the "label" prop instead.',
+            message: '[mt-switch] The "label" API is deprecated.',
         }],
     },
     {
@@ -672,7 +672,7 @@ const mtSwitchInvalidChecks = [
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "hint" slot is removed with no replacement.',
+            message: '[mt-switch] The "hint" API is deprecated.',
         }],
     },
     {
@@ -688,7 +688,7 @@ const mtSwitchInvalidChecks = [
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "hint" slot is removed with no replacement.',
+            message: '[mt-switch] The "hint" API is deprecated.',
         }],
     },
     {
@@ -709,7 +709,7 @@ const mtSwitchInvalidChecks = [
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "hint" slot is removed with no replacement.',
+            message: '[mt-switch] The "hint" API is deprecated.',
         }],
     },
     {
@@ -725,7 +725,7 @@ const mtSwitchInvalidChecks = [
                 </mt-switch>
             </template>`,
         errors: [{
-            message: '[mt-switch] The "hint" slot is removed with no replacement.',
+            message: '[mt-switch] The "hint" API is deprecated.',
         }],
     },
 ];

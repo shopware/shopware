@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any -- vue-eslint-parser template nodes and ESLint fixers are passed through as plain records */
 /**
  * @sw-package framework
  */
@@ -11,8 +11,7 @@ export type DeprecationReference = {
 };
 
 export type MigrationTransformContext = {
-    phase?: 'metadata' | 'fix';
-    valueKind?: 'static' | 'expression' | 'object-v-bind' | 'unknown';
+    valueKind?: 'static' | 'expression' | 'unknown';
     hasObjectVBind?: boolean;
 };
 
@@ -92,8 +91,8 @@ export type DeprecationMigration = {
     references?: DeprecationReference[];
     usage: DeprecationUsage[];
     component?: string;
+    /** The element the usage steps match once a usage is converted; falls back to `component` when unset. */
     replacement?: string;
-    handler?: string;
     api?: string;
     files?: string[];
 };

@@ -1,4 +1,6 @@
 const RuleTester = require('eslint').RuleTester;
+const { withRegistryMessageContext } = require('./registry/with-registry-message-context');
+const { describeWithSelectedDeprecationIds } = require('./registry/selected-deprecation-ids');
 const rule = require('./no-deprecated-component-usage');
 const { loadRegistry } = require('./registry/load-registry');
 const { mtIconValidTests, mtIconInvalidTests } = require('./no-deprecated-component-usage-fixtures/mt-icon.fixtures');
@@ -55,6 +57,15 @@ const {
     mtFloatingUiInvalidTests,
 } = require('./no-deprecated-component-usage-fixtures/mt-floating-ui.fixtures');
 
+const {
+    mtProgressBarValidTests,
+    mtProgressBarInvalidTests,
+} = require('./no-deprecated-component-usage-fixtures/mt-progress-bar.fixtures');
+const {
+    swEntityListingValidTests,
+    swEntityListingInvalidTests,
+} = require('./no-deprecated-component-usage-fixtures/sw-entity-listing.fixtures');
+
 const tester = new RuleTester({
     languageOptions: {
         parser: require('vue-eslint-parser'),
@@ -79,20 +90,6 @@ describe('registry helper ownership', () => {
     });
 });
 
-function withRegistryMessageContext(cases) {
-    return cases.map((testCase) => {
-        return {
-            ...testCase,
-            errors: testCase.errors?.map((error) => {
-                return {
-                    ...error,
-                    message: /Removed in Shopware/,
-                };
-            }),
-        };
-    });
-}
-
 const duplicateReplacementInvalidTests = [
     {
         name: 'does not fix value rename when model-value already exists',
@@ -101,7 +98,7 @@ const duplicateReplacementInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-text-field] The "value" prop is deprecated. Use "model-value" instead.',
+                message: '[mt-text-field] The "value" API is deprecated. Use "model-value" instead.',
             },
         ],
     },
@@ -112,7 +109,7 @@ const duplicateReplacementInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-text-field] The "value" prop is deprecated. Use "model-value" instead.',
+                message: '[mt-text-field] The "value" API is deprecated. Use "model-value" instead.',
             },
         ],
     },
@@ -123,7 +120,7 @@ const duplicateReplacementInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-text-field] The "value" prop is deprecated. Use "model-value" instead.',
+                message: '[mt-text-field] The "value" API is deprecated. Use "model-value" instead.',
             },
         ],
     },
@@ -134,7 +131,7 @@ const duplicateReplacementInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-text-field] The "value" prop is deprecated. Use "model-value" instead.',
+                message: '[mt-text-field] The "value" API is deprecated. Use "model-value" instead.',
             },
         ],
     },
@@ -145,7 +142,7 @@ const duplicateReplacementInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-text-field] The "value" prop is deprecated. Use "model-value" instead.',
+                message: '[mt-text-field] The "value" API is deprecated.',
             },
         ],
     },
@@ -156,7 +153,7 @@ const duplicateReplacementInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-switch] The "noMarginTop" prop is removed. Use "remove-top-margin" instead.',
+                message: '[mt-switch] The "no-margin-top" API is deprecated. Use "remove-top-margin" instead.',
             },
         ],
     },
@@ -167,7 +164,7 @@ const duplicateReplacementInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-text-field] The "update:value" event is deprecated. Use "update:model-value" instead.',
+                message: '[mt-text-field] The "update:value" API is deprecated. Use "update:model-value" instead.',
             },
         ],
     },
@@ -195,114 +192,9 @@ const registryDrivenValidTests = [
                 </mt-checkbox>
             </template>`,
     },
-    {
-        name: 'registry-driven mt-progress-bar without deprecated value API is allowed',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-progress-bar model-value="Hello World" />
-            </template>`,
-    },
-    {
-        name: 'registry-driven sw-entity-listing with data-source prop is allowed',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <sw-entity-listing
-                    :data-source="entityList"
-                    :repository="entityRepository"
-                    :columns="columns"
-                />
-            </template>`,
-    },
 ];
 
 const registryDrivenInvalidTests = [
-    {
-        name: 'registry-driven mt-progress-bar renames static value prop',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-progress-bar value="Hello World" />
-            </template>`,
-        output: `
-            <template>
-                <mt-progress-bar model-value="Hello World" />
-            </template>`,
-        errors: [
-            {
-                message: '[mt-progress-bar] The "value" API is deprecated. Use "model-value" instead.',
-            },
-        ],
-    },
-    {
-        name: 'registry-driven mt-progress-bar renames bound value prop',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-progress-bar :value="myValue" />
-            </template>`,
-        output: `
-            <template>
-                <mt-progress-bar :model-value="myValue" />
-            </template>`,
-        errors: [
-            {
-                message: '[mt-progress-bar] The "value" API is deprecated. Use "model-value" instead.',
-            },
-        ],
-    },
-    {
-        name: 'registry-driven mt-progress-bar renames v-model value argument',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-progress-bar v-model:value="myValue" />
-            </template>`,
-        output: `
-            <template>
-                <mt-progress-bar v-model="myValue" />
-            </template>`,
-        errors: [
-            {
-                message: '[mt-progress-bar] The "value" API is deprecated.',
-            },
-        ],
-    },
-    {
-        name: 'registry-driven mt-progress-bar renames update value event',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-progress-bar @update:value="myValue = $event" />
-            </template>`,
-        output: `
-            <template>
-                <mt-progress-bar @update:model-value="myValue = $event" />
-            </template>`,
-        errors: [
-            {
-                message: '[mt-progress-bar] The "update:value" API is deprecated. Use "update:model-value" instead.',
-            },
-        ],
-    },
-    {
-        name: 'registry-driven sw-entity-listing renames bound items prop',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <sw-entity-listing :items="taxList" :repository="taxRepository" :columns="columns" />
-            </template>`,
-        output: `
-            <template>
-                <sw-entity-listing :data-source="taxList" :repository="taxRepository" :columns="columns" />
-            </template>`,
-        errors: [
-            {
-                message: '[sw-entity-listing] The "items" API is deprecated. Use "data-source" instead.',
-            },
-        ],
-    },
     {
         name: 'registry-driven mt-progress-bar does not fix value when model-value already exists',
         filename: 'test.html.twig',
@@ -346,7 +238,8 @@ const objectVBindInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-button] The "router-link" API is deprecated.',
+                message:
+                    '[mt-button] Replace router-link with an explicit click handler or router-link wrapper and verify navigation semantics.\nObject v-bind can hide router-link usage. Review the bound object and migrate navigation manually.',
             },
         ],
     },
@@ -357,7 +250,8 @@ const objectVBindInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-card] The "ai-badge" API is deprecated.',
+                message:
+                    '[mt-card] Remove the AI badge prop and render the AI badge directly in the title slot.\nObject v-bind can hide ai-badge usage. Review the bound object and add the title slot manually if needed.',
             },
         ],
     },
@@ -420,6 +314,8 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtPasswordFieldValidTests,
         ...mtUrlFieldValidTests,
         ...mtFloatingUiValidTests,
+        ...mtProgressBarValidTests,
+        ...swEntityListingValidTests,
         ...registryDrivenValidTests,
     ],
     invalid: withRegistryMessageContext([
@@ -440,8 +336,23 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtPasswordFieldInvalidTests,
         ...mtUrlFieldInvalidTests,
         ...mtFloatingUiInvalidTests,
+        ...mtProgressBarInvalidTests,
+        ...swEntityListingInvalidTests,
         ...duplicateReplacementInvalidTests,
         ...registryDrivenInvalidTests,
         ...objectVBindInvalidTests,
     ]),
+});
+
+describeWithSelectedDeprecationIds('component.sw-alert', () => {
+    tester.run('no-deprecated-component-usage with an unrelated deprecation id selected', rule, {
+        valid: [
+            {
+                name: '"mt-text-field" value prop is not reported when only another migration is selected',
+                filename: 'test.html.twig',
+                code: '<template><mt-text-field value="old" /></template>',
+            },
+        ],
+        invalid: [],
+    });
 });

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import { componentMigration, manualComponentReplacement, reference } from '../helpers';
 
 export default componentMigration({
@@ -8,7 +12,6 @@ export default componentMigration({
     removedIn: '6.8.0',
     description:
         'The sw-data-grid component is deprecated. Migrate to mt-data-table and review the table configuration manually because the APIs are not equivalent.',
-    handler: 'mt-data-table',
     references: [
         reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#component-replacement-with-meteor-component-library' }),
     ],

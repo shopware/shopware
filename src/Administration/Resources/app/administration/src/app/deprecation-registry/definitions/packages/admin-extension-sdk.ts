@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import { packageMigration, reference, renamePackage } from '../helpers';
 
 export default packageMigration({

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import {
     componentMigration,
     reference,
@@ -16,7 +20,6 @@ export default componentMigration({
     removedIn: '6.9.0',
     description:
         'The legacy sw-tabs component is replaced by mt-tabs. Simple component and prop renames can be automated, but default/content slot migrations require manual review because mt-tabs expects tab metadata through the items prop and content outside the component.',
-    handler: 'mt-tabs',
     references: [
         reference({ type: 'upgrade', target: 'UPGRADE-6.8.md#sw-tabs-automatic-wrapper-switch-deferred' }),
     ],

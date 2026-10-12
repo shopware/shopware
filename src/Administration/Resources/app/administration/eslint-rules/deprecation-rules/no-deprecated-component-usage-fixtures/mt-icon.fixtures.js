@@ -31,7 +31,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+                message: '[mt-icon] The "small" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -54,7 +54,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+                message: '[mt-icon] The "small" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -71,7 +71,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+                message: '[mt-icon] The "small" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -85,10 +85,10 @@ const mtIconInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+                message: '[mt-icon] The "small" API is deprecated. Use "size" instead.',
             },
             {
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+                message: '[mt-icon] The "large" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -102,7 +102,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+                message: '[mt-icon] The "small" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -116,7 +116,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+                message: '[mt-icon] The "small" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -133,7 +133,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+                message: '[mt-icon] The "small" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -147,7 +147,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+                message: '[mt-icon] The "small" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -161,7 +161,7 @@ const mtIconInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+                message: '[mt-icon] The "small" API is deprecated. Use "size" instead.\nExpression-bound prop values can be false at runtime. Review the expression and replace it with "16px" manually if needed.',
             },
         ],
     },
@@ -178,7 +178,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+                message: '[mt-icon] The "small" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -192,10 +192,10 @@ const mtIconInvalidTests = [
         output: null,
         errors: [
             {
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+                message: '[mt-icon] The "small" API is deprecated. Use "size" instead.',
             },
             {
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+                message: '[mt-icon] The "large" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -209,7 +209,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+                message: '[mt-icon] The "small" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -226,7 +226,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+                message: '[mt-icon] The "large" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -249,7 +249,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+                message: '[mt-icon] The "large" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -266,7 +266,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+                message: '[mt-icon] The "large" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -280,7 +280,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+                message: '[mt-icon] The "large" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -294,7 +294,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+                message: '[mt-icon] The "large" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -311,7 +311,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+                message: '[mt-icon] The "large" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -325,7 +325,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+                message: '[mt-icon] The "large" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -342,7 +342,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+                message: '[mt-icon] The "large" API is deprecated. Use "size" instead.',
             },
         ],
     },
@@ -356,7 +356,7 @@ const mtIconInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+                message: '[mt-icon] The "large" API is deprecated. Use "size" instead.',
             },
         ],
     },

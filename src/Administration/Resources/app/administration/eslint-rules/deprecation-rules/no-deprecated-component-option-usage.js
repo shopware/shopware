@@ -3,19 +3,16 @@
  */
 
 const { loadRegistry } = require('./registry/load-registry');
-const { hasComponentCodemod, hasPropCodemod } = require('./registry/component-deprecations');
+const { hasComponentCodemod, hasPropCodemod, toPropName } = require('./registry/component-deprecations');
 const { getDeprecatedOptionIndex } = require('./registry/deprecated-option-index');
 
 function toKebabCase(name) {
     return name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
 }
 
-function toCamelCase(name) {
-    return name.replace(/-([a-z])/g, (_match, letter) => letter.toUpperCase());
-}
-
 /**
- * Returns the prop an attribute passes: `foo-bar="…"`, `fooBar="…"`, `:foo-bar` or `v-bind:foo-bar`.
+ * Returns the prop an attribute passes: `foo-bar="…"`, `fooBar="…"`, `:foo-bar`, `v-bind:foo-bar`,
+ * `v-model:foo-bar` (fooBar) or a plain `v-model` (modelValue).
  * Other directives and dynamic arguments pass no statically known prop.
  *
  * @example
@@ -23,16 +20,21 @@ function toCamelCase(name) {
  */
 function getPassedPropName(attribute) {
     if (!attribute.directive) {
-        return toCamelCase(attribute.key.rawName ?? attribute.key.name);
+        return toPropName(attribute.key.rawName ?? attribute.key.name);
     }
 
+    const directiveName = attribute.key.name.name;
     const argument = attribute.key.argument;
 
-    if (attribute.key.name.name !== 'bind' || argument?.type !== 'VIdentifier') {
+    if (directiveName === 'model' && argument === null) {
+        return 'modelValue';
+    }
+
+    if (!['bind', 'model'].includes(directiveName) || argument?.type !== 'VIdentifier') {
         return null;
     }
 
-    return toCamelCase(argument.rawName ?? argument.name);
+    return toPropName(argument.rawName ?? argument.name);
 }
 
 function buildMessage(subject, { version, comment }) {
@@ -82,6 +84,7 @@ module.exports = {
         }
 
         const deprecatedComponents = getDeprecatedOptionIndex(context.options[0]?.componentSources);
+        const { componentApiMigrations } = loadRegistry();
 
         return defineTemplateBodyVisitor({
             VElement(node) {
@@ -91,8 +94,6 @@ module.exports = {
                 if (!component) {
                     return;
                 }
-
-                const { componentApiMigrations } = loadRegistry();
 
                 if (hasComponentCodemod(componentApiMigrations, componentName)) {
                     return;

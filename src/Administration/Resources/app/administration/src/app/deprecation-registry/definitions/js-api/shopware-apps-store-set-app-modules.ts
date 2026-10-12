@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import { jsApiMigration, memberCall, reference } from '../helpers';
 
 export default jsApiMigration({

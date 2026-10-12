@@ -111,7 +111,7 @@ function findUnmarkedCodemodTargets() {
             return [`${migration.id}: no source defines "${migration.component}"`];
         }
 
-        const migratesOwnProps = !migration.handler || migration.handler === migration.component;
+        const migratesOwnProps = !migration.replacement || migration.replacement === migration.component;
 
         if (!migratesOwnProps) {
             return deprecations.componentDeprecated

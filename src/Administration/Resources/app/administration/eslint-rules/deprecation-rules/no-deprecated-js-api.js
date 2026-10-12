@@ -4,29 +4,12 @@
 
 const { loadRegistry } = require('./registry/load-registry');
 const { filterMigrations } = require('./registry/filter-migrations');
-
-function formatReferences(migration) {
-    if (!migration.references?.length) {
-        return '';
-    }
-
-    return migration.references.map((reference) => `${reference.type}: ${reference.target}`).join('\n');
-}
+const { appendRegistryContext } = require('./registry/format-migration-message');
 
 function buildMessage(migration, usage) {
-    const references = formatReferences(migration);
     const replacement = usage.to ? ` Use ${usage.to} instead.` : '';
 
-    return [
-        `The "${usage.from}" API is deprecated.${replacement}`,
-        usage.message ?? '',
-        '',
-        migration.description,
-        `Removed in Shopware ${migration.removedIn}.`,
-        references ? `References:\n${references}` : '',
-    ]
-        .filter(Boolean)
-        .join('\n');
+    return appendRegistryContext([`The "${usage.from}" API is deprecated.${replacement}`, usage.message ?? ''], migration);
 }
 
 function getPropertyName(node) {
@@ -245,6 +228,36 @@ module.exports = {
         const replaceApiUsages = usages.filter(({ usage }) => usage.kind === 'replace-api');
         const packageImportUsages = packageUsages.filter(({ usage }) => usage.kind === 'rename-package');
 
+        /**
+         * Finds the first replace-api usage a call matches. A bare API name replaces the callee only,
+         * a full call signature replaces the whole call and may be unfixable when its arguments differ.
+         *
+         * @example
+         * findReplaceApiMatch(node, 'Shopware.Utils.foo', 'Shopware.Utils.foo()');
+         * // { match, fixable: true, target: node.callee }
+         */
+        function findReplaceApiMatch(node, calleeName, sourceText) {
+            for (const candidate of replaceApiUsages) {
+                const isFullCall = candidate.usage.from.includes('(');
+
+                if (!isFullCall) {
+                    if (candidate.usage.from === calleeName) {
+                        return { match: candidate, fixable: true, target: node.callee };
+                    }
+
+                    continue;
+                }
+
+                const exactCallMatch = matchesExactCall(candidate.usage, node, context.sourceCode, sourceText, calleeName);
+
+                if (exactCallMatch) {
+                    return { match: candidate, fixable: exactCallMatch.fixable, target: node };
+                }
+            }
+
+            return null;
+        }
+
         return {
             ImportDeclaration(node) {
                 const match = packageImportUsages.find(({ usage }) => usage.from === node.source.value);
@@ -304,58 +317,25 @@ module.exports = {
                     });
                 }
 
-                const sourceText = context.sourceCode.getText(node);
-                let replaceApiMatch = null;
-                let replaceApiFixable = true;
+                const result = findReplaceApiMatch(node, calleeName, context.sourceCode.getText(node));
 
-                replaceApiUsages.some((candidate) => {
-                    if (!candidate.usage.from.includes('(')) {
-                        if (candidate.usage.from !== calleeName) {
-                            return false;
-                        }
-
-                        replaceApiMatch = candidate;
-                        replaceApiFixable = true;
-                        return true;
-                    }
-
-                    const exactCallMatch = matchesExactCall(
-                        candidate.usage,
-                        node,
-                        context.sourceCode,
-                        sourceText,
-                        calleeName,
-                    );
-
-                    if (!exactCallMatch) {
-                        return false;
-                    }
-
-                    replaceApiMatch = candidate;
-                    replaceApiFixable = exactCallMatch.fixable;
-                    return true;
-                });
-
-                if (!replaceApiMatch) {
+                if (!result) {
                     return;
                 }
 
                 context.report({
-                    node: replaceApiMatch.usage.from.includes('(') ? node : node.callee,
-                    message: buildMessage(replaceApiMatch.migration, replaceApiMatch.usage),
+                    node: result.target,
+                    message: buildMessage(result.match.migration, result.match.usage),
                     fix(fixer) {
                         if (
                             context.options.includes('disableFix') ||
-                            !usageFixesAutomatically(replaceApiMatch.usage) ||
-                            !replaceApiFixable
+                            !usageFixesAutomatically(result.match.usage) ||
+                            !result.fixable
                         ) {
                             return null;
                         }
 
-                        return fixer.replaceText(
-                            replaceApiMatch.usage.from.includes('(') ? node : node.callee,
-                            replaceApiMatch.usage.to,
-                        );
+                        return fixer.replaceText(result.target, result.match.usage.to);
                     },
                 });
             },

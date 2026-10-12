@@ -80,6 +80,7 @@ export function componentUsageMessage(
     apiName: unknown,
     additionalMessage?: string,
 ): string {
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string -- registry usage targets are strings
     const replacement = usageConfig.to ? ` Use "${usageConfig.to}" instead.` : '';
     const defaultMessage = `[${api.node.name}] The "${apiName}" API is deprecated.${replacement}`;
     const message = typeof usageConfig.message === 'string' ? `[${api.node.name}] ${usageConfig.message}` : defaultMessage;
@@ -89,4 +90,20 @@ export function componentUsageMessage(
 
 export function usageFixesAutomatically(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage): boolean {
     return !api.isFixDisabled() && usageConfig.fix !== 'manual';
+}
+
+/**
+ * Tells whether a component usage binds an object with `v-bind="…"`, which can hide or override any
+ * prop, so prop fixes on that element must fall back to a manual review.
+ *
+ * @example
+ * hasObjectVBind(api); // true for <sw-field v-bind="fieldProps" />
+ */
+export function hasObjectVBind(api: ComponentUsageRuleApi): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- template nodes are untyped vue-eslint-parser records
+    return api.node.startTag.attributes.some((startTagAttribute: Record<string, unknown>) => {
+        return (
+            api.ast.getDirectiveName(startTagAttribute) === 'bind' && !api.ast.getDirectiveArgumentName(startTagAttribute)
+        );
+    });
 }

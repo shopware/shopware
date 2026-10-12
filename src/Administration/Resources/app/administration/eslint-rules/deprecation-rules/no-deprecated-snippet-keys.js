@@ -4,27 +4,13 @@
 
 const { loadRegistry } = require('./registry/load-registry');
 const { filterMigrations } = require('./registry/filter-migrations');
-
-function formatReferences(migration) {
-    if (!migration.references?.length) {
-        return '';
-    }
-
-    return migration.references.map((reference) => `${reference.type}: ${reference.target}`).join('\n');
-}
+const { appendRegistryContext } = require('./registry/format-migration-message');
 
 function buildMessage(migration, usage, snippetKey) {
-    const references = formatReferences(migration);
-
-    return [
-        `The Administration snippet key "${snippetKey}" uses removed key "${usage.from}".`,
-        '',
-        migration.description,
-        `Removed in Shopware ${migration.removedIn}.`,
-        references ? `References:\n${references}` : '',
-    ]
-        .filter(Boolean)
-        .join('\n');
+    return appendRegistryContext(
+        [`The Administration snippet key "${snippetKey}" uses removed key "${usage.from}".`],
+        migration,
+    );
 }
 
 function getStringValue(node) {
@@ -87,9 +73,23 @@ module.exports = {
             });
         }
 
-        return {
+        const scriptVisitors = {
             Literal: checkNode,
             TemplateElement: checkNode,
         };
+        // Plain .ts files run without vue-eslint-parser, so only templates get the template visitor.
+        const defineTemplateBodyVisitor = context.sourceCode.parserServices?.defineTemplateBodyVisitor;
+
+        if (!defineTemplateBodyVisitor) {
+            return scriptVisitors;
+        }
+
+        return defineTemplateBodyVisitor(
+            {
+                Literal: checkNode,
+                TemplateElement: checkNode,
+            },
+            scriptVisitors,
+        );
     },
 };

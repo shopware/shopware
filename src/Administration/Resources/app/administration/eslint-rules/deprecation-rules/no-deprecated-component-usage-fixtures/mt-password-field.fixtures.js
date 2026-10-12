@@ -6,6 +6,14 @@ const mtPasswordFieldValidTests = [
             <template>
                 <sw-password-field />
             </template>`
+    },
+    {
+        name: '"mt-password-field" keeps its native "hint" slot',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-password-field><template #hint>My Hint</template></mt-password-field>
+            </template>`
     }
 ]
 
@@ -22,7 +30,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field model-value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-password-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -34,7 +42,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-password-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -49,7 +57,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-password-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -61,7 +69,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-password-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -76,7 +84,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-password-field] The "value" API is deprecated.',
         }]
     },
     {
@@ -88,7 +96,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-password-field] The "value" API is deprecated.',
         }]
     },
     {
@@ -103,7 +111,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field size="default" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "size" prop value "medium" is deprecated. Use "default" instead.',
+            message: '[mt-password-field] The "size" API is deprecated. Use "default" instead.',
         }]
     },
     {
@@ -115,7 +123,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field size="medium" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "size" prop value "medium" is deprecated. Use "default" instead.',
+            message: '[mt-password-field] The "size" API is deprecated. Use "default" instead.',
         }]
     },
     {
@@ -130,7 +138,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field  />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "isInvalid" prop is deprecated. Remove it.',
+            message: '[mt-password-field] The "is-invalid" API is deprecated.',
         }]
     },
     {
@@ -142,7 +150,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field isInvalid />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "isInvalid" prop is deprecated. Remove it.',
+            message: '[mt-password-field] The "is-invalid" API is deprecated.',
         }]
     },
     {
@@ -157,7 +165,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field  />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "isInvalid" prop is deprecated. Remove it.',
+            message: '[mt-password-field] The "is-invalid" API is deprecated.',
         }]
     },
     {
@@ -169,7 +177,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field :isInvalid="1 == 1" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "isInvalid" prop is deprecated. Remove it.',
+            message: '[mt-password-field] The "is-invalid" API is deprecated.',
         }]
     },
     {
@@ -184,7 +192,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field @update:model-value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-password-field] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }],
     },
     {
@@ -196,7 +204,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-password-field] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }],
     },
     {
@@ -211,7 +219,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field  />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "base-field-mounted" event is deprecated. Remove it.',
+            message: '[mt-password-field] The "base-field-mounted" API is deprecated.',
         }]
     },
     {
@@ -223,7 +231,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field @base-field-mounted="onFieldMounted" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "base-field-mounted" event is deprecated. Remove it.',
+            message: '[mt-password-field] The "base-field-mounted" API is deprecated.',
         }]
     },
     {
@@ -244,7 +252,7 @@ const mtPasswordFieldInvalidTests = [
                 </mt-password-field>
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-password-field] The "label" API is deprecated.',
         }]
     },
     {
@@ -260,7 +268,7 @@ const mtPasswordFieldInvalidTests = [
                 </mt-password-field>
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-password-field] The "label" API is deprecated.',
         }]
     },
     {
@@ -281,7 +289,7 @@ const mtPasswordFieldInvalidTests = [
                 </mt-password-field>
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-password-field] The "label" API is deprecated.',
         }]
     },
     {
@@ -297,81 +305,7 @@ const mtPasswordFieldInvalidTests = [
                 </mt-password-field>
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "label" slot is deprecated. Use the "label" prop instead.',
-        }]
-    },
-    {
-        name: '"mt-password-field" wrong "hint" slot usage should be removed [shorthand syntax]',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-password-field>
-                    <template #hint>
-                        My Hint
-                    </template>
-                </mt-password-field>
-            </template>`,
-        output: `
-            <template>
-                <mt-password-field>
-                    <!-- Slot "hint" was removed and should be replaced with "hint" prop. Previous value was:  My Hint  -->
-                </mt-password-field>
-            </template>`,
-        errors: [{
-            message: '[mt-password-field] The "hint" slot is deprecated. Use the "hint" prop instead.',
-        }]
-    },
-    {
-        name: '"mt-password-field" wrong "hint" slot usage should be removed [disableFix, shorthand syntax]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-password-field>
-                    <template #hint>
-                        My Hint
-                    </template>
-                </mt-password-field>
-            </template>`,
-        errors: [{
-            message: '[mt-password-field] The "hint" slot is deprecated. Use the "hint" prop instead.',
-        }]
-    },
-    {
-        name: '"mt-password-field" wrong "hint" slot usage should be removed [v-slot syntax]',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-password-field>
-                    <template v-slot:hint>
-                        My Hint
-                    </template>
-                </mt-password-field>
-            </template>`,
-        output: `
-            <template>
-                <mt-password-field>
-                    <!-- Slot "hint" was removed and should be replaced with "hint" prop. Previous value was:  My Hint  -->
-                </mt-password-field>
-            </template>`,
-        errors: [{
-            message: '[mt-password-field] The "hint" slot is deprecated. Use the "hint" prop instead.',
-        }]
-    },
-    {
-        name: '"mt-password-field" wrong "hint" slot usage should be removed [v-slot syntax, disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-password-field>
-                    <template v-slot:hint>
-                        My Hint
-                    </template>
-                </mt-password-field>
-            </template>`,
-        errors: [{
-            message: '[mt-password-field] The "hint" slot is deprecated. Use the "hint" prop instead.',
+            message: '[mt-password-field] The "label" API is deprecated.',
         }]
     }
 ];

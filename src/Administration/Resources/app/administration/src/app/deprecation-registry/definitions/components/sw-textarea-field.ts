@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import {
     componentMigration,
     reference,
@@ -16,7 +20,6 @@ export default componentMigration({
     removedIn: '6.8.0',
     description:
         'The legacy sw-textarea-field component is replaced by mt-textarea. Value binding uses model-value/update:model-value and the label slot should become the label prop when it contains plain text.',
-    handler: 'mt-textarea',
     references: [
         reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-textarea-field' }),
     ],

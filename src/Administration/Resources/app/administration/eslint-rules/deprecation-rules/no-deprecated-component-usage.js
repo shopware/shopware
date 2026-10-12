@@ -1,26 +1,9 @@
 const { loadRegistry } = require('./registry/load-registry');
 const { filterMigrations } = require('./registry/filter-migrations');
-
-function formatReferences(migration) {
-    if (!migration.references?.length) {
-        return '';
-    }
-
-    return migration.references.map((reference) => `${reference.type}: ${reference.target}`).join('\n');
-}
+const { appendRegistryContext: appendMigrationContext } = require('./registry/format-migration-message');
 
 function appendRegistryContext(message, migration) {
-    const references = formatReferences(migration);
-
-    return [
-        message,
-        '',
-        migration.description,
-        `Removed in Shopware ${migration.removedIn}.`,
-        references ? `References:\n${references}` : '',
-    ]
-        .filter(Boolean)
-        .join('\n');
+    return appendMigrationContext([message], migration);
 }
 
 function collectFixOperations(fix) {
@@ -316,7 +299,6 @@ function getTransformResult(usage, node, attribute) {
     }
 
     return usage.transform({
-        phase: 'fix',
         valueKind: attribute ? getPropAttributeValueKind(attribute) : 'unknown',
         hasObjectVBind: nodeHasObjectVBind(node),
     });
@@ -500,7 +482,7 @@ module.exports = {
         const migrations = filterMigrations(registry.componentApiMigrations)
             .map((migration) => {
                 return {
-                    component: migration.handler ?? migration.component,
+                    component: migration.replacement ?? migration.component,
                     migration,
                 };
             });

@@ -61,7 +61,7 @@ const mtSelectInvalidTests = [
                 <mt-select model-value="optionA" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-select] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -73,7 +73,7 @@ const mtSelectInvalidTests = [
                 <mt-select value="optionA" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-select] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -88,7 +88,7 @@ const mtSelectInvalidTests = [
                 <mt-select :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-select] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -100,7 +100,7 @@ const mtSelectInvalidTests = [
                 <mt-select :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-select] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -115,7 +115,7 @@ const mtSelectInvalidTests = [
                 <mt-select v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "v-model:value" binding is deprecated. Use "v-model" instead.',
+            message: '[mt-select] The "value" API is deprecated.',
         }]
     },
     {
@@ -127,7 +127,7 @@ const mtSelectInvalidTests = [
                 <mt-select v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "v-model:value" binding is deprecated. Use "v-model" instead.',
+            message: '[mt-select] The "value" API is deprecated.',
         }]
     },
     {
@@ -142,7 +142,7 @@ const mtSelectInvalidTests = [
                 <mt-select  />
             </template>`,
         errors: [{
-            message: '[mt-select] The "aside" prop was removed without a replacement.',
+            message: '[mt-select] The "aside" API is deprecated.',
         }]
     },
     {
@@ -154,7 +154,7 @@ const mtSelectInvalidTests = [
                 <mt-select aside />
             </template>`,
         errors: [{
-            message: '[mt-select] The "aside" prop was removed without a replacement.',
+            message: '[mt-select] The "aside" API is deprecated.',
         }]
     },
     {
@@ -169,7 +169,7 @@ const mtSelectInvalidTests = [
                 <mt-select  />
             </template>`,
         errors: [{
-            message: '[mt-select] The "aside" prop was removed without a replacement.',
+            message: '[mt-select] The "aside" API is deprecated.',
         }]
     },
     {
@@ -181,7 +181,7 @@ const mtSelectInvalidTests = [
                 <mt-select aside="true" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "aside" prop was removed without a replacement.',
+            message: '[mt-select] The "aside" API is deprecated.',
         }]
     },
     {
@@ -196,7 +196,7 @@ const mtSelectInvalidTests = [
                 <mt-select  />
             </template>`,
         errors: [{
-            message: '[mt-select] The "aside" prop was removed without a replacement.',
+            message: '[mt-select] The "aside" API is deprecated.',
         }]
     },
     {
@@ -208,7 +208,7 @@ const mtSelectInvalidTests = [
                 <mt-select :aside="true" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "aside" prop was removed without a replacement.',
+            message: '[mt-select] The "aside" API is deprecated.',
         }]
     },
     {
@@ -235,7 +235,7 @@ const mtSelectInvalidTests = [
             </template>`,
         output: null,
         errors: [{
-            message: '[mt-select] Replace option object keys "name"/"id" with "label"/"value".',
+            message: '[mt-select] Migrate option object keys "name"/"id" to "label"/"value" manually because this options expression is dynamic.',
         }]
     },
     {
@@ -247,7 +247,7 @@ const mtSelectInvalidTests = [
             </template>`,
         output: null,
         errors: [{
-            message: '[mt-select] Replace option object keys "name"/"id" with "label"/"value".',
+            message: '[mt-select] Migrate option object keys "name"/"id" to "label"/"value" manually because this options expression is dynamic.',
         }]
     },
     {
@@ -269,7 +269,7 @@ const mtSelectInvalidTests = [
                 </mt-select>
             </template>`,
         errors: [{
-            message: '[mt-select] The "default" slot is deprecated. Use the "options" prop instead.',
+            message: '[mt-select] The "default" API is deprecated.',
         }]
     },
     {
@@ -284,7 +284,7 @@ const mtSelectInvalidTests = [
                 </mt-select>
             </template>`,
         errors: [{
-            message: '[mt-select] The "default" slot is deprecated. Use the "options" prop instead.',
+            message: '[mt-select] The "default" API is deprecated.',
         }]
     },
     {
@@ -310,7 +310,7 @@ const mtSelectInvalidTests = [
                 </mt-select>
             </template>`,
         errors: [{
-            message: '[mt-select] The "default" slot is deprecated. Use the "options" prop instead.',
+            message: '[mt-select] The "default" API is deprecated.',
         }]
     },
     {
@@ -327,7 +327,7 @@ const mtSelectInvalidTests = [
                 </mt-select>
             </template>`,
         errors: [{
-            message: '[mt-select] The "default" slot is deprecated. Use the "options" prop instead.',
+            message: '[mt-select] The "default" API is deprecated.',
         }]
     },
     {
@@ -351,7 +351,7 @@ const mtSelectInvalidTests = [
                 </mt-select>
             </template>`,
         errors: [{
-            message: '[mt-select] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-select] The "label" API is deprecated.',
         }]
     },
     {
@@ -367,7 +367,7 @@ const mtSelectInvalidTests = [
                 </mt-select>
             </template>`,
         errors: [{
-            message: '[mt-select] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-select] The "label" API is deprecated.',
         }]
     },
     {
@@ -382,7 +382,7 @@ const mtSelectInvalidTests = [
                 <mt-select @update:model-value="onUpdateValue" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-select] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }]
     },
     {
@@ -394,7 +394,7 @@ const mtSelectInvalidTests = [
                 <mt-select @update:value="onUpdateValue" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-select] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }]
     },
     {
@@ -409,7 +409,7 @@ const mtSelectInvalidTests = [
                 <mt-select v-on:update:model-value="onUpdateValue" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-select] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }]
     },
     {
@@ -421,7 +421,7 @@ const mtSelectInvalidTests = [
                 <mt-select v-on:update:value="onUpdateValue" />
             </template>`,
         errors: [{
-            message: '[mt-select] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-select] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }]
     },
 ]

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import {
     addBooleanPropTransform,
     componentMigration,
@@ -17,7 +21,6 @@ export default componentMigration({
     removedIn: '6.8.0',
     description:
         'The legacy sw-button component is replaced by mt-button. Several legacy variant values and router-link usage need migration.',
-    handler: 'mt-button',
     references: [
         reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-button' }),
     ],

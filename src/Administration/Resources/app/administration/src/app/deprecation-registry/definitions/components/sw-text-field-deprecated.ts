@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import { componentMigration, reference, renameComponent } from '../helpers';
 
 export default componentMigration({
@@ -7,7 +11,6 @@ export default componentMigration({
     deprecatedIn: '6.7.0',
     removedIn: '6.8.0',
     description: 'The legacy sw-text-field-deprecated component is replaced by mt-text-field.',
-    handler: 'mt-text-field',
     references: [
         reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-text-field' }),
     ],

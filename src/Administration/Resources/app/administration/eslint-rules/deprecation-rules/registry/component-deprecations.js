@@ -237,4 +237,5 @@ module.exports = {
     getPropDefinitions,
     hasComponentCodemod,
     hasPropCodemod,
+    toPropName,
 };

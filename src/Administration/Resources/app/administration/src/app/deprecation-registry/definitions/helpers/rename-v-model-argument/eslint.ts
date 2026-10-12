@@ -1,18 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- vue-eslint-parser template nodes and ESLint fixers are passed through as plain records */
 /**
  * @sw-package framework
  */
 
 import type { DeprecationUsage } from '../types';
-import { componentUsageMessage, usageFixesAutomatically } from '../shared';
-
-function hasObjectVBind(api: Parameters<NonNullable<DeprecationUsage['eslint']>['report']>[0]): boolean {
-    return api.node.startTag.attributes.some((startTagAttribute: Record<string, any>) => {
-        return (
-            api.ast.getDirectiveName(startTagAttribute) === 'bind' && !api.ast.getDirectiveArgumentName(startTagAttribute)
-        );
-    });
-}
+import { componentUsageMessage, hasObjectVBind, usageFixesAutomatically } from '../shared';
 
 export function createRenameVModelArgumentEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
     return {

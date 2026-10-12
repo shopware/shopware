@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const { loadRegistry } = require('../../eslint-rules/deprecation-rules/registry/load-registry');
+const { getFixLevel, getTransformResult, parseArgs, selectMigrations, validateSelection } = require('./migration-selection');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const adminRoot = path.resolve(__dirname, '../..');
@@ -33,67 +34,6 @@ Composer/Docker example:
 `);
 }
 
-function parseArgs(argv) {
-    const args = {
-        all: false,
-        fix: false,
-        help: false,
-        ids: [],
-        list: false,
-        report: false,
-    };
-
-    for (let index = 0; index < argv.length; index += 1) {
-        const arg = argv[index];
-
-        if (arg === '--all') {
-            args.all = true;
-            continue;
-        }
-
-        if (arg === '--fix') {
-            args.fix = true;
-            continue;
-        }
-
-        if (arg === '--help' || arg === '-h') {
-            args.help = true;
-            continue;
-        }
-
-        if (arg === '--id') {
-            const id = argv[index + 1];
-
-            if (!id || id.startsWith('--')) {
-                throw new Error('--id requires a registry id.');
-            }
-
-            args.ids.push(id);
-            index += 1;
-            continue;
-        }
-
-        if (arg.startsWith('--id=')) {
-            args.ids.push(arg.slice('--id='.length));
-            continue;
-        }
-
-        if (arg === '--list') {
-            args.list = true;
-            continue;
-        }
-
-        if (arg === '--report') {
-            args.report = true;
-            continue;
-        }
-
-        throw new Error(`Unknown option "${arg}". Run with --help for usage.`);
-    }
-
-    return args;
-}
-
 function getMigrations() {
     const registry = loadRegistry();
 
@@ -109,43 +49,8 @@ function getMigrations() {
     ].sort((left, right) => left.id.localeCompare(right.id));
 }
 
-function getTransformResult(usage, context = { phase: 'metadata' }) {
-    if (typeof usage.transform !== 'function') {
-        return null;
-    }
-
-    return usage.transform(context);
-}
-
-function getHighestFixLevel(fixLevels) {
-    if (fixLevels.includes('manual')) {
-        return 'manual';
-    }
-
-    if (fixLevels.includes('unsafe-auto')) {
-        return 'unsafe-auto';
-    }
-
-    return 'auto';
-}
-
-function getUsageFixLevel(usage) {
-    const fixLevels = [
-        usage.fix,
-        getTransformResult(usage)?.fix,
-    ].filter(Boolean);
-
-    return getHighestFixLevel(fixLevels.length > 0 ? fixLevels : ['manual']);
-}
-
 function getUsageMessage(usage) {
     return usage.message ?? getTransformResult(usage)?.message ?? null;
-}
-
-function getFixLevel(migration) {
-    const fixLevels = new Set(migration.usage.map(getUsageFixLevel));
-
-    return getHighestFixLevel([...fixLevels]);
 }
 
 function printMigrationList(migrations) {
@@ -169,31 +74,6 @@ function printMigrationSummary(migrations) {
                 console.log(`  ${usage}`);
             });
     });
-}
-
-function validateSelection(args, migrations) {
-    if (args.all && args.ids.length > 0) {
-        throw new Error('Use either --all or --id, not both.');
-    }
-
-    if (!args.all && args.ids.length === 0) {
-        throw new Error('Choose --all, --id <id>, --list, or --help.');
-    }
-
-    if (args.fix && args.report) {
-        throw new Error('Use either --fix or --report, not both.');
-    }
-
-    if (!args.fix && !args.report) {
-        args.report = true;
-    }
-
-    const knownIds = new Set(migrations.map((migration) => migration.id));
-    const unknownIds = args.ids.filter((id) => !knownIds.has(id));
-
-    if (unknownIds.length > 0) {
-        throw new Error(`Unknown migration id(s): ${unknownIds.join(', ')}. Run --list to inspect available ids.`);
-    }
 }
 
 function runEslint(args) {
@@ -239,7 +119,7 @@ try {
 
     validateSelection(args, migrations);
 
-    const selectedMigrations = args.all ? migrations : migrations.filter((migration) => args.ids.includes(migration.id));
+    const selectedMigrations = selectMigrations(args, migrations);
 
     printMigrationSummary(selectedMigrations);
 

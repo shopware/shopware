@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access -- assertions read fields of untyped ESLint report descriptors */
 import { replaceWithStaticValueTransform, renameProp } from './index';
 import { createAttribute, createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';
 

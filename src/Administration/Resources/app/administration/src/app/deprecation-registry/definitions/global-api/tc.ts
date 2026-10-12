@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import { globalApiMigration, reference, renameCall } from '../helpers';
 
 export default globalApiMigration({

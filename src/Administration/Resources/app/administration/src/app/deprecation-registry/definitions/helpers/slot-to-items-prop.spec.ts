@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access -- assertions read fields of untyped ESLint report descriptors */
 
 import { slotToItemsProp } from './slot-to-items-prop';
 import { createAttribute, createDirectiveAttribute, createFixer, createRuleApi, createSlot } from './test-utils';

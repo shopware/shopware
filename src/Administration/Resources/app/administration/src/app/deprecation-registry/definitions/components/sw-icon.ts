@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import {
     componentMigration,
     missingProp,
@@ -16,7 +20,6 @@ export default componentMigration({
     removedIn: '6.8.0',
     description:
         'The legacy sw-icon component is replaced by mt-icon. Small and large boolean sizing props are replaced by explicit size values.',
-    handler: 'mt-icon',
     references: [
         reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-icon' }),
     ],

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import { componentMigration, reference, renameComponent, renameProp } from '../helpers';
 
 export default componentMigration({
@@ -8,7 +12,6 @@ export default componentMigration({
     removedIn: '6.9.0',
     description:
         'The sw-empty-state component is deprecated. Use mt-empty-state and migrate the subline prop to description.',
-    handler: 'mt-empty-state',
     references: [
         reference({ type: 'upgrade', target: 'UPGRADE-6.8.md#removal-of-sw-empty-state' }),
     ],

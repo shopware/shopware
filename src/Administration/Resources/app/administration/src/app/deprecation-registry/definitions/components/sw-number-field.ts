@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import {
     componentMigration,
     reference,
@@ -16,7 +20,6 @@ export default componentMigration({
     removedIn: '6.8.0',
     description:
         'The legacy sw-number-field component is replaced by mt-number-field. Legacy value APIs and label slot need migration.',
-    handler: 'mt-number-field',
     references: [
         reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-number-field' }),
     ],

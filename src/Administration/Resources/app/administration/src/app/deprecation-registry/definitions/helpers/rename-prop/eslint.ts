@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- vue-eslint-parser template nodes and ESLint fixers are passed through as plain records */
 /**
  * @sw-package framework
  */
 
 import type { ComponentUsageRuleApi, DeprecationUsage } from '../types';
-import { componentUsageMessage, usageFixesAutomatically } from '../shared';
+import { componentUsageMessage, hasObjectVBind, usageFixesAutomatically } from '../shared';
 
 function hasConflictingDeprecatedProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage): boolean {
     return api.migration.usage.some((candidate) => {
@@ -30,13 +30,9 @@ function reportRenameProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUs
     }
 
     const transform = api.getTransformResult(usageConfig, api.node, attribute);
-    const hasObjectVBind = api.node.startTag.attributes.some((startTagAttribute: Record<string, any>) => {
-        return (
-            api.ast.getDirectiveName(startTagAttribute) === 'bind' && !api.ast.getDirectiveArgumentName(startTagAttribute)
-        );
-    });
+    const objectVBindUsed = hasObjectVBind(api);
     const objectVBindMessage =
-        hasObjectVBind && typeof usageConfig.to === 'string'
+        objectVBindUsed && typeof usageConfig.to === 'string'
             ? `Object v-bind can hide the replacement prop. Review the bound object and rename "${usageConfig.from}" to "${usageConfig.to}" manually if needed.`
             : undefined;
 
@@ -48,7 +44,7 @@ function reportRenameProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUs
                 return null;
             }
 
-            if (transform?.fix === 'manual' || hasObjectVBind) {
+            if (transform?.fix === 'manual' || objectVBindUsed) {
                 return null;
             }
 

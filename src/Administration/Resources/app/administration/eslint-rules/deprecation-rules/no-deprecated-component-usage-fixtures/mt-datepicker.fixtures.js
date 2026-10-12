@@ -30,7 +30,7 @@ const mtDatepickerInvalidTests = [
                 <mt-datepicker model-value="yes" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-datepicker] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -42,7 +42,7 @@ const mtDatepickerInvalidTests = [
                 <mt-datepicker value="yes" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-datepicker] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -57,7 +57,7 @@ const mtDatepickerInvalidTests = [
                 <mt-datepicker :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-datepicker] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -69,7 +69,7 @@ const mtDatepickerInvalidTests = [
                 <mt-datepicker :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-datepicker] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -84,7 +84,7 @@ const mtDatepickerInvalidTests = [
                 <mt-datepicker v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "v-model:value" binding is deprecated. Use "v-model" instead.',
+            message: '[mt-datepicker] The "value" API is deprecated.',
         }]
     },
     {
@@ -96,7 +96,7 @@ const mtDatepickerInvalidTests = [
                 <mt-datepicker v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "v-model:value" binding is deprecated. Use "v-model" instead.',
+            message: '[mt-datepicker] The "value" API is deprecated.',
         }]
     },
     {
@@ -111,7 +111,7 @@ const mtDatepickerInvalidTests = [
                 <mt-datepicker @update:model-value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-datepicker] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }],
     },
     {
@@ -123,7 +123,7 @@ const mtDatepickerInvalidTests = [
                 <mt-datepicker @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-datepicker] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }],
     },
     {
@@ -144,7 +144,7 @@ const mtDatepickerInvalidTests = [
                 </mt-datepicker>
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-datepicker] The "label" API is deprecated.',
         }]
     },
     {
@@ -160,7 +160,7 @@ const mtDatepickerInvalidTests = [
                 </mt-datepicker>
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-datepicker] The "label" API is deprecated.',
         }]
     },
     {
@@ -181,7 +181,7 @@ const mtDatepickerInvalidTests = [
                 </mt-datepicker>
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-datepicker] The "label" API is deprecated.',
         }]
     },
     {
@@ -197,7 +197,7 @@ const mtDatepickerInvalidTests = [
                 </mt-datepicker>
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-datepicker] The "label" API is deprecated.',
         }]
     },
 ];

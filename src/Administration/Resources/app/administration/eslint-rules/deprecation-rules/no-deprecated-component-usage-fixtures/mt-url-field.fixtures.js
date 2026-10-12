@@ -22,7 +22,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field model-value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-url-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -34,7 +34,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-url-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -49,7 +49,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-url-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -61,7 +61,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-url-field] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -76,7 +76,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-url-field] The "value" API is deprecated.',
         }]
     },
     {
@@ -88,7 +88,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-url-field] The "value" API is deprecated.',
         }]
     },
     {
@@ -103,7 +103,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field size="default" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "size" prop value "medium" is deprecated. Use "default" instead.',
+            message: '[mt-url-field] The "size" API is deprecated. Use "default" instead.',
         }]
     },
     {
@@ -115,7 +115,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field size="medium" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "size" prop value "medium" is deprecated. Use "default" instead.',
+            message: '[mt-url-field] The "size" API is deprecated. Use "default" instead.',
         }]
     },
     {
@@ -130,7 +130,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field  />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "isInvalid" prop is deprecated. Remove it.',
+            message: '[mt-url-field] The "is-invalid" API is deprecated.',
         }]
     },
     {
@@ -142,7 +142,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field isInvalid />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "isInvalid" prop is deprecated. Remove it.',
+            message: '[mt-url-field] The "is-invalid" API is deprecated.',
         }]
     },
     {
@@ -157,7 +157,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field  />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "isInvalid" prop is deprecated. Remove it.',
+            message: '[mt-url-field] The "is-invalid" API is deprecated.',
         }]
     },
     {
@@ -169,7 +169,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field :isInvalid="1 == 1" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "isInvalid" prop is deprecated. Remove it.',
+            message: '[mt-url-field] The "is-invalid" API is deprecated.',
         }]
     },
     {
@@ -184,7 +184,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field @update:model-value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-url-field] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }],
     },
     {
@@ -196,7 +196,7 @@ const mtUrlFieldInvalidTests = [
                 <mt-url-field @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-url-field] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }],
     },
     {
@@ -217,7 +217,7 @@ const mtUrlFieldInvalidTests = [
                 </mt-url-field>
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-url-field] The "label" API is deprecated.',
         }]
     },
     {
@@ -233,7 +233,7 @@ const mtUrlFieldInvalidTests = [
                 </mt-url-field>
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-url-field] The "label" API is deprecated.',
         }]
     },
     {
@@ -254,7 +254,7 @@ const mtUrlFieldInvalidTests = [
                 </mt-url-field>
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-url-field] The "label" API is deprecated.',
         }]
     },
     {
@@ -270,7 +270,7 @@ const mtUrlFieldInvalidTests = [
                 </mt-url-field>
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-url-field] The "label" API is deprecated.',
         }]
     },
     {
@@ -291,7 +291,7 @@ const mtUrlFieldInvalidTests = [
                 </mt-url-field>
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "hint" slot is deprecated.',
+            message: '[mt-url-field] The "hint" API is deprecated.',
         }]
     },
     {
@@ -307,7 +307,7 @@ const mtUrlFieldInvalidTests = [
                 </mt-url-field>
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "hint" slot is deprecated.',
+            message: '[mt-url-field] The "hint" API is deprecated.',
         }]
     },
     {
@@ -328,7 +328,7 @@ const mtUrlFieldInvalidTests = [
                 </mt-url-field>
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "hint" slot is deprecated.',
+            message: '[mt-url-field] The "hint" API is deprecated.',
         }]
     },
     {
@@ -344,7 +344,7 @@ const mtUrlFieldInvalidTests = [
                 </mt-url-field>
             </template>`,
         errors: [{
-            message: '[mt-url-field] The "hint" slot is deprecated.',
+            message: '[mt-url-field] The "hint" API is deprecated.',
         }]
     }
 ];

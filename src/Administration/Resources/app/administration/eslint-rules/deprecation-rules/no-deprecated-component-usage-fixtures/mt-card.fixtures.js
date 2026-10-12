@@ -25,7 +25,7 @@ const mtCardInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-card] The "ai-badge" prop is deprecated. Please use the AI badge directly in the slot.',
+                message: '[mt-card] Remove the AI badge prop and render the AI badge directly in the title slot.',
             }
         ]
     },
@@ -39,7 +39,7 @@ const mtCardInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-card] The "ai-badge" prop is deprecated. Please use the AI badge directly in the slot.',
+                message: '[mt-card] Remove the AI badge prop and render the AI badge directly in the title slot.',
             }
         ]
     },
@@ -58,7 +58,7 @@ const mtCardInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-card] The "ai-badge" prop is deprecated. Please use the AI badge directly in the slot.',
+                message: '[mt-card] Remove the AI badge prop and render the AI badge directly in the title slot.',
             }
         ]
     },
@@ -72,7 +72,7 @@ const mtCardInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-card] The "ai-badge" prop is deprecated. Please use the AI badge directly in the slot.',
+                message: '[mt-card] Remove the AI badge prop and render the AI badge directly in the title slot.',
             }
         ]
     },
@@ -89,7 +89,7 @@ const mtCardInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-card] The "content-padding" prop was removed.',
+                message: '[mt-card] The "content-padding" API is deprecated.',
             }
         ]
     },
@@ -103,7 +103,7 @@ const mtCardInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-card] The "content-padding" prop was removed.',
+                message: '[mt-card] The "content-padding" API is deprecated.',
             }
         ]
     },
@@ -120,7 +120,7 @@ const mtCardInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-card] The "content-padding" prop was removed.',
+                message: '[mt-card] The "content-padding" API is deprecated.',
             }
         ]
     },
@@ -134,7 +134,7 @@ const mtCardInvalidTests = [
             </template>`,
         errors: [
             {
-                message: '[mt-card] The "content-padding" prop was removed.',
+                message: '[mt-card] The "content-padding" API is deprecated.',
             }
         ]
     }

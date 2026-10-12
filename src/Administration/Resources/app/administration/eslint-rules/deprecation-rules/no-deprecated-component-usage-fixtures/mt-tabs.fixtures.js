@@ -77,7 +77,7 @@ const mtTabsInvalidTests = [
                 </mt-tabs>
             </template>`,
         errors: [
-            { message: '[mt-tabs] The default slot usage in mt-tabs was removed and replaced with the property "items".' },
+            { message: '[mt-tabs] Convert the default slot tab declarations into mt-tabs items.' },
         ],
     },
     {
@@ -94,7 +94,7 @@ const mtTabsInvalidTests = [
                 </mt-tabs>
             </template>`,
         errors: [
-            { message: '[mt-tabs] The default slot usage in mt-tabs was removed and replaced with the property "items".' },
+            { message: '[mt-tabs] Convert the default slot tab declarations into mt-tabs items.' },
         ],
     },
     {
@@ -129,7 +129,7 @@ const mtTabsInvalidTests = [
                 </mt-tabs>
             </template>`,
         errors: [
-            { message: '[mt-tabs] The default slot usage in mt-tabs was removed and replaced with the property "items".' },
+            { message: '[mt-tabs] Convert the default slot tab declarations into mt-tabs items.' },
         ],
     },
     {
@@ -146,7 +146,7 @@ const mtTabsInvalidTests = [
                 </mt-tabs>
             </template>`,
         errors: [
-            { message: '[mt-tabs] The default slot usage in mt-tabs was removed and replaced with the property "items".' },
+            { message: '[mt-tabs] Convert the default slot tab declarations into mt-tabs items.' },
         ],
     },
     {
@@ -176,7 +176,7 @@ const mtTabsInvalidTests = [
                 </mt-tabs>
             </template>`,
         errors: [
-            { message: '[mt-tabs] The default slot usage in mt-tabs was removed and replaced with the property "items".' },
+            { message: '[mt-tabs] Convert the default slot tab declarations into mt-tabs items.' },
         ],
     },
     {
@@ -202,7 +202,7 @@ const mtTabsInvalidTests = [
         errors: [
             {
                 message:
-                    '[mt-tabs] The "content" slot is not used anymore. Please set the content manually outside the component.',
+                    '[mt-tabs] Move content slot markup out of mt-tabs and render it next to the active tab state.',
             },
         ],
     },
@@ -221,7 +221,7 @@ const mtTabsInvalidTests = [
         errors: [
             {
                 message:
-                    '[mt-tabs] The "content" slot is not used anymore. Please set the content manually outside the component.',
+                    '[mt-tabs] Move content slot markup out of mt-tabs and render it next to the active tab state.',
             },
         ],
     },
@@ -236,7 +236,7 @@ const mtTabsInvalidTests = [
             <template>
                 <mt-tabs vertical />
             </template>`,
-        errors: [{ message: '[mt-tabs] The property "isVertical" was renamed to "vertical".' }],
+        errors: [{ message: '[mt-tabs] The "is-vertical" API is deprecated. Use "vertical" instead.' }],
     },
     {
         name: '"mt-tabs" property "isVertical" was renamed to "vertical" [disableFix]',
@@ -246,7 +246,7 @@ const mtTabsInvalidTests = [
             <template>
                 <mt-tabs is-vertical />
             </template>`,
-        errors: [{ message: '[mt-tabs] The property "isVertical" was renamed to "vertical".' }],
+        errors: [{ message: '[mt-tabs] The "is-vertical" API is deprecated. Use "vertical" instead.' }],
     },
     {
         name: '"mt-tabs" property "isVertical" should not be fixed when "vertical" already exists',
@@ -256,7 +256,7 @@ const mtTabsInvalidTests = [
                 <mt-tabs vertical is-vertical />
             </template>`,
         output: null,
-        errors: [{ message: '[mt-tabs] The property "isVertical" was renamed to "vertical".' }],
+        errors: [{ message: '[mt-tabs] The "is-vertical" API is deprecated. Use "vertical" instead.' }],
     },
     {
         name: '"mt-tabs" property "isVertical" was renamed to "vertical" [expression]',
@@ -269,7 +269,7 @@ const mtTabsInvalidTests = [
             <template>
                 <mt-tabs :vertical="true" />
             </template>`,
-        errors: [{ message: '[mt-tabs] The property "isVertical" was renamed to "vertical".' }],
+        errors: [{ message: '[mt-tabs] The "is-vertical" API is deprecated. Use "vertical" instead.' }],
     },
     {
         name: '"mt-tabs" property "isVertical" expression should not be fixed when "vertical" already exists',
@@ -279,7 +279,7 @@ const mtTabsInvalidTests = [
                 <mt-tabs :vertical="foo" :is-vertical="bar" />
             </template>`,
         output: null,
-        errors: [{ message: '[mt-tabs] The property "isVertical" was renamed to "vertical".' }],
+        errors: [{ message: '[mt-tabs] The "is-vertical" API is deprecated. Use "vertical" instead.' }],
     },
     {
         name: '"mt-tabs" property "isVertical" was renamed to "vertical" [expression, disableFix]',
@@ -289,7 +289,7 @@ const mtTabsInvalidTests = [
             <template>
                 <mt-tabs :is-vertical="true" />
             </template>`,
-        errors: [{ message: '[mt-tabs] The property "isVertical" was renamed to "vertical".' }],
+        errors: [{ message: '[mt-tabs] The "is-vertical" API is deprecated. Use "vertical" instead.' }],
     },
     {
         name: '"mt-tabs" property "alignRight" was removed',
@@ -302,7 +302,7 @@ const mtTabsInvalidTests = [
             <template>
                 <mt-tabs  />
             </template>`,
-        errors: [{ message: '[mt-tabs] The property "alignRight" was removed.' }],
+        errors: [{ message: '[mt-tabs] The "align-right" API is deprecated.' }],
     },
     {
         name: '"mt-tabs" property "alignRight" was removed [disableFix]',
@@ -312,7 +312,7 @@ const mtTabsInvalidTests = [
             <template>
                 <mt-tabs align-right />
             </template>`,
-        errors: [{ message: '[mt-tabs] The property "alignRight" was removed.' }],
+        errors: [{ message: '[mt-tabs] The "align-right" API is deprecated.' }],
     },
     {
         name: '"mt-tabs" property "alignRight" was removed [expression]',
@@ -325,7 +325,7 @@ const mtTabsInvalidTests = [
             <template>
                 <mt-tabs  />
             </template>`,
-        errors: [{ message: '[mt-tabs] The property "alignRight" was removed.' }],
+        errors: [{ message: '[mt-tabs] The "align-right" API is deprecated.' }],
     },
     {
         name: '"mt-tabs" property "alignRight" was removed [expression, disableFix]',
@@ -335,7 +335,7 @@ const mtTabsInvalidTests = [
             <template>
                 <mt-tabs :align-right="true" />
             </template>`,
-        errors: [{ message: '[mt-tabs] The property "alignRight" was removed.' }],
+        errors: [{ message: '[mt-tabs] The "align-right" API is deprecated.' }],
     },
     {
         name: '"mt-tabs" handle complex scenario',
@@ -400,7 +400,7 @@ const mtTabsInvalidTests = [
                 </mt-tabs>
             </template>`,
         errors: [
-            { message: '[mt-tabs] The default slot usage in mt-tabs was removed and replaced with the property "items".' },
+            { message: '[mt-tabs] Convert the default slot tab declarations into mt-tabs items.' },
         ],
     },
 ];

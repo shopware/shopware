@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import {
     componentMigration,
     reference,
@@ -17,7 +21,6 @@ export default componentMigration({
     removedIn: '6.8.0',
     description:
         'The legacy sw-switch-field component is replaced by mt-switch. Switch model and several layout props changed.',
-    handler: 'mt-switch',
     references: [
         reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-switch-field' }),
     ],

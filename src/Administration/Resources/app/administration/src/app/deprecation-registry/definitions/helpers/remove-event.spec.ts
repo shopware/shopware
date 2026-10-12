@@ -2,7 +2,7 @@ import { removeEvent } from './remove-event';
 import { createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';
 
 describe('removeEvent', () => {
-    it('owns its default fix safety and event remover', () => {
+    it('auto-fixes a removed event by deleting its listener', () => {
         const usage = removeEvent({ event: 'legacy-event' });
         const eventAttribute = createDirectiveAttribute('on', 'legacy-event');
         eventAttribute.matchName = 'legacy-event';

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import {
     componentMigration,
     reference,
@@ -16,7 +20,6 @@ export default componentMigration({
     removedIn: '6.8.0',
     description:
         'The legacy sw-colorpicker component is replaced by mt-colorpicker. Value binding uses model-value/update:model-value and the label slot should become the label prop when possible.',
-    handler: 'mt-colorpicker',
     references: [
         reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-colorpicker' }),
     ],

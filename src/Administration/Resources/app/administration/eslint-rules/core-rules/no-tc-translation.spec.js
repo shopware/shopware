@@ -1,5 +1,6 @@
 const RuleTester = require('eslint').RuleTester;
 const rule = require('./no-tc-translation');
+const { describeWithSelectedDeprecationIds } = require('../deprecation-rules/registry/selected-deprecation-ids');
 
 const tester = new RuleTester({
     languageOptions: {
@@ -59,4 +60,16 @@ tester.run('no-tc-translation', rule, {
             errors: [{ messageId: 'noTc' }, { messageId: 'noTc' }],
         },
     ],
+});
+
+describeWithSelectedDeprecationIds('component.sw-alert', () => {
+    tester.run('no-tc-translation with an unrelated deprecation id selected', rule, {
+        valid: [
+            {
+                name: 'this.$tc() is not reported when only another migration is selected',
+                code: `this.$tc('some.translation.key');`,
+            },
+        ],
+        invalid: [],
+    });
 });

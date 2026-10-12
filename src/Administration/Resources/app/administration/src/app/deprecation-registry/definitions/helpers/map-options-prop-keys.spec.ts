@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access -- assertions read fields of untyped ESLint report descriptors */
 
 import { mapOptionsPropKeys } from './map-options-prop-keys';
 import { createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';

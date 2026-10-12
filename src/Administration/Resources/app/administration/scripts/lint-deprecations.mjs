@@ -1,31 +1,33 @@
 import { spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 
-const changedFiles = spawnSync('git', ['status', '-s'], {
-    encoding: 'utf8',
-});
+const require = createRequire(import.meta.url);
+const { getLintableFiles } = require('./lint-deprecations-files');
 
-if (changedFiles.status !== 0) {
-    process.stderr.write(changedFiles.stderr);
-    process.exit(changedFiles.status ?? 1);
+function runGit(args) {
+    const result = spawnSync('git', args, {
+        encoding: 'utf8',
+    });
+
+    if (result.status !== 0) {
+        process.stderr.write(result.stderr);
+        process.exit(result.status ?? 1);
+    }
+
+    return result.stdout;
 }
 
-const files = changedFiles.stdout
-    .split('\n')
-    .map((line) => {
-        return {
-            status: line.slice(0, 2),
-            path: line.slice(3).trim(),
-        };
-    })
-    .filter(({ status, path }) => {
-        return (
-            path &&
-            !status.includes('D') &&
-            !path.startsWith('src/app/deprecation-registry/') &&
-            /\.(?:js|ts|vue|html\.twig)$/.test(path)
-        );
-    })
-    .map(({ path }) => path);
+const prefix = runGit(['rev-parse', '--show-prefix']).trim();
+const files = getLintableFiles(
+    runGit([
+        'status',
+        '--porcelain',
+        '-z',
+        '--',
+        '.',
+    ]),
+    prefix,
+);
 
 if (files.length === 0) {
     process.exit(0);

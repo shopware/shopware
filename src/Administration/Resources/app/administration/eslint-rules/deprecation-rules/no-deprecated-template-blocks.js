@@ -4,28 +4,12 @@
 
 const { loadRegistry } = require('./registry/load-registry');
 const { filterMigrations } = require('./registry/filter-migrations');
-
-function formatReferences(migration) {
-    if (!migration.references?.length) {
-        return '';
-    }
-
-    return migration.references.map((reference) => `${reference.type}: ${reference.target}`).join('\n');
-}
+const { appendRegistryContext } = require('./registry/format-migration-message');
 
 function buildMessage(migration, usage) {
-    const references = formatReferences(migration);
     const replacement = usage.to ? ` Use "${usage.to}" instead.` : ' Remove or move this customization.';
 
-    return [
-        `The Administration Twig block "${usage.from}" is deprecated.${replacement}`,
-        '',
-        migration.description,
-        `Removed in Shopware ${migration.removedIn}.`,
-        references ? `References:\n${references}` : '',
-    ]
-        .filter(Boolean)
-        .join('\n');
+    return appendRegistryContext([`The Administration Twig block "${usage.from}" is deprecated.${replacement}`], migration);
 }
 
 function collectBlockMatches(sourceText) {
@@ -68,6 +52,16 @@ function collectBlockMatches(sourceText) {
     return matches;
 }
 
+/**
+ * A file that defines the replacement block itself keeps the old name as a BC wrapper, not as an extension usage.
+ *
+ * @example
+ * isBackwardCompatibilityWrapper({ usage: { from: 'old_block', to: 'new_block' } }, new Set(['old_block', 'new_block'])); // true
+ */
+function isBackwardCompatibilityWrapper(match, definedBlockNames) {
+    return Boolean(match.usage.to) && definedBlockNames.has(match.usage.to);
+}
+
 module.exports = {
     meta: {
         type: 'suggestion',
@@ -104,10 +98,13 @@ module.exports = {
                 const sourceCode = context.sourceCode;
                 const sourceText = sourceCode.getText();
 
-                collectBlockMatches(sourceText).forEach((blockMatch) => {
+                const blockMatches = collectBlockMatches(sourceText);
+                const definedBlockNames = new Set(blockMatches.map((blockMatch) => blockMatch.name));
+
+                blockMatches.forEach((blockMatch) => {
                     const match = usages.find(({ usage }) => usage.from === blockMatch.name);
 
-                    if (!match) {
+                    if (!match || isBackwardCompatibilityWrapper(match, definedBlockNames)) {
                         return;
                     }
 

@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument -- vue-eslint-parser template nodes and ESLint fixers are passed through as plain records */
 /**
  * @sw-package framework
  */
 
 import type { ComponentUsageRuleApi, DeprecationUsage } from '../types';
-import { componentUsageMessage, usageFixesAutomatically } from '../shared';
+import { componentUsageMessage, hasObjectVBind, usageFixesAutomatically } from '../shared';
 
 function reportRemoveProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage): void {
     if (typeof usageConfig.prop !== 'string') {
@@ -18,12 +18,8 @@ function reportRemoveProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUs
     }
 
     const transform = api.getTransformResult(usageConfig, api.node, attribute);
-    const hasObjectVBind = api.node.startTag.attributes.some((startTagAttribute: Record<string, any>) => {
-        return (
-            api.ast.getDirectiveName(startTagAttribute) === 'bind' && !api.ast.getDirectiveArgumentName(startTagAttribute)
-        );
-    });
-    const objectVBindMessage = hasObjectVBind
+    const objectVBindUsed = hasObjectVBind(api);
+    const objectVBindMessage = objectVBindUsed
         ? `Object v-bind can hide this prop. Review the bound object and remove "${usageConfig.prop}" manually if needed.`
         : undefined;
 
@@ -35,7 +31,7 @@ function reportRemoveProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUs
                 return null;
             }
 
-            if (transform?.fix === 'manual' || hasObjectVBind) {
+            if (transform?.fix === 'manual' || objectVBindUsed) {
                 return null;
             }
 

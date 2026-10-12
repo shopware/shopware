@@ -4,28 +4,13 @@
 
 const { loadRegistry } = require('./registry/load-registry');
 const { filterMigrations } = require('./registry/filter-migrations');
-
-function formatReferences(migration) {
-    if (!migration.references?.length) {
-        return '';
-    }
-
-    return migration.references.map((reference) => `${reference.type}: ${reference.target}`).join('\n');
-}
+const { appendRegistryContext } = require('./registry/format-migration-message');
 
 function buildMessage(migration, usage, additionalMessage = '') {
-    const references = formatReferences(migration);
-
-    return [
-        `[${usage.component}] The "${usage.from}" event is deprecated. Use "${usage.to}" instead.`,
-        additionalMessage,
-        '',
-        migration.description,
-        `Removed in Shopware ${migration.removedIn}.`,
-        references ? `References:\n${references}` : '',
-    ]
-        .filter(Boolean)
-        .join('\n');
+    return appendRegistryContext(
+        [`[${usage.component}] The "${usage.from}" event is deprecated. Use "${usage.to}" instead.`, additionalMessage],
+        migration,
+    );
 }
 
 function getEventName(attribute) {

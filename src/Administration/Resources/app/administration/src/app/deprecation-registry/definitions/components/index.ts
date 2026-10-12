@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import sw_alert from './sw-alert';
 import sw_alert_deprecated from './sw-alert-deprecated';
 import sw_popover from './sw-popover';

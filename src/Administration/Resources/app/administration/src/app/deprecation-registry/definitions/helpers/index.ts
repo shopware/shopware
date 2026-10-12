@@ -257,7 +257,7 @@ export function templateEventUsage({
 }
 
 function usesObjectVBind(context?: MigrationTransformContext): boolean {
-    return context?.valueKind === 'object-v-bind' || context?.hasObjectVBind === true;
+    return context?.hasObjectVBind === true;
 }
 
 export const invertBooleanTransform: MigrationTransform = (context = {}) => {

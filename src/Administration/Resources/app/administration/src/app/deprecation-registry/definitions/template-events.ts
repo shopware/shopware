@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import { defineDeprecations, reference, templateEventMigration, templateEventUsage } from './helpers';
 
 export default defineDeprecations({

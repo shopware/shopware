@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import ImageDeprecationPlugin from './index';
+import deprecatedList from './deprecated-list';
 
 describe('build/vite-plugins/image-deprecation', () => {
     beforeEach(() => {
@@ -18,7 +19,7 @@ describe('build/vite-plugins/image-deprecation', () => {
         expect(typeof ImageDeprecationPlugin).toBe('function');
 
         // check that the function has 1 argument (it has a second optional)
-        expect(ImageDeprecationPlugin.length).toBe(1);
+        expect(ImageDeprecationPlugin).toHaveLength(1);
     });
 
     it('should return an object with name, enforce and resolveId property', () => {
@@ -57,5 +58,20 @@ describe('build/vite-plugins/image-deprecation', () => {
 
         // check that no warning has been printed to the console
         expect(console.warn).toHaveBeenCalledTimes(0);
+    });
+
+    it('appends the registry migration description to the warning', () => {
+        const plugin = ImageDeprecationPlugin('/root');
+
+        plugin.resolveId('../static/img/sw-login-background.png', '/root/src/foo.js');
+
+        expect(console.warn).toHaveBeenCalledTimes(1);
+        expect(console.warn.mock.calls[0][0]).toMatch(/DEPRECATION:/);
+        expect(console.warn.mock.calls[0][0]).toContain('WebP variants');
+    });
+
+    it('builds the default deprecated list from the asset migration files of the registry', () => {
+        expect(deprecatedList).toContain('/static/img/sw-login-background.png');
+        expect(deprecatedList).toContain('/src/module/sw-login/page/index/assets/sw-login-background.webp');
     });
 });

@@ -79,6 +79,17 @@ tester.run('no-deprecated-js-api', rule, {
             ],
         },
         {
+            name: 'reports deprecated Admin Extension SDK package import without fix [disableFix]',
+            options: ['disableFix'],
+            code: 'import { ui } from "@shopware-ag/admin-extension-sdk";',
+            output: null,
+            errors: [
+                {
+                    message: /@shopware-ag\/admin-extension-sdk/,
+                },
+            ],
+        },
+        {
             name: 'migrates metaInfo object to function',
             code: `
                 export default {

@@ -22,7 +22,7 @@ const mtTextareaInvalidTests = [
                 <mt-textarea model-value="yes" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-textarea] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -34,7 +34,7 @@ const mtTextareaInvalidTests = [
                 <mt-textarea value="yes" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-textarea] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -49,7 +49,7 @@ const mtTextareaInvalidTests = [
                 <mt-textarea :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-textarea] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -61,7 +61,7 @@ const mtTextareaInvalidTests = [
                 <mt-textarea :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "value" prop is deprecated. Use "model-value" instead.',
+            message: '[mt-textarea] The "value" API is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -76,7 +76,7 @@ const mtTextareaInvalidTests = [
                 <mt-textarea v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "v-model:value" binding is deprecated. Use "v-model" instead.',
+            message: '[mt-textarea] The "value" API is deprecated.',
         }]
     },
     {
@@ -88,7 +88,7 @@ const mtTextareaInvalidTests = [
                 <mt-textarea v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "v-model:value" binding is deprecated. Use "v-model" instead.',
+            message: '[mt-textarea] The "value" API is deprecated.',
         }]
     },
     {
@@ -103,7 +103,7 @@ const mtTextareaInvalidTests = [
                 <mt-textarea @update:model-value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-textarea] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }],
     },
     {
@@ -115,7 +115,7 @@ const mtTextareaInvalidTests = [
                 <mt-textarea @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "update:value" event is deprecated. Use "update:mode-value" instead.',
+            message: '[mt-textarea] The "update:value" API is deprecated. Use "update:model-value" instead.',
         }],
     },
     {
@@ -136,7 +136,7 @@ const mtTextareaInvalidTests = [
                 </mt-textarea>
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-textarea] The "label" API is deprecated.',
         }]
     },
     {
@@ -152,7 +152,7 @@ const mtTextareaInvalidTests = [
                 </mt-textarea>
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-textarea] The "label" API is deprecated.',
         }]
     },
     {
@@ -173,7 +173,7 @@ const mtTextareaInvalidTests = [
                 </mt-textarea>
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-textarea] The "label" API is deprecated.',
         }]
     },
     {
@@ -189,7 +189,7 @@ const mtTextareaInvalidTests = [
                 </mt-textarea>
             </template>`,
         errors: [{
-            message: '[mt-textarea] The "label" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-textarea] The "label" API is deprecated.',
         }]
     },
 ]

@@ -22,7 +22,7 @@ const mtBannerInvalidTests = [
                 <mt-banner banner-index="1" />
             </template>`,
         errors: [{
-            message: '[mt-banner] The "notificationIndex" prop is deprecated. Use "banner-index" instead.',
+            message: '[mt-banner] The "notification-index" API is deprecated. Use "banner-index" instead.',
         }]
     },
     {
@@ -37,7 +37,7 @@ const mtBannerInvalidTests = [
                 <mt-banner  />
             </template>`,
         errors: [{
-            message: '[mt-banner] The "appearance" prop is deprecated. Remove it.',
+            message: '[mt-banner] The "appearance" API is deprecated.',
         }]
     },
     {
@@ -52,7 +52,7 @@ const mtBannerInvalidTests = [
                 <mt-banner  />
             </template>`,
         errors: [{
-                message: '[mt-banner] The "showIcon" prop is deprecated. Use "hideIcon" instead.',
+                message: '[mt-banner] The "show-icon" API is deprecated. Use "hide-icon" instead.',
         }]
     },
     {
@@ -67,7 +67,7 @@ const mtBannerInvalidTests = [
                 <mt-banner hide-icon="!(condition)" />
             </template>`,
         errors: [{
-                message: '[mt-banner] The "showIcon" prop is deprecated. Use "hideIcon" instead.',
+                message: '[mt-banner] The "show-icon" API is deprecated. Use "hide-icon" instead.',
         }]
     },
     {
@@ -82,7 +82,7 @@ const mtBannerInvalidTests = [
                 <mt-banner variant="attention" />
             </template>`,
         errors: [{
-            message: '[mt-banner] The value "warning" for prop "variant" is deprecated. Use "attention" instead.',
+            message: '[mt-banner] The "variant" API is deprecated. Use "attention" instead.',
         }]
     },
     {
@@ -97,7 +97,7 @@ const mtBannerInvalidTests = [
                 <mt-banner variant="critical" />
             </template>`,
         errors: [{
-            message: '[mt-banner] The value "error" for prop "variant" is deprecated. Use "critical" instead.',
+            message: '[mt-banner] The "variant" API is deprecated. Use "critical" instead.',
         }]
     },
     {
@@ -112,7 +112,7 @@ const mtBannerInvalidTests = [
                 <mt-banner variant="positive" />
             </template>`,
         errors: [{
-            message: '[mt-banner] The value "success" for prop "variant" is deprecated. Use "positive" instead.',
+            message: '[mt-banner] The "variant" API is deprecated. Use "positive" instead.',
         }]
     },
     {
@@ -133,7 +133,7 @@ const mtBannerInvalidTests = [
                 </mt-banner>
             </template>`,
         errors: [{
-            message: '[mt-banner] The "actions" slot is deprecated. Remove it.',
+            message: '[mt-banner] The "actions" API is deprecated.',
         }]
     },
     {
@@ -154,7 +154,7 @@ const mtBannerInvalidTests = [
                 </mt-banner>
             </template>`,
         errors: [{
-            message: '[mt-banner] The "actions" slot is deprecated. Remove it.',
+            message: '[mt-banner] The "actions" API is deprecated.',
         }]
     },
 ];

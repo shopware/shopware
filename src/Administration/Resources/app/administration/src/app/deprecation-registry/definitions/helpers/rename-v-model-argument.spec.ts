@@ -2,7 +2,7 @@ import { renameVModelArgument } from './rename-v-model-argument';
 import { createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';
 
 describe('renameVModelArgument', () => {
-    it('owns default fix safety and default v-model fixer', () => {
+    it('auto-fixes a v-model argument renamed to the default model into a plain v-model', () => {
         const usage = renameVModelArgument({ from: 'value', to: null });
         const modelAttribute = createDirectiveAttribute('model', 'value');
         modelAttribute.matchName = 'value';

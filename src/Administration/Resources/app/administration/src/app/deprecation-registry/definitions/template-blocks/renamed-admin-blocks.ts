@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import { reference, renameTemplateBlock, templateBlockMigration } from '../helpers';
 
 export default templateBlockMigration({

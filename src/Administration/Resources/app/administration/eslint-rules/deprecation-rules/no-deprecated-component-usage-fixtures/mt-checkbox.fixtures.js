@@ -68,7 +68,7 @@ const mtCheckboxInvalidTests = [
                 </mt-checkbox>
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "hint" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-checkbox] The "hint" API is deprecated.',
         }]
     },
     {
@@ -84,7 +84,7 @@ const mtCheckboxInvalidTests = [
                 </mt-checkbox>
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "hint" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-checkbox] The "hint" API is deprecated.',
         }]
     },
     {
@@ -105,7 +105,7 @@ const mtCheckboxInvalidTests = [
                 </mt-checkbox>
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "hint" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-checkbox] The "hint" API is deprecated.',
         }]
     },
     {
@@ -121,7 +121,7 @@ const mtCheckboxInvalidTests = [
                 </mt-checkbox>
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "hint" slot is deprecated. Use the "label" prop instead.',
+            message: '[mt-checkbox] The "hint" API is deprecated.',
         }]
     },
     {
@@ -136,7 +136,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox  />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "id" prop is deprecated. Remove it without replacement.',
+            message: '[mt-checkbox] The "id" API is deprecated.',
         }]
     },
     {
@@ -148,7 +148,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox id="checkbox-id" />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "id" prop is deprecated. Remove it without replacement.',
+            message: '[mt-checkbox] The "id" API is deprecated.',
         }]
     },
     {
@@ -163,7 +163,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox  />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "id" prop is deprecated. Remove it without replacement.',
+            message: '[mt-checkbox] The "id" API is deprecated.',
         }]
     },
     {
@@ -175,7 +175,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox :id="checkboxId" />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "id" prop is deprecated. Remove it without replacement.',
+            message: '[mt-checkbox] The "id" API is deprecated.',
         }]
     },
     {
@@ -190,7 +190,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox  />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "ghostValue" prop is deprecated. Remove it without replacement.',
+            message: '[mt-checkbox] The "ghost-value" API is deprecated.',
         }]
     },
     {
@@ -202,7 +202,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox ghostValue="yes" />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "ghostValue" prop is deprecated. Remove it without replacement.',
+            message: '[mt-checkbox] The "ghost-value" API is deprecated.',
         }]
     },
     {
@@ -217,7 +217,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox  />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "ghostValue" prop is deprecated. Remove it without replacement.',
+            message: '[mt-checkbox] The "ghost-value" API is deprecated.',
         }]
     },
     {
@@ -229,7 +229,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox :ghostValue="yes" />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "ghostValue" prop is deprecated. Remove it without replacement.',
+            message: '[mt-checkbox] The "ghost-value" API is deprecated.',
         }]
     },
     {
@@ -244,7 +244,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox partial />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "partlyChecked" prop is deprecated. Use "partial" instead.',
+            message: '[mt-checkbox] The "partly-checked" API is deprecated. Use "partial" instead.',
         }]
     },
     {
@@ -256,7 +256,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox partlyChecked />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "partlyChecked" prop is deprecated. Use "partial" instead.',
+            message: '[mt-checkbox] The "partly-checked" API is deprecated. Use "partial" instead.',
         }]
     },
     {
@@ -271,7 +271,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox :partial="isChecked" />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "partlyChecked" prop is deprecated. Use "partial" instead.',
+            message: '[mt-checkbox] The "partly-checked" API is deprecated. Use "partial" instead.',
         }]
     },
     {
@@ -283,7 +283,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox :partlyChecked="isChecked" />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "partlyChecked" prop is deprecated. Use "partial" instead.',
+            message: '[mt-checkbox] The "partly-checked" API is deprecated. Use "partial" instead.',
         }]
     },
     {
@@ -298,7 +298,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox  />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "padded" prop is deprecated. Remove it without replacement.',
+            message: '[mt-checkbox] The "padded" API is deprecated.',
         }]
     },
     {
@@ -310,7 +310,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox padded />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "padded" prop is deprecated. Remove it without replacement.',
+            message: '[mt-checkbox] The "padded" API is deprecated.',
         }]
     },
     {
@@ -325,7 +325,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox @update:modelValue="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-checkbox] The "update:value" API is deprecated. Use "update:modelValue" instead.',
         }]
     },
     {
@@ -337,7 +337,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-checkbox] The "update:value" API is deprecated. Use "update:modelValue" instead.',
         }]
     }
 ]

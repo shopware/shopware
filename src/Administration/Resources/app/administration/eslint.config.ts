@@ -789,15 +789,10 @@ export default [
     {
         files: ['src/app/deprecation-registry/**/*.ts'],
         rules: {
-            'sw-core-rules/require-package-annotation': 'off',
             'sw-deprecation-rules/private-feature-declarations': 'off',
-            '@typescript-eslint/no-base-to-string': 'off',
-            '@typescript-eslint/no-redundant-type-constituents': 'off',
-            '@typescript-eslint/no-this-alias': 'off',
             '@typescript-eslint/no-unsafe-assignment': 'off',
             '@typescript-eslint/no-unsafe-call': 'off',
             '@typescript-eslint/restrict-template-expressions': 'off',
-            'prefer-const': 'off',
         },
     },
     {

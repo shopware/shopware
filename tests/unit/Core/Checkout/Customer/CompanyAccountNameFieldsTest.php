@@ -15,6 +15,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -116,11 +117,12 @@ class CompanyAccountNameFieldsTest extends TestCase
 
     public function testCompanyNotBlankRejectsWhitespace(): void
     {
-        $normalizer = CompanyAccountNameFields::companyNotBlank()->normalizer;
+        $constraint = CompanyAccountNameFields::companyNotBlank();
+        $validator = Validation::createValidator();
 
-        static::assertIsCallable($normalizer);
-        static::assertSame('', $normalizer('   '));
-        static::assertNull($normalizer(null));
+        static::assertCount(1, $validator->validate('   ', $constraint));
+        static::assertCount(1, $validator->validate(null, $constraint));
+        static::assertCount(0, $validator->validate(' Acme GmbH ', $constraint));
     }
 
     /**

@@ -7,7 +7,10 @@ export default jsApiMigration({
     description:
         'Options API component overrides are deprecated for Composition API components. Use overrideComponentSetup for setup-based overrides.',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.8.md#migrating-options-api-overrides-to-the-composition-api-extension-system' }),
+        reference({
+            type: 'upgrade',
+            target: 'UPGRADE-6.8.md#migrating-options-api-overrides-to-the-composition-api-extension-system',
+        }),
         reference({
             type: 'docs',
             target: 'https://developer.shopware.com/docs/resources/references/adr/2023-02-24-admin-composition-api-extension-system.html',

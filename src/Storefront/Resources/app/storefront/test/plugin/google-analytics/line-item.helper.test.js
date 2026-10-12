@@ -281,4 +281,22 @@ describe('plugin/google-analytics/line-item.helper', () => {
             });
         });
     });
+
+    test('reports no line items and no value on a page without the hidden line items', () => {
+        document.body.innerHTML = '';
+
+        expect(LineItemHelper.getLineItems()).toEqual([]);
+        expect(LineItemHelper.getAdditionalProperties()).toEqual(expect.objectContaining({ value: 0 }));
+    });
+
+    test('sums a line item without a quantity as one unit and skips an unreadable price', () => {
+        document.body.innerHTML = `
+            <div class="hidden-line-items-information" data-currency="EUR">
+                <span class="hidden-line-item" data-id="product-1" data-sku="SW1" data-price="10"></span>
+                <span class="hidden-line-item" data-id="product-2" data-sku="SW2" data-price="free" data-quantity="2"></span>
+            </div>
+        `;
+
+        expect(LineItemHelper.getAdditionalProperties()).toEqual(expect.objectContaining({ value: 10 }));
+    });
 });

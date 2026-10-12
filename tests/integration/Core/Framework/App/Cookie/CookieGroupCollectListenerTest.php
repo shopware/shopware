@@ -188,6 +188,6 @@ class CookieGroupCollectListenerTest extends TestCase
         $this->listener->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
-        static::assertEmpty($groups);
+        static::assertCount(0, $groups);
     }
 }

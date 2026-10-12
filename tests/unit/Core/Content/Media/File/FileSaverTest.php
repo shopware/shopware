@@ -238,7 +238,7 @@ class FileSaverTest extends TestCase
         static::assertSame($mediaId, $update[0]['id']);
         static::assertSame('foo', $update[0]['fileName']);
 
-        static::assertEmpty($this->messageBus->getMessages());
+        static::assertCount(0, $this->messageBus->getMessages());
     }
 
     public function testRenameMediaWithMissingFile(): void

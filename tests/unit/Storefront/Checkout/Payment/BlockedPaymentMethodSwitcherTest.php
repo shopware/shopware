@@ -299,7 +299,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
         return $paymentMethodResponse;
     }
 
-    private function callbackLoadPaymentMethodsForAllBlocked(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
+    private function callbackLoadPaymentMethodsForAllBlocked(): PaymentMethodRouteResponse
     {
         $paymentMethodResponse = $this->createMock(PaymentMethodRouteResponse::class);
         $paymentMethodResponse

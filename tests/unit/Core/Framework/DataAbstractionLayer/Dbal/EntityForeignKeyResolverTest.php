@@ -158,7 +158,7 @@ class EntityForeignKeyResolverTest extends TestCase
 
         $queries = implode("\n", $capturedQueries);
 
-        static::assertNotEmpty($capturedQueries);
+        static::assertNotCount(0, $capturedQueries);
 
         // The meta field aliases must be backtick-escaped. An unescaped leading-underscore alias
         // (e.g. `as _fileName`) is parsed by MariaDB as a charset introducer and fails with

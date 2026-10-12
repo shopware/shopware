@@ -769,6 +769,20 @@ export default [
         },
     },
     {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+            'src/**/*.vue',
+        ],
+        ignores: [
+            '**/*.spec.js',
+            '**/*.spec.ts',
+        ],
+        rules: {
+            'sw-deprecation-rules/require-deprecation-codemod': 'error',
+        },
+    },
+    {
         files: ['src/app/deprecation-registry/**/*.ts'],
         rules: {
             'sw-core-rules/require-package-annotation': 'off',

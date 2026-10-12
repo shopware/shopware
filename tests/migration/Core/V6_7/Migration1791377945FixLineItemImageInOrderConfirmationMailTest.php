@@ -12,7 +12,7 @@ use Shopware\Tests\Migration\MailTemplateMigrationTestCase;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('after-sales')]
 #[CoversClass(Migration1791377945FixLineItemImageInOrderConfirmationMail::class)]
 class Migration1791377945FixLineItemImageInOrderConfirmationMailTest extends MailTemplateMigrationTestCase
 {

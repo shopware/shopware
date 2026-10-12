@@ -1,3 +1,5 @@
+import SessionStorage from 'src/helper/storage/session-storage.helper';
+
 const STORAGE_KEY = 'swGaSelectedItemList';
 const HANDOVER_KEY = 'swGaSelectedItemListHandover';
 
@@ -6,32 +8,6 @@ const HANDOVER_KEY = 'swGaSelectedItemListHandover';
 const HANDOVER_TTL = 60000;
 const HANDOVER_LIMIT = 10;
 
-let memoryAttribution = null;
-let storageSupported = null;
-
-/**
- * Mirrors the support probe of `src/helper/storage/storage.helper.js`. Accessing
- * `sessionStorage` throws in private browsing modes and when storage is disabled.
- *
- * @returns {boolean}
- */
-function isStorageSupported() {
-    if (storageSupported !== null) {
-        return storageSupported;
-    }
-
-    try {
-        const testKey = `${STORAGE_KEY}__test`;
-        window.sessionStorage.setItem(testKey, '1');
-        window.sessionStorage.removeItem(testKey);
-        storageSupported = true;
-    } catch (e) {
-        storageSupported = false;
-    }
-
-    return storageSupported;
-}
-
 /**
  * Carries the list a product was selected from to the product detail page.
  *
@@ -39,8 +15,9 @@ function isStorageSupported() {
  * `item_list_id` and `item_list_name` as the `select_item` that led to it. The two events happen on
  * different pages, so the attribution is stored for the session and consumed once.
  *
- * Session storage is used deliberately: the shared `Storage` helper prefers `localStorage`, which
- * would keep an attribution alive across browser sessions and attribute unrelated later visits.
+ * It uses the session storage helper, which falls back to memory, rather than the shared `Storage`
+ * helper: that one prefers `localStorage`, which would keep an attribution alive across browser
+ * sessions and attribute unrelated later visits.
  * A product opened in another tab is the exception. The new tab does not reliably start with a copy
  * of the session storage, so the attribution is handed over through `localStorage` for a minute.
  * `localStorage` is shared by every tab, so a handover only applies to the page that was opened
@@ -172,12 +149,8 @@ export default class ListAttributionHelper
      * @private
      */
     static _read() {
-        if (!isStorageSupported()) {
-            return memoryAttribution;
-        }
-
         try {
-            const stored = JSON.parse(window.sessionStorage.getItem(STORAGE_KEY));
+            const stored = JSON.parse(SessionStorage.getItem(STORAGE_KEY));
 
             return stored?.itemId ? stored : null;
         } catch (e) {
@@ -228,18 +201,12 @@ export default class ListAttributionHelper
      * @private
      */
     static _write(attribution) {
-        if (!isStorageSupported()) {
-            memoryAttribution = attribution;
-
-            return;
-        }
-
         if (attribution === null) {
-            window.sessionStorage.removeItem(STORAGE_KEY);
+            SessionStorage.removeItem(STORAGE_KEY);
 
             return;
         }
 
-        window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(attribution));
+        SessionStorage.setItem(STORAGE_KEY, JSON.stringify(attribution));
     }
 }

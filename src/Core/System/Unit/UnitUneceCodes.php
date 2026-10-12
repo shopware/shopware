@@ -12,17 +12,12 @@ use Shopware\Core\Framework\Log\Package;
 class UnitUneceCodes
 {
     /**
-     * @var list<array{code: string, name: string}>|null
+     * @var array<string|int, string>|null
      */
     private ?array $codes = null;
 
     /**
-     * @var array<array-key, true>|null
-     */
-    private ?array $lookup = null;
-
-    /**
-     * @return list<array{code: string, name: string}>
+     * @return array<string|int, string>
      */
     public function getCodes(): array
     {
@@ -36,16 +31,14 @@ class UnitUneceCodes
                 continue;
             }
 
-            $codes[$code] ??= ['code' => $code, 'name' => strtolower(str_replace('_', ' ', $match[1]))];
+            $codes[$code] ??= strtolower(str_replace('_', ' ', $match[1]));
         }
 
-        return $this->codes = array_values($codes);
+        return $this->codes = $codes;
     }
 
     public function isValid(string $code): bool
     {
-        $this->lookup ??= array_fill_keys(array_column($this->getCodes(), 'code'), true);
-
-        return isset($this->lookup[$code]);
+        return isset($this->getCodes()[$code]);
     }
 }

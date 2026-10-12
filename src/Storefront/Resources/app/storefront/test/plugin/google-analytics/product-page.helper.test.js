@@ -179,6 +179,13 @@ describe('plugin/google-analytics/product-page.helper', () => {
             expect(ProductPageHelper.mapCategories(undefined)).toEqual({});
             expect(ProductPageHelper.mapCategories([])).toEqual({});
         });
+
+        test('skips an empty level but keeps the position of the others', () => {
+            expect(ProductPageHelper.mapCategories(['Clothing', '', 'Crew'])).toEqual({
+                item_category: 'Clothing',
+                item_category3: 'Crew',
+            });
+        });
     });
 
     describe('getProductCardData', () => {
@@ -330,5 +337,32 @@ describe('plugin/google-analytics/product-page.helper', () => {
                 name: 'Main Product',
             }));
         });
+    });
+
+    describe('getGraduatedPrice', () => {
+        function widget(prices) {
+            document.body.innerHTML = `<div data-product-prices='${prices}'><form></form></div>`;
+
+            return document.querySelector('form');
+        }
+
+        test('returns nothing for unreadable or empty price tiers', () => {
+            expect(ProductPageHelper.getGraduatedPrice(widget('{broken'), 1)).toBeUndefined();
+            expect(ProductPageHelper.getGraduatedPrice(widget('[]'), 1)).toBeUndefined();
+            expect(ProductPageHelper.getGraduatedPrice(null, 1)).toBeUndefined();
+        });
+
+        test('prices a quantity that is not a number as one unit', () => {
+            const form = widget('[{"quantity":10,"price":10},{"quantity":11,"price":8}]');
+
+            expect(ProductPageHelper.getGraduatedPrice(form, 'abc')).toBe(10);
+        });
+    });
+
+    test('finds no product box for a product the page does not show in one', () => {
+        document.body.innerHTML = '<form></form>';
+
+        expect(ProductPageHelper.getProductCard('product-123')).toBeNull();
+        expect(ProductPageHelper.getProductCard('product-123', document.querySelector('form'))).toBeNull();
     });
 });

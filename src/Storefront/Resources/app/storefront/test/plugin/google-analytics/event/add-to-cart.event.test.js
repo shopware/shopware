@@ -314,6 +314,46 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         }));
     });
 
+    test('reports no price and no value when the page shows none', () => {
+        document.body.innerHTML = '<div class="product-detail-buy"><form class="buy-widget"></form></div>';
+
+        const form = document.querySelector('.buy-widget');
+        const addToCartInstance = { el: form, $emitter: new NativeEventEmitter(form) };
+        addToCartInstances.push(addToCartInstance);
+
+        new AddToCartEvent().execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+        formData.append('lineItems[product-123][quantity]', '1');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        const parameters = window.gtag.mock.calls[0][2];
+        expect(parameters).not.toHaveProperty('value');
+        expect(parameters.items[0]).not.toHaveProperty('price');
+    });
+
+    test('counts an add without a quantity as one unit', () => {
+        document.body.innerHTML = `
+            <meta property="product:price:amount" content="12.5">
+            <div class="product-detail-buy"><form class="buy-widget"></form></div>
+        `;
+
+        const form = document.querySelector('.buy-widget');
+        const addToCartInstance = { el: form, $emitter: new NativeEventEmitter(form) };
+        addToCartInstances.push(addToCartInstance);
+
+        new AddToCartEvent().execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({ 'value': 12.5 }));
+    });
+
     describe('hands brand and category to the cart', () => {
         const breadcrumb = `
             <nav aria-label="breadcrumb">

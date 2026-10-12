@@ -210,4 +210,25 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
             }],
         }));
     });
+
+    test('skips a product box without product information', () => {
+        document.body.innerHTML = `
+            <div class="cms-element-product-listing-wrapper">
+                <div class="product-box"></div>
+                <div class="product-box" data-product-information='{"sku":"SW10000","name":"Test Product","price":"19.99"}'></div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', expect.objectContaining({
+            'items': [expect.objectContaining({ 'item_id': 'SW10000' })],
+        }));
+    });
+
+    test('finds no products on a page without a product listing', () => {
+        document.body.innerHTML = '<div class="product-box" data-product-information=\'{"sku":"SW10000"}\'></div>';
+
+        expect(new ViewItemListEvent().getListItems()).toEqual([]);
+    });
 });

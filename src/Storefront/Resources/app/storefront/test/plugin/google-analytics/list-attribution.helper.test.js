@@ -252,4 +252,41 @@ describe('plugin/google-analytics/list-attribution.helper', () => {
             expect(ListAttributionHelper.getListStart(document.querySelector('[data-list-id]'))).toBe(0);
         });
     });
+
+    describe('edge cases', () => {
+        test('reads an empty list id as no list id', () => {
+            document.body.innerHTML = '<div data-list-id="" data-list-name="Shirts"><span></span></div>';
+
+            expect(ListAttributionHelper.getListFromElement(document.querySelector('span'))).toEqual({
+                item_list_id: undefined,
+                item_list_name: 'Shirts',
+            });
+        });
+
+        test('hands nothing over without a product number or a list', () => {
+            ListAttributionHelper.handOver(undefined, { item_list_id: 'category-1' });
+            ListAttributionHelper.handOver('SW10000', {});
+
+            expect(window.localStorage.getItem('swGaSelectedItemListHandover')).toBeNull();
+        });
+
+        test('keeps the attribution in memory when the session storage is unavailable', () => {
+            jest.isolateModules(() => {
+                const setItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+                    throw new Error('storage disabled');
+                });
+
+                // the module caches the storage probe, so a fresh copy has to run it with the failing storage
+                const IsolatedHelper = require('src/plugin/google-analytics/list-attribution.helper').default;
+                const list = { item_list_id: 'category-1' };
+
+                IsolatedHelper.remember('SW10000', list, 'product-1');
+
+                expect(IsolatedHelper.consume('SW10000')).toEqual(list);
+                expect(IsolatedHelper.consume('SW10000')).toEqual({});
+
+                setItem.mockRestore();
+            });
+        });
+    });
 });

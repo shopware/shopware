@@ -201,4 +201,34 @@ describe('plugin/google-analytics/events/select-item.event', () => {
 
         expect(window.gtag).not.toHaveBeenCalled();
     });
+
+    test.each([
+        ['a box without product information', ''],
+        ['unreadable product information', 'data-product-information=\'{"broken\''],
+        ['product information without a product number or id', 'data-product-information=\'{"name":"Shirt"}\''],
+    ])('reports nothing for %s', (label, attribute) => {
+        document.body.innerHTML = `
+            <div data-list-id="category-1">
+                <div class="product-box" ${attribute}><a href="/detail" class="product-name">Shirt</a></div>
+            </div>
+        `;
+
+        document.querySelector('.product-name').click();
+
+        expect(window.gtag).not.toHaveBeenCalled();
+    });
+
+    test('reports no position for a product box that is its own list', () => {
+        document.body.innerHTML = `
+            <div class="product-box" data-list-id="slider-1" data-product-information='${JSON.stringify(shirt)}'>
+                <a href="/detail" class="product-name">Shirt</a>
+            </div>
+        `;
+
+        document.querySelector('.product-name').click();
+
+        const item = window.gtag.mock.calls[0][2].items[0];
+        expect(item.item_id).toBe('SW10000');
+        expect(item).not.toHaveProperty('index');
+    });
 });

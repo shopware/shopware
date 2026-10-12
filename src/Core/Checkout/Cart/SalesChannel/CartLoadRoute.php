@@ -4,8 +4,10 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\Extension\CartLoadRouteExtension;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -23,7 +25,8 @@ class CartLoadRoute extends AbstractCartLoadRoute
      */
     public function __construct(
         private readonly CartCalculator $cartCalculator,
-        private readonly TaxProviderProcessor $taxProviderProcessor
+        private readonly TaxProviderProcessor $taxProviderProcessor,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -38,6 +41,15 @@ class CartLoadRoute extends AbstractCartLoadRoute
      */
     #[Route(path: '/store-api/checkout/cart', name: 'store-api.checkout.cart.read', methods: ['GET', 'POST'])]
     public function load(Request $request, SalesChannelContext $context, ?Cart $cart = null): CartResponse
+    {
+        return $this->extensions->publish(
+            name: CartLoadRouteExtension::NAME,
+            extension: new CartLoadRouteExtension($request, $context, $cart),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Request $request, SalesChannelContext $context, ?Cart $cart): CartResponse
     {
         $token = RequestParamHelper::get($request, 'token', $context->getToken());
         $taxed = RequestParamHelper::get($request, 'taxed', false);

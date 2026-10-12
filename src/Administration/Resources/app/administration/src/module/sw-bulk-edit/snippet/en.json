@@ -162,6 +162,12 @@
           "changeLabel": "Change: Show label in Storefront",
           "label": "Show label in Storefront",
           "helpText": "The guarantee label is only displayed if a valid guarantee duration, a manufacturer and the manufacturer product number is set."
+        },
+        "guaranteeTermsMedia": {
+          "changeLabel": "Change: Guarantee terms (PDF)"
+        },
+        "guaranteeTermsUrl": {
+          "changeLabel": "Change: Guarantee terms URL"
         }
       },
       "seo": {

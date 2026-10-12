@@ -200,11 +200,7 @@ class ShopConfiguratorTest extends TestCase
             $languageId
         );
 
-        $methodReturns = array_values(array_filter([$expectedMissingTranslations, $expectedStateTranslations], static fn (array $item) => $item !== []));
-
-        $methodCalls = \count($methodReturns);
-
-        $this->connection->expects($this->atLeast($methodCalls))->method('fetchAllKeyValue')->willReturnOnConsecutiveCalls($expectedStateTranslations, $expectedMissingTranslations);
+        $this->connection->expects($this->exactly(2))->method('fetchAllKeyValue')->willReturnOnConsecutiveCalls($expectedStateTranslations, $expectedMissingTranslations);
 
         $this->connection->expects($this->exactly($expectedInsertCall))->method('insert')->willReturnCallback($insertCallback);
         $this->shopConfigurator->setDefaultLanguage('de_DE');

@@ -74,6 +74,31 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
         );
     });
 
+    it('should clone variants without their canonical product', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const callback = jest.fn();
+        wrapper.vm.cloneProgress = 1;
+
+        wrapper.vm.duplicateVariant({ id: 'duplicate-id', productNumber: 'SW1' }, ['variant-id'], callback);
+        await flushPromises();
+
+        expect(wrapper.vm.repository.clone).toHaveBeenLastCalledWith(
+            'variant-id',
+            {
+                cloneChildren: false,
+                overwrites: {
+                    parentId: 'duplicate-id',
+                    productNumber: 'SW1.1',
+                    canonicalProductId: null,
+                },
+            },
+            expect.anything(),
+        );
+        expect(callback).toHaveBeenCalled();
+    });
+
     it('should not change the original product', async () => {
         wrapper = await createWrapper();
         await flushPromises();

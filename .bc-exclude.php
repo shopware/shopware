@@ -33,6 +33,9 @@ return [
         // Expected to be appended when a new default admin user privilege is added; existing entries are never removed
         preg_quote('Value of constant Shopware\Core\Framework\Api\Context\AdminApiSource::DEFAULT_USER_PRIVILEGES', '/'),
 
+        // Expected to be appended when a new internal route default is added; existing entries are never removed
+        preg_quote('Value of constant Shopware\Core\PlatformRequest::ATTRIBUTE_INTERNAL_ROUTE_PARAMS', '/'),
+
         // swagger-php 6.4 is required for OpenAPI 3.2 generation. The reported
         // BC changes are in the third-party OpenApi\Analysis API. Extensions
         // that only define OpenAPI annotations/attributes continue to work; code
@@ -111,6 +114,10 @@ return [
         preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationOnlyCompanyRegistration() changed from bool', '/'),
         preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationSeoMetaDescription() changed from string', '/'),
 
+        // ProductEntity::$guaranteeConfirmed is null for a variant that inherits it, like every other inherited product flag.
+        preg_quote('CHANGED: Type of property Shopware\Core\Content\Product\ProductEntity#$guaranteeConfirmed changed from bool to bool|null', '/'),
+        preg_quote('CHANGED: Property Shopware\Core\Content\Product\ProductEntity#$guaranteeConfirmed changed default value from false to NULL', '/'),
+
         // parent method has no type. not really a break
         preg_quote('CHANGED: The return type of Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand#configure() changed from void to ', '/'),
 
@@ -125,5 +132,9 @@ return [
 
         // Not sure why an external library is complained about
         preg_quote('CHANGED: The return type of Twig\Extension\AbstractExtension#getNodeVisitors() changed from no type to array', '/'),
+
+        // Not released yet, so safe to be removed again
+        preg_quote('REMOVED: Class Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Extension\DocumentRouteExtension has been deleted', '/'),
     ],
 ];

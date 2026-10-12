@@ -15,6 +15,7 @@ Prefer the existing Shopware extension point over a new abstraction.
 - Where code legitimately touches the local filesystem, inject and use the Symfony `Filesystem` component instead of raw PHP functions like `mkdir`, `file_put_contents`, `copy`, `unlink`, or `rmdir`. It throws `IOException` instead of warnings plus `false` returns, handles recursive operations, and keeps the dependency mockable.
 - Services must be unit-testable without external systems; test infrastructure adapters with integration tests.
 - Mark infrastructure adapters `@internal` by default.
+- Mark every new compiler pass with its own class-level `@internal` PHPDoc annotation, including abstract passes and subclasses inheriting `Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface`.
 - Mark supported/public concrete classes as `@final` when they are not intended for extension.
 - Use a real `final class` for simple value objects/structs that do not need extension, decoration, or mocking; use `@final` for supported services where tests or framework mechanics may still need to subclass/mock them.
 - Do not add `@final` to classes already marked `@internal`; the internal marker is enough for implementation details.

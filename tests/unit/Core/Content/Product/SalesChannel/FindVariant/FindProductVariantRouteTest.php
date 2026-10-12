@@ -6,9 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
+use Shopware\Core\Content\Product\Extension\FindProductVariantRouteExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRouteResponse;
+use Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
@@ -17,12 +21,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -252,6 +260,32 @@ class FindProductVariantRouteTest extends TestCase
         $this->route->load($this->ids->get('productId'), $request, static::createStub(SalesChannelContext::class));
     }
 
+    public function testPublishesExtension(): void
+    {
+        $productId = Uuid::randomHex();
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $response = new FindProductVariantRouteResponse(new FoundCombination(Uuid::randomHex(), []));
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('find-product-variant-route.load.pre', static function (FindProductVariantRouteExtension $extension) use ($productId, $request, $context, $response): void {
+            static::assertSame(['productId' => $productId, 'request' => $request, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new FindProductVariantRoute(
+            static::createStub(SalesChannelRepository::class),
+            static::createStub(CacheTagCollector::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractProductCloseoutFilterFactory::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($productId, $request, $context));
+    }
+
     private function createRoute(?CacheTagCollector $cacheTagCollector = null): FindProductVariantRoute
     {
         return new FindProductVariantRoute(
@@ -259,6 +293,7 @@ class FindProductVariantRouteTest extends TestCase
             $cacheTagCollector ?? $this->cacheTagCollector,
             $this->systemConfigService,
             new ProductCloseoutFilterFactory(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
     }
 }

@@ -182,7 +182,6 @@ class FeatureCallOptimizerNodeVisitorTest extends TestCase
 
             return true;
         }, \E_USER_WARNING);
-        $template = null;
 
         try {
             $template = $this->createTwig('{% if feature("UNREGISTERED_FEATURE_FLAG") %}active{% else %}inactive{% endif %}')

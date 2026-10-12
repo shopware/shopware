@@ -11,19 +11,24 @@ use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
+use Shopware\Core\Content\LandingPage\Extension\LandingPageRouteExtension;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
+use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRouteResponse;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -109,12 +114,41 @@ class LandingPageRouteTest extends TestCase
             $this->cmsPageLoader,
             new EntityCmsSlotConfigInheritanceBuilder(static::createStub(Connection::class)),
             static::createStub(LandingPageDefinition::class),
-            static::createStub(CacheTagCollector::class)
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $this->expectExceptionObject(LandingPageException::notFound($missingId));
 
         $route->load($missingId, new Request(), $this->salesChannelContext);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $landingPageId = Uuid::randomHex();
+        $request = new Request();
+        $response = static::createStub(LandingPageRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('landing-page-route.load.pre', function (LandingPageRouteExtension $extension) use ($landingPageId, $request, $response): void {
+            static::assertSame(['landingPageId' => $landingPageId, 'request' => $request, 'context' => $this->salesChannelContext], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $this->cmsPageLoader->expects($this->never())->method('load');
+
+        $route = new LandingPageRoute(
+            static::createStub(SalesChannelRepository::class),
+            $this->cmsPageLoader,
+            static::createStub(EntityCmsSlotConfigInheritanceBuilder::class),
+            static::createStub(LandingPageDefinition::class),
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($landingPageId, $request, $this->salesChannelContext));
     }
 
     private function createRoute(LandingPageEntity $landingPage): LandingPageRoute
@@ -127,7 +161,8 @@ class LandingPageRouteTest extends TestCase
             $this->cmsPageLoader,
             new EntityCmsSlotConfigInheritanceBuilder(static::createStub(Connection::class)),
             static::createStub(LandingPageDefinition::class),
-            static::createStub(CacheTagCollector::class)
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher(new EventDispatcher())
         );
     }
 

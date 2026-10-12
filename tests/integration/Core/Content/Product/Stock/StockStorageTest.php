@@ -207,6 +207,89 @@ class StockStorageTest extends TestCase
         $this->assertStock(10, $product);
     }
 
+    public function testVariantAvailabilityFollowsCloseoutChangeOfParent(): void
+    {
+        $parentId = $this->createProduct([
+            'stock' => 0,
+            'isCloseout' => true,
+        ]);
+        $variantId = $this->createProduct([
+            'parentId' => $parentId,
+            'stock' => 0,
+            'isCloseout' => null,
+        ]);
+
+        $context = Context::createDefaultContext();
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertFalse($variant->getAvailable());
+
+        $this->productRepository->update([['id' => $parentId, 'isCloseout' => false]], $context);
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertTrue($variant->getAvailable());
+
+        $this->productRepository->update([['id' => $parentId, 'isCloseout' => true]], $context);
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertFalse($variant->getAvailable());
+    }
+
+    public function testVariantAvailabilityFollowsMinPurchaseChangeOfParent(): void
+    {
+        $parentId = $this->createProduct([
+            'stock' => 0,
+            'isCloseout' => true,
+            'minPurchase' => 1,
+        ]);
+        $variantId = $this->createProduct([
+            'parentId' => $parentId,
+            'stock' => 1,
+            'isCloseout' => null,
+        ]);
+
+        $context = Context::createDefaultContext();
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertTrue($variant->getAvailable());
+
+        $this->productRepository->update([['id' => $parentId, 'minPurchase' => 2]], $context);
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertFalse($variant->getAvailable());
+    }
+
+    public function testVariantWithOwnCloseoutFollowsMinPurchaseChangeOfParent(): void
+    {
+        $parentId = $this->createProduct([
+            'stock' => 0,
+            'isCloseout' => false,
+            'minPurchase' => 1,
+        ]);
+        $variantId = $this->createProduct([
+            'parentId' => $parentId,
+            'stock' => 1,
+            'isCloseout' => true,
+        ]);
+
+        $context = Context::createDefaultContext();
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertTrue($variant->getAvailable());
+
+        $this->productRepository->update([['id' => $parentId, 'minPurchase' => 2]], $context);
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertFalse($variant->getAvailable());
+    }
+
     public static function triggerProductNoLongerAvailableEventOnCreateProvider(): \Generator
     {
         yield 'Closeout, no stock' => [0, true, 0];

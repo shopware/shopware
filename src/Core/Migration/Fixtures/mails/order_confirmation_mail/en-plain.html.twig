@@ -38,6 +38,9 @@ Description {{ lineItem.label|u.wordwrap(80) }},
 {% set garanLabel = garanLabels[lineItem.productId] ?? null %}
 {% if garanLabel %}
 Commercial guarantee of durability (GARAN) {{ garanLabel.duration|replace({',': '.'}) }} years,
+{% if garanLabel.termsUrl %}
+Guarantee terms: {{ garanLabel.termsUrl }},
+{% endif %}
 {% endif %}
 {% endif %}
 Quantity {{ lineItem.quantity }},

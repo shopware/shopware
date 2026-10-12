@@ -36,7 +36,7 @@ class IndexerOffsetTest extends TestCase
         $offset->selectNextDefinition();
 
         static::assertSame(ProductManufacturerDefinition::ENTITY_NAME, $offset->getDefinition());
-        static::assertEmpty($offset->getDefinitions());
+        static::assertCount(0, $offset->getDefinitions());
         static::assertFalse($offset->hasNextDefinition());
 
         $offset->resetDefinitions();

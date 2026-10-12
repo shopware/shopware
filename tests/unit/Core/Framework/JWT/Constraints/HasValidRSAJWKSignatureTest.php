@@ -95,7 +95,7 @@ class HasValidRSAJWKSignatureTest extends TestCase
      */
     private function validate(string $token, ?array $jwks = null): void
     {
-        static::assertNotEmpty($token);
+        static::assertNotSame('', $token);
 
         $jwks ??= $this->getValidJwks();
 

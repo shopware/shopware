@@ -89,6 +89,8 @@ class MediaEntity extends Entity
 
     protected ?ProductCollection $productOpenGraphImages = null;
 
+    protected ?ProductCollection $productGuaranteeTerms = null;
+
     protected ?UserCollection $avatarUsers = null;
 
     protected ?MediaThumbnailCollection $thumbnails = null;
@@ -341,6 +343,16 @@ class MediaEntity extends Entity
     public function setProductOpenGraphImages(ProductCollection $productOpenGraphImages): void
     {
         $this->productOpenGraphImages = $productOpenGraphImages;
+    }
+
+    public function getProductGuaranteeTerms(): ?ProductCollection
+    {
+        return $this->productGuaranteeTerms;
+    }
+
+    public function setProductGuaranteeTerms(ProductCollection $productGuaranteeTerms): void
+    {
+        $this->productGuaranteeTerms = $productGuaranteeTerms;
     }
 
     public function getAvatarUsers(): ?UserCollection

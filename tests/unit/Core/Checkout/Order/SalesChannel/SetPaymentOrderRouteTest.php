@@ -9,10 +9,11 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Order\OrderRestorer;
+use Shopware\Core\Checkout\Cart\Order\RestoredOrder;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\RuleLoaderResult;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -20,6 +21,7 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedCriteriaEvent;
 use Shopware\Core\Checkout\Order\Extension\SetPaymentOrderRouteExtension;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -41,6 +43,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Generator;
@@ -66,7 +69,7 @@ class SetPaymentOrderRouteTest extends TestCase
             static::createStub(EntityRepository::class),
             static::createStub(OrderConverter::class),
             static::createStub(CartRuleLoader::class),
-            static::createStub(CartService::class),
+            static::createStub(OrderRestorer::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
             static::createStub(AbstractCheckoutGatewayRoute::class),
@@ -85,7 +88,7 @@ class SetPaymentOrderRouteTest extends TestCase
             static::createStub(EntityRepository::class),
             static::createStub(OrderConverter::class),
             static::createStub(CartRuleLoader::class),
-            static::createStub(CartService::class),
+            static::createStub(OrderRestorer::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
             static::createStub(AbstractCheckoutGatewayRoute::class),
@@ -118,12 +121,17 @@ class SetPaymentOrderRouteTest extends TestCase
             ->expects($this->once())
             ->method('load');
 
+        $orderRestorer = static::createStub(OrderRestorer::class);
+        $orderRestorer
+            ->method('restore')
+            ->willReturn(new RestoredOrder($order, Generator::generateSalesChannelContext(), new Cart('restored-token')));
+
         $paymentOrderRoute = new SetPaymentOrderRoute(
             static::createStub(OrderService::class),
             $staticRepository,
             static::createStub(OrderConverter::class),
             static::createStub(CartRuleLoader::class),
-            static::createStub(CartService::class),
+            $orderRestorer,
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
             $gatewayRoute,
@@ -171,12 +179,17 @@ class SetPaymentOrderRouteTest extends TestCase
             ->method('load')
             ->willReturn($response);
 
+        $orderRestorer = static::createStub(OrderRestorer::class);
+        $orderRestorer
+            ->method('restore')
+            ->willReturn(new RestoredOrder($order, Generator::generateSalesChannelContext(), new Cart('restored-token')));
+
         $paymentOrderRoute = new SetPaymentOrderRoute(
             static::createStub(OrderService::class),
             $staticRepository,
             static::createStub(OrderConverter::class),
             static::createStub(CartRuleLoader::class),
-            static::createStub(CartService::class),
+            $orderRestorer,
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
             $gatewayRoute,
@@ -227,12 +240,17 @@ class SetPaymentOrderRouteTest extends TestCase
             ->expects($this->never())
             ->method('isPaymentChangeableByTransactionState');
 
+        $orderRestorer = static::createStub(OrderRestorer::class);
+        $orderRestorer
+            ->method('restore')
+            ->willReturn(new RestoredOrder($order, Generator::generateSalesChannelContext(), new Cart('restored-token')));
+
         $paymentOrderRoute = new SetPaymentOrderRoute(
             $orderService,
             $staticRepository,
             static::createStub(OrderConverter::class),
             static::createStub(CartRuleLoader::class),
-            static::createStub(CartService::class),
+            $orderRestorer,
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
             $gatewayRoute,
@@ -305,18 +323,18 @@ class SetPaymentOrderRouteTest extends TestCase
         $customer->setId(Uuid::randomHex());
         $context = Generator::generateSalesChannelContext(customer: $customer);
 
-        $orderConverter = $this->createMock(OrderConverter::class);
-        $orderConverter
+        $orderRestorer = $this->createMock(OrderRestorer::class);
+        $orderRestorer
             ->expects($this->once())
-            ->method('assembleSalesChannelContext')
-            ->willReturn($context);
+            ->method('restore')
+            ->willReturn(new RestoredOrder($order, $context, new Cart('restored-token')));
 
         $paymentOrderRoute = new SetPaymentOrderRoute(
             $orderService,
             $staticRepository,
-            $orderConverter,
+            static::createStub(OrderConverter::class),
             static::createStub(CartRuleLoader::class),
-            static::createStub(CartService::class),
+            $orderRestorer,
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
             $gatewayRoute,
@@ -418,35 +436,34 @@ class SetPaymentOrderRouteTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
         $context = Generator::generateSalesChannelContext(customer: $customer);
+        $restored = new RestoredOrder($order, Generator::generateSalesChannelContext(customer: $customer), new Cart('restored-token'));
 
         $gatewayRoute
             ->expects($this->once())
             ->method('load')
             ->with(
                 static::callback(static fn (Request $request): bool => $request->attributes->getAlnum('orderId') === $order->getId()),
-                static::callback(static fn (Cart $cart): bool => $cart->getToken() === $context->getToken()),
-                $context
+                static::identicalTo($restored->cart),
+                static::identicalTo($restored->context),
             )
             ->willReturn($response);
+
+        $orderRestorer = $this->createMock(OrderRestorer::class);
+        $orderRestorer
+            ->expects($this->once())
+            ->method('restore')
+            ->with(
+                static::identicalTo($order),
+                static::identicalTo($context->getContext()),
+                [SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethod->getId()],
+            )
+            ->willReturn($restored);
 
         $orderConverter = $this->createMock(OrderConverter::class);
         $orderConverter
             ->expects($this->once())
-            ->method('assembleSalesChannelContext')
-            ->willReturn($context);
-        $orderConverter
-            ->expects($this->exactly(2))
             ->method('convertToCart')
-            ->willReturnOnConsecutiveCalls(
-                new Cart('converted-order-token'),
-                new Cart('converted-order-token')
-            );
-
-        $cartService = $this->createMock(CartService::class);
-        $cartService
-            ->expects($this->once())
-            ->method('setCart')
-            ->with(static::callback(static fn (Cart $cart): bool => $cart->getToken() === $context->getToken()));
+            ->willReturn(new Cart('converted-order-token'));
 
         $cartRuleLoader = static::createStub(CartRuleLoader::class);
         $cartRuleLoader
@@ -458,7 +475,7 @@ class SetPaymentOrderRouteTest extends TestCase
             $orderRepository,
             $orderConverter,
             $cartRuleLoader,
-            $cartService,
+            $orderRestorer,
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
             $gatewayRoute,
@@ -468,6 +485,42 @@ class SetPaymentOrderRouteTest extends TestCase
         $request = self::getRequest(['paymentMethodId' => $paymentMethod->getId(), 'orderId' => Uuid::randomHex()]);
 
         $paymentOrderRoute->setPayment($request, $context);
+    }
+
+    public function testLoadsTheOrderWithTheAssociationsTheRestorationRequires(): void
+    {
+        $orderRestorer = $this->createMock(OrderRestorer::class);
+        $orderRestorer
+            ->expects($this->once())
+            ->method('addRequiredAssociations')
+            ->willReturnCallback(static fn (Criteria $criteria): Criteria => $criteria->addAssociation('restorationMarker'));
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher
+            ->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static fn (OrderPaymentMethodChangedCriteriaEvent $event): bool => $event->getCriteria()->hasAssociation('restorationMarker')))
+            ->willReturnArgument(0);
+
+        $paymentOrderRoute = new SetPaymentOrderRoute(
+            static::createStub(OrderService::class),
+            new StaticEntityRepository([new OrderCollection()], new OrderDefinition()),
+            static::createStub(OrderConverter::class),
+            static::createStub(CartRuleLoader::class),
+            $orderRestorer,
+            $eventDispatcher,
+            static::createStub(InitialStateIdLoader::class),
+            static::createStub(AbstractCheckoutGatewayRoute::class),
+            new ExtensionDispatcher(new EventDispatcher())
+        );
+
+        $orderId = Uuid::randomHex();
+        $this->expectExceptionObject(OrderException::orderNotFound($orderId));
+
+        $paymentOrderRoute->setPayment(
+            self::getRequest(['paymentMethodId' => Uuid::randomHex(), 'orderId' => $orderId]),
+            Generator::generateSalesChannelContext()
+        );
     }
 
     public function testPublishesExtension(): void
@@ -489,7 +542,7 @@ class SetPaymentOrderRouteTest extends TestCase
             static::createStub(EntityRepository::class),
             static::createStub(OrderConverter::class),
             static::createStub(CartRuleLoader::class),
-            static::createStub(CartService::class),
+            static::createStub(OrderRestorer::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
             static::createStub(AbstractCheckoutGatewayRoute::class),

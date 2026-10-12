@@ -9,7 +9,7 @@
         {% block page_content %}
             {% block cms_breadcrumb %}
                 <div class="cms-breadcrumb container">
-                    {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
+                    {% if feature('BREADCRUMB_REWORK') %}
                         {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
                             context: context,
                             themeIconConfig: themeIconConfig,

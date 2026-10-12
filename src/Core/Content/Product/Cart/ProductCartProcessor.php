@@ -624,10 +624,13 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $event = new ProductCartDataContextHashEvent($data, $original, $context, $behavior);
         $this->eventDispatcher->dispatch($event);
 
-        if ($event->getParts() === []) {
-            return Hasher::hash([$contextHash, $activeTaxRules]);
+        $hashData = [$contextHash, $activeTaxRules];
+
+        $parts = $event->getParts();
+        if ($parts !== []) {
+            $hashData[] = $parts;
         }
 
-        return Hasher::hash([$contextHash, $activeTaxRules, $event->getParts()]);
+        return Hasher::hash($hashData);
     }
 }

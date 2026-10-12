@@ -12,8 +12,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * This event is dispatched when the data context hash of the cart products is built, the cart only loads the product data again if this hash has changed.
- * Listeners can add parts to the hash for every state outside the sales channel context that the product data or prices depend on.
+ * The data context hash of the cart products only covers the sales channel context and the tax rules.
+ * The cart reloads product data only when this hash changes, so extensions whose product data or prices depend on other state get stale cart data.
+ * Listeners can add parts to this event to include additional state in the hash for every state outside the sales channel context to force a reload of product data when that state changes.
  */
 #[Package('inventory')]
 class ProductCartDataContextHashEvent extends Event implements ShopwareSalesChannelEvent
@@ -34,7 +35,7 @@ class ProductCartDataContextHashEvent extends Event implements ShopwareSalesChan
     /**
      * @param string|int|float|bool|array<mixed>|null $value
      */
-    public function add(string $name, string|int|float|bool|array|null $value): void
+    public function addPart(string $name, string|int|float|bool|array|null $value): void
     {
         $this->parts[$name] = $value;
     }

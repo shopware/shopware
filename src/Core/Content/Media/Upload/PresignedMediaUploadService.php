@@ -9,7 +9,6 @@ use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
-use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
 use Shopware\Core\Content\Media\File\FileInfoHelper;
 use Shopware\Core\Content\Media\File\FileNameValidator;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -56,7 +55,6 @@ readonly class PresignedMediaUploadService
         private LoggerInterface $logger,
         private ClockInterface $clock,
         private PresignedUploadTokenSigner $tokenSigner,
-        private FileContentValidationStrategy $contentValidation,
     ) {
         $this->fileNameValidator = new FileNameValidator();
     }
@@ -150,6 +148,10 @@ readonly class PresignedMediaUploadService
             throw MediaException::emptyMediaFilename();
         }
 
+        if ($uploadParameters->deduplicate === true) {
+            throw MediaException::presignedUploadDeduplicationNotSupported();
+        }
+
         $isReplace = $uploadParameters->id !== null;
         $this->assertWritePrivilege($isReplace, $context);
 
@@ -167,39 +169,38 @@ readonly class PresignedMediaUploadService
             $this->extensionValidator->validate($extension, $isPrivate, $context);
         }
 
-        $contentType = $this->resolveContentType($extension, $uploadParameters->mimeType);
-        $uploadedAt = $this->clock->now();
-        $location = new MediaLocationStruct($mediaId, $extension, $fileName, $uploadedAt);
-        $presignedUrl = $this->presignedUrlGenerator->generate($location, $contentType, $isPrivate);
+        $stagingUpload = $this->presignedUrlGenerator->generateStagingUpload($extension, $isPrivate);
 
         $token = new PresignedUploadToken(
             mediaId: $mediaId,
-            path: $presignedUrl->path,
+            stagingKey: $stagingUpload->path,
             fileName: $fileName,
             extension: $extension,
-            mimeType: $contentType,
+            mimeType: $this->resolveContentType($extension, $uploadParameters->mimeType),
             private: $isPrivate,
             mediaFolderId: $uploadParameters->mediaFolderId,
-            deduplicate: $uploadParameters->deduplicate ?? false,
             isReplace: $isReplace,
-            uploadedAt: $uploadedAt,
-            expiresAt: $presignedUrl->expiresAt,
+            requestedBy: $this->resolveRequester($context),
+            expiresAt: $stagingUpload->expiresAt,
         );
 
         return new PresignedUploadTicket(
             mediaId: $mediaId,
             uploadToken: $this->tokenSigner->sign($token),
-            method: 'PUT',
-            url: $presignedUrl->url,
-            // Must equal the Content-Type the URL was signed with, otherwise the storage rejects the upload.
-            headers: ['Content-Type' => FileInfoHelper::addCharset($contentType)],
-            expiresAt: $presignedUrl->expiresAt->format(\DateTimeInterface::ATOM),
+            method: $stagingUpload->method,
+            url: $stagingUpload->url,
+            headers: $stagingUpload->headers,
+            expiresAt: $stagingUpload->expiresAt->format(\DateTimeInterface::ATOM),
         );
     }
 
     public function confirmUpload(PresignedUploadConfirmPayload $payload, Context $context): string
     {
         $token = $this->tokenSigner->verify($payload->uploadToken, $this->clock->now());
+
+        if ($token->requestedBy !== $this->resolveRequester($context)) {
+            throw MediaException::presignedUploadTokenInvalid();
+        }
 
         $this->assertWritePrivilege($token->isReplace, $context);
 
@@ -212,29 +213,26 @@ readonly class PresignedMediaUploadService
 
     private function confirmCreate(PresignedUploadToken $token, PresignedUploadConfirmPayload $payload, Context $context): string
     {
-        $uploadedMedia = $this->findMediaInSystemScope($token->mediaId, $context);
-        if ($uploadedMedia !== null) {
-            return $this->confirmRepeatedCreate($token, $uploadedMedia);
+        if ($this->findMediaInSystemScope($token->mediaId, $context) !== null) {
+            return $token->mediaId;
         }
 
-        $storedFile = $this->verifyFileOnStorage($token->mediaId, $token->path, $token->private);
+        $verifiedStagedFile = $this->verifyFileOnStorage($token->mediaId, $token->stagingKey, $token->private);
+        $mediaPath = null;
         $isMediaPersisted = false;
 
         try {
-            $duplicateMediaId = $this->findMediaIdByFileName($token->mediaId, $token->fileName, $token->extension, $token->private, $context);
-            if ($duplicateMediaId !== null) {
-                return $this->reuseDuplicateMedia($token, $duplicateMediaId);
-            }
+            $this->ensureFileNameIsUnique($token->mediaId, $token->fileName, $token->extension, $token->private, $context);
 
-            $this->validateStoredContent($token, $storedFile);
-
-            $mimeType = $this->persistConfirmedMedia($token, $payload, $storedFile, $context);
+            $uploadedAt = $this->clock->now();
+            $mediaPath = $this->promoteStagedFile($token, $verifiedStagedFile, $uploadedAt, null, $context);
+            $this->persistConfirmedMedia($token, $payload, $verifiedStagedFile, $uploadedAt, $context);
             $isMediaPersisted = true;
-            $this->dispatchFinalizeEvents($token->mediaId, $token->path, $mimeType, $context);
+            $this->dispatchFinalizeEvents($token->mediaId, $mediaPath, $token->mimeType, $context);
 
             return $token->mediaId;
         } catch (\Throwable $e) {
-            $this->rollBackCreate($token, $isMediaPersisted, $context);
+            $this->rollBackCreate($token, $mediaPath, $isMediaPersisted, $context);
 
             throw $e;
         }
@@ -243,59 +241,99 @@ readonly class PresignedMediaUploadService
     private function confirmReplace(PresignedUploadToken $token, PresignedUploadConfirmPayload $payload, Context $context): string
     {
         $mediaToReplace = $this->findMediaWithThumbnails($token->mediaId, $context);
-        $storedFile = $this->verifyFileOnStorage($token->mediaId, $token->path, $token->private);
+        $verifiedStagedFile = $this->verifyFileOnStorage($token->mediaId, $token->stagingKey, $token->private);
+        $mediaPath = null;
         $isMediaPersisted = false;
 
         try {
-            $this->validateStoredContent($token, $storedFile);
-            $this->cleanupOldMediaData($mediaToReplace, $token->path, $context);
+            $uploadedAt = $this->clock->now();
+            $mediaPath = $this->promoteStagedFile($token, $verifiedStagedFile, $uploadedAt, $mediaToReplace->getPath(), $context);
+            $this->cleanupOldMediaData($mediaToReplace, $mediaPath, $context);
 
-            $mimeType = $this->persistConfirmedMedia($token, $payload, $storedFile, $context);
+            $this->persistConfirmedMedia($token, $payload, $verifiedStagedFile, $uploadedAt, $context);
             $isMediaPersisted = true;
-            $this->dispatchFinalizeEvents($token->mediaId, $token->path, $mimeType, $context);
+            $this->dispatchFinalizeEvents($token->mediaId, $mediaPath, $token->mimeType, $context);
 
             return $token->mediaId;
         } catch (\Throwable $e) {
-            if (!$isMediaPersisted && $mediaToReplace->getPath() !== $token->path) {
-                $this->presignedUrlGenerator->deleteFromStorage($token->path, $token->private);
+            if ($mediaPath === null) {
+                $this->presignedUrlGenerator->deleteFromStorage($token->stagingKey, $token->private);
+            } elseif (!$isMediaPersisted && $mediaPath !== $mediaToReplace->getPath()) {
+                $this->presignedUrlGenerator->deleteFromStorage($mediaPath, $token->private);
             }
 
             throw $e;
         }
     }
 
-    private function confirmRepeatedCreate(PresignedUploadToken $token, MediaEntity $uploadedMedia): string
-    {
-        if ($uploadedMedia->getPath() !== $token->path) {
-            throw MediaException::presignedUploadTokenInvalid();
-        }
+    private function promoteStagedFile(
+        PresignedUploadToken $token,
+        FileMetadataResult $verifiedStagedFile,
+        \DateTimeImmutable $uploadedAt,
+        ?string $currentPath,
+        Context $context,
+    ): string {
+        $mediaLocation = new MediaLocationStruct($token->mediaId, $token->extension, $token->fileName, $uploadedAt);
+        $mediaPath = $this->mediaPathStrategy->generate([$mediaLocation])[$token->mediaId]
+            ?? throw MediaException::strategyNotFound($this->mediaPathStrategy->name());
 
-        return $token->mediaId;
-    }
-
-    private function reuseDuplicateMedia(PresignedUploadToken $token, string $duplicateMediaId): string
-    {
-        if (!$token->deduplicate) {
+        $isOwnPath = $mediaPath === $currentPath;
+        if (!$isOwnPath && $this->isPathTaken($mediaPath, $token, $context)) {
             throw MediaException::duplicatedMediaFileName($token->fileName, $token->extension);
         }
 
-        $this->presignedUrlGenerator->deleteFromStorage($token->path, $token->private);
+        if ($verifiedStagedFile->etag === null
+            || !$this->presignedUrlGenerator->promote($token->stagingKey, $mediaPath, $token->private, $token->mimeType, $verifiedStagedFile->etag, $isOwnPath)
+        ) {
+            throw MediaException::presignedUploadFinalizeFailed($token->mediaId);
+        }
 
-        return $duplicateMediaId;
+        return $mediaPath;
     }
 
-    private function rollBackCreate(PresignedUploadToken $token, bool $isMediaPersisted, Context $context): void
+    private function isPathTaken(string $mediaPath, PresignedUploadToken $token, Context $context): bool
     {
-        if (!$isMediaPersisted && $this->isConfirmed($token, $context)) {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter('path', $mediaPath),
+            new EqualsFilter('private', $token->private),
+            new NotEqualsFilter('id', $token->mediaId),
+        );
+
+        return $context->scope(
+            Context::SYSTEM_SCOPE,
+            fn (Context $context): bool => $this->mediaRepository->searchIds($criteria, $context)->firstId() !== null
+        );
+    }
+
+    private function rollBackCreate(PresignedUploadToken $token, ?string $mediaPath, bool $isMediaPersisted, Context $context): void
+    {
+        if ($mediaPath === null) {
+            $this->presignedUrlGenerator->deleteFromStorage($token->stagingKey, $token->private);
+
             return;
         }
 
-        $this->presignedUrlGenerator->deleteFromStorage($token->path, $token->private);
+        $this->presignedUrlGenerator->deleteFromStorage($mediaPath, $token->private);
 
         // Deletes in system scope without `media:delete`, so an entity that existed before this call must survive.
         if ($isMediaPersisted) {
             $this->deleteMediaEntity($token->mediaId, $context);
         }
+    }
+
+    private function resolveRequester(Context $context): ?string
+    {
+        $contextSource = $context->getSource();
+        if (!$contextSource instanceof AdminApiSource) {
+            return null;
+        }
+
+        if ($contextSource->getUserId() !== null) {
+            return 'user:' . $contextSource->getUserId();
+        }
+
+        return $contextSource->getIntegrationId() !== null ? 'integration:' . $contextSource->getIntegrationId() : null;
     }
 
     private function findMediaToReplace(string $mediaId, Context $context): MediaEntity
@@ -436,36 +474,33 @@ readonly class PresignedMediaUploadService
     private function persistConfirmedMedia(
         PresignedUploadToken $token,
         PresignedUploadConfirmPayload $payload,
-        FileMetadataResult $storedFile,
+        FileMetadataResult $verifiedStagedFile,
+        \DateTimeImmutable $uploadedAt,
         Context $context,
-    ): string {
-        $mimeType = FileInfoHelper::stripParameters($storedFile->contentType ?? $token->mimeType);
-
+    ): void {
         $mediaPayload = [
             'id' => $token->mediaId,
             'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
-            'mimeType' => $mimeType,
+            'mimeType' => $token->mimeType,
             'fileExtension' => $token->extension,
-            'fileSize' => $storedFile->size,
+            'fileSize' => $verifiedStagedFile->size,
             'fileName' => $token->fileName,
-            'mediaTypeRaw' => serialize($this->detectMediaType($mimeType, $token->extension)),
-            'metaData' => $this->buildMetadata($storedFile->etag, $mimeType, $payload->width, $payload->height),
+            'mediaTypeRaw' => serialize($this->detectMediaType($token->mimeType, $token->extension)),
+            'metaData' => $this->buildMetadata($verifiedStagedFile->etag, $token->mimeType, $payload->width, $payload->height),
             // The media path is derived from uploadedAt, so any other value would point the media at a missing object.
-            'uploadedAt' => \DateTime::createFromImmutable($token->uploadedAt),
+            'uploadedAt' => \DateTime::createFromImmutable($uploadedAt),
         ];
 
         if ($token->isReplace) {
             $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->mediaRepository->update([$mediaPayload], $context));
 
-            return $mimeType;
+            return;
         }
 
         $mediaPayload['private'] = $token->private;
         $mediaPayload['mediaFolderId'] = $token->mediaFolderId;
 
         $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->mediaRepository->create([$mediaPayload], $context));
-
-        return $mimeType;
     }
 
     private function assertWritePrivilege(bool $isReplace, Context $context): void
@@ -489,39 +524,12 @@ readonly class PresignedMediaUploadService
         return $knownMimeTypes[0] ?? 'application/octet-stream';
     }
 
-    private function isConfirmed(PresignedUploadToken $token, Context $context): bool
-    {
-        return $this->findMediaInSystemScope($token->mediaId, $context)?->getPath() === $token->path;
-    }
-
     private function findMediaInSystemScope(string $mediaId, Context $context): ?MediaEntity
     {
         return $context->scope(
             Context::SYSTEM_SCOPE,
             fn (Context $context): ?MediaEntity => $this->findMedia($mediaId, $context)
         );
-    }
-
-    private function validateStoredContent(PresignedUploadToken $token, FileMetadataResult $storedFile): void
-    {
-        if (!$this->contentValidation->supports(new MediaFile('', $token->mimeType, $token->extension, $storedFile->size))) {
-            return;
-        }
-
-        $localCopy = tempnam(sys_get_temp_dir(), '');
-        if (!$localCopy) {
-            throw MediaException::cannotCreateTempFile();
-        }
-
-        try {
-            if (!$this->presignedUrlGenerator->downloadToFile($token->path, $token->private, $localCopy)) {
-                throw MediaException::presignedUploadFinalizeFailed($token->mediaId);
-            }
-
-            $this->contentValidation->validate(new MediaFile($localCopy, $token->mimeType, $token->extension, $storedFile->size));
-        } finally {
-            unlink($localCopy);
-        }
     }
 
     private function dispatchFinalizeEvents(string $mediaId, string $path, string $mimeType, Context $context): void

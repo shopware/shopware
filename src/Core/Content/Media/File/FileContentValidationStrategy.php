@@ -16,17 +16,6 @@ class FileContentValidationStrategy
     {
     }
 
-    public function supports(MediaFile $mediaFile): bool
-    {
-        foreach ($this->validators as $validator) {
-            if ($validator->supports($mediaFile)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public function validate(MediaFile $mediaFile): void
     {
         foreach ($this->validators as $validator) {

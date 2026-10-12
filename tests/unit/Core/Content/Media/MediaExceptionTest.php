@@ -584,6 +584,15 @@ class MediaExceptionTest extends TestCase
         static::assertSame('The presigned upload token has expired.', $exception->getMessage());
     }
 
+    public function testPresignedUploadDeduplicationNotSupported(): void
+    {
+        $exception = MediaException::presignedUploadDeduplicationNotSupported();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_DEDUPLICATION_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame('Presigned uploads do not support deduplication, because the file content is unknown when the upload is requested.', $exception->getMessage());
+    }
+
     public function testMissingPrivilege(): void
     {
         $exception = MediaException::missingPrivilege(['media:update']);

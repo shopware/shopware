@@ -237,14 +237,13 @@ describe('mediaPresignedUploadService', () => {
             expectedBody: { fileName: 'test.jpg', mimeType: 'image/jpeg', private: false },
         },
         {
-            scenario: 'a replace that deduplicates',
-            params: { fileName: 'test.jpg', mimeType: 'image/jpeg', id: 'media-123', deduplicate: true },
+            scenario: 'a replace',
+            params: { fileName: 'test.jpg', mimeType: 'image/jpeg', id: 'media-123' },
             expectedBody: {
                 fileName: 'test.jpg',
                 mimeType: 'image/jpeg',
                 private: false,
                 id: 'media-123',
-                deduplicate: true,
             },
         },
     ])('requestUpload sends only the given optional params for $scenario', async ({ params, expectedBody }) => {

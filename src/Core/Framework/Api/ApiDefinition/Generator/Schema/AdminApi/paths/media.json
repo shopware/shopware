@@ -631,10 +631,6 @@
                                     "private": {
                                         "type": "boolean",
                                         "description": "Whether the media should be private"
-                                    },
-                                    "deduplicate": {
-                                        "type": "boolean",
-                                        "description": "If true, reuse an existing media with the same file name instead of failing on confirm"
                                     }
                                 }
                             }
@@ -661,6 +657,7 @@
                                         },
                                         "upload": {
                                             "type": "object",
+                                            "description": "Instructions for the upload to the remote storage. Clients must ignore properties they do not know.",
                                             "required": ["method", "url", "headers", "expiresAt"],
                                             "properties": {
                                                 "method": {
@@ -691,7 +688,7 @@
                         }
                     },
                     "400": {
-                        "description": "Bad request. The file extension is not supported or the file name is invalid.",
+                        "description": "Bad request. The file extension is not supported, the file name is invalid, or deduplication was requested, which presigned uploads do not support.",
                         "$ref": "#/components/responses/400"
                     },
                     "403": {
@@ -721,7 +718,7 @@
                     "Asset Management"
                 ],
                 "summary": "Confirm a presigned upload",
-                "description": "Verifies the upload token and the presence of the uploaded object, then creates (or, for a replace, updates) the media entity. No file metadata is re-declared; the server derives everything from the signed token and the stored object.",
+                "description": "Verifies the upload token and the presence of the uploaded object, then creates (or, for a replace, updates) the media entity. No file metadata is re-declared; the server derives everything from the signed token and the stored object. The upload must be confirmed by the same user or integration that requested it.",
                 "operationId": "confirmUpload",
                 "requestBody": {
                     "required": true,
@@ -770,7 +767,7 @@
                         }
                     },
                     "400": {
-                        "description": "Bad request. The upload token is invalid or expired, the file name is already taken, the uploaded file could not be found on the remote storage, or its content is not allowed.",
+                        "description": "Bad request. The upload token is invalid or expired, it was requested by another user or integration, the file name is already taken, or the uploaded file could not be found on the remote storage.",
                         "$ref": "#/components/responses/400"
                     },
                     "403": {

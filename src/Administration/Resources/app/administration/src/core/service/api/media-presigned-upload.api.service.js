@@ -120,7 +120,7 @@ class MediaPresignedUploadApiService extends ApiService {
     /**
      * @returns {Promise<{id: string, uploadToken: string, upload: {method: string, url: string, headers: Object.<string, string>, expiresAt: string}}>}
      */
-    requestUpload({ fileName, mimeType, id = null, mediaFolderId = null, isPrivate = false, deduplicate = false }) {
+    requestUpload({ fileName, mimeType, id = null, mediaFolderId = null, isPrivate = false }) {
         const body = { fileName, mimeType, private: isPrivate };
 
         if (id !== null) {
@@ -129,10 +129,6 @@ class MediaPresignedUploadApiService extends ApiService {
 
         if (mediaFolderId !== null) {
             body.mediaFolderId = mediaFolderId;
-        }
-
-        if (deduplicate) {
-            body.deduplicate = deduplicate;
         }
 
         return this.httpClient

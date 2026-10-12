@@ -31,15 +31,14 @@ class PresignedUploadTokenSignerTest extends TestCase
         $decoded = $this->signer->verify($this->signer->sign($token), new \DateTimeImmutable('2026-02-10T11:00:00+00:00'));
 
         static::assertSame($token->mediaId, $decoded->mediaId);
-        static::assertSame($token->path, $decoded->path);
+        static::assertSame($token->stagingKey, $decoded->stagingKey);
         static::assertSame($token->fileName, $decoded->fileName);
         static::assertSame($token->extension, $decoded->extension);
         static::assertSame($token->mimeType, $decoded->mimeType);
         static::assertSame($token->private, $decoded->private);
         static::assertSame($token->mediaFolderId, $decoded->mediaFolderId);
-        static::assertSame($token->deduplicate, $decoded->deduplicate);
         static::assertSame($token->isReplace, $decoded->isReplace);
-        static::assertEquals($token->uploadedAt, $decoded->uploadedAt);
+        static::assertSame($token->requestedBy, $decoded->requestedBy);
         static::assertEquals($token->expiresAt, $decoded->expiresAt);
     }
 
@@ -78,13 +77,25 @@ class PresignedUploadTokenSignerTest extends TestCase
         $this->signer->verify($signed, new \DateTimeImmutable('2026-02-10T13:00:00+00:00'));
     }
 
+    public function testVerifyRejectsAPayloadSignedWithTheBareSecret(): void
+    {
+        $payload = self::encodeFields([]);
+
+        $this->expectExceptionObject(MediaException::presignedUploadTokenInvalid());
+
+        $this->signer->verify(
+            $payload . '.' . hash_hmac('sha256', $payload, 's3cr3t'),
+            new \DateTimeImmutable('2026-02-10T11:00:00+00:00')
+        );
+    }
+
     #[DataProvider('malformedPayloadProvider')]
     public function testVerifyRejectsSignedButMalformedPayload(string $payload): void
     {
         $this->expectExceptionObject(MediaException::presignedUploadTokenInvalid());
 
         $this->signer->verify(
-            $payload . '.' . hash_hmac('sha256', $payload, 's3cr3t'),
+            $payload . '.' . self::signPayload($payload),
             new \DateTimeImmutable('2026-02-10T11:00:00+00:00')
         );
     }
@@ -100,7 +111,10 @@ class PresignedUploadTokenSignerTest extends TestCase
         yield 'missing media id' => [self::encodeFields(['mediaId' => null])];
         yield 'media folder id that is not a string' => [self::encodeFields(['mediaFolderId' => 42])];
         yield 'visibility flag that is not a boolean' => [self::encodeFields(['private' => 'false'])];
-        yield 'upload date that cannot be parsed' => [self::encodeFields(['uploadedAt' => 'not a date'])];
+        yield 'expiry date that cannot be parsed' => [self::encodeFields(['expiresAt' => 'not a date'])];
+        yield 'requester that is not a string' => [self::encodeFields(['requestedBy' => 42])];
+        yield 'payload without version' => [self::encodeFields(['version' => null])];
+        yield 'payload of another version' => [self::encodeFields(['version' => 2])];
     }
 
     /**
@@ -109,20 +123,25 @@ class PresignedUploadTokenSignerTest extends TestCase
     private static function encodeFields(array $overrides): string
     {
         $validPayloadFields = [
+            'version' => 1,
             'mediaId' => '0191c0d1e0e17c8fb0b4a2c3d4e5f601',
-            'path' => 'media/ab/cd/test-file.jpg',
+            'stagingKey' => 'presigned-upload/0191c0d1e0e17c8fb0b4a2c3d4e5f6bb.jpg',
             'fileName' => 'test-file',
             'extension' => 'jpg',
             'mimeType' => 'image/jpeg',
             'private' => false,
             'mediaFolderId' => null,
-            'deduplicate' => false,
             'isReplace' => false,
-            'uploadedAt' => '2026-02-10T10:00:00+00:00',
+            'requestedBy' => null,
             'expiresAt' => '2026-02-10T12:00:00+00:00',
         ];
 
         return self::encodePayload(json_encode(array_merge($validPayloadFields, $overrides), \JSON_THROW_ON_ERROR));
+    }
+
+    private static function signPayload(string $payload): string
+    {
+        return hash_hmac('sha256', $payload, hash_hmac('sha256', 'shopware.media.presigned-upload.v1', 's3cr3t'));
     }
 
     private static function encodePayload(string $payloadJson): string
@@ -134,15 +153,14 @@ class PresignedUploadTokenSignerTest extends TestCase
     {
         return new PresignedUploadToken(
             mediaId: '0191c0d1e0e17c8fb0b4a2c3d4e5f601',
-            path: 'media/ab/cd/test-file.jpg',
+            stagingKey: 'presigned-upload/0191c0d1e0e17c8fb0b4a2c3d4e5f6bb.jpg',
             fileName: 'test-file',
             extension: 'jpg',
             mimeType: 'image/jpeg',
             private: false,
             mediaFolderId: null,
-            deduplicate: false,
             isReplace: false,
-            uploadedAt: new \DateTimeImmutable('2026-02-10T10:00:00+00:00'),
+            requestedBy: 'user:0191c0d1e0e17c8fb0b4a2c3d4e5f6aa',
             expiresAt: new \DateTimeImmutable('2026-02-10T12:00:00+00:00'),
         );
     }

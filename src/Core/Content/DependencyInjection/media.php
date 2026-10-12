@@ -62,6 +62,8 @@ use Shopware\Core\Content\Media\Metadata\MetadataLoader\ImageMetadataLoader;
 use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
 use Shopware\Core\Content\Media\ScheduledTask\CleanupCorruptedMediaHandler;
 use Shopware\Core\Content\Media\ScheduledTask\CleanupCorruptedMediaTask;
+use Shopware\Core\Content\Media\ScheduledTask\CleanupPresignedUploadsHandler;
+use Shopware\Core\Content\Media\ScheduledTask\CleanupPresignedUploadsTask;
 use Shopware\Core\Content\Media\Service\VideoCoverService;
 use Shopware\Core\Content\Media\Subscriber\CustomFieldsUnusedMediaSubscriber;
 use Shopware\Core\Content\Media\Subscriber\MediaCreationSubscriber;
@@ -168,6 +170,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('logger'),
             service('media.repository'),
             service(ClockInterface::class),
+        ])
+        ->tag('messenger.message_handler');
+
+    $services->set(CleanupPresignedUploadsHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('logger'),
+            service(PresignedUrlGeneratorInterface::class),
         ])
         ->tag('messenger.message_handler');
     // endregion Message handlers
@@ -519,7 +529,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('logger'),
             service(ClockInterface::class),
             service(PresignedUploadTokenSigner::class),
-            service(FileContentValidationStrategy::class),
         ]);
 
     $services->set(PresignedUploadController::class)
@@ -666,6 +675,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // region Tasks
     $services->set(CleanupCorruptedMediaTask::class)
+        ->tag('shopware.scheduled.task');
+
+    $services->set(CleanupPresignedUploadsTask::class)
         ->tag('shopware.scheduled.task');
     // endregion Tasks
 };

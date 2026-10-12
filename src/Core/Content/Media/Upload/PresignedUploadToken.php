@@ -18,15 +18,14 @@ readonly class PresignedUploadToken
 {
     public function __construct(
         public string $mediaId,
-        public string $path,
+        public string $stagingKey,
         public string $fileName,
         public string $extension,
         public string $mimeType,
         public bool $private,
         public ?string $mediaFolderId,
-        public bool $deduplicate,
         public bool $isReplace,
-        public \DateTimeImmutable $uploadedAt,
+        public ?string $requestedBy,
         public \DateTimeImmutable $expiresAt,
     ) {
     }

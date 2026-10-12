@@ -73,6 +73,7 @@ class MediaException extends HttpException
     public const MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED';
     public const MEDIA_PRESIGNED_UPLOAD_TOKEN_INVALID = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_TOKEN_INVALID';
     public const MEDIA_PRESIGNED_UPLOAD_TOKEN_EXPIRED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_TOKEN_EXPIRED';
+    public const MEDIA_PRESIGNED_UPLOAD_DEDUPLICATION_NOT_SUPPORTED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_DEDUPLICATION_NOT_SUPPORTED';
     public const MEDIA_MISSING_PRIVILEGE = 'CONTENT__MEDIA_MISSING_PRIVILEGE';
 
     /**
@@ -628,6 +629,15 @@ class MediaException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MEDIA_PRESIGNED_UPLOAD_TOKEN_EXPIRED,
             'The presigned upload token has expired.'
+        );
+    }
+
+    public static function presignedUploadDeduplicationNotSupported(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_PRESIGNED_UPLOAD_DEDUPLICATION_NOT_SUPPORTED,
+            'Presigned uploads do not support deduplication, because the file content is unknown when the upload is requested.'
         );
     }
 

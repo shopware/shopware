@@ -17,6 +17,11 @@ readonly class PresignedUploadTokenSigner
 {
     private const SEPARATOR = '.';
 
+    private const VERSION = 1;
+
+    // `kernel.secret` keys other HMACs too, whose signatures must not be accepted as upload tokens.
+    private const KEY_PURPOSE = 'shopware.media.presigned-upload.v1';
+
     public function __construct(private string $secret)
     {
     }
@@ -24,16 +29,16 @@ readonly class PresignedUploadTokenSigner
     public function sign(PresignedUploadToken $token): string
     {
         $payload = self::encode([
+            'version' => self::VERSION,
             'mediaId' => $token->mediaId,
-            'path' => $token->path,
+            'stagingKey' => $token->stagingKey,
             'fileName' => $token->fileName,
             'extension' => $token->extension,
             'mimeType' => $token->mimeType,
             'private' => $token->private,
             'mediaFolderId' => $token->mediaFolderId,
-            'deduplicate' => $token->deduplicate,
             'isReplace' => $token->isReplace,
-            'uploadedAt' => $token->uploadedAt->format(\DateTimeInterface::ATOM),
+            'requestedBy' => $token->requestedBy,
             'expiresAt' => $token->expiresAt->format(\DateTimeInterface::ATOM),
         ]);
 
@@ -56,6 +61,10 @@ readonly class PresignedUploadTokenSigner
 
         $data = self::decode($payload);
 
+        if (($data['version'] ?? null) !== self::VERSION) {
+            throw MediaException::presignedUploadTokenInvalid();
+        }
+
         $expiresAt = self::readDate($data, 'expiresAt');
         if ($now > $expiresAt) {
             throw MediaException::presignedUploadTokenExpired();
@@ -63,22 +72,21 @@ readonly class PresignedUploadTokenSigner
 
         return new PresignedUploadToken(
             mediaId: self::readString($data, 'mediaId'),
-            path: self::readString($data, 'path'),
+            stagingKey: self::readString($data, 'stagingKey'),
             fileName: self::readString($data, 'fileName'),
             extension: self::readString($data, 'extension'),
             mimeType: self::readString($data, 'mimeType'),
             private: self::readBool($data, 'private'),
             mediaFolderId: self::readNullableString($data, 'mediaFolderId'),
-            deduplicate: self::readBool($data, 'deduplicate'),
             isReplace: self::readBool($data, 'isReplace'),
-            uploadedAt: self::readDate($data, 'uploadedAt'),
+            requestedBy: self::readNullableString($data, 'requestedBy'),
             expiresAt: $expiresAt,
         );
     }
 
     private function signature(string $payload): string
     {
-        return hash_hmac('sha256', $payload, $this->secret);
+        return hash_hmac('sha256', $payload, hash_hmac('sha256', self::KEY_PURPOSE, $this->secret));
     }
 
     /**

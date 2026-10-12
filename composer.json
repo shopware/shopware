@@ -324,6 +324,8 @@
         "rector": " ",
         "reset": "Resets this Shopware instance, without composer and npm install. (Faster reset if no dependencies changed)",
         "setup": "Resets and re-installs this Shopware instance",
+        "skills:disable": "Hides .agents/skills locally (skip-worktree + rename, no git diff), so agents do not pick them up",
+        "skills:enable": "Restores locally hidden .agents/skills",
         "static-analyze": "Launches the PHP Stan static analysis tool",
         "storefront:lint:snippets": "Checks that no storefront snippet duplicates a global.default translation in every locale.",
         "storefront:lint:snippets:all": "Like storefront:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
@@ -547,6 +549,13 @@
             "@build:js",
             "@php bin/console theme:change --sync --all Storefront",
             "@admin:setup-extension-tooling --if-enabled"
+        ],
+        "skills:disable": [
+            "git ls-files '.agents/skills/' | grep 'SKILL\\.md$' | grep -v '\\.off$' | while read -r f; do git update-index --skip-worktree \"$f\" && mv \"$f\" \"$f.off\" && echo \"hidden: $f\"; done",
+            "grep -qxF 'SKILL.md.off' .git/info/exclude 2>/dev/null || echo 'SKILL.md.off' >> .git/info/exclude"
+        ],
+        "skills:enable": [
+            "git ls-files -v | grep '^S ' | cut -c3- | grep 'agents/skills.*SKILL\\.md$' | while read -r f; do if [ -f \"$f.off\" ]; then mv \"$f.off\" \"$f\" && git update-index --no-skip-worktree \"$f\" && echo \"shown: $f\"; fi; done"
         ],
         "static-analyze": [
             "@phpstan src/"

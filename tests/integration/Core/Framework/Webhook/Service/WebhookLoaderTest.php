@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriberType;
 use Shopware\Core\Framework\Webhook\Authorization\WebhookSubscription;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Webhook;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -46,23 +47,16 @@ class WebhookLoaderTest extends TestCase
 
     public function testGetWebhooksForEvent(): void
     {
-        $this->connection->insert('webhook', [
-            'id' => $this->ids->getBytes('wh-1'),
-            'name' => 'hook1',
-            'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
-            'url' => 'https://test.com',
-            'owner_user_id' => Uuid::fromHexToBytes($this->adminId),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
-
-        $this->connection->insert('webhook', [
-            'id' => $this->ids->getBytes('wh-2'),
-            'name' => 'hook2',
-            'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
-            'url' => 'https://test2.com',
-            'owner_user_id' => Uuid::fromHexToBytes($this->adminId),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->id($this->ids->get('wh-1'))
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->id($this->ids->get('wh-2'))
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test2.com')
+            ->name('hook2')
+            ->insert($this->connection);
 
         $webhookLoader = static::getContainer()->get(WebhookLoader::class);
 
@@ -113,23 +107,16 @@ class WebhookLoaderTest extends TestCase
 
         [$appId, $aclRoleId] = current($rows);
 
-        $this->connection->insert('webhook', [
-            'app_id' => $appId,
-            'id' => $this->ids->getBytes('wh-1'),
-            'name' => 'hook1',
-            'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
-            'url' => 'https://test.com',
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
-
-        $this->connection->insert('webhook', [
-            'app_id' => $appId,
-            'id' => $this->ids->getBytes('wh-2'),
-            'name' => 'hook2',
-            'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
-            'url' => 'https://test2.com',
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        WebhookBuilder::ofApp(Uuid::fromBytesToHex($appId))
+            ->id($this->ids->get('wh-1'))
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
+        WebhookBuilder::ofApp(Uuid::fromBytesToHex($appId))
+            ->id($this->ids->get('wh-2'))
+            ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test2.com')
+            ->name('hook2')
+            ->insert($this->connection);
 
         $webhookLoader = static::getContainer()->get(WebhookLoader::class);
 
@@ -175,7 +162,9 @@ class WebhookLoaderTest extends TestCase
     public function testAUserOwnedWebhookHasTheUsersRoles(): void
     {
         $user = TestUser::createNewTestUser($this->connection, ['product:read']);
-        $this->insertWebhook(ownerUserId: $user->getUserId());
+        WebhookBuilder::ownedByUser($user->getUserId())
+            ->id($this->ids->get('wh-1'))
+            ->insert($this->connection);
 
         static::assertEquals(new AclRoles(false, [(string) $user->getAclRoleId()]), $this->loadWebhook()->roles);
     }
@@ -183,14 +172,18 @@ class WebhookLoaderTest extends TestCase
     public function testAnIntegrationOwnedWebhookHasTheIntegrationsRoles(): void
     {
         $integration = TestIntegration::create($this->connection, ['product:read']);
-        $this->insertWebhook(ownerIntegrationId: $integration->getId());
+        WebhookBuilder::ownedByIntegration($integration->getId())
+            ->id($this->ids->get('wh-1'))
+            ->insert($this->connection);
 
         static::assertEquals(new AclRoles(false, [(string) $integration->getAclRoleId()]), $this->loadWebhook()->roles);
     }
 
     public function testGetWebhooksSkipsWebhooksWithoutAnOwner(): void
     {
-        $this->insertWebhook();
+        WebhookBuilder::withoutOwner()
+            ->id($this->ids->get('wh-1'))
+            ->insert($this->connection);
 
         $loader = static::getContainer()->get(WebhookLoader::class);
 
@@ -202,7 +195,10 @@ class WebhookLoaderTest extends TestCase
         $owner = TestUser::createNewTestUser($this->connection, ['product:read']);
         $orderRoleId = $this->createAclRole(['order:read']);
         $this->assignUserRole($owner->getUserId(), $orderRoleId);
-        $this->insertWebhook(ownerUserId: $owner->getUserId(), aclRoleIds: [$orderRoleId, Uuid::randomHex()]);
+        WebhookBuilder::ownedByUser($owner->getUserId())
+            ->id($this->ids->get('wh-1'))
+            ->aclRoleIds([$orderRoleId, Uuid::randomHex()])
+            ->insert($this->connection);
 
         static::assertEquals(new AclRoles(false, [$orderRoleId]), $this->loadWebhook()->roles);
     }
@@ -210,7 +206,10 @@ class WebhookLoaderTest extends TestCase
     public function testAclRoleIdsRestrictAnAdminOwner(): void
     {
         $roleId = $this->createAclRole(['product:read']);
-        $this->insertWebhook(ownerUserId: $this->adminId, aclRoleIds: [$roleId]);
+        WebhookBuilder::ownedByUser($this->adminId)
+            ->id($this->ids->get('wh-1'))
+            ->aclRoleIds([$roleId])
+            ->insert($this->connection);
 
         static::assertEquals(new AclRoles(false, [$roleId]), $this->loadWebhook()->roles);
     }
@@ -218,7 +217,10 @@ class WebhookLoaderTest extends TestCase
     public function testInactiveWebhooksAreNotLoaded(): void
     {
         $owner = TestUser::createNewTestUser($this->connection, ['product:read']);
-        $this->insertWebhook(ownerUserId: $owner->getUserId(), active: false);
+        WebhookBuilder::ownedByUser($owner->getUserId())
+            ->id($this->ids->get('wh-1'))
+            ->inactive()
+            ->insert($this->connection);
 
         static::assertSame([], static::getContainer()->get(WebhookLoader::class)->getWebhooks());
     }
@@ -228,7 +230,9 @@ class WebhookLoaderTest extends TestCase
         $this->installApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
         $integrationId = $this->connection->fetchOne('SELECT LOWER(HEX(integration_id)) FROM app WHERE name = :name', ['name' => 'minimal']);
         static::assertIsString($integrationId);
-        $this->insertWebhook(ownerIntegrationId: $integrationId);
+        WebhookBuilder::ownedByIntegration($integrationId)
+            ->id($this->ids->get('wh-1'))
+            ->insert($this->connection);
         $loader = static::getContainer()->get(WebhookLoader::class);
 
         $this->connection->update('app', ['active' => 0], ['name' => 'minimal']);
@@ -244,14 +248,18 @@ class WebhookLoaderTest extends TestCase
     {
         $owner = TestUser::createNewTestUser($this->connection, ['product:read']);
         $roleId = $this->createAclRole(['product:read']);
-        $this->insertWebhook(ownerUserId: $owner->getUserId(), aclRoleIds: [$roleId], active: false);
+        WebhookBuilder::ownedByUser($owner->getUserId())
+            ->id($this->ids->get('wh-1'))
+            ->aclRoleIds([$roleId])
+            ->inactive()
+            ->insert($this->connection);
 
         static::assertEquals(
             [$this->ids->get('wh-1') => new WebhookSubscription(
                 $this->ids->get('wh-1'),
                 SubscriberType::User,
                 $owner->getUserId(),
-                CustomerBeforeLoginEvent::EVENT_NAME,
+                'product.written',
                 [$roleId],
             )],
             static::getContainer()->get(WebhookLoader::class)->getSubscriptions([$this->ids->get('wh-1')])
@@ -261,14 +269,16 @@ class WebhookLoaderTest extends TestCase
     public function testGetSubscriptionsOfAnIntegrationOwnedWebhook(): void
     {
         $integrationId = TestIntegration::create($this->connection, ['product:read'])->getId();
-        $this->insertWebhook(ownerIntegrationId: $integrationId);
+        WebhookBuilder::ownedByIntegration($integrationId)
+            ->id($this->ids->get('wh-1'))
+            ->insert($this->connection);
 
         static::assertEquals(
             [$this->ids->get('wh-1') => new WebhookSubscription(
                 $this->ids->get('wh-1'),
                 SubscriberType::Integration,
                 $integrationId,
-                CustomerBeforeLoginEvent::EVENT_NAME,
+                'product.written',
                 null,
             )],
             static::getContainer()->get(WebhookLoader::class)->getSubscriptions([$this->ids->get('wh-1')])
@@ -281,14 +291,16 @@ class WebhookLoaderTest extends TestCase
         $appId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM app WHERE name = :name', ['name' => 'minimal']);
         static::assertIsString($appId);
 
-        $this->insertWebhook(appId: $appId);
+        WebhookBuilder::ofApp($appId)
+            ->id($this->ids->get('wh-1'))
+            ->insert($this->connection);
 
         static::assertEquals(
             [$this->ids->get('wh-1') => new WebhookSubscription(
                 $this->ids->get('wh-1'),
                 SubscriberType::App,
                 $appId,
-                CustomerBeforeLoginEvent::EVENT_NAME,
+                'product.written',
                 null,
             )],
             static::getContainer()->get(WebhookLoader::class)->getSubscriptions([$this->ids->get('wh-1')])
@@ -299,28 +311,11 @@ class WebhookLoaderTest extends TestCase
 
     public function testGetSubscriptionsSkipsAWebhookWithoutAnAppOrOwner(): void
     {
-        $this->insertWebhook();
+        WebhookBuilder::withoutOwner()
+            ->id($this->ids->get('wh-1'))
+            ->insert($this->connection);
 
         static::assertSame([], static::getContainer()->get(WebhookLoader::class)->getSubscriptions([$this->ids->get('wh-1')]));
-    }
-
-    /**
-     * @param list<string>|null $aclRoleIds
-     */
-    private function insertWebhook(?string $ownerUserId = null, ?string $ownerIntegrationId = null, ?array $aclRoleIds = null, bool $active = true, ?string $appId = null): void
-    {
-        $this->connection->insert('webhook', [
-            'id' => $this->ids->getBytes('wh-1'),
-            'app_id' => $appId ? Uuid::fromHexToBytes($appId) : null,
-            'name' => 'hook1',
-            'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
-            'url' => 'https://test.com',
-            'active' => (int) $active,
-            'owner_user_id' => $ownerUserId ? Uuid::fromHexToBytes($ownerUserId) : null,
-            'owner_integration_id' => $ownerIntegrationId ? Uuid::fromHexToBytes($ownerIntegrationId) : null,
-            'acl_role_ids' => $aclRoleIds === null ? null : json_encode($aclRoleIds, \JSON_THROW_ON_ERROR),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
     }
 
     /**

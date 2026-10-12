@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\Framework\Webhook\WebhookException;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -432,17 +433,9 @@ class WebhookApiTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
         $ownerUserId ??= TestUser::createNewTestUser($connection)->getUserId();
 
-        $webhookId = Uuid::randomHex();
-        $connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($webhookId),
-            'name' => 'Someone elses webhook',
-            'event_name' => 'product.written',
-            'url' => 'https://owner.example',
-            'owner_user_id' => Uuid::fromHexToBytes($ownerUserId),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
-
-        return $webhookId;
+        return WebhookBuilder::ownedByUser($ownerUserId)
+            ->subscribe('product.written', 'https://owner.example')
+            ->insert($connection);
     }
 
     private function createAppWebhook(): string

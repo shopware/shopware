@@ -5,17 +5,26 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Handler;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\WebhookLifecycleHandler;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
+use Shopware\Core\Framework\Webhook\WebhookCollection;
+use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
@@ -206,5 +215,70 @@ class WebhookLifecycleHandlerTest extends TestCase
 
         // should now be three
         static::assertCount(3, $webhookCache);
+    }
+
+    public function testDeactivateSwitchesOffWebhooksTheAppCreatedThroughTheApi(): void
+    {
+        $app = $this->appFixture->createApp(ManifestFixture::empty());
+        $appWebhookId = $this->insertApiWebhook(ownerIntegrationId: $app->getIntegrationId());
+        $userWebhookId = $this->insertApiWebhook(ownerUserId: TestUser::createNewTestUser($this->connection)->getUserId());
+
+        $this->handler->deactivate(new AppActivationContext($app, Context::createDefaultContext()));
+
+        static::assertFalse($this->findWebhook($appWebhookId)?->isActive());
+        static::assertTrue($this->findWebhook($userWebhookId)?->isActive());
+
+        $this->handler->activate(new AppActivationContext($app, Context::createDefaultContext()));
+
+        static::assertTrue($this->findWebhook($appWebhookId)?->isActive());
+    }
+
+    public function testUninstallDeletesWebhooksTheAppCreatedThroughTheApi(): void
+    {
+        $app = $this->appFixture->createApp(ManifestFixture::empty());
+        $appWebhookId = $this->insertApiWebhook(ownerIntegrationId: $app->getIntegrationId());
+        $userWebhookId = $this->insertApiWebhook(ownerUserId: TestUser::createNewTestUser($this->connection)->getUserId());
+
+        $this->handler->uninstall(new AppRemovalContext($app, Context::createDefaultContext()));
+
+        static::assertNull($this->findWebhook($appWebhookId));
+        static::assertTrue($this->findWebhook($userWebhookId)?->isActive());
+    }
+
+    public function testDeleteDeletesWebhooksTheAppCreatedThroughTheApi(): void
+    {
+        $app = $this->appFixture->createApp(ManifestFixture::empty());
+        $appWebhookId = $this->insertApiWebhook(ownerIntegrationId: $app->getIntegrationId());
+
+        $this->handler->delete(new AppRemovalContext($app, Context::createDefaultContext()));
+
+        static::assertNull($this->findWebhook($appWebhookId));
+    }
+
+    private function insertApiWebhook(?string $ownerUserId = null, ?string $ownerIntegrationId = null): string
+    {
+        $id = Uuid::randomHex();
+        $this->connection->insert('webhook', [
+            'id' => Uuid::fromHexToBytes($id),
+            'name' => 'api-hook',
+            'event_name' => 'contact_form.send',
+            'url' => 'https://example.com/hook',
+            'owner_user_id' => $ownerUserId ? Uuid::fromHexToBytes($ownerUserId) : null,
+            'owner_integration_id' => $ownerIntegrationId ? Uuid::fromHexToBytes($ownerIntegrationId) : null,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        return $id;
+    }
+
+    private function findWebhook(string $webhookId): ?WebhookEntity
+    {
+        /** @var EntityRepository<WebhookCollection> $webhookRepository */
+        $webhookRepository = static::getContainer()->get('webhook.repository');
+
+        return $webhookRepository
+            ->search(new Criteria([$webhookId]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
     }
 }

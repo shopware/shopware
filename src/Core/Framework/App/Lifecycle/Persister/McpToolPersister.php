@@ -30,13 +30,10 @@ class McpToolPersister extends AbstractMcpCapabilityPersister
 
     public function validateRequiredPrivileges(Manifest $manifest, ?Mcp $mcp): void
     {
-        $permissions = $manifest->getPermissions();
-        if ($permissions === null) {
-            return;
-        }
-
         $tools = $mcp?->getTools()?->getTools() ?? [];
-        $granted = $permissions->asParsedPrivileges();
+        // An app without a <permissions> block has no privileges at all, so its tools are checked
+        // against an empty list. The tool's script runs with the app's integration role.
+        $granted = $manifest->getPermissions()?->asParsedPrivileges() ?? [];
         $appName = $manifest->getMetadata()->getName();
 
         foreach ($tools as $tool) {

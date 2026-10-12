@@ -28,6 +28,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
@@ -229,14 +230,16 @@ class ZugferdDocument
             $this->addLineTotalAmount($totalNet);
         }
 
+        $unitCode = $this->getUnitCode($product);
+
         $this->zugferdBuilder
             ->addNewPosition($parentPosition . $lineItem->getPosition())
             ->setDocumentPositionNetPrice(
                 \round($totalNet / $lineItem->getQuantity(), self::UNIT_PRICE_DECIMALS),
                 self::PRICE_BASIS_QUANTITY,
-                ZugferdUnitCodes::REC20_PIECE
+                $unitCode
             )
-            ->setDocumentPositionQuantity($lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
+            ->setDocumentPositionQuantity($lineItem->getQuantity(), $unitCode)
             ->addDocumentPositionTax($this->getTaxCode($tax), 'VAT', $tax?->getTaxRate() ?? 0.0)
             ->setDocumentPositionLineSummation($totalNet)
             ->setDocumentPositionProductDetails(
@@ -548,6 +551,13 @@ class ZugferdDocument
         }
 
         return 'Delivery refund';
+    }
+
+    private function getUnitCode(?ProductEntity $product): string
+    {
+        $unit = $product?->getUnit() ?? $product?->getParent()?->getUnit();
+
+        return $unit?->getUneceCode() ?? ZugferdUnitCodes::REC20_PIECE;
     }
 
     private function getPercentageBasisAmount(bool $isPercentage, float $discountValue, float $actualAmount): ?float

@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\Unit\UnitEntity;
 
 /**
  * @internal
@@ -567,6 +568,94 @@ class ZugferdDocumentTest extends TestCase
         ];
     }
 
+    #[DataProvider('unitCodeProvider')]
+    public function testLineUsesTheUnitCodeOfTheProduct(?string $ownCode, ?string $parentCode, string $expectedCode): void
+    {
+        $order = new OrderEntity();
+        $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
+        $order->setAmountTotal(100.0);
+        $order->setAmountNet(100);
+        $order->setItemRounding(new CashRoundingConfig(2, .01, false));
+        $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
+
+        $product = new ProductEntity();
+        $product->setProductNumber('123');
+        if ($ownCode !== null) {
+            $product->setUnit($this->createUnit($ownCode));
+        }
+        if ($parentCode !== null) {
+            $parent = new ProductEntity();
+            $parent->setUnit($this->createUnit($parentCode));
+            $product->setParent($parent);
+        }
+
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setId(Uuid::randomHex());
+        $lineItem->setProduct($product);
+        $lineItem->setLabel('Product ' . $lineItem->getId());
+        $lineItem->setQuantity(1);
+        $lineItem->setPosition(1);
+        $lineItem->setPrice(new CalculatedPrice(
+            100.0,
+            100.0,
+            new CalculatedTaxCollection([]),
+            new TaxRuleCollection(),
+        ));
+
+        $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
+        $document->withProductLineItem($lineItem, '');
+        $document->withPaidAmount(100.0);
+
+        $calculator = new AmountCalculator(
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
+        );
+
+        $line = $document->getDomContent($order, $calculator)
+            ->getElementsByTagName('IncludedSupplyChainTradeLineItem')->item(0);
+
+        $basisQuantity = $line?->getElementsByTagName('BasisQuantity')->item(0);
+        $billedQuantity = $line?->getElementsByTagName('BilledQuantity')->item(0);
+
+        static::assertInstanceOf(\DOMElement::class, $basisQuantity);
+        static::assertInstanceOf(\DOMElement::class, $billedQuantity);
+        static::assertSame($expectedCode, $basisQuantity->getAttribute('unitCode'));
+        static::assertSame($expectedCode, $billedQuantity->getAttribute('unitCode'));
+    }
+
+    /**
+     * @return \Generator<string, array{ownCode: ?string, parentCode: ?string, expectedCode: string}>
+     */
+    public static function unitCodeProvider(): \Generator
+    {
+        yield 'own unit code is used' => [
+            'ownCode' => 'KGM',
+            'parentCode' => null,
+            'expectedCode' => 'KGM',
+        ];
+        yield 'variant without own unit uses the parent unit code' => [
+            'ownCode' => null,
+            'parentCode' => 'XBX',
+            'expectedCode' => 'XBX',
+        ];
+        yield 'own unit wins over the parent unit' => [
+            'ownCode' => 'MTR',
+            'parentCode' => 'XBX',
+            'expectedCode' => 'MTR',
+        ];
+        yield 'own unit without code falls back to piece, not to the parent code' => [
+            'ownCode' => '',
+            'parentCode' => 'XBX',
+            'expectedCode' => 'H87',
+        ];
+        yield 'no unit falls back to piece' => [
+            'ownCode' => null,
+            'parentCode' => null,
+            'expectedCode' => 'H87',
+        ];
+    }
+
     public function testUnitPriceIsWrittenWithFourDecimals(): void
     {
         $order = new OrderEntity();
@@ -731,6 +820,17 @@ class ZugferdDocumentTest extends TestCase
             $summary->getElementsByTagName('ChargeTotalAmount')->item(0)?->nodeValue,
             \number_format($chargeSum, 2, '.', '')
         );
+    }
+
+    private function createUnit(string $uneceCode): UnitEntity
+    {
+        $unit = new UnitEntity();
+        $unit->setId(Uuid::randomHex());
+        if ($uneceCode !== '') {
+            $unit->setUneceCode($uneceCode);
+        }
+
+        return $unit;
     }
 
     private function createOrderLineItem(float $price, float $taxRate, bool $isGross, ?int $position = null): OrderLineItemEntity

@@ -68,6 +68,12 @@ class ZugferdRendererTest extends TestCase
         $orderRepositoryMock
             ->expects($this->once())
             ->method('search')
+            ->with(static::callback(static function (Criteria $criteria): bool {
+                $product = $criteria->getAssociation('lineItems')->getAssociation('product');
+
+                return $product->hasAssociation('unit')
+                    && $product->getAssociation('parent')->hasAssociation('unit');
+            }))
             ->willReturn($orderSearchResult);
 
         $orderRepositoryMock

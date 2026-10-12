@@ -91,7 +91,7 @@ class HooksReferenceGeneratorTest extends TestCase
         $result = $this->generator->generate();
 
         static::assertIsArray($result);
-        static::assertNotEmpty($result);
+        static::assertNotCount(0, $result);
         static::assertArrayHasKey(array_key_first($result), $result);
     }
 
@@ -113,7 +113,7 @@ class HooksReferenceGeneratorTest extends TestCase
         $result = $this->generator->generate();
 
         static::assertIsArray($result);
-        static::assertNotEmpty($result);
+        static::assertNotCount(0, $result);
     }
 
     public function testGetHookClassesSkipsFunctionHooks(): void
@@ -127,7 +127,7 @@ class HooksReferenceGeneratorTest extends TestCase
         $result = $this->generator->generate();
 
         static::assertIsArray($result);
-        static::assertNotEmpty($result);
+        static::assertNotCount(0, $result);
     }
 
     public function testGenerateHandlesMissingDocComment(): void

@@ -72,4 +72,12 @@ final readonly class Configuration
     {
         return $this->parameters['pregDollarWithoutDEnabledNamespaces'] ?? [];
     }
+
+    /**
+     * @return list<string>
+     */
+    public function getReflectionInUnitTestsEnabledNamespaces(): array
+    {
+        return $this->parameters['reflectionInUnitTestsEnabledNamespaces'] ?? [];
+    }
 }

@@ -88,6 +88,10 @@ parameters:
             - 'Shopware\Administration\'
             - 'Shopware\Storefront\'
             - 'Shopware\Elasticsearch\'
+        # narrows NoReflectionInUnitTestsRule to the unit suites; consumers append their unit namespace once
+        # their tests no longer use reflection
+        reflectionInUnitTestsEnabledNamespaces:
+            - 'Shopware\Tests\Unit\'
 
 services:
     -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
@@ -103,4 +107,5 @@ parametersSchema:
         featureSkipInUnitTestsEnabledNamespaces: list(string),
         kernelInUnitTestsEnabledNamespaces: list(string),
         pregDollarWithoutDEnabledNamespaces: list(string),
+        reflectionInUnitTestsEnabledNamespaces: list(string),
 ])

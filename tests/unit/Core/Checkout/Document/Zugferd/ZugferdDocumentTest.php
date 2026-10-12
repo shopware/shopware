@@ -129,7 +129,7 @@ class ZugferdDocumentTest extends TestCase
             ->withProductLineItem($this->createOrderLineItem($lineItemGross[4], 19.0, $isGross, ++$position), '')
             ->withProductLineItem($this->createOrderLineItem($lineItemGross[5], 19.0, $isGross, ++$position), '')
             ->withProductLineItem($this->createOrderLineItem($lineItemGross[6], 19.0, $isGross, ++$position), '')
-            ->withProductLineItem($this->createOrderLineItem($lineItemGross[7], 7.0, $isGross, ++$position), '');
+            ->withProductLineItem($this->createOrderLineItem($lineItemGross[7], 7.0, $isGross, $position + 1), '');
 
         $discountGross = [-1.4, -1.34, 5.2, 2.4, -0.7, -0.2];
         $document

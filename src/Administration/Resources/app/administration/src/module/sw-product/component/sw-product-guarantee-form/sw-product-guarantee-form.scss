@@ -24,6 +24,15 @@
         }
     }
 
+    // sw-media-field predates the 48px Meteor fields, so it would end 3px above the URL field beside it.
+    .sw-product-guarantee-form__terms-media .sw-media-field__input-container {
+        grid-template-rows: var(--scale-size-48);
+
+        .mt-button--square {
+            height: var(--scale-size-48);
+        }
+    }
+
     .sw-product-guarantee-form__requirements-notice {
         margin: var(--scale-size-24) 0 0;
 

@@ -68,7 +68,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCreateIndices(): void
     {
-        static::assertNotEmpty($this->indexDetector->getAllUsedIndices());
+        static::assertNotCount(0, $this->indexDetector->getAllUsedIndices());
     }
 
     public function testCreateCustomFields(): void

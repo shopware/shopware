@@ -111,7 +111,7 @@ class MailServiceTest extends TestCase
         $this->salesChannelRepository->expects($this->once())->method('search')->willReturn($salesChannelResult);
 
         $data = [
-            'recipients' => [],
+            'recipients' => ['me@shopware.com' => 'me'],
             'senderName' => 'me',
             'senderEmail' => 'me@shopware.com',
             'subject' => 'Test email',
@@ -164,13 +164,14 @@ class MailServiceTest extends TestCase
         $this->salesChannelRepository->expects($this->once())->method('search')->willReturn($salesChannelResult);
 
         $data = [
-            'recipients' => [],
+            'recipients' => ['me@shopware.com' => 'me'],
             'senderName' => 'me',
             'senderEmail' => 'me@shopware.com',
             'subject' => 'Your order {{ order.orderNumber }}',
             'contentPlain' => 'Content plain',
             'contentHtml' => 'Content html',
             'salesChannelId' => $salesChannelId,
+            'templateId' => 'template-id',
         ];
 
         $email = (new Email())->subject('Your order 10001')
@@ -201,10 +202,15 @@ class MailServiceTest extends TestCase
         $this->createMailService(
             templateRenderer: $templateRenderer,
             eventDispatcher: $eventDispatcher
-        )->send($data, Context::createDefaultContext(), ['order' => ['orderNumber' => '10001']]);
+        )->send($data, Context::createDefaultContext(), ['order' => ['orderNumber' => '10001'], 'eventName' => 'checkout.order.placed']);
 
         static::assertInstanceOf(MailSentEvent::class, $mailSentEvent);
         static::assertSame('Your order 10001', $mailSentEvent->getSubject());
+        static::assertSame('template-id', $mailSentEvent->getTemplateId());
+        static::assertSame($salesChannelId, $mailSentEvent->getSalesChannelId());
+        static::assertSame('checkout.order.placed', $mailSentEvent->getEventName());
+        static::assertSame(['orderNumber' => '10001'], $mailSentEvent->getTemplateData()['order']);
+        static::assertSame($email, $mailSentEvent->getMessage());
     }
 
     public function testSendMailWithRenderingError(): void
@@ -227,7 +233,7 @@ class MailServiceTest extends TestCase
         $this->salesChannelRepository->expects($this->once())->method('search')->willReturn($salesChannelResult);
 
         $data = [
-            'recipients' => [],
+            'recipients' => ['me@shopware.com' => 'me'],
             'senderName' => 'me',
             'senderEmail' => 'me@shopware.com',
             'subject' => 'Test email',
@@ -312,7 +318,7 @@ class MailServiceTest extends TestCase
         $this->salesChannelRepository->expects($this->once())->method('search')->willReturn($salesChannelResult);
 
         $data = [
-            'recipients' => [],
+            'recipients' => ['me@shopware.com' => 'me'],
             'subject' => 'Test email',
             'senderName' => null,
             'contentPlain' => 'Content plain',
@@ -367,7 +373,7 @@ class MailServiceTest extends TestCase
         $this->salesChannelRepository->expects($this->once())->method('search')->willReturn($salesChannelResult);
 
         $data = [
-            'recipients' => [],
+            'recipients' => ['me@shopware.com' => 'me'],
             'senderName' => 'me',
             'senderEmail' => 'me@shopware.com',
             'subject' => 'Test email',
@@ -425,6 +431,9 @@ class MailServiceTest extends TestCase
         static::assertSame('Could not send mail with error message: Mail sending failed', $mailErrorEvent->getMessage());
         static::assertSame('Content html', $mailErrorEvent->getTemplate());
         static::assertEmpty($mailErrorEvent->getTemplateData());
+        static::assertNotNull($mailErrorEvent->getData());
+        static::assertSame('Content html', $mailErrorEvent->getData()['contentHtml']);
+        static::assertInstanceOf(Email::class, $mailErrorEvent->getMail());
     }
 
     public function testMailInTestModeHasNoEmptyHeaders(): void
@@ -448,7 +457,7 @@ class MailServiceTest extends TestCase
 
         $data = [
             'testMode' => true,
-            'recipients' => [],
+            'recipients' => ['me@shopware.com' => 'me'],
             'senderName' => 'me',
             'senderEmail' => 'me@shopware.com',
             'subject' => 'Test email',

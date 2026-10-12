@@ -84,7 +84,7 @@ class ShopIdControllerTest extends TestCase
 
         $response = $this->controller->changeShopId($request, $this->context);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testFailsIfResolverThrowsWhenChangingShopId(): void
@@ -174,7 +174,7 @@ class ShopIdControllerTest extends TestCase
 
         $response = $controller->checkShopId($this->context);
 
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 

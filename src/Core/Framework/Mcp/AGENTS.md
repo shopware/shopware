@@ -51,6 +51,8 @@ The Admin API endpoint uses progressive disclosure: `tools/list` advertises only
 
 Every registered tool belongs to a group, and group membership is the single source of truth for visibility. The `discovery` group holds the always-advertised meta-tools (`shopware-tool-search`, `shopware-toolsets-list`, `shopware-toolset-enable`) and is never an enable-able toolset; it is the only thing on a fresh `tools/list`. Every other tool is **deferred** — advertised only once its toolset is enabled — so no domain tool can leak into the default surface and the model is forced through discovery. Core and plugin tools declare their group with `#[McpToolGroup]` at compile time (`McpToolDiscoveryCompilerPass` derives `shopware.mcp.advertised_tools` from the `discovery` group); app tools (loaded at runtime, so they carry no attribute) are grouped under their owning app's technical name via `AppMcpPrivilegeProvider::getAppToolGroups()`, so each app forms its own toolset. Anything still without a group falls to the `other` catch-all, which is itself an enable-able toolset so that no allowlisted tool is ever reachable through `shopware-tool-search` alone.
 
+The `discovery` group is reserved for the three meta-tools (`McpToolsetRegistry::DISCOVERY_META_TOOLS`). A plugin or bundle tool that claims it is moved to `other` at compile time, `bin/console debug:mcp` lists it with a warning, and the `shopware.mcpReservedToolGroup` PHPStan rule reports it during development. An extension that needs its tools on the first `tools/list`, for example for a proxy endpoint, selects its own toolset with `?toolsets=` instead, as agentic-commerce does on `/ucp/mcp`.
+
 The Store API endpoint (`/store-api/_mcp`) uses the same progressive disclosure via its own toolset meta-tools (`StoreApiToolsetsListTool` / `StoreApiToolsetEnableTool`) and a `store-api` toolset group, and its `shopware-tool-search` carries the same `_meta.usage` hint. Both endpoints' server `instructions` (returned in every `initialize` response) point clients at `shopware-tool-search` as the discovery entry point when no advertised tool matches the requested action.
 
 ## Architecture
@@ -185,7 +187,7 @@ Create the Twig script at `Resources/scripts/api-my-app-my-tool/script.twig`:
 
 `<required-privileges>` in `mcp.xml` is the app-side equivalent of `#[McpToolRequires]` for plugins. It is **informational** — the Admin UI shows the declared privileges as chips in the integration allowlist and warns when the integration role is missing them. Actual enforcement happens via DAL ACL inside the script.
 
-`McpToolPersister` validates at install/update time that every declared privilege appears in the app's manifest `<permissions>`. An app that declares `product:read` as a required privilege but does not have `<read>product</read>` in `<permissions>` will fail to install with a clear error message.
+`McpToolPersister` validates at install/update time that every declared privilege appears in the app's manifest `<permissions>`. An app that declares `product:read` as a required privilege but does not have `<read>product</read>` in `<permissions>` will fail to install with a clear error message. An app without a `<permissions>` block has no privileges, so any required privilege fails the same way.
 
 ## Future ideas / backlog
 

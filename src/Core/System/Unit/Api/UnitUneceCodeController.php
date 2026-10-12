@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Unit\Api;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\Unit\UnitIsoCodes;
+use Shopware\Core\System\Unit\UnitUneceCodes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -15,17 +15,17 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 #[Package('inventory')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
-class UnitIsoCodeController extends AbstractController
+class UnitUneceCodeController extends AbstractController
 {
-    public function __construct(private readonly UnitIsoCodes $isoCodes)
+    public function __construct(private readonly UnitUneceCodes $uneceCodes)
     {
     }
 
-    #[Route(path: '/api/_action/unit/iso-codes', name: 'api.action.unit.iso-codes', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['unit:read']], methods: ['GET'])]
-    public function getIsoCodes(): JsonResponse
+    #[Route(path: '/api/_action/unit/unece-codes', name: 'api.action.unit.unece-codes', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['unit:read']], methods: ['GET'])]
+    public function getUneceCodes(): JsonResponse
     {
         $codes = [];
-        foreach ($this->isoCodes->getCodes() as $code => $name) {
+        foreach ($this->uneceCodes->getCodes() as $code => $name) {
             $codes[] = ['code' => (string) $code, 'name' => $name];
         }
 

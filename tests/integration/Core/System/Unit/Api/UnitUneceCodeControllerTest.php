@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('inventory')]
-class UnitIsoCodeControllerTest extends TestCase
+class UnitUneceCodeControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
     use DatabaseTransactionBehaviour;
@@ -23,7 +23,7 @@ class UnitIsoCodeControllerTest extends TestCase
     {
         $browser = $this->getBrowser(permissions: ['unit:read']);
 
-        $browser->request('GET', '/api/_action/unit/iso-codes');
+        $browser->request('GET', '/api/_action/unit/unece-codes');
 
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
         $codes = json_decode((string) $browser->getResponse()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
@@ -35,7 +35,7 @@ class UnitIsoCodeControllerTest extends TestCase
     {
         $browser = $this->getBrowser(permissions: []);
 
-        $browser->request('GET', '/api/_action/unit/iso-codes');
+        $browser->request('GET', '/api/_action/unit/unece-codes');
 
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
     }

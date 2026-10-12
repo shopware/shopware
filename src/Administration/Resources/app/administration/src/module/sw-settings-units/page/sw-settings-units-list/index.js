@@ -167,8 +167,8 @@ export default {
                     label: 'sw-settings-units.grid.columnShortCode',
                 },
                 {
-                    property: 'isoCode',
-                    label: 'sw-settings-units.grid.columnIsoCode',
+                    property: 'uneceCode',
+                    label: 'sw-settings-units.grid.columnUneceCode',
                 },
             ];
         },

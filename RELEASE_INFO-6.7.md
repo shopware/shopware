@@ -437,7 +437,7 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 ### Admin API lists the unit codes
 
-The new route `GET /api/_action/unit/iso-codes` returns every code that can be saved as `isoCode` on a unit, as a list of `{"code": "KGM", "name": "kilogram"}` objects. The names are in English. The route needs the `unit:read` permission.
+The new route `GET /api/_action/unit/unece-codes` returns every code that can be saved as `uneceCode` on a unit, as a list of `{"code": "KGM", "name": "kilogram"}` objects. The names are in English. The route needs the `unit:read` permission.
 
 ## Administration
 

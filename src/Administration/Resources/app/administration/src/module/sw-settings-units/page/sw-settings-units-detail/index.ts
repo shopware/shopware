@@ -5,7 +5,7 @@ import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-settings-units-detail.html.twig';
 import type Repository from '../../../../core/data/repository.data';
 import { mapPropertyErrors } from '../../../../app/service/map-errors.service';
-import type { UnitIsoCode } from '../../../../core/service/api/unit-iso-code.api.service';
+import type { UnitUneceCode } from '../../../../core/service/api/unit-unece-code.api.service';
 
 const { Component, Mixin } = Shopware;
 
@@ -21,7 +21,7 @@ export default Component.wrapComponentConfig({
         'repositoryFactory',
         'acl',
         'customFieldDataProviderService',
-        'unitIsoCodeService',
+        'unitUneceCodeService',
     ],
 
     props: {
@@ -53,14 +53,14 @@ export default Component.wrapComponentConfig({
             return criteria;
         },
 
-        isoCodeOptions(): Array<{ value: string; label: string }> {
-            return this.isoCodes.map(({ code, name }) => ({
+        uneceCodeOptions(): Array<{ value: string; label: string }> {
+            return this.uneceCodes.map(({ code, name }) => ({
                 value: code,
                 label: `${code} - ${name}`,
             }));
         },
 
-        ...mapPropertyErrors('unit', ['name', 'shortCode', 'isoCode']),
+        ...mapPropertyErrors('unit', ['name', 'shortCode', 'uneceCode']),
     },
 
     data(): {
@@ -68,16 +68,16 @@ export default Component.wrapComponentConfig({
         isLoading: boolean;
         isSaveSuccessful: boolean;
         customFieldSets: Entity<'custom_field_set'>[];
-        isoCodes: UnitIsoCode[];
-        isIsoCodesLoading: boolean;
+        uneceCodes: UnitUneceCode[];
+        isUneceCodesLoading: boolean;
     } {
         return {
             unit: null,
             isLoading: true,
             isSaveSuccessful: false,
             customFieldSets: [],
-            isoCodes: [],
-            isIsoCodesLoading: true,
+            uneceCodes: [],
+            isUneceCodesLoading: true,
         };
     },
 
@@ -98,7 +98,7 @@ export default Component.wrapComponentConfig({
     },
 
     created() {
-        this.loadIsoCodes();
+        this.loadUneceCodes();
 
         const customFieldDataProviderService = this.customFieldDataProviderService as {
             getCustomFieldSets(
@@ -132,19 +132,19 @@ export default Component.wrapComponentConfig({
     },
 
     methods: {
-        loadIsoCodes(): void {
-            this.unitIsoCodeService
-                .getIsoCodes()
-                .then((isoCodes) => {
-                    this.isoCodes = isoCodes;
+        loadUneceCodes(): void {
+            this.unitUneceCodeService
+                .getUneceCodes()
+                .then((uneceCodes) => {
+                    this.uneceCodes = uneceCodes;
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$t('sw-settings-units.notification.errorLoadingIsoCodes'),
+                        message: this.$t('sw-settings-units.notification.errorLoadingUneceCodes'),
                     });
                 })
                 .finally(() => {
-                    this.isIsoCodesLoading = false;
+                    this.isUneceCodesLoading = false;
                 });
         },
 

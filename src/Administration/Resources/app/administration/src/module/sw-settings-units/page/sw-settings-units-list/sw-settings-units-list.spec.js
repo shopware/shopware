@@ -227,8 +227,8 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
                 label: 'sw-settings-units.grid.columnShortCode',
             },
             {
-                property: 'isoCode',
-                label: 'sw-settings-units.grid.columnIsoCode',
+                property: 'uneceCode',
+                label: 'sw-settings-units.grid.columnUneceCode',
             },
         ]);
     });

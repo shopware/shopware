@@ -3,17 +3,17 @@
  */
 import { mount, flushPromises } from '@vue/test-utils';
 
-const isoCodes = [
+const uneceCodes = [
     { code: 'H87', name: 'piece' },
     { code: 'KGM', name: 'kilogram' },
 ];
 
 async function createWrapper({
     privileges = ['scale_unit.editor'],
-    getIsoCodes = () => Promise.resolve(isoCodes),
+    getUneceCodes = () => Promise.resolve(uneceCodes),
 }: {
     privileges?: string[];
-    getIsoCodes?: () => Promise<typeof isoCodes>;
+    getUneceCodes?: () => Promise<typeof uneceCodes>;
 } = {}) {
     const wrapper = mount(await wrapTestComponent('sw-settings-units-detail', { sync: true }), {
         props: {
@@ -28,7 +28,7 @@ async function createWrapper({
                                 id: 'unit-id',
                                 name: 'Kilogram',
                                 shortCode: 'kg',
-                                isoCode: 'KGM',
+                                uneceCode: 'KGM',
                                 isNew: () => false,
                             }),
                     }),
@@ -39,8 +39,8 @@ async function createWrapper({
                 customFieldDataProviderService: {
                     getCustomFieldSets: () => Promise.resolve([]),
                 },
-                unitIsoCodeService: {
-                    getIsoCodes: jest.fn(getIsoCodes),
+                unitUneceCodeService: {
+                    getUneceCodes: jest.fn(getUneceCodes),
                 },
             },
             stubs: {
@@ -82,11 +82,11 @@ async function createWrapper({
 describe('module/sw-settings-units/page/sw-settings-units-detail', () => {
     it('should offer the unit codes as code and name', async () => {
         const wrapper = await createWrapper();
-        const select = wrapper.find('.sw-settings-units__iso-code');
+        const select = wrapper.find('.sw-settings-units__unece-code');
 
         expect(select.attributes('data-value')).toBe('KGM');
         expect(select.attributes('data-loading')).toBe('false');
-        expect(wrapper.vm.isoCodeOptions).toEqual([
+        expect(wrapper.vm.uneceCodeOptions).toEqual([
             { value: 'H87', label: 'H87 - piece' },
             { value: 'KGM', label: 'KGM - kilogram' },
         ]);
@@ -95,16 +95,16 @@ describe('module/sw-settings-units/page/sw-settings-units-detail', () => {
     it('should show an error when the unit codes cannot be loaded', async () => {
         const createNotification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
 
-        const wrapper = await createWrapper({ getIsoCodes: () => Promise.reject(new Error('failed')) });
+        const wrapper = await createWrapper({ getUneceCodes: () => Promise.reject(new Error('failed')) });
 
         expect(createNotification).toHaveBeenCalledWith(
             expect.objectContaining({
                 variant: 'error',
-                message: 'sw-settings-units.notification.errorLoadingIsoCodes',
+                message: 'sw-settings-units.notification.errorLoadingUneceCodes',
             }),
         );
-        expect(wrapper.vm.isoCodeOptions).toEqual([]);
-        expect(wrapper.find('.sw-settings-units__iso-code').attributes('data-loading')).toBe('false');
+        expect(wrapper.vm.uneceCodeOptions).toEqual([]);
+        expect(wrapper.find('.sw-settings-units__unece-code').attributes('data-loading')).toBe('false');
 
         createNotification.mockRestore();
     });
@@ -112,6 +112,6 @@ describe('module/sw-settings-units/page/sw-settings-units-detail', () => {
     it('should disable the unit code without edit permission', async () => {
         const wrapper = await createWrapper({ privileges: [] });
 
-        expect(wrapper.find('.sw-settings-units__iso-code').attributes('data-disabled')).toBe('true');
+        expect(wrapper.find('.sw-settings-units__unece-code').attributes('data-disabled')).toBe('true');
     });
 });

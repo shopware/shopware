@@ -26,7 +26,7 @@ import type ModuleFactory from 'src/core/factory/module.factory';
 import type DirectiveFactory from 'src/core/factory/directive.factory';
 import type EntityDefinitionFactory from 'src/core/factory/entity-definition.factory';
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
-import type UnitIsoCodeApiService from 'src/core/service/api/unit-iso-code.api.service';
+import type UnitUneceCodeApiService from 'src/core/service/api/unit-unece-code.api.service';
 import type UserApiService from 'src/core/service/api/user.api.service';
 import type UserConfigService from 'src/core/service/api/user-config.api.service';
 import type OAuthAuthorizeApiService from 'src/core/service/api/oauth-authorize.api.service';
@@ -304,7 +304,7 @@ declare global {
         storeService: StoreApiService;
         systemConfigApiService: SystemConfigApiService;
         timezoneService: $TSFixMe;
-        unitIsoCodeService: UnitIsoCodeApiService;
+        unitUneceCodeService: UnitUneceCodeApiService;
         updateService: UpdateApiService;
         userActivityService: UserActivityService;
         userRecoveryService: UserRecoveryApiService;

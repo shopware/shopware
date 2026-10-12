@@ -4,13 +4,13 @@
       "fieldLabels": {
         "name": "Name der Produkteinheit",
         "shortCode": "Kurzform",
-        "isoCode": "Einheitencode (UN/ECE)"
+        "uneceCode": "Einheitencode (UN/ECE)"
       },
       "helpTexts": {
-        "isoCode": "Standardcode für E-Rechnungen und Schnittstellen, zum Beispiel KGM für Kilogramm."
+        "uneceCode": "Standardcode für E-Rechnungen und Schnittstellen, zum Beispiel KGM für Kilogramm."
       },
       "placeholders": {
-        "isoCode": "Einheitencode auswählen ..."
+        "uneceCode": "Einheitencode auswählen ..."
       }
     },
     "general": {
@@ -22,7 +22,7 @@
     "grid": {
       "columnName": "Produkteinheit",
       "columnShortCode": "Kurzform",
-      "columnIsoCode": "Einheitencode"
+      "columnUneceCode": "Einheitencode"
     },
     "empty-state": {
       "title": "Noch keine Produkteinheiten",
@@ -31,7 +31,7 @@
     "notification": {
       "successMessage": "Die Produkteinheit wurde erfolgreich gespeichert.",
       "errorMessage": "Die Produkteinheit konnte nicht gespeichert werden. Überprüfe, ob alle Felder ausgefüllt sind.",
-      "errorLoadingIsoCodes": "Die Einheitencodes konnten nicht geladen werden."
+      "errorLoadingUneceCodes": "Die Einheitencodes konnten nicht geladen werden."
     }
   },
   "sw-privileges": {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mapping\Registry;
 
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
@@ -13,9 +14,8 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * Aggregator over the tagged providers with a request-lifetime catalogue cache.
  *
- * Two providers offering the same typed source reference is not an error — a cross-cutting provider can
- * overlap an entity provider — so the first provider to offer the reference keeps it. Provider order is the
- * tag's registration order, which puts the more specific provider first when it declares the higher priority.
+ * Candidate display names are unique across all providers for a root source. A collision is a configuration
+ * error because a display name cannot distinguish candidates that carry different source references.
  * The candidate and provider index is reused for each root source during a request, then cleared by `kernel.reset`
  * so dynamic provider data such as custom fields is refreshed on the next request.
  *
@@ -115,7 +115,7 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
             foreach ($provider->provide($rootSource) as $candidate) {
                 $candidateKey = $candidate->source->displayName();
                 if (isset($candidates[$candidateKey])) {
-                    continue;
+                    throw ContentSystemException::duplicateMappingCandidate($candidateKey);
                 }
 
                 $candidates[$candidateKey] = $candidate;

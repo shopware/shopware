@@ -63,6 +63,10 @@ final readonly class MappingCandidate
         }
 
         $this->source = $source ?? MappingSourceReference::fromRootPath($path);
+
+        if ($path !== $this->source->displayName()) {
+            throw ContentSystemException::mappingCandidatePathMismatch($path, $this->source->displayName());
+        }
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\CustomField\ContentSystem\Mapping;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\ContentSystem\Mapping\CustomFieldMappingCandidateProvider;
@@ -11,6 +12,8 @@ use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 
 /**
  * @internal
@@ -28,7 +31,9 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         $weight = $this->customField('weight', CustomFieldTypes::FLOAT);
 
         $provider = new CustomFieldMappingCandidateProvider(
-            new StaticEntityRepository([new CustomFieldCollection([$material, $weight])])
+            new StaticEntityRepository([new CustomFieldCollection([$material, $weight])]),
+            new TagAwareAdapter(new ArrayAdapter()),
+            static::createStub(CacheTagCollector::class),
         );
 
         static::assertTrue($provider->supports('product'));
@@ -54,10 +59,26 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         $date = $this->customField('release_date', CustomFieldTypes::DATE);
 
         $provider = new CustomFieldMappingCandidateProvider(
-            new StaticEntityRepository([new CustomFieldCollection([$media, $multiSelect, $json, $date])])
+            new StaticEntityRepository([new CustomFieldCollection([$media, $multiSelect, $json, $date])]),
+            new TagAwareAdapter(new ArrayAdapter()),
+            static::createStub(CacheTagCollector::class),
         );
 
         static::assertSame([], $provider->provide('product'));
+    }
+
+    public function testOnlySupportsEntityRootsWithCustomFieldRelations(): void
+    {
+        $provider = new CustomFieldMappingCandidateProvider(
+            new StaticEntityRepository([]),
+            new TagAwareAdapter(new ArrayAdapter()),
+            static::createStub(CacheTagCollector::class),
+        );
+
+        static::assertFalse($provider->supports('header'));
+        static::assertFalse($provider->supports('footer'));
+        static::assertFalse($provider->supports('none'));
+        static::assertSame([], $provider->provide('header'));
     }
 
     /**

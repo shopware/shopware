@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -107,6 +108,23 @@ class MappingCandidateTest extends TestCase
             description: 'a description',
             group: 'basic',
             valueType: 'string',
+        );
+    }
+
+    public function testRequiresPathToMatchTheSourceDisplayName(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::mappingCandidatePathMismatch(
+            'category.title',
+            'category.name'
+        ));
+
+        new MappingCandidate(
+            path: 'category.title',
+            label: 'a label',
+            description: 'a description',
+            group: 'basic',
+            valueType: 'string',
+            source: MappingSourceReference::root('category', 'name'),
         );
     }
 }

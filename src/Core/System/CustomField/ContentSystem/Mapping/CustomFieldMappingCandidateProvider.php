@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomField\ContentSystem\Mapping;
 
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\Context;
@@ -13,6 +14,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * Offers the active, Store-API-visible custom fields assigned to a layout's root entity.
@@ -22,19 +25,47 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 #[Package('framework')]
 class CustomFieldMappingCandidateProvider extends AbstractMappingCandidateProvider
 {
+    private const CACHE_TAG = 'custom_field_mapping_candidates';
+
+    private const ROOT_SOURCES = ['category', 'landing_page', 'product'];
+
     /**
      * @param EntityRepository<CustomFieldCollection> $customFieldRepository
      */
-    public function __construct(private readonly EntityRepository $customFieldRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $customFieldRepository,
+        private readonly TagAwareCacheInterface $cache,
+        private readonly CacheTagCollector $cacheTagCollector,
+    ) {
     }
 
     public function supports(string $rootSource): bool
     {
-        return true;
+        return \in_array($rootSource, self::ROOT_SOURCES, true);
     }
 
     public function provide(string $rootSource): array
+    {
+        if (!$this->supports($rootSource)) {
+            return [];
+        }
+
+        $this->cacheTagCollector->addTag('custom_field');
+
+        return $this->cache->get(
+            'content_system.custom_field_mapping_candidates.' . $rootSource,
+            function (ItemInterface $item) use ($rootSource): array {
+                $item->tag(self::CACHE_TAG);
+
+                return $this->loadCandidates($rootSource);
+            }
+        );
+    }
+
+    /**
+     * @return list<MappingCandidate>
+     */
+    private function loadCandidates(string $rootSource): array
     {
         $criteria = (new Criteria())
             ->addAssociation('customFieldSet.relations')

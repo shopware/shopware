@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping\Registry;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
@@ -55,17 +56,14 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         );
     }
 
-    public function testTheFirstProviderToOfferAPathKeepsIt(): void
+    public function testRejectsDuplicateCandidateKeysAcrossProviders(): void
     {
-        $specific = self::candidate('category.name', label: 'the specific one');
-        $crossCutting = self::candidate('category.name', label: 'the overlapping one');
+        $this->expectExceptionObject(ContentSystemException::duplicateMappingCandidate('category.name'));
 
-        $registry = new ContentSystemMappingCandidateRegistry([
-            new StaticMappingCandidateProvider(['category'], [$specific]),
-            new StaticMappingCandidateProvider(['category'], [$crossCutting]),
-        ]);
-
-        static::assertSame($specific, $registry->forRootSource('category')['category.name']);
+        (new ContentSystemMappingCandidateRegistry([
+            new StaticMappingCandidateProvider(['category'], [self::candidate('category.name')]),
+            new StaticMappingCandidateProvider(['category'], [self::candidate('category.name', label: 'duplicate')]),
+        ]))->forRootSource('category');
     }
 
     public function testCachesTheCatalogueUntilResetThenReadsUpdatedProviderData(): void

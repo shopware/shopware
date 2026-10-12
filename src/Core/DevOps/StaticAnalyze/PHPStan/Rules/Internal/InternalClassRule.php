@@ -71,7 +71,6 @@ class InternalClassRule implements Rule
         'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataLoader\\AbstractContentDataLoader',
         'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataLoader\\AbstractContentDataLoaderConfigSerializer',
         'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\Provider\\AbstractMappingCandidateProvider',
-        'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\MappingCandidate',
         'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\MappingSourceReference',
         'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\MappingSourceResolutionContext',
         'Shopware\\Core\\Framework\\ContentSystem\\Output\\Format\\AbstractResponseFactory',
@@ -134,7 +133,6 @@ class InternalClassRule implements Rule
         'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\MappingCandidate',
         'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\Projection\\AbstractContentPropertyProjection',
         'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\Projection\\AbstractContentSystemPropertyProjectionRegistry',
-        'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\Provider\\AbstractMappingCandidateProvider',
         'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\Registry\\AbstractContentSystemMappingCandidateRegistry',
         'Shopware\\Core\\Framework\\ContentSystem\\ContentSystemException',
     ];

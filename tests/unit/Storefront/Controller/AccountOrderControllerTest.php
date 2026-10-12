@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -317,13 +318,74 @@ class AccountOrderControllerTest extends TestCase
         $controller->updateOrder($ids->get('order'), $request, $salesChannelContext);
     }
 
+    /**
+     * @param array<string, string> $credentials
+     */
+    #[DataProvider('guestAuthenticationFailures')]
+    public function testOrderSingleOverviewRedirectsToGuestLogin(\Throwable $exception, array $credentials, bool $expectedLoginError): void
+    {
+        $orderPageLoader = static::createStub(AccountOrderPageLoader::class);
+        $orderPageLoader->method('load')->willThrowException($exception);
+
+        $controller = $this->createController(
+            $this->orderRouteMock,
+            $this->handlePaymentRouteMock,
+            orderPageLoader: $orderPageLoader,
+        );
+
+        $request = new Request(request: $credentials, attributes: ['deepLinkCode' => 'deep-link-code']);
+
+        $response = $controller->orderSingleOverview($request, Generator::generateSalesChannelContext());
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('frontend.account.guest.login.page', $response->getTargetUrl());
+
+        $parameters = $controller->recorder()->redirected['frontend.account.guest.login.page'][0]['parameters'];
+        static::assertSame(['deepLinkCode' => 'deep-link-code'], $parameters['redirectParameters']);
+        static::assertSame($expectedLoginError, $parameters['loginError']);
+    }
+
+    public static function guestAuthenticationFailures(): \Generator
+    {
+        yield 'opening the link without credentials asks for them without an error' => [
+            OrderException::guestNotAuthenticated(),
+            [],
+            false,
+        ];
+
+        yield 'submitted credentials for a code matching no order show an error' => [
+            OrderException::guestNotAuthenticated(),
+            ['email' => 'guest@example.com', 'zipcode' => '12345'],
+            true,
+        ];
+
+        yield 'an incomplete submission asks for the credentials again without an error' => [
+            OrderException::guestNotAuthenticated(),
+            ['email' => 'guest@example.com'],
+            false,
+        ];
+
+        yield 'submitted credentials not matching the order show an error' => [
+            OrderException::wrongGuestCredentials(),
+            ['email' => 'guest@example.com', 'zipcode' => '12345'],
+            true,
+        ];
+
+        yield 'throttled submissions only show the wait time, not the error' => [
+            OrderException::customerAuthThrottledException(10),
+            ['email' => 'guest@example.com', 'zipcode' => '12345'],
+            false,
+        ];
+    }
+
     private function createController(
         AbstractOrderRoute $orderRoute,
         AbstractHandlePaymentMethodRoute $handlePaymentRoute,
         ?AbstractContextSwitchRoute $contextSwitchRoute = null,
+        ?AccountOrderPageLoader $orderPageLoader = null,
     ): AccountOrderControllerStub {
         return new AccountOrderControllerStub(
-            static::createStub(AccountOrderPageLoader::class),
+            $orderPageLoader ?? static::createStub(AccountOrderPageLoader::class),
             $this->accountEditOrderPageLoaderMock,
             $contextSwitchRoute ?? static::createStub(AbstractContextSwitchRoute::class),
             static::createStub(AbstractCancelOrderRoute::class),

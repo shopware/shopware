@@ -95,6 +95,6 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
         $esHelper = static::createStub(ElasticsearchHelper::class);
 
         $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $esHelper);
-        static::assertEmpty($detector->get());
+        static::assertSame([], $detector->get());
     }
 }

@@ -100,6 +100,7 @@ const EXPECTED_CONDITION_TYPES = [
     'customerCreatedByAdmin',
     'customerSalutation',
     'cartLineItemProductType',
+    'orderDaysSincePlaced',
     'orderTag',
     'orderTrackingCode',
     'orderDeliveryStatus',

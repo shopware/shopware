@@ -159,8 +159,8 @@ class TaskRegistryTest extends TestCase
         $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(static function (array $data, Context $context) {
             static::assertCount(2, $data);
 
-            static::assertNotEmpty($data[0]);
-            static::assertNotEmpty($data[1]);
+            static::assertIsArray($data[0]);
+            static::assertIsArray($data[1]);
 
             [$queueTaskPayload, $scheduledTaskPayload] = $data;
 
@@ -221,8 +221,8 @@ class TaskRegistryTest extends TestCase
         $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(static function (array $data, Context $context) {
             static::assertCount(2, $data);
 
-            static::assertNotEmpty($data[0]);
-            static::assertNotEmpty($data[1]);
+            static::assertIsArray($data[0]);
+            static::assertIsArray($data[1]);
 
             [$queueTaskPayload, $skippedTaskPayload] = $data;
 
@@ -267,7 +267,7 @@ class TaskRegistryTest extends TestCase
         $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(static function (array $data, Context $context) {
             static::assertCount(1, $data);
 
-            static::assertNotEmpty($data[0]);
+            static::assertIsArray($data[0]);
 
             static::assertSame('cleanupTask', $data[0]['id']);
             static::assertSame(CleanupCartTask::getDefaultInterval(), $data[0]['defaultRunInterval']);
@@ -305,7 +305,7 @@ class TaskRegistryTest extends TestCase
         $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(static function (array $data, Context $context) {
             static::assertCount(1, $data);
 
-            static::assertNotEmpty($data[0]);
+            static::assertIsArray($data[0]);
 
             static::assertSame('cleanupTask', $data[0]['id']);
             static::assertSame(CleanupCartTask::getDefaultInterval(), $data[0]['defaultRunInterval']);

@@ -121,7 +121,7 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertFalse($exportedProduct['is_digital']);
         static::assertSame('DE', $exportedProduct['store_country']);
         static::assertIsArray($exportedProduct['target_countries']);
-        static::assertNotEmpty($exportedProduct['target_countries']);
+        static::assertNotCount(0, $exportedProduct['target_countries']);
         static::assertContains('DE', $exportedProduct['target_countries']);
         static::assertSame('1234567890123', $exportedProduct['gtin']);
         static::assertSame('MPN-123', $exportedProduct['mpn']);

@@ -208,7 +208,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $imageSliderStruct = $slot->getData();
         static::assertInstanceOf(ImageSliderStruct::class, $imageSliderStruct);
-        static::assertEmpty($imageSliderStruct->getSliderItems());
+        static::assertSame([], $imageSliderStruct->getSliderItems());
     }
 
     public function testEnrichWithMappedConfigAndHasCorrectOrder(): void
@@ -310,7 +310,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $imageSliderItems = $imageSliderStruct->getSliderItems();
         static::assertIsArray($imageSliderItems);
-        static::assertNotEmpty($imageSliderItems);
+        static::assertNotCount(0, $imageSliderItems);
 
         $firstSliderItem = $imageSliderItems[0];
         static::assertSame($media->getId(), $firstSliderItem->getMedia()?->getId());

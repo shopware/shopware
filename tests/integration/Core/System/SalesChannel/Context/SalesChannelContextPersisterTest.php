@@ -119,7 +119,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $customerId = $this->createCustomer();
         $this->contextPersister->save($token, [], TestDefaults::SALES_CHANNEL, $customerId);
 
-        static::assertNotEmpty($result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId));
+        static::assertNotCount(0, $result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId));
         static::assertSame($token, $result['token']);
     }
 
@@ -204,7 +204,7 @@ class SalesChannelContextPersisterTest extends TestCase
 
         $result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId);
 
-        static::assertNotEmpty($result);
+        static::assertNotCount(0, $result);
 
         $expected = $payload;
         $expected[SalesChannelContextService::CUSTOMER_ID] = $customerId;
@@ -370,16 +370,16 @@ class SalesChannelContextPersisterTest extends TestCase
         $this->contextPersister->save($token2, [], $salesChannel2['id'], $customerId);
 
         // Without saved context sales channel
-        static::assertEmpty($this->contextPersister->load($token1, TestDefaults::SALES_CHANNEL, $customerId));
-        static::assertEmpty($this->contextPersister->load($token2, TestDefaults::SALES_CHANNEL, $customerId));
+        static::assertCount(0, $this->contextPersister->load($token1, TestDefaults::SALES_CHANNEL, $customerId));
+        static::assertCount(0, $this->contextPersister->load($token2, TestDefaults::SALES_CHANNEL, $customerId));
 
         $contextPayload1 = $this->contextPersister->load(Uuid::randomHex(), $salesChannel1['id'], $customerId);
-        static::assertNotEmpty($contextPayload1);
+        static::assertNotCount(0, $contextPayload1);
         static::assertSame($token1, $contextPayload1['token']);
 
         $contextPayload2 = $this->contextPersister->load(Uuid::randomHex(), $salesChannel2['id'], $customerId);
 
-        static::assertNotEmpty($contextPayload2);
+        static::assertNotCount(0, $contextPayload2);
         static::assertSame($token2, $contextPayload2['token']);
     }
 
@@ -489,7 +489,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $this->contextPersister->save($token, [], TestDefaults::SALES_CHANNEL, $customerId);
 
         // check token is valid here
-        static::assertNotEmpty($result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId));
+        static::assertNotCount(0, $result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId));
         static::assertSame($token, $result['token']);
 
         if ($preserveToken) {

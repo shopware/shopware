@@ -894,10 +894,27 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         wrapper.vm.getLatestOrderStatus();
 
-        expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orderTransactions.order.id');
-        expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orderDeliveries.order.id');
+        expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orderTransactions.orderId');
+        expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orderDeliveries.orderId');
         expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orders.id');
         wrapper.vm.fetchStatusOptions.mockRestore();
+    });
+
+    it('should assign the latest status options to their own status field', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        wrapper.vm.fetchStateMachineStates = jest.fn((field) => Promise.resolve([field]));
+        wrapper.vm.fetchToStateMachineTransitions = jest.fn((states) => Promise.resolve(states));
+
+        wrapper.vm.bulkEditData.orders.isChanged = true;
+        wrapper.vm.bulkEditData.orderTransactions.isChanged = true;
+        wrapper.vm.bulkEditData.orderDeliveries.isChanged = true;
+
+        await wrapper.vm.getLatestOrderStatus();
+
+        expect(wrapper.vm.transactionStatus).toEqual(['orderTransactions.orderId']);
+        expect(wrapper.vm.deliveryStatus).toEqual(['orderDeliveries.orderId']);
+        expect(wrapper.vm.orderStatus).toEqual(['orders.id']);
     });
 
     it('should restrict fields on including orders without delivery', async () => {

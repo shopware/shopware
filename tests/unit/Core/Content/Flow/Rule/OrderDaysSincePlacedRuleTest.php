@@ -1,14 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Order\Rule;
+namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Order\Rule\DaysSinceOrderPlacedRule;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
+use Shopware\Core\Content\Flow\Rule\OrderDaysSincePlacedRule;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\RuleValidator;
 use Shopware\Core\Framework\Context;
@@ -33,9 +32,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(DaysSinceOrderPlacedRule::class)]
+#[CoversClass(OrderDaysSincePlacedRule::class)]
 #[Group('rules')]
-class DaysSinceOrderPlacedRuleTest extends TestCase
+class OrderDaysSincePlacedRuleTest extends TestCase
 {
     public function testMatchesTheOrderDateUsingCalendarDays(): void
     {
@@ -46,7 +45,7 @@ class DaysSinceOrderPlacedRuleTest extends TestCase
         $scope->method('getOrder')->willReturn($order);
         $scope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('2024-01-31T00:01:00+00:00'));
 
-        $rule = new DaysSinceOrderPlacedRule();
+        $rule = new OrderDaysSincePlacedRule();
         $rule->assign(['daysPassed' => 30, 'operator' => Rule::OPERATOR_LTE]);
 
         static::assertTrue($rule->match($scope));
@@ -61,7 +60,7 @@ class DaysSinceOrderPlacedRuleTest extends TestCase
         $scope->method('getOrder')->willReturn($order);
         $scope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('2024-01-31T00:01:00+00:00'));
 
-        $rule = new DaysSinceOrderPlacedRule();
+        $rule = new OrderDaysSincePlacedRule();
         $rule->assign(['daysPassed' => 30, 'operator' => Rule::OPERATOR_LTE]);
 
         static::assertFalse($rule->match($scope));
@@ -69,37 +68,61 @@ class DaysSinceOrderPlacedRuleTest extends TestCase
 
     public function testDoesNotMatchOutsideFlowRuleScope(): void
     {
-        $rule = new DaysSinceOrderPlacedRule();
+        $rule = new OrderDaysSincePlacedRule();
         $rule->assign(['daysPassed' => 30, 'operator' => Rule::OPERATOR_LTE]);
 
         static::assertFalse($rule->match(static::createStub(RuleScope::class)));
     }
 
-    public function testRequiresAnIntegerDayCountAndExposesAnIntegerField(): void
+    public function testDoesNotMatchWithoutDayCount(): void
     {
-        $rule = new DaysSinceOrderPlacedRule();
+        $order = static::createStub(OrderEntity::class);
+        $order->method('getOrderDate')->willReturn(new \DateTimeImmutable('2024-01-01T00:00:00+00:00'));
 
-        static::assertEquals(RuleConstraints::int(), $rule->getConstraints()['daysPassed']);
+        $scope = static::createStub(FlowRuleScope::class);
+        $scope->method('getOrder')->willReturn($order);
+        $scope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('2024-01-01T00:00:00+00:00'));
+
+        $rule = new OrderDaysSincePlacedRule();
+        $rule->assign(['operator' => Rule::OPERATOR_LTE]);
+
+        static::assertFalse($rule->match($scope));
+    }
+
+    public function testIsRegisteredAsFlowRule(): void
+    {
+        $registry = new RuleConditionRegistry([new OrderDaysSincePlacedRule()]);
+
+        static::assertSame([OrderDaysSincePlacedRule::RULE_NAME], $registry->getFlowRuleNames());
+    }
+
+    public function testRequiresANumericDayCountAndExposesANumberField(): void
+    {
+        $rule = new OrderDaysSincePlacedRule();
+
+        static::assertEquals(RuleConstraints::float(), $rule->getConstraints()['daysPassed']);
         static::assertEquals(RuleConstraints::numericOperators(false), $rule->getConstraints()['operator']);
         static::assertSame([
             'name' => 'daysPassed',
-            'type' => 'int',
-            'config' => ['unit' => RuleConfig::UNIT_TIME],
+            'type' => 'float',
+            'config' => ['unit' => RuleConfig::UNIT_TIME, 'digits' => RuleConfig::DEFAULT_DIGITS],
         ], $rule->getConfig()->getData()['fields']['daysPassed']);
     }
 
-    /**
-     * @return iterable<string, array{float|string|null}>
-     */
-    public static function invalidDayCounts(): iterable
+    public function testRuleValidatorRejectsMissingDayCount(): void
     {
-        yield 'missing required value' => [null];
-        yield 'fractional day count' => [30.5];
-        yield 'numeric string' => ['30'];
+        static::assertSame(['/0/value/daysPassed'], $this->validateDayCount(null));
     }
 
-    #[DataProvider('invalidDayCounts')]
-    public function testRuleValidatorRejectsMissingOrNonIntegerDayCounts(float|string|null $daysPassed): void
+    public function testRuleValidatorAcceptsFractionalDayCount(): void
+    {
+        static::assertSame([], $this->validateDayCount(1.5));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function validateDayCount(?float $daysPassed): array
     {
         $registry = new StaticDefinitionInstanceRegistry(
             [RuleConditionDefinition::class],
@@ -111,7 +134,7 @@ class DaysSinceOrderPlacedRuleTest extends TestCase
 
         $validator = new RuleValidator(
             Validation::createValidator(),
-            new RuleConditionRegistry([new DaysSinceOrderPlacedRule()]),
+            new RuleConditionRegistry([new OrderDaysSincePlacedRule()]),
             static::createStub(EntityRepository::class),
             static::createStub(EntityRepository::class)
         );
@@ -122,7 +145,7 @@ class DaysSinceOrderPlacedRuleTest extends TestCase
                 new InsertCommand(
                     $definition,
                     [
-                        'type' => DaysSinceOrderPlacedRule::RULE_NAME,
+                        'type' => OrderDaysSincePlacedRule::RULE_NAME,
                         'value' => json_encode(['operator' => Rule::OPERATOR_LTE, 'daysPassed' => $daysPassed], \JSON_THROW_ON_ERROR),
                     ],
                     $primaryKey,
@@ -136,6 +159,6 @@ class DaysSinceOrderPlacedRuleTest extends TestCase
 
         $violations = iterator_to_array($event->getExceptions()->getErrors());
 
-        static::assertSame(['/0/value/daysPassed'], array_column(array_column($violations, 'source'), 'pointer'));
+        return array_column(array_column($violations, 'source'), 'pointer');
     }
 }

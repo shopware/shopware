@@ -84,9 +84,9 @@ Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatical
 
 ### Order age rule condition
 
-The Rule Builder condition `daysSinceOrderPlaced` compares the order's `orderDate` with the current date in calendar days. It supports numeric comparison operators and requires an integer `daysPassed` value, for example `operator: <=` and `daysPassed: 30` to match orders placed within the last 30 days.
+The Rule Builder condition `orderDaysSincePlaced` compares the order's `orderDate` with the current date in calendar days. It supports numeric comparison operators and requires a numeric `daysPassed` value, for example `operator: <=` and `daysPassed: 30` to match orders placed within the last 30 days.
 
-Extensions can evaluate `Shopware\Core\Checkout\Order\Rule\DaysSinceOrderPlacedRule` in a `FlowRuleScope` or a derived scope to apply date limits to existing orders.
+Extensions can evaluate `Shopware\Core\Content\Flow\Rule\OrderDaysSincePlacedRule` in a `FlowRuleScope` or a derived scope to apply date limits to existing orders.
 
 ### Unlimited DAL searches with next-pages totals
 

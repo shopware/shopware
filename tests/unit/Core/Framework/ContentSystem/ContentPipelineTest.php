@@ -352,9 +352,8 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        // Fixture guard: the middle element stores nothing of its own, so the derived provider has to
-        // read back the value the root delivered under the accepted key, not under the alias.
-        static::assertNull($middle->property('featuredProduct'));
+        // Fixture guard: the middle element stores nothing of its own, so the only value it can
+        // redistribute is the one the root delivers to it — this is a genuine two-hop chain.
         static::assertNull($middle->property('product'));
 
         static::assertSame('product-payload', $this->renderedElement($result->tree, 'grandchild-id')->properties['product']);
@@ -389,8 +388,9 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        // Fixture guard: the middle element stores nothing of its own, so the only value it can
-        // redistribute is the one the root delivers to it — this is a genuine two-hop chain.
+        // Fixture guard: the middle element stores nothing of its own, so the derived provider has to
+        // read back the value the root delivered under the accepted key, not under the alias.
+        static::assertNull($middle->property('featuredProduct'));
         static::assertNull($middle->property('product'));
 
         static::assertSame('product-payload', $this->renderedElement($result->tree, 'grandchild-id')->properties['product']);

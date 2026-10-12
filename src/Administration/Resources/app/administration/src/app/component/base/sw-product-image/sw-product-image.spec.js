@@ -57,17 +57,15 @@ describe('app/component/base/sw-product-image', () => {
         expect(setAsCoverButton.exists()).toBe(false);
     });
 
-    it('should render the context button trigger as a square secondary button that is not a separate tab stop', async () => {
+    it('should render the context button trigger as a square secondary button that is not nested interactive content', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const trigger = wrapper.find('.sw-product-image__context-button .mt-button');
+        expect(trigger.element.tagName).toBe('SPAN');
         expect(trigger.classes()).toEqual(
             expect.arrayContaining(['mt-button--secondary', 'mt-button--x-small', 'mt-button--square']),
         );
-        expect(trigger.attributes('tabindex')).toBe('-1');
-        expect(trigger.attributes('aria-hidden')).toBe('true');
-        expect(trigger.attributes('aria-label')).toBeUndefined();
     });
 
     it('should not show spatial label if media item is not a 3D object', async () => {

@@ -586,12 +586,28 @@ class ProductStreamUpdaterTest extends TestCase
         $productRepository = StaticEntityRepository::of(ProductCollection::class, [], new ProductDefinition());
 
         // one search runs per stream and language context, so the stale match has to stay available
-        $search = static function () use ($matches, &$search, $productRepository): array {
-            $productRepository->searches[] = $search;
+        $search = new class($matches, $productRepository) {
+            /**
+             * @param list<string> $matches
+             * @param StaticEntityRepository<ProductCollection> $repository
+             */
+            public function __construct(
+                private readonly array $matches,
+                private readonly StaticEntityRepository $repository,
+            ) {
+            }
 
-            return $matches;
+            /**
+             * @return list<string>
+             */
+            public function __invoke(): array
+            {
+                $this->repository->addSearch($this);
+
+                return $this->matches;
+            }
         };
-        $productRepository->searches[] = $search;
+        $productRepository->addSearch($search);
 
         $language = new LanguageEntity();
         $language->setId(Defaults::LANGUAGE_SYSTEM);

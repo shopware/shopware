@@ -96,7 +96,8 @@ class SalesChannelContextFactoryTest extends TestCase
             MeasurementUnits::createDefaultUnits()
         );
 
-        $paymentMethodRepository = new StaticEntityRepository(
+        $paymentMethodRepository = StaticEntityRepository::of(
+            PaymentMethodCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($baseContext) {
                     static::assertCount(2, $criteria->getFilters());
@@ -118,7 +119,8 @@ class SalesChannelContextFactoryTest extends TestCase
             new PaymentMethodDefinition(),
         );
 
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($customer) {
                     return new EntitySearchResult(
@@ -134,7 +136,8 @@ class SalesChannelContextFactoryTest extends TestCase
             new CustomerDefinition(),
         );
 
-        $addressRepository = new StaticEntityRepository(
+        $addressRepository = StaticEntityRepository::of(
+            CustomerAddressCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($addresses) {
                     return new EntitySearchResult(
@@ -232,7 +235,8 @@ class SalesChannelContextFactoryTest extends TestCase
             ->with($salesChannel->getId(), $options)
             ->willReturn($baseContext);
 
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($customer) {
                     return new EntitySearchResult(
@@ -248,7 +252,8 @@ class SalesChannelContextFactoryTest extends TestCase
             new CustomerDefinition(),
         );
 
-        $addressRepository = new StaticEntityRepository(
+        $addressRepository = StaticEntityRepository::of(
+            CustomerAddressCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($addresses) {
                     return new EntitySearchResult(
@@ -335,7 +340,8 @@ class SalesChannelContextFactoryTest extends TestCase
             ->with($salesChannel->getId(), $options)
             ->willReturn($baseContext);
 
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($customer) {
                     return new EntitySearchResult(
@@ -351,7 +357,8 @@ class SalesChannelContextFactoryTest extends TestCase
             new CustomerDefinition(),
         );
 
-        $addressRepository = new StaticEntityRepository(
+        $addressRepository = StaticEntityRepository::of(
+            CustomerAddressCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($addresses) {
                     return new EntitySearchResult(
@@ -445,7 +452,8 @@ class SalesChannelContextFactoryTest extends TestCase
             MeasurementUnits::createDefaultUnits()
         );
 
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult(
                     CustomerDefinition::ENTITY_NAME,
@@ -459,7 +467,8 @@ class SalesChannelContextFactoryTest extends TestCase
             new CustomerDefinition(),
         );
 
-        $addressRepository = new StaticEntityRepository(
+        $addressRepository = StaticEntityRepository::of(
+            CustomerAddressCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult(
                     CustomerAddressDefinition::ENTITY_NAME,

@@ -15,18 +15,17 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(Commerce::class)]
 class CommerceTest extends TestCase
 {
-    public function testCustomFieldSet(): void
+    public function testCustomFieldSetReplacesSpacesWithUnderscores(): void
     {
-        $commerce = new Commerce(Factory::create());
-
-        $productNameProperty = new \ReflectionProperty(Commerce::class, 'productName');
-        $originalProductName = $productNameProperty->getValue($commerce);
-        $productNameProperty->setValue($commerce, ['adjective' => ['Test Product Name']]);
+        // pins the adjective list to a single entry with spaces, the list is read through late static binding
+        $commerce = new class(Factory::create()) extends Commerce {
+            // @phpstan-ignore shopware.propertyNativeType (redeclares an untyped parent property, PHP forbids adding a type)
+            protected static $productName = ['adjective' => ['Test Product Name']];
+        };
 
         $setName = $commerce->customFieldSet();
-        $productNameProperty->setValue($commerce, $originalProductName);
 
         static::assertStringNotContainsString(' ', $setName);
-        static::assertStringContainsString('Test_Product_Name', $setName);
+        static::assertStringStartsWith('Test_Product_Name_', $setName);
     }
 }

@@ -318,7 +318,7 @@ SVG;
         $this->getPublicFilesystem()->writeStream($pathName, $resource);
 
         static::assertIsString($png->getFileName());
-        static::assertNotEmpty($png->getFileName());
+        static::assertNotSame('', $png->getFileName());
 
         try {
             $this->fileSaver->persistFileToMedia(
@@ -745,7 +745,7 @@ SVG;
         $this->setFixtureContext($context);
 
         $collection = new MediaCollection([$png]);
-        $searchResult = new EntitySearchResult('temp', 1, $collection, null, new Criteria(), $context);
+        $searchResult = new EntitySearchResult('media', 1, $collection, null, new Criteria(), $context);
 
         $repositoryMock = $this->createMock(EntityRepository::class);
         $repositoryMock->expects($this->exactly(2))

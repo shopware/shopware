@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToOne
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -119,7 +120,8 @@ class VersionManagerTest extends TestCase
 
         $clonedProductId = $clonedProduct->getPayload()['id'];
         $clonedManyToOneId = $clonedProduct->getPayload()['manyToOneId'];
-        static::assertNotEmpty($clonedProductId);
+        static::assertIsString($clonedProductId);
+        static::assertNotSame('', $clonedProductId);
         static::assertSame($extendableId, $clonedManyToOneId);
     }
 
@@ -142,26 +144,25 @@ class VersionManagerTest extends TestCase
             ->update([['id' => $ids->get('p1'), 'name' => 'test']], $versionContext);
 
         // now ensure that we get a validate event for the merge request
-        $called = false;
+        $mergeScopes = [];
 
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             PreWriteValidationEvent::class,
-            static function (PreWriteValidationEvent $event) use (&$called): void {
+            static function (PreWriteValidationEvent $event) use (&$mergeScopes): void {
                 // we also get a validation event for the version tables
                 if (!$event->getPrimaryKeys('product')) {
                     return;
                 }
 
-                $called = true;
-                // some validators depend on that to disable insert/update validation for merge requests
-                static::assertTrue($event->getWriteContext()->hasState(VersionManager::MERGE_SCOPE));
+                $mergeScopes[] = $event->getWriteContext()->hasState(VersionManager::MERGE_SCOPE);
             }
         );
 
         static::getContainer()->get('product.repository')->merge($versionId, $context);
 
-        static::assertTrue($called);
+        static::assertNotEmpty($mergeScopes);
+        // some validators depend on that to disable insert/update validation for merge requests
+        static::assertNotContains(false, $mergeScopes);
     }
 
     public function testMergeKeepsInsertOperationForEntityCreatedAndUpdatedInVersion(): void
@@ -189,8 +190,7 @@ class VersionManagerTest extends TestCase
 
         $pageWriteResult = null;
 
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             'cms_page.written',
             static function (EntityWrittenEvent $event) use (&$pageWriteResult, $pageId): void {
                 foreach ($event->getWriteResults() as $writeResult) {
@@ -221,7 +221,7 @@ class VersionManagerTest extends TestCase
         static::assertNotNull($product);
 
         $extension = $product->getExtension('manyToOne');
-        static::assertEmpty($extension);
+        static::assertNull($extension);
 
         $clonedAffected = $this->getClone($product->getId());
 
@@ -290,13 +290,14 @@ class VersionManagerTest extends TestCase
         $draftBlock = $blockRepository->search($criteria, $draftContext)->getEntities()->first();
 
         static::assertInstanceOf(CmsBlockEntity::class, $draftBlock);
-        static::assertNotEmpty($draftBlock->getSlots(), 'Block should have slots in draft version.');
+        static::assertNotNull($draftBlock->getSlots(), 'Block should have slots in draft version.');
+        static::assertNotCount(0, $draftBlock->getSlots(), 'Block should have slots in draft version.');
 
         // Delete block to trigger cleanupSlotsReferencingDeletedBlocks()
         $blockRepository->delete([['id' => $blockId, 'versionId' => $draftVersionId]], $draftContext);
 
         $slotsInDraft = $slotRepository->search(new Criteria([$slotId]), $draftContext);
-        static::assertEmpty($slotsInDraft->getEntities(), 'Slots should be removed when block is deleted.');
+        static::assertCount(0, $slotsInDraft->getEntities(), 'Slots should be removed when block is deleted.');
 
         $versionManager->merge($draftVersionId, WriteContext::createFromContext($context));
 
@@ -309,7 +310,7 @@ class VersionManagerTest extends TestCase
         static::assertNull($mergedBlock, 'Deleted block should not exist in the live version.');
 
         $slotsInLive = $slotRepository->search(new Criteria([$slotId]), $context);
-        static::assertEmpty($slotsInLive->getEntities(), 'Deleted block’s slots should also be removed in live version.');
+        static::assertCount(0, $slotsInLive->getEntities(), 'Deleted block’s slots should also be removed in live version.');
     }
 
     private function registerEntityDefinitionAndInitDatabase(): void

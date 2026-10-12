@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Controller;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
@@ -282,8 +283,9 @@ class AdministrationController extends AbstractController
             throw RoutingException::languageNotFound($context->getLanguageId());
         }
 
-        $deLanguageId = $this->fetchLanguageIdByName('de-DE', $this->connection);
-        $enLanguageId = $this->fetchLanguageIdByName('en-GB', $this->connection);
+        $languageIds = $this->fetchLanguageIdsByIsoCodes(['de-DE', 'en-GB'], $this->connection);
+        $deLanguageId = $languageIds['de-DE'] ?? null;
+        $enLanguageId = $languageIds['en-GB'] ?? null;
 
         switch ($context->getLanguageId()) {
             case $deLanguageId:
@@ -412,17 +414,24 @@ class AdministrationController extends AbstractController
         );
     }
 
-    private function fetchLanguageIdByName(string $isoCode, Connection $connection): ?string
+    /**
+     * @param list<string> $isoCodes
+     *
+     * @return array<string, string> language id (hex) indexed by iso code
+     */
+    private function fetchLanguageIdsByIsoCodes(array $isoCodes, Connection $connection): array
     {
-        $languageId = $connection->fetchOne(
+        /** @var array<string, string> $rows */
+        $rows = $connection->fetchAllKeyValue(
             '
-            SELECT `language`.id FROM `language`
+            SELECT `locale`.`code`, `language`.id FROM `language`
             INNER JOIN locale ON language.translation_code_id = locale.id
-            WHERE `code` = :code',
-            ['code' => $isoCode]
+            WHERE `code` IN (:codes)',
+            ['codes' => $isoCodes],
+            ['codes' => ArrayParameterType::STRING]
         );
 
-        return $languageId === false ? null : Uuid::fromBytesToHex($languageId);
+        return array_map(Uuid::fromBytesToHex(...), $rows);
     }
 
     private function getLatestApiVersion(): ?int

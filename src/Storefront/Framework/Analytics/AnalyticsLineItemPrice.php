@@ -6,9 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * The prices an analytics integration reports for a product line item, see
- * {@see AnalyticsLineItemPriceCalculator}.
- *
- * @internal
+ * {@see AbstractAnalyticsLineItemPriceCalculator}.
  */
 #[Package('discovery')]
 final readonly class AnalyticsLineItemPrice

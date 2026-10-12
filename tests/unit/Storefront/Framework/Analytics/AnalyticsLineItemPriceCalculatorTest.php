@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPrice;
@@ -46,6 +47,30 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
     public function testReturnsNoPricesWithoutLineItems(): void
     {
         static::assertSame([], $this->calculator->calculate(null, $this->context()));
+    }
+
+    /**
+     * The line items come from a template, so the calculator does not trust their types.
+     */
+    public function testIgnoresEntriesThatAreNoLineItems(): void
+    {
+        $lineItems = [
+            'not a line item',
+            ['id' => 'product-2'],
+            new \stdClass(),
+            $this->product('product-1', 10.0, 1),
+        ];
+
+        $prices = $this->calculator->calculate($lineItems, $this->context());
+
+        static::assertEquals(['product-1' => new AnalyticsLineItemPrice(10.0, 0.0, 10.0)], $prices);
+    }
+
+    public function testCannotBeDecoratedFurtherDown(): void
+    {
+        $this->expectException(DecorationPatternException::class);
+
+        $this->calculator->getDecorated();
     }
 
     public function testReportsTheUnitPriceWhenNoPromotionApplies(): void

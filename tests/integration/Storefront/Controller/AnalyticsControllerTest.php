@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -52,11 +53,10 @@ class AnalyticsControllerTest extends TestCase
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
         $browser->request(
             'GET',
-            $_SERVER['APP_URL'] . '/widgets/analytics/product-categories?productId=' . $ids->get('analytics-product'),
-            server: ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']
+            $_SERVER['APP_URL'] . '/widgets/analytics/product-categories?productId=' . $ids->get('analytics-product')
         );
 
-        static::assertSame(200, $browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
         static::assertSame(['Analytics parent', 'Analytics child'], json_decode((string) $browser->getResponse()->getContent(), true));
     }
 
@@ -67,11 +67,10 @@ class AnalyticsControllerTest extends TestCase
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
         $browser->request(
             'GET',
-            $_SERVER['APP_URL'] . '/widgets/analytics/product-categories?productId=not-an-id',
-            server: ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']
+            $_SERVER['APP_URL'] . '/widgets/analytics/product-categories?productId=not-an-id'
         );
 
-        static::assertSame(400, $browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $browser->getResponse()->getStatusCode());
     }
 
     public function testIsNotFoundForASalesChannelWithoutAnalytics(): void
@@ -85,11 +84,10 @@ class AnalyticsControllerTest extends TestCase
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
         $browser->request(
             'GET',
-            $_SERVER['APP_URL'] . '/widgets/analytics/product-categories?productId=' . Uuid::randomHex(),
-            server: ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']
+            $_SERVER['APP_URL'] . '/widgets/analytics/product-categories?productId=' . Uuid::randomHex()
         );
 
-        static::assertSame(404, $browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode());
     }
 
     private function enableAnalytics(SalesChannelEntity $salesChannel): void

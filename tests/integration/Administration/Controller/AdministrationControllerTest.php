@@ -51,7 +51,8 @@ class AdministrationControllerTest extends TestCase
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
         static::assertArrayHasKey('de-DE', $response);
-        static::assertArrayHasKey('en-GB', $response);
+        // en-GB is not provided because all snippets are already provided in de-DE, so no fallback snippet is needed
+        static::assertArrayNotHasKey('en-GB', $response);
     }
 
     public function testSnippetRouteDoesNotDeliverSnippetsTwice(): void
@@ -67,7 +68,7 @@ class AdministrationControllerTest extends TestCase
 
         $duplicates = array_intersect_key(
             $this->flattenSnippets($response['de-DE']),
-            $this->flattenSnippets($response['en-GB'])
+            $this->flattenSnippets($response['en-GB'] ?? [])
         );
 
         static::assertSame([], array_keys($duplicates));
@@ -84,12 +85,11 @@ class AdministrationControllerTest extends TestCase
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
 
-        foreach (['de-DE', 'en-GB'] as $locale) {
-            static::assertArrayHasKey($locale, $response);
-            static::assertEmpty(array_diff(array_keys($response[$locale]), ['sw-login', 'global']));
+        foreach ($response as $localeSnippets) {
+            static::assertEmpty(array_diff(array_keys($localeSnippets), ['sw-login', 'global']));
         }
 
-        static::assertArrayHasKey('sw-login', $response['de-DE'] + $response['en-GB']);
+        static::assertArrayHasKey('sw-login', ($response['de-DE'] ?? []) + ($response['en-GB'] ?? []));
     }
 
     public function testResetExcludedSearchTermIncorrectLanguageId(): void

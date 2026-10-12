@@ -436,7 +436,7 @@ class DocumentMergerTest extends TestCase
         static::assertNotNull($result);
         static::assertSame('zip', $result->getFileExtension());
         static::assertSame('application/zip', $result->getContentType());
-        static::assertNotEmpty($result->getContent());
+        static::assertNotSame('', $result->getContent());
         static::assertSame('invoice_' . self::DOWNLOAD_DATE . '.zip', $result->getName());
     }
 

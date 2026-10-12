@@ -64,6 +64,16 @@ class McpToolsetRegistry
     }
 
     /**
+     * Whether a tool claims the reserved discovery group without being one of the meta-tools. Both
+     * compiler passes and the `shopware.mcpReservedToolGroup` PHPStan rule decide through this, so
+     * they cannot drift apart.
+     */
+    public static function isReservedGroupClaim(?string $group, string $toolName): bool
+    {
+        return $group === self::DISCOVERY_GROUP && !\in_array($toolName, self::DISCOVERY_META_TOOLS, true);
+    }
+
+    /**
      * @return list<array{name: string, title: string, description: string, tools: list<string>}>
      */
     public function toolsets(): array

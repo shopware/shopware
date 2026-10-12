@@ -396,7 +396,7 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
                 continue;
             }
 
-            if (\in_array($toolInfo['name'], McpToolsetRegistry::DISCOVERY_META_TOOLS, true)) {
+            if (!McpToolsetRegistry::isReservedGroupClaim($groupInfo['group'], $toolInfo['name'])) {
                 $advertisedTools[] = $toolInfo['name'];
 
                 continue;

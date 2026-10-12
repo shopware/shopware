@@ -541,7 +541,7 @@ The Store API schema no longer restricts the line item `type` to the core values
 
 Show a line item whose `type` you don't know from its common fields, such as `label`, `quantity` and the price, and ignore its `payload`. If you generate types from the schema, cast `payload` to `ProductLineItemPayload` or `PromotionLineItemPayload` after checking `type`. Extensions that add a line item type can describe its payload the same way by adding an `if`/`then` entry to `allOf` of `LineItem` and `OrderLineItem` in their own Store API schema files. Keys an extension adds to a core payload go into the `properties` of `ProductLineItemPayload` or `PromotionLineItemPayload` in those files. Undeclared keys aren't part of the schema, so generated types don't contain them.
 
-`POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart
+`POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart; the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart, and `checkout.cart.reorder` wraps the whole route
 
 ### Store API resolves the context from the storefront session on request
 

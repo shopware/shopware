@@ -35,14 +35,14 @@ final class CheckoutCartCollectReorderLineItemsExtension extends Extension
         /**
          * @public
          *
-         * @description Allows you to access to the cart the collected line items are added to
+         * @description Allows you to access the cart the collected line items are added to
          */
         public readonly Cart $cart,
 
         /**
          * @public
          *
-         * @description Allows you to access to the current customer/sales-channel context
+         * @description Allows you to access the current customer/sales-channel context
          */
         public readonly SalesChannelContext $context
     ) {

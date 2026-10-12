@@ -33,21 +33,21 @@ final class CheckoutCartReorderExtension extends Extension
         /**
          * @public
          *
-         * @description Allows you to access to the current request
+         * @description Allows you to access the current request
          */
         public readonly Request $request,
 
         /**
          * @public
          *
-         * @description Allows you to access to the cart the products are added to
+         * @description Allows you to access the cart the products are added to
          */
         public readonly Cart $cart,
 
         /**
          * @public
          *
-         * @description Allows you to access to the current customer/sales-channel context
+         * @description Allows you to access the current customer/sales-channel context
          */
         public readonly SalesChannelContext $context
     ) {

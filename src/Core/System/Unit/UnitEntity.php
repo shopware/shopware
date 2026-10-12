@@ -22,6 +22,8 @@ class UnitEntity extends Entity
 
     protected ?string $name = null;
 
+    protected ?string $isoCode = null;
+
     protected ?UnitTranslationCollection $translations = null;
 
     protected ?ProductCollection $products = null;
@@ -44,6 +46,16 @@ class UnitEntity extends Entity
     public function setName(?string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getIsoCode(): ?string
+    {
+        return $this->isoCode;
+    }
+
+    public function setIsoCode(?string $isoCode): void
+    {
+        $this->isoCode = $isoCode;
     }
 
     public function getTranslations(): ?UnitTranslationCollection

@@ -439,6 +439,7 @@
     "unit.id",
     "unit.shortCode",
     "unit.name",
+    "unit.isoCode",
     "unit.customFields",
     "unit.createdAt",
     "unit.updatedAt",

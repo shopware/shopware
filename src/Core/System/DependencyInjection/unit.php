@@ -4,7 +4,11 @@ namespace Shopware\Core\System\DependencyInjection;
 
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
+use Shopware\Core\System\Unit\UnitIsoCodes;
+use Shopware\Core\System\Unit\UnitValidator;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
@@ -14,4 +18,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(UnitTranslationDefinition::class)
         ->tag('shopware.entity.definition');
+
+    $services->set(UnitIsoCodes::class);
+
+    $services->set(UnitValidator::class)
+        ->args([service(UnitIsoCodes::class)])
+        ->tag('kernel.event_subscriber');
 };

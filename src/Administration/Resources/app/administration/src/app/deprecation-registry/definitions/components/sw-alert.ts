@@ -53,6 +53,9 @@ export default componentMigration({
             from: 'success',
             to: 'positive',
         }),
-        removeSlot({ slot: 'actions' }),
+        removeSlot({
+            slot: 'actions',
+            slotReplacementComment: 'Slot "actions" was removed and has no replacement.',
+        }),
     ],
 });

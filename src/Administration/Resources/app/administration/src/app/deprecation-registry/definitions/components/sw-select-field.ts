@@ -52,6 +52,7 @@ export default componentMigration({
             slot: 'label',
             prop: 'label',
             fix: 'unsafe-auto',
+            slotReviewHint: 'Remove the "label" slot and use the "label" prop instead',
         }),
         slotToPropComment({ slot: 'default', prop: 'options', fix: 'unsafe-auto' }),
     ],

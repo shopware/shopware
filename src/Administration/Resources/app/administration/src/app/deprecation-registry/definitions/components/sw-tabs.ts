@@ -48,6 +48,7 @@ export default componentMigration({
             slot: 'content',
             fix: 'unsafe-auto',
             message: 'Move content slot markup out of mt-tabs and render it next to the active tab state.',
+            slotReviewHint: 'The "content" slot is not used anymore. Please set the content manually outside the component.',
         }),
     ],
 });

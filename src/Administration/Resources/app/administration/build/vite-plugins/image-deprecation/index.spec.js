@@ -3,6 +3,7 @@
  */
 import ImageDeprecationPlugin from './index';
 import deprecatedList from './deprecated-list';
+import assets from '../../../src/app/deprecation-registry/definitions/assets';
 
 describe('build/vite-plugins/image-deprecation', () => {
     beforeEach(() => {
@@ -71,7 +72,7 @@ describe('build/vite-plugins/image-deprecation', () => {
     });
 
     it('builds the default deprecated list from the asset migration files of the registry', () => {
+        expect(deprecatedList).toEqual(assets.assetMigrations.flatMap((migration) => migration.files ?? []));
         expect(deprecatedList).toContain('/static/img/sw-login-background.png');
-        expect(deprecatedList).toContain('/src/module/sw-login/page/index/assets/sw-login-background.webp');
     });
 });

@@ -4,13 +4,22 @@
 
 // eslint-plugin-vue 10 ships as ESM under dist/ (utils sit on the module's
 // `default` export); older layouts exported them directly from lib/.
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 const utilsModule = require('eslint-plugin-vue/dist/utils');
 const utils = utilsModule.default ?? utilsModule;
 const { loadRegistry } = require('../deprecation-rules/registry/load-registry');
 const { isMigrationSelected } = require('../deprecation-rules/registry/filter-migrations');
+const { appendRegistryContext } = require('../deprecation-rules/registry/format-migration-message');
 
 const tcMigration = loadRegistry().globalApiMigrations.find((migration) => migration.id === 'global.$tc');
+if (!tcMigration) {
+    throw new Error('no-tc-translation needs the "global.$tc" migration in the deprecation registry.');
+}
+
+const renameUsage = tcMigration.usage.find((usage) => usage.kind === 'rename-call');
+if (!renameUsage) {
+    throw new Error('no-tc-translation needs a rename-call usage on the "global.$tc" deprecation registry migration.');
+}
 
 function reportTc(context, node, isProperty) {
     const target = isProperty ? node.callee.property : node.callee;
@@ -19,7 +28,11 @@ function reportTc(context, node, isProperty) {
         node: target,
         messageId: 'noTc',
         fix(fixer) {
-            return fixer.replaceText(target, '$t');
+            if (renameUsage.fix === 'manual') {
+                return null;
+            }
+
+            return fixer.replaceText(target, renameUsage.to);
         },
     });
 }
@@ -35,25 +48,29 @@ module.exports = {
         fixable: 'code',
         schema: [],
         messages: {
-            noTc: tcMigration
-                ? `${tcMigration.description} It will be removed in Shopware ${tcMigration.removedIn}.`
-                : 'Use $t() instead of $tc(). $tc is deprecated.',
+            noTc: appendRegistryContext(
+                [
+                    `The "${renameUsage.from}" API is deprecated. Use ${renameUsage.to} instead.`,
+                    renameUsage.message ?? '',
+                ],
+                tcMigration,
+            ),
         },
     },
 
     create(context) {
-        if (tcMigration && !isMigrationSelected(tcMigration)) {
+        if (!isMigrationSelected(tcMigration)) {
             return {};
         }
 
         function checkCallExpression(node) {
-            // Matches something.$tc(...)
-            if (node.callee.type === 'MemberExpression' && node.callee.property.name === '$tc') {
+            // Matches something.<from>(...)
+            if (node.callee.type === 'MemberExpression' && node.callee.property.name === renameUsage.from) {
                 reportTc(context, node, true);
             }
 
-            // Matches bare $tc(...)
-            if (node.callee.type === 'Identifier' && node.callee.name === '$tc') {
+            // Matches bare <from>(...)
+            if (node.callee.type === 'Identifier' && node.callee.name === renameUsage.from) {
                 reportTc(context, node, false);
             }
         }

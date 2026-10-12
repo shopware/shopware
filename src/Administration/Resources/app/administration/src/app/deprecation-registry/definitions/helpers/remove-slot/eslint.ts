@@ -20,11 +20,9 @@ export function createRemoveSlotEslint(usageConfig: DeprecationUsage): Deprecati
                 return;
             }
 
-            if (
-                api.node.name === 'mt-tabs' &&
-                slot === 'content' &&
-                api.ast.hasCodemodComment(api.node, 'The "content" slot is not used anymore')
-            ) {
+            const { slotReviewHint, slotReplacementComment } = usageConfig;
+
+            if (slotReviewHint && api.ast.hasCodemodComment(api.node, slotReviewHint)) {
                 return;
             }
 
@@ -36,21 +34,17 @@ export function createRemoveSlotEslint(usageConfig: DeprecationUsage): Deprecati
                         return null;
                     }
 
-                    if (api.node.name === 'mt-tabs' && slot === 'content') {
+                    if (slotReviewHint) {
                         const indentation = ' '.repeat(slotNode.startTag?.loc?.start?.column ?? 0);
 
                         return fixer.insertTextBeforeRange(
                             slotNode.startTag.range,
-                            `<!-- TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component. -->\n${indentation}`,
+                            `<!-- TODO Codemod: ${slotReviewHint} -->\n${indentation}`,
                         );
                     }
 
-                    if (slot === 'actions') {
-                        return fixer.replaceText(slotNode, `<!-- Slot "actions" was removed and has no replacement. -->`);
-                    }
-
-                    if (api.node.name === 'mt-switch' && slot === 'hint') {
-                        return fixer.replaceText(slotNode, `<!-- Slot "hint" was removed with no replacement. -->`);
+                    if (slotReplacementComment) {
+                        return fixer.replaceText(slotNode, `<!-- ${slotReplacementComment} -->`);
                     }
 
                     const slotValue = api.ast.getCondensedTextContent(slotNode);

@@ -62,6 +62,16 @@ tester.run('no-tc-translation', rule, {
     ],
 });
 
+describe('no-tc-translation message', () => {
+    it('carries the registry description and the pluralization review hint', () => {
+        const message = rule.meta.messages.noTc;
+
+        expect(message).toContain('The $tc translation helper is deprecated.');
+        expect(message).toContain('verify pluralization and count interpolation manually');
+        expect(message).toContain('Removed in Shopware 6.9.0.');
+    });
+});
+
 describeWithSelectedDeprecationIds('component.sw-alert', () => {
     tester.run('no-tc-translation with an unrelated deprecation id selected', rule, {
         valid: [

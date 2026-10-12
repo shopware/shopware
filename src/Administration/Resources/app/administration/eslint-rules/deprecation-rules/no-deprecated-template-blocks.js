@@ -12,54 +12,108 @@ function buildMessage(migration, usage) {
     return appendRegistryContext([`The Administration Twig block "${usage.from}" is deprecated.${replacement}`], migration);
 }
 
-function collectBlockMatches(sourceText) {
-    const matches = [];
-    const twigBlockPattern = /\{%\s*block\s+([A-Za-z0-9_]+)\s*%}/g;
-    const swBlockPattern = /<sw-block\b[^>]*>/g;
-    const swBlockAttributePattern = /\s(?:name|extends)\s*=\s*(["'])([^"']+)\1/g;
+/**
+ * Pairs every opening token with its closing token, so each block knows the source range it spans.
+ * An opening token without a closing one spans to the end of its own tag.
+ *
+ * @example
+ * pairTokenRanges('{% block a %}{% endblock %}', /\{%\s*block\s[^%]*%}/g, /\{%\s*endblock\b[^%]*%}/g);
+ * // [{ open: <RegExp match for "{% block a %}">, rangeStart: 0, rangeEnd: 27 }]
+ */
+function pairTokenRanges(sourceText, openPattern, closePattern, isSelfClosing = () => false) {
+    const tokens = [
+        ...[...sourceText.matchAll(openPattern)].map((match) => ({ type: 'open', match })),
+        ...[...sourceText.matchAll(closePattern)].map((match) => ({ type: 'close', match })),
+    ].sort((a, b) => a.match.index - b.match.index);
 
-    let match = twigBlockPattern.exec(sourceText);
-    while (match) {
-        matches.push({
-            name: match[1],
-            start: match.index + match[0].indexOf(match[1]),
-            end: match.index + match[0].indexOf(match[1]) + match[1].length,
-        });
+    const pairs = [];
+    const stack = [];
 
-        match = twigBlockPattern.exec(sourceText);
-    }
+    tokens.forEach((token) => {
+        const tokenEnd = token.match.index + token.match[0].length;
 
-    match = swBlockPattern.exec(sourceText);
-    while (match) {
-        let attributeMatch = swBlockAttributePattern.exec(match[0]);
+        if (token.type === 'open') {
+            const pair = { open: token.match, rangeStart: token.match.index, rangeEnd: tokenEnd };
+            pairs.push(pair);
 
-        while (attributeMatch) {
-            const blockName = attributeMatch[2];
-            const blockNameStart = match.index + attributeMatch.index + attributeMatch[0].lastIndexOf(blockName);
+            if (!isSelfClosing(token.match)) {
+                stack.push(pair);
+            }
 
-            matches.push({
-                name: blockName,
-                start: blockNameStart,
-                end: blockNameStart + blockName.length,
-            });
-
-            attributeMatch = swBlockAttributePattern.exec(match[0]);
+            return;
         }
 
-        match = swBlockPattern.exec(sourceText);
-    }
+        const pair = stack.pop();
+        if (pair) {
+            pair.rangeEnd = tokenEnd;
+        }
+    });
+
+    return pairs;
+}
+
+function collectBlockMatches(sourceText) {
+    const matches = [];
+    const twigBlockNamePattern = /^\{%\s*block\s+([A-Za-z0-9_]+)\s*%}$/;
+    const swBlockAttributePattern = /\s(?:name|extends)\s*=\s*(["'])([^"']+)\1/g;
+
+    pairTokenRanges(sourceText, /\{%-?\s*block\s[^%]*%}/g, /\{%-?\s*endblock\b[^%]*%}/g).forEach((pair) => {
+        const nameMatch = twigBlockNamePattern.exec(pair.open[0].replace(/^\{%-/, '{%').replace(/-%}$/, '%}'));
+        if (!nameMatch) {
+            return;
+        }
+
+        const nameStart = pair.open.index + pair.open[0].indexOf(nameMatch[1]);
+        matches.push({
+            name: nameMatch[1],
+            start: nameStart,
+            end: nameStart + nameMatch[1].length,
+            rangeStart: pair.rangeStart,
+            rangeEnd: pair.rangeEnd,
+        });
+    });
+
+    pairTokenRanges(sourceText, /<sw-block\b[^>]*>/g, /<\/sw-block\s*>/g, (open) => open[0].endsWith('/>')).forEach(
+        (pair) => {
+            [...pair.open[0].matchAll(swBlockAttributePattern)].forEach((attributeMatch) => {
+                const blockName = attributeMatch[2];
+                const blockNameStart = pair.open.index + attributeMatch.index + attributeMatch[0].lastIndexOf(blockName);
+
+                matches.push({
+                    name: blockName,
+                    start: blockNameStart,
+                    end: blockNameStart + blockName.length,
+                    rangeStart: pair.rangeStart,
+                    rangeEnd: pair.rangeEnd,
+                });
+            });
+        },
+    );
 
     return matches;
 }
 
 /**
- * A file that defines the replacement block itself keeps the old name as a BC wrapper, not as an extension usage.
+ * A deprecated block nested inside its replacement block is the BC wrapper that keeps old extensions working,
+ * not an extension usage. A replacement block elsewhere in the file (a sibling override) does not count.
  *
  * @example
- * isBackwardCompatibilityWrapper({ usage: { from: 'old_block', to: 'new_block' } }, new Set(['old_block', 'new_block'])); // true
+ * // {% block new_block %}{% block old_block %}{% endblock %}{% endblock %}
+ * isBackwardCompatibilityWrapper({ usage: { from: 'old_block', to: 'new_block' } }, oldBlockMatch, allBlockMatches); // true
  */
-function isBackwardCompatibilityWrapper(match, definedBlockNames) {
-    return Boolean(match.usage.to) && definedBlockNames.has(match.usage.to);
+function isBackwardCompatibilityWrapper(match, blockMatch, blockMatches) {
+    if (!match.usage.to) {
+        return false;
+    }
+
+    return blockMatches.some((candidate) => {
+        return (
+            candidate.name === match.usage.to &&
+            candidate.rangeStart <= blockMatch.rangeStart &&
+            candidate.rangeEnd >= blockMatch.rangeEnd &&
+            candidate !== blockMatch
+        );
+    });
 }
 
 module.exports = {
@@ -99,14 +153,16 @@ module.exports = {
                 const sourceText = sourceCode.getText();
 
                 const blockMatches = collectBlockMatches(sourceText);
-                const definedBlockNames = new Set(blockMatches.map((blockMatch) => blockMatch.name));
 
                 blockMatches.forEach((blockMatch) => {
                     const match = usages.find(({ usage }) => usage.from === blockMatch.name);
 
-                    if (!match || isBackwardCompatibilityWrapper(match, definedBlockNames)) {
+                    if (!match || isBackwardCompatibilityWrapper(match, blockMatch, blockMatches)) {
                         return;
                     }
+
+                    // Renaming a sibling override of the replacement block would define that block twice.
+                    const replacementBlockExists = blockMatches.some(({ name }) => name === match.usage.to);
 
                     context.report({
                         loc: {
@@ -115,7 +171,7 @@ module.exports = {
                         },
                         message: buildMessage(match.migration, match.usage),
                         fix(fixer) {
-                            if (context.options.includes('disableFix') || !match.usage.to) {
+                            if (context.options.includes('disableFix') || !match.usage.to || replacementBlockExists) {
                                 return null;
                             }
 

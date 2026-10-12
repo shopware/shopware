@@ -55,6 +55,9 @@ export default componentMigration({
             prop: 'label',
             fix: 'unsafe-auto',
         }),
-        removeSlot({ slot: 'hint' }),
+        removeSlot({
+            slot: 'hint',
+            slotReplacementComment: 'Slot "hint" was removed with no replacement.',
+        }),
     ],
 });

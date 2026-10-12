@@ -20,9 +20,9 @@ export function createSlotToPropEslint(usageConfig: DeprecationUsage): Deprecati
                 return;
             }
 
-            const mtSelectComment = `Remove the "${slotName}" slot and use the "${usageConfig.prop}" prop instead`;
+            const { slotReviewHint } = usageConfig;
 
-            if (api.node.name === 'mt-select' && api.ast.hasCodemodComment(api.node, mtSelectComment)) {
+            if (slotReviewHint && api.ast.hasCodemodComment(api.node, slotReviewHint)) {
                 return;
             }
 
@@ -34,11 +34,11 @@ export function createSlotToPropEslint(usageConfig: DeprecationUsage): Deprecati
                         return null;
                     }
 
-                    const slotValue = api.ast.getCondensedTextContent(slot);
-
-                    if (api.node.name === 'mt-select') {
-                        return fixer.insertTextBefore(slot.startTag, `<!-- TODO Codemod: ${mtSelectComment} -->\n`);
+                    if (slotReviewHint) {
+                        return fixer.insertTextBefore(slot.startTag, `<!-- TODO Codemod: ${slotReviewHint} -->\n`);
                     }
+
+                    const slotValue = api.ast.getCondensedTextContent(slot);
 
                     return fixer.replaceText(
                         slot,

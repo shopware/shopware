@@ -1,21 +1,7 @@
 const { loadRegistry } = require('./registry/load-registry');
 const { filterMigrations, isMigrationSelected } = require('./registry/filter-migrations');
-const { appendRegistryContext: appendMigrationContext } = require('./registry/format-migration-message');
-
-function appendRegistryContext(message, migration, usage = null) {
-    return appendMigrationContext([message, usage?.message ?? ''], migration);
-}
-
-function hasObjectVBind(node) {
-    return node.startTag.attributes.some((attribute) => {
-        return (
-            attribute.type === 'VAttribute' &&
-            attribute.directive === true &&
-            attribute.key?.name?.name === 'bind' &&
-            !attribute.key.argument
-        );
-    });
-}
+const { appendRegistryContext } = require('./registry/format-migration-message');
+const { findObjectVBindAttribute } = require('./registry/template-ast');
 
 function hasObjectVOn(node) {
     return node.startTag.attributes.some((attribute) => {
@@ -105,9 +91,11 @@ module.exports = {
                         context.report({
                             loc: node.loc,
                             message: appendRegistryContext(
-                                `"${componentName}" is deprecated. Please use "${newComponentName}" instead.`,
+                                [
+                                    `"${componentName}" is deprecated. Please use "${newComponentName}" instead.`,
+                                    renameUsage?.message ?? '',
+                                ],
                                 migration,
-                                renameUsage,
                             ),
                             *fix(fixer) {
                                 if (!enableFix || !usageFixesAutomatically(renameUsage)) return;
@@ -115,7 +103,7 @@ module.exports = {
                                 const isSelfClosing = node.startTag.selfClosing;
                                 const codemodComment = getCodemodComment(
                                     componentName,
-                                    hasObjectVBind(node),
+                                    findObjectVBindAttribute(node) !== null,
                                     hasObjectVOn(node),
                                 );
 
@@ -193,9 +181,11 @@ module.exports = {
                             loc: node.loc,
                             message: dataGridMigration
                                 ? appendRegistryContext(
-                                      `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
+                                      [
+                                          `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
+                                          replacementUsage?.message ?? '',
+                                      ],
                                       dataGridMigration,
-                                      replacementUsage,
                                   )
                                 : `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
                             *fix(fixer) {

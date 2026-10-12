@@ -29,6 +29,17 @@ describe('scripts/lint-deprecations-files', () => {
         ]);
     });
 
+    it('keeps every untracked file inside a new directory', () => {
+        expect(
+            getLintableFiles(
+                statusOutput('?? src/app/component/new-dir/index.ts', '?? src/app/component/new-dir/new-dir.html.twig'),
+            ),
+        ).toEqual([
+            'src/app/component/new-dir/index.ts',
+            'src/app/component/new-dir/new-dir.html.twig',
+        ]);
+    });
+
     it('skips deleted files', () => {
         expect(getLintableFiles(statusOutput(' D src/app/a.ts', 'D  src/app/b.ts', ' M src/app/c.ts'))).toEqual([
             'src/app/c.ts',

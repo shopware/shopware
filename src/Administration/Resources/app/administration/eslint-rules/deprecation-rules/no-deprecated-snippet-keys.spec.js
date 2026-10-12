@@ -69,6 +69,16 @@ templateTester.run('no-deprecated-snippet-keys in templates', rule, {
             ],
         },
         {
+            name: 'reports removed snippet key in a twig template mustache',
+            filename: 'test.html.twig',
+            code: "<template><div>{{ $t('global.sw-condition.condition.dayOfWeekRule') }}</div></template>",
+            errors: [
+                {
+                    message: /removed key "global\.sw-condition\.condition\.dayOfWeekRule"/,
+                },
+            ],
+        },
+        {
             name: 'reports removed snippet key in a directive binding',
             filename: 'test.html.twig',
             code: '<template><sw-field :label="$tc(\'global.sw-condition.condition.dayOfWeekRule\')" /></template>',

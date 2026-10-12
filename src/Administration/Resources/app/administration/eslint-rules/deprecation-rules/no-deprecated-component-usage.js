@@ -1,10 +1,7 @@
 const { loadRegistry } = require('./registry/load-registry');
 const { filterMigrations } = require('./registry/filter-migrations');
-const { appendRegistryContext: appendMigrationContext } = require('./registry/format-migration-message');
-
-function appendRegistryContext(message, migration) {
-    return appendMigrationContext([message], migration);
-}
+const { appendRegistryContext } = require('./registry/format-migration-message');
+const { findObjectVBindAttribute } = require('./registry/template-ast');
 
 function collectFixOperations(fix) {
     const recorder = new Proxy(
@@ -300,16 +297,8 @@ function getTransformResult(usage, node, attribute) {
 
     return usage.transform({
         valueKind: attribute ? getPropAttributeValueKind(attribute) : 'unknown',
-        hasObjectVBind: nodeHasObjectVBind(node),
+        hasObjectVBind: findObjectVBindAttribute(node) !== null,
     });
-}
-
-function nodeHasObjectVBind(node) {
-    return Boolean(
-        node?.startTag?.attributes?.some((attribute) => {
-            return getDirectiveName(attribute) === 'bind' && !attribute.key.argument;
-        }),
-    );
 }
 
 function findMatchingEventAttribute(node, eventName) {
@@ -369,7 +358,7 @@ function createComponentUsageRuleApi(context, node, migration, usage) {
         node,
         migration,
         usage,
-        appendRegistryContext,
+        appendRegistryContext: (message, registryMigration) => appendRegistryContext([message], registryMigration),
         reportWithDuplicateReplacementGuard(descriptor) {
             reportWithDuplicateReplacementGuard(context, descriptor);
         },
@@ -405,7 +394,7 @@ function createComponentUsageRuleApi(context, node, migration, usage) {
  *
  * @example
  * getLeadingComments(context, node).map((comment) => comment.value);
- * // [' TODO Codemod: Converted from sw-icon - please check if everything works correctly ']
+ * // the codemod review comment that ends in "Converted from sw-icon - please check if everything works correctly"
  */
 function getLeadingComments(context, node) {
     const comments = context.sourceCode.ast?.templateBody?.comments ?? [];
@@ -479,13 +468,12 @@ module.exports = {
     /** @param {RuleContext} context */
     create(context) {
         const registry = loadRegistry();
-        const migrations = filterMigrations(registry.componentApiMigrations)
-            .map((migration) => {
-                return {
-                    component: migration.replacement ?? migration.component,
-                    migration,
-                };
-            });
+        const migrations = filterMigrations(registry.componentApiMigrations).map((migration) => {
+            return {
+                component: migration.replacement ?? migration.component,
+                migration,
+            };
+        });
 
         return context.sourceCode.parserServices.defineTemplateBodyVisitor(
             // Event handlers for <template> tags

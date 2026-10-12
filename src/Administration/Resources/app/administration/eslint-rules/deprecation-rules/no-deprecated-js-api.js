@@ -91,8 +91,7 @@ function usageFixesAutomatically(usage) {
 function matchesMemberCall(usage, propertyName, calleeName, calleeSource) {
     if (usage.from.includes('.')) {
         return (
-            usage.from === calleeName ||
-            normalizeComparableSource(usage.from) === normalizeComparableSource(calleeSource)
+            usage.from === calleeName || normalizeComparableSource(usage.from) === normalizeComparableSource(calleeSource)
         );
     }
 
@@ -156,10 +155,12 @@ function getObjectExpressionProperties(sourceCode, node) {
 }
 
 function mapIncludesExpectedProperties(expectedProperties, actualProperties) {
-    return Array.from(expectedProperties).every(([
-        propertyName,
-        expectedValue,
-    ]) => actualProperties.get(propertyName) === expectedValue);
+    return Array.from(expectedProperties).every(
+        ([
+            propertyName,
+            expectedValue,
+        ]) => actualProperties.get(propertyName) === expectedValue,
+    );
 }
 
 function matchesExactCall(usage, node, sourceCode, sourceText, calleeName) {
@@ -258,23 +259,73 @@ module.exports = {
             return null;
         }
 
+        /**
+         * Finds the rename-package usage a module source names, either the package itself or one of its subpaths.
+         * A package that only shares the name prefix does not match.
+         *
+         * @example
+         * findPackageUsage({ type: 'Literal', value: '@shopware-ag/admin-extension-sdk/es/ui' });
+         * // { migration, usage: { from: '@shopware-ag/admin-extension-sdk', to: '@shopware-ag/meteor-admin-sdk' } }
+         */
+        function findPackageUsage(sourceNode) {
+            if (sourceNode?.type !== 'Literal' || typeof sourceNode.value !== 'string') {
+                return null;
+            }
+
+            const source = sourceNode.value;
+
+            return (
+                packageImportUsages.find(({ usage }) => {
+                    return source === usage.from || source.startsWith(`${usage.from}/`);
+                }) ?? null
+            );
+        }
+
+        /**
+         * Reports a module source of a renamed package and rewrites only the package prefix,
+         * keeping the subpath and the quote style.
+         *
+         * @example
+         * // import { ui } from "@shopware-ag/admin-extension-sdk/es/ui";
+         * // → import { ui } from "@shopware-ag/meteor-admin-sdk/es/ui";
+         * reportPackageSource(node.source);
+         */
+        function reportPackageSource(sourceNode) {
+            const match = findPackageUsage(sourceNode);
+
+            if (!match) {
+                return;
+            }
+
+            context.report({
+                node: sourceNode,
+                message: buildMessage(match.migration, match.usage),
+                fix(fixer) {
+                    if (context.options.includes('disableFix')) return null;
+
+                    const quote = context.sourceCode.getText(sourceNode)[0];
+                    const subpath = sourceNode.value.slice(match.usage.from.length);
+
+                    return fixer.replaceText(sourceNode, `${quote}${match.usage.to}${subpath}${quote}`);
+                },
+            });
+        }
+
         return {
             ImportDeclaration(node) {
-                const match = packageImportUsages.find(({ usage }) => usage.from === node.source.value);
+                reportPackageSource(node.source);
+            },
 
-                if (!match) {
-                    return;
-                }
+            ExportNamedDeclaration(node) {
+                reportPackageSource(node.source);
+            },
 
-                context.report({
-                    node: node.source,
-                    message: buildMessage(match.migration, match.usage),
-                    fix(fixer) {
-                        if (context.options.includes('disableFix')) return null;
+            ExportAllDeclaration(node) {
+                reportPackageSource(node.source);
+            },
 
-                        return fixer.replaceText(node.source, `'${match.usage.to}'`);
-                    },
-                });
+            ImportExpression(node) {
+                reportPackageSource(node.source);
             },
 
             Property(node) {
@@ -303,6 +354,10 @@ module.exports = {
             },
 
             CallExpression(node) {
+                if (node.callee.type === 'Identifier' && node.callee.name === 'require') {
+                    reportPackageSource(node.arguments[0]);
+                }
+
                 const propertyName = getMemberPropertyName(node.callee);
                 const calleeName = getMemberName(node.callee);
                 const calleeSource = context.sourceCode.getText(node.callee);

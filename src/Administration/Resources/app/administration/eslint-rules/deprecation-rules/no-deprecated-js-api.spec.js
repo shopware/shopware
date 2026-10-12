@@ -66,12 +66,66 @@ tester.run('no-deprecated-js-api', rule, {
                 other.setAppModules();
             `,
         },
+        {
+            name: 'allows a package that only shares the deprecated package name prefix',
+            code: "import { ui } from '@shopware-ag/admin-extension-sdk-foo'; export * from '@shopware-ag/admin-extension-sdk-foo/es';",
+        },
     ],
     invalid: [
         {
+            name: 'migrates a subpath import of the deprecated Admin Extension SDK',
+            code: "import { ui } from '@shopware-ag/admin-extension-sdk/es/foo';",
+            output: "import { ui } from '@shopware-ag/meteor-admin-sdk/es/foo';",
+            errors: [
+                {
+                    message: /@shopware-ag\/admin-extension-sdk/,
+                },
+            ],
+        },
+        {
+            name: 'migrates an export-all from the deprecated Admin Extension SDK',
+            code: "export * from '@shopware-ag/admin-extension-sdk';",
+            output: "export * from '@shopware-ag/meteor-admin-sdk';",
+            errors: [
+                {
+                    message: /@shopware-ag\/admin-extension-sdk/,
+                },
+            ],
+        },
+        {
+            name: 'migrates a named re-export from the deprecated Admin Extension SDK',
+            code: "export { ui } from '@shopware-ag/admin-extension-sdk';",
+            output: "export { ui } from '@shopware-ag/meteor-admin-sdk';",
+            errors: [
+                {
+                    message: /@shopware-ag\/admin-extension-sdk/,
+                },
+            ],
+        },
+        {
+            name: 'migrates a dynamic import of the deprecated Admin Extension SDK',
+            code: "const sdk = import('@shopware-ag/admin-extension-sdk/es/foo');",
+            output: "const sdk = import('@shopware-ag/meteor-admin-sdk/es/foo');",
+            errors: [
+                {
+                    message: /@shopware-ag\/admin-extension-sdk/,
+                },
+            ],
+        },
+        {
+            name: 'migrates a require of the deprecated Admin Extension SDK',
+            code: "const sdk = require('@shopware-ag/admin-extension-sdk');",
+            output: "const sdk = require('@shopware-ag/meteor-admin-sdk');",
+            errors: [
+                {
+                    message: /@shopware-ag\/admin-extension-sdk/,
+                },
+            ],
+        },
+        {
             name: 'migrates deprecated Admin Extension SDK package import',
             code: 'import { ui } from "@shopware-ag/admin-extension-sdk";',
-            output: 'import { ui } from \'@shopware-ag/meteor-admin-sdk\';',
+            output: 'import { ui } from "@shopware-ag/meteor-admin-sdk";',
             errors: [
                 {
                     message: /@shopware-ag\/admin-extension-sdk/,

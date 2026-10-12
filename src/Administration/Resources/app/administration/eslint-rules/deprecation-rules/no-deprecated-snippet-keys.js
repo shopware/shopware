@@ -25,6 +25,22 @@ function getStringValue(node) {
     return null;
 }
 
+/**
+ * Lists the string literals inside the `{{ … }}` segments of a template text. vue-eslint-parser keeps
+ * mustaches of .html.twig templates as raw VText, so their snippet keys never reach a Literal visitor.
+ *
+ * @example
+ * findMustacheStringLiterals("Hi {{ $t('a.b') }}"); // ['a.b']
+ */
+function findMustacheStringLiterals(text) {
+    const mustachePattern = /\{\{([\s\S]*?)}}/g;
+    const stringLiteralPattern = /(['"`])((?:\\.|(?!\1).)*)\1/g;
+
+    return [...text.matchAll(mustachePattern)].flatMap(([, expression]) => {
+        return [...expression.matchAll(stringLiteralPattern)].map(([, , value]) => value);
+    });
+}
+
 function findDeprecatedSnippet(value, usages) {
     return (
         usages.find(({ usage }) => {
@@ -73,7 +89,22 @@ module.exports = {
             });
         }
 
-        const scriptVisitors = {
+        function checkTemplateText(node) {
+            findMustacheStringLiterals(node.value).forEach((value) => {
+                const match = findDeprecatedSnippet(value, usages);
+
+                if (!match) {
+                    return;
+                }
+
+                context.report({
+                    node,
+                    message: buildMessage(match.migration, match.usage, value),
+                });
+            });
+        }
+
+        const stringLiteralVisitors = {
             Literal: checkNode,
             TemplateElement: checkNode,
         };
@@ -81,15 +112,15 @@ module.exports = {
         const defineTemplateBodyVisitor = context.sourceCode.parserServices?.defineTemplateBodyVisitor;
 
         if (!defineTemplateBodyVisitor) {
-            return scriptVisitors;
+            return stringLiteralVisitors;
         }
 
         return defineTemplateBodyVisitor(
             {
-                Literal: checkNode,
-                TemplateElement: checkNode,
+                ...stringLiteralVisitors,
+                VText: checkTemplateText,
             },
-            scriptVisitors,
+            stringLiteralVisitors,
         );
     },
 };

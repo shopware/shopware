@@ -77,6 +77,13 @@ export type DeprecationUsage = {
     message?: string;
     transform?: MigrationTransform;
     onlyAfterConversion?: boolean;
+    /**
+     * Slot steps only: keeps the slot and puts the hint above it as a codemod review comment, for slots whose
+     * content has to move by hand. A usage that already carries the hint is not reported again.
+     */
+    slotReviewHint?: string;
+    /** remove-slot only: replaces the slot with `<!-- <comment> -->` instead of the comment that quotes its content. */
+    slotReplacementComment?: string;
     eslint?: {
         report(api: ComponentUsageRuleApi): void;
     };

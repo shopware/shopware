@@ -1,18 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- vue-eslint-parser template nodes and ESLint fixers are passed through as plain records */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access -- vue-eslint-parser template nodes and ESLint fixers are passed through as plain records */
 /**
  * @sw-package framework
  */
 
 import type { ComponentUsageRuleApi, DeprecationUsage } from '../types';
-import { componentUsageMessage, usageFixesAutomatically } from '../shared';
-
-function findObjectVBindAttribute(api: ComponentUsageRuleApi): Record<string, any> | null {
-    return (
-        api.node.startTag.attributes.find((attribute: Record<string, any>) => {
-            return api.ast.getDirectiveName(attribute) === 'bind' && !api.ast.getDirectiveArgumentName(attribute);
-        }) ?? null
-    );
-}
+import { componentUsageMessage, findObjectVBindAttribute, usageFixesAutomatically } from '../shared';
 
 function getPropSource(usageConfig: DeprecationUsage): string {
     const prefix = usageConfig.bind === true ? ':' : '';

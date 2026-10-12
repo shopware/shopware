@@ -3,7 +3,8 @@
  */
 
 /**
- * Lists the changed files `lint:deprecations` lints, from `git status --porcelain -z` output.
+ * Lists the changed files `lint:deprecations` lints, from `git status --porcelain -z --untracked-files=all`
+ * output, which lists each file of a new directory instead of the collapsed directory entry.
  * Porcelain paths are relative to the repository root, so `prefix` (from `git rev-parse --show-prefix`)
  * is stripped to keep them relative to the working directory. Rename and copy entries carry their
  * original path as the next NUL-separated token, which is skipped. Deleted files, the deprecation

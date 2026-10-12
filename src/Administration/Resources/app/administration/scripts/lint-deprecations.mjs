@@ -22,6 +22,7 @@ const files = getLintableFiles(
     runGit([
         'status',
         '--porcelain',
+        '--untracked-files=all',
         '-z',
         '--',
         '.',

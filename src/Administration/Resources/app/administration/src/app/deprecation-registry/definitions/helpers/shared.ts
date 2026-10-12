@@ -100,10 +100,22 @@ export function usageFixesAutomatically(api: ComponentUsageRuleApi, usageConfig:
  * hasObjectVBind(api); // true for <sw-field v-bind="fieldProps" />
  */
 export function hasObjectVBind(api: ComponentUsageRuleApi): boolean {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- template nodes are untyped vue-eslint-parser records
-    return api.node.startTag.attributes.some((startTagAttribute: Record<string, unknown>) => {
-        return (
-            api.ast.getDirectiveName(startTagAttribute) === 'bind' && !api.ast.getDirectiveArgumentName(startTagAttribute)
-        );
-    });
+    return findObjectVBindAttribute(api) !== null;
+}
+
+/**
+ * Finds the object `v-bind="…"` attribute (a `v-bind` without argument) on the component usage's start tag.
+ *
+ * @example
+ * findObjectVBindAttribute(api); // the VAttribute for <sw-field v-bind="fieldProps" />, null without one
+ */
+export function findObjectVBindAttribute(api: ComponentUsageRuleApi): Record<string, unknown> | null {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- template nodes are untyped vue-eslint-parser records
+    const attributes: Array<Record<string, unknown>> = api.node.startTag.attributes;
+
+    return (
+        attributes.find((attribute) => {
+            return api.ast.getDirectiveName(attribute) === 'bind' && !api.ast.getDirectiveArgumentName(attribute);
+        }) ?? null
+    );
 }

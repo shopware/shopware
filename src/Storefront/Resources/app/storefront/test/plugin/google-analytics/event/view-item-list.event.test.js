@@ -225,4 +225,10 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
             'items': [expect.objectContaining({ 'item_id': 'SW10000' })],
         }));
     });
+
+    test('finds no products on a page without a product listing', () => {
+        document.body.innerHTML = '<div class="product-box" data-product-information=\'{"sku":"SW10000"}\'></div>';
+
+        expect(new ViewItemListEvent().getListItems()).toEqual([]);
+    });
 });

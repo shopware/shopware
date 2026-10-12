@@ -23,11 +23,6 @@ class UnitUneceCodeController
     #[Route(path: '/api/_action/unit/unece-codes', name: 'api.action.unit.unece-codes', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['unit:read']], methods: ['GET'])]
     public function getUneceCodes(): JsonResponse
     {
-        $codes = [];
-        foreach ($this->uneceCodes->getCodes() as $code => $name) {
-            $codes[] = ['code' => (string) $code, 'name' => $name];
-        }
-
-        return new JsonResponse($codes);
+        return new JsonResponse($this->uneceCodes->getCodes());
     }
 }

@@ -65,11 +65,9 @@ async function createWrapper({
                         'value',
                         'options',
                         'isLoading',
-                        'disabled',
                         'error',
                     ],
-                    template:
-                        '<div class="sw-single-select" :data-value="value" :data-loading="isLoading" :data-disabled="disabled"></div>',
+                    template: '<div class="sw-single-select" :data-value="value" :data-loading="isLoading"></div>',
                 },
                 'sw-button-process': true,
                 'sw-language-switch': true,
@@ -124,11 +122,5 @@ describe('module/sw-settings-units/page/sw-settings-units-detail', () => {
         expect(wrapper.find('.sw-settings-units__unece-code').attributes('data-loading')).toBe('false');
 
         createNotification.mockRestore();
-    });
-
-    it('should disable the unit code without edit permission', async () => {
-        const wrapper = await createWrapper({ privileges: [] });
-
-        expect(wrapper.find('.sw-settings-units__unece-code').attributes('data-disabled')).toBe('true');
     });
 });

@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Installer\Controller\DatabaseConfigurationController;
-use Shopware\Core\Installer\Controller\InstallerController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
@@ -30,7 +29,6 @@ use Twig\Environment;
  */
 #[Package('framework')]
 #[CoversClass(DatabaseConfigurationController::class)]
-#[CoversClass(InstallerController::class)]
 class DatabaseConfigurationControllerTest extends TestCase
 {
     use EnvTestBehaviour;

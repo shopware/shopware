@@ -247,7 +247,7 @@ class AssignArrayTraitTest extends TestCase
 
         $updatedStruct = $struct->assignRecursive(['array' => [], 'string' => null]);
 
-        static::assertEmpty($updatedStruct->getArray());
+        static::assertSame([], $updatedStruct->getArray());
         static::assertNull($updatedStruct->getString());
     }
 
@@ -256,7 +256,7 @@ class AssignArrayTraitTest extends TestCase
         $struct = (new AssignTestStruct([]))->assignRecursive(['assignTestStruct' => []]);
 
         static::assertInstanceOf(AssignTestStruct::class, $struct->getAssignTestStruct());
-        static::assertEmpty(array_filter($struct->getAssignTestStruct()->getVars()));
+        static::assertCount(0, array_filter($struct->getAssignTestStruct()->getVars()));
     }
 
     public function testRandomArrayProperty(): void

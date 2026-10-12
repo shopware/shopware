@@ -228,6 +228,85 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         expect(wrapper.vm.product.media[1].media.url).toBe('http://shopware.test/media1-new-url.jpg');
     });
 
+    it('should move a dragged media item to the position of the drop target', async () => {
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const [cover, detail] = wrapper.vm.product.media;
+        const otherMedia = { id: 'productMedia3', mediaId: 'media3', position: 2, media: { id: 'media3' } };
+        wrapper.vm.product.media.add(otherMedia);
+
+        wrapper.vm.onMediaItemDragSort(otherMedia, detail, true);
+
+        expect([...wrapper.vm.product.media].map(({ id, position }) => `${position}:${id}`)).toEqual([
+            `0:${cover.id}`,
+            '1:productMedia3',
+            `2:${detail.id}`,
+        ]);
+    });
+
+    describe('when an extension adds items to the grid', () => {
+        const extensionItem = { id: 'extensionItem', position: 1 };
+        const moveGalleryItem = jest.fn();
+
+        beforeEach(() => {
+            Shopware.Component.override('sw-product-media-form', {
+                template: `
+                    {% block sw_product_media_form_grid_item %}
+                    <div v-if="mediaItem.id === 'extensionItem'" class="extension-item"></div>
+                    <template v-else>{% parent %}</template>
+                    {% endblock %}
+                `,
+                computed: {
+                    galleryItems() {
+                        const items = this.$super('galleryItems');
+                        items.splice(1, 0, extensionItem);
+
+                        return items;
+                    },
+                },
+                methods: {
+                    moveGalleryItem,
+                },
+            });
+        });
+
+        afterEach(() => {
+            Shopware.Component.getOverrideRegistry().delete('sw-product-media-form');
+            moveGalleryItem.mockClear();
+        });
+
+        it('should render the extension items between the product media', async () => {
+            global.activeAclRoles = [];
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const items = wrapper.findAll('.sw-product-media-form__grid > *');
+
+            expect(items[0].classes()).toContain('is--cover');
+            expect(items[1].classes()).toContain('extension-item');
+            expect(items[2].find('sw-media-preview-v2-stub').attributes('source')).toBe('media2');
+            expect(wrapper.vm.getPlaceholderCount(5)).toBe(7);
+        });
+
+        it('should let the extension move the grid items', async () => {
+            global.activeAclRoles = [];
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const detail = wrapper.vm.product.media[1];
+
+            wrapper.vm.onMediaItemDragSort(extensionItem, detail, true);
+            wrapper.vm.markMediaAsCover(detail);
+
+            expect(moveGalleryItem.mock.calls).toEqual([
+                [extensionItem, detail.position],
+                [detail, 0],
+            ]);
+        });
+    });
+
     describe('when the product has not been loaded yet', () => {
         let loadedProduct;
 

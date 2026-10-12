@@ -319,7 +319,7 @@ class TranslatorTest extends TestCase
         $loader = static::getContainer()->get(DatabaseSalesChannelThemeLoader::class);
 
         // Install the app
-        $this->loadAppsFromDir(__DIR__ . '/Fixtures/theme');
+        $this->loadAppsFromDir(__DIR__ . '/Fixtures/SwagTheme');
         $this->reloadAppSnippets();
 
         // Ensure the default Storefront theme is active

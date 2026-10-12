@@ -135,7 +135,7 @@ class SalesChannelContextTest extends TestCase
             static function (SalesChannelContext $context) use (&$called): void {
                 $called = true;
 
-                static::assertEmpty($context->getPermissions());
+                static::assertCount(0, $context->getPermissions());
             },
         );
 

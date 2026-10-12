@@ -54,6 +54,7 @@ describe('documentV2ApiService', () => {
 
         clientMock.onPost('/_action/order/document-v2/create').reply(200, {
             documentId: '4d03324edcd0490b9180df8161c9167f',
+            documentNumber: '1000',
             deepLinkCode: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
             formats: ['html', 'zugferd_xml'],
         });
@@ -70,6 +71,7 @@ describe('documentV2ApiService', () => {
         expect(createDocumentResponse).toStrictEqual({
             deepLinkCode: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
             documentId: '4d03324edcd0490b9180df8161c9167f',
+            documentNumber: '1000',
             formats: ['html', 'zugferd_xml'],
         });
     });

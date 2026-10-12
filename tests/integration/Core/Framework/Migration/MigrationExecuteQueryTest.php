@@ -42,6 +42,6 @@ class MigrationExecuteQueryTest extends TestCase
             }
             // ignore error because it is possible that older migrations just don't work on read anymore
         }
-        static::assertEmpty($exceptions, print_r($exceptions, true));
+        static::assertCount(0, $exceptions, print_r($exceptions, true));
     }
 }

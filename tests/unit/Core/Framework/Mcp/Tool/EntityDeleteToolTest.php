@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 
 /**
@@ -61,6 +62,7 @@ class EntityDeleteToolTest extends TestCase
 
         static::assertFalse($result['success']);
         static::assertStringContainsString('unknown_entity', $result['error']);
+        static::assertSame(McpToolError::INVALID_ARGUMENTS, $result['code']);
     }
 
     public function testParsesCommaSeparatedIds(): void

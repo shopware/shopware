@@ -86,6 +86,12 @@ Deactivating a plugin now removes its asset manifest entry but retains its publi
 
 Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatically when `V6_8_0_0=1` is set. An explicit setting for the individual flag still takes precedence, so `JSON_LD_DATA=0` keeps that feature off. Standalone major flags are recognized by their version-shaped names; the `major` field is only for sub-features and must name a parent version flag. Flags without a parent omit `major` from their metadata and the feature-flag API response. `FEATURE_ALL` now activates every registered feature for any truthy value; use a version flag to test only that major's changes.
 
+### Order age rule condition
+
+The Rule Builder condition `orderDaysSincePlaced` compares the order's `orderDate` with the current date in calendar days. It supports numeric comparison operators and requires a numeric `daysPassed` value, for example `operator: <=` and `daysPassed: 30` to match orders placed within the last 30 days.
+
+Extensions can evaluate `Shopware\Core\Content\Flow\Rule\OrderDaysSincePlacedRule` in a `FlowRuleScope` or a derived scope to apply date limits to existing orders.
+
 ### Unlimited DAL searches with next-pages totals
 
 Database-backed DAL searches using `Criteria::TOTAL_COUNT_MODE_NEXT_PAGES` without a limit now return all matching entities after the requested offset and report the exact total, as `TOTAL_COUNT_MODE_EXACT` does.
@@ -380,6 +386,10 @@ Both are experimental and become stable with 6.8.0.
 
 GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_INVALID_FILE` if it is not a valid binary glTF 2.0 container or if the `uri` of a buffer or image points to something other than an embedded `data:` URI. Self-contained models, which keep their buffers and textures in the binary chunk, are not affected and URLs in other fields such as `extras` or `asset.copyright` are still allowed.
 
+### Apps without permissions can't declare required privileges for MCP tools
+
+An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the app declares in the `<permissions>` of its manifest, because the tool's script runs with the app's integration role. Apps without a `<permissions>` block skipped this check, although they have no privileges at all. They are now checked like every other app, so such an app fails to install or update with the message naming the missing permission. Add the permissions to the manifest, or remove the required privileges from the tool.
+
 ## API
 
 ### Generated document number in the V2 creation response
@@ -603,6 +613,13 @@ migrate it to `useCmsElement` by hand.
 
 The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
 
+### `mt-divider` and `mt-help-text` are registered globally
+
+`mt-divider` and `mt-help-text` from the Meteor Component Library are now registered globally and can be used in Administration templates.
+
+### `sw-order-state-select-v2` can render a regular size select
+
+`sw-order-state-select-v2` has a new `small` prop. It defaults to `true`, so existing usages keep the small select. Pass `:small="false"` to render a regular size select, for example in a form next to other fields.
 ### Result descriptions for entity selects and rule conditions
 
 `sw-entity-single-select` and `sw-entity-multi-select` accept the new props `descriptionProperty`, `descriptionFormatter` and `descriptionFormatterArgs`. They render a description below each search result: the value of `descriptionProperty`, optionally passed through the `Shopware.Filter` named in `descriptionFormatter`, with `descriptionFormatterArgs` as additional arguments. A new `breadcrumb` filter joins a breadcrumb with an optional separator, which defaults to ` / `.

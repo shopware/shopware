@@ -31,17 +31,26 @@ class ReverseProxyCache implements StoreInterface
          * @deprecated tag:v6.8.0 - Parameter $states will be removed
          */
         private readonly array $states,
-        private readonly CacheTagCollector $collector
+        private readonly CacheTagCollector $collector,
+        private readonly bool $reverseProxyEnabled,
     ) {
     }
 
     public function __destruct()
     {
+        if (!$this->reverseProxyEnabled) {
+            return;
+        }
+
         $this->gateway->flush();
     }
 
     public function __invoke(InvalidateCacheEvent $event): void
     {
+        if (!$this->reverseProxyEnabled) {
+            return;
+        }
+
         $this->gateway->invalidate($event->getKeys());
     }
 
@@ -63,7 +72,7 @@ class ReverseProxyCache implements StoreInterface
             $response->headers->remove(CacheStore::TAG_HEADER);
         }
 
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+        if (!Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             $states = $response->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, '');
             $states = array_unique(array_filter(array_merge(explode(',', $states), $this->states)));
 

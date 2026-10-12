@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
-use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Order\OrderRestorer;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientRoute;
@@ -647,10 +647,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(OrderRoute::class),
             service(CheckoutGatewayRoute::class),
-            service(OrderConverter::class),
+            service(OrderRestorer::class),
             service(OrderService::class),
             service(Translator::class),
-            service(CartService::class),
         ]);
 
     $services->set(AccountLoginPageLoader::class)

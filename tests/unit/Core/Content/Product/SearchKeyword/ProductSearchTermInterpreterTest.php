@@ -37,7 +37,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $pattern = $interpreter->interpret($term, Context::createDefaultContext());
 
-        static::assertEmpty($pattern->getTerms());
+        static::assertCount(0, $pattern->getTerms());
     }
 
     public function testReturnsEmptyPatternIfTokensToShort(): void
@@ -55,7 +55,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $pattern = $interpreter->interpret($term, Context::createDefaultContext());
 
-        static::assertEmpty($pattern->getTerms());
+        static::assertCount(0, $pattern->getTerms());
     }
 
     public function testTokenEncodingsStayIntact(): void

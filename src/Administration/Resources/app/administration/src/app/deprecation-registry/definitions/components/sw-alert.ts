@@ -19,7 +19,7 @@ export default componentMigration({
         'The legacy sw-alert component is replaced by mt-banner. Banner prop names and variants changed in the Meteor component library.',
     handler: 'mt-banner',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-alert' }),
+        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#component-replacement-with-meteor-component-library' }),
     ],
     usage: [
         renameComponent({ from: 'sw-alert', to: 'mt-banner' }),

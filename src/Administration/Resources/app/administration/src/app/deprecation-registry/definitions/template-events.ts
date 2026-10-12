@@ -9,7 +9,7 @@ export default defineDeprecations({
             description:
                 'Legacy Vue 2 value/change/input component events are deprecated. Use the Vue 3 update:* event emitted by the component model.',
             references: [
-                reference({ type: 'upgrade', target: 'UPGRADE-6.6.md#administration' }),
+                reference({ type: 'upgrade', target: 'UPGRADE-6.6.md#admin-event-name-changes' }),
             ],
             usage: [
                 templateEventUsage({ component: 'sw-text-field', from: 'input', to: 'update:value' }),

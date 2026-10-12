@@ -9,7 +9,7 @@ export default componentMigration({
     description: 'The legacy sw-alert-deprecated component is replaced by mt-banner.',
     handler: 'mt-banner',
     references: [
-        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#removal-of-sw-alert' }),
+        reference({ type: 'upgrade', target: 'UPGRADE-6.7.md#component-replacement-with-meteor-component-library' }),
     ],
     usage: [
         renameComponent({ from: 'sw-alert-deprecated', to: 'mt-banner', fix: 'manual' }),

@@ -36,14 +36,14 @@ class ApiControllerUpdateTest extends TestCase
         $this->getBrowser()->jsonRequest('POST', '/api/tax', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/tax/' . $id, $response->headers->get('Location'));
 
         // update without response
         $this->getBrowser()->jsonRequest('PATCH', '/api/tax/' . $id, ['name' => 'foo']);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/tax/' . $id, $response->headers->get('Location'));
 
         // with response

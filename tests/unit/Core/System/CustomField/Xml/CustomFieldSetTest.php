@@ -92,7 +92,7 @@ class CustomFieldSetTest extends TestCase
         $customFields = $manifest->getCustomFields();
         static::assertNotNull($customFields);
         $sets = $customFields->getCustomFieldSets();
-        static::assertNotEmpty($sets);
+        static::assertNotCount(0, $sets);
 
         return $sets[0];
     }

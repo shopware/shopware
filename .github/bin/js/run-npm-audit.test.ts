@@ -5,6 +5,7 @@ import {
   AUDIT_RETRY_DELAYS_MS,
   UnusableAuditReportError,
   fetchAuditReportWithRetry,
+  filterIgnored,
   parseAuditReport,
 } from './run-npm-audit.ts';
 
@@ -107,5 +108,60 @@ describe('fetchAuditReportWithRetry', () => {
 
   it('defaults to three escalating delays', () => {
     assert.deepEqual([...AUDIT_RETRY_DELAYS_MS], [3_000, 10_000, 30_000]);
+  });
+});
+
+describe('filterIgnored', () => {
+  const advisory = (ghsa: string) => ({ url: `https://github.com/advisories/${ghsa}` });
+  const audit = (vias: Record<string, unknown[]>) => ({
+    vulnerabilities: Object.fromEntries(Object.entries(vias).map(([name, via]) => [name, { name, via }])),
+  });
+  const vias = (result: { vulnerabilities: Record<string, { via: unknown[] }> }) =>
+    Object.fromEntries(Object.entries(result.vulnerabilities).map(([name, pkg]) => [name, pkg.via]));
+  const run = (input: ReturnType<typeof audit>, ignoredGHSAs: string[]) => {
+    filterIgnored(input as never, new Set(ignoredGHSAs), new Set());
+    return vias(input);
+  };
+
+  it('clears the packages that only depended on an ignored advisory', () => {
+    const result = run(audit({
+      braces: [advisory('GHSA-aaaa-aaaa-aaaa')],
+      micromatch: ['braces'],
+      jest: ['micromatch'],
+    }), ['GHSA-aaaa-aaaa-aaaa']);
+
+    assert.deepEqual(result, { braces: [], micromatch: [], jest: [] });
+  });
+
+  it('clears packages that reference each other once their only advisory is ignored', () => {
+    const result = run(audit({
+      '@vue/server-renderer': [advisory('GHSA-g2v6-rqmx-r4w6'), 'vue'],
+      vue: ['@vue/server-renderer'],
+      '@tanstack/vue-virtual': ['vue'],
+    }), ['GHSA-g2v6-rqmx-r4w6']);
+
+    assert.deepEqual(result, { '@vue/server-renderer': [], vue: [], '@tanstack/vue-virtual': [] });
+  });
+
+  it('keeps a cycle vulnerable while one of its packages has an advisory that is not ignored', () => {
+    const remaining = advisory('GHSA-bbbb-bbbb-bbbb');
+    const result = run(audit({
+      '@vue/server-renderer': [advisory('GHSA-g2v6-rqmx-r4w6'), 'vue'],
+      vue: ['@vue/server-renderer', '@vue/shared'],
+      '@vue/shared': [remaining],
+    }), ['GHSA-g2v6-rqmx-r4w6']);
+
+    assert.deepEqual(result, {
+      '@vue/server-renderer': ['vue'],
+      vue: ['@vue/server-renderer', '@vue/shared'],
+      '@vue/shared': [remaining],
+    });
+  });
+
+  it('drops references to packages that are not part of the report', () => {
+    const remaining = advisory('GHSA-cccc-cccc-cccc');
+    const result = run(audit({ qs: [remaining, 'missing-package'] }), []);
+
+    assert.deepEqual(result, { qs: [remaining] });
   });
 });

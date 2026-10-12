@@ -7,6 +7,7 @@ async function createWrapper(
     numberRangeService = {
         previewPattern: jest.fn(() => Promise.resolve({ number: 1337 })),
         previewPatternByNumberRangeId: jest.fn(() => Promise.resolve({ number: 1337 })),
+        patternCollisions: jest.fn(() => Promise.resolve({ collisions: [] })),
     },
     repositories = {},
 ) {
@@ -180,6 +181,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-crea
         const numberRangeService = {
             previewPattern: jest.fn(() => Promise.resolve({ number: 1337 })),
             previewPatternByNumberRangeId: jest.fn(() => Promise.resolve({ number: 1337 })),
+            patternCollisions: jest.fn(() => Promise.resolve({ collisions: [] })),
         };
 
         const wrapper = await createWrapper(numberRangeService);

@@ -382,7 +382,7 @@
       "messageEmptySubline": "Verwaltung von Dokumenten.",
       "notificationDeleteErrorMessage": "Das Dokument konnte nicht gelöscht werden.",
       "error": {
-        "DOCUMENT__NUMBER_ALREADY_EXISTS": "Die Dokumentnummer {number} ist bereits in Verwendung.",
+        "DOCUMENT__NUMBER_ALREADY_EXISTS": "Die Dokumentnummer {number} ist für den Dokumenttyp {documentType} bereits in Verwendung. Prüfe den Nummernkreis, der für diesen Dokumenttyp und Verkaufskanal konfiguriert ist.",
         "createDocument": "Das Erstellen des Dokuments ist fehlgeschlagen.",
         "downloadDocument": "Das Herunterladen des Dokuments ist fehlgeschlagen.",
         "downloadDocumentArchive": "Das Herunterladen des Dokumentarchives ist fehlgeschlagen.",

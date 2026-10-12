@@ -122,6 +122,81 @@
                     }
                 }
             }
+        },
+        "\/_action\/number-range\/pattern-collisions": {
+            "get": {
+                "tags": [
+                    "Number Range Management"
+                ],
+                "summary": "List number ranges whose pattern collides",
+                "description": "Lists the other number ranges of the given document number range type that use exactly the given pattern. Document numbers are unique per document type, so two such ranges generate colliding numbers once they reach the same value. Only number range types whose technical name starts with `document_` are considered; for any other type the list is empty. Pass `numberRangeId` to exclude the number range that is being edited.",
+                "operationId": "numberRangePatternCollisions",
+                "parameters": [
+                    {
+                        "name": "typeId",
+                        "in": "query",
+                        "description": "Identifier of the number range type.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "pattern",
+                        "in": "query",
+                        "description": "The pattern to check, for example `INV-{n}`.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "numberRangeId",
+                        "in": "query",
+                        "description": "Identifier of the number range being edited, excluded from the result.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The colliding number ranges",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "collisions": {
+                                            "description": "Other number ranges of the same document type that use the pattern.",
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9a-f]{32}$"
+                                                    },
+                                                    "name": {
+                                                        "description": "Translated name of the number range.",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "A required query parameter is missing or invalid"
+                    }
+                }
+            }
         }
     }
 }

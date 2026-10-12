@@ -124,12 +124,12 @@ trait AdminApiTestBehaviour
     /**
      * @param list<array{code: string, field?: non-empty-string, detail?: string}> $expected
      */
-    public function assertApiErrors(array $expected): void
+    public function assertApiErrors(array $expected, int $statusCode = Response::HTTP_BAD_REQUEST): void
     {
         $response = $this->getBrowser()->getResponse();
         $content = (string) $response->getContent();
 
-        TestCase::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), $content);
+        TestCase::assertSame($statusCode, $response->getStatusCode(), $content);
 
         $errors = json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['errors'];
         TestCase::assertCount(\count($expected), $errors, $content);

@@ -89,4 +89,10 @@ describe('plugin/google-analytics/analytics-event', () => {
             search_term: 'Example',
         }]);
     });
+
+    test('keeps a value that is not a number as it is', () => {
+        new AnalyticsEvent().pushEvent('purchase', { value: 'not a number', items: [] });
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'purchase', expect.objectContaining({ value: 'not a number' }));
+    });
 });

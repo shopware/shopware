@@ -10,11 +10,13 @@ use Shopware\Core\Content\Breadcrumb\SalesChannel\BreadcrumbRouteResponse;
 use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\AnalyticsController;
+use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -73,7 +75,7 @@ class AnalyticsControllerTest extends TestCase
         $this->controller($route)->productCategories(new Request(['productId' => Uuid::randomHex()]), $this->contextWithAnalytics());
     }
 
-    public function testRethrowsABreadcrumbErrorOtherThanAMissingCategory(): void
+    public function testLetsABreadcrumbErrorOtherThanAMissingCategoryThrough(): void
     {
         $error = new BreadcrumbException(Response::HTTP_INTERNAL_SERVER_ERROR, 'BREADCRUMB_OTHER_ERROR', 'Another breadcrumb error');
 
@@ -93,9 +95,9 @@ class AnalyticsControllerTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setAnalyticsId(null);
 
-        $response = $this->controller($route)->productCategories(new Request(['productId' => Uuid::randomHex()]), $context);
+        $this->expectExceptionObject(StorefrontException::analyticsNotActive());
 
-        static::assertSame(404, $response->getStatusCode());
+        $this->controller($route)->productCategories(new Request(['productId' => Uuid::randomHex()]), $context);
     }
 
     public function testDoesNotCallTheRouteWithoutAValidProductId(): void
@@ -103,12 +105,12 @@ class AnalyticsControllerTest extends TestCase
         $route = $this->createMock(AbstractBreadcrumbRoute::class);
         $route->expects($this->never())->method('load');
 
-        $response = $this->controller($route)->productCategories(
+        $this->expectExceptionObject(RoutingException::invalidRequestParameter('productId'));
+
+        $this->controller($route)->productCategories(
             new Request(['productId' => 'not-an-id']),
             $this->contextWithAnalytics()
         );
-
-        static::assertSame(400, $response->getStatusCode());
     }
 
     private function contextWithAnalytics(): SalesChannelContext

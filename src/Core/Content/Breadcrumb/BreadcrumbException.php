@@ -2,26 +2,24 @@
 
 namespace Shopware\Core\Content\Breadcrumb;
 
+use Shopware\Core\Content\Breadcrumb\Exception\CategoryNotFoundForProductException;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Symfony\Component\HttpFoundation\Response;
 
 #[Package('inventory')]
 class BreadcrumbException extends CategoryException
 {
     public const BREADCRUMB_CATEGORY_NOT_FOUND = 'BREADCRUMB_CATEGORY_NOT_FOUND';
 
-    public static function categoryNotFoundForProduct(string $productId): self
+    /**
+     * Throwing the custom exception allows to still catch {@see BreadcrumbException} as usual
+     */
+    public static function categoryNotFoundForProduct(string $productId): CategoryNotFoundForProductException
     {
-        return new self(
-            Response::HTTP_NO_CONTENT,
-            self::BREADCRUMB_CATEGORY_NOT_FOUND,
-            'The main category for product {{ productId }} is not found',
-            ['productId' => $productId]
-        );
+        return new CategoryNotFoundForProductException($productId);
     }
 
     public static function categoryNotFound(string $id): ShopwareHttpException

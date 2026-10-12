@@ -10,7 +10,7 @@ use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPrice;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('discovery')]
 #[CoversClass(AnalyticsLineItemPrice::class)]
 class AnalyticsLineItemPriceTest extends TestCase
 {

@@ -2,16 +2,18 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Content\Breadcrumb\BreadcrumbException;
+use Shopware\Core\Content\Breadcrumb\Exception\CategoryNotFoundForProductException;
 use Shopware\Core\Content\Breadcrumb\SalesChannel\AbstractBreadcrumbRoute;
+use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -37,7 +39,8 @@ class AnalyticsController extends StorefrontController
      *
      * It is the breadcrumb of the product detail page, resolved by the Store API breadcrumb route.
      * Only the analytics script calls it, which is only loaded for a sales channel with analytics, so
-     * a sales channel without analytics gets a 404.
+     * a sales channel without analytics gets a 404. The script only checks whether the response is
+     * successful and falls back to the page breadcrumb otherwise.
      */
     #[Route(
         path: '/widgets/analytics/product-categories',
@@ -49,13 +52,13 @@ class AnalyticsController extends StorefrontController
     public function productCategories(Request $request, SalesChannelContext $context): JsonResponse
     {
         if ($context->getSalesChannel()->getAnalyticsId() === null) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
+            throw StorefrontException::analyticsNotActive();
         }
 
         $productId = $request->query->getString('productId');
 
         if (!Uuid::isValid($productId)) {
-            return $this->json([], Response::HTTP_BAD_REQUEST);
+            throw RoutingException::invalidRequestParameter('productId');
         }
 
         // the Store API route reads the product from the `id` attribute and the kind from `type`
@@ -63,22 +66,15 @@ class AnalyticsController extends StorefrontController
         $breadcrumbRequest->attributes->set('id', $productId);
 
         try {
-            $breadcrumb = $this->breadcrumbRoute
+            $breadcrumbs = $this->breadcrumbRoute
                 ->load($breadcrumbRequest, $context)
                 ->getBreadcrumbCollection();
-        } catch (BreadcrumbException $exception) {
+        } catch (CategoryNotFoundForProductException) {
             // a product without a category available in the sales channel has no breadcrumb, which
-            // is a valid answer; anything else is a real error
-            if ($exception->getErrorCode() !== BreadcrumbException::BREADCRUMB_CATEGORY_NOT_FOUND) {
-                throw $exception;
-            }
-
+            // is a valid answer
             return $this->json([]);
         }
 
-        return $this->json(array_values(array_map(
-            static fn ($item) => $item->name,
-            $breadcrumb->getElements()
-        )));
+        return $this->json(array_values($breadcrumbs->map(static fn (Breadcrumb $breadcrumb) => $breadcrumb->name)));
     }
 }

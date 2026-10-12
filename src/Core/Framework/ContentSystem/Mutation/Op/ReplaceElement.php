@@ -197,7 +197,7 @@ final class ReplaceElement extends AbstractLayoutMutation
         $kept = [];
 
         foreach ($wiring as $key => $value) {
-            if (isset($newTypeProperties[$key]) && !$newTypeProperties[$key]->type()->isPrimitive()) {
+            if (isset($newTypeProperties[$key]) && $newTypeProperties[$key]->type()->enforceableTypes() === null) {
                 $kept[$key] = $value;
             }
         }

@@ -433,9 +433,10 @@ class ReplaceElementTest extends TestCase
     #[TestDox('rejects wiring whose key the new type declares as a primitive property and reports the key as dropped')]
     public function testReplaceRejectsWiringUnderADeclaredPrimitiveKey(): void
     {
-        // headline is a declared string primitive of Sw:New, so the wiring carry-over must keep reference keys only.
+        // headline is a declared string primitive of Sw:New, so the wiring carry-over must keep only keys
+        // with no enforceable type.
         // The key IS present in the new type, so the presence check alone would carry this requirement onto a
-        // primitive property; only the isPrimitive() operand rejects it.
+        // primitive property; only the enforceableTypes() operand rejects it.
         $requirement = new DataRequirement('headline', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old', ['headline' => $requirement])]);
 
@@ -444,6 +445,21 @@ class ReplaceElementTest extends TestCase
 
         static::assertSame([], $result->roots[0]->dataRequirements);
         static::assertSame(['headline'], $replace->droppedWiring());
+    }
+
+    #[TestDox('drops wiring whose key the new type declares as an all-primitive union and reports the key')]
+    public function testReplaceDropsWiringUnderAnAllPrimitiveUnionKey(): void
+    {
+        // flexible is declared string|integer in Sw:New: a union, so isPrimitive() is false for it, yet every member is
+        // enforceable. A check on isPrimitive() alone would carry this requirement; enforceableTypes() drops it.
+        $requirement = new DataRequirement('flexible', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
+        $tree = new StoredTree([new StoredElement('el', 'Sw:Old', ['flexible' => $requirement])]);
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertSame([], $result->roots[0]->dataRequirements);
+        static::assertSame(['flexible'], $replace->droppedWiring());
     }
 
     #[TestDox('carries a null stored under a key the new type declares as a primitive')]

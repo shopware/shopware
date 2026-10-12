@@ -408,7 +408,7 @@ class ImportExportTest extends TestCase
                 static function (Criteria $criteria, Context $ctx) use ($dictId): EntitySearchResult {
                     $sortings = $criteria->getSorting();
 
-                    static::assertNotEmpty($sortings, 'Expected export to add at least one sorting');
+                    static::assertNotCount(0, $sortings, 'Expected export to add at least one sorting');
                     static::assertCount(
                         0,
                         \array_filter($sortings, static fn ($s) => $s->getField() === 'createdAt'),

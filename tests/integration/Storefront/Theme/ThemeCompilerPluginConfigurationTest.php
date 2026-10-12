@@ -142,7 +142,7 @@ SCSS;
 
         $subscriber->enrichExtensionVars($event);
 
-        static::assertEmpty($event->getVariables());
+        static::assertCount(0, $event->getVariables());
     }
 
     // ===================================

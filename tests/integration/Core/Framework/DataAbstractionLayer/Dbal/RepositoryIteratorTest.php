@@ -41,7 +41,7 @@ class RepositoryIteratorTest extends TestCase
 
         $offset = 1;
         while (($result = $iterator->fetch()) !== null) {
-            static::assertNotEmpty($result->getEntities()->first()?->getId());
+            static::assertNotNull($result->getEntities()->first()?->getId());
             static::assertEquals(
                 [new ContainsFilter('configurationKey', 'core')],
                 $criteria->getFilters()

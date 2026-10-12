@@ -25,11 +25,6 @@ export type MigrationTransformResult = {
 
 export type MigrationTransform = (context?: MigrationTransformContext) => MigrationTransformResult;
 
-export type RuntimeUsageApi = {
-    usedProps: Record<string, unknown>;
-    componentName?: string;
-};
-
 export type ComponentUsageRuleApi = {
     context: {
         options: string[];
@@ -81,11 +76,7 @@ export type DeprecationUsage = {
     kind?: string;
     fix?: FixLevel;
     message?: string;
-    runtimeProp?: string;
     transform?: MigrationTransform;
-    runtime?: {
-        detect(api: RuntimeUsageApi): boolean;
-    };
     eslint?: {
         report(api: ComponentUsageRuleApi): void;
     };

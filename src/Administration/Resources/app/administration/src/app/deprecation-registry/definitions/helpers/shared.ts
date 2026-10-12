@@ -59,31 +59,12 @@ export function usage(kind: string, config: Record<string, unknown>): Deprecatio
     });
 }
 
-export function attributeNameToPropName(attributeName: string): string {
-    return attributeName.replace(/-([a-z])/g, (match: string, letter: string) => letter.toUpperCase());
-}
-
-export function propNameToAttributeName(propName: string): string {
-    return propName.replace(/[A-Z]/g, (letter: string) => `-${letter.toLowerCase()}`);
-}
-
 export function normalizeFixLevel(value: unknown, fallback: FixLevel): FixLevel {
     if (value === 'auto' || value === 'unsafe-auto' || value === 'manual') {
         return value;
     }
 
     return fallback;
-}
-
-export function runtimePropWasUsed(runtimeProp: unknown, usedProps: Record<string, unknown>): boolean {
-    if (typeof runtimeProp !== 'string') {
-        return false;
-    }
-
-    return [
-        runtimeProp,
-        propNameToAttributeName(runtimeProp),
-    ].some((propName) => Object.prototype.hasOwnProperty.call(usedProps, propName));
 }
 
 export function manualUsage(kind: string, config: Record<string, unknown>): DeprecationUsage {

@@ -3,7 +3,6 @@
  */
 
 import { getCurrentInstance, watchEffect } from 'vue';
-import { getRuntimeMigrationDescription } from 'src/app/deprecation-registry/runtime';
 
 const { warn } = Shopware.Utils.debug;
 
@@ -44,8 +43,7 @@ class MetaInfoPlugin {
                 } else {
                     warn(
                         'Meta Info Plugin',
-                        getRuntimeMigrationDescription('js-api.meta-info-object') ||
-                            'Providing the metaInfo as an object is not supported anymore. Please use a function instead.',
+                        'Providing the metaInfo as an object is not supported anymore. Please use a function instead.',
                     );
                 }
             },

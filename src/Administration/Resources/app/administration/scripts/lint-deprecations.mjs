@@ -22,7 +22,6 @@ const files = changedFiles.stdout
             path &&
             !status.includes('D') &&
             !path.startsWith('src/app/deprecation-registry/') &&
-            path !== 'src/app/plugin/deprecation.plugin.ts' &&
             /\.(?:js|ts|vue|html\.twig)$/.test(path)
         );
     })

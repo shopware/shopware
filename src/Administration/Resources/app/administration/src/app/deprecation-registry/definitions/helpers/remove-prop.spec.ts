@@ -2,15 +2,11 @@ import { removeProp } from './remove-prop';
 import { createAttribute, createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';
 
 describe('removeProp', () => {
-    it('owns defaults and runtime detection', () => {
+    it('defaults to an automatic fix', () => {
         const usage = removeProp({ prop: 'legacy-prop' });
 
         expect(usage.kind).toBe('remove-prop');
         expect(usage.fix).toBe('auto');
-        expect(usage.runtimeProp).toBe('legacyProp');
-        expect(usage.runtime?.detect({ usedProps: { legacyProp: true } })).toBe(true);
-        expect(usage.runtime?.detect({ usedProps: { 'legacy-prop': true } })).toBe(true);
-        expect(usage.runtime?.detect({ usedProps: { legacyPropOther: true } })).toBe(false);
     });
 
     it('reports and removes matching props', () => {

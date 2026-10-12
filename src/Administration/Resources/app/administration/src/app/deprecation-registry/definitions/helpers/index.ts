@@ -2,7 +2,7 @@
  * @sw-package framework
  *
  * Helpers keep deprecation definitions readable while colocating the default
- * metadata, runtime detection and ESLint behavior for each helper.
+ * metadata and ESLint check and fix behavior for each helper.
  */
 
 import type { DeprecationUsage, FixLevel, MigrationTransform, MigrationTransformContext } from './types';
@@ -18,7 +18,6 @@ export type {
     MigrationTransform,
     MigrationTransformContext,
     MigrationTransformResult,
-    RuntimeUsageApi,
 } from './types';
 export { renameProp } from './rename-prop';
 export { removeProp } from './remove-prop';

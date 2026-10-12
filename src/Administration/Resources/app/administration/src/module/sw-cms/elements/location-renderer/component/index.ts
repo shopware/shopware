@@ -1,7 +1,6 @@
 import template from './sw-cms-el-location-renderer.html.twig';
 import './sw-cms-el-location-renderer.scss';
 import type { ElementDataProp } from '../index';
-import { getRuntimeMigrationDescription } from 'src/app/deprecation-registry/runtime';
 
 const { Component, Mixin } = Shopware;
 
@@ -89,7 +88,8 @@ export default Component.wrapComponentConfig({
                 path: 'element',
                 scope: this,
                 deprecated: true,
-                deprecationMessage: getRuntimeMigrationDescription('js-api.extension-api-generic-cms-element-data'),
+                deprecationMessage:
+                    'The general cms element data set is deprecated. Please use a specific cms data set instead by provoding the element id.',
             });
 
             this.unpublishDataWithElementId = Shopware.ExtensionAPI.publishData({

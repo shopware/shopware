@@ -2,15 +2,11 @@ import { addBooleanPropTransform, mapPropValue } from './index';
 import { createAttribute, createFixer, createRuleApi } from './test-utils';
 
 describe('mapPropValue', () => {
-    it('owns defaults and runtime detection', () => {
+    it('defaults to an automatic fix', () => {
         const usage = mapPropValue({ prop: 'variant', from: 'old', to: 'new' });
 
         expect(usage.kind).toBe('map-prop-value');
         expect(usage.fix).toBe('auto');
-        expect(usage.runtimeProp).toBe('variant');
-        expect(usage.runtime?.detect({ usedProps: { variant: 'old' } })).toBe(true);
-        expect(usage.runtime?.detect({ usedProps: { variant: 'old' } })).toBe(true);
-        expect(usage.runtime?.detect({ usedProps: { variant: 'new' } })).toBe(false);
     });
 
     it('reports and fixes matching static values', () => {

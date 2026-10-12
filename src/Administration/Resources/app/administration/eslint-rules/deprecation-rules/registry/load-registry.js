@@ -46,18 +46,6 @@ function loadRegistry() {
         getComponentApiMigration(componentName) {
             return componentApiMigrations.find((migration) => migration.component === componentName) ?? null;
         },
-        getMigration(id) {
-            return [
-                ...componentApiMigrations,
-                ...globalApiMigrations,
-                ...jsApiMigrations,
-                ...assetMigrations,
-                ...templateBlockMigrations,
-                ...templateEventMigrations,
-                ...snippetKeyMigrations,
-                ...packageMigrations,
-            ].find((migration) => migration.id === id) ?? null;
-        },
     };
 }
 

@@ -3,15 +3,11 @@ import { replaceWithStaticValueTransform, renameProp } from './index';
 import { createAttribute, createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';
 
 describe('renameProp', () => {
-    it('owns defaults and runtime detection', () => {
+    it('defaults to an automatic fix', () => {
         const usage = renameProp({ from: 'old-prop', to: 'new-prop' });
 
         expect(usage.kind).toBe('rename-prop');
         expect(usage.fix).toBe('auto');
-        expect(usage.runtimeProp).toBe('oldProp');
-        expect(usage.runtime?.detect({ usedProps: { oldProp: true } })).toBe(true);
-        expect(usage.runtime?.detect({ usedProps: { 'old-prop': true } })).toBe(true);
-        expect(usage.runtime?.detect({ usedProps: { oldPropOther: true } })).toBe(false);
     });
 
     it('reports and fixes bound prop renames', () => {

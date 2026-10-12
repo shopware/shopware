@@ -30,6 +30,66 @@ function objectVBindCanHideAlias(usageConfig: DeprecationUsage): boolean {
     });
 }
 
+/**
+ * Inserts the missing prop at the configured position. With an object v-bind it goes in front of
+ * the bound object, so values in the object still win.
+ */
+function insertMissingProp(
+    api: ComponentUsageRuleApi,
+    fixer: Record<string, any>,
+    usageConfig: DeprecationUsage,
+    objectVBindAttribute: Record<string, any> | null,
+): unknown {
+    const propSource = getPropSource(usageConfig);
+
+    if (objectVBindAttribute) {
+        const attributeLine = objectVBindAttribute.loc?.start?.line;
+        const startTagLine = api.node.startTag.loc?.start?.line;
+
+        if (typeof attributeLine === 'number' && typeof startTagLine === 'number' && attributeLine > startTagLine) {
+            const column = objectVBindAttribute.loc?.start?.column;
+            const indentation = ' '.repeat(typeof column === 'number' ? column : 0);
+
+            return fixer.insertTextBefore(objectVBindAttribute, `${propSource}\n${indentation}`);
+        }
+
+        return fixer.insertTextBefore(objectVBindAttribute, `${propSource} `);
+    }
+
+    const insertPosition = usageConfig.insertPosition === 'after-name' ? 'after-name' : 'before-end';
+    const startTagSource = api.sourceCode.getText(api.node.startTag);
+    const selfClosingEnd = startTagSource.match(/\s*\/>\s*$/);
+    const beforeEndOffset = selfClosingEnd
+        ? api.node.startTag.range[1] - selfClosingEnd[0].length
+        : api.node.startTag.range[1] - 1;
+    const insertOffset =
+        insertPosition === 'after-name' ? api.node.startTag.range[0] + `<${api.node.name}`.length : beforeEndOffset;
+
+    return fixer.insertTextAfterRange(
+        [
+            insertOffset,
+            insertOffset,
+        ],
+        ` ${propSource}`,
+    );
+}
+
+/**
+ * Puts a "TODO Codemod" comment above the element, asking the developer to confirm the added prop.
+ */
+function insertReviewHint(api: ComponentUsageRuleApi, fixer: Record<string, any>, reviewHint: string): unknown {
+    const column = api.node.loc?.start?.column;
+    const indentation = ' '.repeat(typeof column === 'number' ? column : 0);
+
+    return fixer.insertTextBeforeRange(
+        [
+            api.node.range[0],
+            api.node.range[0],
+        ],
+        `<!-- TODO Codemod: ${reviewHint} -->\n${indentation}`,
+    );
+}
+
 export function createMissingPropEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
     return {
         report(api) {
@@ -67,44 +127,16 @@ export function createMissingPropEslint(usageConfig: DeprecationUsage): Deprecat
                         return null;
                     }
 
-                    const propSource = getPropSource(usageConfig);
+                    const propFix = insertMissingProp(api, fixer, usageConfig, objectVBindAttribute);
 
-                    if (objectVBindAttribute) {
-                        const attributeLine = objectVBindAttribute.loc?.start?.line;
-                        const startTagLine = api.node.startTag.loc?.start?.line;
-
-                        if (
-                            typeof attributeLine === 'number' &&
-                            typeof startTagLine === 'number' &&
-                            attributeLine > startTagLine
-                        ) {
-                            const column = objectVBindAttribute.loc?.start?.column;
-                            const indentation = ' '.repeat(typeof column === 'number' ? column : 0);
-
-                            return fixer.insertTextBefore(objectVBindAttribute, `${propSource}\n${indentation}`);
-                        }
-
-                        return fixer.insertTextBefore(objectVBindAttribute, `${propSource} `);
+                    if (typeof usageConfig.reviewHint !== 'string') {
+                        return propFix;
                     }
 
-                    const insertPosition = usageConfig.insertPosition === 'after-name' ? 'after-name' : 'before-end';
-                    const startTagSource = api.sourceCode.getText(api.node.startTag);
-                    const selfClosingEnd = startTagSource.match(/\s*\/>\s*$/);
-                    const beforeEndOffset = selfClosingEnd
-                        ? api.node.startTag.range[1] - selfClosingEnd[0].length
-                        : api.node.startTag.range[1] - 1;
-                    const insertOffset =
-                        insertPosition === 'after-name'
-                            ? api.node.startTag.range[0] + `<${api.node.name}`.length
-                            : beforeEndOffset;
-
-                    return fixer.insertTextAfterRange(
-                        [
-                            insertOffset,
-                            insertOffset,
-                        ],
-                        ` ${propSource}`,
-                    );
+                    return [
+                        propFix,
+                        insertReviewHint(api, fixer, usageConfig.reviewHint),
+                    ];
                 },
             });
         },

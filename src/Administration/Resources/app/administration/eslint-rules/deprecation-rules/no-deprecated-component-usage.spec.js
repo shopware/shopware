@@ -175,6 +175,16 @@ const duplicateReplacementInvalidTests = [
 
 const registryDrivenValidTests = [
     {
+        name: 'registry-driven mt-checkbox keeps its native label slot',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-checkbox>
+                    <template #label>Accept</template>
+                </mt-checkbox>
+            </template>`,
+    },
+    {
         name: 'registry-driven mt-progress-bar without deprecated value API is allowed',
         filename: 'test.html.twig',
         code: `

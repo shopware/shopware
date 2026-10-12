@@ -1,4 +1,13 @@
-import { componentMigration, reference, removeProp, renameComponent, renameEvent, renameProp, slotToProp } from '../helpers';
+import {
+    componentMigration,
+    onlyAfterConversion,
+    reference,
+    removeProp,
+    renameComponent,
+    renameEvent,
+    renameProp,
+    slotToProp,
+} from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-checkbox-field',
@@ -20,11 +29,13 @@ export default componentMigration({
             fix: 'manual',
             message: 'The "value" prop is deprecated. Use "v-model" instead.',
         }),
-        slotToProp({
-            slot: 'label',
-            prop: 'label',
-            fix: 'unsafe-auto',
-        }),
+        onlyAfterConversion(
+            slotToProp({
+                slot: 'label',
+                prop: 'label',
+                fix: 'unsafe-auto',
+            }),
+        ),
         slotToProp({
             slot: 'hint',
             prop: 'label',

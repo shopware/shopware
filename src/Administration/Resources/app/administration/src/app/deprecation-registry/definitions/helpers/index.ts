@@ -32,6 +32,18 @@ export { renameEvent } from './rename-event';
 export { removeEvent } from './remove-event';
 export { renameVModelArgument } from './rename-v-model-argument';
 
+/**
+ * Limits a usage codemod to elements the codemod just converted from the deprecated component,
+ * recognised by their "TODO Codemod: Converted from <component>" comment. Use it for steps that
+ * carry the old component's behaviour over, so correct usage of the replacement stays unreported.
+ *
+ * @example
+ * onlyAfterConversion(missingProp({ prop: 'size', value: '24px' }))
+ */
+export function onlyAfterConversion(usageConfig: DeprecationUsage): DeprecationUsage {
+    return { ...usageConfig, onlyAfterConversion: true };
+}
+
 export const componentMigration = migration;
 export const globalApiMigration = migration;
 export const jsApiMigration = migration;

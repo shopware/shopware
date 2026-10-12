@@ -418,7 +418,53 @@ function createComponentUsageRuleApi(context, node, migration, usage) {
     };
 }
 
+/**
+ * Lists the comments directly above an element, nearest first, with only whitespace in between.
+ *
+ * @example
+ * getLeadingComments(context, node).map((comment) => comment.value);
+ * // [' TODO Codemod: Converted from sw-icon - please check if everything works correctly ']
+ */
+function getLeadingComments(context, node) {
+    const comments = context.sourceCode.ast?.templateBody?.comments ?? [];
+    const leadingComments = [];
+    let end = node.range[0];
+
+    comments
+        .filter((comment) => comment.range[1] <= node.range[0])
+        .sort((left, right) => right.range[0] - left.range[0])
+        .every((comment) => {
+            if (context.sourceCode.text.slice(comment.range[1], end).trim() !== '') {
+                return false;
+            }
+
+            leadingComments.push(comment);
+            end = comment.range[0];
+
+            return true;
+        });
+
+    return leadingComments;
+}
+
+/**
+ * Tells whether `no-deprecated-components` converted the element from the given component,
+ * recognised by the "Converted from" comment it puts above every converted element.
+ *
+ * @example
+ * isConvertedFrom(context, mtIconNode, 'sw-icon'); // true right after the sw-icon conversion
+ */
+function isConvertedFrom(context, node, componentName) {
+    return getLeadingComments(context, node).some((comment) => {
+        return comment.value.includes(`Converted from ${componentName} `);
+    });
+}
+
 function runRegistryUsage(context, node, migration, usage) {
+    if (usage.onlyAfterConversion && !isConvertedFrom(context, node, migration.component)) {
+        return;
+    }
+
     if (usage.eslint?.report) {
         usage.eslint.report(createComponentUsageRuleApi(context, node, migration, usage));
     }

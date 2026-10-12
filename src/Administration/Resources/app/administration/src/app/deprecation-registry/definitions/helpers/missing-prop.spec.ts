@@ -30,6 +30,48 @@ describe('missingProp', () => {
         });
     });
 
+    it('asks to confirm the added prop with a review hint above the element', () => {
+        const usage = missingProp({ prop: 'size', value: '24px', reviewHint: 'Confirm the icon size.' });
+        const node = {
+            name: 'mt-icon',
+            range: [
+                8,
+                19,
+            ],
+            loc: { start: { line: 2, column: 8 } },
+            startTag: {
+                range: [
+                    8,
+                    19,
+                ],
+                attributes: [],
+            },
+            children: [],
+        };
+        const api = createRuleApi({ usage, node });
+
+        usage.eslint?.report(api);
+
+        expect(api.reports[0].fix(createFixer())).toEqual([
+            {
+                method: 'insertTextAfterRange',
+                range: [
+                    18,
+                    18,
+                ],
+                text: ' size="24px"',
+            },
+            {
+                method: 'insertTextBeforeRange',
+                range: [
+                    8,
+                    8,
+                ],
+                text: '<!-- TODO Codemod: Confirm the icon size. -->\n        ',
+            },
+        ]);
+    });
+
     it('can add a bound prop after the component name', () => {
         const usage = missingProp({
             prop: 'is-opened',

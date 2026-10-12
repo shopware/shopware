@@ -1,6 +1,7 @@
 import {
     componentMigration,
     missingProp,
+    onlyAfterConversion,
     reference,
     renameComponent,
     renameProp,
@@ -31,16 +32,20 @@ export default componentMigration({
             to: 'size',
             transform: replaceWithStaticValueTransform({ value: '32px' }),
         }),
-        missingProp({
-            prop: 'size',
-            value: '24px',
-            unlessProps: [
-                'size',
-                'small',
-                'large',
-            ],
-            fix: 'unsafe-auto',
-            message: 'Add size="24px" when no size is set to preserve the previous default icon size.',
-        }),
+        onlyAfterConversion(
+            missingProp({
+                prop: 'size',
+                value: '24px',
+                unlessProps: [
+                    'size',
+                    'small',
+                    'large',
+                ],
+                fix: 'unsafe-auto',
+                message: 'Add size="24px" when no size is set to preserve the previous default icon size.',
+                reviewHint:
+                    'size="24px" keeps the sw-icon default size. Keep it, or remove it to use the mt-icon default size.',
+            }),
+        ),
     ],
 });

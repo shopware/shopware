@@ -16,6 +16,7 @@ export function missingProp(config: {
     unlessProps?: string[];
     fix?: FixLevel;
     message?: string;
+    reviewHint?: string;
 }): DeprecationUsage {
     const {
         prop,
@@ -25,6 +26,7 @@ export function missingProp(config: {
         unlessProps = [prop],
         fix = DEFAULT_FIX,
         message,
+        reviewHint,
     } = config;
     const usageConfig: DeprecationUsage = withoutUndefined({
         kind: 'missing-prop',
@@ -35,6 +37,7 @@ export function missingProp(config: {
         unlessProps,
         fix,
         message,
+        reviewHint,
     });
 
     return {

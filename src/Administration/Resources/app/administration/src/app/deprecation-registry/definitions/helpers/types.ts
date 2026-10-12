@@ -77,6 +77,7 @@ export type DeprecationUsage = {
     fix?: FixLevel;
     message?: string;
     transform?: MigrationTransform;
+    onlyAfterConversion?: boolean;
     eslint?: {
         report(api: ComponentUsageRuleApi): void;
     };

@@ -178,9 +178,6 @@ export default {
                 restrictedFields = [
                     'isCloseout',
                     'restockTime',
-                    'maxPurchase',
-                    'purchaseSteps',
-                    'minPurchase',
                     'shippingFree',
                 ];
             }
@@ -581,6 +578,62 @@ export default {
                         dateType: 'datetime-local',
                         changeLabel: this.$t('sw-bulk-edit.product.labelling.releaseDate.changeLabel'),
                         disabled: this.bulkEditProduct?.releaseDate?.isInherited,
+                    },
+                },
+            ];
+        },
+
+        guaranteeFormFields() {
+            return [
+                {
+                    name: 'guaranteeMonths',
+                    type: 'int',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'mt-number-field',
+                        numberType: 'int',
+                        min: 30,
+                        max: 600,
+                        step: 6,
+                        allowEmpty: true,
+                        changeLabel: this.$t('sw-bulk-edit.product.guarantee.guaranteeMonths.changeLabel'),
+                        helpText: this.$t('sw-bulk-edit.product.guarantee.guaranteeMonths.helpText'),
+                        placeholder: this.$t('sw-bulk-edit.product.guarantee.guaranteeMonths.placeholder'),
+                        disabled: this.bulkEditProduct?.guaranteeMonths?.isInherited,
+                    },
+                },
+                {
+                    name: 'guaranteeConfirmed',
+                    type: 'bool',
+                    canInherit: this.isChild,
+                    config: {
+                        type: 'switch',
+                        label: this.$t('sw-bulk-edit.product.guarantee.guaranteeConfirmed.label'),
+                        helpText: this.$t('sw-bulk-edit.product.guarantee.guaranteeConfirmed.helpText'),
+                        changeLabel: this.$t('sw-bulk-edit.product.guarantee.guaranteeConfirmed.changeLabel'),
+                        disabled: this.bulkEditProduct?.guaranteeConfirmed?.isInherited,
+                    },
+                },
+                {
+                    name: 'guaranteeTermsMediaId',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'sw-media-field',
+                        fileAccept: 'application/pdf',
+                        defaultFolder: 'product',
+                        changeLabel: this.$t('sw-bulk-edit.product.guarantee.guaranteeTermsMedia.changeLabel'),
+                        disabled: this.bulkEditProduct?.guaranteeTermsMediaId?.isInherited,
+                    },
+                },
+                {
+                    name: 'guaranteeTermsUrl',
+                    type: 'text',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'mt-text-field',
+                        changeLabel: this.$t('sw-bulk-edit.product.guarantee.guaranteeTermsUrl.changeLabel'),
+                        placeholder: 'https://',
+                        disabled: this.bulkEditProduct?.guaranteeTermsUrl?.isInherited,
                     },
                 },
             ];
@@ -1039,6 +1092,7 @@ export default {
                 this.assignmentFormFields,
                 this.mediaFormFields,
                 this.labellingFormFields,
+                this.guaranteeFormFields,
                 this.seoFormFields,
                 this.measuresPackagingFields,
                 this.sellingPackagingFields,

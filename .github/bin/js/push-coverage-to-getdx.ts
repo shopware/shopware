@@ -114,7 +114,7 @@ export async function pushCoverageToGetDx(
     token: string,
     fetchImpl: typeof fetch = fetch,
 ): Promise<void> {
-    const response = await fetchImpl('https://app.getdx.com/api/customData.set', {
+    const response = await fetchImpl('https://shopware.getdx.net/api/customData.set', {
         method: 'POST',
         headers: {
             Authorization: `Bearer ${token}`,

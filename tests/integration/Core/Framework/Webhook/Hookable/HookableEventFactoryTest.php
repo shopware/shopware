@@ -49,7 +49,7 @@ class HookableEventFactoryTest extends TestCase
         $event->setFlowState(new FlowState());
         $hookables = $this->hookableEventFactory->createHookablesFor($event);
 
-        static::assertEmpty($hookables);
+        static::assertCount(0, $hookables);
     }
 
     public function testDoesCreateHookableBusinessEvent(): void
@@ -203,7 +203,8 @@ class HookableEventFactoryTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        static::assertEmpty(
+        static::assertCount(
+            0,
             $this->hookableEventFactory->createHookablesFor($createdEvent)
         );
 
@@ -214,13 +215,15 @@ class HookableEventFactoryTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        static::assertEmpty(
+        static::assertCount(
+            0,
             $this->hookableEventFactory->createHookablesFor($updatedEvent)
         );
 
         $deletedEvent = $taxRepository->delete([['id' => $id]], Context::createDefaultContext());
 
-        static::assertEmpty(
+        static::assertCount(
+            0,
             $this->hookableEventFactory->createHookablesFor($deletedEvent)
         );
     }

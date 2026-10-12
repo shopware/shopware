@@ -11,6 +11,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteLoaderInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -86,6 +87,54 @@ class EntityRouteResolverTest extends TestCase
         static::assertSame('/product/some-product/abc123', $resolver->generateUrl('product', 'abc123'));
     }
 
+    public function testGenerateSeoUrlPlaceholderUsesTheTargetRouteAndMergedParameters(): void
+    {
+        $capturedArguments = null;
+        $this->placeholderHandler
+            ->method('generate')
+            ->willReturnCallback(static function (string $name, array $parameters) use (&$capturedArguments): string {
+                $capturedArguments = [$name, $parameters];
+
+                return 'SEO_PLACEHOLDER';
+            });
+
+        $resolver = new EntityRouteResolver(
+            new SeoUrlRouteRegistry([$this->createAppSeoUrlRoute()]),
+            $this->placeholderHandler,
+            $this->router,
+        );
+
+        static::assertSame('SEO_PLACEHOLDER', $resolver->generateSeoUrlPlaceholder('ce_blog', 'abc123'));
+        static::assertSame(
+            ['frontend.script_endpoint', ['hook' => 'blog-detail', 'id' => 'abc123']],
+            $capturedArguments
+        );
+    }
+
+    public function testGenerateUrlUsesTheTargetRouteAndMergedParameters(): void
+    {
+        $capturedArguments = null;
+        $this->router
+            ->method('generate')
+            ->willReturnCallback(static function (string $name, array $parameters) use (&$capturedArguments): string {
+                $capturedArguments = [$name, $parameters];
+
+                return '/storefront/script/blog-detail?id=abc123';
+            });
+
+        $resolver = new EntityRouteResolver(
+            new SeoUrlRouteRegistry([$this->createAppSeoUrlRoute()]),
+            $this->placeholderHandler,
+            $this->router,
+        );
+
+        static::assertSame('/storefront/script/blog-detail?id=abc123', $resolver->generateUrl('ce_blog', 'abc123'));
+        static::assertSame(
+            ['frontend.script_endpoint', ['hook' => 'blog-detail', 'id' => 'abc123']],
+            $capturedArguments
+        );
+    }
+
     public function testGetSeoUrlRouteNameAndPathInfoSwapsRouteAndStripsBasePath(): void
     {
         $context = new RequestContext();
@@ -123,6 +172,45 @@ class EntityRouteResolverTest extends TestCase
         static::assertSame([], $resolver->getSeoUrlRouteNameAndPathInfo(
             'product',
             'store-api.product.detail',
+            'abc123',
+            Defaults::SALES_CHANNEL_TYPE_API,
+        ));
+    }
+
+    public function testGetSeoUrlRouteNameAndPathInfoReturnsEmptyForAnotherStorefrontRouteOfTheEntity(): void
+    {
+        $loader = static::createStub(SeoUrlRouteLoaderInterface::class);
+        $loader->method('load')->willReturn([$this->createSeoUrlRoute('product', 'storefront.app.MyApp.product-detail', 'id')]);
+
+        $resolver = new EntityRouteResolver(
+            new SeoUrlRouteRegistry([$this->createSeoUrlRoute('product', ProductPageSeoUrlRoute::ROUTE_NAME, 'productId')], [$loader]),
+            $this->placeholderHandler,
+            $this->router,
+        );
+
+        static::assertSame([], $resolver->getSeoUrlRouteNameAndPathInfo(
+            'product',
+            'storefront.app.MyApp.product-detail',
+            'abc123',
+            Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+        ));
+    }
+
+    public function testGetSeoUrlRouteNameAndPathInfoReturnsEmptyForAnotherStoreApiRouteOfTheEntity(): void
+    {
+        $resolver = new EntityRouteResolver(
+            new SeoUrlRouteRegistry([]),
+            $this->placeholderHandler,
+            $this->router,
+            [
+                $this->createEntitySeoUrlRoute('product', 'store-api.product.detail', 'productId'),
+                $this->createEntitySeoUrlRoute('product', 'store-api.plugin.product-detail', 'productId'),
+            ],
+        );
+
+        static::assertSame([], $resolver->getSeoUrlRouteNameAndPathInfo(
+            'product',
+            'store-api.plugin.product-detail',
             'abc123',
             Defaults::SALES_CHANNEL_TYPE_API,
         ));
@@ -177,6 +265,26 @@ class EntityRouteResolverTest extends TestCase
         );
 
         static::assertNull($resolver->findEntitySeoUrlRoute('store-api.category.detail'));
+    }
+
+    private function createAppSeoUrlRoute(): SeoUrlRouteInterface
+    {
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn('ce_blog');
+
+        $config = new SeoUrlRouteConfig(
+            definition: $definition,
+            routeName: 'storefront.app.MyApp.blog-detail',
+            template: '{{ ceBlog.translated.title }}',
+            primaryKeyParameterKey: 'id',
+            targetRouteName: 'frontend.script_endpoint',
+            routeParameters: ['hook' => 'blog-detail'],
+        );
+
+        $seoUrlRoute = static::createStub(SeoUrlRouteInterface::class);
+        $seoUrlRoute->method('getConfig')->willReturn($config);
+
+        return $seoUrlRoute;
     }
 
     private function createEntitySeoUrlRoute(string $entityName, string $routeName, ?string $primaryKeyParameterKey = null): EntitySeoUrlRouteInterface

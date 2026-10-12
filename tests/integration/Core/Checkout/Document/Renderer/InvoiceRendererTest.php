@@ -14,9 +14,9 @@ use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -334,7 +334,7 @@ class InvoiceRendererTest extends TestCase
             },
             static function (string $orderId, array $errors): void {
                 static::assertNotNull(self::$callback);
-                static::assertNotEmpty($errors);
+                static::assertNotCount(0, $errors);
                 static::assertArrayHasKey($orderId, $errors);
 
                 $error = $errors[$orderId];
@@ -608,7 +608,7 @@ class InvoiceRendererTest extends TestCase
                 $rendered = $rendered->getContent();
 
                 static::assertNotNull($customer);
-                static::assertEmpty($customer->getVatIds());
+                static::assertCount(0, $customer->getVatIds() ?? []);
 
                 static::assertStringNotContainsString('VAT Reg.No:', $rendered);
             },
@@ -881,7 +881,7 @@ class InvoiceRendererTest extends TestCase
         );
 
         $data = $rendered->getSuccess();
-        static::assertNotEmpty($data);
+        static::assertNotCount(0, $data);
 
         if ($shouldDisplay) {
             static::assertStringContainsString('Intra-community delivery (EU)', $data[$orderId]->getContent());

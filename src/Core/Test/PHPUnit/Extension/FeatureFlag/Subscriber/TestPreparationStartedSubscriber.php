@@ -78,7 +78,7 @@ class TestPreparationStartedSubscriber implements PreparationStartedSubscriber
      * The extension only rewrites feature flags for the namespaces in getTestNamespaces(). Everywhere
      * else the attribute is inert, which silently lies in the integration suite: there the feature state
      * comes from the job configuration (integration.yml runs without flags, integration-major.yml with
-     * FEATURE_ALL=major), and a test carrying the attribute still runs with the flag active in the major
+     * the version flag), and a test carrying the attribute still runs with the flag active in the major
      * job. Reject the attribute loudly instead: PHPUnit reports the exception as a test-runner warning
      * naming the test and fails the run (exit code 1, verified on PHPUnit 11 and 12). Scoped to this
      * repository's integration namespace so plugin suites (which can opt in via addTestNamespace())
@@ -100,7 +100,7 @@ class TestPreparationStartedSubscriber implements PreparationStartedSubscriber
         }
 
         throw new \RuntimeException(\sprintf(
-            '#[DisabledFeatures] on %s::%s has no effect in the integration suite. Feature state there comes from the job configuration: the default integration job runs with feature flags off, integration-major runs with FEATURE_ALL=major. Remove the attribute; if the test must not run under an active major flag, guard it with Feature::skipTestIfActive() instead.',
+            '#[DisabledFeatures] on %s::%s has no effect in the integration suite. Feature state there comes from the job configuration: the default integration job runs with feature flags off, integration-major enables the version flag. Remove the attribute; if the test must not run under an active major flag, guard it with Feature::skipTestIfActive() instead.',
             $class,
             $method
         ));

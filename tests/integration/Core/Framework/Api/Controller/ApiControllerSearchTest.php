@@ -161,7 +161,7 @@ class ApiControllerSearchTest extends TestCase
         $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $data = [
@@ -248,7 +248,7 @@ class ApiControllerSearchTest extends TestCase
         $browser->jsonRequest('POST', '/api/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $data = [
@@ -430,7 +430,7 @@ class ApiControllerSearchTest extends TestCase
         $browser->jsonRequest('POST', '/api/country', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         TestUser::createNewTestUser(
@@ -477,7 +477,7 @@ class ApiControllerSearchTest extends TestCase
         $browser->jsonRequest('POST', '/api/country', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         TestUser::createNewTestUser(
@@ -768,7 +768,7 @@ class ApiControllerSearchTest extends TestCase
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r((string) $response->getContent(), true));
-        static::assertNotEmpty($content);
+        static::assertIsArray($content);
 
         static::assertArrayHasKey('aggregations', $content);
         $aggregations = $content['aggregations'];
@@ -783,6 +783,47 @@ class ApiControllerSearchTest extends TestCase
         static::assertSame(150, $productStats['sum']);
         static::assertSame('50', $productStats['min']);
         static::assertSame('100', $productStats['max']);
+    }
+
+    public function testReverseInheritedAssociationIdFilterIncludesInheritedRows(): void
+    {
+        $ids = new IdsCollection();
+
+        $product = [
+            'id' => $ids->get('parent'),
+            'productNumber' => $ids->get('parent'),
+            'name' => 'Parent',
+            'stock' => 10,
+            'tax' => ['name' => 'test', 'taxRate' => 10],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false]],
+            'prices' => [
+                [
+                    'id' => $ids->get('price'),
+                    'quantityStart' => 1,
+                    'rule' => ['id' => $ids->get('rule'), 'name' => 'test', 'priority' => 1],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 5, 'net' => 5, 'linked' => false]],
+                ],
+            ],
+            'children' => [
+                ['id' => $ids->get('variant'), 'productNumber' => $ids->get('variant'), 'stock' => 10],
+            ],
+        ];
+
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $product);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
+
+        $this->getBrowser()->jsonRequest('POST', '/api/search/product-price', [
+            'filter' => [['type' => 'equals', 'field' => 'product.id', 'value' => $ids->get('variant')]],
+            'aggregations' => [['name' => 'rules', 'type' => 'terms', 'field' => 'rule.id']],
+        ], ['HTTP_SW_INHERITANCE' => '1']);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame([$ids->get('price')], array_column($content['data'], 'id'));
+        static::assertSame([$ids->get('rule')], array_column($content['aggregations']['rules']['buckets'], 'key'));
     }
 
     public function testAccessDeniedAfterChangingUserPassword(): void

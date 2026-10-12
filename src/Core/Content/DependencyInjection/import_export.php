@@ -89,7 +89,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // @deprecated tag:v6.8.0 Will be removed
     $services->set(ImportExportProfileTranslationDefinition::class)
-        ->tag('shopware.entity.definition');
+        ->tag('shopware.entity.definition')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(SystemDefaultValidator::class)
         ->args([

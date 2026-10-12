@@ -116,7 +116,7 @@ class UpdatedByFieldSerializerTest extends TestCase
             $parameters
         ));
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testEncodeWithInvalidScope(): void
@@ -162,7 +162,7 @@ class UpdatedByFieldSerializerTest extends TestCase
             $parameters
         ));
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     /**
@@ -188,7 +188,7 @@ class UpdatedByFieldSerializerTest extends TestCase
             $parameters
         ));
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testEncodeWithNoUserId(): void

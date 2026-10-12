@@ -2,10 +2,12 @@
 
 namespace Shopware\Tests\Integration\Storefront\Framework\Twig\Extension;
 
+use Cocur\Slugify\Bridge\Twig\SlugifyExtension;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
 /**
@@ -37,15 +39,11 @@ class SlugifyExtensionTwigFilterTest extends TestCase
 
     private function renderTestTemplate(?string $input): string
     {
-        $twig = static::getContainer()->get('twig');
+        // an own environment with the container-built extension (its `slugify` service carries the transliteration
+        // rulesets): rendering through the shared `twig` would cache its request-dependent Storefront globals empty
+        $twig = new Environment(new ArrayLoader(['test.html.twig' => '{{ anchorId|slugify }}']));
+        $twig->addExtension(static::getContainer()->get(SlugifyExtension::class));
 
-        $originalLoader = $twig->getLoader();
-        $twig->setLoader(new ArrayLoader([
-            'test.html.twig' => '{{ anchorId|slugify }}',
-        ]));
-        $output = $twig->render('test.html.twig', ['anchorId' => $input]);
-        $twig->setLoader($originalLoader);
-
-        return $output;
+        return $twig->render('test.html.twig', ['anchorId' => $input]);
     }
 }

@@ -20,7 +20,7 @@
         {% block sw_order_send_document_modal_info_type %}
         <sw-description-list>
             <dt>{{ $t('sw-order.documentSendModal.labelType') }}</dt>
-            <dd>{{ document.documentType.name }}</dd>
+            <dd>{{ document.documentType.translated?.name ?? document.documentType.name }}</dd>
         </sw-description-list>
         {% endblock %}
 

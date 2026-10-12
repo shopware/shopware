@@ -54,11 +54,14 @@ import MtLink from '@shopware-ag/meteor-component-library/dist/esm/MtLink';
 import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
 import MtSnackbar from '@shopware-ag/meteor-component-library/dist/esm/MtSnackbar';
 import MtBadge from '@shopware-ag/meteor-component-library/dist/esm/MtBadge';
+import MtStatusDot from '@shopware-ag/meteor-component-library/dist/esm/MtStatusDot';
 import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromoBadge';
 import MtActionMenu from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenu';
 import MtActionMenuItem from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuItem';
 import MtActionMenuGroup from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuGroup';
 import MtTooltip from '@shopware-ag/meteor-component-library/dist/esm/MtTooltip';
+import MtDivider from '@shopware-ag/meteor-component-library/dist/esm/MtDivider';
+import MtHelpText from '@shopware-ag/meteor-component-library/dist/esm/MtHelpText';
 import {
     MtDropdownMenuRoot,
     MtDropdownMenuTrigger,
@@ -66,6 +69,7 @@ import {
     MtDropdownMenuSub,
 } from '@shopware-ag/meteor-component-library';
 
+import { attachSetupOverrideShim } from '../composition-extension-system/options-api-setup-shim';
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useLegacyConditionContext from '../../component/structure/sw-block-override/shim/legacy-condition-context';
 import type { LegacyConditionCaseOptions } from '../../component/structure/sw-block-override/shim/legacy-condition-context';
@@ -465,6 +469,7 @@ export default class VueAdapter extends ViewAdapter {
             MtUnitField,
             MtSnackbar,
             MtBadge,
+            MtStatusDot,
             MtPromoBadge,
             MtActionMenu,
             MtActionMenuItem,
@@ -474,6 +479,8 @@ export default class VueAdapter extends ViewAdapter {
             MtDropdownMenuPortal,
             MtDropdownMenuSub,
             MtTooltip,
+            MtDivider,
+            MtHelpText,
         } as const;
 
         const lazyMeteorComponents = {
@@ -560,6 +567,7 @@ export default class VueAdapter extends ViewAdapter {
                         if (typeof componentConfig === 'boolean') {
                             resolve(false);
                         } else {
+                            attachSetupOverrideShim(componentName, componentConfig);
                             this.resolveMixins(componentConfig);
                         }
 

@@ -151,6 +151,25 @@
           "placeholderReleaseDate": "Enter release date..."
         }
       },
+      "guarantee": {
+        "cardTitle": "Guarantee (GARAN Label)",
+        "guaranteeMonths": {
+          "changeLabel": "Change: Producer guarantee duration",
+          "helpText": "Between 30 and 600 months, in steps of 6.",
+          "placeholder": "e.g. 30, 36 or 42 months..."
+        },
+        "guaranteeConfirmed": {
+          "changeLabel": "Change: Show label in Storefront",
+          "label": "Show label in Storefront",
+          "helpText": "The guarantee label is only displayed if a valid guarantee duration, a manufacturer and the manufacturer product number is set."
+        },
+        "guaranteeTermsMedia": {
+          "changeLabel": "Change: Guarantee terms (PDF)"
+        },
+        "guaranteeTermsUrl": {
+          "changeLabel": "Change: Guarantee terms URL"
+        }
+      },
       "seo": {
         "cardTitle": "SEO",
         "metaTitle": {

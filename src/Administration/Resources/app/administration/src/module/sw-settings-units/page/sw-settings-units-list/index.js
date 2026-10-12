@@ -166,7 +166,17 @@ export default {
                     property: 'shortCode',
                     label: 'sw-settings-units.grid.columnShortCode',
                 },
+                {
+                    property: 'uneceCode',
+                    label: 'sw-settings-units.grid.columnUneceCode',
+                },
             ];
+        },
+
+        getUneceCodeLabel(uneceCode) {
+            const snippetKey = `sw-settings-units.uneceCodes.${uneceCode}`;
+
+            return this.$te(snippetKey) ? `${uneceCode} - ${this.$t(snippetKey)}` : uneceCode;
         },
 
         onChangeLanguage() {

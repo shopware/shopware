@@ -45,6 +45,20 @@
                     :error="unitShortCodeError"
                     required
                 />
+
+                <sw-single-select
+                    v-model:value="unit.uneceCode"
+                    name="sw-field--unit-uneceCode"
+                    class="sw-settings-units__unece-code"
+                    :label="$t('sw-settings-units.detail.fieldLabels.uneceCode')"
+                    :help-text="$t('sw-settings-units.detail.helpTexts.uneceCode')"
+                    :placeholder="$t('sw-settings-units.detail.placeholders.uneceCode')"
+                    :options="uneceCodeOptions"
+                    :is-loading="isUneceCodesLoading"
+                    :error="unitUneceCodeError"
+                    :disabled="!acl.can('scale_unit.editor')"
+                />
+
                 <sw-custom-field-set-renderer
                     :entity="unit"
                     :sets="customFieldSets"

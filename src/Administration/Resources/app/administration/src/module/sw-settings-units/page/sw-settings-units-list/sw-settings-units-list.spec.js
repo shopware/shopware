@@ -42,6 +42,9 @@ async function createWrapper(privileges = []) {
                     $t() {
                         return 'trans';
                     },
+                    $te(key) {
+                        return key === 'sw-settings-units.uneceCodes.KGM';
+                    },
                 },
                 provide: {
                     repositoryFactory: {
@@ -226,6 +229,22 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
                 property: 'shortCode',
                 label: 'sw-settings-units.grid.columnShortCode',
             },
+            {
+                property: 'uneceCode',
+                label: 'sw-settings-units.grid.columnUneceCode',
+            },
         ]);
+    });
+
+    it('should show the translated name next to a common unit code', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.getUneceCodeLabel('KGM')).toBe('KGM - trans');
+    });
+
+    it('should show only the unit code when no translated name exists', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.getUneceCodeLabel('ZZZ')).toBe('ZZZ');
     });
 });

@@ -97,6 +97,106 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame(['root-id', 'target-id', 'sibling-id'], $this->collectIds($prepared->prePruneForest));
     }
 
+    #[TestDox('carries the reduced and substituted values in the pre-prune forest, discarded subtree included')]
+    public function testPrepareCarriesPreparedValuesInTheFullModePrePruneForest(): void
+    {
+        $root = StoredElementBuilder::create('section', 'root-id')
+            ->withSlot('default', [
+                StoredElementBuilder::create('text', 'target-id')
+                    ->withConsumer('product', ContextType::Single)
+                    ->build(),
+                StoredElementBuilder::create('text', 'sibling-id')
+                    ->withProperty('title', 'Product {{productId}}')
+                    ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'anchor copy', 'language-child' => 'child copy'])
+                    ->build(),
+            ])
+            ->build();
+        $specification = new RenderingSpecification([], PlaceholderValues::from(['productId' => 'prod-1']), new Request(), 'target-id');
+
+        $prepared = $this->preparer()->prepare(
+            [$root],
+            $specification,
+            RenderingMode::FULL,
+            $this->salesChannelContext(['language-child', Defaults::LANGUAGE_SYSTEM])
+        );
+
+        static::assertSame(['root-id', 'target-id'], $this->collectIds($prepared->tree));
+        $discardedSibling = $prepared->prePruneForest[0]->slots['default'][1];
+        static::assertSame('sibling-id', $discardedSibling->id);
+        static::assertSame('Product prod-1', $discardedSibling->property('title')?->asString());
+        static::assertSame('child copy', $discardedSibling->property('headline')?->asString());
+    }
+
+    #[TestDox('substitutes a declared token in a Literal loader-config value')]
+    public function testPrepareResolvesLiteralConfigValues(): void
+    {
+        $config = new NavigationLoaderConfig('{{rootId}}');
+
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withDataRequirement('navigationTree', 'test_literal', $config)
+            ->build();
+
+        $prepared = $this->prepare([$element], ['rootId' => 'cat-42']);
+
+        $resolved = $prepared[0]->dataRequirements['navigationTree']->config;
+
+        static::assertSame('cat-42', $resolved->jsonSerialize()['rootId']);
+    }
+
+    #[TestDox('inserts a declared value that is itself a lone token into a Literal loader-config value verbatim')]
+    public function testPrepareKeepsADeclaredLoneTokenLiteralConfigValue(): void
+    {
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withDataRequirement('navigationTree', 'test_literal', new NavigationLoaderConfig('{{rootId}}'))
+            ->build();
+
+        $prepared = $this->prepare([$element], ['rootId' => '{{categoryId}}']);
+
+        static::assertSame(['rootId' => '{{categoryId}}'], $prepared[0]->dataRequirements['navigationTree']->config->jsonSerialize());
+    }
+
+    /**
+     * Only a value that is entirely one `{{token}}` is unset. Each row embeds the undeclared token in a longer
+     * string, so the key stays and its value is left as authored: dropping the `^` anchor fails the prefix row,
+     * dropping the `$` anchor fails the suffix row, dropping the `D` modifier fails the trailing-newline row.
+     *
+     * @param non-empty-string $rootId
+     */
+    #[DataProvider('embeddedUnresolvedTokenProvider')]
+    #[TestDox('keeps a Literal loader-config value verbatim when $_dataName')]
+    public function testPrepareKeepsAnEmbeddedUnresolvedTokenLiteralConfigValue(string $rootId): void
+    {
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withDataRequirement('navigationTree', 'test_literal', new NavigationLoaderConfig($rootId))
+            ->build();
+
+        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
+
+        static::assertSame(['rootId' => $rootId], $prepared[0]->dataRequirements['navigationTree']->config->jsonSerialize());
+    }
+
+    /**
+     * @return iterable<string, array{non-empty-string}>
+     */
+    public static function embeddedUnresolvedTokenProvider(): iterable
+    {
+        yield 'the token follows other text' => ['x {{rootId}}'];
+        yield 'the token precedes other text' => ['{{rootId}} x'];
+        yield 'the token is followed by a newline' => ["{{rootId}}\n"];
+    }
+
+    #[TestDox('removes a Literal loader-config key whose value is entirely one unresolved token')]
+    public function testPrepareRemovesALoneUnresolvedTokenLiteralConfigKey(): void
+    {
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withDataRequirement('navigationTree', 'test_literal', new NavigationLoaderConfig('{{rootId}}', 3))
+            ->build();
+
+        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
+
+        static::assertSame(['depth' => 3], $prepared[0]->dataRequirements['navigationTree']->config->jsonSerialize());
+    }
+
     #[DataProvider('nonStringPropertyProvider')]
     #[TestDox('leaves a $_dataName property untouched')]
     public function testPrepareLeavesNonStringPropertiesUntouched(string|int|float|bool|null $value): void
@@ -130,6 +230,73 @@ class StoredTreePreparerTest extends TestCase
 
         static::assertSame([$root], $prepared->tree);
         static::assertFalse($prepared->scaffolding->virtualRootSurvivedPrune);
+    }
+
+    /**
+     * Identity is the assertion, so it holds both passes at once: neither the language map nor the token
+     * survives a run that rebuilt the element, and the skeleton response reads neither.
+     */
+    #[TestDox('returns the tree unchanged in SKELETON mode, language maps and placeholder tokens alike')]
+    public function testPrepareResolvesNothingInSkeletonMode(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', 'Product {{productId}}')
+            ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'anchor copy'])
+            ->build();
+
+        $prepared = $this->preparer()->prepare(
+            [$element],
+            $this->specification(['productId' => 'prod-1']),
+            RenderingMode::SKELETON,
+            $this->salesChannelContext()
+        );
+
+        static::assertSame([$element], $prepared->tree);
+    }
+
+    /**
+     * Reduction applies no required rule of its own: the anchor requirement is the diagnostics gate's
+     * business, so both sides of it collapse the same way and the property behaves as unset.
+     */
+    #[DataProvider('unfilledTranslatablePropertyProvider')]
+    #[TestDox('reduces a $_dataName translatable property no chain language fills to the null variant')]
+    public function testPrepareReducesAnUnfilledTranslatablePropertyToTheNullVariant(string $key): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty($key, ['language-other' => 'other copy'])
+            ->build();
+
+        $prepared = $this->prepare([$element], []);
+
+        $value = $prepared[0]->property($key);
+        // Present under its key and holding the null variant, which is the state the mint skips — an absent
+        // key would be a different outcome.
+        static::assertNotNull($value);
+        static::assertTrue($value->isNull());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function unfilledTranslatablePropertyProvider(): iterable
+    {
+        yield 'required' => ['requiredHeadline'];
+        yield 'optional' => ['headline'];
+    }
+
+    #[TestDox('wraps the roots in a virtual root and carries the wrapped forest as the pre-prune forest for page-level data requirements')]
+    public function testPrepareWrapsRootAndCarriesForestForPageLevelDataRequirements(): void
+    {
+        $root = StoredElementBuilder::create('section', 'root-id')->build();
+
+        $prepared = $this->preparer()->prepare([$root], $this->pageContextSpecification(), RenderingMode::SKELETON, $this->salesChannelContext());
+
+        // The wrap runs before the prune, so the wrapper is part of what validation judges.
+        static::assertCount(1, $prepared->tree);
+        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $prepared->tree[0]->id);
+        static::assertCount(1, $prepared->prePruneForest);
+        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $prepared->prePruneForest[0]->id);
+        static::assertTrue($prepared->scaffolding->virtualRootSurvivedPrune);
     }
 
     /**
@@ -397,173 +564,6 @@ class StoredTreePreparerTest extends TestCase
         $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
 
         static::assertSame('Produkt prod-1', $prepared[0]->property('headline')?->asString());
-    }
-
-    #[TestDox('wraps the roots in a virtual root and carries the wrapped forest as the pre-prune forest for page-level data requirements')]
-    public function testPrepareWrapsRootAndCarriesForestForPageLevelDataRequirements(): void
-    {
-        $root = StoredElementBuilder::create('section', 'root-id')->build();
-
-        $prepared = $this->preparer()->prepare([$root], $this->pageContextSpecification(), RenderingMode::SKELETON, $this->salesChannelContext());
-
-        // The wrap runs before the prune, so the wrapper is part of what validation judges.
-        static::assertCount(1, $prepared->tree);
-        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $prepared->tree[0]->id);
-        static::assertCount(1, $prepared->prePruneForest);
-        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $prepared->prePruneForest[0]->id);
-        static::assertTrue($prepared->scaffolding->virtualRootSurvivedPrune);
-    }
-
-    #[TestDox('carries the reduced and substituted values in the pre-prune forest, discarded subtree included')]
-    public function testPrepareCarriesPreparedValuesInTheFullModePrePruneForest(): void
-    {
-        $root = StoredElementBuilder::create('section', 'root-id')
-            ->withSlot('default', [
-                StoredElementBuilder::create('text', 'target-id')
-                    ->withConsumer('product', ContextType::Single)
-                    ->build(),
-                StoredElementBuilder::create('text', 'sibling-id')
-                    ->withProperty('title', 'Product {{productId}}')
-                    ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'anchor copy', 'language-child' => 'child copy'])
-                    ->build(),
-            ])
-            ->build();
-        $specification = new RenderingSpecification([], PlaceholderValues::from(['productId' => 'prod-1']), new Request(), 'target-id');
-
-        $prepared = $this->preparer()->prepare(
-            [$root],
-            $specification,
-            RenderingMode::FULL,
-            $this->salesChannelContext(['language-child', Defaults::LANGUAGE_SYSTEM])
-        );
-
-        static::assertSame(['root-id', 'target-id'], $this->collectIds($prepared->tree));
-        $discardedSibling = $prepared->prePruneForest[0]->slots['default'][1];
-        static::assertSame('sibling-id', $discardedSibling->id);
-        static::assertSame('Product prod-1', $discardedSibling->property('title')?->asString());
-        static::assertSame('child copy', $discardedSibling->property('headline')?->asString());
-    }
-
-    #[TestDox('substitutes a declared token in a Literal loader-config value')]
-    public function testPrepareResolvesLiteralConfigValues(): void
-    {
-        $config = new NavigationLoaderConfig('{{rootId}}');
-
-        $element = StoredElementBuilder::create('navigation', 'root-id')
-            ->withDataRequirement('navigationTree', 'test_literal', $config)
-            ->build();
-
-        $prepared = $this->prepare([$element], ['rootId' => 'cat-42']);
-
-        $resolved = $prepared[0]->dataRequirements['navigationTree']->config;
-
-        static::assertSame('cat-42', $resolved->jsonSerialize()['rootId']);
-    }
-
-    #[TestDox('inserts a declared value that is itself a lone token into a Literal loader-config value verbatim')]
-    public function testPrepareKeepsADeclaredLoneTokenLiteralConfigValue(): void
-    {
-        $element = StoredElementBuilder::create('navigation', 'root-id')
-            ->withDataRequirement('navigationTree', 'test_literal', new NavigationLoaderConfig('{{rootId}}'))
-            ->build();
-
-        $prepared = $this->prepare([$element], ['rootId' => '{{categoryId}}']);
-
-        static::assertSame(['rootId' => '{{categoryId}}'], $prepared[0]->dataRequirements['navigationTree']->config->jsonSerialize());
-    }
-
-    /**
-     * Only a value that is entirely one `{{token}}` is unset. Each row embeds the undeclared token in a longer
-     * string, so the key stays and its value is left as authored: dropping the `^` anchor fails the prefix row,
-     * dropping the `$` anchor fails the suffix row, dropping the `D` modifier fails the trailing-newline row.
-     *
-     * @param non-empty-string $rootId
-     */
-    #[DataProvider('embeddedUnresolvedTokenProvider')]
-    #[TestDox('keeps a Literal loader-config value verbatim when $_dataName')]
-    public function testPrepareKeepsAnEmbeddedUnresolvedTokenLiteralConfigValue(string $rootId): void
-    {
-        $element = StoredElementBuilder::create('navigation', 'root-id')
-            ->withDataRequirement('navigationTree', 'test_literal', new NavigationLoaderConfig($rootId))
-            ->build();
-
-        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
-
-        static::assertSame(['rootId' => $rootId], $prepared[0]->dataRequirements['navigationTree']->config->jsonSerialize());
-    }
-
-    /**
-     * @return iterable<string, array{non-empty-string}>
-     */
-    public static function embeddedUnresolvedTokenProvider(): iterable
-    {
-        yield 'the token follows other text' => ['x {{rootId}}'];
-        yield 'the token precedes other text' => ['{{rootId}} x'];
-        yield 'the token is followed by a newline' => ["{{rootId}}\n"];
-    }
-
-    #[TestDox('removes a Literal loader-config key whose value is entirely one unresolved token')]
-    public function testPrepareRemovesALoneUnresolvedTokenLiteralConfigKey(): void
-    {
-        $element = StoredElementBuilder::create('navigation', 'root-id')
-            ->withDataRequirement('navigationTree', 'test_literal', new NavigationLoaderConfig('{{rootId}}', 3))
-            ->build();
-
-        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
-
-        static::assertSame(['depth' => 3], $prepared[0]->dataRequirements['navigationTree']->config->jsonSerialize());
-    }
-
-    /**
-     * Identity is the assertion, so it holds both passes at once: neither the language map nor the token
-     * survives a run that rebuilt the element, and the skeleton response reads neither.
-     */
-    #[TestDox('returns the tree unchanged in SKELETON mode, language maps and placeholder tokens alike')]
-    public function testPrepareResolvesNothingInSkeletonMode(): void
-    {
-        $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('title', 'Product {{productId}}')
-            ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'anchor copy'])
-            ->build();
-
-        $prepared = $this->preparer()->prepare(
-            [$element],
-            $this->specification(['productId' => 'prod-1']),
-            RenderingMode::SKELETON,
-            $this->salesChannelContext()
-        );
-
-        static::assertSame([$element], $prepared->tree);
-    }
-
-    /**
-     * Reduction applies no required rule of its own: the anchor requirement is the diagnostics gate's
-     * business, so both sides of it collapse the same way and the property behaves as unset.
-     */
-    #[DataProvider('unfilledTranslatablePropertyProvider')]
-    #[TestDox('reduces a $_dataName translatable property no chain language fills to the null variant')]
-    public function testPrepareReducesAnUnfilledTranslatablePropertyToTheNullVariant(string $key): void
-    {
-        $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty($key, ['language-other' => 'other copy'])
-            ->build();
-
-        $prepared = $this->prepare([$element], []);
-
-        $value = $prepared[0]->property($key);
-        // Present under its key and holding the null variant, which is the state the mint skips — an absent
-        // key would be a different outcome.
-        static::assertNotNull($value);
-        static::assertTrue($value->isNull());
-    }
-
-    /**
-     * @return iterable<string, array{string}>
-     */
-    public static function unfilledTranslatablePropertyProvider(): iterable
-    {
-        yield 'required' => ['requiredHeadline'];
-        yield 'optional' => ['headline'];
     }
 
     #[TestDox('treats an empty target element id as no partial render at all')]

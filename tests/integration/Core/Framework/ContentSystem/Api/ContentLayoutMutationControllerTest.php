@@ -114,6 +114,27 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertNotContains('block-a', $this->layoutIds($layoutId));
     }
 
+    #[TestDox('rejects a persisted edit that breaks resolvability for a bound source without writing')]
+    public function testGateRejectsResolvabilityBreakingEditForBoundLayout(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+        $this->bindCategory($layoutId);
+
+        $this->request('replace-element', $layoutId, [
+            'elementId' => 'block-a',
+            'newType' => TestElementTypeLoader::UNRESOLVABLE,
+            'expectedVersion' => null,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        // assert the stable violation code (the wire contract), not the human-readable message text
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ViolationCode::UnresolvedRequired->value, array_column($body['errors'], 'code'));
+        static::assertSame(TestElementTypeLoader::RESOLVABLE, $this->reload($layoutId)->getLayout()[0]->component);
+    }
+
     #[TestDox('persists a replace that detaches slot content and returns the orphans for re-attachment')]
     public function testReplaceDetachingContentReportsOrphans(): void
     {
@@ -249,6 +270,49 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertSame([], $body['droppedProperties']);
     }
 
+    #[TestDox('rejects an unparseable version token with a 400 once the layout has been updated, without writing')]
+    public function testInvalidVersionTokenReturnsBadRequest(): void
+    {
+        $layoutId = $this->createLayout([
+            $this->element('block-a', TestElementTypeLoader::RESOLVABLE),
+            $this->element('block-b', TestElementTypeLoader::RESOLVABLE),
+        ]);
+
+        // A never-updated layout short-circuits any non-null token to a 409 before the token is parsed; bump
+        // updatedAt with a first mutation so the unparseable-token branch (400 invalidVersionToken) is the one under test.
+        $this->mutate('insert-element', $layoutId, ['type' => TestElementTypeLoader::RESOLVABLE, 'expectedVersion' => null]);
+        $committed = $this->layoutIds($layoutId);
+
+        $this->request('remove-element', $layoutId, ['elementId' => 'block-a', 'expectedVersion' => 'not-a-valid-token']);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        // confirm this is the unparseable-token 400, not some other 400 (e.g. a payload-binding failure)
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::INVALID_VERSION_TOKEN, array_column($body['errors'], 'code'));
+        static::assertSame($committed, $this->layoutIds($layoutId));
+    }
+
+    #[TestDox('rejects an unknown request field on a persisted mutation with a 400 and the unknownRequestField code without writing')]
+    public function testRejectsUnknownRequestField(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('insert-element', $layoutId, [
+            'type' => TestElementTypeLoader::RESOLVABLE,
+            'expectedVersion' => null,
+            'entityType' => 'product',
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
     #[TestDox('rejects a structurally impossible persisted op (unknown element id) with a 400 without writing')]
     public function testStructuralImpossibilityReturnsBadRequest(): void
     {
@@ -301,6 +365,25 @@ class ContentLayoutMutationControllerTest extends TestCase
 
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertContains(ContentSystemException::LAYOUT_VERSION_CONFLICT, array_column($body['errors'], 'code'));
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
+    #[TestDox('rejects an unknown bindingSpecificationId on a persisted bind with a 400 without writing')]
+    public function testBindElementRejectsUnknownBindingSpecification(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('bind-element', $layoutId, [
+            'elementId' => 'block-a',
+            'bindingSpecificationId' => 'ghost:not-a-spec',
+            'expectedVersion' => null,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::BINDING_SPECIFICATION_NOT_FOUND, array_column($body['errors'], 'code'));
         static::assertSame(['block-a'], $this->layoutIds($layoutId));
     }
 
@@ -839,89 +922,6 @@ class ContentLayoutMutationControllerTest extends TestCase
         $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
         static::assertNotNull($stored);
         static::assertEquals($map, $stored->jsonSerialize());
-    }
-
-    #[TestDox('rejects a persisted edit that breaks resolvability for a bound source without writing')]
-    public function testGateRejectsResolvabilityBreakingEditForBoundLayout(): void
-    {
-        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
-        $this->bindCategory($layoutId);
-
-        $this->request('replace-element', $layoutId, [
-            'elementId' => 'block-a',
-            'newType' => TestElementTypeLoader::UNRESOLVABLE,
-            'expectedVersion' => null,
-        ]);
-
-        $response = $this->getBrowser()->getResponse();
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-
-        // assert the stable violation code (the wire contract), not the human-readable message text
-        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertContains(ViolationCode::UnresolvedRequired->value, array_column($body['errors'], 'code'));
-        static::assertSame(TestElementTypeLoader::RESOLVABLE, $this->reload($layoutId)->getLayout()[0]->component);
-    }
-
-    #[TestDox('rejects an unparseable version token with a 400 once the layout has been updated, without writing')]
-    public function testInvalidVersionTokenReturnsBadRequest(): void
-    {
-        $layoutId = $this->createLayout([
-            $this->element('block-a', TestElementTypeLoader::RESOLVABLE),
-            $this->element('block-b', TestElementTypeLoader::RESOLVABLE),
-        ]);
-
-        // A never-updated layout short-circuits any non-null token to a 409 before the token is parsed; bump
-        // updatedAt with a first mutation so the unparseable-token branch (400 invalidVersionToken) is the one under test.
-        $this->mutate('insert-element', $layoutId, ['type' => TestElementTypeLoader::RESOLVABLE, 'expectedVersion' => null]);
-        $committed = $this->layoutIds($layoutId);
-
-        $this->request('remove-element', $layoutId, ['elementId' => 'block-a', 'expectedVersion' => 'not-a-valid-token']);
-
-        $response = $this->getBrowser()->getResponse();
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-
-        // confirm this is the unparseable-token 400, not some other 400 (e.g. a payload-binding failure)
-        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertContains(ContentSystemException::INVALID_VERSION_TOKEN, array_column($body['errors'], 'code'));
-        static::assertSame($committed, $this->layoutIds($layoutId));
-    }
-
-    #[TestDox('rejects an unknown request field on a persisted mutation with a 400 and the unknownRequestField code without writing')]
-    public function testRejectsUnknownRequestField(): void
-    {
-        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
-
-        $this->request('insert-element', $layoutId, [
-            'type' => TestElementTypeLoader::RESOLVABLE,
-            'expectedVersion' => null,
-            'entityType' => 'product',
-        ]);
-
-        $response = $this->getBrowser()->getResponse();
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
-
-        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
-        static::assertSame(['block-a'], $this->layoutIds($layoutId));
-    }
-
-    #[TestDox('rejects an unknown bindingSpecificationId on a persisted bind with a 400 without writing')]
-    public function testBindElementRejectsUnknownBindingSpecification(): void
-    {
-        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
-
-        $this->request('bind-element', $layoutId, [
-            'elementId' => 'block-a',
-            'bindingSpecificationId' => 'ghost:not-a-spec',
-            'expectedVersion' => null,
-        ]);
-
-        $response = $this->getBrowser()->getResponse();
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
-
-        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertContains(ContentSystemException::BINDING_SPECIFICATION_NOT_FOUND, array_column($body['errors'], 'code'));
-        static::assertSame(['block-a'], $this->layoutIds($layoutId));
     }
 
     /**

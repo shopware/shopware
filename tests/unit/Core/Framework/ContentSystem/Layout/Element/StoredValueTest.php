@@ -235,6 +235,13 @@ class StoredValueTest extends TestCase
         static::assertSame(['x' => $value], StoredValue::ofMap(['x' => $value])->asMap());
     }
 
+    #[DataProvider('nullVariantProvider')]
+    #[TestDox('returns true only for the null variant, never for a falsy payload')]
+    public function testIsNullIsTrueOnlyForTheNullVariant(StoredValue $value, bool $expected): void
+    {
+        static::assertSame($expected, $value->isNull());
+    }
+
     #[DataProvider('decodableValueProvider')]
     #[TestDox('wraps a raw decoded value so it unwraps back unchanged')]
     public function testFromDecodedRoundTripsARawValue(mixed $raw): void
@@ -283,13 +290,6 @@ class StoredValueTest extends TestCase
         yield 'decoded empty array' => [StoredValue::fromDecoded([]), false];
         yield 'null variant' => [StoredValue::ofNull(), false];
         yield 'string variant' => [StoredValue::ofString('a'), false];
-    }
-
-    #[DataProvider('nullVariantProvider')]
-    #[TestDox('returns true only for the null variant, never for a falsy payload')]
-    public function testIsNullIsTrueOnlyForTheNullVariant(StoredValue $value, bool $expected): void
-    {
-        static::assertSame($expected, $value->isNull());
     }
 
     #[DataProvider('mismatchedAccessorProvider')]

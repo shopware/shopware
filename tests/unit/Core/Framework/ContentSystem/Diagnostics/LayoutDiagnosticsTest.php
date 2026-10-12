@@ -626,6 +626,48 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertCount(2, $error->candidates);
     }
 
+    #[TestDox('emits an unresolved_optional warning naming the element and key for an optional reference with no candidate, without blocking resolvability')]
+    public function testOptionalReferenceWithoutCandidateIsUnresolvedOptional(): void
+    {
+        $tree = [new StoredElement('el-1', 'Sw:Block')];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class)->build()])
+            ->analyze($tree, [])->report;
+
+        $warning = $this->single($report->violations);
+        static::assertSame(ViolationCode::UnresolvedOptional, $warning->code);
+        static::assertSame('el-1', $warning->elementId);
+        static::assertSame('product', $warning->key);
+        static::assertSame('Optional property "product" has no source.', $warning->message);
+        static::assertSame([], $warning->candidates);
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('emits no unresolved_optional warning for an optional reference whose competing candidates leave it unresolved')]
+    public function testOptionalReferenceWithAmbiguousCandidatesIsNotUnresolvedOptional(): void
+    {
+        $rootContext = [
+            $this->rootAmbientProductContext()[0],
+            new ProvidedContext(
+                contextKey: 'featuredProduct',
+                fqcn: SalesChannelProductEntity::class,
+                contextType: ContextType::Single,
+                providerElementId: null,
+                distribution: DistributionStrategy::Broadcast,
+                root: true,
+            ),
+        ];
+
+        $analysis = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class)->build()])
+            ->analyze([new StoredElement('el-1', 'Sw:Block')], $rootContext);
+
+        // Pins the state this case turns on: the optional reference is unresolved while candidates exist, so only
+        // the empty-candidates condition keeps the unresolved_optional warning from firing.
+        static::assertNull($analysis->resolutions['el-1'][0]->resolved);
+        static::assertCount(2, $analysis->resolutions['el-1'][0]->candidates);
+        static::assertSame([], $analysis->report->violations);
+    }
+
     #[TestDox('raises an independent mismatched_reference_type intrinsic violation and unresolved_required binding violation for a required reference whose applied wiring produces the wrong type')]
     public function testMismatchedAppliedWiringRaisesIntrinsicAndBindingViolationsIndependently(): void
     {
@@ -1368,48 +1410,6 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnknownStyleOption, $violation->code);
         static::assertSame('gone-option', $violation->key);
         static::assertSame('el-1', $violation->elementId);
-    }
-
-    #[TestDox('emits an unresolved_optional warning naming the element and key for an optional reference with no candidate, without blocking resolvability')]
-    public function testOptionalReferenceWithoutCandidateIsUnresolvedOptional(): void
-    {
-        $tree = [new StoredElement('el-1', 'Sw:Block')];
-
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class)->build()])
-            ->analyze($tree, [])->report;
-
-        $warning = $this->single($report->violations);
-        static::assertSame(ViolationCode::UnresolvedOptional, $warning->code);
-        static::assertSame('el-1', $warning->elementId);
-        static::assertSame('product', $warning->key);
-        static::assertSame('Optional property "product" has no source.', $warning->message);
-        static::assertSame([], $warning->candidates);
-        static::assertSame([], $report->bindingErrors());
-    }
-
-    #[TestDox('emits no unresolved_optional warning for an optional reference whose competing candidates leave it unresolved')]
-    public function testOptionalReferenceWithAmbiguousCandidatesIsNotUnresolvedOptional(): void
-    {
-        $rootContext = [
-            $this->rootAmbientProductContext()[0],
-            new ProvidedContext(
-                contextKey: 'featuredProduct',
-                fqcn: SalesChannelProductEntity::class,
-                contextType: ContextType::Single,
-                providerElementId: null,
-                distribution: DistributionStrategy::Broadcast,
-                root: true,
-            ),
-        ];
-
-        $analysis = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class)->build()])
-            ->analyze([new StoredElement('el-1', 'Sw:Block')], $rootContext);
-
-        // Pins the state this case turns on: the optional reference is unresolved while candidates exist, so only
-        // the empty-candidates condition keeps the unresolved_optional warning from firing.
-        static::assertNull($analysis->resolutions['el-1'][0]->resolved);
-        static::assertCount(2, $analysis->resolutions['el-1'][0]->candidates);
-        static::assertSame([], $analysis->report->violations);
     }
 
     #[TestDox('reports no property-type violation for a stored null under a declared primitive, leaving that to the required-input rule')]

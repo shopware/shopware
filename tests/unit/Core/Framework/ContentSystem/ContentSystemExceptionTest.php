@@ -103,39 +103,6 @@ class ContentSystemExceptionTest extends TestCase
         );
     }
 
-    #[TestDox('names the target element in the type-mismatch message and parameters, and omits it when the element does not exist yet')]
-    public function testBindingTypeMismatchMessageForms(): void
-    {
-        $named = ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Media:Image', 'Sw:Product', 'el-1');
-        $unnamed = ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Media:Image', 'Sw:Product', null);
-
-        static::assertSame(
-            'Binding specification "spec-1" applies to type "Sw:Media:Image", but the target element "el-1" is of type "Sw:Product".',
-            $named->getMessage()
-        );
-        static::assertSame(
-            ['bindingSpecificationId' => 'spec-1', 'specificationType' => 'Sw:Media:Image', 'elementComponent' => 'Sw:Product', 'elementId' => 'el-1'],
-            $named->getParameters()
-        );
-        static::assertSame(
-            'Binding specification "spec-1" applies to type "Sw:Media:Image", but the target element is of type "Sw:Product".',
-            $unnamed->getMessage()
-        );
-        static::assertSame(
-            ['bindingSpecificationId' => 'spec-1', 'specificationType' => 'Sw:Media:Image', 'elementComponent' => 'Sw:Product', 'elementId' => null],
-            $unnamed->getParameters()
-        );
-    }
-
-    #[TestDox('propagates previous throwable when loading element type fails')]
-    public function testPreservesPreviousThrowableOnLoadFailed(): void
-    {
-        $previous = new \RuntimeException('parse error');
-        $e = ContentSystemException::elementTypeLoadFailed('test.yaml', 'invalid syntax', $previous);
-
-        static::assertSame($previous, $e->getPrevious());
-    }
-
     #[DataProvider('configSerializerMessageFormProvider')]
     #[TestDox('formats the message for $_dataName')]
     public function testConfigSerializerNotRegisteredMessageForm(string $source, ?string $elementId, string $expectedMessage): void
@@ -183,6 +150,39 @@ class ContentSystemExceptionTest extends TestCase
         yield 'an embedded quote, kept balanced' => ['"hero"', '\\"hero\\"'];
 
         yield 'an invalid UTF-8 id, returned as-is because it cannot be JSON-escaped' => ["hero\xFF", "hero\xFF"];
+    }
+
+    #[TestDox('names the target element in the type-mismatch message and parameters, and omits it when the element does not exist yet')]
+    public function testBindingTypeMismatchMessageForms(): void
+    {
+        $named = ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Media:Image', 'Sw:Product', 'el-1');
+        $unnamed = ContentSystemException::bindingTypeMismatch('spec-1', 'Sw:Media:Image', 'Sw:Product', null);
+
+        static::assertSame(
+            'Binding specification "spec-1" applies to type "Sw:Media:Image", but the target element "el-1" is of type "Sw:Product".',
+            $named->getMessage()
+        );
+        static::assertSame(
+            ['bindingSpecificationId' => 'spec-1', 'specificationType' => 'Sw:Media:Image', 'elementComponent' => 'Sw:Product', 'elementId' => 'el-1'],
+            $named->getParameters()
+        );
+        static::assertSame(
+            'Binding specification "spec-1" applies to type "Sw:Media:Image", but the target element is of type "Sw:Product".',
+            $unnamed->getMessage()
+        );
+        static::assertSame(
+            ['bindingSpecificationId' => 'spec-1', 'specificationType' => 'Sw:Media:Image', 'elementComponent' => 'Sw:Product', 'elementId' => null],
+            $unnamed->getParameters()
+        );
+    }
+
+    #[TestDox('propagates previous throwable when loading element type fails')]
+    public function testPreservesPreviousThrowableOnLoadFailed(): void
+    {
+        $previous = new \RuntimeException('parse error');
+        $e = ContentSystemException::elementTypeLoadFailed('test.yaml', 'invalid syntax', $previous);
+
+        static::assertSame($previous, $e->getPrevious());
     }
 
     #[TestDox('propagates previous throwable when a data loader config is invalid')]

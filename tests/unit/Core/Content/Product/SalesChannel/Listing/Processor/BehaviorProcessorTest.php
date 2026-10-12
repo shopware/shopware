@@ -25,7 +25,7 @@ class BehaviorProcessorTest extends TestCase
 
         (new BehaviorListingProcessor())->prepare($request, $criteria, $context);
 
-        static::assertEmpty($criteria->getAggregations());
+        static::assertCount(0, $criteria->getAggregations());
     }
 
     public function testPrepareWithOnlyAggregations(): void
@@ -38,7 +38,7 @@ class BehaviorProcessorTest extends TestCase
 
         static::assertSame(0, $criteria->getLimit());
         static::assertSame(Criteria::TOTAL_COUNT_MODE_NONE, $criteria->getTotalCountMode());
-        static::assertEmpty($criteria->getSorting());
-        static::assertEmpty($criteria->getAssociations());
+        static::assertCount(0, $criteria->getSorting());
+        static::assertCount(0, $criteria->getAssociations());
     }
 }

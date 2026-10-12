@@ -393,6 +393,9 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 <details>
 
+## `ReverseProxyCompilerPass` removed
+
+`Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass` was removed without replacement. Remove any manual registration of the compiler pass, and do not rely on reverse proxy services being absent from the container when the reverse proxy is disabled.
 ## Removal of legacy `ConfigurationService` getters
 
 The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` have been removed.
@@ -1376,6 +1379,14 @@ $cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getCo
 $this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior($salesChannelContext->getPermissions()), true);
 ```
 
+
+## `HreflangLoaderParameter` no longer derives the homepage from the route name
+
+`HreflangLoaderParameter::isHomepage()` only reads the `$homepage` constructor argument and no longer compares the route name with `frontend.home.page`. If you construct `HreflangLoaderParameter` for the homepage, pass `true` as `$homepage`, otherwise no homepage hreflang links are generated:
+
+```php
+new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChannelContext, true);
+```
 
 # Administration
 

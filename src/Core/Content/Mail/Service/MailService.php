@@ -138,7 +138,7 @@ class MailService extends AbstractMailService
         }
 
         if (trim($mail->getBody()->toString()) === '') {
-            $this->mailError('Mail body is null', $context, $templateData);
+            $this->mailError('Mail body is null', $context, $templateData, data: $data, mail: $mail);
 
             return null;
         }
@@ -151,6 +151,8 @@ class MailService extends AbstractMailService
                         context: $context,
                         templateData: $templateData,
                         level: Level::Warning,
+                        data: $data,
+                        mail: $mail,
                     );
 
                     continue;
@@ -175,6 +177,8 @@ class MailService extends AbstractMailService
                 templateData: $templateData,
                 template: (string) $mail->getHtmlBody(),
                 exception: $exception,
+                data: $data,
+                mail: $mail,
             );
 
             return null;
@@ -186,6 +190,9 @@ class MailService extends AbstractMailService
             ['text/html' => $mail->getHtmlBody(), 'text/plain' => $mail->getTextBody()],
             $context,
             $templateData['eventName'] ?? null,
+            $data,
+            $templateData,
+            $mail,
         ));
 
         return $mail;
@@ -241,6 +248,7 @@ class MailService extends AbstractMailService
                 ),
                 $context,
                 $templateData,
+                data: $data,
             );
         }
 
@@ -271,6 +279,7 @@ class MailService extends AbstractMailService
                     $data[$renderDataIndex],
                     $e,
                     Level::Warning,
+                    $data,
                 );
 
                 return null;
@@ -289,6 +298,7 @@ class MailService extends AbstractMailService
                     $template,
                     $e,
                     Level::Warning,
+                    $data,
                 );
 
                 return null;
@@ -333,6 +343,7 @@ class MailService extends AbstractMailService
 
     /**
      * @param array<string, mixed> $templateData
+     * @param array<string, mixed>|null $data
      */
     private function mailError(
         string $errorMessage,
@@ -340,10 +351,12 @@ class MailService extends AbstractMailService
         array $templateData,
         ?string $template = null,
         ?\Throwable $exception = null,
-        Level $level = Level::Error
+        Level $level = Level::Error,
+        ?array $data = null,
+        ?Email $mail = null,
     ): void {
         $this->eventDispatcher->dispatch(
-            new MailErrorEvent($context, $level, $exception, $errorMessage, $template, $templateData)
+            new MailErrorEvent($context, $level, $exception, $errorMessage, $template, $templateData, $data, $mail)
         );
 
         $this->logger->log($level, $errorMessage, array_merge([

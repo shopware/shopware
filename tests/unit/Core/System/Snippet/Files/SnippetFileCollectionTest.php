@@ -56,8 +56,8 @@ class SnippetFileCollectionTest extends TestCase
 
         static::assertSame('en-GB', $result_en_GB[0]->getIso());
         static::assertSame('de-DE', $result_de_DE[0]->getIso());
-        static::assertEmpty($result_empty);
-        static::assertEmpty($result_empty_two);
+        static::assertCount(0, $result_empty);
+        static::assertCount(0, $result_empty_two);
     }
 
     public function testGetBaseFileByIsoExpectException(): void
@@ -113,7 +113,7 @@ class SnippetFileCollectionTest extends TestCase
 
         $result = $collection->getSnippetFilesWithLocaleFallback('de-AT');
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testGetSnippetFilesWithLocaleFallbackFallsBackToCanonicalForm(): void
@@ -145,7 +145,7 @@ class SnippetFileCollectionTest extends TestCase
 
         $result = $collection->getSnippetFilesWithLocaleFallback('da-GL');
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testGetSnippetFilesWithLocaleFallbackReturnsEmptyForUnknownLocale(): void
@@ -154,7 +154,7 @@ class SnippetFileCollectionTest extends TestCase
 
         $result = $collection->getSnippetFilesWithLocaleFallback('fr-FR');
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testGetSnippetFilesWithLocaleFallbackCombinesBothPriorityLevels(): void

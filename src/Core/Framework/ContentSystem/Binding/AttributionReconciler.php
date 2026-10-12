@@ -36,7 +36,7 @@ class AttributionReconciler
     /**
      * Per-reconcile() memo of the specification side of the honesty comparison, keyed by "specificationId:key".
      *
-     * @var array<string, array{source: string, encoded: array<int|string, mixed>}|null>
+     * @var array<string, array{source: string, encoded: list<array<int|string, mixed>>}|null>
      */
     private array $specWiringCache = [];
 
@@ -149,7 +149,7 @@ class AttributionReconciler
             $this->configSerializerProvider->encode($requirement->source, $requirement->config)
         );
 
-        return $specWiring['source'] === $requirement->source && $specWiring['encoded'] === $elementEncoded;
+        return $specWiring['source'] === $requirement->source && \in_array($elementEncoded, $specWiring['encoded'], true);
     }
 
     /**
@@ -164,7 +164,7 @@ class AttributionReconciler
      * leave a live attribution with nothing behind it, and "nothing claims this wiring" is exactly the
      * comparison's negative result.
      *
-     * @return array{source: string, encoded: array<int|string, mixed>}|null
+     * @return array{source: string, encoded: list<array<int|string, mixed>>}|null
      */
     private function specWiring(string $specificationId, string $key): ?array
     {
@@ -187,8 +187,12 @@ class AttributionReconciler
         }
 
         $source = $binding->loader;
-        $configObject = $this->configSerializerProvider->decode($source, $binding->config);
-        $encoded = $this->configCanonicalizer->canonicalize($this->configSerializerProvider->encode($source, $configObject));
+        $encoded = [];
+
+        foreach (RootSourceConfigMap::branches($binding->config) as $branch) {
+            $configObject = $this->configSerializerProvider->decode($source, $branch);
+            $encoded[] = $this->configCanonicalizer->canonicalize($this->configSerializerProvider->encode($source, $configObject));
+        }
 
         return $this->specWiringCache[$cacheKey] = ['source' => $source, 'encoded' => $encoded];
     }

@@ -80,7 +80,7 @@ class PersistedLayoutMutator
             // The entity holds the storage model the operations speak, so the loaded tree goes in as it is and the
             // mutated one is handed to the write path the same way: the layout field's serializer takes stored
             // elements directly.
-            $mutated = $mutation->apply(new StoredTree($layout->getLayout()));
+            $mutated = $mutation->apply(new StoredTree($layout->getLayout(), $layout->getRootSource()));
             if ($this->defaultMappingSeeder !== null) {
                 $mutated = $this->defaultMappingSeeder->seed($mutated, $layout->getRootSource(), $mutation->created());
             }

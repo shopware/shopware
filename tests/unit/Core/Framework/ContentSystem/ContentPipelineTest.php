@@ -1492,6 +1492,7 @@ class ContentPipelineTest extends TestCase
             ),
             new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry())),
             $this->inlineMappingExpander(),
+            new ContextPathResolver(),
         );
     }
 

@@ -92,7 +92,7 @@ final class ReplaceElement extends AbstractLayoutMutation
             ->withAttributedSpecifications($keptAttributedSpecifications);
 
         if ($default !== null) {
-            $replacement = $this->bindingApplicator->applyFillOnly($replacement, $default, $default->qualifiedId());
+            $replacement = $this->bindingApplicator->applyFillOnly($replacement, $default, $default->qualifiedId(), $tree->rootSource);
         }
 
         $replacement = $this->dropInvalidMappings($replacement);

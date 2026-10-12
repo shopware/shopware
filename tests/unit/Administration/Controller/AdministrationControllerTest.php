@@ -633,6 +633,24 @@ class AdministrationControllerTest extends TestCase
         static::assertJsonStringEqualsJsonString('{"de-DE":[],"en-GB":[]}', $response->getContent());
     }
 
+    public function testSnippetsReturnsEtagAndNotModifiedForMatchingIfNoneMatch(): void
+    {
+        $controller = $this->createAdministrationController();
+
+        $response = $controller->snippets(new Request(query: ['locale' => 'de-DE']));
+        $etag = $response->headers->get('ETag');
+
+        static::assertNotNull($etag);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $request = new Request(query: ['locale' => 'de-DE']);
+        $request->headers->set('If-None-Match', $etag);
+        $cachedResponse = $controller->snippets($request);
+
+        static::assertSame(Response::HTTP_NOT_MODIFIED, $cachedResponse->getStatusCode());
+        static::assertSame('', $cachedResponse->getContent());
+    }
+
     public function testGetUnauthenticatedSnippetsWithoutAuthentication(): void
     {
         $controller = $this->createUnauthenticatedAdministrationController();

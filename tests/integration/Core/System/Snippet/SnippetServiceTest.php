@@ -30,6 +30,7 @@ use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Tests\Integration\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageCatalogueInterface;
@@ -88,9 +89,7 @@ class SnippetServiceTest extends TestCase
             $event->snippets['foo.bas'] = 'foo_bas_override1';
         };
 
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
-
-        $eventDispatcher->addListener(StorefrontSnippetsExtension::onPre(), $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(StorefrontSnippetsExtension::onPre(), $listener);
 
         $snippets = $service->getStorefrontSnippets($this->getCatalogue([], $fallbackLocale), $snippetSetId);
 
@@ -99,8 +98,6 @@ class SnippetServiceTest extends TestCase
             'foo.bas' => 'foo_bas_override_db',
             'bar' => 'bar_default2',
         ], $snippets);
-
-        $eventDispatcher->removeListener(StorefrontSnippetsExtension::onPre(), $listener);
 
         $snippetRepository->delete([
             ['setId' => $snippetSetId],
@@ -131,8 +128,7 @@ class SnippetServiceTest extends TestCase
             $event->result['foo.bar'] = 'foo_bar_override';
         };
 
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
-        $eventDispatcher->addListener(StorefrontSnippetsExtension::onPost(), $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(StorefrontSnippetsExtension::onPost(), $listener);
 
         $snippets = $service->getStorefrontSnippets($this->getCatalogue([], $fallbackLocale), $snippetSetId);
 
@@ -141,8 +137,6 @@ class SnippetServiceTest extends TestCase
             'foo.bas' => 'foo_bas_default1',
             'baz.bar' => 'baz_bar_default2',
         ], $snippets);
-
-        $eventDispatcher->removeListener(StorefrontSnippetsExtension::onPost(), $listener);
     }
 
     public function testGetStorefrontSnippetsForNotExistingSnippetSet(): void

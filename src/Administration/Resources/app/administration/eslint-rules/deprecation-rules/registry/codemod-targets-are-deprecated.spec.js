@@ -15,16 +15,6 @@ const {
 
 const adminRoot = path.resolve(__dirname, '../../..');
 
-// Registry entries whose target has no deprecation marker in source yet: mark the source or drop the entry.
-const unmarkedTargetsAwaitingDecision = {
-    'component.sw-data-grid': 'sw-data-grid carries no deprecation marker',
-    'component.sw-external-link': 'trunk dropped the sw-external-link to mt-external-link migration',
-    'component.sw-loader': 'only the useMeteorComponent warning marks sw-loader as deprecated',
-    'component.sw-progress-bar': 'sw-progress-bar carries no deprecation marker',
-    'component.sw-skeleton-bar': 'only the useMeteorComponent warning marks sw-skeleton-bar as deprecated',
-    'component.sw-textarea-field': 'sw-textarea-field carries no deprecation marker, unlike the other form wrappers',
-};
-
 /**
  * Maps every component directory under `src` to its index file, the way the Administration
  * names its components.
@@ -67,6 +57,7 @@ function hasDeprecatedDocBlock(node, { comments, code }) {
     });
 }
 
+// The doc-block fallback goes once the components carry the `deprecated` option.
 function isMarkedDeprecated(objectExpression, leadingNode, source) {
     return getDeprecatedOption(objectExpression) !== null || hasDeprecatedDocBlock(leadingNode, source);
 }
@@ -136,16 +127,6 @@ function findUnmarkedCodemodTargets() {
 
 describe('deprecation registry codemod targets', () => {
     it('only migrates components and props that their source marks as deprecated', () => {
-        const unmarkedTargets = findUnmarkedCodemodTargets().filter((target) => {
-            return !Object.keys(unmarkedTargetsAwaitingDecision).some((id) => target.startsWith(`${id}:`));
-        });
-
-        expect(unmarkedTargets).toEqual([]);
-    });
-
-    it('lists only entries that are still unmarked as awaiting a decision', () => {
-        const unmarkedIds = findUnmarkedCodemodTargets().map((target) => target.split(':')[0]);
-
-        expect(Object.keys(unmarkedTargetsAwaitingDecision).filter((id) => !unmarkedIds.includes(id))).toEqual([]);
+        expect(findUnmarkedCodemodTargets()).toEqual([]);
     });
 });

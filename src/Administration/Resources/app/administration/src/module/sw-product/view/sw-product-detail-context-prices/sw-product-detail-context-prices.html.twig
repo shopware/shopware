@@ -324,7 +324,7 @@
                     <mt-switch
                         v-model="isInherited"
                         class="sw-product-detail-context-prices__inherit-switch"
-                        :disabled="!acl.can('product.editor')"
+                        :disabled="isInherited || !acl.can('product.editor')"
                     />
                     <sw-inheritance-switch
                         class="sw-product-detail-context-prices__inheritance-icon"

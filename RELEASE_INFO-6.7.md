@@ -538,6 +538,20 @@ The order is the `parentOrder` computed of `sw-users-permissions-permissions-gri
 `Shopware.Feature.triggerDeprecationOrThrow(majorFlag, message)` warns about a deprecated Administration API in development builds and throws once the major flag is active, like its PHP counterpart.
 
 The `deprecated` option of components and props now follows the same lifecycle: it used to only warn and now throws in next-major mode. See the [coding guidelines](coding-guidelines/administration/feature-flags-and-deprecations.md#runtime-guards) for usage.
+
+### Codemods for Administration deprecations
+
+A registry of codemods now covers deprecated Administration components, props, slots, events, template blocks, snippet keys, assets and JavaScript APIs. The `sw-deprecation-rules` ESLint rules read it: they report each deprecated usage with its description, removal version and upgrade reference, and fix it where an automatic fix is safe. Usages that need a human decision are reported with a migration hint.
+
+Extensions whose ESLint config composes the extension tooling get these reports for their templates, and `eslint --fix` applies the automatic fixes. In the Administration itself, `npm run deprecation:migrate -- --list` lists every migration with its fix level, and `npm run deprecation:migrate -- --id <id> --fix` applies one.
+
+The new `sw-deprecation-rules/require-deprecation-codemod` rule reports a `deprecated` option on an Administration component or prop that has no codemod in the registry. Add a migration in `src/app/deprecation-registry/definitions/components`, or disable the rule for that line with the reason why no codemod is possible:
+
+```js
+// eslint-disable-next-line sw-deprecation-rules/require-deprecation-codemod -- removed without replacement
+deprecated: 'v6.8.0.0',
+```
+
 ### Order line items are paginated
 
 The line item list on the order detail page shows 10 items per page once an order has more than 10 top-level line items. A pagination with an items-per-page selection appears below the list. Searching or adding a line item returns to the first page.

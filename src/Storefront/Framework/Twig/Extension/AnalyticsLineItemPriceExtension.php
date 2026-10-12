@@ -3,20 +3,20 @@
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPriceCalculator;
+use Shopware\Storefront\Framework\Analytics\AbstractAnalyticsLineItemPriceCalculator;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
  * Exposes the analytics prices of the line items to the hidden line item markup, see
- * {@see AnalyticsLineItemPriceCalculator}.
+ * {@see AbstractAnalyticsLineItemPriceCalculator}.
  *
  * @internal
  */
 #[Package('discovery')]
 class AnalyticsLineItemPriceExtension extends AbstractExtension
 {
-    public function __construct(private readonly AnalyticsLineItemPriceCalculator $calculator)
+    public function __construct(private readonly AbstractAnalyticsLineItemPriceCalculator $calculator)
     {
     }
 

@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -26,10 +27,15 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  */
 #[Package('discovery')]
-class AnalyticsLineItemPriceCalculator
+class AnalyticsLineItemPriceCalculator extends AbstractAnalyticsLineItemPriceCalculator
 {
     public function __construct(private readonly CashRounding $rounding)
     {
+    }
+
+    public function getDecorated(): AbstractAnalyticsLineItemPriceCalculator
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**
@@ -41,11 +47,8 @@ class AnalyticsLineItemPriceCalculator
      * is already cheaper. Dividing the aggregated discount by the line item quantity therefore stays
      * correct, while dividing per composition entry would not.
      *
-     * @param iterable<LineItem|OrderLineItemEntity>|null $lineItems the top level line items,
-     *                                                               including the discount line
-     *                                                               items. Null for a template that
-     *                                                               includes the component without
-     *                                                               a cart, which gets no prices.
+     * @param iterable<mixed>|null $lineItems null for a template that includes the component without
+     *                                        a cart, which gets no prices
      *
      * @return array<string, AnalyticsLineItemPrice> keyed by line item id
      */
@@ -55,7 +58,11 @@ class AnalyticsLineItemPriceCalculator
             return [];
         }
 
-        $lineItems = array_values(\is_array($lineItems) ? $lineItems : iterator_to_array($lineItems, false));
+        // the line items come from a template, so anything that is not a line item is dropped
+        $lineItems = array_values(array_filter(
+            \is_array($lineItems) ? $lineItems : iterator_to_array($lineItems, false),
+            static fn (mixed $lineItem) => $lineItem instanceof LineItem || $lineItem instanceof OrderLineItemEntity,
+        ));
 
         $discounts = $this->collectDiscounts($lineItems);
         $rounding = $context->getItemRounding();

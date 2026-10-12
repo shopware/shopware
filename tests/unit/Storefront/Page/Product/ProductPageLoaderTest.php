@@ -59,7 +59,7 @@ class ProductPageLoaderTest extends TestCase
         $salesChannelContext = $this->getSalesChannelContext();
         $reviews = $this->getCmsSlotConfig();
 
-        $productPageLoader = $this->getProductPageLoaderWithProduct($productId, $reviews, $request, $salesChannelContext);
+        $productPageLoader = $this->getProductPageLoaderWithProduct($productId, $reviews);
 
         $page = $productPageLoader->load($request, $salesChannelContext);
 
@@ -87,8 +87,6 @@ class ProductPageLoaderTest extends TestCase
         $page = $this->getProductPageLoaderWithProduct(
             $productId,
             $this->getCmsSlotConfig(),
-            $request,
-            $context,
             seoCategory: $category,
             breadcrumbBuilder: $breadcrumbBuilder,
         )->load($request, $context);
@@ -131,8 +129,6 @@ class ProductPageLoaderTest extends TestCase
         $productPageLoader = $this->getProductPageLoaderWithProduct(
             $productId,
             $this->getCmsSlotConfig(),
-            $request,
-            $salesChannelContext,
             $reviewRepositoryMock
         );
 
@@ -167,8 +163,6 @@ class ProductPageLoaderTest extends TestCase
         $productPageLoader = $this->getProductPageLoaderWithProduct(
             $productId,
             $this->getCmsSlotConfig(),
-            $request,
-            $salesChannelContext,
             $reviewRepositoryMock,
             $systemConfigMock,
         );
@@ -204,8 +198,6 @@ class ProductPageLoaderTest extends TestCase
         $productPageLoader = $this->getProductPageLoaderWithProduct(
             $productId,
             $this->getCmsSlotConfig(),
-            $request,
-            $salesChannelContext,
             $reviewRepositoryMock
         );
 
@@ -228,8 +220,6 @@ class ProductPageLoaderTest extends TestCase
     private function getProductPageLoaderWithProduct(
         string $productId,
         array $reviews,
-        Request $request,
-        SalesChannelContext $salesChannelContext,
         ?EntityRepository $reviewRepository = null,
         ?SystemConfigService $systemConfigService = null,
         ?CategoryEntity $seoCategory = null,

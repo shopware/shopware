@@ -627,6 +627,9 @@
   "detail": {
     "garanLabelShowLink": "GARAN-Kennzeichnung anzeigen",
     "garanLabelHideLink": "GARAN-Kennzeichnung ausblenden",
+    "garanLabelTitle": "GARAN-Kennzeichnung",
+    "garanLabelYourEuropeLink": "Informationen zur gewerblichen Haltbarkeitsgarantie auf „Ihr Europa“ (öffnet in einem neuen Tab)",
+    "garanTermsLink": "Garantiebedingungen",
     "ordernumberLabel": "Produktnummer:",
     "productNumberLabel": "Produktnummer:",
     "addProduct": "In den Warenkorb",

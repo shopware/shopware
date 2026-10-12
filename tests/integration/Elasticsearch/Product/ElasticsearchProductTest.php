@@ -1769,8 +1769,6 @@ class ElasticsearchProductTest extends TestCase
 
     public function testNegativXorQuery(): void
     {
-        $data = self::$indexedIds;
-
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -2504,8 +2502,6 @@ class ElasticsearchProductTest extends TestCase
 
     public function testCustomFieldsGetMapped(): void
     {
-        $ids = self::$indexedIds;
-
         $mapping = $this->definition->getMapping($this->context);
 
         $languages = $this->languageRepository->searchIds(new Criteria(), $this->context)->getIds();
@@ -2731,8 +2727,6 @@ class ElasticsearchProductTest extends TestCase
 
     public function testFetchFloatedCustomFieldIds(): void
     {
-        $ids = self::$indexedIds;
-
         $context = $this->context;
 
         try {
@@ -2815,7 +2809,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertTrue($result->has('manufacturer'));
         static::assertInstanceOf(EntityResult::class, $result->get('manufacturer'));
         $agg = $result->get('manufacturer');
-        static::assertNotEmpty($agg->getEntities());
+        static::assertNotCount(0, $agg->getEntities());
 
         $criteria = new Criteria();
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
@@ -2828,7 +2822,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertInstanceOf(EntityResult::class, $result->get('manufacturer'));
 
         $agg = $result->get('manufacturer');
-        static::assertEmpty($agg->getEntities());
+        static::assertCount(0, $agg->getEntities());
     }
 
     public function testVariantListingConfigShouldIndexMainProductWhenDisplayParentIsTrue(): void

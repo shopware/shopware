@@ -11,6 +11,7 @@ use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Mime\Email;
 
 /**
  * @internal
@@ -79,5 +80,38 @@ class MailErrorEventTest extends TestCase
     public function testAvailableDataDescribesTheFlowPayload(): void
     {
         static::assertSame(['name'], array_keys(MailErrorEvent::getAvailableData()->toArray()));
+    }
+
+    public function testCarriesTheMailDataAndTheMail(): void
+    {
+        $mail = new Email();
+
+        $event = new MailErrorEvent(
+            Context::createDefaultContext(),
+            Level::Error,
+            null,
+            'Test',
+            null,
+            ['eventName' => 'checkout.order.placed'],
+            ['subject' => 'Hello', 'templateId' => 'template-id', 'salesChannelId' => 'sales-channel-id'],
+            $mail,
+        );
+
+        static::assertSame('Hello', $event->getData()['subject'] ?? null);
+        static::assertSame($mail, $event->getMail());
+        static::assertSame('checkout.order.placed', $event->getEventName());
+        static::assertSame('template-id', $event->getTemplateId());
+        static::assertSame('sales-channel-id', $event->getSalesChannelId());
+    }
+
+    public function testMailDataIsOptional(): void
+    {
+        $event = new MailErrorEvent(Context::createDefaultContext());
+
+        static::assertNull($event->getData());
+        static::assertNull($event->getMail());
+        static::assertNull($event->getEventName());
+        static::assertNull($event->getTemplateId());
+        static::assertNull($event->getSalesChannelId());
     }
 }

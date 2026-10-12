@@ -23,6 +23,7 @@ export default class Feature {
     static init(flagConfig: { [featureName: string]: boolean }): void
     static getAll(): { [featureName: string]: boolean }
     static isActive(flagName: string): boolean
+    static triggerDeprecationOrThrow(majorFlag: string, message: string): void
 }
 ```
 
@@ -147,22 +148,27 @@ The codebase uses ESLint rules to enforce deprecation standards:
 
 This rule ensures proper handling of deprecated features and prevents inappropriate usage.
 
-### Runtime Deprecation Warnings
+### Runtime Deprecation Guards
 
-Deprecated functionality includes runtime warnings that can be controlled by feature flags:
+`Feature.triggerDeprecationOrThrow(majorFlag, message)` guards a deprecated API where it is consumed. While
+`majorFlag` is inactive it warns in development builds, once per message. Once the flag is active it throws:
 
 ```typescript
-// Example from vue.adapter.ts
-this.app.config.globalProperties.$tc = function (...args) {
-    if (window._features_.V6_8_0_0) {
-        console.warn(
-            'Deprecation Warning',
-            'The $tc function is deprecated and will be removed in future versions. Please use $t instead.',
-        );
-    }
-    return i18n.global.t(...fixI18NParametersOrder(args));
-};
+Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'The $tc function is deprecated. Use $t instead.');
 ```
+
+Components and props carry a `deprecated` option instead, which `src/app/plugin/deprecation.plugin.ts`
+checks in a global `beforeCreate()` hook: a deprecated component on every creation, a deprecated prop
+whenever the parent supplies it. The message names the path of components that use it. As the error is
+thrown inside a Vue hook, Vue's error handling applies: a development build aborts the mount, a
+production build logs the error and keeps rendering.
+
+A `majorFlag` that is not registered, like the typo `V6_8_0` or the minor `V6_7_5_0`, can never become
+active. It logs a console error instead of the warning. So does a `deprecated` option that is no version,
+like `true`.
+
+Jest silences the `[Deprecation]` warnings through `global.allowedErrors`, because the suite runs both
+sides of a flag. A test that asserts a warning spies on `console.warn`.
 
 ## Coding Guidelines
 

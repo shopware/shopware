@@ -75,7 +75,7 @@ function insertMissingProp(
 }
 
 /**
- * Puts a "TODO Codemod" comment above the element, asking the developer to confirm the added prop.
+ * Puts a codemod review comment above the element, asking the developer to confirm the added prop.
  */
 function insertReviewHint(api: ComponentUsageRuleApi, fixer: Record<string, any>, reviewHint: string): unknown {
     const column = api.node.loc?.start?.column;

@@ -34,8 +34,8 @@ export { renameVModelArgument } from './rename-v-model-argument';
 
 /**
  * Limits a usage codemod to elements the codemod just converted from the deprecated component,
- * recognised by their "TODO Codemod: Converted from <component>" comment. Use it for steps that
- * carry the old component's behaviour over, so correct usage of the replacement stays unreported.
+ * recognised by the "Converted from <component>" comment the conversion puts above them. Use it for
+ * steps that carry the old component's behaviour over, so correct usage of the replacement stays unreported.
  *
  * @example
  * onlyAfterConversion(missingProp({ prop: 'size', value: '24px' }))

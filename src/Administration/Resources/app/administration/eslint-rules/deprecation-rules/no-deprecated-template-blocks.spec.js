@@ -30,6 +30,11 @@ tester.run('no-deprecated-template-blocks', rule, {
             filename: 'test.html.twig',
             code: '<template><sw-block name="sw_cms_detail_stage_empty_stage_content"><sw-block name="sw_cms_detail_stage_empty_stade_content"><div /></sw-block></sw-block></template>',
         },
+        {
+            name: 'allows a deprecated whitespace-control block kept as BC wrapper inside its replacement block',
+            filename: 'sw-condition-date-range.html.twig',
+            code: '<template>{%- block sw_condition_date_range_field_to_date -%}{%- block sw_condiiton_date_range_field_to_date -%}<div />{%- endblock -%}{%- endblock -%}</template>',
+        },
     ],
     invalid: [
         {
@@ -37,6 +42,17 @@ tester.run('no-deprecated-template-blocks', rule, {
             filename: 'test.html.twig',
             code: '<template>{% block sw_condiiton_date_range_field_to_date %}<div />{% endblock %}</template>',
             output: '<template>{% block sw_condition_date_range_field_to_date %}<div />{% endblock %}</template>',
+            errors: [
+                {
+                    message: /Use "sw_condition_date_range_field_to_date" instead/,
+                },
+            ],
+        },
+        {
+            name: 'renames a deprecated whitespace-control Twig block',
+            filename: 'test.html.twig',
+            code: '<template>{%- block sw_condiiton_date_range_field_to_date -%}<div />{%- endblock -%}</template>',
+            output: '<template>{%- block sw_condition_date_range_field_to_date -%}<div />{%- endblock -%}</template>',
             errors: [
                 {
                     message: /Use "sw_condition_date_range_field_to_date" instead/,
@@ -139,6 +155,17 @@ tester.run('no-deprecated-template-blocks', rule, {
             name: 'reports a deprecated sw-block next to its replacement sw-block without fixing it',
             filename: 'test.html.twig',
             code: '<template><sw-block name="sw_cms_detail_stage_empty_stage_content"></sw-block><sw-block name="sw_cms_detail_stage_empty_stade_content"></sw-block></template>',
+            output: null,
+            errors: [
+                {
+                    message: /Use "sw_cms_detail_stage_empty_stage_content" instead/,
+                },
+            ],
+        },
+        {
+            name: 'reports a deprecated sw-block after a self-closing replacement sw-block',
+            filename: 'test.html.twig',
+            code: '<template><sw-block name="outer"><sw-block name="sw_cms_detail_stage_empty_stage_content" /><sw-block name="sw_cms_detail_stage_empty_stade_content"><div /></sw-block></sw-block></template>',
             output: null,
             errors: [
                 {

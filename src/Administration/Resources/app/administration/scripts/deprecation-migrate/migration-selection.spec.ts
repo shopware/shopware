@@ -2,9 +2,11 @@
  * @sw-package framework
  */
 
+import { loadRegistry } from '../../eslint-rules/deprecation-rules/registry/load-registry';
 import {
     getFixLevel,
     getHighestFixLevel,
+    getRunnableMigrations,
     getUsageFixLevel,
     parseArgs,
     selectMigrations,
@@ -141,6 +143,20 @@ describe('scripts/deprecation-migrate/migration-selection', () => {
                     ]),
                 ),
             ).toBe('unsafe-auto');
+        });
+    });
+
+    describe('getRunnableMigrations', () => {
+        it('does not offer asset migrations, which no lint rule can fix', () => {
+            const runnableMigrations = getRunnableMigrations(loadRegistry());
+
+            expect(runnableMigrations.filter((entry) => entry.id.startsWith('asset.'))).toEqual([]);
+            expect(() =>
+                validateSelection(
+                    { all: false, ids: ['asset.admin-png-jpg-to-webp'], fix: true, report: false },
+                    runnableMigrations,
+                ),
+            ).toThrow('Unknown migration id(s): asset.admin-png-jpg-to-webp');
         });
     });
 });

@@ -25,6 +25,11 @@ tester.run('no-deprecated-template-events', rule, {
             filename: 'test.html.twig',
             code: '<template><sw-text-field v-on:[eventName]="onInput" /></template>',
         },
+        {
+            name: 'allows change on sw-price-field, which has no replacement event',
+            filename: 'test.html.twig',
+            code: '<template><sw-price-field v-on:change="onChange" /></template>',
+        },
     ],
     invalid: [
         {
@@ -41,11 +46,11 @@ tester.run('no-deprecated-template-events', rule, {
         {
             name: 'migrates v-on event listener',
             filename: 'test.html.twig',
-            code: '<template><sw-price-field v-on:change="onChange" /></template>',
-            output: '<template><sw-price-field v-on:update:price="onChange" /></template>',
+            code: '<template><sw-select-field v-on:change="onChange" /></template>',
+            output: '<template><sw-select-field v-on:update:value="onChange" /></template>',
             errors: [
                 {
-                    message: /Use "update:price" instead/,
+                    message: /Use "update:value" instead/,
                 },
             ],
         },

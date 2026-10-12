@@ -89,6 +89,13 @@ describe('extension-tooling eslint factory host options', () => {
                 'sw-deprecation-rules/no-deprecated-components',
             ),
         ).toBe('error');
+        expect(
+            ruleSeverity(
+                blocks,
+                'shopware/admin-extension/template-deprecations',
+                'sw-deprecation-rules/no-deprecated-component-option-usage',
+            ),
+        ).toBe('error');
     });
 
     it('bakes native-setup support into every extension config by default', () => {
@@ -193,6 +200,13 @@ describe('extension-tooling eslint factory host options', () => {
                 blocks,
                 'shopware/admin-extension/template-deprecations',
                 'sw-deprecation-rules/no-deprecated-component-usage',
+            ),
+        ).toBe('error');
+        expect(
+            ruleSeverity(
+                blocks,
+                'shopware/admin-extension/template-deprecations',
+                'sw-deprecation-rules/no-deprecated-component-option-usage',
             ),
         ).toBe('error');
     });

@@ -70,7 +70,6 @@ export default defineDeprecations({
                     from: 'change',
                     to: 'update:value',
                 }),
-                templateEventUsage({ component: 'sw-price-field', from: 'change', to: 'update:price' }),
                 templateEventUsage({ component: 'sw-radio-panel', from: 'input', to: 'update:value' }),
                 templateEventUsage({ component: 'sw-select-field', from: 'change', to: 'update:value' }),
                 templateEventUsage({

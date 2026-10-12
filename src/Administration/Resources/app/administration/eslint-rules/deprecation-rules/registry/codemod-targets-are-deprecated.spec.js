@@ -52,7 +52,11 @@ function hasDeprecatedDocBlock(node, { comments, code }) {
         return (
             comment.type === 'Block' &&
             comment.value.includes('@deprecated') &&
-            code.slice(comment.range[1], node.range[0]).replace(/\/\/[^\n]*/g, '').trim() === ''
+            comment.range[1] <= node.range[0] &&
+            code
+                .slice(comment.range[1], node.range[0])
+                .replace(/\/\/[^\n]*/g, '')
+                .trim() === ''
         );
     });
 }
@@ -126,6 +130,14 @@ function findUnmarkedCodemodTargets() {
 }
 
 describe('deprecation registry codemod targets', () => {
+    it('counts only a @deprecated doc block that sits above the node', () => {
+        const code = 'const first = 1;\n/** @deprecated tag:v6.8.0 */\nconst second = 2;';
+        const { body, comments } = parse(code, { comment: true, range: true });
+
+        expect(hasDeprecatedDocBlock(body[0], { code, comments })).toBe(false);
+        expect(hasDeprecatedDocBlock(body[1], { code, comments })).toBe(true);
+    });
+
     it('only migrates components and props that their source marks as deprecated', () => {
         expect(findUnmarkedCodemodTargets()).toEqual([]);
     });

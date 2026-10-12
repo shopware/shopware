@@ -164,9 +164,31 @@ function getFixLevel(migration) {
     return getHighestFixLevel(migration.usage.map(getUsageFixLevel));
 }
 
+/**
+ * Lists the registry migrations `deprecation:migrate` can run, sorted by id. Asset migrations are
+ * left out: no ESLint rule reports them, the vite image-deprecation plugin warns about them at
+ * build time instead.
+ *
+ * @example
+ * getRunnableMigrations(loadRegistry()).map((migration) => migration.id);
+ * // ['component.sw-alert', …, 'template-event.vue3-v-model-events']
+ */
+function getRunnableMigrations(registry) {
+    return [
+        ...registry.componentApiMigrations,
+        ...registry.globalApiMigrations,
+        ...registry.jsApiMigrations,
+        ...registry.templateBlockMigrations,
+        ...registry.templateEventMigrations,
+        ...registry.snippetKeyMigrations,
+        ...registry.packageMigrations,
+    ].sort((left, right) => left.id.localeCompare(right.id));
+}
+
 module.exports = {
     getFixLevel,
     getHighestFixLevel,
+    getRunnableMigrations,
     getTransformResult,
     getUsageFixLevel,
     parseArgs,

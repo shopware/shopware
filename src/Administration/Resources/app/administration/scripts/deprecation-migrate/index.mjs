@@ -5,7 +5,14 @@ import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const { loadRegistry } = require('../../eslint-rules/deprecation-rules/registry/load-registry');
-const { getFixLevel, getTransformResult, parseArgs, selectMigrations, validateSelection } = require('./migration-selection');
+const {
+    getFixLevel,
+    getRunnableMigrations,
+    getTransformResult,
+    parseArgs,
+    selectMigrations,
+    validateSelection,
+} = require('./migration-selection');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const adminRoot = path.resolve(__dirname, '../..');
@@ -29,24 +36,15 @@ Options:
   --report        Report matching deprecations without changing files.
   --fix           Apply available ESLint fixes and report remaining work.
 
+Asset deprecations (for example PNG/JPG to WebP) are reported by the admin build, not by this command.
+
 Composer/Docker example:
   docker compose exec web composer npm:admin run deprecation:migrate -- --id component.sw-button --fix
 `);
 }
 
 function getMigrations() {
-    const registry = loadRegistry();
-
-    return [
-        ...registry.componentApiMigrations,
-        ...registry.globalApiMigrations,
-        ...registry.jsApiMigrations,
-        ...registry.assetMigrations,
-        ...registry.templateBlockMigrations,
-        ...registry.templateEventMigrations,
-        ...registry.snippetKeyMigrations,
-        ...registry.packageMigrations,
-    ].sort((left, right) => left.id.localeCompare(right.id));
+    return getRunnableMigrations(loadRegistry());
 }
 
 function getUsageMessage(usage) {

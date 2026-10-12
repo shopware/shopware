@@ -18,6 +18,7 @@ export default jsApiMigration({
             from: "Shopware.ExtensionAPI.publishData({ id: publishingKey, path: 'element' })",
             to: "Shopware.ExtensionAPI.publishData({ id: `${publishingKey}__${element.id}`, path: 'element' })",
             fix: 'unsafe-auto',
+            message: 'The replacement uses `element.id`; make sure an `element` with an id is in scope at this call.',
         }),
     ],
 });

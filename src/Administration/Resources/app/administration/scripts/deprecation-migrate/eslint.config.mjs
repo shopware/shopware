@@ -64,6 +64,8 @@ export default [
             'config/*.js',
             'test/e2e/**/*',
             'scripts/**/*',
+            // The registry defines the deprecated keys and APIs it migrates.
+            'src/app/deprecation-registry/**',
             'test/eslint/error-reference.html.twig',
             '**/*.spec.vue2.js',
             '**/*.fixtures.js',

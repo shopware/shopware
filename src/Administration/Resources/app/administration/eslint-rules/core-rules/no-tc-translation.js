@@ -4,7 +4,6 @@
 
 // eslint-plugin-vue 10 ships as ESM under dist/ (utils sit on the module's
 // `default` export); older layouts exported them directly from lib/.
-
 const utilsModule = require('eslint-plugin-vue/dist/utils');
 const utils = utilsModule.default ?? utilsModule;
 const { loadRegistry } = require('../deprecation-rules/registry/load-registry');

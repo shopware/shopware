@@ -88,6 +88,25 @@ function usageFixesAutomatically(usage) {
     return usage.fix !== 'manual';
 }
 
+/**
+ * Builds the replacement text for a replace-api usage. An unsafe automatic fix gets a codemod
+ * review comment in front, so the rewritten call is easy to find and check.
+ *
+ * @example
+ * getReplaceApiText({ to: 'foo(element.id)', fix: 'auto' }); // 'foo(element.id)'
+ * getReplaceApiText({ to: 'foo(element.id)', fix: 'unsafe-auto', message: 'Check element.' });
+ * // 'foo(element.id)', preceded by a codemod review comment that says 'Check element.'
+ */
+function getReplaceApiText(usage) {
+    if (usage.fix !== 'unsafe-auto') {
+        return usage.to;
+    }
+
+    const hint = usage.message ?? 'Verify this automatic replacement.';
+
+    return `/* TODO Codemod: ${hint} */ ${usage.to}`;
+}
+
 function matchesMemberCall(usage, propertyName, calleeName, calleeSource) {
     if (usage.from.includes('.')) {
         return (
@@ -390,7 +409,7 @@ module.exports = {
                             return null;
                         }
 
-                        return fixer.replaceText(result.target, result.match.usage.to);
+                        return fixer.replaceText(result.target, getReplaceApiText(result.match.usage));
                     },
                 });
             },

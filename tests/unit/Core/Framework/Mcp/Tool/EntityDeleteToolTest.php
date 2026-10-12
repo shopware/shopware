@@ -128,19 +128,19 @@ class EntityDeleteToolTest extends TestCase
     public function testReportsTheLinkedEntitiesOfAMappingDeleteAsUpdatedNotDeleted(): void
     {
         $context = Context::createDefaultContext();
-        $key = ['productId' => 'product-1', 'categoryId' => 'category-1'];
+        $key = ['productId' => '0198c0de000070008000000000000001', 'categoryId' => '0198c0de000070008000000000000002'];
         $events = static::createStub(EntityWrittenContainerEvent::class);
         $events->method('getEvents')->willReturn(new NestedEventCollection([
             new EntityDeletedEvent('product_category', [new EntityWriteResult($key, [], 'product_category', EntityWriteResult::OPERATION_DELETE)], $context),
-            new EntityWrittenEvent('product', [new EntityWriteResult('product-1', [], 'product', EntityWriteResult::OPERATION_UPDATE)], $context),
-            new EntityWrittenEvent('category', [new EntityWriteResult('category-1', [], 'category', EntityWriteResult::OPERATION_UPDATE)], $context),
+            new EntityWrittenEvent('product', [new EntityWriteResult('0198c0de000070008000000000000001', [], 'product', EntityWriteResult::OPERATION_UPDATE)], $context),
+            new EntityWrittenEvent('category', [new EntityWriteResult('0198c0de000070008000000000000002', [], 'category', EntityWriteResult::OPERATION_UPDATE)], $context),
         ]));
 
         $repository = $this->createMock(EntityRepository::class);
         $repository->expects($this->once())->method('delete')->willReturn($events);
 
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
-        $result = $this->decode(($tool)('product_category', '[{"productId":"product-1","categoryId":"category-1"}]', false));
+        $result = $this->decode(($tool)('product_category', '[{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002"}]', false));
 
         static::assertTrue($result['success']);
         static::assertSame(
@@ -204,8 +204,8 @@ class EntityDeleteToolTest extends TestCase
         $repository->expects($this->once())
             ->method('delete')
             ->with([[
-                'productId' => 'product-1',
-                'categoryId' => 'category-1',
+                'productId' => '0198c0de000070008000000000000001',
+                'categoryId' => '0198c0de000070008000000000000002',
                 'productVersionId' => Defaults::LIVE_VERSION,
                 'categoryVersionId' => Defaults::LIVE_VERSION,
             ]])
@@ -214,7 +214,7 @@ class EntityDeleteToolTest extends TestCase
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
         $result = $this->decode(($tool)(
             'product_category',
-            '[{"productId":"product-1","categoryId":"category-1"}]',
+            '[{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002"}]',
             false,
         ));
 
@@ -228,8 +228,8 @@ class EntityDeleteToolTest extends TestCase
         $repository->expects($this->once())
             ->method('delete')
             ->with([[
-                'productId' => 'product-1',
-                'categoryId' => 'category-1',
+                'productId' => '0198c0de000070008000000000000001',
+                'categoryId' => '0198c0de000070008000000000000002',
                 'productVersionId' => $draft,
                 'categoryVersionId' => Defaults::LIVE_VERSION,
             ]])
@@ -238,7 +238,7 @@ class EntityDeleteToolTest extends TestCase
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition(), context: $this->versionedContext($draft));
         $result = $this->decode(($tool)(
             'product_category',
-            \sprintf('[{"productId":"product-1","categoryId":"category-1","productVersionId":"%s","categoryVersionId":"%s"}]', $draft, Defaults::LIVE_VERSION),
+            \sprintf('[{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002","productVersionId":"%s","categoryVersionId":"%s"}]', $draft, Defaults::LIVE_VERSION),
             false,
         ));
 
@@ -252,7 +252,7 @@ class EntityDeleteToolTest extends TestCase
         $repository->expects($this->never())->method('delete');
 
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition(), context: $this->versionedContext($draft));
-        $result = $this->decode(($tool)('product_category', '[{"productId":"product-1","categoryId":"category-1"}]', false));
+        $result = $this->decode(($tool)('product_category', '[{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002"}]', false));
 
         static::assertFalse($result['success']);
         static::assertSame(
@@ -269,7 +269,7 @@ class EntityDeleteToolTest extends TestCase
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
         $result = $this->decode(($tool)(
             'product_category',
-            '[{"productId":"product-1","categoryId":"category-1","productVersionId":"not-a-version"}]',
+            '[{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002","productVersionId":"not-a-version"}]',
             false,
         ));
 
@@ -285,7 +285,7 @@ class EntityDeleteToolTest extends TestCase
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
         $result = $this->decode(($tool)(
             'product_category',
-            \sprintf('[{"productId":"product-1","categoryId":"category-1","productVersionId":"%s"}]', Defaults::LIVE_VERSION),
+            \sprintf('[{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002","productVersionId":"%s"}]', Defaults::LIVE_VERSION),
             false,
         ));
 
@@ -297,13 +297,52 @@ class EntityDeleteToolTest extends TestCase
      */
     public static function invalidCompositeKeyProvider(): iterable
     {
-        yield 'plain id list' => ['["product-1"]'];
-        yield 'comma-separated ids' => ['product-1, category-1'];
+        yield 'plain id list' => ['["0198c0de000070008000000000000001"]'];
+        yield 'comma-separated ids' => ['0198c0de000070008000000000000001, 0198c0de000070008000000000000002'];
         yield 'empty list' => ['[]'];
-        yield 'single object instead of list' => ['{"productId":"product-1","categoryId":"category-1"}'];
-        yield 'missing key field' => ['[{"productId":"product-1"}]'];
-        yield 'empty key value' => ['[{"productId":"product-1","categoryId":""}]'];
-        yield 'non-string key value' => ['[{"productId":"product-1","categoryId":42}]'];
+        yield 'single object instead of list' => ['{"productId":"0198c0de000070008000000000000001","categoryId":"0198c0de000070008000000000000002"}'];
+        yield 'missing key field' => ['[{"productId":"0198c0de000070008000000000000001"}]'];
+        yield 'empty key value' => ['[{"productId":"0198c0de000070008000000000000001","categoryId":""}]'];
+        yield 'non-string key value' => ['[{"productId":"0198c0de000070008000000000000001","categoryId":42}]'];
+    }
+
+    public function testRejectsACompositeKeyThatIsNotAUuid(): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('delete');
+
+        $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
+        $result = $this->decode(($tool)('product_category', '[{"productId":"0198c0de000070008000000000000001","categoryId":"not-a-uuid"}]', false));
+
+        static::assertFalse($result['success']);
+        static::assertStringStartsWith('"categoryId" must be a UUID.', $result['error']);
+    }
+
+    public function testFailsWhenNoneOfTheRowsExists(): void
+    {
+        // A link that isn't there must not read as removed, like the Admin API's 404.
+        $key = ['productId' => '0198c0de000070008000000000000001', 'categoryId' => '0198c0de000070008000000000000002'];
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())->method('delete')->willReturn($this->eventsWithNotFound([$key]));
+
+        $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
+        $result = $this->decode(($tool)('product_category', json_encode([$key], \JSON_THROW_ON_ERROR), false));
+
+        static::assertFalse($result['success']);
+        static::assertStringContainsString('none of these rows exist', $result['error']);
+        static::assertStringContainsString('0198c0de000070008000000000000002', $result['error']);
+    }
+
+    public function testReportsTheRowsThatDidNotExistWhenSomeDid(): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())->method('delete')->willReturn($this->eventsWithNotFound(['0198c0de000070008000000000000002']));
+
+        $tool = $this->createTool($repository);
+        $result = $this->decode(($tool)('tax', '["0198c0de000070008000000000000001","0198c0de000070008000000000000002"]', false));
+
+        static::assertTrue($result['success']);
+        static::assertSame(['0198c0de000070008000000000000002'], $result['_meta']['notFound']);
     }
 
     #[DataProvider('invalidCompositeKeyProvider')]
@@ -320,6 +359,21 @@ class EntityDeleteToolTest extends TestCase
             'Entity "product_category" has a composite primary key. Pass ids as a JSON array of objects with productId and categoryId, e.g. [{"productId":"...","categoryId":"..."}].',
             $result['error'],
         );
+    }
+
+    /**
+     * @param list<string|array<string, string>> $missingKeys
+     */
+    private function eventsWithNotFound(array $missingKeys): EntityWrittenContainerEvent
+    {
+        $events = static::createStub(EntityWrittenContainerEvent::class);
+        $events->method('getEvents')->willReturn(new NestedEventCollection());
+        $events->method('getErrors')->willReturn(['tax' => array_map(
+            static fn (string|array $key): EntityWriteResult => new EntityWriteResult($key, [], 'tax', EntityWriteResult::OPERATION_DELETE),
+            $missingKeys,
+        )]);
+
+        return $events;
     }
 
     /**

@@ -311,7 +311,7 @@ Remote thumbnail URL generation now avoids unnecessary extension dispatching whe
 
 ### MCP removes many-to-many links through the mapping entity
 
-`shopware-entity-delete` now accepts mapping entities such as `product_category`, so an MCP client can remove a product from a category, or a property option from a product, without deleting either side. `ids` is then a list of objects that name every key field, for example `[{"productId": "…", "categoryId": "…"}]`. `shopware-entity-schema` reports the `mappingEntity` of each many-to-many association.
+`shopware-entity-delete` now accepts mapping entities such as `product_category`, so an MCP client can remove a product from a category, or a property option from a product, without deleting either side. `ids` is then a list of objects that name every key field, for example `[{"productId": "…", "categoryId": "…"}]`. `shopware-entity-schema` reports the `mappingEntity` of each many-to-many association. Deleting rows that don't exist is now reported: as an error when none of them existed, and in `_meta.notFound` when only some did.
 
 ## API
 

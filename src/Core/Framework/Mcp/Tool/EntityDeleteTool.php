@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
@@ -71,15 +72,38 @@ class EntityDeleteTool extends McpToolResponse
 
         if ($dryRun) {
             return $this->executeWithDryRun($this->connection, $context, function () use ($repository, $deletePayload, $context) {
-                $events = $repository->delete($deletePayload, $context);
-
-                return $this->success($this->formatDeleteEvents($events), ['dryRun' => true]);
+                return $this->result($repository->delete($deletePayload, $context), \count($deletePayload), true);
             });
         }
 
-        $events = $repository->delete($deletePayload, $context);
+        return $this->result($repository->delete($deletePayload, $context), \count($deletePayload), false);
+    }
 
-        return $this->success($this->formatDeleteEvents($events), ['dryRun' => false]);
+    /**
+     * Rows that don't exist are reported in the event's errors, like the Admin API does: an error
+     * when none of them existed, and their keys in `_meta.notFound` when only some did.
+     */
+    private function result(EntityWrittenContainerEvent $events, int $requested, bool $dryRun): string
+    {
+        $notFound = [];
+        foreach ($events->getErrors() as $results) {
+            foreach (\is_array($results) ? $results : [] as $result) {
+                if ($result instanceof EntityWriteResult) {
+                    $notFound[] = $result->getPrimaryKey();
+                }
+            }
+        }
+
+        if ($notFound !== [] && \count($notFound) >= $requested) {
+            return $this->error(\sprintf('Nothing was deleted, none of these rows exist: %s', json_encode($notFound, \JSON_THROW_ON_ERROR)));
+        }
+
+        $meta = ['dryRun' => $dryRun];
+        if ($notFound !== []) {
+            $meta['notFound'] = $notFound;
+        }
+
+        return $this->success($this->formatDeleteEvents($events), $meta);
     }
 
     /**
@@ -163,6 +187,9 @@ class EntityDeleteTool extends McpToolResponse
                 if (!\is_string($value) || $value === '') {
                     return $this->error($usage);
                 }
+                if (!Uuid::isValid($value)) {
+                    return $this->error(\sprintf('"%s" must be a UUID. %s', $keyField, $usage));
+                }
 
                 $keys[$keyField] = $value;
             }
@@ -179,10 +206,6 @@ class EntityDeleteTool extends McpToolResponse
                     continue;
                 }
 
-                // Each side of a link can be in a different version: the Admin API unlinks with the
-                // context version for the parent and the live version for the referenced entity. A
-                // row has no parent, so outside the live version the caller has to say which, or the
-                // key matches no row and nothing is removed.
                 if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
                     return $this->error(\sprintf(
                         'This request runs in version %s. Name every version field (%s) in each ids object, for example the live version %s for a side that is not being edited.',

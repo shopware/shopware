@@ -48,7 +48,7 @@ Every action shares one envelope and adds its own operation fields, bound via `#
 
 `attach-element` is the inverse of the detachment a `replace` reports: hand its `orphaned` subtrees (or any copied subtree) back to `attach-element` to re-place them. Ids are server-minted, so the placed elements get fresh ids returned in `affectedElementIds`.
 
-`insert-preset` places every root element of a preset's payload the way `attach-element` places one subtree: ids are reminted and each element's type default binding is fill-applied. The preset comes from the registry, never from the request, so the client names a preset and cannot alter its content.
+`insert-preset` places every root element of a preset's payload the way `attach-element` places one subtree: ids are reminted and each element's type default binding is fill-applied. The preset comes from the registry, never from the request, so the client names a preset and cannot alter its content. An unregistered `presetId` is a `404` (`layoutPresetNotFound`, see [mutation-errors.md](mutation-errors.md)).
 
 Example (`insert-element`):
 

@@ -18,8 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Pins the other leg of the two ternaries {@see ListingLayoutQueryParameterRenderTest} reads its `listingLayout`
- * value from: no `listingLayout` query parameter at all. `Sw/Product/Listing.html.twig:47` falls back to
- * `'default'` and `:42` falls back to the per-viewport column map, so a request that never supplies the
+ * value from: no `listingLayout` query parameter at all. `Sw/Product/Listing.html.twig:69` falls back to
+ * `'default'` and `:64` falls back to the per-viewport column map, so a request that never supplies the
  * parameter must render `is--layout-default` cards and the multi-viewport column set, not the horizontal ones.
  *
  * This case cannot live in {@see ListingLayoutQueryParameterRenderTest}: `TwigAppVariable::getRequest()`

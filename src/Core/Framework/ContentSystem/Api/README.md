@@ -29,7 +29,7 @@ Admin API controllers for the content system. Store API rendering lives in `Sale
 - [docs/mutation.md](docs/mutation.md) - The stateless draft mutation actions and the request envelope they share.
 - [docs/mutation-response.md](docs/mutation-response.md) - The seven-key response body every stateless mutation action returns.
 - [docs/mutation-errors.md](docs/mutation-errors.md) - The failure conditions that abort a stateless mutation instead of being reported in diagnostics.
-- [docs/mutation-binding.md](docs/mutation-binding.md) - Applying a binding specification through `bind-element` or `insert-element`, and the automatic default the scaffold applies.
+- [docs/mutation-binding.md](docs/mutation-binding.md) - Applying a binding specification through `bind-element` or `insert-element`, and the automatic default applied without any client action.
 - [docs/persisted-mutation.md](docs/persisted-mutation.md) - The persisted mutation actions, their request envelope, and their committed response.
 - [docs/persisted-mutation-errors.md](docs/persisted-mutation-errors.md) - The failure conditions specific to the persisted mutation actions.
 

@@ -1,5 +1,5 @@
-import { renameVModelArgument } from './rename-v-model-argument';
-import { createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';
+import { renameVModelArgument } from './index';
+import { createDirectiveAttribute, createFixer, createRuleApi } from '../test-utils';
 
 describe('renameVModelArgument', () => {
     it('auto-fixes a v-model argument renamed to the default model into a plain v-model', () => {

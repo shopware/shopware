@@ -1,5 +1,5 @@
-import { removeEvent } from './remove-event';
-import { createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';
+import { removeEvent } from './index';
+import { createDirectiveAttribute, createFixer, createRuleApi } from '../test-utils';
 
 describe('removeEvent', () => {
     it('auto-fixes a removed event by deleting its listener', () => {

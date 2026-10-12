@@ -1,5 +1,5 @@
-import { removeProp } from './remove-prop';
-import { createAttribute, createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';
+import { removeProp } from './index';
+import { createAttribute, createDirectiveAttribute, createFixer, createRuleApi } from '../test-utils';
 
 describe('removeProp', () => {
     it('defaults to an automatic fix', () => {

@@ -303,7 +303,9 @@ function getTransformResult(usage, node, attribute) {
 
 function findMatchingEventAttribute(node, eventName) {
     return node.startTag.attributes.find((attribute) => {
-        return getDirectiveName(attribute) === 'on' && getDirectiveArgumentName(attribute) === eventName;
+        const argumentName = getDirectiveArgumentName(attribute);
+
+        return getDirectiveName(attribute) === 'on' && argumentName && matchesTemplateName(argumentName, eventName);
     });
 }
 

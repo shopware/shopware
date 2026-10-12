@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access -- assertions read fields of untyped ESLint report descriptors */
-import { missingProp } from './missing-prop';
-import { createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';
+import { missingProp } from './index';
+import { createDirectiveAttribute, createFixer, createRuleApi } from '../test-utils';
 
 describe('missingProp', () => {
     it('adds a static missing prop value', () => {

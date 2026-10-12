@@ -1,5 +1,5 @@
-import { removeSlot } from './remove-slot';
-import { createFixer, createRuleApi, createSlot } from './test-utils';
+import { removeSlot } from './index';
+import { createFixer, createRuleApi, createSlot } from '../test-utils';
 
 describe('removeSlot', () => {
     it('auto-fixes a removed slot by replacing it with a comment that quotes its content', () => {

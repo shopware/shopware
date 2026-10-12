@@ -84,29 +84,6 @@ function normalizeComparableSource(text) {
         .replace(/"/g, "'");
 }
 
-function usageFixesAutomatically(usage) {
-    return usage.fix !== 'manual';
-}
-
-/**
- * Builds the replacement text for a replace-api usage. An unsafe automatic fix gets a codemod
- * review comment in front, so the rewritten call is easy to find and check.
- *
- * @example
- * getReplaceApiText({ to: 'foo(element.id)', fix: 'auto' }); // 'foo(element.id)'
- * getReplaceApiText({ to: 'foo(element.id)', fix: 'unsafe-auto', message: 'Check element.' });
- * // 'foo(element.id)', preceded by a codemod review comment that says 'Check element.'
- */
-function getReplaceApiText(usage) {
-    if (usage.fix !== 'unsafe-auto') {
-        return usage.to;
-    }
-
-    const hint = usage.message ?? 'Verify this automatic replacement.';
-
-    return `/* TODO Codemod: ${hint} */ ${usage.to}`;
-}
-
 function matchesMemberCall(usage, propertyName, calleeName, calleeSource) {
     if (usage.from.includes('.')) {
         return (
@@ -115,95 +92,6 @@ function matchesMemberCall(usage, propertyName, calleeName, calleeSource) {
     }
 
     return usage.from === propertyName;
-}
-
-function parseSimpleObjectCall(source) {
-    const match = source.match(/^([\w$.]+)\(\{\s*(.*)\s*}\)$/);
-
-    if (!match) {
-        return null;
-    }
-
-    const properties = new Map();
-    const propertySources = match[2]
-        .split(',')
-        .map((propertySource) => propertySource.trim())
-        .filter(Boolean);
-
-    for (const propertySource of propertySources) {
-        const separatorIndex = propertySource.indexOf(':');
-
-        if (separatorIndex === -1) {
-            return null;
-        }
-
-        properties.set(
-            propertySource.slice(0, separatorIndex).trim(),
-            normalizeComparableSource(propertySource.slice(separatorIndex + 1)),
-        );
-    }
-
-    return {
-        calleeName: match[1],
-        properties,
-    };
-}
-
-function getObjectExpressionProperties(sourceCode, node) {
-    if (node?.type !== 'ObjectExpression') {
-        return null;
-    }
-
-    const properties = new Map();
-
-    for (const property of node.properties) {
-        if (property.type !== 'Property') {
-            return null;
-        }
-
-        const propertyName = getPropertyName(property.key);
-
-        if (!propertyName) {
-            return null;
-        }
-
-        properties.set(propertyName, normalizeComparableSource(sourceCode.getText(property.value)));
-    }
-
-    return properties;
-}
-
-function mapIncludesExpectedProperties(expectedProperties, actualProperties) {
-    return Array.from(expectedProperties).every(
-        ([
-            propertyName,
-            expectedValue,
-        ]) => actualProperties.get(propertyName) === expectedValue,
-    );
-}
-
-function matchesExactCall(usage, node, sourceCode, sourceText, calleeName) {
-    if (normalizeComparableSource(usage.from) === normalizeComparableSource(sourceText)) {
-        return {
-            fixable: true,
-        };
-    }
-
-    const expectedCall = parseSimpleObjectCall(usage.from);
-
-    if (!expectedCall || expectedCall.calleeName !== calleeName || node.arguments.length !== 1) {
-        return null;
-    }
-
-    const actualProperties = getObjectExpressionProperties(sourceCode, node.arguments[0]);
-
-    if (!actualProperties || !mapIncludesExpectedProperties(expectedCall.properties, actualProperties)) {
-        return null;
-    }
-
-    return {
-        fixable: expectedCall.properties.size === actualProperties.size,
-    };
 }
 
 module.exports = {
@@ -245,38 +133,7 @@ module.exports = {
 
         const objectOptionUsages = usages.filter(({ usage }) => usage.kind === 'replace-object-option');
         const memberCallUsages = usages.filter(({ usage }) => usage.kind === 'member-call');
-        const replaceApiUsages = usages.filter(({ usage }) => usage.kind === 'replace-api');
         const packageImportUsages = packageUsages.filter(({ usage }) => usage.kind === 'rename-package');
-
-        /**
-         * Finds the first replace-api usage a call matches. A bare API name replaces the callee only,
-         * a full call signature replaces the whole call and may be unfixable when its arguments differ.
-         *
-         * @example
-         * findReplaceApiMatch(node, 'Shopware.Utils.foo', 'Shopware.Utils.foo()');
-         * // { match, fixable: true, target: node.callee }
-         */
-        function findReplaceApiMatch(node, calleeName, sourceText) {
-            for (const candidate of replaceApiUsages) {
-                const isFullCall = candidate.usage.from.includes('(');
-
-                if (!isFullCall) {
-                    if (candidate.usage.from === calleeName) {
-                        return { match: candidate, fixable: true, target: node.callee };
-                    }
-
-                    continue;
-                }
-
-                const exactCallMatch = matchesExactCall(candidate.usage, node, context.sourceCode, sourceText, calleeName);
-
-                if (exactCallMatch) {
-                    return { match: candidate, fixable: exactCallMatch.fixable, target: node };
-                }
-            }
-
-            return null;
-        }
 
         /**
          * Finds the rename-package usage a module source names, either the package itself or one of its subpaths.
@@ -390,28 +247,6 @@ module.exports = {
                         message: buildMessage(match.migration, match.usage),
                     });
                 }
-
-                const result = findReplaceApiMatch(node, calleeName, context.sourceCode.getText(node));
-
-                if (!result) {
-                    return;
-                }
-
-                context.report({
-                    node: result.target,
-                    message: buildMessage(result.match.migration, result.match.usage),
-                    fix(fixer) {
-                        if (
-                            context.options.includes('disableFix') ||
-                            !usageFixesAutomatically(result.match.usage) ||
-                            !result.fixable
-                        ) {
-                            return null;
-                        }
-
-                        return fixer.replaceText(result.target, getReplaceApiText(result.match.usage));
-                    },
-                });
             },
         };
     },

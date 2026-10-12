@@ -1,5 +1,5 @@
-import { addBooleanPropTransform, mapPropValue } from './index';
-import { createAttribute, createFixer, createRuleApi } from './test-utils';
+import { addBooleanPropTransform, mapPropValue } from '../index';
+import { createAttribute, createFixer, createRuleApi } from '../test-utils';
 
 describe('mapPropValue', () => {
     it('defaults to an automatic fix', () => {

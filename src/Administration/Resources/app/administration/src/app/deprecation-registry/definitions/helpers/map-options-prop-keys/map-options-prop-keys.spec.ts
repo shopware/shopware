@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access -- assertions read fields of untyped ESLint report descriptors */
 
-import { mapOptionsPropKeys } from './map-options-prop-keys';
-import { createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';
+import { mapOptionsPropKeys } from './index';
+import { createDirectiveAttribute, createFixer, createRuleApi } from '../test-utils';
 
 describe('mapOptionsPropKeys', () => {
     it('renames inline option object keys', () => {

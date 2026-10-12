@@ -281,6 +281,21 @@ const mtEmailFieldInvalidTests = [
         }]
     },
     {
+        name: '"mt-email-field" wrong camelCase "baseFieldMounted" event usage should be removed',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-email-field @baseFieldMounted="onFieldMounted" />
+            </template>`,
+        output: `
+            <template>
+                <mt-email-field  />
+            </template>`,
+        errors: [{
+            message: '[mt-email-field] The "base-field-mounted" API is deprecated.',
+        }]
+    },
+    {
         name: '"mt-email-field" wrong "label" slot usage should be removed [shorthand syntax]',
         filename: 'test.html.twig',
         code: `

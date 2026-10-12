@@ -1,5 +1,5 @@
-import { slotToPropComment } from './slot-to-prop-comment';
-import { createFixer, createRuleApi, createSlot } from './test-utils';
+import { slotToPropComment } from './index';
+import { createFixer, createRuleApi, createSlot } from '../test-utils';
 
 describe('slotToPropComment', () => {
     it('adds a TODO comment before the deprecated slot', () => {

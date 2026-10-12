@@ -6,7 +6,7 @@
  */
 
 import type { DeprecationUsage, FixLevel, MigrationTransform, MigrationTransformContext } from './types';
-import { migration, manualUsage, usage, withoutUndefined } from './shared';
+import { migration, usage, withoutUndefined } from './shared';
 export { reference } from './shared';
 export type {
     ComponentUsageRuleApi,
@@ -106,20 +106,6 @@ export function memberCall({
     message?: string;
 }): DeprecationUsage {
     return usage('member-call', { from, to, fix, message });
-}
-
-export function replaceApi({
-    from,
-    to,
-    fix,
-    message,
-}: {
-    from: string;
-    to: string;
-    fix?: FixLevel;
-    message?: string;
-}): DeprecationUsage {
-    return manualUsage('replace-api', { from, to, fix, message });
 }
 
 export function replaceExtension({

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access -- assertions read fields of untyped ESLint report descriptors */
-import { slotToProp } from './slot-to-prop';
-import { createFixer, createRuleApi, createSlot } from './test-utils';
+import { slotToProp } from './index';
+import { createFixer, createRuleApi, createSlot } from '../test-utils';
 
 describe('slotToProp', () => {
     it('auto-fixes a slot moved to a prop by replacing it with a comment naming the prop', () => {

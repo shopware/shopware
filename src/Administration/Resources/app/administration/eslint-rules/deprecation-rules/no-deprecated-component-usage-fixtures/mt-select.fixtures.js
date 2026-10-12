@@ -62,6 +62,14 @@ const mtSelectValidTests = [
                 <mt-select :options="[{ name: 'A', id: 'a' }]" :label-property="'name'" />
             </template>`,
     },
+    {
+        name: '"mt-select" options with name/id keys are kept when only value-property maps them',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-select :options="[{ name: 'A', id: 'a' }]" value-property="id" />
+            </template>`,
+    },
 ]
 
 const mtSelectInvalidTests = [

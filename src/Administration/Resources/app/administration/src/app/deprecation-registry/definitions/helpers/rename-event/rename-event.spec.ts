@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access -- assertions read fields of untyped ESLint report descriptors */
-import { renameEvent } from './rename-event';
-import { createDirectiveAttribute, createFixer, createRuleApi } from './test-utils';
+import { renameEvent } from './index';
+import { createDirectiveAttribute, createFixer, createRuleApi } from '../test-utils';
 
 describe('renameEvent', () => {
     it('auto-fixes a renamed event by replacing the listener event name', () => {

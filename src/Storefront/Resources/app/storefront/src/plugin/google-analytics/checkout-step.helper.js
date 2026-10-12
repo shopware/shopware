@@ -1,30 +1,6 @@
+import SessionStorage from 'src/helper/storage/session-storage.helper';
+
 const STORAGE_KEY = 'swGaReportedCheckoutSteps';
-
-let memorySteps = [];
-let storageSupported = null;
-
-/**
- * Mirrors the support probe of `src/helper/storage/storage.helper.js`. Accessing
- * `sessionStorage` throws in private browsing modes and when storage is disabled.
- *
- * @returns {boolean}
- */
-function isStorageSupported() {
-    if (storageSupported !== null) {
-        return storageSupported;
-    }
-
-    try {
-        const testKey = `${STORAGE_KEY}__test`;
-        window.sessionStorage.setItem(testKey, '1');
-        window.sessionStorage.removeItem(testKey);
-        storageSupported = true;
-    } catch (e) {
-        storageSupported = false;
-    }
-
-    return storageSupported;
-}
 
 /**
  * Remembers which checkout events have already been reported for the running checkout.
@@ -41,7 +17,8 @@ function isStorageSupported() {
  * leave the GA4 `shipping_tier` and `payment_type` dimensions reporting shop defaults.
  *
  * The state is session scoped and cleared when a checkout starts (`begin_checkout`) and
- * when it completes (`purchase`).
+ * when it completes (`purchase`). The shared session storage helper falls back to memory when
+ * the session storage is unavailable.
  */
 export default class CheckoutStepHelper
 {
@@ -91,12 +68,8 @@ export default class CheckoutStepHelper
      * @private
      */
     static _read() {
-        if (!isStorageSupported()) {
-            return memorySteps;
-        }
-
         try {
-            const steps = JSON.parse(window.sessionStorage.getItem(STORAGE_KEY));
+            const steps = JSON.parse(SessionStorage.getItem(STORAGE_KEY));
 
             return Array.isArray(steps) ? steps : [];
         } catch (e) {
@@ -109,12 +82,6 @@ export default class CheckoutStepHelper
      * @private
      */
     static _write(steps) {
-        if (!isStorageSupported()) {
-            memorySteps = steps;
-
-            return;
-        }
-
-        window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(steps));
+        SessionStorage.setItem(STORAGE_KEY, JSON.stringify(steps));
     }
 }

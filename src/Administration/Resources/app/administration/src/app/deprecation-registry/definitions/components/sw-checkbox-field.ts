@@ -1,12 +1,4 @@
-import {
-    componentMigration,
-    reference,
-    removeProp,
-    renameComponent,
-    renameEvent,
-    renameProp,
-    slotToProp,
-} from '../helpers';
+import { componentMigration, reference, removeProp, renameComponent, renameEvent, renameProp, slotToProp } from '../helpers';
 
 export default componentMigration({
     id: 'component.sw-checkbox-field',

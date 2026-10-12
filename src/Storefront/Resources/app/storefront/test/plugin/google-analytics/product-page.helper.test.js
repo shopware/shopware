@@ -179,6 +179,13 @@ describe('plugin/google-analytics/product-page.helper', () => {
             expect(ProductPageHelper.mapCategories(undefined)).toEqual({});
             expect(ProductPageHelper.mapCategories([])).toEqual({});
         });
+
+        test('skips an empty level but keeps the position of the others', () => {
+            expect(ProductPageHelper.mapCategories(['Clothing', '', 'Crew'])).toEqual({
+                item_category: 'Clothing',
+                item_category3: 'Crew',
+            });
+        });
     });
 
     describe('getProductCardData', () => {

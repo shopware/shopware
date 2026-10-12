@@ -175,6 +175,17 @@ const duplicateReplacementInvalidTests = [
 
 const registryDrivenValidTests = [
     {
+        name: 'registry-driven mt-checkbox converted from sw-checkbox-field keeps its label slot',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <!-- TODO Codemod: Converted from sw-checkbox-field - please check if everything works correctly -->
+                <mt-checkbox>
+                    <template #label>Accept the <a href="#">terms</a></template>
+                </mt-checkbox>
+            </template>`,
+    },
+    {
         name: 'registry-driven mt-checkbox keeps its native label slot',
         filename: 'test.html.twig',
         code: `

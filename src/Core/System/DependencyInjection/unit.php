@@ -28,6 +28,5 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(UnitUneceCodeController::class)
         ->public()
-        ->args([service(UnitUneceCodes::class)])
-        ->call('setContainer', [service('service_container')]);
+        ->args([service(UnitUneceCodes::class)]);
 };

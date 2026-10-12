@@ -54,10 +54,14 @@ export default Component.wrapComponentConfig({
         },
 
         uneceCodeOptions(): Array<{ value: string; label: string }> {
-            return this.uneceCodes.map(({ code, name }) => ({
-                value: code,
-                label: `${code} - ${name}`,
-            }));
+            return this.uneceCodes.map(({ code, name }) => {
+                const snippetKey = `sw-settings-units.uneceCodes.${code}`;
+
+                return {
+                    value: code,
+                    label: `${code} - ${this.$te(snippetKey) ? this.$t(snippetKey) : name}`,
+                };
+            });
         },
 
         ...mapPropertyErrors('unit', ['name', 'shortCode', 'uneceCode']),

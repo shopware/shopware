@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Unit\UnitUneceCodes;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -15,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 #[Package('inventory')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
-class UnitUneceCodeController extends AbstractController
+class UnitUneceCodeController
 {
     public function __construct(private readonly UnitUneceCodes $uneceCodes)
     {

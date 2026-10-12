@@ -173,6 +173,12 @@ export default {
             ];
         },
 
+        getUneceCodeLabel(uneceCode) {
+            const snippetKey = `sw-settings-units.uneceCodes.${uneceCode}`;
+
+            return this.$te(snippetKey) ? `${uneceCode} - ${this.$t(snippetKey)}` : uneceCode;
+        },
+
         onChangeLanguage() {
             this.loadUnits();
         },

@@ -11,15 +11,21 @@ const uneceCodes = [
 async function createWrapper({
     privileges = ['scale_unit.editor'],
     getUneceCodes = () => Promise.resolve(uneceCodes),
+    snippets = {},
 }: {
     privileges?: string[];
     getUneceCodes?: () => Promise<typeof uneceCodes>;
+    snippets?: Record<string, string>;
 } = {}) {
     const wrapper = mount(await wrapTestComponent('sw-settings-units-detail', { sync: true }), {
         props: {
             unitId: 'unit-id',
         },
         global: {
+            mocks: {
+                $te: (key: string) => key in snippets,
+                $t: (key: string) => snippets[key] ?? key,
+            },
             provide: {
                 repositoryFactory: {
                     create: () => ({
@@ -89,6 +95,17 @@ describe('module/sw-settings-units/page/sw-settings-units-detail', () => {
         expect(wrapper.vm.uneceCodeOptions).toEqual([
             { value: 'H87', label: 'H87 - piece' },
             { value: 'KGM', label: 'KGM - kilogram' },
+        ]);
+    });
+
+    it('should use the translated name of a common unit code', async () => {
+        const wrapper = await createWrapper({
+            snippets: { 'sw-settings-units.uneceCodes.KGM': 'Kilogramm' },
+        });
+
+        expect(wrapper.vm.uneceCodeOptions).toEqual([
+            { value: 'H87', label: 'H87 - piece' },
+            { value: 'KGM', label: 'KGM - Kilogramm' },
         ]);
     });
 

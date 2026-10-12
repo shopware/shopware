@@ -66,6 +66,30 @@ describe('mapOptionsPropKeys', () => {
         ]);
     });
 
+    it('does not report option keys when the element maps them through one of the unless props', () => {
+        const usage = mapOptionsPropKeys({
+            prop: 'options',
+            from: {
+                name: 'label',
+                id: 'value',
+            },
+            unlessProps: [
+                'label-property',
+                'value-property',
+            ],
+        });
+        const api = createRuleApi({
+            usage,
+            attribute: createDirectiveAttribute('bind', 'options', { expression: { type: 'ArrayExpression' } }),
+            attributeValueSource: `[{ name: 'One', id: 'one' }]`,
+            existingProps: ['label-property'],
+        });
+
+        usage.eslint?.report(api);
+
+        expect(api.reports).toHaveLength(0);
+    });
+
     it('reports dynamic options as manual without a fixer', () => {
         const usage = mapOptionsPropKeys({
             prop: 'options',

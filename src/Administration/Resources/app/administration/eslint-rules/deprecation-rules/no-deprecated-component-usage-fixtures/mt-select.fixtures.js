@@ -45,7 +45,23 @@ const mtSelectValidTests = [
                     </template>
                 </mt-select>
             </template>`,
-    }
+    },
+    {
+        name: '"mt-select" options with name/id keys are kept when label-property and value-property map them',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-select :options="[{ name: 'A', id: 'a' }]" label-property="name" value-property="id" />
+            </template>`,
+    },
+    {
+        name: '"mt-select" options with name/id keys are kept when a bound label-property maps them',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-select :options="[{ name: 'A', id: 'a' }]" :label-property="'name'" />
+            </template>`,
+    },
 ]
 
 const mtSelectInvalidTests = [

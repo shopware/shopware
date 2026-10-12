@@ -3,6 +3,7 @@
  */
 
 import { reference, templateEventMigration, templateEventUsage } from './helpers';
+import type { DeprecationMigration } from './helpers';
 
 export default [
     templateEventMigration({
@@ -124,4 +125,4 @@ export default [
             templateEventUsage({ component: 'sw-radio-field', from: 'change', to: 'update:value' }),
         ],
     }),
-];
+] satisfies DeprecationMigration[];

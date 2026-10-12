@@ -4,15 +4,14 @@
  */
 
 import type { DeprecationUsage } from '../types';
+import type { SlotToPropCommentConfig } from './index';
 import { componentUsageMessage, usageFixesAutomatically } from '../shared';
 
-export function createSlotToPropCommentEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
+type SlotToPropCommentUsage = DeprecationUsage & SlotToPropCommentConfig;
+
+export function createSlotToPropCommentEslint(usageConfig: SlotToPropCommentUsage): DeprecationUsage['eslint'] {
     return {
         report(api) {
-            if (typeof usageConfig.slot !== 'string' || typeof usageConfig.prop !== 'string') {
-                return;
-            }
-
             const slot = api.ast.findSlot(api.node, usageConfig.slot);
             const childWithoutSlot = api.ast.getFirstElementChildWithoutSlot(api.node);
             const target = slot ?? childWithoutSlot;

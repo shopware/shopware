@@ -16,19 +16,39 @@ if (!renameUsage) {
     throw new Error('no-tc-translation needs a rename-call usage on the "global.$tc" deprecation registry migration.');
 }
 
+/**
+ * Builds the fix that renames the called API. An unsafe automatic fix also puts a codemod review
+ * comment in front of the whole call, so the rewritten call is easy to find and check.
+ *
+ * @example
+ * getRenameFix(fixer, callNode, callNode.callee.property);
+ * // this.$tc('a.b', count) with fix 'unsafe-auto' becomes this.$t('a.b', count),
+ * // preceded by a codemod review comment that carries the registry hint
+ */
+function getRenameFix(fixer, callNode, target) {
+    if (renameUsage.fix === 'manual') {
+        return null;
+    }
+
+    const rename = fixer.replaceText(target, renameUsage.to);
+
+    if (renameUsage.fix !== 'unsafe-auto') {
+        return rename;
+    }
+
+    return [
+        fixer.insertTextBefore(callNode, `/* TODO Codemod: ${renameUsage.message} */ `),
+        rename,
+    ];
+}
+
 function reportTc(context, node, isProperty) {
     const target = isProperty ? node.callee.property : node.callee;
 
     context.report({
         node: target,
         messageId: 'noTc',
-        fix(fixer) {
-            if (renameUsage.fix === 'manual') {
-                return null;
-            }
-
-            return fixer.replaceText(target, renameUsage.to);
-        },
+        fix: (fixer) => getRenameFix(fixer, node, target),
     });
 }
 
@@ -80,13 +100,12 @@ module.exports = {
             CallExpression: checkCallExpression,
         };
 
-        // Plain .js/.ts files run without vue-eslint-parser, so only templates get the template visitor.
+        // Without vue-eslint-parser (e.g. .ts files) only the script visitors apply.
         const defineTemplateBodyVisitor = context.sourceCode.parserServices?.defineTemplateBodyVisitor;
         if (defineTemplateBodyVisitor) {
             return defineTemplateBodyVisitor(templateVisitors, scriptVisitors);
         }
 
-        // Fallback for non-vue files (plain JS/TS)
         return scriptVisitors;
     },
 };

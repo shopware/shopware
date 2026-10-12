@@ -41,13 +41,19 @@ export function createAttribute(name: string, value: unknown = null): Record<str
     };
 }
 
-export function createDirectiveAttribute(directive: string, argument?: string, value: unknown = null): Record<string, any> {
+export function createDirectiveAttribute(
+    directive: string,
+    argument?: string,
+    value: unknown = null,
+    modifiers: string[] = [],
+): Record<string, any> {
     return {
         key: {
             name: {
                 name: directive,
             },
             ...(argument ? { argument: { name: argument } } : {}),
+            modifiers: modifiers.map((modifier) => ({ name: modifier, rawName: modifier })),
         },
         value,
         range: [

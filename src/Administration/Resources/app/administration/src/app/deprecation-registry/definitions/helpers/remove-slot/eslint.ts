@@ -4,15 +4,14 @@
  */
 
 import type { DeprecationUsage } from '../types';
+import type { RemoveSlotConfig } from './index';
 import { componentUsageMessage, usageFixesAutomatically } from '../shared';
 
-export function createRemoveSlotEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
+type RemoveSlotUsage = DeprecationUsage & RemoveSlotConfig;
+
+export function createRemoveSlotEslint(usageConfig: RemoveSlotUsage): DeprecationUsage['eslint'] {
     return {
         report(api) {
-            if (typeof usageConfig.slot !== 'string') {
-                return;
-            }
-
             const slot = usageConfig.slot;
             const slotNode = api.ast.findSlot(api.node, slot);
 

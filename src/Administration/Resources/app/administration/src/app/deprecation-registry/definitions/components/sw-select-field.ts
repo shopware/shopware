@@ -43,6 +43,10 @@ export default componentMigration({
                 name: 'label',
                 id: 'value',
             },
+            unlessProps: [
+                'label-property',
+                'value-property',
+            ],
             fix: 'unsafe-auto',
             message: 'Replace option object keys "name"/"id" with "label"/"value".',
             unsafeMessage:

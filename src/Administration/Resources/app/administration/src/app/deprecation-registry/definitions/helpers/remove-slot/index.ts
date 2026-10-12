@@ -6,17 +6,20 @@ import type { DeprecationUsage, FixLevel } from '../types';
 import { withoutUndefined } from '../shared';
 import { createRemoveSlotEslint } from './eslint';
 
-const DEFAULT_FIX = 'auto';
+const DEFAULT_FIX: FixLevel = 'auto';
 
-export function removeSlot(config: {
+/** Definition input of `removeSlot`: the slot that is removed without replacement. */
+export type RemoveSlotConfig = {
     slot: string;
     fix?: FixLevel;
     message?: string;
     slotReviewHint?: string;
     slotReplacementComment?: string;
-}): DeprecationUsage {
+};
+
+export function removeSlot(config: RemoveSlotConfig): DeprecationUsage {
     const { slot, fix = DEFAULT_FIX, message, slotReviewHint, slotReplacementComment } = config;
-    const usageConfig: DeprecationUsage = withoutUndefined({
+    const usageConfig: DeprecationUsage & RemoveSlotConfig = withoutUndefined({
         kind: 'remove-slot',
         slot,
         fix,

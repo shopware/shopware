@@ -4,15 +4,20 @@
  */
 
 import type { ComponentUsageRuleApi, DeprecationUsage } from '../types';
+import type { SlotToItemsPropConfig } from './index';
 import { componentUsageMessage, usageFixesAutomatically } from '../shared';
+
+/** The usage `slotToItemsProp` builds: its config with the slot and item attribute defaults filled in. */
+export type SlotToItemsPropUsage = DeprecationUsage &
+    SlotToItemsPropConfig &
+    Required<Pick<SlotToItemsPropConfig, 'slot' | 'itemNameProp' | 'itemRouteProp'>>;
 
 function buildItems(
     api: ComponentUsageRuleApi,
-    usageConfig: DeprecationUsage,
+    usageConfig: SlotToItemsPropUsage,
     slotChildren: Array<Record<string, any>>,
 ): string {
-    const itemNameProp = typeof usageConfig.itemNameProp === 'string' ? usageConfig.itemNameProp : 'name';
-    const itemRouteProp = typeof usageConfig.itemRouteProp === 'string' ? usageConfig.itemRouteProp : 'route';
+    const { itemNameProp, itemRouteProp } = usageConfig;
     const items = slotChildren.map((child) => {
         const attributes = child.startTag.attributes;
         const nameAttribute = attributes.find(
@@ -53,17 +58,9 @@ function buildItems(
         .replace(/"/g, "'");
 }
 
-export function createSlotToItemsPropEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
+export function createSlotToItemsPropEslint(usageConfig: SlotToItemsPropUsage): DeprecationUsage['eslint'] {
     return {
         report(api) {
-            if (
-                typeof usageConfig.slot !== 'string' ||
-                typeof usageConfig.prop !== 'string' ||
-                typeof usageConfig.itemComponent !== 'string'
-            ) {
-                return;
-            }
-
             const defaultSlot = api.ast.findSlot(api.node, usageConfig.slot);
             const childWithoutSlot = api.ast.getFirstElementChildWithoutSlot(api.node);
             const target = defaultSlot ?? childWithoutSlot;

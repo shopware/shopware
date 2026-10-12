@@ -4,7 +4,10 @@
  */
 
 import type { DeprecationUsage } from '../types';
+import type { RemoveEventConfig } from './index';
 import { componentUsageMessage, usageFixesAutomatically } from '../shared';
+
+type RemoveEventUsage = DeprecationUsage & RemoveEventConfig;
 
 function hasObjectVOn(api: Parameters<NonNullable<DeprecationUsage['eslint']>['report']>[0]): boolean {
     return api.node.startTag.attributes.some((startTagAttribute: Record<string, any>) => {
@@ -12,13 +15,9 @@ function hasObjectVOn(api: Parameters<NonNullable<DeprecationUsage['eslint']>['r
     });
 }
 
-export function createRemoveEventEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
+export function createRemoveEventEslint(usageConfig: RemoveEventUsage): DeprecationUsage['eslint'] {
     return {
         report(api) {
-            if (typeof usageConfig.event !== 'string') {
-                return;
-            }
-
             const attribute = api.ast.findMatchingEventAttribute(api.node, usageConfig.event);
 
             if (!attribute) {

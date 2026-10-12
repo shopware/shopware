@@ -1717,6 +1717,7 @@ The architectural rationale is documented in [Keep Administration HTTP transport
 
 The old `sw-empty-state` component will be removed in the next major version.
 Please use the new `mt-empty-state` component instead.
+The `title` prop becomes `headline` and the `subline` prop becomes `description`.
 
 Before:
 ```html
@@ -1724,7 +1725,7 @@ Before:
 ```
 After:
 ```html
-<mt-empty-state title="short title" description="longer description"/>
+<mt-empty-state headline="short title" description="longer subline" />
 ```
 
 ## Removed empty state Twig block anchors

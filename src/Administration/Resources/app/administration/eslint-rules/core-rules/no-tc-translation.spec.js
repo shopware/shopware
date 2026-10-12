@@ -2,6 +2,9 @@ const RuleTester = require('eslint').RuleTester;
 const rule = require('./no-tc-translation');
 const { describeWithSelectedDeprecationIds } = require('../deprecation-rules/registry/selected-deprecation-ids');
 
+const HINT =
+    '/* TODO Codemod: After the fixer replaces the call, verify pluralization and count interpolation manually. */ ';
+
 const tester = new RuleTester({
     languageOptions: {
         ecmaVersion: 2020,
@@ -32,31 +35,37 @@ tester.run('no-tc-translation', rule, {
         {
             name: 'this.$tc() should be this.$t()',
             code: `this.$tc('some.translation.key');`,
-            output: `this.$t('some.translation.key');`,
+            output: `${HINT}this.$t('some.translation.key');`,
             errors: [{ messageId: 'noTc' }],
         },
         {
             name: 'this.$tc() with count parameter',
             code: `this.$tc('some.translation.key', count);`,
-            output: `this.$t('some.translation.key', count);`,
+            output: `${HINT}this.$t('some.translation.key', count);`,
             errors: [{ messageId: 'noTc' }],
         },
         {
             name: '$tc() without this (template context)',
             code: `$tc('some.translation.key');`,
-            output: `$t('some.translation.key');`,
+            output: `${HINT}$t('some.translation.key');`,
             errors: [{ messageId: 'noTc' }],
         },
         {
             name: '$tc() with count in template context',
             code: `$tc('some.translation.key', 3);`,
-            output: `$t('some.translation.key', 3);`,
+            output: `${HINT}$t('some.translation.key', 3);`,
+            errors: [{ messageId: 'noTc' }],
+        },
+        {
+            name: 'adds a TODO Codemod review hint in front of the whole member call when renaming $tc to $t',
+            code: `const label = this.$tc('a.b', count);`,
+            output: `const label = ${HINT}this.$t('a.b', count);`,
             errors: [{ messageId: 'noTc' }],
         },
         {
             name: 'multiple $tc calls in one file',
             code: `this.$tc('key.one'); this.$tc('key.two');`,
-            output: `this.$t('key.one'); this.$t('key.two');`,
+            output: `${HINT}this.$t('key.one'); ${HINT}this.$t('key.two');`,
             errors: [{ messageId: 'noTc' }, { messageId: 'noTc' }],
         },
     ],
@@ -83,14 +92,21 @@ templateTester.run('no-tc-translation in templates', rule, {
             name: 'replaces $tc() with $t() in a bound template attribute',
             filename: 'test.html.twig',
             code: `<template><sw-button :label="$tc('a.b')" /></template>`,
-            output: `<template><sw-button :label="$t('a.b')" /></template>`,
+            output: `<template><sw-button :label="${HINT}$t('a.b')" /></template>`,
+            errors: [{ messageId: 'noTc' }],
+        },
+        {
+            name: 'adds a TODO Codemod review hint when renaming $tc to $t in a template interpolation',
+            filename: 'test.vue',
+            code: `<template><p>{{ $tc('a.b', count) }}</p></template>`,
+            output: `<template><p>{{ ${HINT}$t('a.b', count) }}</p></template>`,
             errors: [{ messageId: 'noTc' }],
         },
         {
             name: 'replaces $tc() with $t() in a v-if condition',
             filename: 'test.html.twig',
             code: `<template><div v-if="$tc('x')" /></template>`,
-            output: `<template><div v-if="$t('x')" /></template>`,
+            output: `<template><div v-if="${HINT}$t('x')" /></template>`,
             errors: [{ messageId: 'noTc' }],
         },
     ],

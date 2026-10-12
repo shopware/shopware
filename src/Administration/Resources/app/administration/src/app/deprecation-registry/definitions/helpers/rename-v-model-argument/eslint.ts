@@ -1,16 +1,34 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- vue-eslint-parser template nodes and ESLint fixers are passed through as plain records */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument -- vue-eslint-parser template nodes and ESLint fixers are passed through as plain records */
 /**
  * @sw-package framework
  */
 
 import type { DeprecationUsage } from '../types';
+import type { RenameVModelArgumentConfig } from './index';
 import { componentUsageMessage, hasObjectVBind, usageFixesAutomatically } from '../shared';
 
-export function createRenameVModelArgumentEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
+type RenameVModelArgumentUsage = DeprecationUsage & RenameVModelArgumentConfig;
+
+/**
+ * Builds the source of a v-model directive key with the given argument, keeping the modifiers of the
+ * original key, so a rewritten key does not drop `.trim`, `.lazy` or `.number`.
+ *
+ * @example
+ * buildVModelKey(keyOf('v-model:value.trim'), null); // 'v-model.trim'
+ * buildVModelKey(keyOf('v-model.number'), 'checked'); // 'v-model:checked.number'
+ */
+function buildVModelKey(key: Record<string, any>, argument: string | null): string {
+    const modifiers = (key.modifiers as Array<Record<string, any>>)
+        .map((modifier) => `.${modifier.rawName ?? modifier.name}`)
+        .join('');
+
+    return argument === null ? `v-model${modifiers}` : `v-model:${argument}${modifiers}`;
+}
+
+export function createRenameVModelArgumentEslint(usageConfig: RenameVModelArgumentUsage): DeprecationUsage['eslint'] {
     return {
         report(api) {
-            const from = typeof usageConfig.from === 'string' ? usageConfig.from : null;
-            const attribute = api.ast.findMatchingVModelAttribute(api.node, from);
+            const attribute = api.ast.findMatchingVModelAttribute(api.node, usageConfig.from);
 
             if (!attribute) {
                 return;
@@ -22,7 +40,7 @@ export function createRenameVModelArgumentEslint(usageConfig: DeprecationUsage):
 
             api.reportWithDuplicateReplacementGuard({
                 node: attribute,
-                message: componentUsageMessage(api, usageConfig, from, objectVBindMessage),
+                message: componentUsageMessage(api, usageConfig, usageConfig.from, objectVBindMessage),
                 fix(fixer: Record<string, any>) {
                     if (!usageFixesAutomatically(api, usageConfig)) {
                         return null;
@@ -32,19 +50,13 @@ export function createRenameVModelArgumentEslint(usageConfig: DeprecationUsage):
                         return null;
                     }
 
-                    if (usageConfig.to === null) {
-                        return fixer.replaceText(attribute.key, 'v-model');
+                    const to = usageConfig.to ?? null;
+
+                    if (to === null || !attribute.key.argument) {
+                        return fixer.replaceText(attribute.key, buildVModelKey(attribute.key, to));
                     }
 
-                    if (typeof usageConfig.to !== 'string') {
-                        return null;
-                    }
-
-                    if (!attribute.key.argument) {
-                        return fixer.replaceText(attribute.key, `v-model:${usageConfig.to}`);
-                    }
-
-                    return fixer.replaceText(attribute.key.argument, usageConfig.to);
+                    return fixer.replaceText(attribute.key.argument, to);
                 },
             });
         },

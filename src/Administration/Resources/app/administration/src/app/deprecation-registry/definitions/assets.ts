@@ -3,6 +3,7 @@
  */
 
 import { assetMigration, reference, removeAsset, replaceExtension } from './helpers';
+import type { DeprecationMigration } from './helpers';
 
 export default [
     assetMigration({
@@ -74,4 +75,4 @@ export default [
             removeAsset(),
         ],
     }),
-];
+] satisfies DeprecationMigration[];

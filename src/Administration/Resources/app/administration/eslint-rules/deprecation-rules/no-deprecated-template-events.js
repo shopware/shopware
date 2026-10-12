@@ -69,7 +69,7 @@ function getEventName(attribute) {
         return null;
     }
 
-    return attribute.key?.argument?.name ?? null;
+    return attribute.key?.argument?.rawName ?? attribute.key?.argument?.name ?? null;
 }
 
 function isDynamicEvent(attribute) {
@@ -126,7 +126,9 @@ module.exports = {
                         return;
                     }
 
-                    const match = matchingUsages.find(({ usage }) => usage.from === eventName);
+                    const match = matchingUsages.find(
+                        ({ usage }) => normalizeEventName(usage.from) === normalizeEventName(eventName),
+                    );
 
                     if (!match) {
                         return;

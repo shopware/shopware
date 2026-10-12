@@ -196,6 +196,45 @@ const registryDrivenValidTests = [
 
 const registryDrivenInvalidTests = [
     {
+        name: 'registry-driven mt-empty-state renames title to headline and subline to description',
+        filename: 'test.html.twig',
+        code: '<template><mt-empty-state title="T" subline="S" /></template>',
+        output: '<template><mt-empty-state headline="T" description="S" /></template>',
+        errors: [
+            {
+                message: '[mt-empty-state] The "title" API is deprecated. Use "headline" instead.',
+            },
+            {
+                message: '[mt-empty-state] The "subline" API is deprecated. Use "description" instead.',
+            },
+        ],
+    },
+    {
+        name: 'registry-driven mt-empty-state renames bound title to headline and bound subline to description',
+        filename: 'test.html.twig',
+        code: '<template><mt-empty-state :title="title" :subline="subline" /></template>',
+        output: '<template><mt-empty-state :headline="title" :description="subline" /></template>',
+        errors: [
+            {
+                message: '[mt-empty-state] The "title" API is deprecated. Use "headline" instead.',
+            },
+            {
+                message: '[mt-empty-state] The "subline" API is deprecated. Use "description" instead.',
+            },
+        ],
+    },
+    {
+        name: 'registry-driven mt-text-field keeps v-model modifiers when v-model:value becomes v-model',
+        filename: 'test.html.twig',
+        code: '<template><mt-text-field v-model:value.lazy.trim="myValue" /></template>',
+        output: '<template><mt-text-field v-model.lazy.trim="myValue" /></template>',
+        errors: [
+            {
+                message: '[mt-text-field] The "value" API is deprecated.',
+            },
+        ],
+    },
+    {
         name: 'registry-driven mt-progress-bar does not fix value when model-value already exists',
         filename: 'test.html.twig',
         code: '<template><mt-progress-bar model-value="new" value="old" /></template>',

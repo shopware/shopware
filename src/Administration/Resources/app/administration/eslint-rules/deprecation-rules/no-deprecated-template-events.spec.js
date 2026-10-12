@@ -49,6 +49,28 @@ tester.run('no-deprecated-template-events', rule, {
             ],
         },
         {
+            name: 'migrates a kebab-case listener of a kebab-case registry event',
+            filename: 'test.html.twig',
+            code: '<template><sw-media-breadcrumbs @media-folder-change="onChange" /></template>',
+            output: '<template><sw-media-breadcrumbs @update:currentFolderId="onChange" /></template>',
+            errors: [
+                {
+                    message: /Use "update:currentFolderId" instead/,
+                },
+            ],
+        },
+        {
+            name: 'migrates a camelCase listener of a kebab-case registry event the same way',
+            filename: 'test.html.twig',
+            code: '<template><sw-media-breadcrumbs @mediaFolderChange="onChange" /></template>',
+            output: '<template><sw-media-breadcrumbs @update:currentFolderId="onChange" /></template>',
+            errors: [
+                {
+                    message: /Use "update:currentFolderId" instead/,
+                },
+            ],
+        },
+        {
             name: 'migrates v-on event listener',
             filename: 'test.html.twig',
             code: '<template><sw-single-select v-on:change="onChange" /></template>',

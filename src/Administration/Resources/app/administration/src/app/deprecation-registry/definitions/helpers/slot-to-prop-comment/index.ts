@@ -6,16 +6,19 @@ import type { DeprecationUsage, FixLevel } from '../types';
 import { withoutUndefined } from '../shared';
 import { createSlotToPropCommentEslint } from './eslint';
 
-const DEFAULT_FIX = 'unsafe-auto';
+const DEFAULT_FIX: FixLevel = 'unsafe-auto';
 
-export function slotToPropComment(config: {
+/** Definition input of `slotToPropComment`: the slot whose content has to move to a prop by hand. */
+export type SlotToPropCommentConfig = {
     slot: string;
     prop: string;
     fix?: FixLevel;
     message?: string;
-}): DeprecationUsage {
+};
+
+export function slotToPropComment(config: SlotToPropCommentConfig): DeprecationUsage {
     const { slot, prop, fix = DEFAULT_FIX, message } = config;
-    const usageConfig: DeprecationUsage = withoutUndefined({
+    const usageConfig: DeprecationUsage & SlotToPropCommentConfig = withoutUndefined({
         kind: 'slot-to-prop-comment',
         slot,
         prop,

@@ -4,22 +4,20 @@
  */
 
 import type { ComponentUsageRuleApi, DeprecationUsage } from '../types';
+import type { MissingPropConfig } from './index';
 import { componentUsageMessage, findObjectVBindAttribute, usageFixesAutomatically } from '../shared';
 
-function getPropSource(usageConfig: DeprecationUsage): string {
+/** The usage `missingProp` builds: its config with the `unlessProps` default filled in. */
+export type MissingPropUsage = DeprecationUsage & MissingPropConfig & Required<Pick<MissingPropConfig, 'unlessProps'>>;
+
+function getPropSource(usageConfig: MissingPropUsage): string {
     const prefix = usageConfig.bind === true ? ':' : '';
 
     return `${prefix}${usageConfig.prop}="${usageConfig.value}"`;
 }
 
-function objectVBindCanHideAlias(usageConfig: DeprecationUsage): boolean {
-    if (typeof usageConfig.prop !== 'string' || !Array.isArray(usageConfig.unlessProps)) {
-        return false;
-    }
-
-    return usageConfig.unlessProps.some((propName) => {
-        return typeof propName === 'string' && propName !== usageConfig.prop;
-    });
+function objectVBindCanHideAlias(usageConfig: MissingPropUsage): boolean {
+    return usageConfig.unlessProps.some((propName) => propName !== usageConfig.prop);
 }
 
 /**
@@ -29,7 +27,7 @@ function objectVBindCanHideAlias(usageConfig: DeprecationUsage): boolean {
 function insertMissingProp(
     api: ComponentUsageRuleApi,
     fixer: Record<string, any>,
-    usageConfig: DeprecationUsage,
+    usageConfig: MissingPropUsage,
     objectVBindAttribute: Record<string, any> | null,
 ): unknown {
     const propSource = getPropSource(usageConfig);
@@ -82,16 +80,11 @@ function insertReviewHint(api: ComponentUsageRuleApi, fixer: Record<string, any>
     );
 }
 
-export function createMissingPropEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
+export function createMissingPropEslint(usageConfig: MissingPropUsage): DeprecationUsage['eslint'] {
     return {
         report(api) {
-            if (typeof usageConfig.prop !== 'string' || typeof usageConfig.value !== 'string') {
-                return;
-            }
-
-            const unlessProps = Array.isArray(usageConfig.unlessProps) ? usageConfig.unlessProps : [usageConfig.prop];
-            const hasBlockingProp = unlessProps.some((propName) => {
-                return typeof propName === 'string' && api.ast.hasMatchingPropAttribute(api.node, propName);
+            const hasBlockingProp = usageConfig.unlessProps.some((propName) => {
+                return api.ast.hasMatchingPropAttribute(api.node, propName);
             });
 
             if (hasBlockingProp) {

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { ComponentUsageRuleApi, DeprecationMigration, DeprecationReference, DeprecationUsage, FixLevel } from './types';
+import type { ComponentUsageRuleApi, DeprecationMigration, DeprecationReference, DeprecationUsage } from './types';
 
 export function withoutUndefined<T>(value: T): T {
     if (Array.isArray(value)) {
@@ -46,14 +46,6 @@ export function usage(kind: string, config: Record<string, unknown>): Deprecatio
         kind,
         ...config,
     });
-}
-
-export function normalizeFixLevel(value: unknown, fallback: FixLevel): FixLevel {
-    if (value === 'auto' || value === 'unsafe-auto' || value === 'manual') {
-        return value;
-    }
-
-    return fallback;
 }
 
 export function manualUsage(kind: string, config: Record<string, unknown>): DeprecationUsage {

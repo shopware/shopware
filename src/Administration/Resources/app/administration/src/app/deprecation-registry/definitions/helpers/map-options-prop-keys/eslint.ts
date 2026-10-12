@@ -4,15 +4,13 @@
  */
 
 import type { DeprecationUsage } from '../types';
+import type { MapOptionsPropKeysConfig } from './index';
 import { componentUsageMessage, hasObjectVBind, usageFixesAutomatically } from '../shared';
 
-function isKeyMap(value: unknown): value is Record<string, string> {
-    if (!value || typeof value !== 'object') {
-        return false;
-    }
-
-    return Object.values(value as Record<string, unknown>).every((entry) => typeof entry === 'string');
-}
+/** The usage `mapOptionsPropKeys` builds: its config with the `unlessProps` default filled in. */
+export type MapOptionsPropKeysUsage = DeprecationUsage &
+    MapOptionsPropKeysConfig &
+    Required<Pick<MapOptionsPropKeysConfig, 'unlessProps'>>;
 
 function hasDeprecatedKeys(source: string, keyMap: Record<string, string>): boolean {
     return Object.keys(keyMap).some((key) => {
@@ -100,20 +98,22 @@ function hasReplacementKeyConflict(optionObjects: Array<Record<string, any>>, ke
     });
 }
 
-function getUnsafeMessage(usageConfig: DeprecationUsage): string {
-    if (typeof usageConfig.unsafeMessage === 'string') {
-        return usageConfig.unsafeMessage;
-    }
-
-    return 'Migrate option object keys manually because this options expression is dynamic or structurally unsafe to rewrite automatically.';
+function getUnsafeMessage(usageConfig: MapOptionsPropKeysUsage): string {
+    return (
+        usageConfig.unsafeMessage ??
+        'Migrate option object keys manually because this options expression is dynamic or structurally unsafe to rewrite automatically.'
+    );
 }
 
-export function createMapOptionsPropKeysEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
+export function createMapOptionsPropKeysEslint(usageConfig: MapOptionsPropKeysUsage): DeprecationUsage['eslint'] {
     return {
         report(api) {
             const keyMap = usageConfig.from;
+            const hasKeyMappingProp = usageConfig.unlessProps.some((propName) => {
+                return api.ast.hasMatchingPropAttribute(api.node, propName);
+            });
 
-            if (typeof usageConfig.prop !== 'string' || !isKeyMap(keyMap)) {
+            if (hasKeyMappingProp) {
                 return;
             }
 

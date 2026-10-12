@@ -7,7 +7,6 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Core\Params\UrlParamsSource;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
@@ -20,7 +19,6 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
  */
 #[Package('discovery')]
 #[CoversClass(MediaUrlGenerator::class)]
-#[CoversClass(AbstractMediaUrlGenerator::class)]
 class MediaUrlGeneratorTest extends TestCase
 {
     #[DataProvider('generateProvider')]

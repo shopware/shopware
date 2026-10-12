@@ -45,6 +45,20 @@
                     :error="unitShortCodeError"
                     required
                 />
+
+                <sw-single-select
+                    v-model:value="unit.isoCode"
+                    name="sw-field--unit-isoCode"
+                    class="sw-settings-units__iso-code"
+                    :label="$t('sw-settings-units.detail.fieldLabels.isoCode')"
+                    :help-text="$t('sw-settings-units.detail.helpTexts.isoCode')"
+                    :placeholder="$t('sw-settings-units.detail.placeholders.isoCode')"
+                    :options="isoCodeOptions"
+                    :is-loading="isIsoCodesLoading"
+                    :error="unitIsoCodeError"
+                    :disabled="!acl.can('scale_unit.editor')"
+                />
+
                 <sw-custom-field-set-renderer
                     :entity="unit"
                     :sets="customFieldSets"

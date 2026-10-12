@@ -5,6 +5,7 @@ import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-settings-units-detail.html.twig';
 import type Repository from '../../../../core/data/repository.data';
 import { mapPropertyErrors } from '../../../../app/service/map-errors.service';
+import type { UnitIsoCode } from '../../../../core/service/api/unit-iso-code.api.service';
 
 const { Component, Mixin } = Shopware;
 
@@ -16,7 +17,12 @@ export default Component.wrapComponentConfig({
 
     mixins: [Mixin.getByName('notification')],
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+        'unitIsoCodeService',
+    ],
 
     props: {
         /**
@@ -47,7 +53,14 @@ export default Component.wrapComponentConfig({
             return criteria;
         },
 
-        ...mapPropertyErrors('unit', ['name', 'shortCode']),
+        isoCodeOptions(): Array<{ value: string; label: string }> {
+            return this.isoCodes.map(({ code, name }) => ({
+                value: code,
+                label: `${code} - ${name}`,
+            }));
+        },
+
+        ...mapPropertyErrors('unit', ['name', 'shortCode', 'isoCode']),
     },
 
     data(): {
@@ -55,12 +68,16 @@ export default Component.wrapComponentConfig({
         isLoading: boolean;
         isSaveSuccessful: boolean;
         customFieldSets: Entity<'custom_field_set'>[];
+        isoCodes: UnitIsoCode[];
+        isIsoCodesLoading: boolean;
     } {
         return {
             unit: null,
             isLoading: true,
             isSaveSuccessful: false,
             customFieldSets: [],
+            isoCodes: [],
+            isIsoCodesLoading: true,
         };
     },
 
@@ -81,6 +98,8 @@ export default Component.wrapComponentConfig({
     },
 
     created() {
+        this.loadIsoCodes();
+
         const customFieldDataProviderService = this.customFieldDataProviderService as {
             getCustomFieldSets(
                 entityName: string,
@@ -113,6 +132,22 @@ export default Component.wrapComponentConfig({
     },
 
     methods: {
+        loadIsoCodes(): void {
+            this.unitIsoCodeService
+                .getIsoCodes()
+                .then((isoCodes) => {
+                    this.isoCodes = isoCodes;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-settings-units.notification.errorLoadingIsoCodes'),
+                    });
+                })
+                .finally(() => {
+                    this.isIsoCodesLoading = false;
+                });
+        },
+
         loadUnit(): void {
             if (this.unitId === null) {
                 return;

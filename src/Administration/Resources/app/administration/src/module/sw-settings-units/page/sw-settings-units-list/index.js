@@ -166,6 +166,10 @@ export default {
                     property: 'shortCode',
                     label: 'sw-settings-units.grid.columnShortCode',
                 },
+                {
+                    property: 'isoCode',
+                    label: 'sw-settings-units.grid.columnIsoCode',
+                },
             ];
         },
 

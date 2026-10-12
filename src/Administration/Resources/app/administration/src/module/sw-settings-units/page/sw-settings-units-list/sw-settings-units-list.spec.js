@@ -226,6 +226,10 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
                 property: 'shortCode',
                 label: 'sw-settings-units.grid.columnShortCode',
             },
+            {
+                property: 'isoCode',
+                label: 'sw-settings-units.grid.columnIsoCode',
+            },
         ]);
     });
 });

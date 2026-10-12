@@ -3,7 +3,14 @@
     "detail": {
       "fieldLabels": {
         "name": "Product unit name",
-        "shortCode": "Short code"
+        "shortCode": "Short code",
+        "isoCode": "Unit code (UN/ECE)"
+      },
+      "helpTexts": {
+        "isoCode": "Standard code for e-invoices and integrations, for example KGM for kilogram."
+      },
+      "placeholders": {
+        "isoCode": "Select unit code..."
       }
     },
     "general": {
@@ -14,7 +21,8 @@
     },
     "grid": {
       "columnName": "Product unit",
-      "columnShortCode": "Shorthand"
+      "columnShortCode": "Shorthand",
+      "columnIsoCode": "Unit code"
     },
     "empty-state": {
       "title": "No product units yet",
@@ -22,7 +30,8 @@
     },
     "notification": {
       "successMessage": "Product unit has been saved.",
-      "errorMessage": "Product unit could not be saved. Please fill in all required fields."
+      "errorMessage": "Product unit could not be saved. Please fill in all required fields.",
+      "errorLoadingIsoCodes": "Unit codes could not be loaded."
     }
   },
   "sw-privileges": {

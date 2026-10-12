@@ -6,7 +6,7 @@ import './sw-empty-state.scss';
  *
  * @private
  *
- * @deprecated tag:v6.8.0 - Will be removed
+ * @deprecated tag:v6.9.0 - Will be removed. Use `mt-empty-state` instead.
  */
 export default {
     template,
@@ -79,5 +79,14 @@ export default {
                 'sw-empty-state--auto-height': this.autoHeight,
             };
         },
+    },
+
+    created() {
+        if (Shopware.Feature.isActive('V6_8_0_0')) {
+            Shopware.Utils.debug.warn(
+                'sw-empty-state',
+                'The "sw-empty-state" component is deprecated and will be removed in v6.9.0.0. Please use "mt-empty-state" instead.',
+            );
+        }
     },
 };

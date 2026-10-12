@@ -231,9 +231,9 @@ class WebhookManagerTest extends TestCase
             $request->getHeaderLine('shopware-shop-signature')
         );
 
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testDispatchesMailSentWithoutTheContents(): void
@@ -585,9 +585,9 @@ class WebhookManagerTest extends TestCase
             $request->getHeaderLine('shopware-shop-signature')
         );
 
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testItDoesDispatchAppLifecycleEventForInactiveApp(): void
@@ -790,9 +790,9 @@ class WebhookManagerTest extends TestCase
             $request->getHeaderLine('shopware-shop-signature')
         );
 
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testDispatchesEntityWrittenEventIfAppHasPermission(): void
@@ -911,9 +911,9 @@ class WebhookManagerTest extends TestCase
             $request->getHeaderLine('shopware-shop-signature')
         );
 
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testItDoesDispatchWebhookMessageQueueWithAppActive(): void

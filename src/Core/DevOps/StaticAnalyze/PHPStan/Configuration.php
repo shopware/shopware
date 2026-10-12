@@ -64,4 +64,12 @@ final readonly class Configuration
     {
         return $this->parameters['kernelInUnitTestsEnabledNamespaces'] ?? [];
     }
+
+    /**
+     * @return list<string>
+     */
+    public function getReflectionInUnitTestsEnabledNamespaces(): array
+    {
+        return $this->parameters['reflectionInUnitTestsEnabledNamespaces'] ?? [];
+    }
 }

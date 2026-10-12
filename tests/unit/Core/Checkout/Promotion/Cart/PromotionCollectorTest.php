@@ -104,7 +104,7 @@ class PromotionCollectorTest extends TestCase
 
         $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior(OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS));
 
-        static::assertEmpty($cart->getErrors()->getElements());
+        static::assertCount(0, $cart->getErrors()->getElements());
     }
 
     public function testPromotionWithInvalidOrderCount(): void

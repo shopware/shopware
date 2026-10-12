@@ -396,8 +396,8 @@ class RedisCartPersisterTest extends TestCase
 
         $cart = $persister->load($cart->getToken(), $context);
 
-        static::assertNotEmpty($cart->getLineItems());
-        static::assertEmpty($cart->getErrors());
+        static::assertNotCount(0, $cart->getLineItems());
+        static::assertCount(0, $cart->getErrors());
     }
 
     public function testSaveCartWithPersistCartErrorPermission(): void
@@ -422,8 +422,8 @@ class RedisCartPersisterTest extends TestCase
         $persister->save($cart, $context);
         $cart = $persister->load($cart->getToken(), $context);
 
-        static::assertNotEmpty($cart->getLineItems());
-        static::assertNotEmpty($cart->getErrors());
+        static::assertNotCount(0, $cart->getLineItems());
+        static::assertNotCount(0, $cart->getErrors());
 
         $error = $cart->getErrors()->first();
         static::assertInstanceOf(ProductNotFoundError::class, $error);

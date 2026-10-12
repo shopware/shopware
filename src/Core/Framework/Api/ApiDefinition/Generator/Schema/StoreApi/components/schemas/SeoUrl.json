@@ -40,7 +40,10 @@
                         "enum": [
                             "frontend.navigation.page",
                             "frontend.landing.page",
-                            "frontend.detail.page"
+                            "frontend.detail.page",
+                            "store-api.category.detail",
+                            "store-api.landing-page.detail",
+                            "store-api.product.detail"
                         ]
                     },
                     "pathInfo": {

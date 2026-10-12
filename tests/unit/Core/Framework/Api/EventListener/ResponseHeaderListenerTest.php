@@ -61,6 +61,20 @@ class ResponseHeaderListenerTest extends TestCase
         static::assertSame('context-token', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the CACHE_REWORK flag
+     */
+    #[DisabledFeatures(['CACHE_REWORK'])]
+    public function testExplicitCacheReworkOptOutWinsWithMajorActive(): void
+    {
+        $request = new Request();
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'context-token');
+
+        $response = $this->handleResponse($request);
+
+        static::assertSame('context-token', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
     public function testKeepsExplicitContextTokenHeaderFromResponse(): void
     {
         $request = new Request();

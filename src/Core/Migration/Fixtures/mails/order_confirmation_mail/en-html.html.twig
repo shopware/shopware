@@ -81,6 +81,9 @@
                                     {% else %}
                                         GARAN label: commercial guarantee of durability of {{ garanLabel.duration|replace({',': '.'}) }} years
                                     {% endif %}
+                                    {% if garanLabel.termsUrl %}
+                                        <div><a href="{{ garanLabel.termsUrl }}" target="_blank">Guarantee terms</a></div>
+                                    {% endif %}
                                 </div>
                             {% endif %}
                         {% endif %}

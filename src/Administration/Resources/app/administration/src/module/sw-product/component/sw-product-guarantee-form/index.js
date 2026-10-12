@@ -101,6 +101,7 @@ export default {
         ...mapPropertyErrors('product', [
             'guaranteeMonths',
             'guaranteeConfirmed',
+            'guaranteeTermsUrl',
         ]),
     },
 

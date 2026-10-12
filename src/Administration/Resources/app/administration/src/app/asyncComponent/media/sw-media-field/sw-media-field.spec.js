@@ -79,6 +79,16 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(wrapper.vm.$props.fileAccept).toBe('*/*');
     });
 
+    it('should only render the label when one is given', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-media-field__label').exists()).toBe(false);
+
+        await wrapper.setProps({ label: 'Media' });
+
+        expect(wrapper.find('.sw-media-field__label').text()).toBe('Media');
+    });
+
     it('should stop propagation when sw-popover content is clicked', async () => {
         const wrapper = await createWrapper();
 

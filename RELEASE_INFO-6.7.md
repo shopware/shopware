@@ -60,6 +60,10 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Homepage hreflang links restored for existing `HreflangLoaderParameter` callers
+
+When `HreflangLoaderParameter` is constructed without the `$homepage` argument, `isHomepage()` again detects the homepage from the `frontend.home.page` route name, so homepage hreflang links are generated for these callers. This fallback is deprecated and will be removed in 6.8. If you construct `HreflangLoaderParameter` yourself, pass `$homepage` explicitly.
+
 ### Snippets can be provided through the private filesystem
 
 Administration and storefront snippets are now also loaded from the private filesystem (`shopware.filesystem.private`, by default `files/`):
@@ -332,6 +336,19 @@ The order confirmation mail reads the GARAN label from the new `garanLabels` tem
 
 If you customized the order confirmation mail, replace `nestedItem.productId|sw_garan_label_mail(context)` with `garanLabels[nestedItem.productId] ?? null`, and `lineItem.productId|sw_garan_label_mail(context)` with `garanLabels[lineItem.productId] ?? null` in the plain text version. `garanLabels` is passed to every mail template that references it and has an `order` in its data.
 
+### GARAN guarantee terms per product
+
+Product's new fields for the guarantee terms, inherited by variants: `guaranteeTermsMediaId` for a PDF and `guaranteeTermsUrl` for a web page. `guaranteeTermsUrl` only accepts `http://` and `https://` URLs; other values are rejected with the `INVALID_GARAN_GUARANTEE_TERMS_URL` violation.
+
+Each `garanLabels` entry has a new `termsUrl` key: the URL, or the PDF's URL if no URL is set. Mails that reference `garanLabels` attach the PDFs of the products. A migration adds the terms link to the order confirmation mail for shops that never edited it.
+If you customized the template, add the link below the GARAN label:
+
+```twig
+{% if garanLabel.termsUrl %}<a href="{{ garanLabel.termsUrl }}">Guarantee terms</a>{% endif %}
+```
+
+The product detail page links the terms below the GARAN label, in the new block `buy_widget_garan_label_terms_link`.
+
 ### Customer login publishes an extension event
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
@@ -352,6 +369,13 @@ Run `bin/console es:index` after deploying. Existing documents have no price unt
 
 Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
 
+### Mail sent and mail error events carry the mail context
+
+`MailSentEvent` and `MailErrorEvent` now expose the data a mail was sent with, so subscribers can tell which template, event and sales channel a mail belongs to:
+
+- `MailSentEvent`: `getData()` (the mail data, e.g. `templateId`), `getTemplateData()`, `getMessage()`, `getEventName()`, `getTemplateId()` and `getSalesChannelId()`
+- `MailErrorEvent`: `getData()`, `getMail()` (the mail as far as it was built, `null` if the error happened earlier), `getEventName()`, `getTemplateId()` and `getSalesChannelId()`
+
 ### Extensions can add their own spatial media types
 
 A media type that implements `Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface` is shown by the spatial viewer instead of as a picture. `MediaEntity::isSpatial()` checks for it in PHP and in Twig, while `MediaEntity::isSpatialObject()` still matches GLB files only. `SpatialObjectType` implements the interface.
@@ -363,6 +387,10 @@ Both are experimental and become stable with 6.8.0.
 GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_INVALID_FILE` if it is not a valid binary glTF 2.0 container or if the `uri` of a buffer or image points to something other than an embedded `data:` URI. Self-contained models, which keep their buffers and textures in the binary chunk, are not affected and URLs in other fields such as `extras` or `asset.copyright` are still allowed.
 
 ## API
+
+### Generated document number in the V2 creation response
+
+The `POST /api/_action/order/document-v2/create` response now includes `documentNumber`, allowing clients to compare the assigned number with a previously displayed preview.
 
 ### HTML in customer name and address fields is rejected with a dedicated violation
 
@@ -455,6 +483,12 @@ Shopware.Component.override('sw-cms-list', {
 
 Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
 
+### Category SEO form shows the recommended meta length
+
+The meta title and meta description fields of the category SEO form show how many characters they contain against the recommended length of 70 and 150 characters, and highlight the hint when the recommendation is exceeded. The `n/255` counter for the stored maximum stays unchanged.
+
+Extensions can customize the hints through the new Twig blocks `sw_category_seo_form_meta_title_hint` and `sw_category_seo_form_meta_description_hint`.
+
 ### Admin list and card empty states use `mt-empty-state`
 
 The prominent empty states of the Administration render `mt-empty-state` instead of `sw-empty-state`, plain text or illustration markup. List pages whose empty state means "nothing exists yet" offer their create action in its `button` slot, and the customer group, flow and rule lists hide their listing while the empty state shows, so blocks nested inside those listings no longer render.
@@ -505,6 +539,11 @@ The group order in the permissions grid of Settings > Users & permissions follow
 
 The order is the `parentOrder` computed of `sw-users-permissions-permissions-grid`, and label lookups go through its `parentLabel()` method; both can be overridden to place an extension's group.
 
+### Runtime guards for Administration deprecations
+
+`Shopware.Feature.triggerDeprecationOrThrow(majorFlag, message)` warns about a deprecated Administration API in development builds and throws once the major flag is active, like its PHP counterpart.
+
+The `deprecated` option of components and props now follows the same lifecycle: it used to only warn and now throws in next-major mode. See the [coding guidelines](coding-guidelines/administration/feature-flags-and-deprecations.md#runtime-guards) for usage.
 ### Order line items are paginated
 
 The line item list on the order detail page shows 10 items per page once an order has more than 10 top-level line items. A pagination with an items-per-page selection appears below the list. Searching or adding a line item returns to the first page.
@@ -570,6 +609,21 @@ migrate it to `useCmsElement` by hand.
 
 The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
 
+### Result descriptions for entity selects and rule conditions
+
+`sw-entity-single-select` and `sw-entity-multi-select` accept the new props `descriptionProperty`, `descriptionFormatter` and `descriptionFormatterArgs`. They render a description below each search result: the value of `descriptionProperty`, optionally passed through the `Shopware.Filter` named in `descriptionFormatter`, with `descriptionFormatterArgs` as additional arguments. A new `breadcrumb` filter joins a breadcrumb with an optional separator, which defaults to ` / `.
+
+Rule conditions using `RuleConfig::entitySelectField()` can set the same keys in their field config to show a description in the rule builder:
+
+```php
+->entitySelectField('categoryIds', CategoryDefinition::ENTITY_NAME, true, [
+    'descriptionProperty' => 'breadcrumb',
+    'descriptionFormatter' => 'breadcrumb',
+]);
+```
+
+The "Item in category" condition uses this to show the category breadcrumb again.
+
 ### Meteor Component Library updated to 5.8.0
 
 The Administration now uses Meteor Component Library `5.8.0`, Meteor Admin SDK `6.15.0` and Meteor Icon Kit `5.11.0`.
@@ -583,7 +637,29 @@ Check your Administration extensions for these changes:
 - The search input of `mt-select` gets the field's `name`, or a generated id, as its `id` and opts out of browser autofill.
 - Text-entry fields forward the `autocomplete` attribute to the native input.
 
+### Order quantities of digital products can be set in the Administration
+
+The deliverability card of digital products has a new "Allow multiple units per order" switch. Turn it on to set `minPurchase`, `purchaseSteps` and `maxPurchase`, or off to limit the digital product to one unit per order. Bulk edit no longer hides these fields for digital products.
+
+### Extensions can add items to the product media grid
+
+`sw-product-media-form` has new extension points for showing further items between the product media without replacing the whole grid:
+
+- The computed property `galleryItems` returns the grid items in display order. The grid and its placeholders are built from it.
+- The Twig block `sw_product_media_form_grid_item` renders a single grid item, so an override can render its own items and keep `{% parent %}` for the product media.
+- The method `moveGalleryItem(item, position)` moves a grid item when it is dragged or marked as cover. Override it together with `galleryItems` when your items share the position space with the product media.
+
 ## Storefront
+
+### Improved extensibility of buy widget form
+
+Extensibility of the `buy-widget-form.html.twig` template has been improved for extension developers. It is now possible to extend `data-add-to-cart-options` and `data-quantity-selector-options` objects via the respective twig variables `addToCartOptions` and `quantitySelectorOptions`. Additionally, the following new blocks have been added to the quantity selector input group:
+
+- `buy_widget_buy_quantity_input_group_legend`
+- `buy_widget_buy_quantity_input_group_button_minus`
+- `buy_widget_buy_quantity_input_group_input`
+- `buy_widget_buy_quantity_input_group_button_plus`
+- `buy_widget_buy_quantity_input_group_unit`
 
 ### Legacy theme.json translations keep working and can be migrated with a command
 
@@ -645,11 +721,50 @@ The snippet `general.listPricePreviously` now reads "Lowest price (last 30 days)
 
 If you override `buy-widget-price`, `block-price`, `price-unit` or `badges`: `isListPrice` is `false` while a regulation price is set, the new `isRegulationPriceSaving` tells whether there is a saving against it, and the regulation price section renders a `list-price-percentage` element.
 
+### Nested GARAN label opens the full label
+
+The nested GARAN label is now a button that shows the full label. On line items it opens a modal loaded from the new route `frontend.product.garan-label` (template `storefront/component/product/garan-label-modal.html.twig`); on the product detail page it expands the full label.
+
+If you override `component_line_item_garan_label`, `buy_widget_garan_label_preview` or `buy_widget_garan_label_full`, take over the new button and link markup.
+### The image gallery renders every spatial media type
+
+`cms-element-image-gallery.html.twig` now shows every media for which `isSpatial()` is true in the spatial viewer, and derives the slider options for spatial slides from its own items instead of `page.product.media`, so static galleries get them as well. The AR button and the QR code modal are only rendered for spatial objects.
+
+To pass different options to the viewer, override the new blocks `element_image_gallery_inner_item_spatial_canvas_viewer`, `element_image_gallery_inner_single_spatial_canvas_viewer` and `element_image_gallery_inner_zoom_modal_slider_item_zoom_container_spatial_canvas_viewer`. To build the viewer from something other than a model URL, override `SpatialBaseViewerPlugin::createQuickView()`; returning `null` leaves the canvas empty.
+
+The zoom modal no longer waits for images without a source before it opens.
+
+These additions are experimental and become stable with 6.8.0.
+
 ## App system
 
 ### App requests keep body and signature across redirects
 
 Shopware now follows a `301` or `302` from an app endpoint without dropping the `POST` method, the request body or the `shopware-shop-signature` header, so the redirect target receives the same signed request.
+
+### SEO URLs for app storefront routes
+
+Apps can give their script-rendered storefront pages SEO URLs by declaring `<seo-url>` and `<entity-seo-url>` elements inside `<storefront>` in `manifest.xml`.
+
+```xml
+<storefront>
+    <seo-url name="imprint">
+        <path>imprint</path>
+        <path lang="de-DE">impressum</path>
+    </seo-url>
+    <entity-seo-url name="blog-detail" entity="ce_blog">
+        <default-template>blog/{{ ceBlog.translated.title }}</default-template>
+    </entity-seo-url>
+</storefront>
+```
+
+A `<seo-url>` maps its path to the script hook `storefront-<name>` on every storefront sales channel domain, using the path of the domain's language; the `hook` attribute overrides the hook name. Installing or updating an app fails when one of its paths is already used by a storefront route, another app or an existing SEO URL.
+
+An `<entity-seo-url>` generates one SEO URL per entity. The app needs `read` permission for the entity and for every association its default template uses, otherwise the install or update fails; its own custom entities are covered automatically. A script hook can be claimed by one app only. Its default template is only seeded: merchants adjust it per sales channel in Settings > SEO, where the route is listed as `storefront.app.<appName>.<name>`, and app updates don't overwrite it. Changing the entity of a route resets all of its templates, including sales channel overrides. The template context exposes the entity under its camel-cased name, for example `ceBlog`. The URLs follow entity writes and the indexing behaviour like the core SEO URLs, get rebuilt by `dal:refresh:index`, and are marked as deleted while the app is inactive or after it is uninstalled.
+
+The script receives the entity id as `hook.query.id`. Templates link to such pages with `seoUrl('frontend.script_endpoint', { hook: 'blog-detail', id: entity.id })`; the placeholder is replaced with the SEO path like for products and categories.
+
+Four supporting changes apply to all SEO URLs: query parameters stored in `seo_url.path_info` are merged into the request when the SEO URL is resolved and take precedence over the browser's query string, `seo_url.route_name` now allows 255 characters, updating the SEO URLs of one route no longer marks the SEO URLs of other routes for the same entity as deleted or restores them, and the SEO URLs of an entity follow a changed technical target (`path_info`) without losing merchant-edited paths. Editing a canonical URL via `PATCH /api/_action/seo-url/canonical` now keeps the requested route when several storefront routes serve one entity.
 
 ### App translations fall back to the closest language
 

@@ -430,7 +430,7 @@ class MailServiceTest extends TestCase
         static::assertNotNull($mailErrorEvent->getMessage());
         static::assertSame('Could not send mail with error message: Mail sending failed', $mailErrorEvent->getMessage());
         static::assertSame('Content html', $mailErrorEvent->getTemplate());
-        static::assertEmpty($mailErrorEvent->getTemplateData());
+        static::assertSame([], $mailErrorEvent->getTemplateData());
         static::assertNotNull($mailErrorEvent->getData());
         static::assertSame('Content html', $mailErrorEvent->getData()['contentHtml']);
         static::assertInstanceOf(Email::class, $mailErrorEvent->getMail());
@@ -504,7 +504,7 @@ class MailServiceTest extends TestCase
         // check that no header is empty (e.g., Amazon SES doesn't like that)
         foreach ($headers->all() as $header) {
             static::assertInstanceOf(HeaderInterface::class, $header);
-            static::assertNotEmpty($header->getBodyAsString(), 'mail header ' . $header->getName() . ' should not be empty');
+            static::assertNotSame('', $header->getBodyAsString(), 'mail header ' . $header->getName() . ' should not be empty');
         }
     }
 

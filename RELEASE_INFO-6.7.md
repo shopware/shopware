@@ -380,6 +380,10 @@ Both are experimental and become stable with 6.8.0.
 
 GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_INVALID_FILE` if it is not a valid binary glTF 2.0 container or if the `uri` of a buffer or image points to something other than an embedded `data:` URI. Self-contained models, which keep their buffers and textures in the binary chunk, are not affected and URLs in other fields such as `extras` or `asset.copyright` are still allowed.
 
+### Apps without permissions can't declare required privileges for MCP tools
+
+An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the app declares in the `<permissions>` of its manifest, because the tool's script runs with the app's integration role. Apps without a `<permissions>` block skipped this check, although they have no privileges at all. They are now checked like every other app, so such an app fails to install or update with the message naming the missing permission. Add the permissions to the manifest, or remove the required privileges from the tool.
+
 ## API
 
 ### Generated document number in the V2 creation response

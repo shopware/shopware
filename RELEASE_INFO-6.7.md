@@ -552,7 +552,7 @@ The new `sw-deprecation-rules/require-deprecation-codemod` rule reports a `depre
 deprecated: 'v6.8.0.0',
 ```
 
-The new `sw-deprecation-rules/no-deprecated-option-usage` rule reports every template usage of an Administration component or prop that carries the `deprecated` option, before the runtime warning fires. It also runs through the extension tooling. Without a codemod, the report shows the option's removal version and comment.
+The new `sw-deprecation-rules/no-deprecated-component-option-usage` rule reports every template usage of an Administration component or prop that carries the `deprecated` option, before the runtime warning fires. It also runs through the extension tooling. Without a codemod, the report shows the option's removal version and comment.
 
 ### Order line items are paginated
 

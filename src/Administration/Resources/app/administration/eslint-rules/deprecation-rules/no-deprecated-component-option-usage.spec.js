@@ -1,9 +1,9 @@
 const path = require('path');
 const RuleTester = require('eslint').RuleTester;
-const rule = require('./no-deprecated-option-usage');
+const rule = require('./no-deprecated-component-option-usage');
 const { getDeprecatedOptionIndex } = require('./registry/deprecated-option-index');
 
-const componentSources = path.join(__dirname, 'no-deprecated-option-usage-fixtures');
+const componentSources = path.join(__dirname, 'no-deprecated-component-option-usage-fixtures');
 
 const tester = new RuleTester({
     languageOptions: {
@@ -35,7 +35,7 @@ describe('deprecated option index', () => {
     });
 });
 
-tester.run('no-deprecated-option-usage', rule, {
+tester.run('no-deprecated-component-option-usage', rule, {
     valid: [
         templateCase('allows components without a deprecated option', '<sw-unrelated empty-icon="x" />'),
         templateCase('allows props without a deprecated option', '<sw-image placeholder-icon="x" />'),

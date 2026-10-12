@@ -20,7 +20,7 @@ const templateDeprecationRules = {
         'error',
         'enableFix',
     ],
-    'sw-deprecation-rules/no-deprecated-option-usage': 'error',
+    'sw-deprecation-rules/no-deprecated-component-option-usage': 'error',
     'sw-deprecation-rules/no-deprecated-template-events': [
         'error',
         'enableFix',

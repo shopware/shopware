@@ -558,7 +558,7 @@ export default [
             // The registry checks still report core templates awaiting migration review;
             // `npm run deprecation:migrate` runs them on demand.
             'sw-deprecation-rules/no-deprecated-component-usage': 'off',
-            'sw-deprecation-rules/no-deprecated-option-usage': 'error',
+            'sw-deprecation-rules/no-deprecated-component-option-usage': 'error',
             'sw-deprecation-rules/no-sw-tabs-usage': 'error',
             'vue/no-useless-template-attributes': 'error',
             'vue/no-lone-template': 'error',

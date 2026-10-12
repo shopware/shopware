@@ -13,7 +13,7 @@ module.exports = {
         'no-deprecated-template-blocks': require(path.resolve(__dirname, 'no-deprecated-template-blocks.js')),
         'no-deprecated-snippet-keys': require(path.resolve(__dirname, 'no-deprecated-snippet-keys.js')),
         'no-deprecated-js-api': require(path.resolve(__dirname, 'no-deprecated-js-api.js')),
-        'no-deprecated-option-usage': require(path.resolve(__dirname, 'no-deprecated-option-usage.js')),
+        'no-deprecated-component-option-usage': require(path.resolve(__dirname, 'no-deprecated-component-option-usage.js')),
         'require-deprecation-codemod': require(path.resolve(__dirname, 'require-deprecation-codemod.js')),
         'no-sw-tabs-usage': require(path.resolve(__dirname, 'no-sw-tabs-usage.js')),
         'no-compat-conditions': require(path.resolve(__dirname, 'no-compat-conditions.js')),

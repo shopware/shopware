@@ -38,6 +38,9 @@ Beschreibung {{ lineItem.label|u.wordwrap(80) }},
 {% set garanLabel = garanLabels[lineItem.productId] ?? null %}
 {% if garanLabel %}
 Gewerbliche Haltbarkeitsgarantie (GARAN) {{ garanLabel.duration }} Jahre,
+{% if garanLabel.termsUrl %}
+Garantiebedingungen: {{ garanLabel.termsUrl }},
+{% endif %}
 {% endif %}
 {% endif %}
 Menge {{ lineItem.quantity }},

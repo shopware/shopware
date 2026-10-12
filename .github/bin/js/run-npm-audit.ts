@@ -234,7 +234,7 @@ function printUnusedIgnores(
     }
 }
 
-function filterIgnored(audit: AuditResult, ignoredGHSAs: Set<string>, ignoredCVEs: Set<string>): void {
+export function filterIgnored(audit: AuditResult, ignoredGHSAs: Set<string>, ignoredCVEs: Set<string>): void {
     for (const pkgName in audit.vulnerabilities) {
         const pkg = audit.vulnerabilities[pkgName];
         if (!pkg) continue;
@@ -249,26 +249,28 @@ function filterIgnored(audit: AuditResult, ignoredGHSAs: Set<string>, ignoredCVE
         }
     }
 
+    // Grow the vulnerable set from the remaining advisories instead of pruning empty packages,
+    // because packages can reference each other (e.g. vue <-> @vue/server-renderer) and a cycle never empties.
+    const vulnerable = new Set<string>();
     let changed = true;
     while (changed) {
         changed = false;
         for (const pkgName in audit.vulnerabilities) {
             const pkg = audit.vulnerabilities[pkgName];
-            if (!pkg) continue;
+            if (!pkg || !Array.isArray(pkg.via) || vulnerable.has(pkgName)) continue;
 
-            if (Array.isArray(pkg.via) && pkg.via.length > 0) {
-                pkg.via = pkg.via.filter((v) => {
-                    if (typeof v === 'string') {
-                        const refPkg = audit.vulnerabilities[v];
-                        return refPkg && Array.isArray(refPkg.via) && refPkg.via.length > 0;
-                    }
-                    return true;
-                });
-                if (pkg.via.length === 0) {
-                    changed = true;
-                }
+            if (pkg.via.some((v) => typeof v === 'object' || vulnerable.has(v))) {
+                vulnerable.add(pkgName);
+                changed = true;
             }
         }
+    }
+
+    for (const pkgName in audit.vulnerabilities) {
+        const pkg = audit.vulnerabilities[pkgName];
+        if (!pkg || !Array.isArray(pkg.via)) continue;
+
+        pkg.via = pkg.via.filter((v) => typeof v === 'object' || vulnerable.has(v));
     }
 }
 

@@ -51,7 +51,7 @@ class PermissionCollectionTest extends TestCase
     {
         $permissionCollection = new PermissionCollection(self::PERMISSIONS);
 
-        static::assertNotEmpty($permissionCollection->getElements());
+        static::assertNotCount(0, $permissionCollection->getElements());
         static::assertCount(7, $permissionCollection->getElements());
 
         $countReadPermissions = 0;

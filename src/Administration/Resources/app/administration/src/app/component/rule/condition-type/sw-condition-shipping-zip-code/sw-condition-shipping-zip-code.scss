@@ -1,5 +1,17 @@
 .sw-condition {
     .sw-condition-shipping-zip-code {
         grid-template-columns: auto auto 1fr;
+
+        .sw-tagged-field {
+            overflow-y: hidden;
+
+            .sw-block-field__block {
+                overflow-x: unset;
+            }
+
+            &__tag-list {
+                flex-wrap: nowrap;
+            }
+        }
     }
 }

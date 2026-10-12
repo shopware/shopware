@@ -377,7 +377,9 @@ export default class VueAdapter extends ViewAdapter {
         await this.initComponents();
 
         // initialize all module locales
-        this.initModuleLocales();
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            this.initModuleLocales();
+        }
 
         // initialize all module routes
         const allRoutes = this.applicationFactory.module.getModuleRoutes();
@@ -501,6 +503,8 @@ export default class VueAdapter extends ViewAdapter {
 
     /**
      * Initializes all core components as Vue components.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Module snippets are loaded by the initial snippets request.
      */
     initModuleLocales() {
         // Extend default snippets with module specific snippets

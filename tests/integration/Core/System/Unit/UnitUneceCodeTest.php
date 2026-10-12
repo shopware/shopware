@@ -19,7 +19,7 @@ use Shopware\Core\System\Unit\UnitValidator;
  * @internal
  */
 #[Package('inventory')]
-class UnitIsoCodeTest extends TestCase
+class UnitUneceCodeTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
@@ -38,14 +38,14 @@ class UnitIsoCodeTest extends TestCase
     {
         $id = $this->createUnit('XBX');
 
-        static::assertSame('XBX', $this->readIsoCode($id));
+        static::assertSame('XBX', $this->readUneceCode($id));
     }
 
     public function testEmptyCodeIsStoredAsNull(): void
     {
         $id = $this->createUnit('');
 
-        static::assertNull($this->readIsoCode($id));
+        static::assertNull($this->readUneceCode($id));
     }
 
     public function testRejectsUnlistedCode(): void
@@ -61,8 +61,8 @@ class UnitIsoCodeTest extends TestCase
         $inner = $exception->getExceptions()[0];
         static::assertInstanceOf(WriteConstraintViolationException::class, $inner);
         $violation = $inner->getViolations()->get(0);
-        static::assertSame('/isoCode', $violation->getPropertyPath());
-        static::assertSame(UnitValidator::VIOLATION_INVALID_ISO_CODE, $violation->getCode());
+        static::assertSame('/uneceCode', $violation->getPropertyPath());
+        static::assertSame(UnitValidator::VIOLATION_INVALID_UNECE_CODE, $violation->getCode());
     }
 
     public function testRejectsUnlistedCodeOnUpdate(): void
@@ -71,10 +71,10 @@ class UnitIsoCodeTest extends TestCase
 
         $this->expectException(WriteException::class);
 
-        $this->unitRepository->update([['id' => $id, 'isoCode' => 'ZZZ']], Context::createDefaultContext());
+        $this->unitRepository->update([['id' => $id, 'uneceCode' => 'ZZZ']], Context::createDefaultContext());
     }
 
-    private function createUnit(string $isoCode): string
+    private function createUnit(string $uneceCode): string
     {
         $id = Uuid::randomHex();
 
@@ -82,17 +82,17 @@ class UnitIsoCodeTest extends TestCase
             'id' => $id,
             'shortCode' => 'u',
             'name' => 'unit',
-            'isoCode' => $isoCode,
+            'uneceCode' => $uneceCode,
         ]], Context::createDefaultContext());
 
         return $id;
     }
 
-    private function readIsoCode(string $id): ?string
+    private function readUneceCode(string $id): ?string
     {
         $unit = $this->unitRepository->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($unit);
 
-        return $unit->getIsoCode();
+        return $unit->getUneceCode();
     }
 }

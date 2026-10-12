@@ -17,9 +17,9 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('inventory')]
 class UnitValidator implements EventSubscriberInterface
 {
-    final public const VIOLATION_INVALID_ISO_CODE = 'UNIT__INVALID_ISO_CODE';
+    final public const VIOLATION_INVALID_UNECE_CODE = 'UNIT__INVALID_UNECE_CODE';
 
-    public function __construct(private readonly UnitIsoCodes $isoCodes)
+    public function __construct(private readonly UnitUneceCodes $uneceCodes)
     {
     }
 
@@ -37,21 +37,21 @@ class UnitValidator implements EventSubscriberInterface
                 continue;
             }
 
-            $isoCode = $command->getPayload()['iso_code'] ?? null;
-            if (!\is_string($isoCode) || $this->isoCodes->isValid($isoCode)) {
+            $uneceCode = $command->getPayload()['unece_code'] ?? null;
+            if (!\is_string($uneceCode) || $this->uneceCodes->isValid($uneceCode)) {
                 continue;
             }
 
             $violations = new ConstraintViolationList();
             $violations->add(new ConstraintViolation(
-                \sprintf('"%s" is not a valid UN/ECE Recommendation 20 or 21 unit code.', $isoCode),
+                \sprintf('"%s" is not a valid UN/ECE Recommendation 20 or 21 unit code.', $uneceCode),
                 '"{{ value }}" is not a valid UN/ECE Recommendation 20 or 21 unit code.',
-                ['{{ value }}' => $isoCode],
+                ['{{ value }}' => $uneceCode],
                 null,
-                '/isoCode',
-                $isoCode,
+                '/uneceCode',
+                $uneceCode,
                 null,
-                self::VIOLATION_INVALID_ISO_CODE
+                self::VIOLATION_INVALID_UNECE_CODE
             ));
 
             $event->getExceptions()->add(new WriteConstraintViolationException($violations, $command->getPath()));

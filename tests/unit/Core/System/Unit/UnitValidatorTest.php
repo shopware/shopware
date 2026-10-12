@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
-use Shopware\Core\System\Unit\UnitIsoCodes;
+use Shopware\Core\System\Unit\UnitUneceCodes;
 use Shopware\Core\System\Unit\UnitValidator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -53,7 +53,7 @@ class UnitValidatorTest extends TestCase
         static::assertInstanceOf(CurrencyDefinition::class, $currencyDefinition);
         $this->currencyDefinition = $currencyDefinition;
 
-        $this->validator = new UnitValidator(new UnitIsoCodes());
+        $this->validator = new UnitValidator(new UnitUneceCodes());
     }
 
     public function testSubscribedEvents(): void
@@ -66,7 +66,7 @@ class UnitValidatorTest extends TestCase
 
     public function testAcceptsListedCode(): void
     {
-        $event = $this->buildEvent([$this->buildInsertCommand(['iso_code' => 'KGM'])]);
+        $event = $this->buildEvent([$this->buildInsertCommand(['unece_code' => 'KGM'])]);
 
         $this->validator->preValidate($event);
 
@@ -77,7 +77,7 @@ class UnitValidatorTest extends TestCase
     {
         $event = $this->buildEvent([
             $this->buildInsertCommand([]),
-            $this->buildInsertCommand(['iso_code' => null]),
+            $this->buildInsertCommand(['unece_code' => null]),
         ]);
 
         $this->validator->preValidate($event);
@@ -87,7 +87,7 @@ class UnitValidatorTest extends TestCase
 
     public function testRejectsUnlistedCode(): void
     {
-        $event = $this->buildEvent([$this->buildInsertCommand(['iso_code' => 'kgm'])]);
+        $event = $this->buildEvent([$this->buildInsertCommand(['unece_code' => 'kgm'])]);
 
         $this->validator->preValidate($event);
 
@@ -96,8 +96,8 @@ class UnitValidatorTest extends TestCase
         static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
 
         $violation = $exceptions[0]->getViolations()->get(0);
-        static::assertSame('/isoCode', $violation->getPropertyPath());
-        static::assertSame(UnitValidator::VIOLATION_INVALID_ISO_CODE, $violation->getCode());
+        static::assertSame('/uneceCode', $violation->getPropertyPath());
+        static::assertSame(UnitValidator::VIOLATION_INVALID_UNECE_CODE, $violation->getCode());
         static::assertSame('kgm', $violation->getInvalidValue());
     }
 
@@ -105,7 +105,7 @@ class UnitValidatorTest extends TestCase
     {
         $command = new UpdateCommand(
             $this->unitDefinition,
-            ['iso_code' => 'ZZZ'],
+            ['unece_code' => 'ZZZ'],
             ['id' => Uuid::randomBytes()],
             $this->existence($this->unitDefinition),
             '/0'
@@ -134,7 +134,7 @@ class UnitValidatorTest extends TestCase
     {
         $event = $this->buildEvent([new InsertCommand(
             $this->currencyDefinition,
-            ['iso_code' => 'not a unit code'],
+            ['unece_code' => 'not a unit code'],
             ['id' => Uuid::randomBytes()],
             $this->existence($this->currencyDefinition),
             '/0'

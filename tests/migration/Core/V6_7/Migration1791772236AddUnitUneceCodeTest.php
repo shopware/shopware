@@ -8,15 +8,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
-use Shopware\Core\Migration\V6_7\Migration1791772236AddUnitIsoCode;
+use Shopware\Core\Migration\V6_7\Migration1791772236AddUnitUneceCode;
 use Shopware\Core\System\Unit\UnitDefinition;
 
 /**
  * @internal
  */
 #[Package('inventory')]
-#[CoversClass(Migration1791772236AddUnitIsoCode::class)]
-class Migration1791772236AddUnitIsoCodeTest extends TestCase
+#[CoversClass(Migration1791772236AddUnitUneceCode::class)]
+class Migration1791772236AddUnitUneceCodeTest extends TestCase
 {
     private Connection $connection;
 
@@ -27,23 +27,23 @@ class Migration1791772236AddUnitIsoCodeTest extends TestCase
 
     public function testGetCreationTimestamp(): void
     {
-        static::assertSame(1791772236, (new Migration1791772236AddUnitIsoCode())->getCreationTimestamp());
+        static::assertSame(1791772236, (new Migration1791772236AddUnitUneceCode())->getCreationTimestamp());
     }
 
-    public function testMigrationAddsNullableIsoCodeColumnAndIsIdempotent(): void
+    public function testMigrationAddsNullableUneceCodeColumnAndIsIdempotent(): void
     {
-        if (TableHelper::columnExists($this->connection, 'unit', 'iso_code')) {
-            $this->connection->executeStatement('ALTER TABLE `unit` DROP COLUMN `iso_code`');
+        if (TableHelper::columnExists($this->connection, 'unit', 'unece_code')) {
+            $this->connection->executeStatement('ALTER TABLE `unit` DROP COLUMN `unece_code`');
         }
 
-        $migration = new Migration1791772236AddUnitIsoCode();
+        $migration = new Migration1791772236AddUnitUneceCode();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
         $column = $this->connection
             ->createSchemaManager()
             ->introspectTableByUnquotedName(UnitDefinition::ENTITY_NAME)
-            ->getColumn('iso_code');
+            ->getColumn('unece_code');
 
         static::assertFalse($column->getNotnull());
         static::assertSame(3, $column->getLength());

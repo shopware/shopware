@@ -22,7 +22,7 @@ class UnitEntity extends Entity
 
     protected ?string $name = null;
 
-    protected ?string $isoCode = null;
+    protected ?string $uneceCode = null;
 
     protected ?UnitTranslationCollection $translations = null;
 
@@ -48,14 +48,14 @@ class UnitEntity extends Entity
         $this->name = $name;
     }
 
-    public function getIsoCode(): ?string
+    public function getUneceCode(): ?string
     {
-        return $this->isoCode;
+        return $this->uneceCode;
     }
 
-    public function setIsoCode(?string $isoCode): void
+    public function setUneceCode(?string $uneceCode): void
     {
-        $this->isoCode = $isoCode;
+        $this->uneceCode = $uneceCode;
     }
 
     public function getTranslations(): ?UnitTranslationCollection

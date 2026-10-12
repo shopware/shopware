@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('inventory')]
-class UnitIsoCodes
+class UnitUneceCodes
 {
     /**
      * @var array<string, string>|null

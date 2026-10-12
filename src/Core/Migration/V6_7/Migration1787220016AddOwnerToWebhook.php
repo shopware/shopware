@@ -38,8 +38,4 @@ class Migration1787220016AddOwnerToWebhook extends MigrationStep
                AND `owner_integration_id` IS NULL'
         );
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

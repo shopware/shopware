@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\Strategy\Import;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportBatchEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Strategy\Import\BatchImportStrategy;
@@ -39,6 +40,9 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
         $progress = new Progress('logId', Progress::STATE_PROGRESS);
         $config = new Config([], [], []);
 
+        $this->repository->expects($this->never())->method('upsert');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
         $result = $this->strategy->import(['some' => 'data'], [], $config, $progress, $context);
 
         static::assertSame([], $result->results);
@@ -57,7 +61,7 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
         $writeResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
 
         $this->repository->expects($this->once())->method($method)->willReturn($writeResult);
-        $this->eventDispatcher->expects($this->exactly(2))->method('dispatch');
+        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch');
 
         $progress = new Progress('logId', Progress::STATE_PROGRESS);
 
@@ -98,11 +102,12 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
             }
         );
 
-        $this->eventDispatcher->expects($this->exactly(2))
+        $this->eventDispatcher->expects($this->exactly(3))
             ->method('dispatch')
             ->with(static::logicalOr(
                 static::isInstanceOf(ImportExportAfterImportRecordEvent::class),
-                static::isInstanceOf(ImportExportExceptionImportRecordEvent::class)
+                static::isInstanceOf(ImportExportExceptionImportRecordEvent::class),
+                static::isInstanceOf(ImportExportAfterImportBatchEvent::class),
             ));
 
         $result = $this->strategy->commit($config, $progress, $context);

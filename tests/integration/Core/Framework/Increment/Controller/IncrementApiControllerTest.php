@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class IncrementApiControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -290,6 +292,6 @@ class IncrementApiControllerTest extends TestCase
 
         $entries = $this->gateway->list($this->userId);
 
-        static::assertEmpty($entries);
+        static::assertCount(0, $entries);
     }
 }

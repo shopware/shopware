@@ -19,7 +19,7 @@ const discoveredFiles = [
     },
     {
         fileFamily: 'agentic',
-        fileName: 'agents.md',
+        fileName: 'AGENTS.md',
         contentType: 'text/markdown; charset=utf-8',
         configuration: null,
     },
@@ -32,8 +32,8 @@ function cloneDiscoveredFiles() {
 async function createWrapper(options = {}) {
     const { serviceResponse, translations = {} } = options;
     const mergedTranslations = {
-        'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["llms.txt"]': 'A Markdown index for AI assistants.',
-        'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["agents.md"]':
+        'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["llms-txt"]': 'A Markdown index for AI assistants.',
+        'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["agents-md"]':
             'Context and operating guidance for agent clients.',
         ...translations,
     };
@@ -56,10 +56,7 @@ async function createWrapper(options = {}) {
                     'mt-card': {
                         template:
                             '<div class="mt-card"><slot name="title"></slot><slot></slot><slot name="grid"></slot></div>',
-                        props: [
-                            'title',
-                            'isLoading',
-                        ],
+                        props: ['title', 'isLoading'],
                     },
                     'sw-data-grid': {
                         template: `
@@ -89,11 +86,7 @@ async function createWrapper(options = {}) {
                     'sw-label': {
                         template:
                             '<span class="sw-label" :data-appearance="appearance" :data-size="size" :data-variant="variant"><slot></slot></span>',
-                        props: [
-                            'appearance',
-                            'size',
-                            'variant',
-                        ],
+                        props: ['appearance', 'size', 'variant'],
                     },
                     'sw-pagination': {
                         template:
@@ -109,11 +102,7 @@ async function createWrapper(options = {}) {
                     },
                     'mt-icon': {
                         template: '<span class="mt-icon" :data-name="name"><slot></slot></span>',
-                        props: [
-                            'name',
-                            'size',
-                            'color',
-                        ],
+                        props: ['name', 'size', 'color'],
                     },
                     'sw-context-menu-item': {
                         template: `
@@ -133,21 +122,18 @@ async function createWrapper(options = {}) {
                                 <slot></slot>
                             </button>
                         `,
-                        props: [
-                            'disabled',
-                            'routerLink',
-                        ],
+                        props: ['disabled', 'routerLink'],
                     },
                     'router-link': RouterLinkStub,
                     'mt-empty-state': {
                         template: '<div class="mt-empty-state">{{ headline }}</div>',
-                        props: [
-                            'headline',
-                            'icon',
-                        ],
+                        props: ['headline', 'icon'],
                     },
                 },
                 provide: {
+                    acl: {
+                        can: (permission) => global.activeAclRoles.includes(permission),
+                    },
                     salesChannelFileApiService,
                     repositoryFactory: {
                         create: () => ({
@@ -180,6 +166,14 @@ async function createWrapper(options = {}) {
 }
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files', () => {
+    beforeEach(() => {
+        global.activeAclRoles = ['sales_channel.editor'];
+    });
+
+    afterEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('loads agentic files for the active sales channel', async () => {
         const { wrapper, salesChannelFileApiService } = await createWrapper();
 
@@ -195,9 +189,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
         await flushPromises();
 
         expect(wrapper.text()).toContain('llms.txt');
-        expect(wrapper.text()).toContain('agents.md');
+        expect(wrapper.text()).toContain('AGENTS.md');
         expect(wrapper.text()).toContain('/llms.txt');
-        expect(wrapper.text()).toContain('/agents.md');
+        expect(wrapper.text()).toContain('/AGENTS.md');
         expect(wrapper.text()).toContain('A Markdown index for AI assistants.');
         expect(wrapper.text()).toContain('Context and operating guidance for agent clients.');
         expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.description');
@@ -233,7 +227,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
         expect(wrapper.vm.getDisplayFileName(file)).toBe('unknown.json');
         expect(wrapper.vm.getPublicPath(file)).toBe('/.well-known/unknown.json');
         expect(wrapper.vm.getDescriptionSnippetKey(file)).toBe(
-            'sw-sales-channel.detail.agenticFiles.descriptions["agentic"][".well-known/unknown.json"]',
+            'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["well-known-unknown-json"]',
         );
         expect(wrapper.vm.getDescription(file)).toBe('');
     });
@@ -241,7 +235,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
     it('renders only the first description sentence in the table', async () => {
         const { wrapper } = await createWrapper({
             translations: {
-                'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["llms.txt"]':
+                'sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["llms-txt"]':
                     'First sentence. Second sentence.',
             },
         });
@@ -274,13 +268,42 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
         expect(wrapper.vm.salesChannel.salesChannelFiles.find((item) => item.fileName === 'llms.txt').enabled).toBe(false);
     });
 
+    it('reuses existing lowercase configuration for the uppercase core file', async () => {
+        const configuration = {
+            id: 'legacy-agents-file-id',
+            fileFamily: 'agentic',
+            fileName: 'agents.md',
+            enabled: true,
+            templateOverrides: {
+                Framework: 'Legacy override',
+            },
+        };
+        const { wrapper } = await createWrapper({
+            salesChannel: {
+                id: 'sales-channel-id',
+                salesChannelFiles: [configuration],
+            },
+        });
+
+        await flushPromises();
+
+        const file = wrapper.vm.files.find((item) => item.fileName === 'AGENTS.md');
+        wrapper.vm.onToggleEnabled(file);
+
+        expect(wrapper.vm.salesChannel.salesChannelFiles).toEqual([configuration]);
+        expect(configuration.enabled).toBe(false);
+        expect(configuration.templateOverrides).toEqual({
+            Framework: 'Legacy override',
+        });
+    });
+
     it('shows edit as the first context menu action', async () => {
         const { wrapper } = await createWrapper();
 
         await flushPromises();
 
         const contextMenuItems = wrapper.findAll('.sw-context-menu-item');
-        expect(contextMenuItems.at(0).text()).toBe('sw-sales-channel.detail.agenticFiles.actionEdit');
+        expect(contextMenuItems.at(0).text()).toBe('global.default.edit');
 
         expect(wrapper.findAllComponents(RouterLinkStub).at(1).props('to')).toEqual({
             name: 'sw.sales.channel.detail.agenticFile',
@@ -289,6 +312,15 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
                 fileName: 'llms.txt',
             },
         });
+    });
+
+    it('disables state changes for sales channel viewers', async () => {
+        global.activeAclRoles = ['sales_channel.viewer'];
+        const { wrapper } = await createWrapper();
+
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-context-menu-item').at(1).attributes('disabled')).toBeDefined();
     });
 
     it('keeps the description column flexible', async () => {
@@ -318,11 +350,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
             expect.objectContaining({
                 page: 1,
                 limit: 10,
-                steps: [
-                    10,
-                    25,
-                    50,
-                ],
+                steps: [10, 25, 50],
                 total: 26,
             }),
         );

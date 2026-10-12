@@ -4,12 +4,14 @@ namespace Shopware\Tests\Integration\Core\Framework\Plugin\KernelPluginLoader;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class DbalKernelPluginLoaderTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;
@@ -19,8 +21,8 @@ class DbalKernelPluginLoaderTest extends TestCase
         $loader = new DbalKernelPluginLoader($this->classLoader, null, static::getContainer()->get(Connection::class));
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        static::assertEmpty($loader->getPluginInfos());
-        static::assertEmpty($loader->getPluginInstances()->all());
+        static::assertCount(0, $loader->getPluginInfos());
+        static::assertCount(0, $loader->getPluginInstances()->all());
     }
 
     public function testLoadNoInit(): void
@@ -29,7 +31,7 @@ class DbalKernelPluginLoaderTest extends TestCase
         $this->insertPlugin($plugin);
 
         $loader = new DbalKernelPluginLoader($this->classLoader, null, static::getContainer()->get(Connection::class));
-        static::assertEmpty($loader->getPluginInfos());
+        static::assertCount(0, $loader->getPluginInfos());
     }
 
     public function testLoadPlugins(): void
@@ -40,6 +42,6 @@ class DbalKernelPluginLoaderTest extends TestCase
         $loader = new DbalKernelPluginLoader($this->classLoader, null, static::getContainer()->get(Connection::class));
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        static::assertNotEmpty($loader->getPluginInfos());
+        static::assertNotCount(0, $loader->getPluginInfos());
     }
 }

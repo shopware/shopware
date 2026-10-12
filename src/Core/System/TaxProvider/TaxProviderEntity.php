@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\TaxProvider\Aggregate\TaxProviderTranslation\TaxProviderTranslationCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class TaxProviderEntity extends Entity implements IdAware, RuleIdAware
 {

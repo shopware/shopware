@@ -22,7 +22,7 @@ class ProductPageSeoUrlRouteTest extends TestCase
 {
     public function testGetConfig(): void
     {
-        $productDefinition = $this->createMock(ProductDefinition::class);
+        $productDefinition = static::createStub(ProductDefinition::class);
         $route = new ProductPageSeoUrlRoute($productDefinition);
 
         $config = $route->getConfig();
@@ -34,7 +34,7 @@ class ProductPageSeoUrlRouteTest extends TestCase
 
     public function testCriteria(): void
     {
-        $route = new ProductPageSeoUrlRoute($this->createMock(ProductDefinition::class));
+        $route = new ProductPageSeoUrlRoute(static::createStub(ProductDefinition::class));
 
         $criteria = new Criteria();
         $salesChannel = new SalesChannelEntity();
@@ -47,7 +47,7 @@ class ProductPageSeoUrlRouteTest extends TestCase
 
     public function testMappingWithInvalidEntity(): void
     {
-        $route = new ProductPageSeoUrlRoute($this->createMock(ProductDefinition::class));
+        $route = new ProductPageSeoUrlRoute(static::createStub(ProductDefinition::class));
 
         $this->expectExceptionObject(StorefrontFrameworkException::invalidArgument('SEO URL Mapping expects argument to be a ProductEntity'));
         $route->getMapping(new ArrayEntity(), new SalesChannelEntity());
@@ -55,7 +55,7 @@ class ProductPageSeoUrlRouteTest extends TestCase
 
     public function testMapping(): void
     {
-        $route = new ProductPageSeoUrlRoute($this->createMock(ProductDefinition::class));
+        $route = new ProductPageSeoUrlRoute(static::createStub(ProductDefinition::class));
 
         $product = new ProductEntity();
         $product->setId('test');

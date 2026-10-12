@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Payment\Cart;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class RefundPaymentTransactionStruct extends PaymentTransactionStruct
 {

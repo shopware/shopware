@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Event;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppFlowActionEvent::class)]
 class AppFlowActionEventTest extends TestCase
 {

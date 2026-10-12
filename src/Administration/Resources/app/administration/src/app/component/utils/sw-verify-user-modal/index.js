@@ -12,18 +12,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'loginService',
-    ],
+    inject: ['loginService'],
 
-    emits: [
-        'verified',
-        'close',
-    ],
+    emits: ['verified', 'close'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -56,9 +49,6 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        title: this.$t(
-                            'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle',
-                        ),
                         message: this.$t(
                             'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
                         ),

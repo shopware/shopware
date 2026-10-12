@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Registration;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\Registration\PrivateHandshake;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Kernel;
@@ -12,6 +13,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[Package('framework')]
 class PrivateHandshakeTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -39,7 +41,7 @@ class PrivateHandshakeTest extends TestCase
 
         static::assertArrayHasKey('timestamp', $queryParams);
         static::assertIsString($queryParams['timestamp']);
-        static::assertNotEmpty($queryParams['timestamp']);
+        static::assertNotSame('', $queryParams['timestamp']);
 
         static::assertTrue($request->hasHeader('shopware-app-signature'));
         static::assertSame(
@@ -47,7 +49,7 @@ class PrivateHandshakeTest extends TestCase
             $request->getHeaderLine('shopware-app-signature')
         );
 
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
     }
 
     public function testAppProof(): void

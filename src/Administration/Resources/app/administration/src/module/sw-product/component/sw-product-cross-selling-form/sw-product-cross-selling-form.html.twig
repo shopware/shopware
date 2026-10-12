@@ -16,7 +16,7 @@
                         :disabled="!allowEdit"
                         @click="onShowDeleteModal"
                     >
-                        {{ $t('sw-product.crossselling.buttonDeleteCrossSelling') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </sw-context-button>
@@ -203,7 +203,7 @@
                 variant="critical"
                 @click="onConfirmDelete"
             >
-                {{ $t('sw-product.crossselling.deleteButtonDelete') }}
+                {{ $t('global.default.delete') }}
             </mt-button>
             {% endblock %}
         </template>

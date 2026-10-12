@@ -1,5 +1,6 @@
-"{%- if product.categories.count > 0 -%}
-    {{ product.categories.first.getBreadCrumb|slice(1)|join(' > ')|raw }}{#- -#}
+"{%- set productTypeCategory = product.seoCategory ?? product.categories.first -%}
+{%- if productTypeCategory -%}
+    {{ productTypeCategory.breadCrumb|slice(1)|join(' > ')|raw }}{#- -#}
 {%- endif -%}",{#- -#}
 "{{ product.manufacturer.translated.name ?? '' }}",{#- -#}
 "{{ product.translated.name }}",{#- -#}
@@ -14,7 +15,7 @@
 "{{ product.manufacturerNumber }}", {#- -#}
 "{{ product.ean }}",{#- -#}
 "{{ 4.95|currency }}",{#- Change to your delivery costs -#}
-"{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}",{#- -#}
+"{{ entitySeoUrl('product', product.id) }}",{#- -#}
 "{%- if product.availableStock >= product.minPurchase and product.deliveryTime -%}
     {{ "detail.deliveryTimeAvailable"|trans({'%name%': product.deliveryTime.translation('name')}) }}{#- -#}
 {%- elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime -%}

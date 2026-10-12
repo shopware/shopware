@@ -10,4 +10,5 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class ContextGateway extends AbstractGateway
 {
+    final public const PERMISSION = 'context_gateway';
 }

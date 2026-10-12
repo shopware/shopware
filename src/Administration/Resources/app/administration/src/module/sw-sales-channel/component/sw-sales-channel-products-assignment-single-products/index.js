@@ -16,9 +16,7 @@ export default {
 
     emits: ['selection-change'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -57,9 +55,7 @@ export default {
 
             criteria.addAssociation('visibilities.salesChannel');
             criteria.addFilter(
-                Criteria.not('and', [
-                    Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
-                ]),
+                Criteria.not('and', [Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)]),
             );
             criteria.addFilter(Criteria.equals('parentId', null));
 

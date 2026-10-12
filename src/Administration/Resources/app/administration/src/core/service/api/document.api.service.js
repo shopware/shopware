@@ -1,5 +1,8 @@
 import ApiService from '../api.service';
 
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 const DocumentEvents = {
     DOCUMENT_FAILED: 'create-document-fail',
     DOCUMENT_FINISHED: 'create-document-finished',
@@ -7,6 +10,7 @@ const DocumentEvents = {
 
 /**
  * @sw-package checkout
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
  * Gateway for the API end point "document"
  * @class
  * @extends ApiService

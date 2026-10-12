@@ -9,14 +9,13 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
-use Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\StreamLockServiceTest;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  *
- * @see StreamLockServiceTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\StreamLockServiceTest
  */
 #[Package('framework')]
 class StreamLockService
@@ -187,6 +186,8 @@ class StreamLockService
     /**
      * Deletes webhook_stream rows that have no corresponding webhook_delivery rows,
      * are unlocked or past their lease, and are older than {@see self::ORPHAN_GRACE_SECONDS}.
+     *
+     * Delivery writes refresh `created_at`, restarting the stream's cleanup grace window.
      */
     public function deleteOrphanedStreams(int $batchSize): int
     {

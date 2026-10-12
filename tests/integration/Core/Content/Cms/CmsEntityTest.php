@@ -21,12 +21,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class CmsEntityTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -86,7 +88,7 @@ class CmsEntityTest extends TestCase
         $newCount = $repository->search(new Criteria(), $context)->getEntities()->count();
         static::assertSame($initialCount + 1, $newCount);
 
-        static::assertEmpty($result->getErrors());
+        static::assertCount(0, $result->getErrors());
 
         $versionId = $repository->createVersion($fixture[0]['id'], $context, 'DRAFT');
         static::assertIsString($versionId);

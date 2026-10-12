@@ -3,8 +3,9 @@
 namespace Shopware\Tests\Unit\Core\System\NumberRange\ValueGenerator;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\NumberRangeException;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry;
@@ -13,19 +14,20 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(IncrementStorageRegistry::class)]
 class IncrementStorageRegistryTest extends TestCase
 {
     private IncrementStorageRegistry $registry;
 
-    private AbstractIncrementStorage&MockObject $mainStorage;
+    private AbstractIncrementStorage&Stub $mainStorage;
 
-    private AbstractIncrementStorage&MockObject $secondaryStorage;
+    private AbstractIncrementStorage&Stub $secondaryStorage;
 
     protected function setUp(): void
     {
-        $this->mainStorage = $this->createMock(AbstractIncrementStorage::class);
-        $this->secondaryStorage = $this->createMock(AbstractIncrementStorage::class);
+        $this->mainStorage = static::createStub(AbstractIncrementStorage::class);
+        $this->secondaryStorage = static::createStub(AbstractIncrementStorage::class);
 
         $this->registry = new IncrementStorageRegistry(
             new ServiceLocator([
@@ -60,9 +62,20 @@ class IncrementStorageRegistryTest extends TestCase
             'k1' => 0,
             'k2' => 15,
         ];
-        $this->mainStorage->expects($this->once())
+
+        // The one test asserting an interaction gets its own mock; the shared property stays a stub.
+        $mainStorage = $this->createMock(AbstractIncrementStorage::class);
+        $mainStorage->expects($this->once())
             ->method('list')
             ->willReturn($sourceValues);
+
+        $registry = new IncrementStorageRegistry(
+            new ServiceLocator([
+                'main' => fn () => $mainStorage,
+                'secondary' => fn () => $this->secondaryStorage,
+            ]),
+            'main'
+        );
 
         $targetValues = [];
         $this->secondaryStorage->method('set')
@@ -70,7 +83,7 @@ class IncrementStorageRegistryTest extends TestCase
                 $targetValues[$configurationId] = $value;
             });
 
-        $this->registry->migrate('main', 'secondary');
+        $registry->migrate('main', 'secondary');
         static::assertSame($sourceValues, $targetValues);
     }
 

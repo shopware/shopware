@@ -1,10 +1,7 @@
-@import "~scss/variables";
-
 $sw-pagination-color-background: var(--color-elevation-surface-raised);
-$sw-pagination-controls-color-border: var(--color-border-primary-default);
+$sw-pagination-controls-color-border: var(--color-border-secondary-default);
 $sw-pagination-controls-color-hover: var(--color-interaction-primary-default);
 $sw-pagination-controls-color-text: var(--color-text-primary-default);
-$sw-pagination-border-radius: var(--border-radius-xs);
 
 .sw-pagination {
     min-height: 64px;
@@ -86,7 +83,7 @@ $sw-pagination-border-radius: var(--border-radius-xs);
 
         &.is-active {
             background: $sw-pagination-controls-color-hover;
-            color: #fff;
+            color: var(--color-static-white);
         }
     }
 
@@ -95,7 +92,7 @@ $sw-pagination-border-radius: var(--border-radius-xs);
         line-height: 16px;
         position: absolute;
         right: 0;
-        top: calc(50% - 18px);
+        top: calc(50% - 16px);
         margin: 0 20px;
 
         @media screen and (max-width: 900px) {
@@ -113,23 +110,6 @@ $sw-pagination-border-radius: var(--border-radius-xs);
 
             .mt-block-field__block {
                 max-width: 96px;
-                max-height: 36px;
-                min-height: auto;
-            }
-
-            .mt-select-selection-list--single {
-                margin: 0;
-            }
-
-            .mt-select-selection-list__input {
-                min-height: 0;
-                padding-bottom: 8px;
-            }
-
-            .mt-label--dismissable {
-                margin: 0;
-                padding-top: 6px;
-                padding-left: 0;
             }
         }
     }

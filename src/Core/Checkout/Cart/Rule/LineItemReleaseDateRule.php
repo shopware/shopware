@@ -67,6 +67,10 @@ class LineItemReleaseDateRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('releaseDate', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchesReleaseDate($lineItem, $ruleValue)) {
                 return true;
             }
@@ -78,7 +82,7 @@ class LineItemReleaseDateRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_DATE, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_DATE, true, true)
             ->dateTimeField('lineItemReleaseDate');
     }
 

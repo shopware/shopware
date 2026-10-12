@@ -37,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteCommandExceptionEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -61,9 +62,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     ) {
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-name-change - Parameter `parameters` will be renamed to `parameterBag` in v6.8.0 to match name of interface
-     */
+    #[ParameterNameChange(version: 'v6.8.0', parameterName: 'parameters', newName: 'parameterBag', description: 'Matches the parameter name of the interface.')]
     public function prefetchExistences(WriteParameterBag $parameters): void
     {
         $this->primaryKeyBag = $parameters->getPrimaryKeyBag();

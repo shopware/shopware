@@ -1,14 +1,12 @@
 @import "~scss/variables";
 
-$sw-media-library-color-background: var(--color-elevation-surface-default);
-
 .sw-media-library {
     display: grid;
     grid-template-rows: auto 1fr;
     position: relative;
     width: 100%;
     height: 100%;
-    background-color: $sw-media-library-color-background;
+    background-color: var(--color-elevation-surface-default);
 
     .sw-media-library__options-container {
         padding: 0 24px 16px;
@@ -35,7 +33,7 @@ $sw-media-library-color-background: var(--color-elevation-surface-default);
 
     .sw-media-library__parent-folder {
         .sw-media-base-item__name-container {
-            font-weight: $font-weight-semi-bold;
+            font-weight: var(--font-weight-semibold);
         }
 
         &:hover .sw-media-base-item__selected-indicator {

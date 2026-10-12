@@ -1,7 +1,5 @@
-@import "~scss/variables";
-
 .sw-settings-logging-mail-sent-info__mail-content {
-    border: 1px solid $color-gray-500;
+    border: 1px solid var(--color-border-secondary-default);
     padding: 12px;
 }
 

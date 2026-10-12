@@ -126,6 +126,23 @@ export function replaceExtension({
     return usage('replace-extension', { from, to, fix, message });
 }
 
+/**
+ * Marks an asset file as deprecated without a replacement; the image-deprecation vite plugin
+ * warns on every import of it. Use `replaceExtension` instead when a converted file exists.
+ *
+ * @example
+ * usage: [removeAsset()]
+ */
+export function removeAsset({
+    fix = 'manual',
+    message,
+}: {
+    fix?: FixLevel;
+    message?: string;
+} = {}): DeprecationUsage {
+    return usage('remove-asset', { to: null, fix, message });
+}
+
 export function replaceTemplateBlock({
     from,
     to,

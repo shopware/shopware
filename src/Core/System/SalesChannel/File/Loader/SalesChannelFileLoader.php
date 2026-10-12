@@ -53,13 +53,23 @@ class SalesChannelFileLoader
     }
 
     /**
-     * @param array<string, mixed> $templateOverrides
+     * @param array<string, mixed>|null $templateOverrides
      */
-    public function preview(string $templatePath, SalesChannelContext $context, array $templateOverrides): ?SalesChannelFileRenderResult
+    public function preview(string $templatePath, SalesChannelContext $context, ?array $templateOverrides = null): ?SalesChannelFileRenderResult
     {
         $file = $this->discovery->get($templatePath);
         if ($file === null) {
             return null;
+        }
+
+        if ($templateOverrides === null) {
+            $configuration = $this->configurationLoader->load(
+                $file->fileFamily,
+                $file->fileName,
+                $context->getSalesChannelId(),
+                $context->getContext(),
+            );
+            $templateOverrides = $configuration?->getTemplateOverrides() ?? [];
         }
 
         return new SalesChannelFileRenderResult(

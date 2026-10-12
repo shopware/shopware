@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<MissingSnippetStruct>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class MissingSnippetCollection extends Collection

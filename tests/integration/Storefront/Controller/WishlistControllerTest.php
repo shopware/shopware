@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -30,11 +31,13 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class WishlistControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -107,9 +110,11 @@ class WishlistControllerTest extends TestCase
 
         $this->addEventListener(static::getContainer()->get('event_dispatcher'), StorefrontRenderEvent::class, static function (StorefrontRenderEvent $event) use ($productId): void {
             static::assertInstanceOf(EntitySearchResult::class, $result = $event->getParameters()['searchResult']);
-            static::assertCount(1, $result);
-            static::assertInstanceOf(Entity::class, $result->first());
-            static::assertSame($productId, $result->first()->get('id'));
+            $entities = $result->getEntities();
+            static::assertCount(1, $entities);
+            $first = $entities->first();
+            static::assertInstanceOf(Entity::class, $first);
+            static::assertSame($productId, $first->get('id'));
         });
 
         $browser->request('POST', '/wishlist/guest-pagelet', $this->tokenize('frontend.wishlist.guestPage.pagelet', ['productIds' => [$productId]]));
@@ -150,7 +155,7 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
-        static::assertEmpty(json_decode((string) $response->getContent(), false, 512, \JSON_THROW_ON_ERROR));
+        static::assertSame([], json_decode((string) $response->getContent(), false, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testAjaxListWithoutLoggedInCustomerReturnsForbidden(): void
@@ -178,7 +183,7 @@ class WishlistControllerTest extends TestCase
 
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($content);
+        static::assertIsArray($content);
         static::assertTrue($content['success']);
     }
 
@@ -213,7 +218,7 @@ class WishlistControllerTest extends TestCase
 
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($content);
+        static::assertIsArray($content);
         static::assertTrue($content['success']);
     }
 
@@ -236,12 +241,12 @@ class WishlistControllerTest extends TestCase
         static::assertInstanceOf(Session::class, $session);
         $flashBag = $session->getFlashBag();
 
-        static::assertNotEmpty($successFlash = $flashBag->get('success'));
+        static::assertNotCount(0, $successFlash = $flashBag->get('success'));
         static::assertSame('You have successfully added the product to your wishlist.', $successFlash[0]);
 
         $browser->request('GET', '/wishlist/add-after-login/' . $productId);
 
-        static::assertNotEmpty($warningFlash = $flashBag->get('warning'));
+        static::assertNotCount(0, $warningFlash = $flashBag->get('warning'));
         static::assertSame('Product has already been added to your wishlist.', $warningFlash[0]);
     }
 
@@ -253,7 +258,7 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -263,7 +268,7 @@ class WishlistControllerTest extends TestCase
         $response = $this->request('GET', '/wishlist', []);
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(GuestWishlistPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -280,7 +285,7 @@ class WishlistControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(GuestWishlistPageletLoadedHook::HOOK_NAME, $traces);
     }
@@ -293,7 +298,7 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -306,7 +311,7 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(WishlistWidgetLoadedHook::HOOK_NAME, $traces);
     }
@@ -342,7 +347,7 @@ class WishlistControllerTest extends TestCase
 
         $repo->create([$customer], Context::createDefaultContext());
 
-        $entity = $repo->search(new Criteria([$this->customerId]), Context::createDefaultContext())->first();
+        $entity = $repo->search(new Criteria([$this->customerId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $entity);
 
@@ -450,7 +455,7 @@ class WishlistControllerTest extends TestCase
     {
         $session = $this->getSession();
 
-        if (!method_exists($session, 'getFlashBag')) {
+        if (!$session instanceof FlashBagAwareSessionInterface) {
             throw new \RuntimeException('session does not have flashbag');
         }
 

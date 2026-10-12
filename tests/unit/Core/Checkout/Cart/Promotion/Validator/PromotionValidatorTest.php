@@ -29,8 +29,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[CoversClass(PromotionValidator::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionValidator::class)]
 class PromotionValidatorTest extends TestCase
 {
     private WriteContext $context;
@@ -45,8 +45,8 @@ class PromotionValidatorTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [PromotionDefinition::class, PromotionDiscountDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         /** @var PromotionDefinition $promotionDefinition */
@@ -79,7 +79,7 @@ class PromotionValidatorTest extends TestCase
                 'code' => ' ',
             ],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 
@@ -123,7 +123,7 @@ class PromotionValidatorTest extends TestCase
                 'valid_until' => '2019-02-25 11:59:59',
             ],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 
@@ -159,7 +159,7 @@ class PromotionValidatorTest extends TestCase
                 'code' => ' ',
             ],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 
@@ -196,7 +196,7 @@ class PromotionValidatorTest extends TestCase
                 'value' => $value,
             ],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 
@@ -251,7 +251,7 @@ class PromotionValidatorTest extends TestCase
                 'value' => $value,
             ],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 

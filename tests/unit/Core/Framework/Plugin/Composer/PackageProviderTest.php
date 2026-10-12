@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Composer;
 use Composer\IO\NullIO;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
 use Shopware\Core\Framework\Plugin\PluginException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PackageProvider::class)]
 class PackageProviderTest extends TestCase
 {

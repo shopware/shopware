@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(PromotionSetGroupEntity::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionSetGroupEntity::class)]
 class PromotionSetGroupEntityTest extends TestCase
 {
     private const KEY_PACKAGER_COUNT = 'PACKAGER_COUNT';

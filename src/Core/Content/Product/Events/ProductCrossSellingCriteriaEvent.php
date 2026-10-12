@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 abstract class ProductCrossSellingCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {

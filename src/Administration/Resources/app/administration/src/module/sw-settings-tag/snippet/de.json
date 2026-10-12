@@ -14,8 +14,7 @@
       "contextMenuDuplicate": "Tag duplizieren",
       "contextMenuDelete": "Tag löschen",
       "messageDeleteSuccess": "Tag \"{name}\" gelöscht.",
-      "buttonDelete": "Löschen",
-      "titleEmptyStateList": "Keine Tags gefunden.",
+      "titleEmptyStateList": "Noch keine Tags",
       "searchPlaceholder": "Durchsuche Tags ...",
       "filter": "Filter",
       "filterAssignemnt": "Filter nach zugewiesenen Entitäten",
@@ -75,7 +74,6 @@
       "editTitle": "Bearbeite \"{name}\"",
       "generalTab": "Allgemein",
       "assignmentsTab": "Zuweisungen",
-      "buttonSave": "Speichern",
       "assignments": {
         "searchPlaceholder": "Entitäten durchsuchen ...",
         "assignments": "zugewiesen",

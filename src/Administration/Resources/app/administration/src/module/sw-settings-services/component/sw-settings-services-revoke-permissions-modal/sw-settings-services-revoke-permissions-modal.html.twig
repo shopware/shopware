@@ -4,6 +4,30 @@
             <p>{{ $t('sw-settings-services.revoke-permissions-modal.p-1') }}</p>
 
             <p>{{ $t('sw-settings-services.revoke-permissions-modal.p-2') }}</p>
+
+            <div
+                v-if="servicesWithAccountRequirement.length > 0"
+                class="sw-settings-services-revoke-permissions-modal__account-requirement-info"
+            >
+                <div class="sw-settings-services-revoke-permissions-modal__account-requirement-message">
+                    <mt-icon
+                        class="sw-settings-services-revoke-permissions-modal__account-requirement-icon"
+                        name="solid-info-circle"
+                        size="16"
+                    />
+
+                    <p>{{ $t('sw-settings-services.revoke-permissions-modal.p-3') }}</p>
+                </div>
+
+                <ul class="sw-settings-services-revoke-permissions-modal__services-list">
+                    <li
+                        v-for="service in servicesWithAccountRequirement"
+                        :key="service.name"
+                    >
+                        {{ service.label }}
+                    </li>
+                </ul>
+            </div>
         </div>
 
         <template #footer>
@@ -31,4 +55,3 @@
         {{ $t('sw-settings-services.revoke-permissions-modal.label-button-revoke-permissions') }}
     </mt-modal-trigger>
 </mt-modal-root>
-

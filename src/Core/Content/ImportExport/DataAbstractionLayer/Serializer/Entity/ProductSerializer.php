@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -99,6 +100,10 @@ class ProductSerializer extends EntitySerializer
         $deserialized = parent::deserialize($config, $definition, $entity);
         $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
         yield from $deserialized;
+
+        if (Feature::isActive('v6.8.0.0') && ($deserialized['type'] ?? '') === '') {
+            yield 'type' => ProductDefinition::TYPE_PHYSICAL;
+        }
 
         $productId = $entity['id'] ?? null;
 
@@ -367,7 +372,7 @@ class ProductSerializer extends EntitySerializer
         $urls = [];
         $coverUrl = null;
 
-        if (!empty($productMedias) && !empty($entity['cover'])) {
+        if ($productMedias !== [] && !empty($entity['cover'])) {
             $coverMedia = $entity['cover'] instanceof ProductMediaEntity
                 ? $entity['cover']->jsonSerialize()
                 : $entity['cover'];

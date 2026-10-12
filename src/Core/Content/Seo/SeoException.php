@@ -10,6 +10,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 #[Package('inventory')]
 class SeoException extends HttpException
@@ -20,6 +21,12 @@ class SeoException extends HttpException
     public const ENTITY_NAME_PARAMETER_IS_MISSING = 'FRAMEWORK__ENTITY_NAME_PARAMETER_IS_MISSING';
     public const SALES_CHANNEL_NOT_FOUND = 'FRAMEWORK__SALES_CHANNEL_NOT_FOUND';
     public const SEO_URL_ROUTE_NOT_FOUND = 'CONTENT__SEO_URL_ROUTE_NOT_FOUND';
+    public const APP_SEO_URL_PATH_INVALID = 'CONTENT__SEO_APP_SEO_URL_PATH_INVALID';
+    public const APP_SEO_URL_PATH_ALREADY_REGISTERED = 'CONTENT__SEO_APP_SEO_URL_PATH_ALREADY_REGISTERED';
+    public const APP_SEO_URL_PATH_IN_USE = 'CONTENT__SEO_APP_SEO_URL_PATH_IN_USE';
+    public const APP_SEO_URL_HOOK_ALREADY_REGISTERED = 'CONTENT__SEO_APP_SEO_URL_HOOK_ALREADY_REGISTERED';
+    public const APP_ENTITY_SEO_URL_ENTITY_UNSUPPORTED = 'CONTENT__SEO_APP_ENTITY_SEO_URL_ENTITY_UNSUPPORTED';
+    public const APP_ENTITY_SEO_URL_NOT_PERMITTED = 'CONTENT__SEO_APP_ENTITY_SEO_URL_NOT_PERMITTED';
     /**
      * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
      */
@@ -101,5 +108,73 @@ class SeoException extends HttpException
     public static function invalidTemplate(string $message): ShopwareHttpException
     {
         return new InvalidTemplateException($message);
+    }
+
+    public static function unexpectedType(mixed $givenType, string $expectedType): UnexpectedTypeException
+    {
+        return new UnexpectedTypeException($givenType, $expectedType);
+    }
+
+    public static function appSeoUrlPathInvalid(string $seoUrlName, string $path): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_SEO_URL_PATH_INVALID,
+            'The path "{{ path }}" of the SEO URL "{{ seoUrlName }}" contains characters that are not allowed in URLs.',
+            ['path' => $path, 'seoUrlName' => $seoUrlName],
+        );
+    }
+
+    public static function appSeoUrlPathAlreadyRegistered(string $seoUrlName, string $path, string $owningApp): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_SEO_URL_PATH_ALREADY_REGISTERED,
+            'The path "{{ path }}" of the SEO URL "{{ seoUrlName }}" is already registered by app "{{ owningApp }}".',
+            ['path' => $path, 'seoUrlName' => $seoUrlName, 'owningApp' => $owningApp],
+        );
+    }
+
+    public static function appSeoUrlPathInUse(string $seoUrlName, string $path): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_SEO_URL_PATH_IN_USE,
+            'The path "{{ path }}" of the SEO URL "{{ seoUrlName }}" is already used by a storefront route or another SEO URL.',
+            ['path' => $path, 'seoUrlName' => $seoUrlName],
+        );
+    }
+
+    public static function appSeoUrlHookAlreadyRegistered(string $seoUrlName, string $hook, string $owningApp): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_SEO_URL_HOOK_ALREADY_REGISTERED,
+            'The hook "{{ hook }}" of the SEO URL "{{ seoUrlName }}" is already used by app "{{ owningApp }}".',
+            ['hook' => $hook, 'seoUrlName' => $seoUrlName, 'owningApp' => $owningApp],
+        );
+    }
+
+    public static function appEntitySeoUrlEntityUnsupported(string $seoUrlName, string $entityName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_ENTITY_SEO_URL_ENTITY_UNSUPPORTED,
+            'The entity "{{ entityName }}" of the SEO URL "{{ seoUrlName }}" cannot have SEO URLs.',
+            ['entityName' => $entityName, 'seoUrlName' => $seoUrlName],
+        );
+    }
+
+    /**
+     * @param list<string> $privileges
+     */
+    public static function appEntitySeoUrlNotPermitted(string $seoUrlName, string $entityName, array $privileges): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_ENTITY_SEO_URL_NOT_PERMITTED,
+            'The SEO URL "{{ seoUrlName }}" needs the permissions {{ privileges }} for the entity "{{ entityName }}".',
+            ['seoUrlName' => $seoUrlName, 'privileges' => implode(', ', $privileges), 'entityName' => $entityName],
+        );
     }
 }

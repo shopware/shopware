@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -11,6 +12,7 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 /**
  * @internal
  */
+#[Package('discovery')]
 class StorefrontPluginRegistryTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -18,7 +20,7 @@ class StorefrontPluginRegistryTest extends TestCase
 
     public function testConfigIsAddedIfItsATheme(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/theme');
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/SwagTheme');
 
         $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);
@@ -31,7 +33,7 @@ class StorefrontPluginRegistryTest extends TestCase
 
     public function testConfigIsNotAddedIfAppIsNotActive(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/theme', false);
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/SwagTheme', false);
 
         $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);
@@ -43,7 +45,7 @@ class StorefrontPluginRegistryTest extends TestCase
 
     public function testConfigIsAddedIfHasResourcesToCompile(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/noThemeCustomCss');
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/SwagNoThemeCustomCss');
 
         $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);
@@ -56,7 +58,7 @@ class StorefrontPluginRegistryTest extends TestCase
 
     public function testConfigIsNotAddedButIdentifiedAsNotThemeIfItsNotATheme(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/noThemeNoCss');
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/SwagNoThemeNoCss');
 
         $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);

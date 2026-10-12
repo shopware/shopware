@@ -75,7 +75,7 @@ class AclAnnotationValidator implements EventSubscriberInterface
         /** special case for @see \Shopware\Core\Framework\App\Api\AppActionController::runAction */
         $actionId = $request->attributes->get('id');
 
-        if (empty($actionId)) {
+        if ($actionId === null || $actionId === '') {
             throw ApiException::appIdParameterIsMissing();
         }
 

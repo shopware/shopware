@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Stock\StockLoadRequest;
 use Shopware\Core\Content\Product\Stock\StockStorage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -15,6 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(StockStorage::class)]
 class StockStorageTest extends TestCase
 {
@@ -23,10 +25,10 @@ class StockStorageTest extends TestCase
         $ids = new IdsCollection();
 
         $productIds = $ids->getList(['p-1', 'p-2', 'p-3']);
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
-        $connection = $this->createMock(Connection::class);
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $connection = static::createStub(Connection::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
 
         $stockStorage = new StockStorage($connection, $dispatcher);
 
@@ -38,7 +40,7 @@ class StockStorageTest extends TestCase
 
     public function testEmptyChangesDoNotDispatchEvent(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $dispatcher->expects($this->never())->method('dispatch');

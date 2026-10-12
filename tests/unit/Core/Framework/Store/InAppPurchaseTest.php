@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 /**
  * @internal
  */
-#[CoversClass(InAppPurchase::class)]
 #[Package('checkout')]
+#[CoversClass(InAppPurchase::class)]
 class InAppPurchaseTest extends TestCase
 {
     public function testAll(): void
@@ -43,7 +43,7 @@ class InAppPurchaseTest extends TestCase
         $iap = StaticInAppPurchaseFactory::createWithFeatures();
 
         static::assertFalse($iap->isActive('ExtensionName', 'inactivePurchase'));
-        static::assertEmpty($iap->formatPurchases());
+        static::assertCount(0, $iap->formatPurchases());
     }
 
     public function testRegisterPurchasesOverridesActivePurchases(): void
@@ -65,6 +65,6 @@ class InAppPurchaseTest extends TestCase
 
         static::assertSame(['Purchase1', 'Purchase2'], $iap->getByExtension('Extension1'));
         static::assertSame(['Purchase2'], $iap->getByExtension('Extension2'));
-        static::assertEmpty($iap->getByExtension('Extension3'));
+        static::assertCount(0, $iap->getByExtension('Extension3'));
     }
 }

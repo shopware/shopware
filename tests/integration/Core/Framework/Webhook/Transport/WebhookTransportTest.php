@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook\Transport;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransport;
@@ -15,6 +16,7 @@ use Symfony\Component\Messenger\Transport\TransportInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 class WebhookTransportTest extends TestCase
 {
     use IntegrationTestBehaviour;

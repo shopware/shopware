@@ -1,0 +1,17 @@
+{% block component_line_item_garan_label %}
+    {% set productId = displayMode === 'order' ? lineItem.productId : lineItem.referencedId %}
+    {% set garanLabel = productId|sw_garan_label_nested(context.context) %}
+
+    {% if garanLabel %}
+        <div class="line-item-garan-label">
+            <button type="button"
+                    class="garan-label-button"
+                    aria-label="{{ 'detail.garanLabelTitle'|trans|striptags }}"
+                    aria-haspopup="dialog"
+                    data-ajax-modal="true"
+                    data-url="{{ path('frontend.product.garan-label', { productId: productId }) }}">
+                {{ garanLabel|raw }}
+            </button>
+        </div>
+    {% endif %}
+{% endblock %}

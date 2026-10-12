@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppFeatureValidator::class)]
 class AppFeatureValidatorTest extends TestCase
 {

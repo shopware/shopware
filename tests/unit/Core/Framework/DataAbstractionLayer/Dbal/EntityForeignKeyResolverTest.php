@@ -7,10 +7,10 @@ use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
+use Shopware\Core\Checkout\DocumentV2\DocumentDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
@@ -20,6 +20,15 @@ use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefin
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -33,7 +42,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(EntityForeignKeyResolver::class)]
 class EntityForeignKeyResolverTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     private EntityForeignKeyResolver $resolver;
 
@@ -41,11 +50,11 @@ class EntityForeignKeyResolverTest extends TestCase
     {
         parent::setUp();
 
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
 
         $this->resolver = new EntityForeignKeyResolver(
             $this->connection,
-            $this->createMock(EntityDefinitionQueryHelper::class)
+            static::createStub(EntityDefinitionQueryHelper::class)
         );
     }
 
@@ -55,9 +64,9 @@ class EntityForeignKeyResolverTest extends TestCase
         $cmsPageId = Uuid::randomHex();
         $downloadId = Uuid::randomHex();
 
-        $emptyResult = $this->createMock(Result::class);
+        $emptyResult = static::createStub(Result::class);
 
-        $downloadResult = $this->createMock(Result::class);
+        $downloadResult = static::createStub(Result::class);
         $downloadResult->method('fetchAllAssociative')->willReturn([
             [
                 'id' => $downloadId,
@@ -67,7 +76,7 @@ class EntityForeignKeyResolverTest extends TestCase
             ],
         ]);
 
-        $cmsPageResult = $this->createMock(Result::class);
+        $cmsPageResult = static::createStub(Result::class);
         $cmsPageResult->method('fetchAllAssociative')->willReturn([
             [
                 'id' => $cmsPageId,
@@ -126,7 +135,7 @@ class EntityForeignKeyResolverTest extends TestCase
     {
         $capturedQueries = [];
 
-        $emptyResult = $this->createMock(Result::class);
+        $emptyResult = static::createStub(Result::class);
         $emptyResult->method('fetchAllAssociative')->willReturn([]);
 
         // getSQL() needs a platform to render the query; use MariaDB, the engine that rejects the alias.
@@ -149,7 +158,7 @@ class EntityForeignKeyResolverTest extends TestCase
 
         $queries = implode("\n", $capturedQueries);
 
-        static::assertNotEmpty($capturedQueries);
+        static::assertNotCount(0, $capturedQueries);
 
         // The meta field aliases must be backtick-escaped. An unescaped leading-underscore alias
         // (e.g. `as _fileName`) is parsed by MariaDB as a charset introducer and fails with
@@ -159,6 +168,50 @@ class EntityForeignKeyResolverTest extends TestCase
         static::assertStringContainsString('as `_fileExtension`', $queries);
         static::assertStringNotContainsString('as _fileName', $queries);
         static::assertStringNotContainsString('as _fileExtension', $queries);
+    }
+
+    #[TestDox('A cascade delete that cycles back into an already resolved entity stops instead of recursing forever')]
+    public function testCascadeCycleBetweenTwoEntitiesTerminates(): void
+    {
+        $parentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
+
+        $queries = 0;
+
+        $this->connection->method('getDatabasePlatform')->willReturn(new MariaDBPlatform());
+        $this->connection->method('executeQuery')->willReturnCallback(
+            function (string $query) use ($parentId, $childId, &$queries): Result {
+                if (++$queries > 10) {
+                    static::fail('The cascade resolution did not terminate, it is walking the cycle endlessly.');
+                }
+
+                $result = static::createStub(Result::class);
+                $result->method('fetchAllAssociative')->willReturn(
+                    str_contains($query, '`cascade_parent.children`')
+                        ? [['id' => $childId]]
+                        : [['id' => $parentId]]
+                );
+
+                return $result;
+            }
+        );
+
+        $parentDefinition = new CascadeCycleParentDefinition();
+
+        new StaticDefinitionInstanceRegistry(
+            [$parentDefinition, new CascadeCycleChildDefinition()],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $affected = $this->resolver->getAffectedDeletes(
+            $parentDefinition,
+            [['id' => $parentId]],
+            Context::createDefaultContext()
+        );
+
+        // the child cascades away with its parent, the parent must not be cascaded away by its own child
+        static::assertSame(['cascade_child' => [$childId]], $affected);
     }
 
     private function buildRegistry(): MediaDefinition
@@ -176,10 +229,49 @@ class EntityForeignKeyResolverTest extends TestCase
                 new DocumentDefinition(),
                 new DocumentFileDefinition(),
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         return $rootDef;
+    }
+}
+
+/**
+ * @internal
+ */
+class CascadeCycleParentDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'cascade_parent';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            (new OneToManyAssociationField('children', CascadeCycleChildDefinition::class, 'parent_id'))->addFlags(new CascadeDelete()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class CascadeCycleChildDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'cascade_child';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new FkField('parent_id', 'parentId', CascadeCycleParentDefinition::class),
+            (new ManyToOneAssociationField('parent', 'parent_id', CascadeCycleParentDefinition::class, 'id'))->addFlags(new CascadeDelete()),
+        ]);
     }
 }

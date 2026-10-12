@@ -70,8 +70,8 @@ class JsonEntityEncoderTest extends TestCase
                 ExtendableDefinition::class => ExtendableDefinition::class,
                 ExtendedDefinition::class => ExtendedDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 
@@ -305,6 +305,31 @@ class JsonEntityEncoderTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    public function testEncodeKeepsDecodedKeysWithoutBackingStructVars(): void
+    {
+        $encoder = $this->createEncoder();
+
+        $definition = $this->createDefinition(CustomFieldTestDefinition::class);
+
+        $struct = new class extends Entity {
+            /**
+             * @return array<string, mixed>
+             */
+            public function jsonSerialize(): array
+            {
+                $data = parent::jsonSerialize();
+                $data['refunds'] = [['id' => '0fa91ce3e96a4bc2be4bd9ce752c3425']];
+
+                return $data;
+            }
+        };
+        $struct->setUniqueIdentifier('test-id');
+
+        $actual = $encoder->encode(new Criteria(), $definition, $struct, SerializationFixture::API_BASE_URL);
+
+        static::assertSame([['id' => '0fa91ce3e96a4bc2be4bd9ce752c3425']], $actual['refunds']);
     }
 
     public function testExtensionsForeignKeysAreRemoved(): void

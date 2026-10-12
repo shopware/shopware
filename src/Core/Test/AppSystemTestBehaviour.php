@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
@@ -50,16 +51,18 @@ trait AppSystemTestBehaviour
 
         $fails = $appService->doRefreshApps(new AppInstallParameters(activate: $activateApps), Context::createDefaultContext());
 
+        // track before failing: a partially failed sync still installs apps whose
+        // in-memory state must be cleaned up, or it leaks into subsequent tests
+        $after = $this->appSystemBehaviourFetchInstalledAppNames();
+        $this->appSystemBehaviourAppsInstalledInThisTest = \array_values(\array_diff($after, $before));
+
         if ($fails !== []) {
             $errors = \array_map(static function (array $fail): string {
-                return $fail['exception']->getMessage();
+                return \sprintf('%s: %s', $fail['manifest']->getMetadata()->getName(), $fail['exception']->getMessage());
             }, $fails);
 
             static::fail('App synchronisation failed: ' . \print_r($errors, true));
         }
-
-        $after = $this->appSystemBehaviourFetchInstalledAppNames();
-        $this->appSystemBehaviourAppsInstalledInThisTest = \array_values(\array_diff($after, $before));
     }
 
     protected function reloadAppSnippets(): void
@@ -70,11 +73,16 @@ trait AppSystemTestBehaviour
     }
 
     /**
+     * Pass the container of the browser that performed the request (e.g.
+     * `$browser->getContainer()`) — script traces are collected by the
+     * container that handled the request, which is not the static test
+     * container once kernel services are reset between requests.
+     *
      * @return array<string, mixed>
      */
-    protected function getScriptTraces(): array
+    protected function getScriptTraces(?ContainerInterface $container = null): array
     {
-        return static::getContainer()
+        return ($container ?? static::getContainer())
             ->get(ScriptTraces::class)
             ->getTraces();
     }
@@ -111,6 +119,10 @@ trait AppSystemTestBehaviour
         );
 
         $container->get(ActiveAppsLoader::class)->reset();
+        // app filesystems are cached by app name; fixtures across test dirs reuse
+        // names (e.g. SwagApp), so a stale entry redirects file lookups of the next
+        // test's app to the wrong root
+        $container->get(SourceResolver::class)->reset();
         $this->reloadAppSnippets();
 
         $this->appSystemBehaviourAppsInstalledInThisTest = [];

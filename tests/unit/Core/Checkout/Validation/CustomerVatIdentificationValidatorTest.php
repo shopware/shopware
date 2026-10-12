@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Validation;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificationValidator;
@@ -20,7 +21,7 @@ use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 #[CoversClass(CustomerVatIdentificationValidator::class)]
 class CustomerVatIdentificationValidatorTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     private ExecutionContextInterface&MockObject $context;
 
@@ -28,7 +29,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->context = $this->createMock(ExecutionContextInterface::class);
 
         $this->validator = new CustomerVatIdentificationValidator($this->connection);

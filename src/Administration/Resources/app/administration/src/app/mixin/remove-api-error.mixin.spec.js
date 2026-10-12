@@ -12,9 +12,7 @@ async function createWrapper(attrs = {}) {
               <slot></slot>
             </div>
         `,
-            mixins: [
-                Shopware.Mixin.getByName('remove-api-error'),
-            ],
+            mixins: [Shopware.Mixin.getByName('remove-api-error')],
             data() {
                 return {
                     name: 'sw-mock-field',

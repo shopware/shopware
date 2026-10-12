@@ -18,12 +18,12 @@
         margin: auto 0;
 
         .sw-category-layout-card__desc-headline {
-            font-weight: $font-weight-semi-bold;
-            font-size: $font-size-xs;
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-xs);
         }
 
         .sw-category-layout-card__desc-subheadline {
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
         }
 
         .sw-category-layout-card__desc-headline.is--empty,
@@ -50,7 +50,7 @@
             justify-content: flex-end;
             color: var(--color-text-brand-default);
             text-decoration: none;
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
             margin-top: 8px;
 
             .mt-icon {

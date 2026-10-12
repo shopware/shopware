@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(MailTemplateRenderContextEvent::class)]
 class MailTemplateRenderContextEventTest extends TestCase
 {

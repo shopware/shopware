@@ -1,72 +1,50 @@
-@import "~scss/variables";
-
-.sw-order-general-info__summary {
-    display: flex;
-    flex-direction: column;
-
-    &-main {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-
-        &-header {
-            flex-grow: 1;
-        }
-
-        &-header,
-        &-total,
-        &-header-link {
-            font-size: $font-size-s;
-            font-weight: $font-weight-semi-bold;
-            line-height: 25px;
-        }
-
-        &-total {
-            flex-shrink: 0;
-        }
-    }
-
-    &-sub {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-
-        &-description {
-            flex-grow: 1;
-        }
-
-        &-description,
-        &-last-changed {
-            font-size: $font-size-xs;
-            line-height: 22px;
-        }
-
-        &-last-changed {
-            flex-shrink: 0;
-            color: var(--color-text-secondary-default);
-
-            &-user,
-            &-time {
-                display: inline;
-            }
-        }
-    }
-}
-
-.sw-order-general-info__order {
-    &-states {
+.sw-order-general-info {
+    &__summary-main,
+    &__summary-sub {
         display: flex;
         justify-content: space-between;
-        gap: 24px;
-        margin-top: 24px;
-
-        .sw-order-general-info__order-state {
-            flex-grow: 1;
-            flex-basis: 30%;
-        }
+        gap: var(--scale-size-16);
+        margin-top: var(--scale-size-8);
     }
 
-    &-tags {
-        margin-top: 24px;
+    &__summary-main-header,
+    &__summary-main-total,
+    &__summary-main-header-link {
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+        font-weight: var(--font-weight-semibold);
+    }
+
+    &__summary-main-total {
+        flex-shrink: 0;
+    }
+
+    &__summary-sub-description,
+    &__summary-sub-last-changed {
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+    }
+
+    &__summary-sub-last-changed {
+        flex-shrink: 0;
+        color: var(--color-text-secondary-default);
+    }
+
+    &__summary-sub-last-changed-time,
+    &__summary-sub-last-changed-user {
+        display: inline;
+    }
+
+    &__order-states {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--scale-size-16);
+        margin-top: var(--scale-size-24);
+    }
+
+    &__order-state {
+        flex-grow: 1;
+        flex-basis: 30%;
     }
 }

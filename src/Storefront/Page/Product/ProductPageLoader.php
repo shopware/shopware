@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('framework')]
+#[Package('inventory')]
 class ProductPageLoader
 {
     /**
@@ -80,7 +80,8 @@ class ProductPageLoader
             ->addAssociation('properties.group')
             ->addAssociation('mainCategories.category')
             ->addAssociation('media.media')
-            ->addAssociation('openGraphMedia');
+            ->addAssociation('openGraphMedia')
+            ->addAssociation('guaranteeTermsMedia');
 
         $criteria->getAssociation('media')->addSorting(
             new FieldSorting('position')
@@ -108,7 +109,7 @@ class ProductPageLoader
         if ($category = $product->getSeoCategory()) {
             $request->request->set('navigationId', $category->getId());
 
-            if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
+            if (Feature::isActive('BREADCRUMB_REWORK')) {
                 $page->setBreadcrumb($this->breadcrumbBuilder->getCategoryBreadcrumbUrls($category, $context->getContext(), $context->getSalesChannel()));
             }
         }
@@ -236,10 +237,12 @@ class ProductPageLoader
         $aggregation = $entityResult->getAggregations()->get('ratingMatrix');
         $matrix = new RatingMatrix($aggregation instanceof TermsResult ? $aggregation->getBuckets() : []);
 
-        $reviewResult = ProductReviewResult::createFrom($entityResult);
-        $reviewResult->setMatrix($matrix);
-        $reviewResult->setProductId($productId);
-        $reviewResult->setTotalReviewsInCurrentLanguage($entityResult->getTotal());
+        $reviewResult = ProductReviewResult::fromSearchResult(
+            $entityResult,
+            $matrix,
+            $productId,
+            $entityResult->getTotal(),
+        );
 
         $page->setStructuredDataReviews($reviewResult);
     }

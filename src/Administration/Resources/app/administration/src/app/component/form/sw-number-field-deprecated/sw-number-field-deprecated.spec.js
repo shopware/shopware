@@ -289,6 +289,18 @@ describe('app/component/form/sw-number-field-deprecated', () => {
         await input.setValue('22,33');
         await input.trigger('change');
         expect(input.element.value).toBe('22.33');
+
+        await input.setValue('1.333,33');
+        await input.trigger('change');
+        expect(input.element.value).toBe('1333.33');
+
+        const secondWrapper = await createWrapper();
+        await flushPromises();
+
+        const secondInput = secondWrapper.find('input');
+        await secondInput.setValue('1,333.33');
+        await secondInput.trigger('change');
+        expect(secondInput.element.value).toBe('1333.33');
     });
 
     it('should round decimal places', async () => {
@@ -347,9 +359,7 @@ describe('app/component/form/sw-number-field-deprecated', () => {
         const input = wrapper.find('input');
         await input.setValue('5.');
 
-        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([
-            [true],
-        ]);
+        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([[true]]);
     });
 
     it('should emit "ends-with-decimal-separator" event with false value when input does not end with decimal separator', async () => {
@@ -359,9 +369,7 @@ describe('app/component/form/sw-number-field-deprecated', () => {
         const input = wrapper.find('input');
         await input.setValue('5');
 
-        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([
-            [false],
-        ]);
+        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([[false]]);
     });
 
     it('injects ariaLabel prop from global injection', async () => {

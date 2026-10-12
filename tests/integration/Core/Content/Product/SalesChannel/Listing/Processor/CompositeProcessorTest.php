@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Listing\P
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 class CompositeProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -26,12 +28,12 @@ class CompositeProcessorTest extends TestCase
 
         $request->query->set('no-aggregations', true);
         static::getContainer()->get(CompositeListingProcessor::class)->prepare($request, $criteria, $context);
-        static::assertEmpty($criteria->getAggregations());
+        static::assertCount(0, $criteria->getAggregations());
 
         $request->query->set('only-aggregations', true);
         static::getContainer()->get(CompositeListingProcessor::class)->prepare($request, $criteria, $context);
-        static::assertEmpty($criteria->getSorting());
-        static::assertEmpty($criteria->getAssociations());
+        static::assertCount(0, $criteria->getSorting());
+        static::assertCount(0, $criteria->getAssociations());
         static::assertSame(0, $criteria->getLimit());
         static::assertSame(Criteria::TOTAL_COUNT_MODE_NONE, $criteria->getTotalCountMode());
     }

@@ -4,15 +4,16 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsHelper;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsInRouteAttributesRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends  RuleTestCase<AclValidPermissionsInRouteAttributesRule>
  */
+#[Package('framework')]
 class AclValidPermissionsInRouteAttributesRuleTest extends RuleTestCase
 {
     private static ?AclValidPermissionsInRouteAttributesRule $rule = null;
@@ -27,7 +28,6 @@ class AclValidPermissionsInRouteAttributesRuleTest extends RuleTestCase
         self::$rule = null;
     }
 
-    #[RunInSeparateProcess]
     public function testRule(): void
     {
         // route attribute in controller

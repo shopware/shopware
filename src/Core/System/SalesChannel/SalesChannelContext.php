@@ -35,7 +35,7 @@ class SalesChannelContext extends Struct
     protected array $permissions = [];
 
     /**
-     * @deprecated tag:v6.8.0 - reason:parameter-name-change - Property `permisionsLocked` will be removed, use `permissionsLocked` instead
+     * @deprecated tag:v6.8.0 - Property `permisionsLocked` will be removed, use `permissionsLocked` instead
      */
     protected bool $permisionsLocked = false;
 
@@ -192,11 +192,13 @@ class SalesChannelContext extends Struct
         $ruleIds = [];
 
         foreach ($areas as $area) {
-            if (empty($this->areaRuleIds[$area])) {
+            if (!isset($this->areaRuleIds[$area]) || $this->areaRuleIds[$area] === []) {
                 continue;
             }
 
-            $ruleIds = array_unique(array_merge($ruleIds, $this->areaRuleIds[$area]));
+            foreach ($this->areaRuleIds[$area] as $ruleId) {
+                $ruleIds[$ruleId] = $ruleId;
+            }
         }
 
         return array_values($ruleIds);

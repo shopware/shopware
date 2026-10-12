@@ -59,8 +59,6 @@ export const COMPONENTS = {
     LINE_ITEM: 'sw-condition-line-item',
     LINE_ITEM_WITH_QUANTITY: 'sw-condition-line-item-with-quantity',
     LINE_ITEM_PROPERTY: 'sw-condition-line-item-property',
-    LINE_ITEM_PURCHASE_PRICE: 'sw-condition-line-item-purchase-price',
-    LINE_ITEM_IN_CATEGORY: 'sw-condition-line-item-in-category',
     LINE_ITEM_CUSTOM_FIELD: 'sw-condition-line-item-custom-field',
     LINE_ITEM_GOODS_TOTAL: 'sw-condition-line-item-goods-total',
     CUSTOMER_CUSTOM_FIELD: 'sw-condition-customer-custom-field',
@@ -88,7 +86,7 @@ export type ConditionDefinition = {
     label: string;
     scopes: RuleScope[];
     group: RuleGroup;
-    removedInFeature?: string; // e.g. 'v6.8.0'
+    removedInFeature?: string; // e.g. 'v6.8.0.0'
     replacement?: string; // condition type that supersedes this one
 };
 
@@ -530,7 +528,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     },
     {
         type: 'cartLineItemPurchasePrice',
-        component: COMPONENTS.LINE_ITEM_PURCHASE_PRICE,
+        component: COMPONENTS.GENERIC_LINE_ITEM,
         label: 'global.sw-condition.condition.lineItemPurchasePriceRule',
         scopes: [SCOPES.LINE_ITEM],
         group: GROUPS.ITEM,
@@ -565,7 +563,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     },
     {
         type: 'cartLineItemInCategory',
-        component: COMPONENTS.LINE_ITEM_IN_CATEGORY,
+        component: COMPONENTS.GENERIC_LINE_ITEM,
         label: 'global.sw-condition.condition.lineItemInCategoryRule',
         scopes: [SCOPES.LINE_ITEM],
         group: GROUPS.ITEM,
@@ -737,7 +735,7 @@ export const CONDITIONS: ConditionDefinition[] = [
         label: 'global.sw-condition.condition.lineItemProductStates',
         scopes: [SCOPES.LINE_ITEM],
         group: GROUPS.ITEM,
-        removedInFeature: 'v6.8.0',
+        removedInFeature: 'v6.8.0.0',
         replacement: 'cartLineItemProductType',
     },
     {
@@ -850,99 +848,64 @@ export const AWARENESS_CONFIGURATIONS = (service: RuleConditionService): Awarene
     {
         name: 'personaPromotions',
         config: {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
-            equalsAny: [
-                'alwaysValid',
-                ...service.getRestrictionsByGroup(GROUPS.CUSTOMER),
-            ],
+            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
+            equalsAny: ['alwaysValid', ...service.getRestrictionsByGroup(GROUPS.CUSTOMER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.personaPromotions',
         },
     },
     {
         name: 'orderPromotions',
         config: {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
         },
     },
     {
         name: 'cartPromotions',
         config: {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
         },
     },
     {
         name: 'promotionSetGroups',
         config: {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.promotionSetGroups',
         },
     },
     {
         name: 'promotionDiscounts',
         config: {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.promotionDiscounts',
         },
     },
     {
         name: 'shippingMethodPriceCalculations',
         config: {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPriceCalculations',
         },
     },
     {
         name: 'shippingMethodPrices',
         config: {
-            notEquals: [
-                'cartCartAmount',
-                'cartShippingCost',
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: ['cartCartAmount', 'cartShippingCost', ...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPrices',
         },
     },
     {
         name: 'paymentMethods',
         config: {
-            notEquals: [
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: [...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.paymentMethods',
         },
     },
     {
         name: 'shippingMethods',
         config: {
-            notEquals: [
-                ...service.getRestrictionsByGroup(GROUPS.ORDER),
-            ],
+            notEquals: [...service.getRestrictionsByGroup(GROUPS.ORDER)],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethods',
         },
     },

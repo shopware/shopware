@@ -43,9 +43,7 @@ import '@shopware-ag/meteor-icon-kit/icons/regular/chevron-circle-left.svg';
 export default {
     template,
 
-    inject: [
-        'feature',
-    ],
+    inject: ['feature'],
 
     props: {
         name: {
@@ -122,10 +120,7 @@ export default {
                     return;
                 }
 
-                const [
-                    variant,
-                    ...iconName
-                ] = newName.split('-');
+                const [variant, ...iconName] = newName.split('-');
                 this.loadIconSvgData(variant, iconName.join('-'), newName);
             },
             immediate: true,

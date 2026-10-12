@@ -21,8 +21,8 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[CoversClass(Migration1720094362AddStateForeignKeyToOrderDelivery::class)]
 #[Package('checkout')]
+#[CoversClass(Migration1720094362AddStateForeignKeyToOrderDelivery::class)]
 class Migration1720094362AddStateForeignKeyToOrderDeliveryTest extends TestCase
 {
     use KernelTestBehaviour;

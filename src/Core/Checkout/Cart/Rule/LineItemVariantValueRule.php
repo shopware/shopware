@@ -50,6 +50,10 @@ class LineItemVariantValueRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $item) {
+            if (!\array_key_exists('optionIds', $item->getPayload())) {
+                continue;
+            }
+
             if ($this->matchLineItem($item)) {
                 return true;
             }

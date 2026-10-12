@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(EntityCustomFieldsTrait::class)]
+#[CoversTrait(EntityCustomFieldsTrait::class)]
 class EntityCustomFieldsTraitTest extends TestCase
 {
     public function testGetCustomFieldValues(): void

@@ -33,7 +33,7 @@ class JWTGeneratorTest extends TestCase
     public function testEncodeAppliesClaimsBranches(): void
     {
         $config = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText(Random::getAlphanumericString(32)));
-        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator = static::createStub(DataValidator::class);
 
         $jwtStructClass = (new class extends JWTStruct {
             public string $foo;
@@ -90,7 +90,7 @@ class JWTGeneratorTest extends TestCase
     public function testEncodeUsesDefaultLifetimeForDates(): void
     {
         $config = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText(Random::getAlphanumericString(32)));
-        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator = static::createStub(DataValidator::class);
 
         $jwtStructClass = (new class extends JWTStruct {
         })::class;
@@ -136,7 +136,7 @@ class JWTGeneratorTest extends TestCase
     {
         // use real configuration (final class)
         $config = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText(Random::getAlphanumericString(32)));
-        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator = static::createStub(DataValidator::class);
 
         $jwtStructClass = (new class extends JWTStruct {
         })::class;
@@ -186,7 +186,7 @@ class JWTGeneratorTest extends TestCase
             ->withClaim('k', 'v')
             ->getToken($config->signer(), $config->signingKey());
 
-        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator = static::createStub(DataValidator::class);
 
         $jwtStructClass = (new class extends JWTStruct {
         })::class;
@@ -339,7 +339,7 @@ class JWTGeneratorTest extends TestCase
     public function testDecodeThrowsOnInvalidTokenParseException(): void
     {
         $config = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText(Random::getAlphanumericString(32)));
-        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator = static::createStub(DataValidator::class);
 
         $jwtStructClass = (new class extends JWTStruct {
         })::class;

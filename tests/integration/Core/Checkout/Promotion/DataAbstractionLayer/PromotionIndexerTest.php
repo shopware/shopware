@@ -56,7 +56,7 @@ class PromotionIndexerTest extends TestCase
         $promotionEvent = $writtenEvent->getEventByEntityName(PromotionDefinition::ENTITY_NAME);
 
         static::assertNotNull($promotionEvent);
-        static::assertNotEmpty($promotionEvent->getWriteResults()[0]);
+        static::assertArrayHasKey(0, $promotionEvent->getWriteResults());
         $promotionId = $promotionEvent->getWriteResults()[0]->getPayload()['id'];
 
         $userId = Uuid::randomHex();

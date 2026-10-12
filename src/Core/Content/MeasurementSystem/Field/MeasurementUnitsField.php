@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\MeasurementSystem\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class MeasurementUnitsField extends ObjectField
 {

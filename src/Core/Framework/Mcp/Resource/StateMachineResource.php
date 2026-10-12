@@ -11,10 +11,14 @@ use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\StateMachine\StateMachineCollection;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
-#[McpResource(uri: 'shopware://state-machines', name: 'shopware-state-machines', description: 'All state machines with their states and transitions. Use this to understand valid actions for shopware-order-state.')]
 #[Package('framework')]
+#[McpResource(
+    uri: 'shopware://state-machines',
+    name: 'shopware-state-machines',
+    description: 'All state machines with their states and transitions. Use this to understand valid actions for shopware-order-state.'
+)]
 class StateMachineResource
 {
     /**

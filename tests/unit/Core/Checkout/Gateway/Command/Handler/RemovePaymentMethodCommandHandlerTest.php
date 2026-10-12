@@ -18,8 +18,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(RemovePaymentMethodCommandHandler::class)]
 #[Package('checkout')]
+#[CoversClass(RemovePaymentMethodCommandHandler::class)]
 class RemovePaymentMethodCommandHandlerTest extends TestCase
 {
     public function testSupportedCommands(): void

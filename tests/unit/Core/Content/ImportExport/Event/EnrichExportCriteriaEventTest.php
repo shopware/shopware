@@ -10,11 +10,13 @@ use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(EnrichExportCriteriaEvent::class)]
 class EnrichExportCriteriaEventTest extends TestCase
 {
@@ -24,6 +26,24 @@ class EnrichExportCriteriaEventTest extends TestCase
         $event = new EnrichExportCriteriaEvent(new Criteria(), new ImportExportLogEntity(), $context);
 
         static::assertSame($context, $event->getContext());
+    }
+
+    public function testCriteriaAndLogEntityCanBeReplaced(): void
+    {
+        $criteria = new Criteria();
+        $logEntity = new ImportExportLogEntity();
+        $event = new EnrichExportCriteriaEvent($criteria, $logEntity, Context::createDefaultContext());
+
+        static::assertSame($criteria, $event->getCriteria());
+        static::assertSame($logEntity, $event->getLogEntity());
+
+        $newCriteria = new Criteria();
+        $newLogEntity = new ImportExportLogEntity();
+        $event->setCriteria($newCriteria);
+        $event->setLogEntity($newLogEntity);
+
+        static::assertSame($newCriteria, $event->getCriteria());
+        static::assertSame($newLogEntity, $event->getLogEntity());
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

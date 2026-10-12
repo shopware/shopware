@@ -56,6 +56,9 @@ class ProductHydrator extends EntityHydrator
         if (isset($row[$root . '.openGraphMediaId'])) {
             $entity->openGraphMediaId = Uuid::fromBytesToHex($row[$root . '.openGraphMediaId']);
         }
+        if (isset($row[$root . '.guaranteeTermsMediaId'])) {
+            $entity->guaranteeTermsMediaId = Uuid::fromBytesToHex($row[$root . '.guaranteeTermsMediaId']);
+        }
         if (\array_key_exists($root . '.price', $row)) {
             $entity->price = $definition->decode('price', self::value($row, $root, 'price'));
         }
@@ -100,6 +103,15 @@ class ProductHydrator extends EntityHydrator
         }
         if (isset($row[$root . '.manufacturerNumber'])) {
             $entity->manufacturerNumber = $row[$root . '.manufacturerNumber'];
+        }
+        if (isset($row[$root . '.guaranteeMonths'])) {
+            $entity->guaranteeMonths = (int) $row[$root . '.guaranteeMonths'];
+        }
+        if (isset($row[$root . '.guaranteeConfirmed'])) {
+            $entity->guaranteeConfirmed = (bool) $row[$root . '.guaranteeConfirmed'];
+        }
+        if (isset($row[$root . '.guaranteeTermsUrl'])) {
+            $entity->guaranteeTermsUrl = $row[$root . '.guaranteeTermsUrl'];
         }
         if (isset($row[$root . '.ean'])) {
             $entity->ean = $row[$root . '.ean'];
@@ -191,6 +203,7 @@ class ProductHydrator extends EntityHydrator
         $entity->cmsPage = $this->manyToOne($row, $root, $definition->getField('cmsPage'), $context);
         $entity->canonicalProduct = $this->manyToOne($row, $root, $definition->getField('canonicalProduct'), $context);
         $entity->openGraphMedia = $this->manyToOne($row, $root, $definition->getField('openGraphMedia'), $context);
+        $entity->guaranteeTermsMedia = $this->manyToOne($row, $root, $definition->getField('guaranteeTermsMedia'), $context);
 
         $this->translate($definition, $entity, $row, $root, $context, $definition->getTranslatedFields());
         $this->hydrateFields($definition, $entity, $root, $row, $context, $definition->getExtensionFields());

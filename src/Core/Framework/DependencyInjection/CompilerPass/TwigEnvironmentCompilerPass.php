@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class TwigEnvironmentCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
@@ -16,6 +18,8 @@ class TwigEnvironmentCompilerPass implements CompilerPassInterface
         // Symfony service subscriber somehow doesn't work. Therefore, the service has to be public
         $twigEnvironment->setPublic(true);
         $twigEnvironment->setClass(TwigEnvironment::class);
+
+        $twigEnvironment->addTag('kernel.reset', ['method' => 'reset']);
 
         // The twig extension directly compiles the config into the service, there is no other way to get it @see \Symfony\Bundle\TwigBundle\DependencyInjection\TwigExtension::load
         $twigOptions = $twigEnvironment->getArgument(1);

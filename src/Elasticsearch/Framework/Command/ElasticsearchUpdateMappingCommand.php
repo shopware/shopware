@@ -10,11 +10,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'es:mapping:update',
     description: 'Update the Elasticsearch indices mapping',
 )]
-#[Package('framework')]
 class ElasticsearchUpdateMappingCommand extends Command
 {
     /**

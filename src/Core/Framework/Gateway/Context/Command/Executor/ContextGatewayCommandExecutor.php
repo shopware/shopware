@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -64,9 +65,14 @@ class ContextGatewayCommandExecutor
         }
 
         $response = new ContextTokenResponse($context->getToken());
+        $response->headers->remove(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
         if ($parameters !== []) {
             $response = $this->contextSwitchRoute->switchContext(new RequestDataBag($parameters), $context);
+        }
+
+        if ($tokenCommand) {
+            $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
         }
 
         return $response;

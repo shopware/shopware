@@ -34,9 +34,9 @@
 
 .sw-multi-tag-select-valid {
     cursor: pointer;
-    background: $color-shopware-brand-50;
+    background: var(--color-background-brand-default);
 }
 
 .sw-multi-tag-select-invalid {
-    background: $color-gray-50;
+    background: var(--color-background-tertiary-default);
 }

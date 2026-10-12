@@ -20,6 +20,7 @@ use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoader;
@@ -29,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(FooterPageletLoader::class)]
 class FooterPageletLoaderTest extends TestCase
 {
@@ -38,8 +40,8 @@ class FooterPageletLoaderTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getSalesChannel()->setServiceCategoryId($serviceMenuId);
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
+        $navigationLoader = static::createStub(NavigationLoaderInterface::class);
 
         $categoryId1 = Uuid::randomHex();
         $categoryId2 = Uuid::randomHex();
@@ -58,7 +60,7 @@ class FooterPageletLoaderTest extends TestCase
         );
 
         $paymentMethodCollection = new PaymentMethodCollection();
-        $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
+        $paymentMethodRoute = static::createStub(AbstractPaymentMethodRoute::class);
         $paymentMethodRoute->method('load')->willReturn(new PaymentMethodRouteResponse(
             new EntitySearchResult(
                 PaymentMethodDefinition::ENTITY_NAME,
@@ -71,7 +73,7 @@ class FooterPageletLoaderTest extends TestCase
         ));
 
         $shippingMethodCollection = new ShippingMethodCollection();
-        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
         $shippingMethodRoute->method('load')->willReturn(new ShippingMethodRouteResponse(
             new EntitySearchResult(
                 ShippingMethodDefinition::ENTITY_NAME,

@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ThemeException::class)]
 class ThemeExceptionTest extends TestCase
 {
@@ -24,7 +24,7 @@ class ThemeExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(ThemeException::THEME_MEDIA_IN_USE_EXCEPTION, $exception->getErrorCode());
         static::assertSame('Media entity is still in use by a theme', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 
     public function testSalesChannelNotFound(): void

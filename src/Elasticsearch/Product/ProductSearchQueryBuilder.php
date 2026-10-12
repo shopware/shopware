@@ -4,7 +4,6 @@ namespace Shopware\Elasticsearch\Product;
 
 use OpenSearchDSL\BuilderInterface;
 use OpenSearchDSL\Query\Compound\BoolQuery;
-use OpenSearchDSL\Query\Compound\DisMaxQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -31,7 +30,6 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         private readonly SearchConfigLoader $configLoader,
         private readonly AbstractTokenQueryBuilder $tokenQueryBuilder,
         private readonly ElasticsearchTokenizer $tokenizer,
-        private readonly float $dismaxTieBreaker = 0.2,
     ) {
     }
 
@@ -64,58 +62,55 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
                 (bool) $item['use_exact_subfield'],
             );
         }, $searchConfig);
-        if (!$configs[0]->isAndLogic()) {
-            $tokens = [$originalTerm];
+
+        // For an OR multi-word search, keep n-gram (substring) matching off: a single query word
+        // matching inside an unrelated word (e.g. "line" in "Portaline") is noise. n-gram stays on
+        // for single-word searches and for AND, where all words must match anyway.
+        if (\count($tokens) > 1 && !$configs[0]->isAndLogic()) {
+            $configs = array_map(static fn (SearchFieldConfig $config): SearchFieldConfig => $config->withoutNgram(), $configs);
         }
 
-        $queries = [];
+        $entity = $this->productDefinition->getEntityName();
 
+        // One query per token. The Elasticsearch analyzer already tokenizes both the indexed
+        // data and each token consistently, so we never re-split below this point.
+        $tokenQueries = [];
         foreach ($tokens as $token) {
-            $query = $this->tokenQueryBuilder->build(
-                $this->productDefinition->getEntityName(),
-                $token,
-                $configs,
-                $context,
-            );
+            $query = $this->tokenQueryBuilder->build($entity, $token, $configs, $context);
 
             if ($query) {
-                $queries[] = $query;
+                $tokenQueries[] = $query;
             }
         }
 
-        if ($queries === []) {
+        if ($tokenQueries === []) {
             throw ElasticsearchException::emptyQuery();
         }
 
-        if (\count($queries) === 1 && $queries[0] instanceof BoolQuery) {
-            return $queries[0];
+        // A single token needs no AND/OR wrapper and has no phrase to boost.
+        if (\count($tokenQueries) === 1) {
+            return $tokenQueries[0];
         }
 
-        $andSearch = $configs[0]->isAndLogic() ? BoolQuery::MUST : BoolQuery::SHOULD;
+        // AND requires every token to match (MUST); OR requires any (SHOULD). Commercial's
+        // strictness (minimum_should_match) layers on top of the SHOULD case in its own builder.
+        $gate = $configs[0]->isAndLogic() ? BoolQuery::MUST : BoolQuery::SHOULD;
+        $query = new BoolQuery([$gate => $tokenQueries]);
 
-        $tokensQuery = new BoolQuery([$andSearch => $queries]);
-
-        if (\in_array($originalTerm, $tokens, true)) {
-            return $tokensQuery;
-        }
-
-        $originalTermQuery = $this->tokenQueryBuilder->build(
-            $this->productDefinition->getEntityName(),
+        // Multi-word input also rewards documents where the words appear together, added as an
+        // explicit SHOULD boost. A phrase match requires every word to be present, so it can
+        // only re-rank documents that already satisfy the gate above — it never loosens AND.
+        $phraseQuery = $this->tokenQueryBuilder->build(
+            $entity,
             $originalTerm,
-            $configs,
-            $context
+            array_map(static fn (SearchFieldConfig $config): SearchFieldConfig => $config->withPhrase(), $configs),
+            $context,
         );
 
-        if (!$originalTermQuery) {
-            return $tokensQuery;
+        if ($phraseQuery) {
+            $query->add($phraseQuery, BoolQuery::SHOULD);
         }
 
-        $dismax = new DisMaxQuery();
-
-        $dismax->addQuery($tokensQuery);
-        $dismax->addQuery($originalTermQuery);
-        $dismax->addParameter('tie_breaker', $this->dismaxTieBreaker);
-
-        return $dismax;
+        return $query;
     }
 }

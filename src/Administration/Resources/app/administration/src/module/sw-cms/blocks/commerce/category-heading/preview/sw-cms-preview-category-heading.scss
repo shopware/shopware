@@ -1,4 +1,3 @@
-@import "~scss/variables";
 @import "~scss/mixins";
 
 .sw-cms-preview-category-heading {
@@ -7,8 +6,8 @@
     &__name {
         @include flex-centering-vertical;
 
-        color: $color-darkgray-200;
-        font-size: $font-size-s;
-        font-weight: $font-weight-semi-bold;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-s);
+        font-weight: var(--font-weight-semibold);
     }
 }

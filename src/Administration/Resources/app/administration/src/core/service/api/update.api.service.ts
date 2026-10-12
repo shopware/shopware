@@ -3,7 +3,7 @@
  * @private
  */
 
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from 'src/core/service/login.service';
 import ApiService from 'src/core/service/api.service';
 
@@ -15,7 +15,7 @@ import ApiService from 'src/core/service/api.service';
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class UpdateService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'update') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'update') {
         super(httpClient, loginService, apiEndpoint);
 
         this.name = 'updateService';
@@ -25,17 +25,22 @@ export default class UpdateService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get<{ version: unknown; changelog: unknown }>(`/_action/${this.getApiBasePath()}/check`, { headers })
+            .get<{
+                version: unknown;
+                changelog: unknown;
+                autoUpdateEnabled?: boolean;
+                clusterSetup?: boolean;
+            }>(`/_action/${this.getApiBasePath()}/check`, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
     }
 
-    checkRequirements() {
+    checkLicense() {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get<Array<{ result: boolean }>>(`/_action/${this.getApiBasePath()}/check-requirements`, {
+            .get<{ isValid: boolean }>(`/_action/${this.getApiBasePath()}/check-requirements`, {
                 headers,
             })
             .then((response) => {
@@ -69,10 +74,10 @@ export default class UpdateService extends ApiService {
             });
     }
 
-    deactivatePlugins(offset: number, pluginDeactivationStrategy = '') {
+    deactivateExtensions(offset: number, extensionDeactivationStrategy = '') {
         const headers = this.getBasicHeaders();
         const actionUrlPart = `/_action/${this.getApiBasePath()}`;
-        const offsetParam = `offset=${offset}&deactivationFilter=${pluginDeactivationStrategy}`;
+        const offsetParam = `offset=${offset}&deactivationFilter=${extensionDeactivationStrategy}`;
 
         return this.httpClient
             .get<{ offset: number; total: number }>(`${actionUrlPart}/deactivate-plugins?${offsetParam}`, {

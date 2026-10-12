@@ -2,21 +2,22 @@
  * @sw-package framework
  */
 
-import Feature from 'src/app/service/feature.service';
+import Feature from 'src/core/feature';
+import FeatureService from 'src/app/service/feature.service';
+import normalizeFeatureFlag from '../../_helper_/normalizeFeatureFlag';
+
+global.activeFeatureFlags = global.activeFeatureFlags ?? [];
 
 /**
- * You can activate feature flags in the beforeAll method like this:
- * global.activeFeatureFlags = ['FEATURE_NEXT_12345'];
+ * The real `Feature`, with the flags the test activates through `it.activeFeatureFlags()`. Stub any
+ * method with `jest.spyOn(Shopware.Feature, 'isActive')`, and the rest of `Feature` uses the stub.
  */
+export class FeatureMock extends Feature {
+    static isActive(flagName) {
+        const normalizedFlagName = normalizeFeatureFlag(flagName);
 
-global.activeFeatureFlags = [];
+        return global.activeFeatureFlags.some((featureFlag) => normalizeFeatureFlag(featureFlag) === normalizedFlagName);
+    }
+}
 
-const featureMock = {
-    isActive: (flagName) => {
-        return global.activeFeatureFlags.includes(flagName);
-    },
-};
-
-const feature = new Feature(featureMock);
-
-export default feature;
+export default new FeatureService(FeatureMock);

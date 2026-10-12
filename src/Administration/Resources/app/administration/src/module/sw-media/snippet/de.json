@@ -74,7 +74,7 @@
       "rootFolderName": "Medien"
     },
     "mediaLibrary": {
-      "labelButtonLoadMore": "Weitere laden",
+      "labelButtonLoadMore": "Mehr laden",
       "labelButtonLoadAll": "Alle laden",
       "titleEmptyState": "Noch keine Medien vorhanden",
       "descriptionEmptyState": "Verwaltung von Medien."

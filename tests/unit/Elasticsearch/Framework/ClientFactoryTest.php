@@ -9,12 +9,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ClientFactory;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ClientFactory::class)]
 class ClientFactoryTest extends TestCase
 {

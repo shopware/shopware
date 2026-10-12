@@ -11,7 +11,7 @@
     &.overlay .sw-flow-trigger__event-selection {
         z-index: 700;
         position: absolute;
-        background: var(--color-elevation-surface-overlay);
+        background: var(--color-elevation-surface-raised);
         background-clip: padding-box;
         border-radius: var(--border-radius-xs);
         box-shadow: 0 1px 6px 0 var(--color-elevation-shadow-default);

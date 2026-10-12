@@ -20,14 +20,9 @@ export default {
         'swOrderDetailAskAndSaveEdits',
     ],
 
-    emits: [
-        'show-status-history',
-        'save-edits',
-    ],
+    emits: ['show-status-history', 'save-edits'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         order: {
@@ -116,6 +111,9 @@ export default {
             return this.entity.stateMachineState.translated.name;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement, `sw-order-state-select-v2` derives the state color from `stateName`
+         */
         stateSelectBackgroundStyle() {
             const technicalName = this.entity.stateMachineState.technicalName;
 
@@ -151,6 +149,9 @@ export default {
             if (this.lastStateChange?.integration) {
                 const integrationLabel = this.lastStateChange.integration.label;
                 return `${integrationLabel} (${this.$t('sw-order.stateCard.labelIntegration')})`;
+            }
+            if (this.lastStateChange?.sourceType === 'sales-channel') {
+                return this.$t('sw-order.stateCard.labelCustomer');
             }
 
             return this.$t('sw-order.stateCard.labelSystemUser');

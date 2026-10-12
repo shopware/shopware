@@ -22,13 +22,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 #[CoversClass(CartMergedSubscriber::class)]
 class CartMergedSubscriberTest extends TestCase
 {
     public function testMergedHintIsAdded(): void
     {
         $session = new Session(new MockArraySessionStorage());
+        $session->start();
         $request = new Request();
         $request->setSession($session);
         $requestStack = new RequestStack();
@@ -46,8 +47,30 @@ class CartMergedSubscriberTest extends TestCase
 
         $subscriber->addCartMergedNoticeFlash($cartMergedEvent);
 
-        static::assertNotEmpty($infoFlash = $session->getFlashBag()->get('info'));
+        static::assertNotCount(0, $infoFlash = $session->getFlashBag()->get('info'));
         static::assertSame('checkout.cart-merged-hint', $infoFlash[0]);
+    }
+
+    public function testMergedHintIsNotAddedWhenPreviousCartIsEmpty(): void
+    {
+        $session = new Session(new MockArraySessionStorage());
+        $session->start();
+        $request = new Request();
+        $request->setSession($session);
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->expects($this->never())->method('trans');
+
+        $subscriber = new CartMergedSubscriber($translator, $requestStack);
+
+        $context = Generator::generateSalesChannelContext(token: 'currentToken');
+        $event = new CartMergedEvent(new Cart('customerToken'), $context, new Cart('currentToken'));
+
+        $subscriber->addCartMergedNoticeFlash($event);
+
+        static::assertCount(0, $session->getFlashBag()->get('info'));
     }
 
     public function testGetSubscribedEventsReturnsAddCartMergedNoticeFlash(): void
@@ -74,7 +97,7 @@ class CartMergedSubscriberTest extends TestCase
 
         $subscriber->addCartMergedNoticeFlash($cartMergedEvent);
 
-        static::assertEmpty($session->getFlashBag()->get('info'));
+        static::assertCount(0, $session->getFlashBag()->get('info'));
     }
 
     public function testMergedSubscriberDoNothingWithEmptyRequestStack(): void
@@ -91,12 +114,12 @@ class CartMergedSubscriberTest extends TestCase
 
         $subscriber->addCartMergedNoticeFlash($cartMergedEvent);
 
-        static::assertEmpty($session->getFlashBag()->get('info'));
+        static::assertCount(0, $session->getFlashBag()->get('info'));
     }
 
     public function testMergedSubscriberDoNothingWithIncompatibleSession(): void
     {
-        $session = $this->createMock(SessionInterface::class);
+        $session = static::createStub(SessionInterface::class);
         $request = new Request();
         $request->setSession($session);
         $requestStack = new RequestStack();

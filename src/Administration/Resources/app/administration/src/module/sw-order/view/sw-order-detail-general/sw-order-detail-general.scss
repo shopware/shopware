@@ -1,0 +1,56 @@
+.sw-order-detail-general {
+    &__line-item-grid-card-footer {
+        display: flex;
+        justify-content: flex-end;
+        padding: var(--scale-size-24);
+        border-top: var(--scale-size-1) solid var(--color-border-secondary-default);
+    }
+
+    &__summary {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: var(--scale-size-12);
+        width: 27.5rem;
+        max-width: 100%;
+        padding: var(--scale-size-16);
+        border-radius: var(--border-radius-card);
+        background: var(--color-background-secondary-default);
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+
+        > dt,
+        > dd {
+            margin: 0;
+        }
+
+        > dd {
+            text-align: right;
+        }
+
+        .sw-order-saveable-field {
+            width: 12.5rem;
+        }
+    }
+
+    &__summary-row {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--scale-size-16);
+
+        &--divider {
+            padding-top: var(--scale-size-12);
+            border-top: var(--scale-size-1) solid var(--color-border-secondary-default);
+        }
+
+        &--subtotal {
+            font-weight: var(--font-weight-semibold);
+        }
+
+        &--total {
+            font-weight: var(--font-weight-bold);
+        }
+    }
+}

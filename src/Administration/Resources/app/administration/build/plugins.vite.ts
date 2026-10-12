@@ -26,6 +26,8 @@ import AssetPathPlugin from './vite-plugins/asset-path-plugin';
 import ExternalsPlugin from './vite-plugins/externals-plugin';
 import AssetCssPostprocessPlugin from './vite-plugins/asset-css-postprocess-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
+import ShopwareSetupPlugin from './vite-plugins/shopware-setup';
+import VirtualShopwareModulesPlugin from './vite-plugins/virtual-shopware-modules';
 import { loadExtensions, getViteServerPorts, isInsideDockerContainer } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
@@ -40,10 +42,12 @@ const host = process.env.VITE_HOST || 'localhost';
 const extensionEntries = loadExtensions();
 
 // Common configuration shared between dev and build
-const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
+const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
     const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
     const configInfoDebug = debug('vite:config');
-    const useSourceMap = !isProd && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
+    const useSourceMap =
+        (!isProd && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||
+        (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
 
     const logger = createLogger();
 
@@ -75,6 +79,13 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
                 root: extension.path,
                 pluginEntryFile: extension.filePath,
             }),
+            ShopwareSetupPlugin({
+                administrationRoot: path.dirname(__dirname),
+            }),
+            VirtualShopwareModulesPlugin({
+                administrationRoot: path.dirname(__dirname),
+                consumer: 'extension',
+            }),
             vue({
                 template: {
                     compilerOptions: {
@@ -87,11 +98,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
             ExternalsPlugin(),
 
             // Prod plugins
-            ...(isDev
-                ? []
-                : [
-                      symfonyPlugin(),
-                  ]),
+            ...(isDev ? [] : [symfonyPlugin()]),
         ],
 
         resolve: {
@@ -190,10 +197,10 @@ const main = async () => {
             }
         });
 
-        fs.writeFileSync(
-            path.resolve(__dirname, '../../../public/administration/sw-plugin-dev.json'),
-            JSON.stringify(swPluginDevJsonData),
-        );
+        // Write outside of public/administration on purpose: a parallel production
+        // build empties that directory (emptyOutDir), which would delete this file
+        // out from under the running watcher.
+        fs.writeFileSync(path.resolve(__dirname, '../../../sw-plugin-dev.json'), JSON.stringify(swPluginDevJsonData));
 
         // Start dev servers
         for (let i = 0; i < extensionEntries.length; i++) {
@@ -218,7 +225,7 @@ const main = async () => {
             } else {
                 // For plugins
                 server = await createServer({
-                    ...getBaseConfig(extension),
+                    ...getBaseConfig(extension, false),
                     base: `/_internal_ext/${extension.technicalName}/`,
                     server: {
                         host: '127.0.0.1',
@@ -261,7 +268,7 @@ const main = async () => {
                 } else {
                     console.log(colors.green(`# Building plugin "${extension.name}"`));
                     // For plugins
-                    await build(getBaseConfig(extension));
+                    await build(getBaseConfig(extension, true));
                 }
             } catch (error) {
                 hasFailedBuilds = true;

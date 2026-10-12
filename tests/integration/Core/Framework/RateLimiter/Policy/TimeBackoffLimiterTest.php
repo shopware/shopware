@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\RateLimiter\Policy;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -21,6 +22,7 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
 /**
  * @internal
  */
+#[Package('framework')]
 class TimeBackoffLimiterTest extends TestCase
 {
     use CustomerTestTrait;
@@ -64,9 +66,9 @@ class TimeBackoffLimiterTest extends TestCase
         $factory = new RateLimiterFactory(
             $this->config,
             new CacheStorage(new ArrayAdapter()),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             new NativeClock(),
-            $this->createMock(LockFactory::class),
+            static::createStub(LockFactory::class),
         );
 
         $this->limiter = $factory->create('example');

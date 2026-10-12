@@ -32,6 +32,8 @@ class SearchRequestException extends ShopwareHttpException
     public function add(\Throwable $exception, string $pointer): void
     {
         $this->exceptions[$pointer][] = $exception;
+        $this->parameters['numberOfFailures'] = \count($this->exceptions);
+        $this->message = $this->parse('Mapping failed, got {{ numberOfFailures }} failure(s).', $this->parameters);
     }
 
     public function getStatusCode(): int

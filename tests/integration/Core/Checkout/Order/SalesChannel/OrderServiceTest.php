@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Order\SalesChannel;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -17,6 +16,7 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -32,22 +32,18 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AccountOrderController;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-#[Group('slow')]
 class OrderServiceTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -95,8 +91,8 @@ class OrderServiceTest extends TestCase
             'deliveries.shippingOrderAddress',
         ]);
 
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
         $deliveries = $order->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -110,8 +106,8 @@ class OrderServiceTest extends TestCase
             $this->salesChannelContext->getContext()
         );
 
-        /** @var OrderEntity $updatedOrder */
-        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($updatedOrder);
         $deliveries = $updatedOrder->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -140,8 +136,8 @@ class OrderServiceTest extends TestCase
             'deliveries.shippingOrderAddress',
         ]);
 
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
         $deliveries = $order->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -151,18 +147,9 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            static::assertStringContainsString('The new status is as follows: Cancelled.', $event->getContents()['text/html']);
-            static::assertStringContainsString($url, $event->getContents()['text/html']);
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
@@ -170,10 +157,13 @@ class OrderServiceTest extends TestCase
             new RequestDataBag(),
             $this->salesChannelContext->getContext()
         );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $htmlText = $mail->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString('The new status is as follows: Cancelled.', $htmlText);
+        static::assertStringContainsString($url, $htmlText);
     }
 
     public function testSkipOrderDeliveryStateTransitionSendsMail(): void
@@ -194,8 +184,8 @@ class OrderServiceTest extends TestCase
             'deliveries.shippingOrderAddress',
         ]);
 
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
         static::assertNotNull($deliveries = $order->getDeliveries());
         static::assertNotNull($delivery = $deliveries->first());
         $orderDeliveryId = $delivery->getId();
@@ -203,18 +193,8 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $url = $domain . '/account/order/' . $order->getDeepLinkCode();
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            static::assertStringContainsString('The new status is as follows: Cancelled.', $event->getContents()['text/html']);
-            static::assertStringContainsString($url, $event->getContents()['text/html']);
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->salesChannelContext
             ->getContext()
@@ -227,9 +207,7 @@ class OrderServiceTest extends TestCase
             $this->salesChannelContext->getContext()
         );
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
-        static::assertFalse($eventDidRun, 'The mail.sent Event did run');
+        static::assertNull($mail, 'The mail.sent Event did run');
     }
 
     public function testOrderDeliveryStateTransitionSendsMailDe(): void
@@ -260,8 +238,8 @@ class OrderServiceTest extends TestCase
             'deliveries.shippingOrderAddress',
         ]);
 
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
         static::assertNotNull($deliveries = $order->getDeliveries());
         static::assertNotNull($delivery = $deliveries->first());
         $orderDeliveryId = $delivery->getId();
@@ -269,19 +247,9 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, $this->getDeDeLanguageId());
 
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
-        $eventDidRun = false;
-        $innerEvent = null;
-
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, &$innerEvent): void {
-            $innerEvent = $event;
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
@@ -289,14 +257,13 @@ class OrderServiceTest extends TestCase
             new RequestDataBag(),
             Context::createDefaultContext() // DefaultContext is intended to test if the language of the order is used
         );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
-        static::assertNotNull($innerEvent);
-        static::assertStringContainsString('Die Bestellung hat jetzt den Lieferstatus: Abgebrochen.', $innerEvent->getContents()['text/html']);
-        static::assertStringContainsString($url, $innerEvent->getContents()['text/html']);
-
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $textHtml = $mail->getContents()['text/html'];
+        static::assertIsString($textHtml);
+        static::assertStringContainsString('Die Bestellung hat jetzt den Lieferstatus: Abgebrochen.', $textHtml);
+        static::assertStringContainsString($url, $textHtml);
         $this->salesChannelContext = $previousContext;
     }
 
@@ -309,8 +276,8 @@ class OrderServiceTest extends TestCase
 
         $criteria->addAssociation('transactions.stateMachineState');
 
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -322,8 +289,8 @@ class OrderServiceTest extends TestCase
             $this->salesChannelContext->getContext()
         );
 
-        /** @var OrderEntity $updatedOrder */
-        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($updatedOrder);
         static::assertNotNull($transactions = $updatedOrder->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         static::assertNotNull($transaction->getStateMachineState());
@@ -349,8 +316,8 @@ class OrderServiceTest extends TestCase
             'transactions.stateMachineState',
         ]);
 
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -358,18 +325,9 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            static::assertStringContainsString('The new status is as follows: Paid (partially).', $event->getContents()['text/html']);
-            static::assertStringContainsString($url, $event->getContents()['text/html']);
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->orderService->orderTransactionStateTransition(
             $orderTransactionId,
@@ -377,10 +335,13 @@ class OrderServiceTest extends TestCase
             new RequestDataBag(),
             $this->salesChannelContext->getContext()
         );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $htmlText = $mail->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString('The new status is as follows: Paid (partially).', $htmlText);
+        static::assertStringContainsString($url, $htmlText);
     }
 
     public function testSkipOrderTransactionStateTransitionSendsMail(): void
@@ -400,8 +361,8 @@ class OrderServiceTest extends TestCase
             'transactions.stateMachineState',
         ]);
 
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -409,18 +370,8 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $url = $domain . '/account/order/' . $order->getDeepLinkCode();
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            static::assertStringContainsString('The new status is as follows: Paid (partially).', $event->getContents()['text/html']);
-            static::assertStringContainsString($url, $event->getContents()['text/html']);
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->salesChannelContext
             ->getContext()
@@ -433,9 +384,7 @@ class OrderServiceTest extends TestCase
             $this->salesChannelContext->getContext()
         );
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
-        static::assertFalse($eventDidRun, 'The mail.sent Event did not run');
+        static::assertNull($mail, 'The mail.sent Event did run');
     }
 
     public function testCreateOrder(): void
@@ -449,8 +398,7 @@ class OrderServiceTest extends TestCase
 
         $criteria->addAssociation('stateMachineState');
 
-        /** @var OrderEntity $newlyCreatedOrder */
-        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $newlyCreatedOrder);
         static::assertSame($orderId, $newlyCreatedOrder->getId());
@@ -481,8 +429,7 @@ class OrderServiceTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
 
-        /** @var OrderEntity $newlyCreatedOrder */
-        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $newlyCreatedOrder);
         static::assertSame($orderId, $newlyCreatedOrder->getId());
@@ -504,21 +451,13 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $eventDidRun = false;
-        $listenerClosure = static function () use (&$eventDidRun): void {
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
     }
 
     public function testOrderStateTransition(): void
@@ -531,8 +470,8 @@ class OrderServiceTest extends TestCase
 
         $criteria->addAssociation('stateMachineState');
 
-        /** @var OrderEntity $cancelledOrder */
-        $cancelledOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $cancelledOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($cancelledOrder);
         $state = $cancelledOrder->getStateMachineState();
 
         static::assertNotNull($state);
@@ -551,31 +490,25 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $criteria = new Criteria([$orderId]);
 
         $criteria->addAssociation('stateMachineState');
 
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
 
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            static::assertStringContainsString('The new status is as follows: Cancelled.', $event->getContents()['text/html']);
-            static::assertStringContainsString($url, $event->getContents()['text/html']);
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->orderService->orderStateTransition($orderId, 'cancel', new ParameterBag(), $this->salesChannelContext->getContext());
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $htmlText = $mail->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString('The new status is as follows: Cancelled.', $htmlText);
+        static::assertStringContainsString($url, $htmlText);
     }
 
     public function testMailTemplateHasCorrectDomain(): void
@@ -591,7 +524,6 @@ class OrderServiceTest extends TestCase
         $firstDomain = 'http://shopware.first-domain';
         $this->setDomainForSalesChannel($firstDomain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = static::getContainer()->get('language.repository');
 
         $criteria = new Criteria();
@@ -609,23 +541,17 @@ class OrderServiceTest extends TestCase
         $secondDomain = 'http://shopware.second-domain';
         $this->setDomainForSalesChannel($secondDomain, $languageId);
 
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $firstDomain, $secondDomain): void {
-            static::assertStringContainsString($firstDomain, $event->getContents()['text/html']);
-            static::assertThat($event->getContents()['text/html'], $this->logicalNot($this->stringContains($secondDomain)));
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $htmlText = $mail->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString($firstDomain, $htmlText);
+        static::assertStringNotContainsString($secondDomain, $htmlText);
     }
 
     public function testMailTemplateHandlesVirtualDomains(): void
@@ -641,23 +567,17 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.test/virtual-domain';
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $url = $domain . '/account/order';
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            static::assertStringContainsString($url, $event->getContents()['text/html']);
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $htmlText = $mail->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString($url, $htmlText);
     }
 
     private function performOrder(): string
@@ -763,7 +683,6 @@ class OrderServiceTest extends TestCase
 
     private function setDomainForSalesChannel(string $domain, string $languageId): void
     {
-        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         $data = [

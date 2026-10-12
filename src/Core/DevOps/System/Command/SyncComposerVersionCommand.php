@@ -14,11 +14,11 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'sync:composer:version',
     description: 'Syncs the composer version with the shopware version',
 )]
-#[Package('framework')]
 class SyncComposerVersionCommand extends Command
 {
     /**
@@ -59,28 +59,25 @@ class SyncComposerVersionCommand extends Command
             $bundleJson = json_decode($this->fileSystem->readFile($bundleJsonPath), true, 512, \JSON_THROW_ON_ERROR);
             $bundleName = basename(\dirname($bundleJsonPath));
 
-            foreach (['require', 'require-dev'] as $field) {
-                // Check if all root dependencies are in the bundle composer.json files
-                foreach ($rootComposerJson[$field] ?? [] as $package => $version) {
-                    if (isset($bundleJson[$field][$package])) {
-                        if ($bundleJson[$field][$package] !== $version) {
-                            $bundleJson[$field][$package] = $version;
-                            $changed[$bundleName] = true;
-                        }
-                    } elseif ($field === 'require') {
-                        // Dev dependencies should not be synced from root to bundles
-                        $isInRootButNotInBundle[$package][] = $bundleName;
+            // Check if all root dependencies are in the bundle composer.json files
+            foreach ($rootComposerJson['require'] ?? [] as $package => $version) {
+                if (isset($bundleJson['require'][$package])) {
+                    if ($bundleJson['require'][$package] !== $version) {
+                        $bundleJson['require'][$package] = $version;
+                        $changed[$bundleName] = true;
                     }
+                } else {
+                    $isInRootButNotInBundle[$package][] = $bundleName;
                 }
+            }
 
-                // Check if all bundle dependencies are in the root composer.json file
-                foreach ($bundleJson[$field] ?? [] as $package => $version) {
-                    if ($package === 'shopware/core') {
-                        continue;
-                    }
-                    if (!isset($rootComposerJson[$field][$package])) {
-                        $isInBundleButNotInRoot[$package][] = $bundleName;
-                    }
+            // Check if all bundle dependencies are in the root composer.json file
+            foreach ($bundleJson['require'] ?? [] as $package => $version) {
+                if ($package === 'shopware/core') {
+                    continue;
+                }
+                if (!isset($rootComposerJson['require'][$package])) {
+                    $isInBundleButNotInRoot[$package][] = $bundleName;
                 }
             }
 

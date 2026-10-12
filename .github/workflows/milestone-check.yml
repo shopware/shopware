@@ -1,0 +1,74 @@
+name: Check milestone label
+# Rule and reasoning: .github/bin/js/milestone-label.ts
+#
+# Require the `milestone/label` commit status in branch protection and the merge
+# queue, not this job name — the job stays green by design.
+#
+# merge_group is the gate that matters: GitHub retargets a stacked PR to trunk without
+# emitting a pull_request event, so the PR-level run can be green from before it.
+#
+# pull_request_target, not pull_request: a fork PR's GITHUB_TOKEN is read-only on
+# pull_request no matter the permissions block, so posting the status 403'd on the
+# pull requests this most needs to run on (#18741). Safe here because the job never
+# checks out or executes the PR head, only the base ref and PR metadata via the API.
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - synchronize
+      - edited
+      - labeled
+      - unlabeled
+  merge_group:
+
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+
+jobs:
+  check:
+    name: Milestone label
+    runs-on: ubuntu-24.04
+    steps:
+      # The base ref, never the PR head: a fork PR must not be able to edit the
+      # module that judges it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          sparse-checkout: .github/bin/js
+
+      # Absent wherever the rule has not landed yet, e.g. a release branch it was
+      # never backported to.
+      - id: rule
+        run: |
+          if [ -f .github/bin/js/milestone-label.ts ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No milestone label rule on ${GITHUB_BASE_REF:-the base branch} yet, nothing to check."
+          fi
+
+      - if: steps.rule.outputs.present == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { checkMilestoneLabel } = await import('${{ github.workspace }}/.github/bin/js/milestone-label.ts')
+            await checkMilestoneLabel({ github, core, context })
+
+      # A required status context that is never reported blocks the pull request
+      # forever, so the branches without the rule have to report too.
+      - if: steps.rule.outputs.present != 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              ...context.repo,
+              sha: context.payload.pull_request?.head.sha ?? context.payload.merge_group.head_sha,
+              state: 'success',
+              context: 'milestone/label',
+              description: 'no milestone label rule on this base branch',
+            })

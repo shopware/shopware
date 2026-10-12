@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Components;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
 use Symfony\UX\TwigComponent\ComponentAttributes;
 use Symfony\UX\TwigComponent\ComponentMetadata;
@@ -15,6 +16,7 @@ use Twig\Runtime\EscaperRuntime;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(TwigComponentRenderEventListener::class)]
 class TwigComponentRenderEventListenerTest extends TestCase
 {
@@ -195,6 +197,16 @@ class TwigComponentRenderEventListenerTest extends TestCase
         yield 'nested path' => [
             'components/Sw/Filter/Panel.html.twig',
             'Sw:Filter:Panel',
+        ];
+
+        yield 'anonymous component index template' => [
+            'components/Sw/Foo/index.html.twig',
+            'Sw:Foo',
+        ];
+
+        yield 'anonymous component index template without components prefix' => [
+            'Sw/Foo/index.html.twig',
+            'Sw:Foo',
         ];
 
         yield 'path without components prefix' => [

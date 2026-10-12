@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Twig\Error\Error as TwigError;
@@ -13,6 +14,7 @@ use Twig\Source;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorefrontException::class)]
 class StorefrontExceptionTest extends TestCase
 {

@@ -8,6 +8,8 @@ const { Mixin } = Shopware;
 
 /**
  * @private
+ *
+ * Duplicated in `src/app/composables/use-notification`; change both together.
  */
 export default Mixin.register(
     'notification',

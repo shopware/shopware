@@ -11,20 +11,20 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(SalesChannelDomainUrls::class)]
 #[Package('framework')]
+#[CoversClass(SalesChannelDomainUrls::class)]
 class SalesChannelDomainUrlsTest extends TestCase
 {
     public function testIdentifier(): void
     {
-        $fingerprint = new SalesChannelDomainUrls($this->createMock(Connection::class));
+        $fingerprint = new SalesChannelDomainUrls(static::createStub(Connection::class));
 
         static::assertSame('sales_channel_domain_urls', $fingerprint->getIdentifier());
     }
 
     public function testScore(): void
     {
-        $fingerprint = new SalesChannelDomainUrls($this->createMock(Connection::class));
+        $fingerprint = new SalesChannelDomainUrls(static::createStub(Connection::class));
 
         static::assertSame(25, $fingerprint->getScore());
     }

@@ -82,6 +82,16 @@ class OrderBuilder
         $this->add('totalRounding', json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR));
     }
 
+    /**
+     * @param array<string, mixed> $lineItem
+     */
+    public function addLineItem(array $lineItem): self
+    {
+        $this->lineItems[] = $lineItem;
+
+        return $this;
+    }
+
     public function price(float $amount): self
     {
         $this->price = new CartPrice(

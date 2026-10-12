@@ -17,24 +17,8 @@ describe('test/_helper_/mock-timezone', () => {
     });
 
     it.each<DateConstructorTestCase>([
-        [
-            'summer time',
-            [
-                2024,
-                4,
-                15,
-            ],
-            '2024-05-14T22:00:00.000Z',
-        ],
-        [
-            'winter time',
-            [
-                2024,
-                0,
-                15,
-            ],
-            '2024-01-14T23:00:00.000Z',
-        ],
+        ['summer time', [2024, 4, 15], '2024-05-14T22:00:00.000Z'],
+        ['winter time', [2024, 0, 15], '2024-01-14T23:00:00.000Z'],
     ])('should construct local date parts in mocked browser timezone during %s', (label, dateParts, isoString) => {
         resetTimezone = mockTimezone('Europe/Berlin');
 

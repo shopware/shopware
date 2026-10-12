@@ -72,12 +72,12 @@ export default class ZoomModalPlugin extends Plugin {
     };
 
     init() {
-        this._triggers = this.el.querySelectorAll(this.options.triggerSelector);
-        this._triggersCanvas = this.el.querySelectorAll(this.options.triggerSelectorCanvas);
         this._clickInterrupted = false;
         this._pixelsMoved = 0;
         this._mouseDown = false;
+
         this._registerEvents();
+        this._registerViewportChangeEvent();
     }
 
     /**
@@ -85,6 +85,11 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
+        this._triggers = this.el.querySelectorAll(this.options.triggerSelector);
+        this._triggersCanvas = this.el.querySelectorAll(
+            this.options.triggerSelectorCanvas,
+        );
+
         const eventType = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
 
         if (!this._boundOnClick) {
@@ -130,6 +135,15 @@ export default class ZoomModalPlugin extends Plugin {
             element.removeEventListener('pointermove', this._boundOnPointerMove);
             element.addEventListener('pointermove', this._boundOnPointerMove);
         });
+    }
+
+    _registerViewportChangeEvent() {
+        if (!this._boundOnViewportHasChanged) {
+            this._boundOnViewportHasChanged = this._registerEvents.bind(this);
+        }
+
+        document.removeEventListener('Viewport/hasChanged', this._boundOnViewportHasChanged);
+        document.addEventListener('Viewport/hasChanged', this._boundOnViewportHasChanged);
     }
 
     /**
@@ -219,7 +233,9 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _loadImages(modal) {
-        const imagesToLoad = modal.querySelectorAll('img[' + this.options.imgDataSrcAttr + ']' + this.options.imgToLoadSelector);
+        const imagesToLoad = Array.from(
+            modal.querySelectorAll('img[' + this.options.imgDataSrcAttr + ']' + this.options.imgToLoadSelector),
+        ).filter(img => img.getAttribute(this.options.imgDataSrcAttr));
         const imageCount = imagesToLoad.length;
 
         // images are already loaded
@@ -235,32 +251,30 @@ export default class ZoomModalPlugin extends Plugin {
             const src = img.getAttribute(this.options.imgDataSrcAttr);
             const srcSet = img.getAttribute(this.options.imgDataSrcSetAttr);
 
-            if (src) {
-                img.onload = () => {
-                    loadedCount++;
+            img.onload = () => {
+                loadedCount++;
 
-                    // show modal if all images are loaded or error occured
-                    if (loadedCount + errorCount === imageCount){
-                        this._showModal(modal);
-                    }
-                };
-
-                img.onerror = () => {
-                    errorCount++;
-
-                    // show modal if all images are loaded or error occured
-                    if (loadedCount + errorCount === imageCount){
-                        this._showModal(modal);
-                    }
-                };
-
-                img.setAttribute('src', src);
-                img.removeAttribute(this.options.imgDataSrcAttr);
-
-                if (srcSet) {
-                    img.setAttribute('srcset', srcSet);
-                    img.removeAttribute(this.options.imgDataSrcSetAttr);
+                // show modal if all images are loaded or error occured
+                if (loadedCount + errorCount === imageCount){
+                    this._showModal(modal);
                 }
+            };
+
+            img.onerror = () => {
+                errorCount++;
+
+                // show modal if all images are loaded or error occured
+                if (loadedCount + errorCount === imageCount){
+                    this._showModal(modal);
+                }
+            };
+
+            img.setAttribute('src', src);
+            img.removeAttribute(this.options.imgDataSrcAttr);
+
+            if (srcSet) {
+                img.setAttribute('srcset', srcSet);
+                img.removeAttribute(this.options.imgDataSrcSetAttr);
             }
         });
     }

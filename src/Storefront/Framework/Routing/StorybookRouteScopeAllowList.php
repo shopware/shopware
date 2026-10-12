@@ -9,7 +9,7 @@ use Shopware\Storefront\Controller\StorybookController;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 final class StorybookRouteScopeAllowList implements RouteScopeWhitelistInterface
 {
     public function applies(string $controllerClass): bool

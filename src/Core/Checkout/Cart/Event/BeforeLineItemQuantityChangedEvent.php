@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class BeforeLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent, CartEvent
 {

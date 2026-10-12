@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,6 +15,7 @@ use Twig\Node\Expression\AbstractExpression;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(AdapterException::class)]
 class AdapterExceptionTest extends TestCase
 {
@@ -43,7 +45,7 @@ class AdapterExceptionTest extends TestCase
     public function testUnexpectedTwigExpression(): void
     {
         /** @var AbstractExpression&MockObject $expression */
-        $expression = $this->createMock(AbstractExpression::class);
+        $expression = static::createStub(AbstractExpression::class);
         $type = $expression::class;
 
         $exception = AdapterException::unexpectedTwigExpression($expression);
@@ -100,7 +102,7 @@ class AdapterExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         static::assertSame(AdapterException::INVALID_ARGUMENT, $exception->getErrorCode());
         static::assertSame('test', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 
     public function testMissingRequiredParameter(): void

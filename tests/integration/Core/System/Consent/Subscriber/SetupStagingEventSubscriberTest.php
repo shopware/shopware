@@ -39,7 +39,7 @@ class SetupStagingEventSubscriberTest extends TestCase
 
         $subscriber->removeAllConsents(new SetupStagingEvent(
             Context::createCLIContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
         ));
 
         $count = $connection->executeQuery('SELECT count(*) FROM `consent_state`')->fetchOne();

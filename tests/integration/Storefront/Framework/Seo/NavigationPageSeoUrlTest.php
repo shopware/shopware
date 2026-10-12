@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Seo;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Defaults;
@@ -25,7 +24,6 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
  * @internal
  */
 #[Package('inventory')]
-#[Group('slow')]
 class NavigationPageSeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -61,7 +59,7 @@ class NavigationPageSeoUrlTest extends TestCase
         $this->categoryRepository->create($categories, Context::createDefaultContext());
 
         $urls = $this->getSeoUrls($ids->getList(['root']), null);
-        static::assertEmpty($urls);
+        static::assertCount(0, $urls);
 
         $this->createSalesChannel($ids->create('sales-channel'), $ids->get('root'));
 

@@ -45,6 +45,17 @@ export default class Plugin {
     }
 
     /**
+     * this function gets executed before the plugin instance is replaced,
+     * for example when the plugin was overridden after it was initialized
+     *
+     * Implement it to remove everything the plugin added outside of its own instance,
+     * most importantly event listeners registered with `addEventListener`.
+     */
+    destroy() {
+
+    }
+
+    /**
      * internal init method which checks
      * if the plugin is already initialized
      * before executing the public init

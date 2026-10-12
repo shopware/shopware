@@ -3,6 +3,8 @@
 We rely heavily on static analysis (read PHPStan) to ensure the quality of our code and enforce coding guidelines and best practices.
 For static analysis to work properly, it is important that the code is written in a way that is understandable by static analysis tools, this mostly means that the code uses static types where possible, to catch a bunch of possible errors.
 
+Related ADR: [Remove static analysis with Psalm](../../adr/2022-05-12-remove-static-analysis-with-psalm.md).
+
 A main challenge is to narrow down the types when part of the code is implemented in a generic way and uses the dynamics that PHP offers.
 This document will explain some of the approaches that can be used in those cases. They are presented in the order in which they should be used, the first one being the preferred one.
 

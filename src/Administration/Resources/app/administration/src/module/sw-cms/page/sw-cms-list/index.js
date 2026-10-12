@@ -19,11 +19,7 @@ export default {
         'cmsPageTypeService',
     ],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('user-settings'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification'), Mixin.getByName('user-settings')],
 
     data() {
         return {
@@ -48,11 +44,7 @@ export default {
             showDeleteModal: false,
             defaultMediaFolderId: null,
             listMode: 'grid',
-            assignablePageTypes: [
-                'categories',
-                'products',
-                'landingPages',
-            ],
+            assignablePageTypes: ['categories', 'products', 'landingPages'],
             searchConfigEntity: 'cms_page',
             showLayoutSetAsDefaultModal: false,
             defaultCategoryId: '',
@@ -101,6 +93,28 @@ export default {
             );
         },
 
+        activePageTypeTab() {
+            return this.currentPageType || 'all-pages';
+        },
+
+        cmsListPageTypeTabs() {
+            return this.sortPageTypes.map((pageType) => {
+                const tab = {
+                    label: pageType.name,
+                    name: pageType.value || 'all-pages',
+                    onClick: () => {
+                        this.onSortPageType(pageType.value);
+                    },
+                };
+
+                if (pageType.disabled) {
+                    tab.disabled = pageType.disabled;
+                }
+
+                return tab;
+            });
+        },
+
         listCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.getAssociation('categories').addSorting(Criteria.sort('name', 'ASC')).setLimit(this.associationLimit);
@@ -146,9 +160,7 @@ export default {
                     type: 'multi',
                     operator: 'OR',
                     queries: this.assignablePageTypes.map((name) =>
-                        Criteria.not('OR', [
-                            Criteria.equals(`${name}.id`, null),
-                        ]),
+                        Criteria.not('OR', [Criteria.equals(`${name}.id`, null)]),
                     ),
                 },
             ];
@@ -175,11 +187,9 @@ export default {
     },
 
     methods: {
-        createdComponent() {
-            Shopware.Store.get('adminMenu').collapseSidebar();
-
+        async createdComponent() {
             if (this.acl.can('user_config:read')) {
-                this.loadGridUserSettings();
+                await this.loadGridUserSettings().catch(() => {});
             }
 
             if (this.acl.can('system_config:read')) {
@@ -277,6 +287,13 @@ export default {
             criteria.addAggregation(linkedLayoutsFilter);
         },
 
+        isDefaultLayout(page) {
+            return [
+                this.defaultProductId,
+                this.defaultCategoryId,
+            ].includes(page.id);
+        },
+
         showDefaultLayoutContextMenu(cmsPage) {
             if (!this.acl.can('system_config:read')) {
                 return false;
@@ -350,14 +367,18 @@ export default {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', 'cms_page'));
 
-            return this.defaultFolderRepository.search(criteria).then((searchResult) => {
-                const defaultFolder = searchResult.first();
-                if (defaultFolder.folder?.id) {
-                    return defaultFolder.folder.id;
-                }
+            return this.defaultFolderRepository
+                .search(criteria, {
+                    cacheKey: ['media-default-folder', 'cms_page'],
+                })
+                .then((searchResult) => {
+                    const defaultFolder = searchResult.first();
+                    if (defaultFolder.folder?.id) {
+                        return defaultFolder.folder.id;
+                    }
 
-                return null;
-            });
+                    return null;
+                });
         },
 
         onChangeLanguage(languageId) {
@@ -373,10 +394,7 @@ export default {
         },
 
         onSortingChanged(value) {
-            [
-                this.sortBy,
-                this.sortDirection,
-            ] = value.split(':');
+            [this.sortBy, this.sortDirection] = value.split(':');
             this.resetList();
             this.saveGridUserSettings();
         },
@@ -598,10 +616,7 @@ export default {
         },
 
         getPageType(page) {
-            const isDefault = [
-                this.defaultProductId,
-                this.defaultCategoryId,
-            ].includes(page.id);
+            const isDefault = this.isDefaultLayout(page);
             const defaultText = this.$t('sw-cms.components.cmsListItem.defaultLayout');
             const typeLabel = this.$t(this.cmsPageTypeService.getType(page.type)?.title);
 

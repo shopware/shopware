@@ -6,6 +6,7 @@ use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Level;
 use Monolog\LogRecord;
+use Monolog\ResettableInterface;
 use Psr\Log\LogLevel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -60,5 +61,12 @@ class ErrorCodeLogLevelHandler extends AbstractHandler
         }
 
         return $this->handler->handle($record);
+    }
+
+    public function reset(): void
+    {
+        if ($this->handler instanceof ResettableInterface) {
+            $this->handler->reset();
+        }
     }
 }

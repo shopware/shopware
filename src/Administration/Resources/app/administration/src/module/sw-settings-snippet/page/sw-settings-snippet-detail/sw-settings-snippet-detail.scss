@@ -1,0 +1,11 @@
+.sw-settings-snippet-detail {
+    &__translation-original-label {
+        font-weight: var(--font-weight-semi-bold);
+    }
+
+    &__translation-original-value {
+        font-style: italic;
+        margin-left: 4px;
+        word-break: break-word;
+    }
+}

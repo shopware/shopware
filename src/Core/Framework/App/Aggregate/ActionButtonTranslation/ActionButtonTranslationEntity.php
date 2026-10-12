@@ -10,6 +10,8 @@ use Shopware\Core\System\Language\LanguageEntity;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class ActionButtonTranslationEntity extends Entity

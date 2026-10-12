@@ -276,6 +276,13 @@
         .page-count {
             width: 100%;
             float: left;
+            display: none;
+        }
+
+        @media dompdf {
+            .page-count {
+                display: block;
+            }
         }
 
         .pagenum:after {
@@ -314,7 +321,6 @@
             padding: 0;
         }
     </style>
-            
                             <style type="text/css">
             body {
             max-width: 1200px;
@@ -404,7 +410,7 @@
                 
                 Max Mustermann<br/>Ebbinghoff 10<br/>48624 Schöppingen<br/>Germany<br/>
 
-                                    </div>
+                        </div>
 
         <div class="sender-address-container" tabindex="0">
                             <table>
@@ -467,9 +473,7 @@
                 
                                     <th class="numbers">Quantity</th>
                 
-                                                                                                                                                            
-                        
-                                                    <th class="numbers">VAT</th>
+                                                                                                                <th class="numbers">VAT</th>
                                                                             <th class="numbers incl-vat">
                                 Unit price
                                                                                                             <span>Incl. VAT</span>
@@ -499,11 +503,11 @@
                 
                                                                                         <td class="align-right">19 % </td>
                                                                             <td class="align-right">
-                                                                                                                                                &minus;€100.00
+                                                                                                            &minus;€100.00
                                     
                                                             </td>
                                                                             <td class="align-right">
-                                                                                                                                                &minus;€100.00
+                                                                                                            &minus;€100.00
                                                                                                 </td>
                                                                                 </tr>
     

@@ -4,11 +4,12 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Api\DTO\VerifyShop;
 use Shopware\Core\Framework\App\Api\VerifyShopController;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,19 +18,20 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(VerifyShopController::class)]
 class VerifyShopControllerTest extends TestCase
 {
     private VerifyShopController $controller;
 
-    private AppUrlVerifier&MockObject $appUrlVerifier;
+    private AppUrlVerifier&Stub $appUrlVerifier;
 
-    private MockObject&RateLimiter $rateLimiter;
+    private Stub&RateLimiter $rateLimiter;
 
     protected function setUp(): void
     {
-        $this->appUrlVerifier = $this->createMock(AppUrlVerifier::class);
-        $this->rateLimiter = $this->createMock(RateLimiter::class);
+        $this->appUrlVerifier = static::createStub(AppUrlVerifier::class);
+        $this->rateLimiter = static::createStub(RateLimiter::class);
         $this->controller = new VerifyShopController($this->rateLimiter, $this->appUrlVerifier);
     }
 
@@ -38,16 +40,18 @@ class VerifyShopControllerTest extends TestCase
         $e = new RateLimitExceededException(time());
         static::expectExceptionObject($e);
 
-        $this->rateLimiter->expects($this->once())
+        $rateLimiter = static::createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())
             ->method('ensureAccepted')
             ->with(RateLimiter::APP_SHOP_VERIFY, '127.0.0.1')
             ->willThrowException($e);
+        $controller = new VerifyShopController($rateLimiter, $this->appUrlVerifier);
 
         $request = new Request(
             server: ['REMOTE_ADDR' => '127.0.0.1']
         );
 
-        $this->controller->verify(new VerifyShop('some-run-id', 'some-token'), $request);
+        $controller->verify(new VerifyShop('some-run-id', 'some-token'), $request);
     }
 
     #[DataProvider('requestProvider')]
@@ -69,34 +73,38 @@ class VerifyShopControllerTest extends TestCase
 
     public function testVerificationFailReturnsBadRequest(): void
     {
-        $this->appUrlVerifier->expects($this->once())
+        $appUrlVerifier = static::createMock(AppUrlVerifier::class);
+        $appUrlVerifier->expects($this->once())
             ->method('completeVerification')
             ->with('some-run-id', 'some-token')
             ->willReturn(false);
+        $controller = new VerifyShopController($this->rateLimiter, $appUrlVerifier);
 
         $request = new Request(
             query: ['runId' => 'some-run-id', 'token' => 'some-token'],
             server: ['REMOTE_ADDR' => '127.0.0.1']
         );
 
-        $response = $this->controller->verify(new VerifyShop('some-run-id', 'some-token'), $request);
+        $response = $controller->verify(new VerifyShop('some-run-id', 'some-token'), $request);
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
     public function testVerificationPassReturnsNoContent(): void
     {
-        $this->appUrlVerifier->expects($this->once())
+        $appUrlVerifier = static::createMock(AppUrlVerifier::class);
+        $appUrlVerifier->expects($this->once())
             ->method('completeVerification')
             ->with('some-run-id', 'some-token')
             ->willReturn(true);
+        $controller = new VerifyShopController($this->rateLimiter, $appUrlVerifier);
 
         $request = new Request(
             query: ['runId' => 'some-run-id', 'token' => 'some-token'],
             server: ['REMOTE_ADDR' => '127.0.0.1']
         );
 
-        $response = $this->controller->verify(new VerifyShop('some-run-id', 'some-token'), $request);
+        $response = $controller->verify(new VerifyShop('some-run-id', 'some-token'), $request);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }

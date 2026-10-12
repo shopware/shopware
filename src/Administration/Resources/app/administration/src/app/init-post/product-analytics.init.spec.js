@@ -1,6 +1,7 @@
 import useConsentStore from 'src/core/consent/consent.store';
 import consentEventHandler from 'src/core/telemetry/product-analytics/consent-event-handler';
 import telemetryEventHandler from 'src/core/telemetry/product-analytics/telemetry-event-handler';
+import { trackSessionSnapshot } from 'src/app/service/product-analytics-session-snapshot.service';
 import initProductAnalytics from './product-analytics.init';
 
 const mockDeleteUser = jest.fn();
@@ -18,6 +19,9 @@ jest.mock('src/core/telemetry/product-analytics/consent-event-handler', () => {
 jest.mock('src/core/telemetry/product-analytics/telemetry-event-handler', () => {
     return jest.fn(() => jest.fn());
 });
+jest.mock('src/app/service/product-analytics-session-snapshot.service', () => ({
+    trackSessionSnapshot: jest.fn(),
+}));
 
 jest.mock('src/core/telemetry/product-analytics/gateway-client', () => {
     return {
@@ -51,6 +55,7 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
 
         watchHandle?.();
         Shopware.Utils.EventBus.all?.clear();
+        Shopware.Application.viewInitialized = Promise.resolve();
 
         Shopware.Store.get('context').app.analyticsGatewayUrl = 'https://gateway.example';
         Shopware.Store.get('context').app.config.shopId = testShopId;
@@ -250,6 +255,31 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
 
             expect(mockDeleteUser).toHaveBeenCalledWith(testShopId, testUserId);
             expect(mockClearStorage).toHaveBeenCalled();
+        });
+
+        it('tracks the session snapshot once the view is initialized when consent was given', async () => {
+            let resolveViewInitialized;
+            Shopware.Application.viewInitialized = new Promise((resolve) => {
+                resolveViewInitialized = resolve;
+            });
+            useConsentStore().consents.product_analytics.status = 'accepted';
+
+            watchHandle = await initProductAnalytics();
+            await flushPromises();
+
+            expect(trackSessionSnapshot).not.toHaveBeenCalled();
+
+            resolveViewInitialized();
+            await flushPromises();
+
+            expect(trackSessionSnapshot).toHaveBeenCalledTimes(1);
+        });
+
+        it('does not track the session snapshot without product analytics consent', async () => {
+            watchHandle = await initProductAnalytics();
+            await flushPromises();
+
+            expect(trackSessionSnapshot).not.toHaveBeenCalled();
         });
 
         it('Does not initialize the client twice after consent was revoked and accepted again', async () => {

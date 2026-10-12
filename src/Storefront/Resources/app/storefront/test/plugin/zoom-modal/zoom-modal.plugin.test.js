@@ -206,6 +206,31 @@ describe('ZoomModalPlugin tests', () => {
         expect(onKeyDownSpy).toHaveBeenCalledTimes(1);
     });
 
+    test('zoom modal re-registers trigger listeners after viewport changes', () => {
+        const registerEventsSpy = jest.spyOn(ZoomModalPlugin.prototype, '_registerEvents');
+        const onClickSpy = jest.spyOn(ZoomModalPlugin.prototype, '_onClick').mockImplementation(() => {});
+
+        const element = document.querySelector('[data-zoom-modal]');
+
+        const plugin = new ZoomModalPlugin(element);
+
+        expect(registerEventsSpy).toHaveBeenCalledTimes(1);
+
+        document.getElementById('gallery-slider').innerHTML = `
+            <img src="#" alt="" class="gallery-slider-image magnifier-image js-magnifier-image" tabindex="0" id="updated-trigger">
+        `;
+
+        document.dispatchEvent(new Event('Viewport/hasChanged'));
+
+        expect(registerEventsSpy).toHaveBeenCalledTimes(2);
+
+        document.getElementById('updated-trigger').dispatchEvent(new Event('click'));
+
+        expect(onClickSpy).toHaveBeenCalledTimes(1);
+
+        expect(plugin).toBeInstanceOf(ZoomModalPlugin);
+    });
+
     test('zoom modal closes via ESC key', () => {
         const triggerImgElement = document.querySelector('img');
         const modal = document.querySelector('.js-zoom-modal');
@@ -226,5 +251,55 @@ describe('ZoomModalPlugin tests', () => {
         expect(modal.classList.contains('show')).toBe(false);
         expect(document.querySelector('.modal-backdrop.show')).toBeFalsy();
         expect(window.focusHandler.resumeFocusState).toHaveBeenCalled();
+    });
+
+    describe('_loadImages', () => {
+        let modal;
+
+        beforeEach(() => {
+            modal = document.querySelector('.js-zoom-modal');
+            zoomModalPlugin._showModal = jest.fn();
+        });
+
+        test('opens straight away when there is nothing to load', () => {
+            zoomModalPlugin._loadImages(modal);
+
+            expect(zoomModalPlugin._showModal).toHaveBeenCalledWith(modal);
+        });
+
+        test('waits for an image that has a source', () => {
+            modal.insertAdjacentHTML('beforeend', '<img class="js-load-img" data-src="/media/cat.jpg">');
+
+            zoomModalPlugin._loadImages(modal);
+
+            expect(zoomModalPlugin._showModal).not.toHaveBeenCalled();
+
+            modal.querySelector('.js-load-img').onload();
+
+            expect(zoomModalPlugin._showModal).toHaveBeenCalledWith(modal);
+        });
+
+        test('does not wait for an image whose source is empty', () => {
+            modal.insertAdjacentHTML('beforeend', '<img class="js-load-img" data-src="">');
+
+            zoomModalPlugin._loadImages(modal);
+
+            expect(zoomModalPlugin._showModal).toHaveBeenCalledWith(modal);
+        });
+
+        test('opens once the loadable images are done, ignoring the empty ones', () => {
+            modal.insertAdjacentHTML(
+                'beforeend',
+                '<img class="js-load-img" data-src=""><img class="js-load-img" data-src="/media/cat.jpg">',
+            );
+
+            zoomModalPlugin._loadImages(modal);
+
+            expect(zoomModalPlugin._showModal).not.toHaveBeenCalled();
+
+            modal.querySelectorAll('.js-load-img')[1].onload();
+
+            expect(zoomModalPlugin._showModal).toHaveBeenCalledWith(modal);
+        });
     });
 });

@@ -13,26 +13,26 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemProductStatesRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Content\Product\State;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemProductStatesRule::class)]
-#[Package('checkout')]
+#[DisabledFeatures(['v6.8.0.0'])]
 class LineItemProductStatesRuleTest extends TestCase
 {
     private LineItemProductStatesRule $rule;
 
     protected function setUp(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
         $this->rule = new LineItemProductStatesRule();
     }
 
@@ -58,7 +58,7 @@ class LineItemProductStatesRuleTest extends TestCase
     {
         $config = $this->rule->getConfig();
         $expected = (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
             ->selectField('productState', [
                 State::IS_PHYSICAL,
                 State::IS_DOWNLOAD,
@@ -84,7 +84,7 @@ class LineItemProductStatesRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $this->createLineItemWithStates($states),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -114,7 +114,7 @@ class LineItemProductStatesRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -127,7 +127,7 @@ class LineItemProductStatesRuleTest extends TestCase
             'productState' => State::IS_DOWNLOAD,
         ]);
 
-        $match = $this->rule->match(new CheckoutRuleScope($this->createMock(SalesChannelContext::class)));
+        $match = $this->rule->match(new CheckoutRuleScope(static::createStub(SalesChannelContext::class)));
 
         static::assertFalse($match);
     }

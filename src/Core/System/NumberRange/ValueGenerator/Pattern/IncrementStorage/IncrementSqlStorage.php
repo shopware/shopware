@@ -3,17 +3,17 @@
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\System\NumberRange\ValueGenerator\IncrementSqlStorageTest;
 
 /**
  * @codeCoverageIgnore
  *
- * @see IncrementSqlStorageTest
+ * @see \Shopware\Tests\Integration\Core\System\NumberRange\ValueGenerator\IncrementSqlStorageTest
  */
 #[Package('framework')]
 class IncrementSqlStorage extends AbstractIncrementStorage
@@ -100,6 +100,25 @@ class IncrementSqlStorage extends AbstractIncrementStorage
                 'stateId' => $stateId,
                 'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
+        );
+    }
+
+    public function increaseToAtLeast(string $configurationId, int $value): void
+    {
+        $stateId = Uuid::randomBytes();
+        $this->connection->executeStatement(
+            'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`, `created_at`) VALUES (:stateId, :value, :id, :createdAt)
+                ON DUPLICATE KEY UPDATE
+                `last_value` = GREATEST(`last_value`, :value)',
+            [
+                'value' => $value,
+                'id' => Uuid::fromHexToBytes($configurationId),
+                'stateId' => $stateId,
+                'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
+            [
+                'value' => ParameterType::INTEGER,
+            ],
         );
     }
 

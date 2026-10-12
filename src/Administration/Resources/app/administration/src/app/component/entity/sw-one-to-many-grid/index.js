@@ -31,10 +31,7 @@ export default {
             default: true,
         },
         dataSource: {
-            type: [
-                Array,
-                Object,
-            ],
+            type: [Array, Object],
             required: false,
             default(props) {
                 return props.localMode && props.collection ? props.collection : null;

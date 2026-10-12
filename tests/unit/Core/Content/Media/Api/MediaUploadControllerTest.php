@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Api\MediaUploadController;
 use Shopware\Core\Content\Media\File\FileNameProvider;
@@ -28,25 +28,38 @@ class MediaUploadControllerTest extends TestCase
 {
     public static bool $simulateFailedTempnam = false;
 
-    private FileSaver&MockObject $fileSaver;
+    /**
+     * @var list<string>
+     */
+    public static array $createdTempFiles = [];
 
-    private MediaService&MockObject $mediaService;
+    private FileSaver&Stub $fileSaver;
 
-    private FileNameProvider&MockObject $fileNameProvider;
+    private MediaService&Stub $mediaService;
 
-    private ResponseFactoryInterface&MockObject $responseFactory;
+    private FileNameProvider&Stub $fileNameProvider;
+
+    private ResponseFactoryInterface&Stub $responseFactory;
 
     protected function setUp(): void
     {
-        $this->fileSaver = $this->createMock(FileSaver::class);
-        $this->mediaService = $this->createMock(MediaService::class);
-        $this->fileNameProvider = $this->createMock(FileNameProvider::class);
-        $this->responseFactory = $this->createMock(ResponseFactoryInterface::class);
+        $this->fileSaver = static::createStub(FileSaver::class);
+        $this->mediaService = static::createStub(MediaService::class);
+        $this->fileNameProvider = static::createStub(FileNameProvider::class);
+        $this->responseFactory = static::createStub(ResponseFactoryInterface::class);
     }
 
     protected function tearDown(): void
     {
         self::$simulateFailedTempnam = false;
+
+        foreach (self::$createdTempFiles as $tempFile) {
+            if (is_file($tempFile)) {
+                unlink($tempFile);
+            }
+        }
+
+        self::$createdTempFiles = [];
     }
 
     public function testRemoveNonPrintingCharactersInFileNameBeforeUpload(): void
@@ -65,17 +78,19 @@ class MediaUploadControllerTest extends TestCase
             Uuid::randomHex()
         );
 
-        $this->mediaService->expects($this->once())
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->once())
             ->method('fetchFile')
             ->willReturn($uploadFile);
 
-        $this->fileSaver->expects($this->once())
+        $fileSaver = $this->createMock(FileSaver::class);
+        $fileSaver->expects($this->once())
             ->method('persistFileToMedia')
             ->with($uploadFile, 'filename.png', $mediaId, $context);
 
         $mediaUploadController = new MediaUploadController(
-            $this->mediaService,
-            $this->fileSaver,
+            $mediaService,
+            $fileSaver,
             $this->fileNameProvider,
             new MediaDefinition(),
             new EventDispatcher()
@@ -92,13 +107,14 @@ class MediaUploadControllerTest extends TestCase
 
         $request = new Request([], ['fileName' => $invalidFileName]);
 
-        $this->fileSaver->expects($this->once())
+        $fileSaver = $this->createMock(FileSaver::class);
+        $fileSaver->expects($this->once())
             ->method('renameMedia')
             ->with($mediaId, 'filename.png', $context);
 
         $mediaUploadController = new MediaUploadController(
             $this->mediaService,
-            $this->fileSaver,
+            $fileSaver,
             $this->fileNameProvider,
             new MediaDefinition(),
             new EventDispatcher()
@@ -119,14 +135,15 @@ class MediaUploadControllerTest extends TestCase
             'mediaId' => $mediaId,
         ]);
 
-        $this->fileNameProvider->expects($this->once())
+        $fileNameProvider = $this->createMock(FileNameProvider::class);
+        $fileNameProvider->expects($this->once())
             ->method('provide')
             ->with('filename.png', 'jpg', $mediaId, $context);
 
         $mediaUploadController = new MediaUploadController(
             $this->mediaService,
             $this->fileSaver,
-            $this->fileNameProvider,
+            $fileNameProvider,
             new MediaDefinition(),
             new EventDispatcher()
         );
@@ -221,6 +238,26 @@ class MediaUploadControllerTest extends TestCase
         $controller->upload(new Request(['fileName' => "\xFF\xFE"]), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
     }
 
+    public function testUploadDoesNotCreateTempFileForIllegalFileName(): void
+    {
+        $controller = new MediaUploadController(
+            $this->mediaService,
+            $this->fileSaver,
+            $this->fileNameProvider,
+            new MediaDefinition(),
+            new EventDispatcher()
+        );
+
+        try {
+            $controller->upload(new Request(['fileName' => "\xFF\xFE"]), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
+            static::fail('Expected an illegal file name exception');
+        } catch (MediaException $e) {
+            static::assertSame(MediaException::illegalFileName("\xFF\xFE", 'Path encoding is invalid')->getMessage(), $e->getMessage());
+        }
+
+        static::assertSame([], self::$createdTempFiles);
+    }
+
     public function testRenameThrowsOnIllegalFileName(): void
     {
         $this->expectExceptionObject(MediaException::illegalFileName("\xFF\xFE", 'Path encoding is invalid'));
@@ -262,5 +299,11 @@ function tempnam(string $dir, string $prefix): string|false
         return false;
     }
 
-    return \tempnam($dir, $prefix);
+    $tempFile = \tempnam($dir, $prefix);
+
+    if (\is_string($tempFile)) {
+        MediaUploadControllerTest::$createdTempFiles[] = $tempFile;
+    }
+
+    return $tempFile;
 }

@@ -3,13 +3,13 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -23,11 +23,12 @@ use Shopware\Core\Kernel;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class PluginManagementServiceTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -68,6 +69,9 @@ class PluginManagementServiceTest extends TestCase
         $this->filesystem->remove(self::PLUGIN_FASHION_THEME_PATH);
         $this->filesystem->remove(self::PLUGIN_ZIP_FIXTURE_PATH);
         $this->filesystem->remove(self::APP_ZIP_FIXTURE_PATH);
+        // App.zip extracts into the shared fixture dir; its root must never collide with a
+        // committed fixture app (it used to be `plugin/`, silently overwriting apps/plugin)
+        $this->filesystem->remove(self::APPS_PATH . '/SwagApp');
         $this->filesystem->remove($this->cacheDir);
 
         Kernel::getConnection()->executeStatement('DELETE FROM plugin');
@@ -175,7 +179,8 @@ class PluginManagementServiceTest extends TestCase
             $this->getPluginService(),
             $this->filesystem,
             $this->getCacheClearer(),
-            static::getContainer()->get('shopware.store_download_client')
+            static::getContainer()->get('shopware.store_download_client'),
+            static::createStub(EventDispatcherInterface::class)
         );
     }
 

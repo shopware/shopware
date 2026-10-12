@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('discovery')]
 class SalesChannelsReadinessCheckTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -104,7 +106,7 @@ class SalesChannelsReadinessCheckTest extends TestCase
     public function testTrustedHostsAreTheSameBeforeAndAfterCheck(): void
     {
         // empty test state, if this assertion fails, some other test is leaking.
-        static::assertEmpty(Request::getTrustedHosts());
+        static::assertCount(0, Request::getTrustedHosts());
         Request::setTrustedHosts(['foo.bar', 'test.com']);
         $trustedHostsBefore = Request::getTrustedHosts();
         $check = $this->createCheck();

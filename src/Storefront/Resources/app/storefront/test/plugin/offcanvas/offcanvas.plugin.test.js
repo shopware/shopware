@@ -63,6 +63,69 @@ describe('OffCanvas tests', () => {
         expect(OffCanvas.exists()).toBe(false);
     });
 
+    it('restores the previous accessibility state of the background after closing', () => {
+        document.body.innerHTML = `
+            <header id="header"></header>
+            <main id="main" aria-hidden="false"></main>
+            <footer id="footer" inert></footer>
+        `;
+
+        const header = document.getElementById('header');
+        const main = document.getElementById('main');
+        const footer = document.getElementById('footer');
+        footer.inert = true;
+
+        jest.useFakeTimers();
+        OffCanvas.open('Interesting content');
+        jest.runAllTimers();
+
+        [header, main, footer].forEach(element => {
+            expect(element.inert).toBe(true);
+            expect(element.getAttribute('aria-hidden')).toBe('true');
+        });
+
+        OffCanvas.close();
+        jest.runAllTimers();
+
+        expect(header.inert).not.toBe(true);
+        expect(header.hasAttribute('aria-hidden')).toBe(false);
+        expect(main.inert).not.toBe(true);
+        expect(main.getAttribute('aria-hidden')).toBe('false');
+        expect(footer.inert).toBe(true);
+        expect(footer.hasAttribute('aria-hidden')).toBe(false);
+    });
+
+    it('saves and restores the focused trigger before making the background inaccessible', () => {
+        document.body.innerHTML = `
+            <main id="main">
+                <button id="trigger">Open offcanvas</button>
+            </main>
+        `;
+
+        const main = document.getElementById('main');
+        const trigger = document.getElementById('trigger');
+        let savedFocus = null;
+
+        window.focusHandler.saveFocusState.mockImplementation(() => {
+            expect(main.inert).not.toBe(true);
+            expect(main.hasAttribute('aria-hidden')).toBe(false);
+            savedFocus = document.activeElement;
+        });
+        window.focusHandler.resumeFocusState.mockImplementation(() => savedFocus?.focus());
+
+        trigger.focus();
+        jest.useFakeTimers();
+        OffCanvas.open('Interesting content');
+        jest.runAllTimers();
+
+        expect(window.focusHandler.saveFocusState).toHaveBeenCalledWith('offcanvas');
+
+        OffCanvas.close();
+        jest.runAllTimers();
+
+        expect(document.activeElement).toBe(trigger);
+    });
+
     it('should close via click on backdrop', () => {
         jest.useFakeTimers();
 

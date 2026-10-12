@@ -22,6 +22,9 @@ class AdminApiSource implements ContextSource, \JsonSerializable
         'log_entry:create',
         'currency:read',
         'country:read',
+        'increment:manage',
+        'system:queue:process',
+        'scheduled_task:read',
     ];
 
     public string $type = 'admin-api';

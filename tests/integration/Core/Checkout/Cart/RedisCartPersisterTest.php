@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCompressor;
@@ -20,7 +19,6 @@ use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 /**
  * @internal
  */
-#[Group('redis')]
 #[Package('checkout')]
 class RedisCartPersisterTest extends TestCase
 {
@@ -41,7 +39,7 @@ class RedisCartPersisterTest extends TestCase
         $client = (new RedisConnectionFactory())->create($redisUrl);
         static::assertInstanceOf(\Redis::class, $client);
         $this->redis = $client;
-        $this->persister = new RedisCartPersister($this->redis, new CollectingEventDispatcher(), $this->createMock(CartSerializationCleaner::class), new CartCompressor(false, 'gzip'), 30);
+        $this->persister = new RedisCartPersister($this->redis, new CollectingEventDispatcher(), static::createStub(CartSerializationCleaner::class), new CartCompressor(false, 'gzip'), 30);
     }
 
     protected function tearDown(): void
@@ -59,7 +57,7 @@ class RedisCartPersisterTest extends TestCase
         $cart = new Cart($token);
         $cart->add(new LineItem('test', 'test'));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $this->persister->save($cart, $context);
 
@@ -82,7 +80,7 @@ class RedisCartPersisterTest extends TestCase
         $cart = new Cart($token);
         $cart->add(new LineItem('test', 'test'));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $this->persister->save($cart, $context);
 
@@ -100,7 +98,7 @@ class RedisCartPersisterTest extends TestCase
         $cart = new Cart($token);
         $cart->add(new LineItem('test', 'test'));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $this->persister->save($cart, $context);
         $this->persister->delete($token, $context);
@@ -118,7 +116,7 @@ class RedisCartPersisterTest extends TestCase
 
         $this->redis->set(RedisCartPersister::PREFIX . $token, serialize($compressed));
 
-        $loaded = $this->persister->load($token, $this->createMock(SalesChannelContext::class));
+        $loaded = $this->persister->load($token, static::createStub(SalesChannelContext::class));
 
         $cart->setPersisted(true);
 
@@ -138,7 +136,7 @@ class RedisCartPersisterTest extends TestCase
 
         $this->redis->set(RedisCartPersister::PREFIX . $token, serialize($compressed));
 
-        $loaded = $this->persister->load($token, $this->createMock(SalesChannelContext::class));
+        $loaded = $this->persister->load($token, static::createStub(SalesChannelContext::class));
 
         $cart->setPersisted(true);
 

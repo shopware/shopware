@@ -17,16 +17,9 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'entityMappingService',
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['entityMappingService', 'repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -59,9 +52,7 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('mailHeaderFooter', [
-            'name',
-        ]),
+        ...mapPropertyErrors('mailHeaderFooter', ['name']),
 
         identifier() {
             return this.placeholder(this.mailHeaderFooter, 'name');

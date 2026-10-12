@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,12 +15,15 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
+use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class WebhookOutboxStoreTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -680,6 +684,39 @@ class WebhookOutboxStoreTest extends TestCase
 
         static::assertSame([], $this->store->fetchDue($partitionKey, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY], 10));
         static::assertNull($this->store->markRunning($this->ids->get('evt-1')));
+    }
+
+    public function testDeliveryWriteRestartsOrphanCleanupGracePeriod(): void
+    {
+        $clock = new MockClock(new \DateTimeImmutable('2024-01-01 12:00:00'));
+        $store = new WebhookOutboxStore($this->connection, $clock);
+        $streamLockService = new StreamLockService($this->connection, $clock);
+
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $partitionKey = Hasher::hashBinary($message->getPartitionKey(), 'xxh128');
+
+        $this->connection->insert('webhook_stream', [
+            'id' => Uuid::randomBytes(),
+            'partition_key' => $partitionKey,
+            'created_at' => $clock->now()
+                ->modify(\sprintf('-%d seconds', StreamLockService::ORPHAN_GRACE_SECONDS + 1))
+                ->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        static::assertNotNull($store->recordOutboxEntry($this->toEntry($message)));
+
+        // Remove the delivery so cleanup must rely on the refreshed grace window.
+        $this->connection->executeStatement(
+            'DELETE FROM webhook_delivery WHERE partition_key = :pk',
+            ['pk' => $partitionKey]
+        );
+
+        $streamLockService->deleteOrphanedStreams(100);
+        static::assertNotFalse(
+            $this->connection->fetchOne('SELECT 1 FROM webhook_stream WHERE partition_key = :pk', ['pk' => $partitionKey]),
+            'a delivery write must restart the stream cleanup grace period'
+        );
     }
 
     /**

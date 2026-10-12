@@ -7,6 +7,8 @@ The feature flag system in Shopware 6 administration serves two primary purposes
 1. **Feature Rollout Control**: Enable gradual rollout of new features, allowing for A/B testing, beta releases, and controlled feature activation
 2. **Deprecation Lifecycle Management**: Manage the deprecation process by providing warnings and controlling the removal timeline of deprecated functionality
 
+For normative rules, see [Administration feature flags and deprecations](../../../../../../../coding-guidelines/administration/feature-flags-and-deprecations.md).
+
 ## Feature Flag System
 
 ### Architecture
@@ -21,6 +23,7 @@ export default class Feature {
     static init(flagConfig: { [featureName: string]: boolean }): void
     static getAll(): { [featureName: string]: boolean }
     static isActive(flagName: string): boolean
+    static triggerDeprecationOrThrow(majorFlag: string, message: string): void
 }
 ```
 
@@ -118,7 +121,7 @@ if (window._features_.V6_8_0_0) {
 
 ### Deprecation Annotation Standard
 
-All deprecated code must be marked with the standard deprecation annotation format:
+Deprecated Administration APIs use the standard deprecation annotation format:
 
 ```typescript
 /**
@@ -131,13 +134,9 @@ The annotation format includes:
 - `tag:vX.X.X` version when the deprecation was introduced
 - Description of the deprecation and recommended replacement
 
-### Deprecation Process Steps
+### Deprecation Process
 
-1. **Mark as Deprecated**: Add `@deprecated` annotation with target removal version
-2. **Add Deprecation Warning**: Implement runtime warnings when deprecated functionality is used
-3. **Update Documentation**: Document the migration path and replacement
-4. **Feature Flag Integration**: Use feature flags to control deprecation warnings
-5. **Removal**: Remove deprecated code in the specified version
+See [Administration feature flags and deprecations](../../../../../../../coding-guidelines/administration/feature-flags-and-deprecations.md) for the required process.
 
 ### ESLint Deprecation Rules
 
@@ -149,54 +148,35 @@ The codebase uses ESLint rules to enforce deprecation standards:
 
 This rule ensures proper handling of deprecated features and prevents inappropriate usage.
 
-### Runtime Deprecation Warnings
+### Runtime Deprecation Guards
 
-Deprecated functionality includes runtime warnings that can be controlled by feature flags:
+`Feature.triggerDeprecationOrThrow(majorFlag, message)` guards a deprecated API where it is consumed. While
+`majorFlag` is inactive it warns in development builds, once per message. Once the flag is active it throws:
 
 ```typescript
-// Example from vue.adapter.ts
-this.app.config.globalProperties.$tc = function (...args) {
-    if (window._features_.V6_8_0_0) {
-        console.warn(
-            'Deprecation Warning',
-            'The $tc function is deprecated and will be removed in future versions. Please use $t instead.',
-        );
-    }
-    return i18n.global.t(...fixI18NParametersOrder(args));
-};
+Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'The $tc function is deprecated. Use $t instead.');
 ```
 
-## Best Practices
+Components and props carry a `deprecated` option instead, which `src/app/plugin/deprecation.plugin.ts`
+checks in a global `beforeCreate()` hook: a deprecated component on every creation, a deprecated prop
+whenever the parent supplies it. The message names the path of components that use it. As the error is
+thrown inside a Vue hook, Vue's error handling applies: a development build aborts the mount, a
+production build logs the error and keeps rendering.
 
-### Feature Flag Naming
+A `majorFlag` that is not registered, like the typo `V6_8_0` or the minor `V6_7_5_0`, can never become
+active. It logs a console error instead of the warning. So does a `deprecated` option that is no version,
+like `true`.
 
-- Use uppercase naming convention: `NEW_FEATURE`, `V6_8_0_0`
-- Include version numbers for version-specific flags: `V6_8_0_0`
-- Use descriptive names that clearly indicate the feature: `USE_NEW_CHECKOUT_FLOW`
+Jest silences the `[Deprecation]` warnings through `global.allowedErrors`, because the suite runs both
+sides of a flag. A test that asserts a warning spies on `console.warn`.
 
-### Code Organization
+## Coding Guidelines
 
-1. **Avoid Nested Flags**: Don't nest feature flags within each other as it creates complex logic paths
-2. **Document Removal Version**: Always include the target removal version in code comments
-3. **Single Responsibility**: Each flag should control a single, well-defined feature
-4. **Clean Boundaries**: Ensure clean separation between flagged and non-flagged code
-
-### Migration Guidelines
-
-1. **Gradual Migration**: Use feature flags to enable gradual migration from old to new implementations
-2. **Backward Compatibility**: Maintain backward compatibility during the deprecation period
-3. **Clear Documentation**: Provide clear migration guides and examples
-4. **Testing**: Ensure both feature flag states (on/off) are properly tested
+See [Administration feature flags and deprecations](../../../../../../../coding-guidelines/administration/feature-flags-and-deprecations.md).
 
 ## Migration Path When Flag Removed
 
-When removing a feature flag:
-
-1. **Remove Flag Checks**: Remove all `Feature.isActive()` calls for the flag
-2. **Remove Legacy Code**: Delete the old implementation that was being replaced
-3. **Clean Up**: Remove any flag-specific configuration and documentation
-4. **Update Tests**: Update tests to reflect the new default behavior
-5. **Update Documentation**: Update all relevant documentation to reflect the changes
+See [Administration feature flags and deprecations](../../../../../../../coding-guidelines/administration/feature-flags-and-deprecations.md).
 
 ## Common Patterns
 
@@ -257,7 +237,7 @@ console.log(Feature.getAll());
 
 ### Testing with Feature Flags
 
-When writing tests, consider both flag states:
+For testing rules, see [Administration feature flags and deprecations](../../../../../../../coding-guidelines/administration/feature-flags-and-deprecations.md). Feature flags can be initialized in tests:
 
 ```javascript
 describe('Component with feature flag', () => {

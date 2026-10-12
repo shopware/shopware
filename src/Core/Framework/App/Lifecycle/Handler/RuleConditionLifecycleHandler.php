@@ -5,19 +5,10 @@ namespace Shopware\Core\Framework\App\Lifecycle\Handler;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppHandlerIdentifier;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\BoolField;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldType;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\FloatField;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\IntField;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MediaSelectionField;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiEntitySelectField;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiSelectField;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\PriceField;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\SingleEntitySelectField;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\SingleSelectField;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -25,6 +16,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\BoolField;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\CustomFieldType;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\FloatField;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\IntField;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\MediaSelectionField;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\MultiEntitySelectField;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\MultiSelectField;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\PriceField;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\SingleEntitySelectField;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\SingleSelectField;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -65,11 +66,13 @@ class RuleConditionLifecycleHandler extends AbstractLifecycleHandler
         $criteria->addFilter(new EqualsFilter('appId', $context->app->getId()));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context->context)->getIds();
+        $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context->context)->getPrimaryKeyData();
+        foreach ($scripts as &$script) {
+            $script['active'] = true;
+        }
+        unset($script);
 
-        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => true], $scripts);
-
-        $this->appScriptConditionRepository->update($updateSet, $context->context);
+        $this->appScriptConditionRepository->update($scripts, $context->context);
     }
 
     public function deactivate(AppActivationContext $context): void
@@ -78,11 +81,13 @@ class RuleConditionLifecycleHandler extends AbstractLifecycleHandler
         $criteria->addFilter(new EqualsFilter('appId', $context->app->getId()));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context->context)->getIds();
+        $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context->context)->getPrimaryKeyData();
+        foreach ($scripts as &$script) {
+            $script['active'] = false;
+        }
+        unset($script);
 
-        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => false], $scripts);
-
-        $this->appScriptConditionRepository->update($updateSet, $context->context);
+        $this->appScriptConditionRepository->update($scripts, $context->context);
     }
 
     private function persist(AppPersistContext $context): void
@@ -98,7 +103,7 @@ class RuleConditionLifecycleHandler extends AbstractLifecycleHandler
 
         foreach ($ruleConditions as $ruleCondition) {
             $payload = $ruleCondition->toArray($context->defaultLocale);
-            $payload['identifier'] = \sprintf('app\\%s_%s', $context->manifest->getMetadata()->getName(), $ruleCondition->getIdentifier());
+            $payload['identifier'] = AppHandlerIdentifier::build($context->manifest->getMetadata()->getName(), $ruleCondition->getIdentifier());
             $payload['script'] = $this->scriptReader->getScriptContent(
                 $app,
                 self::CONDITION_SCRIPT_DIR . $ruleCondition->getScript(),

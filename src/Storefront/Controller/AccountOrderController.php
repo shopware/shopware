@@ -46,14 +46,12 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class AccountOrderController extends StorefrontController
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.8.0 - Property `AccountOrderDetailPageLoader` will be removed
      */
     public function __construct(
         private readonly AccountOrderPageLoader $orderPageLoader,
@@ -63,7 +61,10 @@ class AccountOrderController extends StorefrontController
         private readonly AbstractSetPaymentOrderRoute $setPaymentOrderRoute,
         private readonly AbstractHandlePaymentMethodRoute $handlePaymentMethodRoute,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly AccountOrderDetailPageLoader $orderDetailPageLoader,
+        /**
+         * @deprecated tag:v6.8.0 - Property `AccountOrderDetailPageLoader` will be removed
+         */
+        private readonly ?AccountOrderDetailPageLoader $orderDetailPageLoader,
         private readonly AbstractOrderRoute $orderRoute,
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly SystemConfigService $systemConfigService,
@@ -83,13 +84,6 @@ class AccountOrderController extends StorefrontController
             PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
             PlatformRequest::ATTRIBUTE_NO_STORE => true,
         ],
-        methods: [Request::METHOD_GET, Request::METHOD_POST]
-    )]
-    #[Route(
-        path: '/account/order',
-        name: 'frontend.account.order.page',
-        options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
         methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function orderOverview(Request $request, SalesChannelContext $context): Response
@@ -145,12 +139,16 @@ class AccountOrderController extends StorefrontController
 
             $this->hook(new AccountOrderPageLoadedHook($page, $context));
         } catch (GuestNotAuthenticatedException|WrongGuestCredentialsException|CustomerAuthThrottledException $exception) {
+            // Submitted credentials for an unknown or expired deep link also need the error
+            $credentialsSubmitted = RequestParamHelper::get($request, 'email') && RequestParamHelper::get($request, 'zipcode');
+
             return $this->redirectToRoute(
                 'frontend.account.guest.login.page',
                 [
                     'redirectTo' => 'frontend.account.order.single.page',
                     'redirectParameters' => ['deepLinkCode' => $request->attributes->get('deepLinkCode')],
-                    'loginError' => ($exception instanceof WrongGuestCredentialsException),
+                    'loginError' => $exception instanceof WrongGuestCredentialsException
+                        || ($exception instanceof GuestNotAuthenticatedException && $credentialsSubmitted),
                     'waitTime' => ($exception instanceof CustomerAuthThrottledException) ? $exception->getWaitTime() : '',
                 ]
             );
@@ -176,6 +174,8 @@ class AccountOrderController extends StorefrontController
             'Route "widgets.account.order.detail" is deprecated and will be removed in v6.8.0.0 without replacement.',
         );
 
+        // The loader service is removed only in v6.8.0.0 mode, which the deprecation check above rejects.
+        \assert($this->orderDetailPageLoader !== null);
         $page = $this->orderDetailPageLoader->load($request, $context);
 
         $this->hook(new AccountOrderDetailPageLoadedHook($page, $context));
@@ -201,16 +201,10 @@ class AccountOrderController extends StorefrontController
         ],
         methods: [Request::METHOD_GET]
     )]
-    #[Route(
-        path: '/account/order/edit/{orderId}',
-        name: 'frontend.account.edit-order.page',
-        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
-        methods: [Request::METHOD_GET]
-    )]
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
         try {
-            $order = $this->orderRoute->load($request, $context, new Criteria([$orderId]))->getOrders()->first();
+            $order = $this->orderRoute->load($request, $context, new Criteria([$orderId]))->getOrders()->getEntities()->first();
         } catch (InvalidUuidException) {
             $order = null;
         }
@@ -287,16 +281,24 @@ class AccountOrderController extends StorefrontController
     )]
     public function orderChangePayment(string $orderId, Request $request, SalesChannelContext $context): Response
     {
-        $this->contextSwitchRoute->switchContext(
-            new RequestDataBag(
-                [
-                    SalesChannelContextService::PAYMENT_METHOD_ID => RequestParamHelper::get($request, 'paymentMethodId'),
-                ]
-            ),
-            $context
-        );
+        $paymentMethodId = RequestParamHelper::get($request, 'paymentMethodId');
 
-        return $this->redirectToRoute('frontend.account.edit-order.page', ['orderId' => $orderId]);
+        // @deprecated tag:v6.8.0 - remove this if block, the edit order page selects the payment method of the order
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->contextSwitchRoute->switchContext(
+                new RequestDataBag(
+                    [
+                        SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
+                    ]
+                ),
+                $context
+            );
+        }
+
+        return $this->redirectToRoute('frontend.account.edit-order.page', [
+            'orderId' => $orderId,
+            'paymentMethodId' => $paymentMethodId,
+        ]);
     }
 
     #[Route(
@@ -313,7 +315,7 @@ class AccountOrderController extends StorefrontController
 
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions.stateMachineState');
-        $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->first();
+        $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->getEntities()->first();
 
         if ($order === null) {
             throw OrderException::orderNotFound($orderId);

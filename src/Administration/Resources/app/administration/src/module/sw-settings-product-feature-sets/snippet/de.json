@@ -12,10 +12,7 @@
       "columnTemplate": "Template",
       "columnDescription": "Beschreibung",
       "buttonAddEssentialCharacteristics": "Neu erstellen",
-      "contextMenuEdit": "Bearbeiten",
-      "contextMenuDelete": "Löschen",
-      "messageDeleteSuccess": "Das wesentliche Merkmal \"{name}\" wurde gelöscht.",
-      "buttonDelete": "Löschen"
+      "messageDeleteSuccess": "Das wesentliche Merkmal \"{name}\" wurde gelöscht."
     },
     "detail": {
       "textHeadline": "Neues Template",
@@ -28,18 +25,18 @@
       "labelValues": "Werte",
       "placeholderName": "Gib einen Template-Namen ein ...",
       "placeholderDescription": "Gib eine Beschreibung ein ...",
-      "buttonSave": "Speichern",
       "notificationErrorMessage": "Das wesentliche Merkmal konnte nicht gespeichert werden.",
       "labelCreateNew": "Werte hinzufügen"
     },
     "valuesCard": {
+      "emptyStateTitle": "Noch keine Werte",
       "createStateDescription": "Füge Werte hinzu, um wesentliche Merkmale zu definieren, die auf Dein Produktsortiment zugeschnitten sind.",
       "labelCreateNew": "Feld hinzufügen",
       "cardTitle": "Werte",
       "labelValue": "Wert",
       "labelType": "Typ",
       "labelPosition": "Position",
-      "emptyStateDescription": "Füge Werte hinzu, um wesentliche Merkmale zu definieren, die auf Dein Produktsortiment zugeschnitten sind.."
+      "emptyStateDescription": "Füge Werte hinzu, um wesentliche Merkmale zu definieren, die auf Dein Produktsortiment zugeschnitten sind."
     },
     "modal": {
       "textPropertyLabel": "Eigenschaft",

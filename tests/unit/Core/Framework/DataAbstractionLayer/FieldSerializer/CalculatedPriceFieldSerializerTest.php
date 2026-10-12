@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
@@ -18,23 +19,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CalculatedPrice
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CalculatedPriceFieldTestDefinition;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CalculatedPriceFieldSerializer::class)]
 class CalculatedPriceFieldSerializerTest extends TestCase
 {
-    use CacheTestBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
-    use KernelTestBehaviour;
-
     private CalculatedPriceFieldSerializer $serializer;
 
     private CalculatedPriceField $field;
@@ -45,10 +47,16 @@ class CalculatedPriceFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->serializer = static::getContainer()->get(CalculatedPriceFieldSerializer::class);
+        $validator = Validation::createValidator();
+        $registry = new StaticDefinitionInstanceRegistry(
+            [CalculatedPriceFieldTestDefinition::class],
+            $validator,
+            static::createStub(EntityWriteGatewayInterface::class),
+        );
+        $this->serializer = new CalculatedPriceFieldSerializer($validator, $registry);
         $this->field = new CalculatedPriceField('calculatedPrice', 'calculatedPrice');
 
-        $definition = $this->registerDefinition(CalculatedPriceFieldTestDefinition::class);
+        $definition = $registry->get(CalculatedPriceFieldTestDefinition::class);
         $this->existence = new EntityExistence($definition->getEntityName(), [], false, false, false, []);
 
         $this->parameters = new WriteParameterBag(
@@ -92,6 +100,69 @@ class CalculatedPriceFieldSerializerTest extends TestCase
         static::assertArrayNotHasKey('extensions', $arrayEncoded['listPrice']);
         static::assertArrayHasKey('regulationPrice', $arrayEncoded);
         static::assertArrayNotHasKey('extensions', $arrayEncoded['regulationPrice']);
+    }
+
+    /**
+     * The serializer pre-processes the payload before `JsonFieldSerializer::encode()` validates it. A scalar
+     * used to reach that pre-processing and abort the request with a PHP `Error` instead of a violation.
+     */
+    #[DataProvider('nonArrayValueProvider')]
+    public function testEncodeRejectsNonArrayValue(mixed $value): void
+    {
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('This value should be of type array.', 'This value should be of type {{ type }}.', [], null, '/calculatedPrice', $value),
+            ])
+        ));
+
+        iterator_to_array($this->serializer->encode(
+            $this->field,
+            $this->existence,
+            new KeyValuePair('calculatedPrice', $value, false),
+            $this->parameters
+        ));
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function nonArrayValueProvider(): iterable
+    {
+        yield 'number, where PHP reads the offset as an array index' => [12.5];
+        yield 'string, where PHP reads the offset as a string offset' => ['2025-10-09'];
+    }
+
+    /**
+     * `listPrice` and `regulationPrice` are mapped fields, so a scalar there is caught by
+     * `JsonFieldSerializer::validateMapping()`, which collects the violation on the write context instead
+     * of throwing. Before the guard the scalar fatally hit `unset($value['listPrice']['extensions'])`.
+     */
+    #[DataProvider('nestedNonArrayValueProvider')]
+    public function testEncodeReportsNestedNonArrayValue(string $property, mixed $value): void
+    {
+        $encoded = iterator_to_array($this->serializer->encode(
+            $this->field,
+            $this->existence,
+            new KeyValuePair('calculatedPrice', $value, false),
+            $this->parameters
+        ));
+
+        $errors = iterator_to_array($this->parameters->getContext()->getExceptions()->getErrors(), false);
+
+        static::assertCount(1, $errors);
+        static::assertSame('/calculatedPrice/' . $property, $errors[0]['source']['pointer']);
+        static::assertStringNotContainsString($property, (string) $encoded['calculatedPrice']);
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function nestedNonArrayValueProvider(): iterable
+    {
+        $base = ['unitPrice' => 1, 'totalPrice' => 1, 'quantity' => 1, 'calculatedTaxes' => [], 'taxRules' => []];
+
+        yield 'scalar listPrice' => ['listPrice', [...$base, 'listPrice' => 5]];
+        yield 'scalar regulationPrice' => ['regulationPrice', [...$base, 'regulationPrice' => 7]];
     }
 
     public function testEncodeWithoutListPrice(): void
@@ -146,6 +217,33 @@ class CalculatedPriceFieldSerializerTest extends TestCase
         static::assertNull($arrayEncoded['regulationPrice'] ?? null);
     }
 
+    public function testEncodeAcceptsTheRegulationPriceSaving(): void
+    {
+        $calculatedPrice = new CalculatedPrice(
+            75,
+            75,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection([new TaxRule(19, 100)]),
+            1,
+            null,
+            ListPrice::createFromUnitPrice(75, 100),
+            RegulationPrice::createFromUnitPrice(75, 80)
+        );
+
+        $encoded = iterator_to_array($this->serializer->encode(
+            $this->field,
+            $this->existence,
+            new KeyValuePair('calculatedPrice', $calculatedPrice, true),
+            $this->parameters
+        ));
+
+        static::assertSame([], iterator_to_array($this->parameters->getContext()->getExceptions()->getErrors(), false));
+
+        $arrayEncoded = \json_decode($encoded['calculatedPrice'], true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(['price' => 80.0, 'discount' => -5.0, 'percentage' => 6.25], $arrayEncoded['regulationPrice']);
+    }
+
     public function testDecodeRoundtrip(): void
     {
         $calculatedPrice = new CalculatedPrice(
@@ -156,7 +254,7 @@ class CalculatedPriceFieldSerializerTest extends TestCase
             1,
             new ReferencePrice(100, 100, 100, 'reference unit'),
             ListPrice::createFromUnitPrice(100, 100),
-            new RegulationPrice(100)
+            RegulationPrice::createFromUnitPrice(100, 100)
         );
 
         $encoded = iterator_to_array($this->serializer->encode(
@@ -288,5 +386,52 @@ class CalculatedPriceFieldSerializerTest extends TestCase
 
         static::assertInstanceOf(CalculatedPrice::class, $result);
         static::assertNull($result->getListPrice());
+    }
+
+    public function testDecodeWithZeroRegulationPrice(): void
+    {
+        $field = new CalculatedPriceField('price', 'price');
+
+        $data = [
+            'unitPrice' => 100,
+            'totalPrice' => 100,
+            'quantity' => 1,
+            'calculatedTaxes' => [],
+            'taxRules' => [],
+            'regulationPrice' => [
+                'price' => 0,
+            ],
+        ];
+
+        $result = $this->serializer->decode($field, json_encode($data, \JSON_THROW_ON_ERROR));
+
+        static::assertInstanceOf(CalculatedPrice::class, $result);
+        static::assertNull($result->getRegulationPrice());
+    }
+
+    public function testDecodeWithValidRegulationPrice(): void
+    {
+        $field = new CalculatedPriceField('price', 'price');
+
+        // Scenario: current price 75, lowest price of the last 30 days 80 => 6.25% saved.
+        $data = [
+            'unitPrice' => 75,
+            'totalPrice' => 75,
+            'quantity' => 1,
+            'calculatedTaxes' => [],
+            'taxRules' => [],
+            'regulationPrice' => [
+                'price' => 80,
+            ],
+        ];
+
+        $result = $this->serializer->decode($field, json_encode($data, \JSON_THROW_ON_ERROR));
+
+        static::assertInstanceOf(CalculatedPrice::class, $result);
+        $regulationPrice = $result->getRegulationPrice();
+        static::assertInstanceOf(RegulationPrice::class, $regulationPrice);
+        static::assertSame(80.0, $regulationPrice->getPrice());
+        static::assertSame(-5.0, $regulationPrice->getDiscount());
+        static::assertSame(6.25, $regulationPrice->getPercentage());
     }
 }

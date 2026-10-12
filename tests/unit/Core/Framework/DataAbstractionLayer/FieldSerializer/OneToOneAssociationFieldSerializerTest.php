@@ -22,33 +22,33 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(OneToOneAssociationFieldSerializer::class)]
 class OneToOneAssociationFieldSerializerTest extends TestCase
 {
     public function testExceptionInNormalizationIsThrownIfDataIsNotArray(): void
     {
-        $this->expectExceptionObject(DataAbstractionLayerException::expectedArray('/0/recoveryCustomer'));
-
         new StaticDefinitionInstanceRegistry(
             [
                 TestCustomerDefinition::class => $customerDefinition = new TestCustomerDefinition(),
                 CustomerRecoveryDefinition::class => new CustomerRecoveryDefinition(),
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $field = $customerDefinition->getField('recoveryCustomer');
 
         static::assertInstanceOf(OneToOneAssociationField::class, $field);
 
-        $serializer = new OneToOneAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
+        $serializer = new OneToOneAssociationFieldSerializer(static::createStub(WriteCommandExtractor::class));
 
         $params = new WriteParameterBag(
             $customerDefinition,
@@ -56,6 +56,8 @@ class OneToOneAssociationFieldSerializerTest extends TestCase
             '/0',
             new WriteCommandQueue()
         );
+
+        $this->expectExceptionObject(DataAbstractionLayerException::expectedArray('/0/recoveryCustomer'));
 
         $serializer->normalize(
             $field,
@@ -66,22 +68,20 @@ class OneToOneAssociationFieldSerializerTest extends TestCase
 
     public function testExceptionInEncodeIsThrownIfDataIsNotArray(): void
     {
-        $this->expectExceptionObject(DataAbstractionLayerException::expectedArray('/0/recoveryCustomer'));
-
         new StaticDefinitionInstanceRegistry(
             [
                 TestCustomerDefinition::class => $customerDefinition = new TestCustomerDefinition(),
                 CustomerRecoveryDefinition::class => new CustomerRecoveryDefinition(),
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $field = $customerDefinition->getField('recoveryCustomer');
 
         static::assertInstanceOf(OneToOneAssociationField::class, $field);
 
-        $serializer = new OneToOneAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
+        $serializer = new OneToOneAssociationFieldSerializer(static::createStub(WriteCommandExtractor::class));
 
         $params = new WriteParameterBag(
             $customerDefinition,
@@ -90,9 +90,11 @@ class OneToOneAssociationFieldSerializerTest extends TestCase
             new WriteCommandQueue()
         );
 
+        $this->expectExceptionObject(DataAbstractionLayerException::expectedArray('/0/recoveryCustomer'));
+
         $serializer->encode(
             $field,
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             new KeyValuePair('recoveryCustomer', 'foobar', false),
             $params,
         )->next();

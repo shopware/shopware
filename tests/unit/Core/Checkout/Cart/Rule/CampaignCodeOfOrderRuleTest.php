@@ -68,7 +68,7 @@ class CampaignCodeOfOrderRuleTest extends TestCase
 
         $cart = new Cart('ABC');
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $order = new OrderEntity();
         $order->setCampaignCode('TestCampaignCode123');
         $scope = new FlowRuleScope($order, $cart, $salesChannelContext);
@@ -77,7 +77,7 @@ class CampaignCodeOfOrderRuleTest extends TestCase
 
     public function testMatchWithWrongRuleScope(): void
     {
-        $scope = $this->createMock(TestRuleScope::class);
+        $scope = static::createStub(TestRuleScope::class);
 
         $match = (new CampaignCodeOfOrderRule())->match($scope);
 
@@ -89,7 +89,7 @@ class CampaignCodeOfOrderRuleTest extends TestCase
     {
         $rule = new CampaignCodeOfOrderRule($operator, $ruleCode);
         $cart = new Cart('ABC');
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $order = new OrderEntity();
         $order->setCampaignCode($orderCampaignCode);
         $scope = new FlowRuleScope($order, $cart, $salesChannelContext);

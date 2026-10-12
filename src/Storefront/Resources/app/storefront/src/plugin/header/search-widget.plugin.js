@@ -43,6 +43,34 @@ export default class SearchWidgetPlugin extends Plugin {
         this.searchSuggestLinks = [];
 
         this._registerEvents();
+        this._restoreSearchTerm();
+    }
+
+    /**
+     * Restores the submitted search term in the input field on the search result page.
+     * The header is rendered via ESI, so neither the search term nor the current route
+     * are available during rendering. Both are taken from the surrounding page instead,
+     * which sets `window.activeRoute` per request in `layout/meta.html.twig`.
+     *
+     * @private
+     */
+    _restoreSearchTerm() {
+        // respect a term which was already rendered server-side
+        if (this._inputField.value !== '') {
+            return;
+        }
+
+        if (window.activeRoute !== 'frontend.search.page') {
+            return;
+        }
+
+        const term = new URL(window.location.href).searchParams.get(this._inputField.name);
+
+        if (!term) {
+            return;
+        }
+
+        this._inputField.value = term;
     }
 
     /**
@@ -216,8 +244,6 @@ export default class SearchWidgetPlugin extends Plugin {
                 searchWidgetButtonField.insertAdjacentHTML('afterend', content);
 
                 this._setAccessibilityAttributes();
-                this._inputField.setAttribute('aria-expanded', 'true');
-
                 const searchSuggest = document.querySelector(this.options.searchWidgetResultSelector);
 
                 this.searchSuggestLinks = Array.from(window.focusHandler.getFocusableElements(searchSuggest));
@@ -276,7 +302,6 @@ export default class SearchWidgetPlugin extends Plugin {
         results.forEach(result => result.remove());
 
         this._removeAccessibilityAttributes();
-        this._inputField.setAttribute('aria-expanded', 'false');
 
         this.$emitter.publish('clearSuggestResults');
     }

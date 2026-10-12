@@ -6,7 +6,7 @@
         gap: var(--scale-size-4);
         width: 100%;
         align-items: center;
-        grid-template-columns: var(--scale-size-256) 1fr auto;
+        grid-template-columns: var(--scale-size-256) calc(100% - var(--scale-size-256) - var(--scale-size-40)) var(--scale-size-40);
 
         > * {
             min-height: var(--scale-size-48);

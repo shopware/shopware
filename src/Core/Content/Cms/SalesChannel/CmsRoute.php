@@ -4,9 +4,11 @@ namespace Shopware\Core\Content\Cms\SalesChannel;
 
 use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
+use Shopware\Core\Content\Cms\Extension\CmsRouteExtension;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -16,14 +18,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CmsRoute extends AbstractCmsRoute
 {
     /**
      * @internal
      */
-    public function __construct(private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader)
+    public function __construct(private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader, private readonly ExtensionDispatcher $extensions)
     {
     }
 
@@ -40,6 +42,15 @@ class CmsRoute extends AbstractCmsRoute
     )]
     public function load(string $id, Request $request, SalesChannelContext $context): CmsRouteResponse
     {
+        return $this->extensions->publish(
+            name: CmsRouteExtension::NAME,
+            extension: new CmsRouteExtension($id, $request, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(string $id, Request $request, SalesChannelContext $context): CmsRouteResponse
+    {
         $criteria = new Criteria([$id]);
 
         $slots = RequestParamHelper::get($request, 'slots');
@@ -48,13 +59,13 @@ class CmsRoute extends AbstractCmsRoute
             $slots = explode('|', $slots);
         }
 
-        if (!empty($slots)) {
+        if (\is_array($slots) && $slots !== []) {
             $criteria
                 ->getAssociation('sections.blocks')
                 ->addFilter(new EqualsAnyFilter('slots.id', $slots));
         }
 
-        $cmsPage = $this->cmsPageLoader->load($request, $criteria, $context)->first();
+        $cmsPage = $this->cmsPageLoader->load($request, $criteria, $context)->getEntities()->first();
         if ($cmsPage === null) {
             if (!Feature::isActive('v6.8.0.0')) {
                 /** @phpstan-ignore shopware.domainException (Will be fixed with next major) */

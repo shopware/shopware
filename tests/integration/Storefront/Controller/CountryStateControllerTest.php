@@ -35,6 +35,8 @@ class CountryStateControllerTest extends TestCase
 
     private string $countryIdDE;
 
+    private string $countryIdAT;
+
     private CountryStateController $countryStateController;
 
     private SalesChannelContext $salesChannelContext;
@@ -43,9 +45,8 @@ class CountryStateControllerTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->countryIdDE = Uuid::fromBytesToHex(
-            $this->connection->fetchAllAssociative('SELECT id FROM country WHERE iso = \'DE\'')[0]['id']
-        );
+        $this->countryIdDE = $this->getCountryIdByIso();
+        $this->countryIdAT = $this->getCountryIdByIso('AT');
 
         $this->countryStateController = static::getContainer()->get(CountryStateController::class);
 
@@ -60,10 +61,29 @@ class CountryStateControllerTest extends TestCase
         static::assertCount(16, \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['states']);
     }
 
+    public function testGetCountryDataFromQueryParameter(): void
+    {
+        $response = $this->countryStateController->getCountryData(new Request(['countryId' => $this->countryIdAT]), $this->salesChannelContext);
+
+        static::assertCount(0, \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['states']);
+    }
+
+    public function testGetCountryDataPrefersQueryParameterOverPostData(): void
+    {
+        $response = $this->countryStateController->getCountryData(
+            new Request(['countryId' => $this->countryIdDE], ['countryId' => $this->countryIdAT]),
+            $this->salesChannelContext
+        );
+
+        $states = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['states'];
+
+        static::assertCount(16, $states);
+    }
+
     public function testEmptyCountryId(): void
     {
         $this->expectExceptionObject(RoutingException::missingRequestParameter('countryId'));
-        $this->countryStateController->getCountryData(new Request([], ['countryId' => null]), $this->salesChannelContext);
+        $this->countryStateController->getCountryData(new Request(), $this->salesChannelContext);
     }
 
     public function testCountryStateControllerEvents(): void
@@ -134,6 +154,14 @@ class CountryStateControllerTest extends TestCase
         static::assertArrayHasKey(CountryStateDataPageletLoadedHook::HOOK_NAME, $traces);
 
         static::assertSame([16], $traces['country-state-data-pagelet-loaded'][0]['output']);
+    }
+
+    private function getCountryIdByIso(string $iso = 'DE'): string
+    {
+        $countryId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM country WHERE iso = :iso', ['iso' => $iso]);
+        static::assertIsString($countryId);
+
+        return $countryId;
     }
 }
 

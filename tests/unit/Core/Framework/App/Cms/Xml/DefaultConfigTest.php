@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Cms\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Cms\Xml\DefaultConfig;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(DefaultConfig::class)]
 class DefaultConfigTest extends TestCase
 {
@@ -44,6 +46,9 @@ XML));
         static::assertSame('#000', $defaultConfig->getBackgroundColor());
     }
 
+    /**
+     * @param non-empty-string $xml
+     */
     private static function loadElement(string $xml): \DOMElement
     {
         $document = new \DOMDocument();

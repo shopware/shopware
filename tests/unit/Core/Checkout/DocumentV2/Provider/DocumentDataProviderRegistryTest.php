@@ -33,14 +33,29 @@ class DocumentDataProviderRegistryTest extends TestCase
 
     public function testGetProvidersByDocumentTypeThrowsOnDuplicateProviderKeys(): void
     {
-        static::expectExceptionObject(
-            DocumentV2Exception::duplicateProviderKey('duplicate', DocumentType::INVOICE->value)
-        );
-
-        new DocumentDataProviderRegistry([
+        $registry = new DocumentDataProviderRegistry([
             new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'duplicate'),
             new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'duplicate'),
         ]);
+
+        $this->expectExceptionObject(
+            DocumentV2Exception::duplicateProviderKey('duplicate', DocumentType::INVOICE->value)
+        );
+
+        $registry->getByDocumentType(DocumentType::INVOICE->value);
+    }
+
+    public function testGetProvidersByDocumentTypeMatchesPluginDefinedTypes(): void
+    {
+        $registry = new DocumentDataProviderRegistry([
+            new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'invoice'),
+            new StaticDocumentDataProvider(['my_plugin_document'], 'plugin'),
+        ]);
+
+        $pluginProviders = $registry->getByDocumentType('my_plugin_document');
+
+        static::assertCount(1, $pluginProviders);
+        static::assertSame('plugin', $pluginProviders[0]->getKey());
     }
 
     public function testGetProvidersByDocumentTypeAllowsSameKeyForDifferentDocumentTypes(): void

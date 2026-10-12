@@ -55,7 +55,7 @@ class AccountOrderDetailPageLoader
             throw CartException::customerNotLoggedIn();
         }
 
-        $orderId = (string) $request->get('id');
+        $orderId = $request->attributes->getString('id', $request->query->getString('id'));
 
         if ($orderId === '') {
             throw RoutingException::missingRequestParameter('id');
@@ -92,7 +92,7 @@ class AccountOrderDetailPageLoader
         $result = $this->orderRoute
             ->load($event->getStoreApiRequest(), $salesChannelContext, $criteria);
 
-        $order = $result->getOrders()->first();
+        $order = $result->getOrders()->getEntities()->first();
 
         if (!$order instanceof OrderEntity) {
             throw new NotFoundHttpException();

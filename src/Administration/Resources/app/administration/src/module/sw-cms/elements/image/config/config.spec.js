@@ -105,7 +105,7 @@ describe('src/module/sw-cms/elements/image/config', () => {
         await setupCmsEnvironment();
     });
 
-    it('should keep minHeight value when changing display mode', async () => {
+    it('should clear the minHeight value when changing display mode away from cover', async () => {
         const wrapper = await createWrapper();
 
         await selectMtSelectOptionByText(
@@ -114,6 +114,7 @@ describe('src/module/sw-cms/elements/image/config', () => {
             '.sw-cms-el-config-image__display-mode input',
         );
 
+        // minHeight is only relevant in cover mode and stays untouched while in cover
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
 
         await selectMtSelectOptionByText(
@@ -122,8 +123,73 @@ describe('src/module/sw-cms/elements/image/config', () => {
             '.sw-cms-el-config-image__display-mode input',
         );
 
-        // Should still have the previous value
+        // Leaving cover mode clears the value so no min-height is persisted/sent through the API
+        expect(wrapper.vm.element.config.minHeight.value).toBe('');
+    });
+
+    it('should append px to a unitless min height value', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.onChangeMinHeight('500');
+        expect(wrapper.vm.element.config.minHeight.value).toBe('500px');
+
+        wrapper.vm.onChangeMinHeight('260.5');
+        expect(wrapper.vm.element.config.minHeight.value).toBe('260.5px');
+    });
+
+    it('should keep an explicitly given unit on the min height value', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.onChangeMinHeight('340px');
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
+
+        wrapper.vm.onChangeMinHeight('20rem');
+        expect(wrapper.vm.element.config.minHeight.value).toBe('20rem');
+    });
+
+    it('should clear the min height value when emptied', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.onChangeMinHeight('');
+        expect(wrapper.vm.element.config.minHeight.value).toBe('');
+
+        wrapper.vm.onChangeMinHeight(null);
+        expect(wrapper.vm.element.config.minHeight.value).toBe('');
+    });
+
+    it('should use the media entity as preview source when element data holds one', async () => {
+        const wrapper = await createWrapper();
+        const media = {
+            id: 'media-id',
+            url: 'http://shop.example/media/preview.png',
+        };
+
+        wrapper.vm.element.data.media = media;
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.previewSource).toStrictEqual(media);
+    });
+
+    it('should use the config value as preview source for a static media source', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.element.config.media.value = 'media-id';
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.previewSource).toBe('media-id');
+    });
+
+    it('should build an asset url as preview source for a default media source', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.element.config.media.source = 'default';
+        wrapper.vm.element.config.media.value = Shopware.Constants.CMS.MEDIA.previewMountain;
+        await wrapper.vm.$nextTick();
+
+        const previewSource = wrapper.vm.previewSource;
+
+        expect(previewSource).toBeInstanceOf(URL);
+        expect(previewSource.pathname).toContain('administration/administration/static/img/cms/preview_mountain_large.webp');
     });
 
     it('should change the isDecorative value', async () => {

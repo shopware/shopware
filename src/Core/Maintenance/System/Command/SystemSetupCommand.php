@@ -28,11 +28,11 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal should be used over the CLI only
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'system:setup',
     description: 'Setup the system',
 )]
-#[Package('framework')]
 class SystemSetupCommand extends Command
 {
     public function __construct(

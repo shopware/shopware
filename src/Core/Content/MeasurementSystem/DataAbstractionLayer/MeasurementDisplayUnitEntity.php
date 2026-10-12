@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
-use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
@@ -18,6 +17,8 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 #[Entity('measurement_display_unit', since: '6.7.1.0')]
@@ -32,7 +33,7 @@ class MeasurementDisplayUnitEntity extends EntityStruct
     #[ForeignKey(entity: 'measurement_system', api: true)]
     public string $measurementSystemId;
 
-    #[ManyToOne(entity: 'measurement_system', onDelete: OnDelete::CASCADE, api: true)]
+    #[ManyToOne(entity: 'measurement_system', api: true)]
     public ?MeasurementSystemEntity $measurementSystem = null;
 
     #[Field(type: FieldType::BOOL, api: true)]

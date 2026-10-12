@@ -1,0 +1,77 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Language": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "localeId",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "parentId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "localeId": {
+                        "description": "Unique identity of locale.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "translationCodeId": {
+                        "description": "Unique identity of translation code.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "name": {
+                        "description": "Name of the language.",
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "parent": {
+                        "$ref": "#/components/schemas/Language",
+                        "description": "Unique identity of language."
+                    },
+                    "locale": {
+                        "$ref": "#/components/schemas/Locale",
+                        "description": "Locale defining regional settings (date, time, number formats)"
+                    },
+                    "translationCode": {
+                        "$ref": "#/components/schemas/Locale",
+                        "description": "Locale used for translating content"
+                    },
+                    "children": {
+                        "description": "Child languages inheriting from this parent language",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Language"
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

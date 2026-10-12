@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchResetCommand;
@@ -16,6 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ElasticsearchResetCommandTest extends TestCase
 {
     use AdminElasticsearchTestBehaviour;
@@ -60,7 +62,7 @@ class ElasticsearchResetCommandTest extends TestCase
 
         $tasks = $this->connection->fetchAllAssociative('SELECT `index` FROM elasticsearch_index_task');
 
-        static::assertEmpty($tasks);
+        static::assertCount(0, $tasks);
     }
 
     protected function getDiContainer(): ContainerInterface

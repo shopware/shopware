@@ -5,6 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -76,11 +77,10 @@ class SalesChannelTypeEntity extends Entity
         $this->descriptionLong = $descriptionLong;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
-     */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string')]
     public function getCoverUrl(): string
     {
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
         if ($this->coverUrl === null) {
             return '';
         }
@@ -93,11 +93,10 @@ class SalesChannelTypeEntity extends Entity
         $this->coverUrl = $coverUrl;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
-     */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string')]
     public function getIconName(): string
     {
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
         if ($this->iconName === null) {
             return '';
         }
@@ -112,11 +111,11 @@ class SalesChannelTypeEntity extends Entity
 
     /**
      * @return list<string>
-     *
-     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
      */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?array')]
     public function getScreenshotUrls(): array
     {
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
         if ($this->screenshotUrls === null) {
             return [];
         }

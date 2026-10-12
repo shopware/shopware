@@ -94,7 +94,7 @@ class PaymentMethodRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     /**
@@ -172,7 +172,7 @@ class PaymentMethodRuleTest extends TestCase
         $paymentMethodEntity = new PaymentMethodEntity();
         $paymentMethodEntity->setId($paymentMethodId);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getPaymentMethod')->willReturn($paymentMethodEntity);
 
         $ruleScope = new CartRuleScope(
@@ -191,7 +191,7 @@ class PaymentMethodRuleTest extends TestCase
         $paymentMethodEntity = new PaymentMethodEntity();
         $paymentMethodEntity->setId('965a0713093841ceb86b0f83edd7dab4');
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getPaymentMethod')->willReturn($paymentMethodEntity);
 
         $ruleScope = new CartRuleScope(

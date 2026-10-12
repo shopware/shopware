@@ -98,7 +98,7 @@ class UnusedMediaSubscriberTest extends TestCase
 
         $listener->removeUsedMedia($event);
 
-        static::assertEmpty($event->getUnusedIds());
+        static::assertCount(0, $event->getUnusedIds());
     }
 
     /**

@@ -17,14 +17,9 @@ const USER_PROVIDED_CONTENT_OVERRIDE_KEY = 'user_provided_content';
 export default {
     template,
 
-    inject: [
-        'salesChannelFileApiService',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'salesChannelFileApiService', 'repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -232,11 +227,12 @@ export default {
             this.isPreviewLoading = true;
 
             try {
+                const templateOverrides = this.hasUnsavedTemplateOverrides() ? this.templateOverrides : undefined;
                 this.preview = await this.salesChannelFileApiService.preview(
                     this.file.fileFamily,
                     this.salesChannel.id,
                     this.file.fileName,
-                    this.templateOverrides,
+                    templateOverrides,
                 );
             } catch {
                 this.preview = null;
@@ -265,6 +261,20 @@ export default {
 
         hasTemplateOverride(template) {
             return Object.hasOwn(this.templateOverrides, template.twigNamespace);
+        },
+
+        hasUnsavedTemplateOverrides() {
+            const configuration = this.file?.configuration;
+
+            if (configuration?.isNew?.() === true) {
+                return true;
+            }
+
+            if (typeof configuration?.getOrigin !== 'function') {
+                return false;
+            }
+
+            return !Shopware.Utils.types.isEqual(configuration.getOrigin().templateOverrides ?? {}, this.templateOverrides);
         },
 
         openTemplateOverrideModal(template) {
@@ -401,7 +411,8 @@ export default {
             return (
                 salesChannelFiles.find((configuration) => {
                     return (
-                        configuration.fileFamily === this.file?.fileFamily && configuration.fileName === this.file?.fileName
+                        configuration.fileFamily === this.file?.fileFamily &&
+                        configuration.fileName.toLowerCase() === this.file?.fileName.toLowerCase()
                     );
                 }) ?? null
             );
@@ -460,7 +471,10 @@ export default {
         },
 
         formatSnippetPathSegment(segment) {
-            return `[${JSON.stringify(segment)}]`;
+            // Slugify so dots and slashes in file names cannot break snippet path resolution.
+            const slug = Shopware.Utils.string.kebabCase(segment);
+
+            return `[${JSON.stringify(slug)}]`;
         },
 
         getEnabledVariant(file) {

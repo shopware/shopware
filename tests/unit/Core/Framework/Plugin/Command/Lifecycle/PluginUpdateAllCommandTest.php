@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Lifecycle;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginUpdateAllCommand;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -20,6 +21,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PluginUpdateAllCommand::class)]
 class PluginUpdateAllCommandTest extends TestCase
 {
@@ -77,7 +79,7 @@ class PluginUpdateAllCommandTest extends TestCase
             $updateAblePlugin,
         ])]);
 
-        $updateMock = $this->createMock(UpdateContext::class);
+        $updateMock = static::createStub(UpdateContext::class);
 
         $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
         $pluginLifecycleService
@@ -113,7 +115,7 @@ class PluginUpdateAllCommandTest extends TestCase
             $updateAblePlugin,
         ])]);
 
-        $updateMock = $this->createMock(UpdateContext::class);
+        $updateMock = static::createStub(UpdateContext::class);
 
         $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
         $pluginLifecycleService

@@ -12,10 +12,9 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlListener;
 use Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
-use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
-use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -25,6 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @deprecated tag:v6.8.0 - This test is deprecated because the CacheControlListener is deprecated.
  */
+#[Package('framework')]
 #[CoversClass(CacheControlListener::class)]
 class CacheControlListenerTest extends TestCase
 {
@@ -39,7 +39,7 @@ class CacheControlListenerTest extends TestCase
             $response->headers->set('cache-control', $beforeHeader);
         }
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $eventDispatcher->method('dispatch')->willReturnArgument(0);
         $subscriber = new CacheControlListener($reverseProxyEnabled, $eventDispatcher);
 
@@ -52,22 +52,33 @@ class CacheControlListenerTest extends TestCase
         }
     }
 
-    #[DataProvider('headerCases')]
-    public function testResponseHeaders(bool $reverseProxyEnabled, ?string $beforeHeader, string $afterHeader): void
+    #[DataProvider('notModifiedCacheControlCases')]
+    public function testCacheControlHeadersAreNotModified(bool $reverseProxyEnabled, string $cacheControl): void
     {
         $response = new Response();
+        $response->headers->set('cache-control', $cacheControl);
+        $response->headers->set(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, 'foo');
 
-        if ($beforeHeader) {
-            $response->headers->set('cache-control', $beforeHeader);
-        }
-
+        // The cache-control headers are managed by the request lifecycle, so the listener must not touch the
+        // response at all and must not even dispatch the BeforeCacheControlEvent.
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->method('dispatch')->willReturnArgument(0);
+        $eventDispatcher->expects($this->never())->method('dispatch');
         $subscriber = new CacheControlListener($reverseProxyEnabled, $eventDispatcher);
 
         $subscriber->__invoke(new BeforeSendResponseEvent(new Request(), $response));
 
-        static::assertSame($afterHeader, $response->headers->get('cache-control'));
+        static::assertSame($cacheControl, $response->headers->get('cache-control'));
+        static::assertTrue($response->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
+    }
+
+    /**
+     * @return iterable<string, array{0: bool, 1: string}>
+     */
+    public static function notModifiedCacheControlCases(): iterable
+    {
+        yield 'no reverse proxy, public content is preserved' => [false, 'public, s-maxage=64000'];
+        yield 'no reverse proxy, private content is preserved' => [false, 'no-cache, private'];
+        yield 'reverse proxy, public content is preserved' => [true, 'public, s-maxage=64000'];
     }
 
     /**
@@ -119,49 +130,11 @@ class CacheControlListenerTest extends TestCase
         ];
     }
 
-    public function testHeadersNotModified(): void
-    {
-        $response = new Response();
-        $response->headers->set('cache-control', 'public, s-maxage=64000');
-
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->method('dispatch')->willReturnArgument(0);
-        $subscriber = new CacheControlListener(false, $eventDispatcher);
-
-        // StoreAPI
-        $storeApiRequest = new Request();
-        $storeApiRequest->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
-        $subscriber->__invoke(new BeforeSendResponseEvent($storeApiRequest, $response));
-        static::assertSame('public, s-maxage=64000', $response->headers->get('cache-control'));
-
-        // Storefront
-        $storefrontRequest = new Request();
-        $storefrontRequest->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
-        $subscriber->__invoke(new BeforeSendResponseEvent($storefrontRequest, $response));
-        static::assertSame('public, s-maxage=64000', $response->headers->get('cache-control'));
-    }
-
-    #[DisabledFeatures(['CACHE_REWORK', 'v6.8.0.0'])]
-    public function testStoreApiHeadersWithoutFeatureFlags(): void
-    {
-        $response = new Response();
-        $response->headers->set('cache-control', 'public, s-maxage=64000');
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
-
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->method('dispatch')->willReturnArgument(0);
-        $subscriber = new CacheControlListener(false, $eventDispatcher);
-        $subscriber->__invoke(new BeforeSendResponseEvent(new Request(), $response));
-
-        static::assertSame('no-cache, private', $response->headers->get('cache-control'));
-    }
-
     #[DataProvider('administrationHeadersCases')]
+    #[DisabledFeatures(['v6.8.0.0', 'CACHE_REWORK'])]
     public function testAdministrationHeadersNotModified(Request $request, Response $response, string $expectedCacheControl, ?string $expectedCacheIdHeader = null): void
     {
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $eventDispatcher->method('dispatch')->willReturnCallback(static function ($event) {
             if ($event instanceof BeforeCacheControlEvent) {
                 $administrationListener = new AdministrationCacheControlListener();
@@ -216,6 +189,7 @@ class CacheControlListenerTest extends TestCase
         ];
     }
 
+    #[DisabledFeatures(['v6.8.0.0', 'CACHE_REWORK'])]
     public function testNonAdministrationHeadersAreModified(): void
     {
         $response = new Response();
@@ -224,7 +198,7 @@ class CacheControlListenerTest extends TestCase
         $request = new Request();
         // No administration markers set
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $eventDispatcher->method('dispatch')->willReturnArgument(0);
         $subscriber = new CacheControlListener(false, $eventDispatcher);
 

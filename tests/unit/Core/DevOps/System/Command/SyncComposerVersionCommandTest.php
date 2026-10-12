@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\DevOps\System\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\System\Command\SyncComposerVersionCommand;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -12,6 +13,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SyncComposerVersionCommand::class)]
 class SyncComposerVersionCommandTest extends TestCase
 {

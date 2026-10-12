@@ -13,12 +13,14 @@ use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowLogEvent;
 use Shopware\Core\Framework\Log\LoggingService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Logging\Event\LogAwareTestFlowEvent;
 use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(LoggingService::class)]
 class LoggingServiceTest extends TestCase
 {
@@ -45,7 +47,7 @@ class LoggingServiceTest extends TestCase
         static::assertSame(TestFlowBusinessEvent::EVENT_NAME, $testRecord->message);
         static::assertSame('test', $testRecord->context['environment']);
         static::assertSame(Level::Debug, $testRecord->level);
-        static::assertEmpty($testRecord->context['additionalData']);
+        static::assertSame([], $testRecord->context['additionalData']);
     }
 
     public function testWriteMailSendLogEvents(): void
@@ -79,7 +81,7 @@ class LoggingServiceTest extends TestCase
         $testRecord = $this->getRecord($handler);
 
         static::assertSame(Level::Emergency, $testRecord->level);
-        static::assertNotEmpty($testRecord->context['additionalData']);
+        static::assertIsArray($testRecord->context['additionalData']);
         static::assertArrayHasKey('awesomekey', $testRecord->context['additionalData']);
         static::assertSame('awesomevalue', $testRecord->context['additionalData']['awesomekey']);
     }

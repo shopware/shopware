@@ -2,7 +2,7 @@
     align-self: center;
     margin-right: var(--scale-size-2);
     background-color: var(--color-interaction-secondary-default);
-    border: 1px solid var(--color-border-primary-default);
+    border: 1px solid var(--color-border-secondary-default);
     padding: var(--scale-size-6) var(--scale-size-12);
     font-size: var(--font-size-xs);
     border-radius: var(--border-radius-button);
@@ -27,7 +27,7 @@
 
     &__menu {
         background-color: var(--color-background-primary-default);
-        border: 1px solid var(--color-border-primary-default);
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: var(--border-radius-xs);
         box-shadow: 0 3px 6px rgba(120, 138, 155, 25%);
         padding: var(--scale-size-8);

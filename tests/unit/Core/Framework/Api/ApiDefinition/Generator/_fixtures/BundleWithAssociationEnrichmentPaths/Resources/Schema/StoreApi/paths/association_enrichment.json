@@ -1,0 +1,550 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "/association-enrichment/response-level-list-ref": {
+            "get": {
+                "operationId": "readResponseLevelListRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/TestEntityWithAssociationsListResponse"
+                    }
+                }
+            }
+        },
+        "/association-enrichment/response-level-detail-ref": {
+            "get": {
+                "operationId": "readResponseLevelDetailRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/TestEntityWithAssociationsDetailResponse"
+                    }
+                }
+            }
+        },
+        "/association-enrichment/response-level-plain-ref": {
+            "get": {
+                "operationId": "readResponseLevelPlainRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/TestEntityWithAssociationsResponse"
+                    }
+                }
+            }
+        },
+        "/association-enrichment/route-response-ref": {
+            "get": {
+                "operationId": "readRouteResponseRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestEntityWithAssociationsRouteResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/detail-response-ref": {
+            "get": {
+                "operationId": "readDetailResponseRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestEntityWithAssociationsDetailResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/listing-result-ref": {
+            "get": {
+                "operationId": "readListingResultRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestEntityWithAssociationsListingResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/search-result-ref": {
+            "get": {
+                "operationId": "readSearchResultRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestEntityWithAssociationsSearchResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/collection-result-ref": {
+            "get": {
+                "operationId": "readCollectionResultRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestEntityWithAssociationsCollectionResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/plain-schema-ref": {
+            "get": {
+                "operationId": "readPlainSchemaRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestEntityWithAssociations"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/acronym-schema-ref": {
+            "get": {
+                "operationId": "readAcronymSchemaRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SEOUrl"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/all-of-route-response-ref": {
+            "get": {
+                "operationId": "readAllOfRouteResponseRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/TestEntityWithAssociationsRouteResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/all-of-detail-response-ref": {
+            "get": {
+                "operationId": "readAllOfDetailResponseRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/TestEntityWithAssociationsDetailResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/all-of-listing-result-ref": {
+            "get": {
+                "operationId": "readAllOfListingResultRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/TestEntityWithAssociationsListingResult"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/all-of-plain-ref": {
+            "get": {
+                "operationId": "readAllOfPlainRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/TestEntityWithAssociations"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/elements-items-ref": {
+            "get": {
+                "operationId": "readElementsItemsRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "elements": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/TestEntityWithAssociations"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/no-success-response": {
+            "get": {
+                "operationId": "readNoSuccessResponse",
+                "description": "Base description.",
+                "responses": {
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/association-enrichment/success-without-schema": {
+            "get": {
+                "operationId": "readSuccessWithoutSchema",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/association-enrichment/inline-object-schema": {
+            "get": {
+                "operationId": "readInlineObjectSchema",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "foo": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/non-string-response-ref": {
+            "get": {
+                "operationId": "readNonStringResponseRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "$ref": 12345
+                    }
+                }
+            }
+        },
+        "/association-enrichment/non-matching-response-ref": {
+            "get": {
+                "operationId": "readNonMatchingResponseRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "$ref": "#/invalid/reference"
+                    }
+                }
+            }
+        },
+        "/association-enrichment/generic-entity-search-result-ref": {
+            "get": {
+                "operationId": "readGenericEntitySearchResultRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EntitySearchResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/generic-search-result-ref": {
+            "get": {
+                "operationId": "readGenericSearchResultRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/result-not-at-end-ref": {
+            "get": {
+                "operationId": "readResultNotAtEndRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResultOfTestEntityWithAssociations"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/route-response-not-at-end-ref": {
+            "get": {
+                "operationId": "readRouteResponseNotAtEndRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RouteResponseOfTestEntityWithAssociations"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/detail-response-not-at-end-ref": {
+            "get": {
+                "operationId": "readDetailResponseNotAtEndRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DetailResponseOfTestEntityWithAssociations"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/ref-without-slash": {
+            "get": {
+                "operationId": "readRefWithoutSlash",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "PlainRefWithoutSlash"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/entity-without-associations-ref": {
+            "get": {
+                "operationId": "readEntityWithoutAssociationsRef",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Simple"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/without-description": {
+            "get": {
+                "operationId": "readWithoutDescription",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestEntityWithAssociations"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/already-enriched": {
+            "get": {
+                "operationId": "readAlreadyEnriched",
+                "description": "Base description.\n\n**Available Associations:**\n- `manuallyMaintained`",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestEntityWithAssociations"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/non-read-operation": {
+            "get": {
+                "operationId": "listTestEntityWithAssociations",
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestEntityWithAssociations"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/association-enrichment/without-operation-id": {
+            "get": {
+                "description": "Base description.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestEntityWithAssociations"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

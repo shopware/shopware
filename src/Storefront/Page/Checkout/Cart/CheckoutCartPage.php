@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Storefront\Page\Page;
 
-#[Package('framework')]
+#[Package('checkout')]
 class CheckoutCartPage extends Page
 {
     protected Cart $cart;

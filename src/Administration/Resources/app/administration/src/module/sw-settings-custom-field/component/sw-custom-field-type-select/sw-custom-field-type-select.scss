@@ -1,12 +1,7 @@
-@import "~scss/variables";
-
-$sw-custom-field-type-select-button-add-color: $color-shopware-brand-500;
-$sw-custom-field-type-select-button-delete-color: $color-crimson-500;
-
 .sw-custom-field-type-base {
     .sw-custom-field-type-select__delete-option-button {
         background: none;
-        color: $sw-custom-field-type-select-button-delete-color;
+        color: var(--color-text-critical-default);
         margin-left: 20px;
     }
 
@@ -15,7 +10,7 @@ $sw-custom-field-type-select-button-delete-color: $color-crimson-500;
     }
 
     .sw-custom-field-type-select__button-add {
-        color: $sw-custom-field-type-select-button-add-color;
-        border-color: $sw-custom-field-type-select-button-add-color;
+        color: var(--color-text-brand-default);
+        border-color: var(--color-border-brand-default);
     }
 }

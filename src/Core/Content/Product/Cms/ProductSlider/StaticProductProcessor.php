@@ -48,6 +48,7 @@ class StaticProductProcessor extends AbstractProductSliderProcessor
         $products = $config->get('products');
         \assert($products instanceof FieldConfig);
         $criteria = new Criteria($products->getArrayValue());
+        $criteria->addAssociation('options.group');
 
         $this->eventDispatcher->dispatch(new ProductSliderStaticCriteriaEvent($slot, $criteria, $resolverContext->getSalesChannelContext()));
 
@@ -78,7 +79,7 @@ class StaticProductProcessor extends AbstractProductSliderProcessor
         }
 
         $criteriaIds = array_unique($searchResult->getCriteria()->getIds());
-        if (\count($criteriaIds) > 0 && \count($searchResult->getCriteria()->getSorting()) === 0) {
+        if ($criteriaIds !== [] && $searchResult->getCriteria()->getSorting() === []) {
             $configuredIds = $slot->getFieldConfig()->get('products')?->getArrayValue() ?? [];
             usort(
                 $criteriaIds,

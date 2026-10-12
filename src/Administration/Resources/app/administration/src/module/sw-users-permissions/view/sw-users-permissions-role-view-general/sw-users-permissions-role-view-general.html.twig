@@ -8,7 +8,7 @@
         <template v-if="role">
         {% block sw_users_permissions_role_role_view_general_mcp_hint %}
             <mt-banner
-                v-if="feature.isActive('MCP_SERVER') && shouldShowMcpHint"
+                v-if="shouldShowMcpHint"
                 variant="info"
                 class="sw-users-permissions-role-view-general__mcp-hint"
             >
@@ -68,7 +68,7 @@
 
     {% block sw_users_permissions_role_role_view_general_mcp_modal %}
     <sw-users-permissions-role-mcp-reference-modal
-        v-if="feature.isActive('MCP_SERVER') && showMcpModal"
+        v-if="showMcpModal"
         :role="role"
         :mcp-integrations="mcpIntegrations"
         @modal-close="onCloseMcpModal"

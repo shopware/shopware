@@ -45,7 +45,7 @@ class OrderSerializerTest extends TestCase
     protected function setUp(): void
     {
         $this->serializer = new OrderSerializer();
-        $this->serializer->setRegistry($this->createMock(SerializerRegistry::class));
+        $this->serializer->setRegistry(static::createStub(SerializerRegistry::class));
     }
 
     public function testSupports(): void
@@ -65,7 +65,7 @@ class OrderSerializerTest extends TestCase
         $logEntity->setId(Uuid::randomHex());
         $config = Config::fromLog($logEntity);
         $definition = new OrderDefinition();
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $result = iterator_to_array($this->serializer->serialize($config, $definition, $entity));
 

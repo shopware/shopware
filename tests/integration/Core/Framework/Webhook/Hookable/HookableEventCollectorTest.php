@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Webhook\Hookable\CoreHookableEventDescriber;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 /**
  * @internal
  */
+#[Package('framework')]
 class HookableEventCollectorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -43,7 +45,7 @@ class HookableEventCollectorTest extends TestCase
             Context::createDefaultContext(),
             Manifest::createFromXmlFile(self::MANIFEST_FIXTURE)
         );
-        static::assertNotEmpty($hookableEventNamesWithPrivileges);
+        static::assertNotCount(0, $hookableEventNamesWithPrivileges);
 
         foreach ($hookableEventNamesWithPrivileges as $key => $hookableEventNamesWithPrivilege) {
             static::assertIsArray($hookableEventNamesWithPrivilege);
@@ -55,7 +57,7 @@ class HookableEventCollectorTest extends TestCase
     public function testGetHookableEntities(): void
     {
         $hookableEntities = $this->hookableEventCollector->getHookableEntities();
-        static::assertNotEmpty($hookableEntities);
+        static::assertNotCount(0, $hookableEntities);
 
         static::assertContains(ProductDefinition::ENTITY_NAME, $hookableEntities);
         static::assertContains(ProductPriceDefinition::ENTITY_NAME, $hookableEntities);

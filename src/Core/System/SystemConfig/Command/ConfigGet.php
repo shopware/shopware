@@ -11,11 +11,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'system:config:get',
     description: 'Get a config value',
 )]
-#[Package('framework')]
 class ConfigGet extends Command
 {
     private const FORMAT_DEFAULT = 'default';

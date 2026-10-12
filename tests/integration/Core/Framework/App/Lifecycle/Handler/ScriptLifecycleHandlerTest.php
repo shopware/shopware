@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Handler;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ScriptLifecycleHandler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\ServiceBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 /**
  * @internal
  */
+#[Package('framework')]
 class ScriptLifecycleHandlerTest extends TestCase
 {
     use ExtensionBehaviour;

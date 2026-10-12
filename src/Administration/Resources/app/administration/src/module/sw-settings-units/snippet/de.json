@@ -14,11 +14,10 @@
     },
     "grid": {
       "columnName": "Produkteinheit",
-      "columnShortCode": "Kurzform",
-      "contextMenuDelete": "Löschen"
+      "columnShortCode": "Kurzform"
     },
     "empty-state": {
-      "title": "Noch keine Produkteinheiten vorhanden",
+      "title": "Noch keine Produkteinheiten",
       "subline": "Verwaltung von Produkteinheiten."
     },
     "notification": {

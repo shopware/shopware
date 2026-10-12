@@ -9,11 +9,7 @@ import './sw-vector-field.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    emits: [
-        'update:value',
-        'input-change',
-        'link-change',
-    ],
+    emits: ['update:value', 'input-change', 'link-change'],
 
     inject: ['feature'],
 
@@ -63,15 +59,9 @@ export default Shopware.Component.wrapComponentConfig({
             type: String,
             required: false,
             default: 'colored',
-            validValues: [
-                'neutral',
-                'colored',
-            ],
+            validValues: ['neutral', 'colored'],
             validator(value: string) {
-                return [
-                    'neutral',
-                    'colored',
-                ].includes(value);
+                return ['neutral', 'colored'].includes(value);
             },
         },
     },
@@ -130,13 +120,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             if (this.linked && this.linkable) {
-                (
-                    [
-                        'x',
-                        'y',
-                        'z',
-                    ] as const
-                ).forEach((key) => {
+                (['x', 'y', 'z'] as const).forEach((key) => {
                     if (key !== axis) {
                         this.currentValue[key] = Number(event);
                     }

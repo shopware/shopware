@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 
 #[Package('inventory')]
 class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
@@ -37,7 +38,8 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
             $this->categoryDefinition,
             self::ROUTE_NAME,
             self::DEFAULT_TEMPLATE,
-            true
+            true,
+            'navigationId'
         );
     }
 
@@ -47,7 +49,6 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
             new EqualsFilter('active', true),
             new NotFilter(NotFilter::CONNECTION_OR, [
                 new EqualsFilter('type', CategoryDefinition::TYPE_FOLDER),
-                new EqualsFilter('type', CategoryDefinition::TYPE_LINK),
             ]),
         ]));
     }
@@ -55,7 +56,7 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
     public function getMapping(Entity $category, ?SalesChannelEntity $salesChannel): SeoUrlMapping
     {
         if (!$category instanceof CategoryEntity) {
-            throw new \InvalidArgumentException('Expected CategoryEntity');
+            throw StorefrontFrameworkException::invalidArgument('SEO URL Mapping expects argument to be a CategoryEntity');
         }
 
         $rootId = $this->detectRootId($category, $salesChannel);
@@ -71,7 +72,7 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 
         return new SeoUrlMapping(
             $category,
-            ['navigationId' => $category->getId()],
+            $this->getConfig()->getPrimaryKeyParameter($category->getId()),
             [
                 'category' => $categoryJson,
             ],

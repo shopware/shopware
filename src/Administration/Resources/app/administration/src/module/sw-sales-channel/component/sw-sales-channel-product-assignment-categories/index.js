@@ -14,14 +14,9 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'selection-change',
-        'product-loading',
-    ],
+    emits: ['selection-change', 'product-loading'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -66,10 +61,7 @@ export default {
                 const pathIds = item.path ? item.path.split('|').filter((pathId) => pathId.length > 0) : '';
 
                 // add parent id to accumulator
-                return [
-                    ...acc,
-                    ...pathIds,
-                ];
+                return [...acc, ...pathIds];
             }, []);
         },
     },
@@ -136,10 +128,7 @@ export default {
             categoryCriteria.addFilter(
                 Criteria.multi('AND', [
                     Criteria.equals('parentId', parentId),
-                    Criteria.multi('OR', [
-                        Criteria.equals('type', 'page'),
-                        Criteria.equals('type', 'folder'),
-                    ]),
+                    Criteria.multi('OR', [Criteria.equals('type', 'page'), Criteria.equals('type', 'folder')]),
                 ]),
             );
 
@@ -243,9 +232,7 @@ export default {
                 Criteria.multi('AND', [
                     Criteria.equalsAny('categoryIds', categories),
                     Criteria.equals('parentId', null),
-                    Criteria.not('and', [
-                        Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
-                    ]),
+                    Criteria.not('and', [Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)]),
                 ]),
             );
 

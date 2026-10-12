@@ -29,9 +29,7 @@ interface TextEditorLinkMenuConfig {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         buttonConfig: {
@@ -180,7 +178,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('mounted');
         },
 
-        getCategoryCollection(categoryId: string): Promise<EntityCollection<'category'>> {
+        getCategoryCollection(categoryId: EntityKey<'category'>): Promise<EntityCollection<'category'>> {
             const categoryCriteria = new Criteria(1, 25).addFilter(Criteria.equals('id', categoryId));
             return this.categoryRepository.search(categoryCriteria);
         },
@@ -196,16 +194,9 @@ export default Shopware.Component.wrapComponentConfig({
         async parseLink(link: string, detectedLinkType: string): Promise<{ type: LinkCategories; target: string }> {
             const slicedLink = link.slice(0, -1).split('/');
 
-            if (
-                link.startsWith(this.seoUrlReplacePrefix) &&
-                [
-                    'navigation',
-                    'detail',
-                    'mediaId',
-                ].includes(slicedLink[1])
-            ) {
+            if (link.startsWith(this.seoUrlReplacePrefix) && ['navigation', 'detail', 'mediaId'].includes(slicedLink[1])) {
                 if (slicedLink[1] === 'navigation') {
-                    this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
+                    this.categoryCollection = await this.getCategoryCollection(slicedLink[2] as EntityKey<'category'>);
                 } else if (slicedLink[1] === 'mediaId') {
                     slicedLink[1] = 'media';
                 }
@@ -235,7 +226,7 @@ export default Shopware.Component.wrapComponentConfig({
             };
         },
 
-        replaceCategorySelection(category: { id: string }): void {
+        replaceCategorySelection(category: { id: EntityKey<'category'> }): void {
             this.linkTarget = category.id;
         },
 

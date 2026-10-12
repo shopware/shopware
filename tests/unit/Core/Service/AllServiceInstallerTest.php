@@ -2,287 +2,229 @@
 
 namespace Shopware\Tests\Unit\Core\Service;
 
+use Monolog\Handler\TestHandler;
+use Monolog\Level;
+use Monolog\Logger;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\AllServiceInstaller;
+use Shopware\Core\Service\Event\NewServicesInstalledEvent;
 use Shopware\Core\Service\Message\InstallServicesMessage;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\MessageBusInterface;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AllServiceInstaller::class)]
 class AllServiceInstallerTest extends TestCase
 {
-    public function testAllServicesAreInstalledIfNoneExist(): void
+    private ServiceRegistryClient&Stub $registryClient;
+
+    private ServiceLifecycle&MockObject $serviceLifecycle;
+
+    private CollectingMessageBus $messageBus;
+
+    private CollectingEventDispatcher $eventDispatcher;
+
+    private TestHandler $logs;
+
+    protected function setUp(): void
     {
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-
-        $serviceInstaller = new AllServiceInstaller(
-            $serviceRegistryClient,
-            $serviceLifeCycle,
-            $this->buildAppRepository(),
-            $messageBus,
-            $eventDispatcher
-        );
-
-        $serviceRegistryClient->expects($this->once())
-            ->method('getAll')
-            ->willReturn([
-                new ServiceEntry('Service1', 'https://service1.example.com', 'Service 1', ''),
-                new ServiceEntry('Service2', 'https://service2.example.com', 'Service 2', ''),
-            ]);
-
-        $matcher = $this->exactly(2);
-        $serviceLifeCycle->expects($matcher)
-            ->method('install')
-            ->willReturnCallback(function (ServiceEntry $serviceRegistryEntry) use ($matcher): bool {
-                match ($matcher->numberOfInvocations()) {
-                    1 => $this->assertSame('Service1', $serviceRegistryEntry->name),
-                    2 => $this->assertSame('Service2', $serviceRegistryEntry->name),
-                    default => throw new \UnhandledMatchError(),
-                };
-
-                return true;
-            });
-
-        $eventDispatcher->expects($this->once())->method('dispatch');
-
-        $serviceInstaller->install(Context::createDefaultContext());
+        $this->registryClient = static::createStub(ServiceRegistryClient::class);
+        $this->serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $this->messageBus = new CollectingMessageBus();
+        $this->eventDispatcher = new CollectingEventDispatcher();
+        $this->logs = new TestHandler();
     }
 
-    public function testOnlyNewServicesAreInstalled(): void
+    public function testDiscoveredServicesAreHandedToServiceLifecycle(): void
     {
-        $app1 = new AppEntity();
-        $app1->setUniqueIdentifier(Uuid::randomHex());
-        $app1->setName('Service1');
+        $installer = $this->installer($this->buildAppRepository());
 
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->registryClient->method('getAll')->willReturn([$this->entry(name: 'Service1'), $this->entry(name: 'Service2')]);
 
-        $serviceInstaller = new AllServiceInstaller(
-            $serviceRegistryClient,
-            $serviceLifeCycle,
-            $this->buildAppRepository([$app1]),
-            $messageBus,
-            $eventDispatcher
-        );
-
-        $serviceRegistryClient->expects($this->once())
-            ->method('getAll')
-            ->willReturn([
-                new ServiceEntry('Service1', 'Service 1', 'https://service1.example.com', '/app-endpoint'),
-                new ServiceEntry('Service2', 'Service 2', 'https://service2.example.com', '/app-endpoint'),
-            ]);
-
-        $serviceLifeCycle->expects($this->exactly(1))
-            ->method('install')
-            ->willReturnCallback(function (ServiceEntry $serviceRegistryEntry): bool {
-                $this->assertSame('Service2', $serviceRegistryEntry->name);
-
-                return true;
-            });
-
-        $eventDispatcher->expects($this->once())->method('dispatch');
-
-        $serviceInstaller->install(Context::createDefaultContext());
+        $this->serviceLifecycle->expects($this->exactly(2))->method('install')->willReturn(true);
+        static::assertSame(['Service1', 'Service2'], $installer->reconcile(Context::createDefaultContext()));
+        static::assertEquals([new NewServicesInstalledEvent()], $this->eventDispatcher->getEvents());
+        static::assertSame([], $this->messageBus->getMessages());
+        static::assertSame([], $this->logs->getRecords());
     }
 
-    public function testNoServicesAreInstalledIfAllExist(): void
+    public function testReconcileInstallsMissingAndUpdatesListedServicesOnly(): void
     {
-        $app1 = new AppEntity();
-        $app1->setUniqueIdentifier(Uuid::randomHex());
-        $app1->setName('Service1');
-        $app2 = new AppEntity();
-        $app2->setUniqueIdentifier(Uuid::randomHex());
-        $app2->setName('Service2');
+        $installer = $this->installer($this->buildAppRepository([
+            AppFixture::createAppEntity(name: 'Service1'),
+            AppFixture::createAppEntity(name: 'OrphanedService'),
+        ]));
 
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->registryClient->method('getAll')->willReturn([$this->entry(name: 'Service1'), $this->entry(name: 'Service2')]);
 
-        $serviceInstaller = new AllServiceInstaller(
-            $serviceRegistryClient,
-            $serviceLifeCycle,
-            $this->buildAppRepository([$app1, $app2]),
-            $messageBus,
-            $eventDispatcher,
+        $this->serviceLifecycle->expects($this->once())
+            ->method('install')
+            ->with(static::callback(static fn (ServiceEntry $entry): bool => $entry->name === 'Service2'))
+            ->willReturn(true);
+        $this->serviceLifecycle->expects($this->once())->method('update')->with('Service1');
+        $this->serviceLifecycle->expects($this->never())->method('uninstall');
+
+        static::assertSame(['Service2'], $installer->reconcile(Context::createDefaultContext()));
+        static::assertEquals([new NewServicesInstalledEvent()], $this->eventDispatcher->getEvents());
+        static::assertSame([], $this->messageBus->getMessages());
+        static::assertSame([], $this->logs->getRecords());
+    }
+
+    public function testReconcileContinuesWhenOneServiceFailsToInstall(): void
+    {
+        $installer = $this->installer($this->buildAppRepository([
+            AppFixture::createAppEntity(name: 'FineUpdate'),
+        ]));
+        $this->registryClient->method('getAll')->willReturn([
+            $this->entry(name: 'BrokenInstall'),
+            $this->entry(name: 'FineInstall'),
+            $this->entry(name: 'FineUpdate'),
+        ]);
+        $exception = AppXmlParsingException::cannotParseContent('Invalid manifest');
+        $this->serviceLifecycle->expects($this->exactly(2))->method('install')->willReturnCallback(
+            static fn (ServiceEntry $entry): bool => match ($entry->name) {
+                'BrokenInstall' => throw $exception,
+                default => true,
+            }
+        );
+        $this->serviceLifecycle->expects($this->once())->method('update')->with('FineUpdate');
+
+        static::assertSame(['FineInstall'], $installer->reconcile(Context::createDefaultContext()));
+        static::assertEquals([new NewServicesInstalledEvent()], $this->eventDispatcher->getEvents());
+        static::assertSame([], $this->messageBus->getMessages());
+        $records = $this->logs->getRecords();
+        static::assertCount(1, $records);
+        static::assertSame(Level::Warning, $records[0]->level);
+        static::assertSame('Cannot install service', $records[0]->message);
+        static::assertSame(['service' => 'BrokenInstall', 'exception' => $exception], $records[0]->context);
+    }
+
+    public function testReconcileContinuesWhenOneServiceFailsToUpdate(): void
+    {
+        $installer = $this->installer($this->buildAppRepository([
+            AppFixture::createAppEntity(name: 'BrokenUpdate'),
+            AppFixture::createAppEntity(name: 'FineUpdate'),
+        ]));
+
+        $this->registryClient->method('getAll')->willReturn([
+            $this->entry(name: 'BrokenUpdate'),
+            $this->entry(name: 'FineUpdate'),
+        ]);
+
+        $exception = AppXmlParsingException::cannotParseContent('Invalid manifest');
+
+        $updated = [];
+        $this->serviceLifecycle->expects($this->exactly(2))->method('update')
+            ->willReturnCallback(static function (string $name) use ($exception, &$updated): void {
+                if ($name === 'BrokenUpdate') {
+                    throw $exception;
+                }
+
+                $updated[] = $name;
+            });
+
+        static::assertSame([], $installer->reconcile(Context::createDefaultContext()));
+        static::assertSame(['FineUpdate'], $updated);
+        static::assertSame([], $this->eventDispatcher->getEvents());
+        static::assertSame([], $this->messageBus->getMessages());
+        $records = $this->logs->getRecords();
+        static::assertCount(1, $records);
+        static::assertSame(Level::Warning, $records[0]->level);
+        static::assertSame('Cannot update service', $records[0]->message);
+        static::assertSame(['service' => 'BrokenUpdate', 'exception' => $exception], $records[0]->context);
+    }
+
+    public function testReturnsOnlyTheServicesThatWereInstalled(): void
+    {
+        $installer = $this->installer($this->buildAppRepository());
+
+        $this->registryClient->method('getAll')->willReturn([
+            $this->entry(name: 'Service1'),
+            $this->entry(name: 'Service2'),
+            $this->entry(name: 'Service3'),
+        ]);
+
+        $this->serviceLifecycle->expects($this->exactly(3))->method('install')->willReturnCallback(
+            static fn (ServiceEntry $entry): bool => $entry->name !== 'Service2'
         );
 
-        $serviceRegistryClient->expects($this->once())
-            ->method('getAll')
-            ->willReturn([
-                new ServiceEntry('Service1', 'Service 1', 'https://service1.example.com', '/app-endpoint'),
-                new ServiceEntry('Service2', 'Service 2', 'https://service2.example.com', '/app-endpoint'),
-            ]);
+        static::assertSame(['Service1', 'Service3'], $installer->reconcile(Context::createDefaultContext()));
+        static::assertEquals([new NewServicesInstalledEvent()], $this->eventDispatcher->getEvents());
+        static::assertSame([], $this->messageBus->getMessages());
+        static::assertSame([], $this->logs->getRecords());
+    }
 
-        $serviceLifeCycle->expects($this->never())
-            ->method('install');
+    public function testReconcileReturnsEmptyArrayWhenRegistryHasNoServices(): void
+    {
+        $installer = $this->installer($this->buildAppRepository());
 
-        $eventDispatcher->expects($this->never())->method('dispatch');
+        $this->registryClient->method('getAll')->willReturn([]);
 
-        $serviceInstaller->install(Context::createDefaultContext());
+        $this->serviceLifecycle->expects($this->never())->method('install');
+        static::assertSame([], $installer->reconcile(Context::createDefaultContext()));
+        static::assertSame([], $this->messageBus->getMessages());
+        static::assertSame([], $this->eventDispatcher->getEvents());
+        static::assertSame([], $this->logs->getRecords());
     }
 
     public function testScheduleInstallDispatchesMessage(): void
     {
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $installer = $this->installer($this->buildAppRepository());
 
-        $serviceInstaller = new AllServiceInstaller(
-            $serviceRegistryClient,
-            $serviceLifeCycle,
-            $this->buildAppRepository(),
-            $messageBus,
-            $eventDispatcher
-        );
+        $this->serviceLifecycle->expects($this->never())->method('install');
+        $installer->scheduleInstall();
 
-        $envelope = new Envelope(new \stdClass());
-        $messageBus->expects($this->once())
-            ->method('dispatch')
-            ->with(static::callback(static function ($message) {
-                return $message instanceof InstallServicesMessage;
-            }))
-            ->willReturn($envelope);
-
-        $serviceInstaller->scheduleInstall();
-    }
-
-    public function testInstallReturnsEmptyArrayWhenNoServicesAvailable(): void
-    {
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-
-        $serviceInstaller = new AllServiceInstaller(
-            $serviceRegistryClient,
-            $serviceLifeCycle,
-            $this->buildAppRepository(),
-            $messageBus,
-            $eventDispatcher,
-        );
-
-        $serviceRegistryClient->expects($this->once())
-            ->method('getAll')
-            ->willReturn([]);
-
-        $serviceLifeCycle->expects($this->never())
-            ->method('install');
-
-        $result = $serviceInstaller->install(Context::createDefaultContext());
-
-        static::assertSame([], $result);
-    }
-
-    public function testInstallHandlesFailedServiceInstallation(): void
-    {
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-
-        $serviceInstaller = new AllServiceInstaller(
-            $serviceRegistryClient,
-            $serviceLifeCycle,
-            $this->buildAppRepository(),
-            $messageBus,
-            $eventDispatcher,
-        );
-
-        $serviceRegistryClient->expects($this->once())
-            ->method('getAll')
-            ->willReturn([
-                new ServiceEntry('SuccessfulService', 'https://successful.example.com', 'Service 1', ''),
-                new ServiceEntry('FailingService', 'https://failing.example.com', 'Service 2', ''),
-            ]);
-
-        $matcher = $this->exactly(2);
-        $serviceLifeCycle->expects($matcher)
-            ->method('install')
-            ->willReturnCallback(static function () use ($matcher): bool {
-                return match ($matcher->numberOfInvocations()) {
-                    1 => true,
-                    2 => false,
-                    default => throw new \UnhandledMatchError(),
-                };
-            });
-
-        $result = $serviceInstaller->install(Context::createDefaultContext());
-
-        static::assertSame(['SuccessfulService'], $result);
-    }
-
-    public function testInstallOnlyReturnsSuccessfullyInstalledServices(): void
-    {
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-
-        $serviceInstaller = new AllServiceInstaller(
-            $serviceRegistryClient,
-            $serviceLifeCycle,
-            $this->buildAppRepository(),
-            $messageBus,
-            $eventDispatcher,
-        );
-
-        $serviceRegistryClient->expects($this->once())
-            ->method('getAll')
-            ->willReturn([
-                new ServiceEntry('Service1', 'https://service1.example.com', 'Service 1', ''),
-                new ServiceEntry('Service2', 'https://service2.example.com', 'Service 2', ''),
-                new ServiceEntry('Service3', 'https://service3.example.com', 'Service 3', ''),
-            ]);
-
-        $matcher = $this->exactly(3);
-        $serviceLifeCycle->expects($matcher)
-            ->method('install')
-            ->willReturnCallback(static function () use ($matcher): bool {
-                return match ($matcher->numberOfInvocations()) {
-                    1 => true,
-                    2 => false,
-                    3 => true,
-                    default => throw new \UnhandledMatchError(),
-                };
-            });
-
-        $result = $serviceInstaller->install(Context::createDefaultContext());
-
-        static::assertSame(['Service1', 'Service3'], $result);
+        $messages = $this->messageBus->getMessages();
+        static::assertCount(1, $messages);
+        static::assertInstanceOf(InstallServicesMessage::class, $messages[0]->getMessage());
+        static::assertSame([], $this->eventDispatcher->getEvents());
+        static::assertSame([], $this->logs->getRecords());
     }
 
     /**
-     * @param array<AppEntity> $apps
+     * @param StaticEntityRepository<AppCollection> $appRepository
+     */
+    private function installer(StaticEntityRepository $appRepository): AllServiceInstaller
+    {
+        return new AllServiceInstaller(
+            $this->registryClient,
+            new ServiceStorage($appRepository),
+            $this->serviceLifecycle,
+            $this->messageBus,
+            $this->eventDispatcher,
+            new Logger('test', [$this->logs]),
+        );
+    }
+
+    private function entry(string $name): ServiceEntry
+    {
+        return new ServiceEntry($name, $name, 'https://' . $name . '.example.com', '/app-endpoint');
+    }
+
+    /**
+     * @param list<AppEntity> $apps
      *
      * @return StaticEntityRepository<AppCollection>
      */
     private function buildAppRepository(array $apps = []): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
-        $appRepository = new StaticEntityRepository([
-            new AppCollection($apps),
-        ]);
-
-        return $appRepository;
+        return new StaticEntityRepository([new AppCollection($apps)]);
     }
 }

@@ -30,7 +30,7 @@ class UseTokenParserTest extends TestCase
     {
         static::assertSame(
             'sw_use',
-            (new UseTokenParser($this->createMock(TemplateFinderInterface::class)))->getTag(),
+            (new UseTokenParser(static::createStub(TemplateFinderInterface::class)))->getTag(),
         );
     }
 

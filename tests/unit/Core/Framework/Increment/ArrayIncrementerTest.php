@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\Increment;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\ArrayIncrementer;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ArrayIncrementer::class)]
 class ArrayIncrementerTest extends TestCase
 {
@@ -23,7 +25,7 @@ class ArrayIncrementerTest extends TestCase
     public function testDecrementDoesNotCreate(): void
     {
         $this->arrayIncrementer->decrement('test', 'test');
-        static::assertEmpty($this->arrayIncrementer->list('test'));
+        static::assertCount(0, $this->arrayIncrementer->list('test'));
     }
 
     public function testIncrement(): void
@@ -81,7 +83,7 @@ class ArrayIncrementerTest extends TestCase
         static::assertSame('sw.order.index', array_values($list)[0]['key']);
         static::assertSame(2, array_values($list)[1]['count']);
 
-        static::assertEmpty($this->arrayIncrementer->list('test2'));
+        static::assertCount(0, $this->arrayIncrementer->list('test2'));
     }
 
     public function testReset(): void
@@ -91,7 +93,7 @@ class ArrayIncrementerTest extends TestCase
 
         $list = $this->arrayIncrementer->list('test-user-1');
 
-        static::assertNotEmpty($list);
+        static::assertNotCount(0, $list);
 
         $this->arrayIncrementer->reset('test-user-1');
 
@@ -123,7 +125,7 @@ class ArrayIncrementerTest extends TestCase
 
         $list = $this->arrayIncrementer->list('test-user-1');
 
-        static::assertNotEmpty($list);
+        static::assertNotCount(0, $list);
 
         $this->arrayIncrementer->delete('test-user-1', ['sw.product.index', 'sw.product.create']);
 
@@ -146,12 +148,12 @@ class ArrayIncrementerTest extends TestCase
 
         $list = $this->arrayIncrementer->list('test-user-1');
 
-        static::assertNotEmpty($list);
+        static::assertNotCount(0, $list);
 
         $this->arrayIncrementer->delete('test-user-1');
 
         $list = $this->arrayIncrementer->list('test-user-1');
 
-        static::assertEmpty($list);
+        static::assertCount(0, $list);
     }
 }

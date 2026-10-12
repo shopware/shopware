@@ -28,7 +28,7 @@ readonly class HandshakeFactory
     ) {
     }
 
-    public function create(Manifest $manifest, AppEntity $app): AppHandshakeInterface
+    public function create(Manifest $manifest, AppEntity $app, #[\SensitiveParameter] ?string $currentSecret = null): AppHandshakeInterface
     {
         $setup = $manifest->getSetup();
         $metadata = $manifest->getMetadata();
@@ -52,8 +52,10 @@ readonly class HandshakeFactory
             );
         }
 
-        // Get current app secret for re-registration (secret rotation)
-        $currentAppSecret = $app->getAppSecret();
+        // The secret the app currently holds, used to sign the re-registration's previous-signature.
+        // Normally this is the stored app_secret; recovery passes in the unconfirmed secret the app may
+        // already have switched to.
+        $currentAppSecret = $currentSecret ?? $app->getAppSecret();
 
         if ($privateSecret) {
             return new PrivateHandshake(

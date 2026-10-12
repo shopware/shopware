@@ -16,7 +16,7 @@ class PromotionsOnCartPriceZeroError extends Error
     public function __construct(protected array $promotions)
     {
         $this->message = \sprintf(
-            'Promotions %s were excluded for cart because the price of the cart is zero.',
+            'Promotions %s were not applied because the cart does not contain any discountable products.',
             $this->getParameters()['promotions']
         );
 

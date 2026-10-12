@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Installer\Helper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Helper\InstallerRedirectHelper;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(InstallerRedirectHelper::class)]
 class InstallerRedirectHelperTest extends TestCase
 {

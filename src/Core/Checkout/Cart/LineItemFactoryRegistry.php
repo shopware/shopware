@@ -76,13 +76,11 @@ class LineItemFactoryRegistry
      */
     public function updateLineItem(Cart $cart, array $data, LineItem $lineItem, SalesChannelContext $context): void
     {
-        if (!isset($data['type'])) {
-            $data['type'] = $lineItem->getType();
-        }
+        $data['type'] = $lineItem->getType();
 
         $this->validate($data);
 
-        $handler = $this->getHandler($data['type'] ?? '');
+        $handler = $this->getHandler($data['type']);
 
         if (isset($data['quantity'])) {
             $beforeUpdateQuantity = $lineItem->getQuantity();

@@ -43,11 +43,19 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
 class AdministrationController extends AbstractController
 {
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed together with the CacheControlListener and its BeforeCacheControlEvent.
+     * This marker will be not read, as the listener that used it to detect administration will be removed.
+     */
     public const CACHE_ID_HEADER = 'X-Shopware-Cache-Id';
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed together with the CacheControlListener and its BeforeCacheControlEvent.
+     */
     public const CACHE_ID_ADMINISTRATION = 'administration';
 
     private const UNAUTHENTICATED_SNIPPET_NAMESPACES = [
@@ -60,6 +68,8 @@ class AdministrationController extends AbstractController
     private readonly bool $esStorefrontEnabled;
 
     private readonly bool $productStreamIndexingEnabled;
+
+    private readonly bool $hideUpdateModule;
 
     /**
      * @internal
@@ -101,6 +111,9 @@ class AdministrationController extends AbstractController
         $this->productStreamIndexingEnabled = $params->has('shopware.product_stream.indexing')
             ? $params->get('shopware.product_stream.indexing')
             : true;
+        $this->hideUpdateModule = $params->has('shopware.auto_update.hide_module')
+            ? (bool) $params->get('shopware.auto_update.hide_module')
+            : false;
     }
 
     #[Route(
@@ -133,6 +146,7 @@ class AdministrationController extends AbstractController
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
             'serviceRegistryUrl' => $this->serviceRegistryUrl,
             'productStreamIndexingEnabled' => $this->productStreamIndexingEnabled,
+            'hideUpdateModule' => $this->hideUpdateModule,
             'analyticsGatewayUrl' => $this->analyticsGatewayUrl,
         ]);
 
@@ -144,7 +158,9 @@ class AdministrationController extends AbstractController
             $response->headers->addCacheControlDirective('stale-while-revalidate', '86400');
         }
 
-        $response->headers->set(self::CACHE_ID_HEADER, self::CACHE_ID_ADMINISTRATION);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $response->headers->set(self::CACHE_ID_HEADER, self::CACHE_ID_ADMINISTRATION);
+        }
 
         return $response;
     }
@@ -182,7 +198,7 @@ class AdministrationController extends AbstractController
         $criteria = (new Criteria())->addAssociation('locale');
 
         $languages = $this->languageRepository->search($criteria, $context);
-        $installedLocales = $languages->reduce(static function (array $accumulator, LanguageEntity $language) {
+        $installedLocales = $languages->getEntities()->reduce(static function (array $accumulator, LanguageEntity $language) {
             $locale = $language->getLocale();
             if ($locale !== null) {
                 $accumulator[$language->getId()] = $locale->getCode();
@@ -239,7 +255,10 @@ class AdministrationController extends AbstractController
         $response->setMaxAge(0);
         $response->setSharedMaxAge(0);
         $response->headers->addCacheControlDirective('stale-while-revalidate', '86400');
-        $response->headers->set(self::CACHE_ID_HEADER, self::CACHE_ID_ADMINISTRATION);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $response->headers->set(self::CACHE_ID_HEADER, self::CACHE_ID_ADMINISTRATION);
+        }
 
         return $response;
     }
@@ -373,7 +392,7 @@ class AdministrationController extends AbstractController
 
         if ($flag === null) {
             return new JsonResponse(
-                ['preview' => strip_tags($html)]
+                ['preview' => $this->htmlSanitizer->stripTags($html)]
             );
         }
 

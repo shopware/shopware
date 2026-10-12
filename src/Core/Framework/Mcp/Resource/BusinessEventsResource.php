@@ -9,10 +9,14 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Util\Json;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
-#[McpResource(uri: 'shopware://business-events', name: 'shopware-business-events', description: 'All registered Shopware business events that can trigger flows and event actions.')]
 #[Package('framework')]
+#[McpResource(
+    uri: 'shopware://business-events',
+    name: 'shopware-business-events',
+    description: 'All registered Shopware business events that can trigger flows and event actions.'
+)]
 class BusinessEventsResource
 {
     /**

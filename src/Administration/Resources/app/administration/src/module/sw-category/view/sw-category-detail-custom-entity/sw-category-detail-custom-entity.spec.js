@@ -58,10 +58,7 @@ async function createWrapper() {
                 stubs: {
                     'mt-card': {
                         template: '<div class="mt-card"><slot /></div>',
-                        props: [
-                            'title',
-                            'position-identifier',
-                        ],
+                        props: ['title', 'position-identifier'],
                     },
                     'sw-entity-single-select': {
                         template: '<div class="sw-entity-single-select"></div>',
@@ -110,7 +107,7 @@ async function createWrapper() {
                     $route: {
                         meta: {
                             $module: {
-                                icon: 'solid-content',
+                                icon: 'regular-content',
                             },
                         },
                     },

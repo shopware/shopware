@@ -114,6 +114,12 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
             object-fit: contain;
         }
     }
+
+    &.is-standard {
+        .gallery-slider-image {
+            margin: 0 auto;
+        }
+    }
 }
 
 .gallery-slider-controls-prev {

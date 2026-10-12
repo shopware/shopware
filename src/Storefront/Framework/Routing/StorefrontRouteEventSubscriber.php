@@ -11,7 +11,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 readonly class StorefrontRouteEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(private EventDispatcherInterface $dispatcher)

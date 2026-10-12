@@ -46,14 +46,10 @@ if (!fs.existsSync(taskFile)) {
         // eslint-disable-next-line no-console
         console.log('New task created', taskFile);
         // eslint-disable-next-line no-console
-        console.log('Do not forget to check in the file via Git.')
+        console.log('Do not forget to check in the file via Git.');
     } catch (err) {
         console.error(err);
     }
 } else {
     console.warn('Task not created. File already exists.');
 }
-
-
-
-

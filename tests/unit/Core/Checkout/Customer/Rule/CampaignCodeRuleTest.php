@@ -57,7 +57,7 @@ class CampaignCodeRuleTest extends TestCase
             'campaignCode' => $campaignCodeConditionValue,
         ]);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customer = new CustomerEntity();
         $customer->setCampaignCode($campaignCode);
 
@@ -77,7 +77,7 @@ class CampaignCodeRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setCampaignCode('code');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($context);
 
@@ -87,7 +87,7 @@ class CampaignCodeRuleTest extends TestCase
 
     public function testEqualsOperatorIsNotMatchingWithoutCustomer(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $scope = new CheckoutRuleScope($context);
 
         $this->rule->assign(['campaignCode' => 'code', 'operator' => Rule::OPERATOR_EQ]);
@@ -96,7 +96,7 @@ class CampaignCodeRuleTest extends TestCase
 
     public function testEmptyOperatorIsMatchingWithoutCustomer(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $scope = new CheckoutRuleScope($context);
 
         $this->rule->assign(['campaignCode' => 'code', 'operator' => Rule::OPERATOR_EMPTY]);
@@ -105,7 +105,7 @@ class CampaignCodeRuleTest extends TestCase
 
     public function testInvalidScope(): void
     {
-        $invalidScope = $this->createMock(RuleScope::class);
+        $invalidScope = static::createStub(RuleScope::class);
         $this->rule->assign(['campaignCode' => 'code', 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }
@@ -118,7 +118,7 @@ class CampaignCodeRuleTest extends TestCase
             $this->expectException(CustomerException::class);
         }
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         (new CampaignCodeRule())->match(

@@ -36,6 +36,7 @@ export default class NavbarPlugin extends Plugin {
         this._topLevelLinks = this.el.querySelectorAll(`${this.options.topLevelLinksSelector}`);
         this._registerEvents();
         this._isMouseOver = false;
+        this._setCurrentPage();
     }
 
     _registerEvents() {
@@ -52,10 +53,6 @@ export default class NavbarPlugin extends Plugin {
             if (el.getAttribute('href') !== null) {
                 el.addEventListener(clickEvent, this._navigateToLinkOnClick.bind(this, el));
             }
-        });
-
-        window.addEventListener('load', () => {
-            this._setCurrentPage();
         });
     }
 

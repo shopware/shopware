@@ -10,11 +10,7 @@ export default {
 
     inject: ['firstRunWizardService'],
 
-    emits: [
-        'frw-set-title',
-        'buttons-update',
-        'frw-redirect',
-    ],
+    emits: ['frw-set-title', 'buttons-update', 'frw-redirect'],
 
     data() {
         return {
@@ -53,7 +49,7 @@ export default {
             const buttonConfig = [
                 {
                     key: 'back',
-                    label: this.$t('sw-first-run-wizard.general.buttonBack'),
+                    label: this.$t('global.default.back'),
                     position: 'left',
                     variant: 'secondary',
                     action: `sw.first.run.wizard.index.${prevRoute}`,

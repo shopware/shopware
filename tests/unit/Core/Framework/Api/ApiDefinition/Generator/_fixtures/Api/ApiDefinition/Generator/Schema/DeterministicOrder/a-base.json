@@ -1,0 +1,9 @@
+{
+    "paths": {
+        "/deterministic": {
+            "get": {
+                "description": "Sorted first"
+            }
+        }
+    }
+}

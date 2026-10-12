@@ -4,8 +4,8 @@ import deprecatedList from './deprecated-list';
 import assets from '../../../src/app/deprecation-registry/definitions/assets';
 
 type AssetMigration = {
-    id: string;
-    description?: string;
+    description: string;
+    files?: string[];
 };
 
 type AssetRegistry = {
@@ -28,9 +28,9 @@ type AssetRegistry = {
 export default function viteImageDeprecationPlugin(adminDir: string, deprecatedImages: string[] = deprecatedList): Plugin {
     const deprecatedFilesSet = new Set(deprecatedImages);
     const extensionsThatArePartOfDeprecation = new Set(deprecatedImages.map((file) => path.extname(file)));
-    const assetMigration = (assets as AssetRegistry).assetMigrations.find((migration) => {
-        return migration.id === 'asset.admin-png-jpg-to-webp';
-    });
+    const findAssetMigration = (file: string) => {
+        return (assets as AssetRegistry).assetMigrations.find((migration) => migration.files?.includes(file));
+    };
 
     return {
         name: 'shopware-vite-plugin-image-deprecation',
@@ -51,8 +51,8 @@ export default function viteImageDeprecationPlugin(adminDir: string, deprecatedI
             // Match imports that are part of the alias list
             if (deprecatedFilesSet.has(relativePath)) {
                 console.warn(
-                    `DEPRECATION: In file "${importer}", the image import "${source}" uses a deprecated format. ` +
-                        (assetMigration?.description ?? 'Please update your assets to WebP.'),
+                    `DEPRECATION: In file "${importer}", the image import "${source}" is deprecated. ` +
+                        (findAssetMigration(relativePath)?.description ?? ''),
                 );
             }
             return null;

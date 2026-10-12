@@ -24,12 +24,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityReaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -279,7 +281,7 @@ class EntityReaderTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('test')]);
 
         $criteria->getAssociation('children')
             ->addSorting(new FieldSorting('purchaseUnit'))
@@ -290,7 +292,7 @@ class EntityReaderTest extends TestCase
 
         $result = $entityRepository->search($criteria, $context);
 
-        static::assertSame($ids->get('test'), $result->getEntities()->first()?->getId());
+        static::assertTrue($result->getEntities()->has($ids->get('test')));
     }
 
     private function createProduct(

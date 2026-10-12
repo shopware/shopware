@@ -5,6 +5,7 @@ namespace Shopware\Core\System\SalesChannel\SalesChannel;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -19,14 +20,15 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Core\System\SalesChannel\Event\SwitchContextEvent;
+use Shopware\Core\System\SalesChannel\Extension\ContextSwitchRouteExtension;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ContextSwitchRoute extends AbstractContextSwitchRoute
 {
     private const SHIPPING_METHOD_ID = SalesChannelContextService::SHIPPING_METHOD_ID;
@@ -46,6 +48,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         private readonly SalesChannelContextPersister $contextPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SalesChannelContextServiceInterface $contextService,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -56,6 +59,15 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
 
     #[Route(path: '/store-api/context', name: 'store-api.switch-context', methods: ['PATCH'])]
     public function switchContext(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
+    {
+        return $this->extensions->publish(
+            name: ContextSwitchRouteExtension::NAME,
+            extension: new ContextSwitchRouteExtension($data, $context),
+            function: $this->_switchContext(...),
+        );
+    }
+
+    private function _switchContext(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
         $definition = new DataValidationDefinition('context_switch');
 

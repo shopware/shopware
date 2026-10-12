@@ -4,10 +4,8 @@ namespace Shopware\Elasticsearch\DependencyInjection;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
-use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 #[Package('framework')]
 class ElasticsearchExtension extends Extension
@@ -16,10 +14,6 @@ class ElasticsearchExtension extends Extension
     {
         $config = $this->processConfiguration($this->getConfiguration($configs, $container), $configs);
         $this->addConfig($container, $this->getAlias(), $config);
-
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
-
-        $loader->load('services.xml');
     }
 
     public function getConfiguration(array $config, ContainerBuilder $container): ConfigurationInterface

@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class MailThemeConfigSubscriber implements EventSubscriberInterface
 {
     private const SALES_CHANNEL_CONTEXT = 'salesChannelContext';

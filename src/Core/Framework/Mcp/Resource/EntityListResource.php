@@ -8,10 +8,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
-#[McpResource(uri: 'shopware://entities', name: 'shopware-entity-list', description: 'List of all registered Shopware entity names')]
 #[Package('framework')]
+#[McpResource(
+    uri: 'shopware://entities',
+    name: 'shopware-entity-list',
+    description: 'List of all registered Shopware entity names'
+)]
 class EntityListResource
 {
     /**

@@ -9,7 +9,7 @@ use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeAssetPackage extends FallbackUrlPackage
 {
     /**

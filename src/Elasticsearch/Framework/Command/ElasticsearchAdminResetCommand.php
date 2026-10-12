@@ -19,11 +19,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[AsCommand(
     name: 'es:admin:reset',
     description: 'Reset Admin Elasticsearch indexing',
 )]
-#[Package('inventory')]
 class ElasticsearchAdminResetCommand extends Command
 {
     /**

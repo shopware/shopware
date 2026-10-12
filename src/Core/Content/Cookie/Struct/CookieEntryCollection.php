@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<CookieEntry>
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CookieEntryCollection extends Collection
 {
     public function set($key, $element): void

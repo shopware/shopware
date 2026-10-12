@@ -5,8 +5,8 @@ $base-size: calc(var(--scale-size-224) + var(--scale-size-56));
 
 .sw-product-variants-overview {
     .sw-configuration-option-list__toolbar {
-        background-color: var(--color-background-secondary-default);
-        border-bottom: var(--scale-size-1) solid var(--color-gray-300);
+        background-color: var(--color-elevation-surface-sunken);
+        border-bottom: var(--scale-size-1) solid var(--color-border-secondary-default);
         padding: var(--scale-size-26);
 
         .mt-button {
@@ -34,7 +34,7 @@ $base-size: calc(var(--scale-size-224) + var(--scale-size-56));
 
             .mt-icon {
                 opacity: 0;
-                color: var(--color-shopware-brand-500);
+                color: var(--color-icon-brand-default);
                 width: var(--scale-size-12);
                 height: var(--scale-size-12);
                 margin-right: var(--scale-size-6);
@@ -144,11 +144,11 @@ $base-size: calc(var(--scale-size-224) + var(--scale-size-56));
     }
 
     .icon--regular-checkmark-xs {
-        color: var(--color-emerald-500);
+        color: var(--color-icon-positive-default);
     }
 
     .icon--regular-times-s {
-        color: var(--color-crimson-500);
+        color: var(--color-icon-critical-default);
     }
 
     .icon--regular-link-horizontal {
@@ -187,7 +187,7 @@ $base-size: calc(var(--scale-size-224) + var(--scale-size-56));
 
             opacity: 0;
             margin-right: var(--scale-size-6);
-            color: var(--color-shopware-brand-500);
+            color: var(--color-icon-brand-default);
         }
 
         .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {

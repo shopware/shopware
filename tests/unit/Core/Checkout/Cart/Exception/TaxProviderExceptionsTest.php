@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(TaxProviderExceptions::class)]
 #[Package('checkout')]
+#[CoversClass(TaxProviderExceptions::class)]
 class TaxProviderExceptionsTest extends TestCase
 {
     public function testException(): void
@@ -21,7 +21,7 @@ class TaxProviderExceptionsTest extends TestCase
         static::assertSame('CHECKOUT__TAX_PROVIDER_EXCEPTION', $e->getErrorCode());
         static::assertSame('There was an error while calculating taxes', $e->getMessage());
         static::assertFalse($e->hasExceptions());
-        static::assertEmpty($e->getErrorsForTaxProvider('foo'));
+        static::assertCount(0, $e->getErrorsForTaxProvider('foo'));
     }
 
     public function testAddException(): void

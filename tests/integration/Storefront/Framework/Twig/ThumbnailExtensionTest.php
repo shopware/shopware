@@ -16,7 +16,9 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuild
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
@@ -38,6 +40,7 @@ use Twig\Loader\FilesystemLoader;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThumbnailExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -160,6 +163,8 @@ class ThumbnailExtensionTest extends TestCase
             'layout' => $layout,
             'media' => $this->createExampleMediaWithThumbnails([280, 400, 800, 1920]),
             'context' => Generator::generateSalesChannelContext(),
+            // with v6.8.0.0 breakpoint defaults are only resolved for theme-bound renders
+            'themeId' => Uuid::randomHex(),
         ]);
 
         $sizes = self::getSizesAttribute($result);
@@ -190,7 +195,7 @@ class ThumbnailExtensionTest extends TestCase
         $entries = array_map('trim', explode(',', $sizes));
         $fallback = array_pop($entries);
 
-        static::assertNotEmpty($fallback, 'sizes fallback entry is empty');
+        static::assertNotSame('', $fallback, 'sizes fallback entry is empty');
 
         foreach ($entries as $i => $entry) {
             static::assertMatchesRegularExpression(
@@ -291,11 +296,11 @@ class ThumbnailExtensionTest extends TestCase
 
         $twig = new Environment($loader);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getBundles')
             ->willReturn($bundles);
 
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')
             ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
@@ -314,13 +319,14 @@ class ThumbnailExtensionTest extends TestCase
 
         // Needed for the ConfigExtension, so the theme_config('breakpoint.sm') calls return the actual breakpoints.
         $templateConfigAccessor = new TemplateConfigAccessor(
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             new ThemeConfigValueAccessor(
-                $this->createMock(AbstractResolvedConfigLoader::class),
-                $this->createMock(CacheTagCollector::class)
+                static::createStub(AbstractResolvedConfigLoader::class),
+                static::createStub(CacheTagCollector::class)
             ),
             static::createStub(ThemeScripts::class),
             'test',
+            [],
         );
 
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));

@@ -20,13 +20,12 @@ class CommandGenerator implements ScaffoldingGenerator
     private const OPTION_DESCRIPTION = 'Create an example console command';
     private const CLI_QUESTION = 'Do you want to create an example console command?';
 
-    private string $servicesXmlEntry = <<<'EOL'
+    private string $servicesPhpEntry = <<<'EOL'
 
-            <service id="{{ namespace }}\Command\ExampleCommand">
-                <tag name="console.command"/>
-            </service>
+    $services->set(\{{ namespace }}\Command\ExampleCommand::class)
+        ->tag('console.command');
 
-    EOL;
+EOL;
 
     public function generateStubs(
         PluginScaffoldConfiguration $configuration,
@@ -39,11 +38,11 @@ class CommandGenerator implements ScaffoldingGenerator
         $stubCollection->add($this->createCommand($configuration));
 
         $stubCollection->append(
-            'src/Resources/config/services.xml',
+            'src/Resources/config/services.php',
             str_replace(
                 '{{ namespace }}',
                 $configuration->namespace,
-                $this->servicesXmlEntry
+                $this->servicesPhpEntry
             )
         );
     }

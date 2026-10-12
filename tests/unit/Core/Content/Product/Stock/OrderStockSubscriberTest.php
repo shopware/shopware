@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -35,6 +36,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(OrderStockSubscriber::class)]
 class OrderStockSubscriberTest extends TestCase
 {
@@ -64,6 +66,8 @@ class OrderStockSubscriberTest extends TestCase
     #[TestDox('subscribes to state machine transitions and entity write events')]
     public function testGetSubscribedEvents(): void
     {
+        $this->stockStorage->expects($this->never())->method('alter');
+
         $events = OrderStockSubscriber::getSubscribedEvents();
 
         static::assertArrayHasKey(StateMachineTransitionEvent::class, $events);

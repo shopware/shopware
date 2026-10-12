@@ -16,8 +16,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Package('discovery')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
-#[Package('framework')]
 class ThemeController extends AbstractController
 {
     /**
@@ -123,6 +123,8 @@ class ThemeController extends AbstractController
     #[Route(path: '/api/_action/theme/{themeId}/assign/{salesChannelId}', name: 'api.action.theme.assign', methods: ['POST'])]
     public function assignTheme(string $themeId, string $salesChannelId, Context $context): JsonResponse
     {
+        // Defer the switch until compilation finished so the storefront is never left without CSS.
+        $context->addState(ThemeService::STATE_DEFER_ASSIGNMENT);
         $this->themeService->assignTheme($themeId, $salesChannelId, $context);
 
         return new JsonResponse([]);

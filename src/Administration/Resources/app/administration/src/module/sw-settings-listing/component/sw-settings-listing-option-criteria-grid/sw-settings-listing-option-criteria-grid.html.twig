@@ -10,9 +10,11 @@
 
         {% block sw_settings_listing_option_criteria_card_toolbar_select %}
         <sw-single-select
+            class="sw-settings-listing-option-criteria-grid__criteria-select"
             :value="selectedCriteria"
             :options="criteriaOptions"
             :placeholder="$t('sw-settings-listing.base.criteria.selectPlaceholder')"
+            :disabled="productSortingEntity.locked"
             value-property="value"
             label-property="label"
             show-clearable-button
@@ -26,10 +28,11 @@
     <sw-data-grid
         v-if="productSortingEntity && productSortingEntity.fields.length > 0"
         ref="dataGrid"
+        class="sw-settings-listing-option-criteria-grid__data-grid"
         :columns="productSortingEntityColumns"
         :data-source="sortedProductSortingFields"
-        :show-actions="true"
-        :allow-inline-edit="true"
+        :show-actions="!productSortingEntity.locked"
+        :allow-inline-edit="!productSortingEntity.locked"
         :compact-mode="false"
         :show-selection="false"
         plain-appearance
@@ -108,23 +111,17 @@
     {% endblock %}
 
     {% block sw_settings_listing_option_criteria_card_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-else
         class="sw-settings-listing-option-criteria-grid__criteria-empty-state"
-        title=""
-        :subline="$t('sw-settings-listing.base.criteria.emptyStateSubline')"
-    >
-
-        {% block sw_settings_listing_option_criteria_card_empty_state_icon %}
-        <template #icon>
-            <img
-                :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                alt=""
-            >
-        </template>
-        {% endblock %}
-
-    </sw-empty-state>
+        centered
+        icon="regular-products"
+        :headline="$t('sw-settings-listing.base.criteria.emptyStateSubline')"
+        description=""
+    />
     {% endblock %}
+
+    {# @deprecated tag:v6.8.0 - Kept as extension anchor, the icon became an mt-empty-state prop. #}
+    {% block sw_settings_listing_option_criteria_card_empty_state_icon %}{% endblock %}
 </mt-card>
 {% endblock %}

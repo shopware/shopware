@@ -51,8 +51,6 @@
                                         {% set paymentDescription = payment.translated.description|raw %}
                                         {% set paymentDescriptionTitle = payment.translated.description|striptags|raw %}
 
-                                        {% set paymentDescription = (paymentDescription|length > 75 ? paymentDescription[:75] ~ ' ...' : paymentDescription) %}
-
                                         {% block component_payment_method_description_text %}
                                             <p class="mb-0" title="{{ paymentDescriptionTitle }}">{{ paymentDescription }}</p>
                                         {% endblock %}

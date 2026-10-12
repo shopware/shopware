@@ -30,19 +30,17 @@ class MatchesLicenceDomainTest extends TestCase
 
     public function testAssertNoDomainSet(): void
     {
-        $this->expectExceptionObject(JWTException::missingDomain());
-
         $jwt = \file_get_contents(__DIR__ . '/../_fixtures/valid-jwt.txt');
         static::assertIsString($jwt);
         $jwt = \trim($jwt);
+
+        $this->expectExceptionObject(JWTException::missingDomain());
 
         $this->validate($jwt, '');
     }
 
     public function testAssertInvalidDomain(): void
     {
-        $this->expectExceptionObject(JWTException::invalidDomain('examples.com'));
-
         $jwt = \file_get_contents(__DIR__ . '/../_fixtures/invalid-jwts.json');
         static::assertIsString($jwt);
         $jwt = \trim($jwt);
@@ -50,12 +48,14 @@ class MatchesLicenceDomainTest extends TestCase
         $jwts = json_decode($jwt, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($jwts);
 
+        $this->expectExceptionObject(JWTException::invalidDomain('examples.com'));
+
         $this->validate(array_values($jwts)[3][0]);
     }
 
     private function validate(string $token, string $returnDomain = 'example.com'): void
     {
-        static::assertNotEmpty($token);
+        static::assertNotSame('', $token);
 
         $configService = $this->createMock(SystemConfigService::class);
         $configService

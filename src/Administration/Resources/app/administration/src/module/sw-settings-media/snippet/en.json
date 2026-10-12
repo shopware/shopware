@@ -2,8 +2,7 @@
   "sw-settings-media": {
     "general": {
       "title": "Media",
-      "description": "Manage media settings here.",
-      "buttonSave": "Save"
+      "description": "Manage media settings here."
     }
   }
 }

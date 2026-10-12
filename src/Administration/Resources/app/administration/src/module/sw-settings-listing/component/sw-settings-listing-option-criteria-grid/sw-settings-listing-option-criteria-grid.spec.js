@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 /**
  * @sw-package inventory
@@ -44,12 +44,17 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                     },
                     stubs: {
                         'mt-card': {
-                            template: '<div><slot></slot></div>',
+                            template: `
+                                <div class="mt-card">
+                                    <slot name="toolbar"></slot>
+                                    <slot></slot>
+                                </div>
+                            `,
                         },
                         'sw-empty-state': {
                             template: '<div class="sw-empty-state"></div>',
                         },
-                        'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                        'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
                         'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
                             sync: true,
@@ -63,13 +68,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                         'sw-select-result': await wrapTestComponent('sw-select-result'),
                         'sw-popover': await wrapTestComponent('sw-popover'),
-                        'sw-popover-deprecated': {
-                            props: ['popoverClass'],
-                            template: `
-                    <div class="sw-popover" :class="popoverClass">
-                        <slot></slot>
-                    </div>`,
-                        },
+                        'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                         'sw-loader': true,
                         'sw-context-menu-item': true,
                         'sw-context-menu': true,
@@ -224,9 +223,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
             field: 'customFields.custom_movies_aspernatur_enim_error',
         });
 
-        expect(getProductSortingFieldsByName).toEqual([
-            '8d863f0747d84544a767ea77a239b0ec',
-        ]);
+        expect(getProductSortingFieldsByName).toEqual(['8d863f0747d84544a767ea77a239b0ec']);
     });
 
     it('should add an always-false id filter when no product custom-field-set relations exist', async () => {
@@ -262,10 +259,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
     });
 
     it('should add a customFieldSetId equalsAny filter when product custom-field-set relations exist', async () => {
-        wrapper.vm.customFieldSetIDs = [
-            'set-id-1',
-            'set-id-2',
-        ];
+        wrapper.vm.customFieldSetIDs = ['set-id-1', 'set-id-2'];
 
         const criteriaParams = wrapper.vm.customFieldCriteria.parse();
         const singleSelectCriteriaParams = wrapper.vm.customFieldCriteriaSingleSelect().parse();
@@ -304,8 +298,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         await wrapper.find('.sw-data-grid__row--0 .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const results = wrapper.findAll('.sw-select-result')[0];
-        await results.trigger('click');
+        const result = new DOMWrapper(document.body).get('.sw-select-result');
+        await result.trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.productSortingEntity.fields).toEqual([
@@ -317,5 +311,33 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                 priority: 1,
             },
         ]);
+    });
+
+    it('should disable fields on locked product sorting', async () => {
+        await wrapper.setProps({
+            productSortingEntity: {
+                label: 'Top result',
+                key: 'score',
+                fields: [
+                    {
+                        field: '_score',
+                        naturalSorting: 0,
+                        order: 'desc',
+                        priority: 1,
+                    },
+                ],
+                locked: true,
+            },
+        });
+
+        const criteriaSelect = wrapper.find('.sw-settings-listing-option-criteria-grid__criteria-select');
+        const isDisabled = criteriaSelect.attributes('disabled');
+
+        expect(isDisabled).toBeTruthy();
+
+        const dataGrid = wrapper.findComponent('.sw-settings-listing-option-criteria-grid__data-grid');
+
+        expect(dataGrid.vm.showActions).toBeFalsy();
+        expect(dataGrid.vm.allowInlineEdit).toBeFalsy();
     });
 });

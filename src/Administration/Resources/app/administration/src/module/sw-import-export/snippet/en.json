@@ -28,7 +28,6 @@
             },
             "logInfo": {
               "modalTitle": "Log information",
-              "labelClose": "Close",
               "labelFilename": "Filename",
               "labelType": "Type",
               "labelExportRecords": "Exported records",
@@ -118,9 +117,7 @@
             "addProfileLabel": "Add profile",
             "addNewProfileLabel": "Add new profile",
             "addNewProfileTooltipLanguage": "Profiles can only be created in the default system language",
-            "openLabel": "Edit",
             "indicatorHeadline" : "Field Indicators",
-            "duplicateLabel": "Duplicate",
             "copyOfLabel": "Copy of:",
             "saveProfileLabel": "Save profile",
             "closeProfileLabel": "Close profile",
@@ -164,7 +161,7 @@
             "propertyLabel": "Properties",
             "mappingAutomatedDescription": "Shopware has automatically mapped {automatedCount} database entries. Please complete the process by assigning unmapped entries to the correct database entry manually. Required fields that are left empty will cause errors during import unless default values have been set. Default values will also be used to fill empty database entries.",
             "mappingDescription": "Use the table below to map the CSV column names to Shopware database entries. Empty required fields will cause errors during import unless default values have been set.",
-            "mappingEmptyState": "No custom mapping provided yet.",
+            "mappingEmptyState": "No custom mapping yet",
             "advancedDescription": "Identifiers are used to unambiguously determine updateable entities and thus have to be unique.",
             "configuratorSettingLabel": "Variant configuration settings",
             "productCrossSellingLabel": "Cross Selling",
@@ -202,7 +199,6 @@
             "exportLabel": "Export",
             "directExportVariantsLabel": "Export variant settings",
             "directExportPropertiesLabel": "Export properties",
-            "close": "Close",
             "variantsWarning": "Warning: Make sure that the properties and variants linked to the products in the exported CSV file are available in the new system. If this is not the case, you have the possibility to export properties and variants as single CSV files with corresponding profiles. If you do not have both cases, you have to create the product variants manually in the new system after the export.",
             "exportVariants": "Export product variants"
         },
@@ -220,7 +216,6 @@
             "importLabel": "Import",
             "directImportVariantsLabel": "Import variant settings",
             "directImportPropertiesLabel": "Import properties",
-            "close": "Close",
             "labelUploadCaption": "Select a CSV file to upload",
             "variantsWarning": "Attention: If you are importing products with variants, be sure to use a profile that can import variant settings.<br>If you don't, only the main products are imported and the variants must be created manually by the admin afterwards.",
             "importVariants": "Import product variants"

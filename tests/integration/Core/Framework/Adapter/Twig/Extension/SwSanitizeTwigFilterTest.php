@@ -4,11 +4,13 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig\Extension;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\SwSanitizeTwigFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class SwSanitizeTwigFilterTest extends TestCase
 {
     use IntegrationTestBehaviour;

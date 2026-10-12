@@ -9,6 +9,8 @@ use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGatewayResponse;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Exception\JsonDecodingException;
+use Shopware\Core\Framework\Util\Json;
 
 /**
  * @internal only for use by the app-systems
@@ -38,8 +40,8 @@ class AppCheckoutGatewayPayloadService
             $response = $this->client->post($url, $optionRequest->jsonSerialize());
             $content = $response->getBody()->getContents();
 
-            return new AppCheckoutGatewayResponse(\json_decode($content, true, flags: \JSON_THROW_ON_ERROR));
-        } catch (GuzzleException $e) {
+            return new AppCheckoutGatewayResponse(Json::decodeToList($content, false));
+        } catch (GuzzleException|JsonDecodingException $e) {
             $this->logger->logOrThrowException($e);
 
             return null;

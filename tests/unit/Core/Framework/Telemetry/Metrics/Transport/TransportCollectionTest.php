@@ -31,8 +31,8 @@ class TransportCollectionTest extends TestCase
             ->method('getTransportConfig')
             ->willReturn($config);
 
-        $transport1 = $this->createMock(MetricTransportInterface::class);
-        $transport2 = $this->createMock(MetricTransportInterface::class);
+        $transport1 = static::createStub(MetricTransportInterface::class);
+        $transport2 = static::createStub(MetricTransportInterface::class);
 
         $factory1 = $this->createMock(MetricTransportFactoryInterface::class);
         $factory1->expects($this->once())

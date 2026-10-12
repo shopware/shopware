@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Write\FieldExc
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ExpectedArrayException::class)]
 class ExpectedArrayExceptionTest extends TestCase
 {

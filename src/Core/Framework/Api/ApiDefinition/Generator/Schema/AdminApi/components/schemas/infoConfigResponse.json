@@ -1,5 +1,5 @@
 {
-  "openapi": "3.1.0",
+  "openapi": "3.2.0",
   "info": [],
   "paths": [],
   "components": {
@@ -129,8 +129,16 @@
               },
               "private_allowed_extensions": {
                 "type": "array",
-                "description": "Whitelisted file extensions for private filesystem uploads.",
+                "description": "Allowed file extensions for private filesystem uploads.",
                 "items": { "type": "string" }
+              },
+              "private_allowed_mime_types_by_extension": {
+                "type": "object",
+                "description": "Known MIME types for each allowed private filesystem upload extension.",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
               },
               "enableHtmlSanitizer": {
                 "type": "boolean",

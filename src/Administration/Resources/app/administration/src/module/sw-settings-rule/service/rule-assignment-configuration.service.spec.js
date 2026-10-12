@@ -6,15 +6,10 @@ import createRuleAssignmentConfigService from 'src/module/sw-settings-rule/servi
 describe('src/module/sw-settings-rule/service/rule-assignment-configuration.service.js', () => {
     const configuration = createRuleAssignmentConfigService().getConfiguration();
 
-    const configurationMap = Object.entries(configuration).map(
-        ([
-            key,
-            entityConfig,
-        ]) => ({
-            key,
-            gridColumns: entityConfig.gridColumns,
-        }),
-    );
+    const configurationMap = Object.entries(configuration).map(([key, entityConfig]) => ({
+        key,
+        gridColumns: entityConfig.gridColumns,
+    }));
 
     it('should contain configurations', () => {
         const expectedConfig = {

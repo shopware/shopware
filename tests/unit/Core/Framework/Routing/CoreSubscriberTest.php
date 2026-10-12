@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\CoreSubscriber;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\PlatformRequest;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CoreSubscriber::class)]
 class CoreSubscriberTest extends TestCase
 {
@@ -30,21 +32,26 @@ class CoreSubscriberTest extends TestCase
 
     public function testOnRequestNonceGenerated(): void
     {
-        $subscriber = new CoreSubscriber([], $this->createMock(ScriptExecutor::class));
+        $subscriber = new CoreSubscriber([], static::createStub(ScriptExecutor::class));
         $request = new Request();
-        $event = new RequestEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST);
+        $event = new RequestEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST);
         $subscriber->initializeCspNonce($event);
 
-        static::assertNotNull($event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE));
+        $nonce = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
+
+        static::assertIsString($nonce);
+        // URL-safe Base64 alphabet without padding: no '+', '/' or '=' that could be mistaken for a URL
+        static::assertMatchesRegularExpression('/^[A-Za-z0-9\-_]+$/', $nonce);
+        static::assertSame(24, \strlen($nonce));
     }
 
     public function testNonSuccessfulResponseDoesNotGetTouched(): void
     {
-        $subscriber = new CoreSubscriber([], $this->createMock(ScriptExecutor::class));
+        $subscriber = new CoreSubscriber([], static::createStub(ScriptExecutor::class));
         $request = new Request();
         $response = new Response('', Response::HTTP_INTERNAL_SERVER_ERROR);
 
-        $event = new ResponseEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, $response);
+        $event = new ResponseEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, $response);
         $subscriber->setSecurityHeaders($event);
 
         static::assertCount(2, $response->headers->all());
@@ -52,12 +59,12 @@ class CoreSubscriberTest extends TestCase
 
     public function testSuccessfullyGetTouched(): void
     {
-        $subscriber = new CoreSubscriber([], $this->createMock(ScriptExecutor::class));
+        $subscriber = new CoreSubscriber([], static::createStub(ScriptExecutor::class));
         $request = new Request();
         $request->server->set('HTTPS', 'on');
         $response = new Response();
 
-        $event = new ResponseEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, $response);
+        $event = new ResponseEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, $response);
         $subscriber->setSecurityHeaders($event);
 
         static::assertCount(6, $response->headers->all());
@@ -65,15 +72,15 @@ class CoreSubscriberTest extends TestCase
 
     public function testCSP(): void
     {
-        $subscriber = new CoreSubscriber(['admin' => 'default-src \'self\'; script-src \'self\' \'nonce-%nonce%\';'], $this->createMock(ScriptExecutor::class));
+        $subscriber = new CoreSubscriber(['admin' => 'default-src \'self\'; script-src \'self\' \'nonce-%nonce%\';'], static::createStub(ScriptExecutor::class));
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['admin']);
         $request->server->set('HTTPS', 'on');
         $response = new Response();
 
-        $event = new ResponseEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, $response);
+        $event = new ResponseEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, $response);
 
-        $subscriber->initializeCspNonce(new RequestEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
+        $subscriber->initializeCspNonce(new RequestEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
 
         $subscriber->setSecurityHeaders($event);
 

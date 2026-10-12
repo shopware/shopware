@@ -3,16 +3,16 @@
 namespace Shopware\Tests\Integration\Core\Framework\Increment;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Increment\RedisIncrementer;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Group('redis')]
+#[Package('framework')]
 class RedisIncrementerTest extends TestCase
 {
     private string $redisUrl;
@@ -129,7 +129,7 @@ class RedisIncrementerTest extends TestCase
 
         $incrementer->reset('test');
 
-        static::assertEmpty($incrementer->list('test'));
+        static::assertCount(0, $incrementer->list('test'));
     }
 
     /**

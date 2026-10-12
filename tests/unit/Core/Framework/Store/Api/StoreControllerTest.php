@@ -29,12 +29,12 @@ class StoreControllerTest extends TestCase
             ->method('logout')
             ->with($context);
 
-        $userRepository = $this->createMock(EntityRepository::class);
+        $userRepository = static::createStub(EntityRepository::class);
 
         $storeController = new StoreController(
             $storeClient,
             $userRepository,
-            $this->createMock(AbstractExtensionDataProvider::class),
+            static::createStub(AbstractExtensionDataProvider::class),
         );
 
         $response = $storeController->logout($context);

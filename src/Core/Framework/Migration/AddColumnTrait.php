@@ -39,11 +39,11 @@ trait AddColumnTrait
 
         try {
             // Try INSTANT first – fast metadata-only operation, no table rebuild.
-            $connection->executeStatement($sql . ', ALGORITHM=INSTANT;');
+            NonStandardFkGuard::executeDdl($connection, $sql . ', ALGORITHM=INSTANT;');
         } catch (DBALException) {
             // INSTANT not supported for this operation (e.g., expression defaults, fulltext tables).
             // Fall back to regular ALTER TABLE and let MySQL pick the best algorithm.
-            $connection->executeStatement($sql . ';');
+            NonStandardFkGuard::executeDdl($connection, $sql . ';');
         }
 
         return true;

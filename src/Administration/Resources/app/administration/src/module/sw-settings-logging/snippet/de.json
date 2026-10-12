@@ -23,8 +23,7 @@
     },
     "entryInfo": {
       "title": "Log-Informationen",
-      "tabRaw": "Quelltext",
-      "actionClose": "Schließen"
+      "tabRaw": "Quelltext"
     },
     "mailInfo": {
       "tabHTML": "HTML",

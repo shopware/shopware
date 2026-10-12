@@ -58,54 +58,30 @@ function parseFilters(filters) {
 
         switch (filter.type) {
             case 'contains':
-                return [
-                    ...parsed,
-                    Criteria.contains(filter.field, filter.value),
-                ];
+                return [...parsed, Criteria.contains(filter.field, filter.value)];
             case 'prefix':
-                return [
-                    ...parsed,
-                    Criteria.prefix(filter.field, filter.value),
-                ];
+                return [...parsed, Criteria.prefix(filter.field, filter.value)];
             case 'suffix':
-                return [
-                    ...parsed,
-                    Criteria.suffix(filter.field, filter.value),
-                ];
+                return [...parsed, Criteria.suffix(filter.field, filter.value)];
             case 'equalsAny':
-                return [
-                    ...parsed,
-                    Criteria.equalsAny(filter.field, filter.value),
-                ];
+                return [...parsed, Criteria.equalsAny(filter.field, filter.value)];
             case 'equals':
-                return [
-                    ...parsed,
-                    Criteria.equals(filter.field, filter.value),
-                ];
+                return [...parsed, Criteria.equals(filter.field, filter.value)];
             case 'range':
                 if (!filter.field || !filter.parameters) {
                     return parsed;
                 }
-                return [
-                    ...parsed,
-                    Criteria.range(filter.field, filter.parameters),
-                ];
+                return [...parsed, Criteria.range(filter.field, filter.parameters)];
             case 'not':
                 if (!filter.operator || !Array.isArray(filter.queries)) {
                     return parsed;
                 }
-                return [
-                    ...parsed,
-                    Criteria.not(filter.operator, parseFilters(filter.queries)),
-                ];
+                return [...parsed, Criteria.not(filter.operator, parseFilters(filter.queries))];
             case 'multi':
                 if (!filter.operator || !Array.isArray(filter.queries)) {
                     return parsed;
                 }
-                return [
-                    ...parsed,
-                    Criteria.multi(filter.operator, parseFilters(filter.queries)),
-                ];
+                return [...parsed, Criteria.multi(filter.operator, parseFilters(filter.queries))];
             default:
                 return parsed;
         }

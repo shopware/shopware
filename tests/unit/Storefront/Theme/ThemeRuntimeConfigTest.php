@@ -10,7 +10,7 @@ use Shopware\Storefront\Theme\ThemeRuntimeConfig;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ThemeRuntimeConfig::class)]
 class ThemeRuntimeConfigTest extends TestCase
 {

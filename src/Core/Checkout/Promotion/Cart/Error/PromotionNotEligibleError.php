@@ -10,8 +10,17 @@ class PromotionNotEligibleError extends Error
 {
     private const KEY = 'promotion-not-eligible';
 
-    public function __construct(protected string $name)
-    {
+    /**
+     * @param list<string> $ruleIds Condition rule entity IDs to enable rule-specific snippet lookup
+     * @param bool $persistent Whether the error survives cart recalculation (true for once-raised
+     *                         collector errors, false for calculator errors re-evaluated each pass)
+     */
+    public function __construct(
+        protected string $name,
+        private readonly ?string $reason = null,
+        private readonly array $ruleIds = [],
+        private readonly bool $persistent = false
+    ) {
         $this->message = \sprintf('Promotion %s not eligible for cart!', $this->name);
 
         parent::__construct($this->message);
@@ -19,7 +28,7 @@ class PromotionNotEligibleError extends Error
 
     public function isPersistent(): bool
     {
-        return false;
+        return $this->persistent;
     }
 
     public function getId(): string
@@ -34,7 +43,7 @@ class PromotionNotEligibleError extends Error
 
     public function getMessageKey(): string
     {
-        return self::KEY;
+        return $this->reason !== null ? self::KEY . '-' . $this->reason : self::KEY;
     }
 
     public function getName(): string
@@ -52,5 +61,13 @@ class PromotionNotEligibleError extends Error
         return [
             'name' => $this->name,
         ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getRuleIds(): array
+    {
+        return $this->ruleIds;
     }
 }

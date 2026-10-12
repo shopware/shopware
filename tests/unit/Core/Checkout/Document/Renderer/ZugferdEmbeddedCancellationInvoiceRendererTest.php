@@ -6,11 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedCancellationInvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
@@ -24,8 +24,8 @@ class ZugferdEmbeddedCancellationInvoiceRendererTest extends TestCase
     public function testSupports(): void
     {
         $renderer = new ZugferdEmbeddedCancellationInvoiceRenderer(
-            $this->createMock(AbstractDocumentRenderer::class),
-            $this->createMock(AbstractDocumentRenderer::class),
+            static::createStub(AbstractDocumentRenderer::class),
+            static::createStub(AbstractDocumentRenderer::class),
             new ZugferdEmbeddedService(),
             'version'
         );
@@ -47,12 +47,12 @@ class ZugferdEmbeddedCancellationInvoiceRendererTest extends TestCase
         $electronicResult = new RendererResult();
         $electronicResult->addSuccess('order1', new RenderedDocument(content: $xml));
 
-        $cancellationInvoiceRenderer = $this->createMock(AbstractDocumentRenderer::class);
+        $cancellationInvoiceRenderer = static::createStub(AbstractDocumentRenderer::class);
         $cancellationInvoiceRenderer
             ->method('render')
             ->willReturn($baseResult);
 
-        $electronicRenderer = $this->createMock(AbstractDocumentRenderer::class);
+        $electronicRenderer = static::createStub(AbstractDocumentRenderer::class);
         $electronicRenderer
             ->method('render')
             ->willReturn($electronicResult);

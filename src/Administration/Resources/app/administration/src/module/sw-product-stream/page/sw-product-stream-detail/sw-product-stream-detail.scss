@@ -1,31 +1,25 @@
-@import "~scss/variables";
-
 .sw-product-stream-detail {
-    .sw-product-stream-detail__condition_container .sw-card__content {
+    &__condition_container.mt-card .mt-card__content {
         padding: 0;
+        min-height: var(--scale-size-96);
     }
 
-    .sw-product-stream-detail__open_modal_preview {
-        display: flex;
-        margin: 20px auto;
+    &__open_modal_preview {
+        margin: var(--scale-size-24) var(--scale-size-24) 0;
     }
 
-    .sw-card.is--disabled .sw-card__content {
-        background-color: $color-gray-100;
+    .sw-condition-tree > .sw-condition-or-container {
+        padding-top: var(--scale-size-16);
     }
 
-    &__button-context-menu {
-        .mt-icon {
-            width: 16px;
-            height: 16px;
-            padding-top: 6px;
-            padding-right: 3px;
-            padding-bottom: 4px;
-            padding-left: 3px;
-        }
-    }
-
+    &__product-type-warning,
     &__product-stream-warning {
+        margin: var(--scale-size-24) var(--scale-size-24) 0;
+
+        .mt-banner {
+            margin-bottom: 0;
+        }
+
         ul {
             list-style-type: initial;
         }

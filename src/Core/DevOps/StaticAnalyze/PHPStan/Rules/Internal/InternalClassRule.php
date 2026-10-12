@@ -10,6 +10,7 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\BCChangeMarkers;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\RefreshIndexCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
@@ -19,10 +20,13 @@ use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -67,7 +71,7 @@ class InternalClassRule implements Rule
     {
         $doc = $node->getDocComment()?->getText() ?? '';
 
-        if ($this->isInternal($doc)) {
+        if ($this->isInternal($doc, $node->getClassReflection())) {
             return [];
         }
 
@@ -98,6 +102,14 @@ class InternalClassRule implements Rule
         if ($this->isBundle($node)) {
             return [
                 RuleErrorBuilder::message('Bundles must be flagged @internal to not be captured by the BC checker.')
+                    ->identifier('shopware.internalClass')
+                    ->build(),
+            ];
+        }
+
+        if ($node->getClassReflection()->implementsInterface(CompilerPassInterface::class)) {
+            return [
+                RuleErrorBuilder::message('Compiler passes must be flagged @internal to not be captured by the BC checker.')
                     ->identifier('shopware.internalClass')
                     ->build(),
             ];
@@ -182,9 +194,10 @@ class InternalClassRule implements Rule
         return $node->getClassReflection()->getParentClass()->getName() === TestCase::class;
     }
 
-    private function isInternal(string $doc): bool
+    private function isInternal(string $doc, ClassReflection $class): bool
     {
-        return \str_contains($doc, '@internal') || \str_contains($doc, 'reason:becomes-internal');
+        return \str_contains($doc, '@internal')
+            || BCChangeMarkers::has(BecomesInternal::class, $class);
     }
 
     private function isStorefrontController(InClassNode $node): bool
@@ -263,12 +276,14 @@ class InternalClassRule implements Rule
             return false;
         }
 
-        return !empty($class->getAttributes(AsMessageHandler::class));
+        return $class->getAttributes(AsMessageHandler::class) !== [];
     }
 
     private function isFinal(ClassReflection $class, string $doc): bool
     {
-        return str_contains($doc, '@final') || str_contains($doc, 'reason:becomes-final') || $class->isFinal();
+        return str_contains($doc, '@final')
+            || $class->isFinal()
+            || BCChangeMarkers::has(BecomesFinal::class, $class);
     }
 
     private function isParentInternalAndAbstract(Scope $scope): bool
@@ -289,7 +304,7 @@ class InternalClassRule implements Rule
 
         $doc = $native->getDocComment() ?: '';
 
-        return $this->isInternal($doc);
+        return $this->isInternal($doc, $parent);
     }
 
     private function isExample(InClassNode $node): bool

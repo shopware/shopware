@@ -8,11 +8,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(BundleHierarchyBuilder::class)]
 class BundleHierarchyBuilderTest extends TestCase
 {
@@ -24,7 +26,7 @@ class BundleHierarchyBuilderTest extends TestCase
     #[DataProvider('sortingProvider')]
     public function testSortingOfTemplates(array $plugins, array $apps, array $expectedSorting): void
     {
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = static::createStub(KernelInterface::class);
         $bundles = [];
 
         $path = __DIR__ . '/../../../../../../integration/Core/Framework/Adapter/Twig/fixtures/Plugins/TestPlugin1/';
@@ -35,7 +37,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
         $kernel->method('getBundles')->willReturn($bundles);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $dbApps = [];
 

@@ -34,25 +34,24 @@ class SalesChannelCmsPageLoaderTest extends TestCase
     {
         $cmsPages = $this->getCmsPagesWithTestData();
 
-        /** @var StaticEntityRepository<CmsPageCollection> $cmsPageRepository */
         $cmsPageRepository = new StaticEntityRepository([$cmsPages], new CmsPageDefinition());
 
         $loader = new SalesChannelCmsPageLoader(
             $cmsPageRepository,
-            $this->createMock(CmsSlotsDataResolver::class),
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CmsSlotsDataResolver::class),
+            static::createStub(EventDispatcher::class),
+            static::createStub(CacheTagCollector::class),
         );
 
         $result = $loader->load(new Request(), new Criteria(), Generator::generateSalesChannelContext());
 
-        $elements = $result->getElements();
+        $elements = $result->getEntities()->getElements();
         static::assertContainsOnlyInstancesOf(CmsPageEntity::class, $elements);
 
         $this->assertCmsPage1($elements['page-1']);
 
         // empty cms page without sections
-        static::assertEmpty($elements['page-2']->getSections());
+        static::assertNull($elements['page-2']->getSections());
     }
 
     public function testLoadWithOverriddenConfig(): void
@@ -60,14 +59,13 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $cmsPages = $this->getCmsPagesWithTestData();
         $cmsPages->remove('page-2');
 
-        /** @var StaticEntityRepository<CmsPageCollection> $cmsPageRepository */
         $cmsPageRepository = new StaticEntityRepository([$cmsPages], new CmsPageDefinition());
 
         $loader = new SalesChannelCmsPageLoader(
             $cmsPageRepository,
-            $this->createMock(CmsSlotsDataResolver::class),
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CmsSlotsDataResolver::class),
+            static::createStub(EventDispatcher::class),
+            static::createStub(CacheTagCollector::class),
         );
 
         $config = [
@@ -91,7 +89,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
             $config
         );
 
-        $page = $result->getElements()['page-1'];
+        $page = $result->getEntities()->getElements()['page-1'];
         static::assertInstanceOf(CmsPageEntity::class, $page);
 
         $section = $page->getSections()?->get('section-1');
@@ -128,7 +126,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $currentSection = array_shift($sections);
         static::assertSame('section-2', $currentSection['id']);
         static::assertSame(1, $currentSection['position']);
-        static::assertEmpty($currentSection['blocks']);
+        static::assertNull($currentSection['blocks']);
 
         $currentSection = array_shift($sections);
         static::assertSame('section-1', $currentSection['id']);
@@ -148,7 +146,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $currentBlock = array_shift($blocks);
         static::assertSame('block-3', $currentBlock['id']);
         static::assertSame(2, $currentBlock['position']);
-        static::assertEmpty($currentBlock['slots']);
+        static::assertNull($currentBlock['slots']);
 
         $currentBlock = array_shift($blocks);
         static::assertSame('block-1', $currentBlock['id']);

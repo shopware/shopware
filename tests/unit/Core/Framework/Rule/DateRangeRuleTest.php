@@ -39,7 +39,7 @@ class DateRangeRuleTest extends TestCase
             $useTime,
             $timezone ? new \DateTimeZone($timezone) : null,
         );
-        $scopeMock = $this->createMock(RuleScope::class);
+        $scopeMock = static::createStub(RuleScope::class);
         $scopeMock->method('getCurrentTime')->willReturn(new \DateTimeImmutable($now));
 
         $matchResult = $rule->match($scopeMock);
@@ -387,7 +387,7 @@ class DateRangeRuleTest extends TestCase
             'timezone' => 'UTC',
         ]);
 
-        $scopeMock = $this->createMock(RuleScope::class);
+        $scopeMock = static::createStub(RuleScope::class);
         $scopeMock->method('getCurrentTime')->willReturn(new \DateTimeImmutable('2024-01-20 12:00:00'));
 
         $result = $rule->match($scopeMock);
@@ -406,10 +406,9 @@ class DateRangeRuleTest extends TestCase
 
         $unserializedRule = Serialization::assertUnserializedInstanceOf(DateRangeRule::class, $legacySerialized . '}');
 
-        $timezone = (new \ReflectionProperty(DateRangeRule::class, 'timezone'))->getValue($unserializedRule);
-        static::assertNull($timezone);
+        static::assertNull($unserializedRule->getVars()['timezone']);
 
-        $scopeMock = $this->createMock(RuleScope::class);
+        $scopeMock = static::createStub(RuleScope::class);
         $scopeMock->method('getCurrentTime')->willReturn(new \DateTimeImmutable('2026-01-10 12:00:00'));
         static::assertTrue($unserializedRule->match($scopeMock));
     }
@@ -424,16 +423,13 @@ class DateRangeRuleTest extends TestCase
 
         $rule = $rule->assign($options);
 
-        $fromDate = (new \ReflectionProperty(DateRangeRule::class, 'fromDate'))->getValue($rule);
-        $toDate = (new \ReflectionProperty(DateRangeRule::class, 'toDate'))->getValue($rule);
-        $useTime = (new \ReflectionProperty(DateRangeRule::class, 'useTime'))->getValue($rule);
-        $timezone = (new \ReflectionProperty(DateRangeRule::class, 'timezone'))->getValue($rule);
+        $vars = $rule->getVars();
 
         $result = [
-            'fromDate' => $fromDate,
-            'toDate' => $toDate,
-            'useTime' => $useTime,
-            'timezone' => $timezone,
+            'fromDate' => $vars['fromDate'],
+            'toDate' => $vars['toDate'],
+            'useTime' => $vars['useTime'],
+            'timezone' => $vars['timezone'],
         ];
 
         static::assertSame($options, $result);
@@ -490,7 +486,7 @@ class DateRangeRuleTest extends TestCase
             RuleException::invalidDateRangeUsage('fromDate, toDate and timezone cannot be a string at this point')
         );
 
-        $rule->match($this->createMock(RuleScope::class));
+        $rule->match(static::createStub(RuleScope::class));
     }
 
     public static function provideInvalidStringValuesForMatch(): \Generator

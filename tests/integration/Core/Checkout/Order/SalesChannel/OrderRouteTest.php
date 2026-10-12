@@ -50,7 +50,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('checkout')]
-#[Group('slow')]
 #[Group('store-api')]
 class OrderRouteTest extends TestCase
 {
@@ -82,8 +81,6 @@ class OrderRouteTest extends TestCase
     private string $defaultCountryId;
 
     private string $deepLinkCode;
-
-    private int $mailSentEventCounter = 0;
 
     /**
      * @var EntityRepository<CustomerCollection>
@@ -132,7 +129,7 @@ class OrderRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create($contextToken, TestDefaults::SALES_CHANNEL);
@@ -399,15 +396,8 @@ class OrderRouteTest extends TestCase
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
         }
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
-            $eventDidRun = true;
-            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $defaultPaymentMethodId = $this->defaultPaymentMethodId;
         $newPaymentMethod = $this->getValidPaymentMethods()->filter(static fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getId() !== $defaultPaymentMethodId)->first();
@@ -431,17 +421,16 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $htmlText = $mail->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString('the payment method for your order has been successfully changed', $htmlText);
     }
 
     public function testSetSamePaymentMethodToOrder(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $this->mailSentEventCounter = 0;
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $this->handleMailSentEvent(...));
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->browser
             ->request(
@@ -461,9 +450,7 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
 
-        $dispatcher->removeListener(MailSentEvent::class, $this->handleMailSentEvent(...));
-
-        static::assertSame(1, $this->mailSentEventCounter, 'The ‘mail.sent’ event was executed too often');
+        static::assertNull($mail, 'Resubmitting the unchanged payment method must not notify the customer');
     }
 
     public function testSetPaymentOrderWrongPayment(): void
@@ -570,6 +557,7 @@ class OrderRouteTest extends TestCase
     {
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
+        $transactionId = Uuid::randomHex();
         $salutation = $this->getValidSalutationId();
 
         $order = [
@@ -586,14 +574,15 @@ class OrderRouteTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'primaryOrderTransactionId' => $transactionId,
                 'transactions' => [
                     [
-                        'id' => Uuid::randomHex(),
+                        'id' => $transactionId,
                         'paymentMethodId' => $this->defaultPaymentMethodId,
                         'amount' => [
-                            'unitPrice' => 5.0,
-                            'totalPrice' => 15.0,
-                            'quantity' => 3,
+                            'unitPrice' => 10.0,
+                            'totalPrice' => 10.0,
+                            'quantity' => 1,
                             'calculatedTaxes' => [],
                             'taxRules' => [],
                         ],
@@ -711,12 +700,5 @@ class OrderRouteTest extends TestCase
                 'sent' => $sent,
             ],
         ], Context::createDefaultContext());
-    }
-
-    private function handleMailSentEvent(MailSentEvent $event): void
-    {
-        ++$this->mailSentEventCounter;
-        static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-        static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
     }
 }

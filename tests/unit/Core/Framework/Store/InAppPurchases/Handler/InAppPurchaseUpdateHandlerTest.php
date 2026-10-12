@@ -31,7 +31,7 @@ class InAppPurchaseUpdateHandlerTest extends TestCase
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->iapUpdateHandler = new InAppPurchaseUpdateHandler(
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $this->logger,
             $this->iapUpdater,
         );

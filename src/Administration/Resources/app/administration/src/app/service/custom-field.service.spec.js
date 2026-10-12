@@ -3,6 +3,11 @@
  */
 
 import createCustomFieldService from 'src/app/service/custom-field.service';
+import CacheService from 'src/app/service/cache.service';
+
+if (!Shopware.Service('cacheService')) {
+    Shopware.Service().register('cacheService', () => new CacheService());
+}
 
 describe('src/app/service/custom-field.service.js', () => {
     let customFieldService;
@@ -19,6 +24,8 @@ describe('src/app/service/custom-field.service.js', () => {
     };
 
     beforeEach(() => {
+        jest.restoreAllMocks();
+        Shopware.Service('cacheService').clear();
         customFieldService = createCustomFieldService();
     });
 
@@ -65,5 +72,44 @@ describe('src/app/service/custom-field.service.js', () => {
         customFieldService.upsertType('number', newConfig);
 
         expect(customFieldService.getTypeByName('number')).toEqual(newConfig);
+    });
+
+    it('reuses cached custom field sets per entity name and language', async () => {
+        const productSets = [{ id: 'product-set', customFields: [{ id: 'field' }] }];
+        const translatedProductSets = [{ id: 'product-set-language-2', customFields: [{ id: 'field' }] }];
+        const customerSets = [{ id: 'customer-set', customFields: [{ id: 'field' }] }];
+        const searchMock = jest
+            .fn()
+            .mockResolvedValueOnce(productSets)
+            .mockResolvedValueOnce(translatedProductSets)
+            .mockResolvedValueOnce(customerSets);
+
+        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ search: searchMock });
+
+        Shopware.Context.api.languageId = 'language-1';
+        expect(await customFieldService.getCustomFieldSets('product')).toEqual(productSets);
+        expect(await customFieldService.getCustomFieldSets('product')).toEqual(productSets);
+
+        Shopware.Context.api.languageId = 'language-2';
+        expect(await customFieldService.getCustomFieldSets('product')).toEqual(translatedProductSets);
+
+        expect(await customFieldService.getCustomFieldSets('customer')).toEqual(customerSets);
+        expect(searchMock).toHaveBeenCalledTimes(3);
+    });
+
+    it('keeps cached custom field sets separate by limit', async () => {
+        const searchMock = jest
+            .fn()
+            .mockResolvedValueOnce([{ id: 'default-limit-set', customFields: [{ id: 'field' }] }])
+            .mockResolvedValueOnce([{ id: 'large-limit-set', customFields: [{ id: 'field' }] }]);
+
+        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ search: searchMock });
+
+        await customFieldService.getCustomFieldSets('sales_channel');
+        await customFieldService.getCustomFieldSets('sales_channel', false, 100);
+
+        expect(searchMock).toHaveBeenCalledTimes(2);
+        expect(searchMock.mock.calls[0][0].limit).toBe(25);
+        expect(searchMock.mock.calls[1][0].limit).toBe(100);
     });
 });

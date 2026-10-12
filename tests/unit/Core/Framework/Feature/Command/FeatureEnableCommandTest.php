@@ -25,8 +25,8 @@ class FeatureEnableCommandTest extends TestCase
     public function testName(): void
     {
         $command = new FeatureEnableCommand(
-            $this->createMock(FeatureFlagRegistry::class),
-            $this->createMock(CacheClearer::class)
+            static::createStub(FeatureFlagRegistry::class),
+            static::createStub(CacheClearer::class)
         );
 
         static::assertSame('feature:enable', $command->getName());

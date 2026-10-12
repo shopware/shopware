@@ -43,6 +43,13 @@ final readonly class ExtensionDispatcher
         return $name . '.error';
     }
 
+    public function hasListeners(string $name): bool
+    {
+        return $this->dispatcher->hasListeners(self::pre($name))
+            || $this->dispatcher->hasListeners(self::post($name))
+            || $this->dispatcher->hasListeners(self::error($name));
+    }
+
     /**
      * @template TExtensionType of mixed
      *

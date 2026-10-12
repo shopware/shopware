@@ -4,8 +4,10 @@ namespace Shopware\Tests\Integration\Core\Content\Product\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -13,6 +15,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductSubscriberBeforeDeleteIntegrationTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -193,6 +196,7 @@ class ProductSubscriberBeforeDeleteIntegrationTest extends TestCase
                 'name' => 'Variant 1',
                 'productNumber' => 'VAR-001',
                 'stock' => 5,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'price' => [
                     ['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 84, 'linked' => false],
                 ],

@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -39,6 +39,7 @@ use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPage;
 use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
+use Shopware\Tests\Unit\Storefront\Controller\Stub\CheckoutControllerStub;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,51 +53,39 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(CheckoutController::class)]
 class CheckoutControllerTest extends TestCase
 {
-    private CheckoutControllerTestClass $controller;
+    private CheckoutControllerStub $controller;
 
-    private CartService&MockObject $cartServiceMock;
+    private CartService&Stub $cartServiceMock;
 
-    private CheckoutCartPageLoader&MockObject $cartPageLoaderMock;
+    private CheckoutCartPageLoader&Stub $cartPageLoaderMock;
 
-    private CheckoutConfirmPageLoader&MockObject $confirmPageLoaderMock;
+    private CheckoutConfirmPageLoader&Stub $confirmPageLoaderMock;
 
-    private CheckoutFinishPageLoader&MockObject $finishPageLoaderMock;
+    private CheckoutFinishPageLoader&Stub $finishPageLoaderMock;
 
-    private OrderService&MockObject $orderServiceMock;
+    private OrderService&Stub $orderServiceMock;
 
-    private PaymentProcessor&MockObject $paymentProcessorMock;
+    private PaymentProcessor&Stub $paymentProcessorMock;
 
-    private OffcanvasCartPageLoader&MockObject $offcanvasCartPageLoaderMock;
+    private OffcanvasCartPageLoader&Stub $offcanvasCartPageLoaderMock;
 
-    private AbstractLogoutRoute&MockObject $logoutRouteMock;
+    private AbstractLogoutRoute&Stub $logoutRouteMock;
 
-    private AbstractCartLoadRoute&MockObject $cartLoadRouteMock;
+    private AbstractCartLoadRoute&Stub $cartLoadRouteMock;
 
     protected function setUp(): void
     {
-        $this->cartServiceMock = $this->createMock(CartService::class);
-        $this->cartPageLoaderMock = $this->createMock(CheckoutCartPageLoader::class);
-        $this->confirmPageLoaderMock = $this->createMock(CheckoutConfirmPageLoader::class);
-        $this->finishPageLoaderMock = $this->createMock(CheckoutFinishPageLoader::class);
-        $this->orderServiceMock = $this->createMock(OrderService::class);
-        $this->paymentProcessorMock = $this->createMock(PaymentProcessor::class);
-        $this->offcanvasCartPageLoaderMock = $this->createMock(OffcanvasCartPageLoader::class);
-        $this->logoutRouteMock = $this->createMock(AbstractLogoutRoute::class);
-        $this->cartLoadRouteMock = $this->createMock(AbstractCartLoadRoute::class);
+        $this->cartServiceMock = static::createStub(CartService::class);
+        $this->cartPageLoaderMock = static::createStub(CheckoutCartPageLoader::class);
+        $this->confirmPageLoaderMock = static::createStub(CheckoutConfirmPageLoader::class);
+        $this->finishPageLoaderMock = static::createStub(CheckoutFinishPageLoader::class);
+        $this->orderServiceMock = static::createStub(OrderService::class);
+        $this->paymentProcessorMock = static::createStub(PaymentProcessor::class);
+        $this->offcanvasCartPageLoaderMock = static::createStub(OffcanvasCartPageLoader::class);
+        $this->logoutRouteMock = static::createStub(AbstractLogoutRoute::class);
+        $this->cartLoadRouteMock = static::createStub(AbstractCartLoadRoute::class);
 
-        $this->controller = new CheckoutControllerTestClass(
-            $this->cartServiceMock,
-            $this->cartPageLoaderMock,
-            $this->confirmPageLoaderMock,
-            $this->finishPageLoaderMock,
-            $this->orderServiceMock,
-            $this->paymentProcessorMock,
-            $this->offcanvasCartPageLoaderMock,
-            $this->logoutRouteMock,
-            $this->cartLoadRouteMock,
-            $this->createMock(HeaderPageletLoaderInterface::class),
-            $this->createMock(FooterPageletLoaderInterface::class),
-        );
+        $this->controller = $this->buildController();
     }
 
     public function testGetCart(): void
@@ -107,10 +96,10 @@ class CheckoutControllerTest extends TestCase
             $cart
         );
 
-        $response = $this->controller->cartPage(new Request(), $this->createMock(SalesChannelContext::class));
+        $response = $this->controller->cartPage(new Request(), static::createStub(SalesChannelContext::class));
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testGetCartRedirectNotOnNoErrors(): void
@@ -124,10 +113,10 @@ class CheckoutControllerTest extends TestCase
         $request = new Request();
         $request->query->set('redirected', true);
 
-        $response = $this->controller->cartPage($request, $this->createMock(SalesChannelContext::class));
+        $response = $this->controller->cartPage($request, static::createStub(SalesChannelContext::class));
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testGetCartRedirectOnShippingErrors(): void
@@ -151,7 +140,7 @@ class CheckoutControllerTest extends TestCase
         $request = new Request();
         $request->query->set('redirected', false);
 
-        $response = $this->controller->cartPage($request, $this->createMock(SalesChannelContext::class));
+        $response = $this->controller->cartPage($request, static::createStub(SalesChannelContext::class));
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
@@ -179,21 +168,22 @@ class CheckoutControllerTest extends TestCase
         $request = new Request();
         $request->query->set('redirected', true);
 
-        $response = $this->controller->cartPage($request, $this->createMock(SalesChannelContext::class));
+        $response = $this->controller->cartPage($request, static::createStub(SalesChannelContext::class));
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testGetCartJson(): void
     {
         $cart = new Cart(Uuid::randomHex());
 
+        $this->cartServiceMock->method('getCart')->willReturn($cart);
         $this->cartLoadRouteMock->method('load')->willReturn(
             new CartResponse($cart)
         );
 
-        $response = $this->controller->cartJson(new Request(), $this->createMock(SalesChannelContext::class));
+        $response = $this->controller->cartJson(new Request(), static::createStub(SalesChannelContext::class));
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertInstanceOf(CartResponse::class, $response);
@@ -202,7 +192,7 @@ class CheckoutControllerTest extends TestCase
 
     public function testConfirmPageNoCustomer(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
         $response = $this->controller->confirmPage(new Request(), $context);
@@ -214,7 +204,7 @@ class CheckoutControllerTest extends TestCase
 
     public function testConfirmPageEmptyCart(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         $response = $this->controller->confirmPage(new Request(), $context);
@@ -228,7 +218,7 @@ class CheckoutControllerTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $cart->add(new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE));
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         $this->cartServiceMock->method('getCart')->willReturn($cart);
@@ -236,14 +226,14 @@ class CheckoutControllerTest extends TestCase
         $response = $this->controller->confirmPage(new Request(), $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testConfirmPageRedirectNotOnNoErrors(): void
     {
         $cart = new Cart(Uuid::randomHex());
         $cart->add(new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE));
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         $this->cartServiceMock->method('getCart')->willReturn($cart);
@@ -254,7 +244,7 @@ class CheckoutControllerTest extends TestCase
         $response = $this->controller->confirmPage($request, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testConfirmPageRedirectOnShippingErrors(): void
@@ -269,7 +259,7 @@ class CheckoutControllerTest extends TestCase
             reason: 'reason',
         ));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         $this->cartServiceMock->method('getCart')->willReturn($cart);
@@ -293,7 +283,7 @@ class CheckoutControllerTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $cart->add(new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE));
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         $this->cartServiceMock->method('getCart')->willReturn($cart);
@@ -309,12 +299,12 @@ class CheckoutControllerTest extends TestCase
         $response = $this->controller->confirmPage($request, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testFinishPageNoCustomer(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
         $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
@@ -326,14 +316,14 @@ class CheckoutControllerTest extends TestCase
 
     public function testFinishPageOrderNotFound(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         $this->finishPageLoaderMock->method('load')->willThrowException(OrderException::orderNotFound('not-found'));
 
         $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
 
-        static::assertSame(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->flashBag);
+        static::assertSame(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->recorder()->flashBag);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
         static::assertSame('frontend.checkout.cart.page', $response->getTargetUrl());
@@ -341,7 +331,7 @@ class CheckoutControllerTest extends TestCase
 
     public function testFinishPagePaymentFailed(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         $page = new CheckoutFinishPage();
@@ -366,12 +356,15 @@ class CheckoutControllerTest extends TestCase
 
         $this->finishPageLoaderMock->method('load')->willReturn($page);
 
-        $this->logoutRouteMock->expects($this->once())->method('logout');
+        $logoutRoute = $this->createMock(AbstractLogoutRoute::class);
+        $logoutRoute->expects($this->once())->method('logout');
 
-        $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
+        $controller = $this->buildController(logoutRoute: $logoutRoute);
+
+        $response = $controller->finishPage(new Request(), $context, new RequestDataBag());
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testFinishPageNoGuestLogout(): void
@@ -384,17 +377,20 @@ class CheckoutControllerTest extends TestCase
 
         $this->finishPageLoaderMock->method('load')->willReturn($page);
 
-        $this->logoutRouteMock->expects($this->never())->method('logout');
+        $logoutRoute = $this->createMock(AbstractLogoutRoute::class);
+        $logoutRoute->expects($this->never())->method('logout');
 
-        $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
+        $controller = $this->buildController(logoutRoute: $logoutRoute);
+
+        $response = $controller->finishPage(new Request(), $context, new RequestDataBag());
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testOrderNoCustomer(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
         $response = $this->controller->order(new RequestDataBag(), $context, new Request());
@@ -407,14 +403,17 @@ class CheckoutControllerTest extends TestCase
     public function testOrder(): void
     {
         $request = new Request();
-        $request->setSession($this->createMock(Session::class));
+        $request->setSession(static::createStub(Session::class));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->orderServiceMock->expects($this->once())->method('createOrder');
+        $orderService = $this->createMock(OrderService::class);
+        $orderService->expects($this->once())->method('createOrder');
 
-        $response = $this->controller->order(new RequestDataBag(), $context, $request);
+        $controller = $this->buildController(orderService: $orderService);
+
+        $response = $controller->order(new RequestDataBag(), $context, $request);
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
@@ -424,16 +423,19 @@ class CheckoutControllerTest extends TestCase
     public function testOrderConstraintViolation(): void
     {
         $request = new Request();
-        $request->setSession($this->createMock(Session::class));
+        $request->setSession(static::createStub(Session::class));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->orderServiceMock->expects($this->once())->method('createOrder')->willThrowException(
+        $orderService = $this->createMock(OrderService::class);
+        $orderService->expects($this->once())->method('createOrder')->willThrowException(
             new ConstraintViolationException(new ConstraintViolationList(), [])
         );
 
-        $response = $this->controller->order(new RequestDataBag(), $context, $request);
+        $controller = $this->buildController(orderService: $orderService);
+
+        $response = $controller->order(new RequestDataBag(), $context, $request);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('forward to frontend.checkout.confirm.page', $response->getContent());
@@ -442,12 +444,13 @@ class CheckoutControllerTest extends TestCase
     public function testOrderCartException(): void
     {
         $request = new Request();
-        $request->setSession($this->createMock(Session::class));
+        $request->setSession(static::createStub(Session::class));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->orderServiceMock->expects($this->once())->method('createOrder')->willThrowException(
+        $orderService = $this->createMock(OrderService::class);
+        $orderService->expects($this->once())->method('createOrder')->willThrowException(
             CartException::invalidCart(
                 new ErrorCollection(
                     [
@@ -465,7 +468,9 @@ class CheckoutControllerTest extends TestCase
             )
         );
 
-        $response = $this->controller->order(new RequestDataBag(), $context, $request);
+        $controller = $this->buildController(orderService: $orderService);
+
+        $response = $controller->order(new RequestDataBag(), $context, $request);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('forward to frontend.checkout.confirm.page', $response->getContent());
@@ -474,35 +479,41 @@ class CheckoutControllerTest extends TestCase
     public function testOrderCartPaymentException(): void
     {
         $request = new Request();
-        $request->setSession($this->createMock(Session::class));
+        $request->setSession(static::createStub(Session::class));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->orderServiceMock->expects($this->once())->method('createOrder')->willThrowException(
+        $orderService = $this->createMock(OrderService::class);
+        $orderService->expects($this->once())->method('createOrder')->willThrowException(
             PaymentException::unknownPaymentMethodById(Uuid::randomHex())
         );
 
-        $response = $this->controller->order(new RequestDataBag(), $context, $request);
+        $controller = $this->buildController(orderService: $orderService);
+
+        $response = $controller->order(new RequestDataBag(), $context, $request);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('forward to frontend.checkout.confirm.page', $response->getContent());
-        static::assertSame(['danger' => ['error.CHECKOUT__UNKNOWN_PAYMENT_METHOD']], $this->controller->flashBag);
+        static::assertSame(['danger' => ['error.CHECKOUT__UNKNOWN_PAYMENT_METHOD']], $controller->recorder()->flashBag);
     }
 
     public function testOrderCartInvalidOrderException(): void
     {
         $request = new Request();
-        $request->setSession($this->createMock(Session::class));
+        $request->setSession(static::createStub(Session::class));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->orderServiceMock->expects($this->once())->method('createOrder')->willThrowException(
+        $orderService = $this->createMock(OrderService::class);
+        $orderService->expects($this->once())->method('createOrder')->willThrowException(
             CartException::invalidPaymentButOrderStored(Uuid::randomHex())
         );
 
-        $response = $this->controller->order(new RequestDataBag(), $context, $request);
+        $controller = $this->buildController(orderService: $orderService);
+
+        $response = $controller->order(new RequestDataBag(), $context, $request);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('forward to frontend.checkout.finish.page', $response->getContent());
@@ -511,16 +522,19 @@ class CheckoutControllerTest extends TestCase
     public function testOrderPaymentServiceException(): void
     {
         $request = new Request();
-        $request->setSession($this->createMock(Session::class));
+        $request->setSession(static::createStub(Session::class));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->paymentProcessorMock->expects($this->once())->method('pay')->willThrowException(
+        $paymentProcessor = $this->createMock(PaymentProcessor::class);
+        $paymentProcessor->expects($this->once())->method('pay')->willThrowException(
             PaymentException::syncProcessInterrupted(Uuid::randomHex(), 'error')
         );
 
-        $response = $this->controller->order(new RequestDataBag(), $context, $request);
+        $controller = $this->buildController(paymentProcessor: $paymentProcessor);
+
+        $response = $controller->order(new RequestDataBag(), $context, $request);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('forward to frontend.checkout.finish.page', $response->getContent());
@@ -529,16 +543,19 @@ class CheckoutControllerTest extends TestCase
     public function testOrderTransitionException(): void
     {
         $request = new Request();
-        $request->setSession($this->createMock(Session::class));
+        $request->setSession(static::createStub(Session::class));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->paymentProcessorMock->expects($this->once())->method('pay')->willThrowException(
+        $paymentProcessor = $this->createMock(PaymentProcessor::class);
+        $paymentProcessor->expects($this->once())->method('pay')->willThrowException(
             new IllegalTransitionException('open', 'done', ['in_progress', 'canceled'])
         );
 
-        $response = $this->controller->order(new RequestDataBag(), $context, $request);
+        $controller = $this->buildController(paymentProcessor: $paymentProcessor);
+
+        $response = $controller->order(new RequestDataBag(), $context, $request);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('forward to frontend.checkout.finish.page', $response->getContent());
@@ -547,16 +564,19 @@ class CheckoutControllerTest extends TestCase
     public function testOrderFlowException(): void
     {
         $request = new Request();
-        $request->setSession($this->createMock(Session::class));
+        $request->setSession(static::createStub(Session::class));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->paymentProcessorMock->expects($this->once())->method('pay')->willThrowException(
+        $paymentProcessor = $this->createMock(PaymentProcessor::class);
+        $paymentProcessor->expects($this->once())->method('pay')->willThrowException(
             FlowException::transactionFailed(new IllegalTransitionException('open', 'done', ['in_progress', 'canceled']))
         );
 
-        $response = $this->controller->order(new RequestDataBag(), $context, $request);
+        $controller = $this->buildController(paymentProcessor: $paymentProcessor);
+
+        $response = $controller->order(new RequestDataBag(), $context, $request);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('forward to frontend.checkout.finish.page', $response->getContent());
@@ -570,15 +590,15 @@ class CheckoutControllerTest extends TestCase
         $this->cartServiceMock->method('getCart')->willReturn($cart);
 
         $request = new Request();
-        $request->setSession($this->createMock(Session::class));
+        $request->setSession(static::createStub(Session::class));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         $response = $this->controller->info($request, $context);
 
         static::assertSame('noindex', $response->headers->get('x-robots-tag'));
-        static::assertInstanceOf(OffcanvasCartPage::class, $this->controller->renderStorefrontParameters['page']);
+        static::assertInstanceOf(OffcanvasCartPage::class, $this->controller->recorder()->renderStorefrontParameters['page']);
     }
 
     public function testInfoEmptyCart(): void
@@ -588,27 +608,27 @@ class CheckoutControllerTest extends TestCase
         $this->cartServiceMock->method('getCart')->willReturn($cart);
 
         $request = new Request();
-        $request->setSession($this->createMock(Session::class));
+        $request->setSession(static::createStub(Session::class));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         $response = $this->controller->info($request, $context);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testOffCanvas(): void
     {
         $request = new Request();
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $response = $this->controller->offcanvas($request, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testOffCanvasRedirectOnShippingErrors(): void
@@ -623,7 +643,7 @@ class CheckoutControllerTest extends TestCase
             reason: 'reason',
         ));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         $cartPage = new OffcanvasCartPage();
@@ -645,7 +665,7 @@ class CheckoutControllerTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $cart->add(new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE));
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         $cartPage = new OffcanvasCartPage();
@@ -659,14 +679,26 @@ class CheckoutControllerTest extends TestCase
         $response = $this->controller->offcanvas($request, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
-}
 
-/**
- * @internal
- */
-class CheckoutControllerTestClass extends CheckoutController
-{
-    use StorefrontControllerMockTrait;
+    private function buildController(
+        ?OrderService $orderService = null,
+        ?PaymentProcessor $paymentProcessor = null,
+        ?AbstractLogoutRoute $logoutRoute = null,
+    ): CheckoutControllerStub {
+        return new CheckoutControllerStub(
+            $this->cartServiceMock,
+            $this->cartPageLoaderMock,
+            $this->confirmPageLoaderMock,
+            $this->finishPageLoaderMock,
+            $orderService ?? $this->orderServiceMock,
+            $paymentProcessor ?? $this->paymentProcessorMock,
+            $this->offcanvasCartPageLoaderMock,
+            $logoutRoute ?? $this->logoutRouteMock,
+            $this->cartLoadRouteMock,
+            static::createStub(HeaderPageletLoaderInterface::class),
+            static::createStub(FooterPageletLoaderInterface::class),
+        );
+    }
 }

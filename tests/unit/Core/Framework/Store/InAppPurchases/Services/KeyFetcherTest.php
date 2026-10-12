@@ -34,10 +34,10 @@ class KeyFetcherTest extends TestCase
             ->method('set');
 
         $keyFetcher = new KeyFetcher(
-            $this->createMock(ClientInterface::class),
-            $this->createMock(StoreRequestOptionsProvider::class),
+            static::createStub(ClientInterface::class),
+            static::createStub(StoreRequestOptionsProvider::class),
             $systemConfig,
-            $this->createMock(LoggerInterface::class)
+            static::createStub(LoggerInterface::class)
         );
 
         $key = $keyFetcher->getKey(Context::createDefaultContext());
@@ -64,9 +64,9 @@ class KeyFetcherTest extends TestCase
 
         $keyFetcher = new KeyFetcher(
             $client,
-            $this->createMock(StoreRequestOptionsProvider::class),
+            static::createStub(StoreRequestOptionsProvider::class),
             $systemConfig,
-            $this->createMock(LoggerInterface::class)
+            static::createStub(LoggerInterface::class)
         );
 
         $key = $keyFetcher->getKey(Context::createDefaultContext(), true);
@@ -92,9 +92,9 @@ class KeyFetcherTest extends TestCase
 
         $keyFetcher = new KeyFetcher(
             $client,
-            $this->createMock(StoreRequestOptionsProvider::class),
+            static::createStub(StoreRequestOptionsProvider::class),
             $systemConfig,
-            $this->createMock(LoggerInterface::class)
+            static::createStub(LoggerInterface::class)
         );
 
         $key = $keyFetcher->getKey(Context::createDefaultContext(), true);
@@ -131,14 +131,12 @@ class KeyFetcherTest extends TestCase
 
         $keyFetcher = new KeyFetcher(
             $client,
-            $this->createMock(StoreRequestOptionsProvider::class),
+            static::createStub(StoreRequestOptionsProvider::class),
             $systemConfig,
             $logger
         );
 
-        $key = $keyFetcher->getKey(Context::createDefaultContext(), true);
-
-        static::assertSame('sample-key-id', $key->getElements()[0]->kid);
+        $keyFetcher->getKey(Context::createDefaultContext(), true);
     }
 
     public function testGetKeyReturns400ResponseWithoutExistingKey(): void
@@ -166,14 +164,12 @@ class KeyFetcherTest extends TestCase
 
         $keyFetcher = new KeyFetcher(
             $client,
-            $this->createMock(StoreRequestOptionsProvider::class),
+            static::createStub(StoreRequestOptionsProvider::class),
             $systemConfig,
             $logger
         );
 
-        $key = $keyFetcher->getKey(Context::createDefaultContext(), true);
-
-        static::assertSame('sample-key-id', $key->getElements()[0]->kid);
+        $keyFetcher->getKey(Context::createDefaultContext(), true);
     }
 
     private function getKey(): string

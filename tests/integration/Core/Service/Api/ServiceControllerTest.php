@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class ServiceControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -46,7 +48,7 @@ class ServiceControllerTest extends TestCase
         $browser->jsonRequest('POST', '/api/service/uninstall/' . $serviceName);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNull($this->appRepository->search(new Criteria([$appId]), Context::createDefaultContext())->first());
+        static::assertNull($this->appRepository->search(new Criteria([$appId]), Context::createDefaultContext())->getEntities()->first());
     }
 
     public function testServiceCannotUninstallAnotherService(): void
@@ -62,7 +64,7 @@ class ServiceControllerTest extends TestCase
         $browser->jsonRequest('POST', '/api/service/uninstall/' . $otherServiceName);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotNull($this->appRepository->search(new Criteria([$otherAppId]), Context::createDefaultContext())->first());
+        static::assertNotNull($this->appRepository->search(new Criteria([$otherAppId]), Context::createDefaultContext())->getEntities()->first());
     }
 
     /**

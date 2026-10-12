@@ -2,7 +2,13 @@ import { expect, test } from '@fixtures/AcceptanceTest';
 
 test(
     'As a merchant, I want to switch on and off the revocation request form',
-    { tag: ['@Form', '@Revocation', '@Storefront'] },
+    {
+        tag: [
+            '@Form',
+            '@Revocation',
+            '@Storefront',
+        ],
+    },
     async ({
         AddProductToCart,
         ShopCustomer,
@@ -35,7 +41,10 @@ test(
                 await openStorefrontHome();
                 await expect(revocationFormButton()).toBeHidden();
             }).toPass({
-                intervals: [1_000, 2_500],
+                intervals: [
+                    1_000,
+                    2_500,
+                ],
             });
         });
 
@@ -46,7 +55,10 @@ test(
                 await openStorefrontHome();
                 await expect(revocationFormButton()).toBeVisible();
             }).toPass({
-                intervals: [1_000, 2_500],
+                intervals: [
+                    1_000,
+                    2_500,
+                ],
             });
         });
 
@@ -66,7 +78,10 @@ test(
                 await expect(revocationPrivacyNotice()).toContainText(/Privacy Notice|Datenschutzhinweise/i);
                 await expect(revocationPrivacyNoticeLink()).toBeVisible();
             }).toPass({
-                intervals: [1_000, 2_500],
+                intervals: [
+                    1_000,
+                    2_500,
+                ],
             });
 
             await revocationPrivacyNoticeLink().click();
@@ -92,7 +107,10 @@ test(
                 await expect(collapsedHotlineContent.getByRole('link', { name: revocationButtonName })).toHaveCount(0);
                 await expect(revocationFormButton()).toBeVisible();
             }).toPass({
-                intervals: [1_000, 2_500],
+                intervals: [
+                    1_000,
+                    2_500,
+                ],
             });
         });
 
@@ -120,9 +138,12 @@ test(
 
                     await expect(minimalFooterRevocationButton()).toBeVisible();
                 }).toPass({
-                    intervals: [1_000, 2_500],
+                    intervals: [
+                        1_000,
+                        2_500,
+                    ],
                 });
             }
         });
-    }
+    },
 );

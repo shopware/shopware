@@ -5,8 +5,8 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\Symplify
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule;
+use Shopware\Core\Framework\Log\Package;
 use Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule;
 
 /**
@@ -16,13 +16,13 @@ use Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule;
  *
  * @internal
  */
+#[Package('framework')]
 class NoReturnSetterMethodWithFluentSettersRuleTest extends RuleTestCase
 {
     /**
      * @param list<array{0: string, 1: int, 2?: string}> $expectedErrorsWithLines
      */
     #[DataProvider('provideData')]
-    #[RunInSeparateProcess]
     public function testRule(string $filePath, array $expectedErrorsWithLines): void
     {
         $this->analyse([$filePath], $expectedErrorsWithLines);

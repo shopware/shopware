@@ -211,7 +211,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     /**
      * @param list<string>|list<array<string, string>> $downloadMediaIds
      *
-     * @return array{downloads: list<array{id: string, mediaId: string, position: int}>, maxPurchase: 1, deliveryTimeId: string|null}
+     * @return array{downloads: list<array{id: string, mediaId: string, position: int}>, type: ProductDefinition::TYPE_DIGITAL, maxPurchase: 1, deliveryTimeId: string|null}
      */
     private function buildDownloads(array $downloadMediaIds, ?string $instantDeliveryId): array
     {
@@ -359,7 +359,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
 
-            if (!empty($chosenTags)) {
+            if ($chosenTags !== []) {
                 $tagAssignments = array_map(
                     static fn ($id) => ['id' => $id],
                     $chosenTags

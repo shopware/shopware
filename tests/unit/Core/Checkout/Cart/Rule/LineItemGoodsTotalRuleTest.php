@@ -19,8 +19,8 @@ use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Shopware\Core\Test\Stub\Rule\FalseRule;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -28,22 +28,20 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemGoodsTotalRule::class)]
 #[Group('rules')]
-#[Package('checkout')]
 class LineItemGoodsTotalRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     public function testMatchWithLineItemScopeAndLineItemIsNotGood(): void
     {
         $rule = new LineItemGoodsTotalRule(Rule::OPERATOR_EQ, 1);
 
-        $lineItem = $this->createLineItem()->setGood(false);
+        $lineItem = CartRuleFixture::createLineItem()->setGood(false);
 
         $match = $rule->match(new LineItemScope(
             $lineItem,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertFalse($match);
@@ -59,7 +57,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
 
         $match = $rule->match(new LineItemScope(
             $lineItem,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertFalse($match);
@@ -75,7 +73,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
 
         $match = $rule->match(new LineItemScope(
             $lineItem,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -85,8 +83,8 @@ class LineItemGoodsTotalRuleTest extends TestCase
     public function testMatchWithoutFilter(string $operator, int $count, bool $expectedResult): void
     {
         $lineItemCollection = new LineItemCollection([
-            $this->createLineItem('foo', 4),
-            $this->createLineItem('bar', 2),
+            CartRuleFixture::createLineItem('foo', 4),
+            CartRuleFixture::createLineItem('bar', 2),
         ]);
 
         $cart = new Cart('test-token');
@@ -94,7 +92,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
 
         $scope = new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $lineItemGoodsTotalRule = new LineItemGoodsTotalRule($operator, $count);
@@ -136,8 +134,8 @@ class LineItemGoodsTotalRuleTest extends TestCase
     public function testMatchWithFilter(string $operator, int $count, bool $expectedResult): void
     {
         $lineItemCollection = new LineItemCollection([
-            $this->createLineItem('foo', 4),
-            $this->createLineItem('bar', 2),
+            CartRuleFixture::createLineItem('foo', 4),
+            CartRuleFixture::createLineItem('bar', 2),
         ]);
 
         $cart = new Cart('test-token');
@@ -145,7 +143,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
 
         $scope = new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $lineItemGoodsTotalRule = new LineItemGoodsTotalRule($operator, $count);
@@ -204,6 +202,6 @@ class LineItemGoodsTotalRuleTest extends TestCase
 
     private function createLineItemWithGoodsCount(): LineItem
     {
-        return $this->createLineItem()->setGood(true);
+        return CartRuleFixture::createLineItem()->setGood(true);
     }
 }

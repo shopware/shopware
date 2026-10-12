@@ -23,6 +23,7 @@ use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -30,6 +31,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
+use Symfony\Component\Yaml\Yaml;
 use Symfony\UX\TwigComponent\TwigComponentBundle;
 
 #[Package('framework')]
@@ -232,6 +234,18 @@ class Kernel extends HttpKernel
 
         $confDir = $this->getProjectDir() . '/config';
 
+        // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML package configuration is no longer loaded
+        foreach ($this->getXmlFilesRecursive($confDir . '/packages') as $path) {
+            $this->triggerXmlConfigDeprecation($path, 'Migrate the package configuration to YAML or PHP format.');
+        }
+
+        // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML service definitions are no longer loaded
+        foreach ([$confDir . '/services.xml', $confDir . '/services_' . $this->environment . '.xml'] as $path) {
+            if (is_file($path)) {
+                $this->triggerXmlConfigDeprecation($path, \sprintf('Migrate the service definitions to PHP format (%s).', basename($path, '.xml') . '.php'));
+            }
+        }
+
         $loader->load($confDir . '/{packages}/*' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{packages}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{services}' . self::CONFIG_EXTS, 'glob');
@@ -241,6 +255,13 @@ class Kernel extends HttpKernel
     protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $confDir = $this->getProjectDir() . '/config';
+
+        // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML route definitions are no longer loaded
+        foreach ([...$this->getXmlFilesRecursive($confDir . '/routes'), $confDir . '/routes.xml'] as $path) {
+            if (is_file($path)) {
+                $this->triggerXmlConfigDeprecation($path, \sprintf('Migrate the route definitions to PHP format (%s).', basename($path, '.xml') . '.php'));
+            }
+        }
 
         $routes->import($confDir . '/{routes}/*' . self::CONFIG_EXTS, 'glob');
         $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, 'glob');
@@ -253,7 +274,7 @@ class Kernel extends HttpKernel
     }
 
     /**
-     * @return array<string, array<string, mixed>|bool|string|int|float|\UnitEnum|null>
+     * @phpstan-ignore missingType.iterableValue (Needs to be fixed in upstream parent method)
      */
     protected function getKernelParameters(): array
     {
@@ -303,12 +324,46 @@ class Kernel extends HttpKernel
             $plugins[$plugin['name']] = $plugin['version'];
         }
 
-        asort($plugins);
+        // sort by name, so the hash does not depend on the order in which the plugin loader returns the plugins
+        ksort($plugins);
+
+        // The feature registry is initialized after the container cache is selected.
+        /** @var list<string>|null $majorVersionFlagNames */
+        static $majorVersionFlagNames = null;
+        if ($majorVersionFlagNames === null) {
+            /** @var array{shopware: array{feature: array{flags: list<array{name: string}>}}} $config */
+            $config = Yaml::parseFile(__DIR__ . '/Framework/Resources/config/packages/feature.yaml');
+            $majorVersionFlagNames = [];
+            foreach ($config['shopware']['feature']['flags'] as $flag) {
+                if (!Feature::isMajorVersionFlag($flag['name'])) {
+                    continue;
+                }
+
+                $majorVersionFlagNames[] = Feature::normalizeName($flag['name']);
+            }
+        }
+
+        $majorFeatureFlags = [];
+        foreach ($majorVersionFlagNames as $name) {
+            if (!EnvironmentHelper::hasVariable($name) && !EnvironmentHelper::hasVariable(strtolower($name))) {
+                continue;
+            }
+
+            $value = EnvironmentHelper::hasVariable($name)
+                ? EnvironmentHelper::getVariable($name)
+                : EnvironmentHelper::getVariable(strtolower($name));
+            $value = (string) $value;
+            $majorFeatureFlags[$name] = (bool) $value && $value !== 'false';
+        }
+
+        ksort($majorFeatureFlags);
 
         return Hasher::hash([
             $this->cacheId,
             (string) $this->shopwareVersionRevision,
             $plugins,
+            (string) EnvironmentHelper::getVariable('FEATURE_ALL', ''),
+            $majorFeatureFlags,
         ]);
     }
 
@@ -401,5 +456,35 @@ PHP;
     {
         return \array_key_exists($bundle->getName(), $instantiatedBundleNames)
             || \array_key_exists($bundle->getName(), $this->bundles);
+    }
+
+    // @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+    private function triggerXmlConfigDeprecation(string $path, string $migrationHint): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            \sprintf(
+                'The XML configuration file "%s" in the project configuration directory is deprecated and will not be loaded in v6.8.0.0. %s',
+                $path,
+                $migrationHint,
+            ),
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getXmlFilesRecursive(string $dir): array
+    {
+        if (!is_dir($dir)) {
+            return [];
+        }
+
+        $files = [];
+        foreach ((new Finder())->files()->in($dir)->name('*.xml')->sortByName() as $file) {
+            $files[] = $file->getPathname();
+        }
+
+        return $files;
     }
 }

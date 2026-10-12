@@ -5,20 +5,25 @@ namespace Shopware\Tests\Unit\Core\Content\Category\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\Extension\NavigationRouteExtension;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
+use Shopware\Core\Content\Category\SalesChannel\NavigationRouteResponse;
 use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoader;
 use Shopware\Core\Content\Category\Tree\CategoryTreePathResolver;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -33,33 +38,27 @@ class NavigationRouteTest extends TestCase
     private Connection&MockObject $connection;
 
     /**
-     * @var SalesChannelRepository<CategoryCollection>&MockObject
+     * @var SalesChannelRepository<CategoryCollection>&Stub
      */
-    private SalesChannelRepository&MockObject $categoryRepository;
+    private SalesChannelRepository&Stub $categoryRepository;
 
-    private CacheTagCollector&MockObject $cacheTagCollector;
+    private CacheTagCollector&Stub $cacheTagCollector;
 
-    private CategoryTreePathResolver&MockObject $categoryTreePathResolver;
+    private CategoryTreePathResolver&Stub $categoryTreePathResolver;
 
-    private DefaultCategoryLevelLoader&MockObject $defaultCategoryLevelLoader;
+    private DefaultCategoryLevelLoader&Stub $defaultCategoryLevelLoader;
 
     private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $this->categoryRepository = $this->createMock(SalesChannelRepository::class);
-        $this->cacheTagCollector = $this->createMock(CacheTagCollector::class);
-        $this->categoryTreePathResolver = $this->createMock(CategoryTreePathResolver::class);
-        $this->defaultCategoryLevelLoader = $this->createMock(DefaultCategoryLevelLoader::class);
+        $this->categoryRepository = static::createStub(SalesChannelRepository::class);
+        $this->cacheTagCollector = static::createStub(CacheTagCollector::class);
+        $this->categoryTreePathResolver = static::createStub(CategoryTreePathResolver::class);
+        $this->defaultCategoryLevelLoader = static::createStub(DefaultCategoryLevelLoader::class);
 
-        $this->navigationRoute = new NavigationRoute(
-            $this->connection,
-            $this->categoryRepository,
-            $this->cacheTagCollector,
-            $this->categoryTreePathResolver,
-            $this->defaultCategoryLevelLoader,
-        );
+        $this->navigationRoute = $this->createRoute();
 
         $this->salesChannelContext = Generator::generateSalesChannelContext();
     }
@@ -87,21 +86,24 @@ class NavigationRouteTest extends TestCase
                 ],
             ]);
 
-        $this->categoryRepository
+        $categoryRepository = $this->createMock(SalesChannelRepository::class);
+        $categoryRepository
             ->expects($this->never())
             ->method('search');
 
-        $this->categoryTreePathResolver
+        $categoryTreePathResolver = $this->createMock(CategoryTreePathResolver::class);
+        $categoryTreePathResolver
             ->expects($this->once())
             ->method('getAdditionalPathsToLoad')
             ->willReturn([]);
 
-        $this->cacheTagCollector
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector
             ->expects($this->once())
             ->method('addTag')
             ->with(NavigationRoute::ALL_TAG);
 
-        $this->navigationRoute->load(
+        $this->createRoute($categoryRepository, $cacheTagCollector, $categoryTreePathResolver)->load(
             $activeId,
             $rootId,
             $request,
@@ -134,16 +136,19 @@ class NavigationRouteTest extends TestCase
                 ],
             ]);
 
-        $this->categoryRepository
+        $categoryRepository = $this->createMock(SalesChannelRepository::class);
+        $categoryRepository
             ->expects($this->never())
             ->method('search');
 
-        $this->categoryTreePathResolver
+        $categoryTreePathResolver = $this->createMock(CategoryTreePathResolver::class);
+        $categoryTreePathResolver
             ->expects($this->once())
             ->method('getAdditionalPathsToLoad')
             ->willReturn([]);
 
-        $this->cacheTagCollector
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector
             ->expects($this->once())
             ->method('addTag')
             ->with(
@@ -152,7 +157,7 @@ class NavigationRouteTest extends TestCase
                 NavigationRoute::buildName($activeId)
             );
 
-        $this->navigationRoute->load(
+        $this->createRoute($categoryRepository, $cacheTagCollector, $categoryTreePathResolver)->load(
             $activeId,
             $rootId,
             $request,
@@ -181,6 +186,54 @@ class NavigationRouteTest extends TestCase
             $request,
             $this->salesChannelContext,
             $criteria
+        );
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $activeId = Uuid::randomHex();
+        $rootId = Uuid::randomHex();
+        $request = new Request();
+        $criteria = new Criteria();
+        $response = static::createStub(NavigationRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('navigation-route.load.pre', function (NavigationRouteExtension $extension) use ($activeId, $rootId, $request, $criteria, $response): void {
+            static::assertSame([
+                'activeId' => $activeId,
+                'rootId' => $rootId,
+                'request' => $request,
+                'context' => $this->salesChannelContext,
+                'criteria' => $criteria,
+            ], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
+
+        $route = $this->createRoute(extensions: new ExtensionDispatcher($dispatcher));
+
+        static::assertSame($response, $route->load($activeId, $rootId, $request, $this->salesChannelContext, $criteria));
+    }
+
+    /**
+     * @param (SalesChannelRepository<CategoryCollection>&MockObject)|null $categoryRepository
+     */
+    private function createRoute(
+        ?SalesChannelRepository $categoryRepository = null,
+        ?CacheTagCollector $cacheTagCollector = null,
+        ?CategoryTreePathResolver $categoryTreePathResolver = null,
+        ?ExtensionDispatcher $extensions = null,
+    ): NavigationRoute {
+        return new NavigationRoute(
+            $this->connection,
+            $categoryRepository ?? $this->categoryRepository,
+            $cacheTagCollector ?? $this->cacheTagCollector,
+            $categoryTreePathResolver ?? $this->categoryTreePathResolver,
+            $this->defaultCategoryLevelLoader,
+            $extensions ?? new ExtensionDispatcher(new EventDispatcher()),
         );
     }
 }

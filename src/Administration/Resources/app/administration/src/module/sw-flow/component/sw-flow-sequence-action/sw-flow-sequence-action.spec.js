@@ -90,10 +90,7 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
                         template: '<div class="sw-popover"><slot></slot></div>',
                     },
                     'sw-select-result': {
-                        props: [
-                            'item',
-                            'index',
-                        ],
+                        props: ['item', 'index'],
                         template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>
@@ -191,51 +188,37 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         Shopware.Store.get('swFlow').triggerActions = [
             {
                 name: 'action.add.order.tag',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\OrderAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
                 extensions: [],
             },
             {
                 name: 'action.add.customer.tag',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
                 extensions: [],
             },
             {
                 name: 'action.remove.customer.tag',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
                 extensions: [],
             },
             {
                 name: 'action.remove.order.tag',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\OrderAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
                 extensions: [],
             },
             {
                 name: 'action.mail.send',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\MailAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\MailAware'],
                 extensions: [],
             },
             {
                 name: 'action.set.order.state',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\OrderAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
                 extensions: [],
             },
             {
                 name: 'telegram.send.message',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
                 extensions: [],
             },
             {
@@ -665,10 +648,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'regular-envelope',
-                requirements: [
-                    'customerAware',
-                    'orderAware',
-                ],
+                requirements: ['customerAware', 'orderAware'],
             },
         ];
 
@@ -677,10 +657,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'regular-envelope',
-                requirements: [
-                    'customerAware',
-                    'orderAware',
-                ],
+                requirements: ['customerAware', 'orderAware'],
             },
         ]);
 
@@ -703,10 +680,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'default-communication-speech-bubbles',
-                requirements: [
-                    'customerAware',
-                    'orderAware',
-                ],
+                requirements: ['customerAware', 'orderAware'],
                 app: {
                     active: false,
                     name: 'FlowAppSystem',
@@ -737,10 +711,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'default-communication-speech-bubbles',
-                requirements: [
-                    'customerAware',
-                    'orderAware',
-                ],
+                requirements: ['customerAware', 'orderAware'],
             },
         ];
 
@@ -765,10 +736,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'default-communication-speech-bubbles',
-                requirements: [
-                    'customerAware',
-                    'orderAware',
-                ],
+                requirements: ['customerAware', 'orderAware'],
                 app: {
                     active: false,
                     name: 'FlowAppSystem',
@@ -793,10 +761,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'default-communication-speech-bubbles',
-                requirements: [
-                    'customerAware',
-                    'orderAware',
-                ],
+                requirements: ['customerAware', 'orderAware'],
                 app: {
                     active: false,
                     name: 'FlowAppSystem',

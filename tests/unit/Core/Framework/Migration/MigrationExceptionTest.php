@@ -6,12 +6,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Migration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MigrationException::class)]
 class MigrationExceptionTest extends TestCase
 {

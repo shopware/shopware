@@ -10,11 +10,13 @@ use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MySQLFactory::class)]
 class MySQLFactoryTest extends TestCase
 {
@@ -86,6 +88,32 @@ class MySQLFactoryTest extends TestCase
             'charset' => 'utf8mb4',
             'driverOptions' => $params['driverOptions'],
         ]);
+    }
+
+    public function testReplicaConfigurationKeepsReplicaConnectionByDefault(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware',
+            'DATABASE_REPLICA_0_URL' => 'mysql://replica_user:replica_pass@replica_host:3307/replica_db',
+        ]);
+
+        $params = MySQLFactory::create()->getParams();
+
+        static::assertArrayHasKey('keepReplica', $params);
+        static::assertTrue($params['keepReplica']);
+    }
+
+    public function testKeepReplicaCanBeDisabledViaDsn(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware?keepReplica=0',
+            'DATABASE_REPLICA_0_URL' => 'mysql://replica_user:replica_pass@replica_host:3307/replica_db',
+        ]);
+
+        $params = MySQLFactory::create()->getParams();
+
+        static::assertArrayHasKey('keepReplica', $params);
+        static::assertFalse($params['keepReplica']);
     }
 
     public function testDriverOptionsFromDsnArePreserved(): void

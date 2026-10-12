@@ -15,9 +15,7 @@ export default {
 
     emits: ['modal-theme-select', 'modal-close'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('listing')],
 
     props: {
         selectedThemeId: {
@@ -64,15 +62,18 @@ export default {
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
             criteria.setTerm(this.term);
 
-            return this.themeRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
-                this.total = searchResult.total;
-                this.themes = searchResult;
-                this.isLoading = false;
+            return this.themeRepository
+                .search(criteria, Shopware.Context.api)
+                .then((searchResult) => {
+                    this.total = searchResult.total;
+                    this.themes = searchResult;
+                    this.isLoading = false;
 
-                return this.themes;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return this.themes;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         selectLayout() {

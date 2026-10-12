@@ -15,13 +15,11 @@ export default Component.wrapComponentConfig({
     emits: ['is-not-loading'],
 
     computed: {
-        rateLimitTime() {
-            const waitTime = this.$route.params?.waitTime;
-            if (typeof waitTime !== 'number') {
-                return null;
-            }
+        email(): string | null {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            const email = window.history.state?.email;
 
-            return waitTime >= 1 ? waitTime : null;
+            return typeof email === 'string' && email.length ? email : null;
         },
     },
 

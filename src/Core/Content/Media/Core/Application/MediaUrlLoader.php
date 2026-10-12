@@ -83,7 +83,7 @@ class MediaUrlLoader
         $mapped = [];
 
         foreach ($entities as $entity) {
-            if (!$entity->has('path') || empty($entity->get('path'))) {
+            if (!$entity->has('path') || (string) $entity->get('path') === '') {
                 continue;
             }
             // don't generate private urls
@@ -100,7 +100,7 @@ class MediaUrlLoader
             /** @var Entity $thumbnail */
             foreach ($entity->get('thumbnails') as $thumbnail) {
                 \assert($thumbnail instanceof Entity);
-                if (!$thumbnail->has('path') || empty($thumbnail->get('path'))) {
+                if (!$thumbnail->has('path') || (string) $thumbnail->get('path') === '') {
                     continue;
                 }
 

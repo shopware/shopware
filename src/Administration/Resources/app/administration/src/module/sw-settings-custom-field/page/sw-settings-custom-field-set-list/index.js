@@ -14,15 +14,9 @@ const {
 export default {
     template,
 
-    inject: [
-        'acl',
-        'feature',
-    ],
+    inject: ['acl', 'feature'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('sw-settings-list'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('sw-settings-list')],
 
     data() {
         return {
@@ -65,10 +59,7 @@ export default {
             const params = this.getMainListingParams();
 
             criteria.addFilter(
-                Criteria.multi('OR', [
-                    ...this.getLocaleCriterias(params.term),
-                    ...this.getTermCriteria(params.term),
-                ]),
+                Criteria.multi('OR', [...this.getLocaleCriterias(params.term), ...this.getTermCriteria(params.term)]),
             );
 
             criteria.addFilter(Criteria.equals('appId', null));
@@ -101,6 +92,28 @@ export default {
             }
 
             return criteria;
+        },
+
+        onConfirmDelete(id) {
+            this.deleteEntity = this.items.find((item) => item.id === id);
+
+            this.onCloseDeleteModal();
+            return this.entityRepository
+                .delete(id)
+                .then(() => {
+                    Shopware.Service('cacheService').invalidateCaches({
+                        cacheKey: ['custom-field-sets'],
+                    });
+
+                    this.createNotificationSuccess({
+                        title: this.titleSaveSuccess,
+                        message: this.messageSaveSuccess,
+                    });
+                })
+                .finally(() => {
+                    this.deleteEntity = null;
+                    this.getList();
+                });
         },
     },
 };

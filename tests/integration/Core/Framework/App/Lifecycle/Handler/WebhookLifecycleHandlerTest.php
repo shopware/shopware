@@ -4,13 +4,18 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Handler;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\WebhookLifecycleHandler;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
+use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
+use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
@@ -18,6 +23,7 @@ use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 /**
  * @internal
  */
+#[Package('framework')]
 class WebhookLifecycleHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -77,6 +83,25 @@ class WebhookLifecycleHandlerTest extends TestCase
         static::assertCount(0, $fromDb);
     }
 
+    public function testRejectsManifestWebhookTargetDisallowedByNetworkPolicy(): void
+    {
+        $manifest = ManifestFixture::empty()->withWebhooks(
+            Webhook::fromArray(['name' => 'hook1', 'url' => 'http://127.0.0.1:8088/webhook', 'event' => 'product.written', 'onlyLiveVersion' => false]),
+        );
+        $app = $this->appFixture->createApp($manifest);
+        $context = new AppPersistContext($manifest, $app, Context::createDefaultContext(), new StaticFilesystem(), 'en-GB');
+        $handler = new WebhookLifecycleHandler(
+            $this->connection,
+            static::getContainer()->get(WebhookCacheClearer::class),
+            static::getContainer()->get(ClockInterface::class),
+            new WebhookTargetValidator(false, []),
+        );
+
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Webhook target is not allowed.'));
+
+        $handler->install($context);
+    }
+
     public function testUpdates(): void
     {
         $manifest = ManifestFixture::empty()->withWebhooks(
@@ -94,9 +119,9 @@ class WebhookLifecycleHandlerTest extends TestCase
         static::assertCount(3, $fromDb);
 
         $updatedManifest = ManifestFixture::empty()->withWebhooks(
-            Webhook::fromArray(['name' => 'hook1', 'url' => 'new-url', 'event' => 'product.written', 'onlyLiveVersion' => false]),
-            Webhook::fromArray(['name' => 'hook2', 'url' => 'new-url-2', 'event' => 'category.written', 'onlyLiveVersion' => true]),
-            Webhook::fromArray(['name' => 'hook3', 'url' => 'new-url-3', 'event' => 'rule.written', 'onlyLiveVersion' => false]),
+            Webhook::fromArray(['name' => 'hook1', 'url' => 'https://example.com/new-url', 'event' => 'product.written', 'onlyLiveVersion' => false]),
+            Webhook::fromArray(['name' => 'hook2', 'url' => 'https://example.com/new-url-2', 'event' => 'category.written', 'onlyLiveVersion' => true]),
+            Webhook::fromArray(['name' => 'hook3', 'url' => 'https://example.com/new-url-3', 'event' => 'rule.written', 'onlyLiveVersion' => false]),
         );
         $contextUpdate = new AppPersistContext($updatedManifest, $app, Context::createDefaultContext(), new StaticFilesystem(), 'en-GB');
 
@@ -110,7 +135,7 @@ class WebhookLifecycleHandlerTest extends TestCase
             array_column($fromDb, 'name')
         );
         static::assertSame(
-            ['new-url', 'new-url-2', 'new-url-3'],
+            ['https://example.com/new-url', 'https://example.com/new-url-2', 'https://example.com/new-url-3'],
             array_column($fromDb, 'url')
         );
     }

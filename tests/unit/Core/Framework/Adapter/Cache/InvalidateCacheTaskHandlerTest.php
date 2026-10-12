@@ -8,10 +8,12 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(InvalidateCacheTaskHandler::class)]
 class InvalidateCacheTaskHandlerTest extends TestCase
 {
@@ -21,8 +23,8 @@ class InvalidateCacheTaskHandlerTest extends TestCase
         $cacheInvalidator->expects($this->once())->method('invalidateExpired');
 
         $handler = new InvalidateCacheTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $cacheInvalidator
         );
         $handler->run();
@@ -34,8 +36,8 @@ class InvalidateCacheTaskHandlerTest extends TestCase
         $cacheInvalidator->expects($this->once())->method('invalidateExpired');
 
         $handler = new InvalidateCacheTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $cacheInvalidator
         );
         $handler->run();
@@ -49,8 +51,8 @@ class InvalidateCacheTaskHandlerTest extends TestCase
             ->willThrowException(new \Exception());
 
         $handler = new InvalidateCacheTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $cacheInvalidator
         );
         $handler->run();

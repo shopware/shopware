@@ -31,6 +31,10 @@
                 </template>
             </template>
         </template>
+
+        <sw-extension-app-module-error-page v-else-if="appsLoaded && suspend" />
+
+        <sw-loader v-else />
     </template>
 </sw-page>
 {% endblock %}

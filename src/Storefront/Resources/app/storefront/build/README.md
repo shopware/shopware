@@ -46,6 +46,13 @@ The Vite dev server:
 - exposes `/theme-scss/all.css` for theme styles in dev
 - serves component style files via `/__sw-comp-css/...`
 
+Environment overrides:
+
+- `STOREFRONT_VITE_PORT` - changes the Vite port (default `5175`)
+- `STOREFRONT_VITE_HOST` - bind host for Vite (default `localhost`)
+- `STOREFRONT_VITE_ORIGIN` - absolute URL used in `storefront_components.dev.json`
+  (useful in Docker/WSL/remote setups, e.g. `http://host.docker.internal:5175`)
+
 When the dev server stops, Shopware falls back to production assets/import map.
 
 ## File map
@@ -66,6 +73,8 @@ When the dev server stops, Shopware falls back to production assets/import map.
     - clears `<bundle>/Resources/public/storefront/components` before processing
     - uses custom `<bundle>/Resources/app/storefront/vite.components.config.mts` when present
     - otherwise performs generic inline Vite build
+  - normalizes a trailing `/index` in component entry paths to the component directory name
+  - warns when multiple source files produce the same normalized entry name; the later entry replaces the earlier one
   - enforces one-style-source rule (`Foo.scss` xor `Foo.css`)
   - emits component chunks and `.vite/build-meta.json` under `<bundle>/Resources/public/storefront/components/`
   - after `assets:install`, published assets live at `public/bundles/<bundle>/storefront/components/`

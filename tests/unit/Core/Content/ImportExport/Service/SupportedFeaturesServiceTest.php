@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Tests\Unit\Common\Stubs\IniMock;
 
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(SupportedFeaturesService::class)]
 class SupportedFeaturesServiceTest extends TestCase
 {

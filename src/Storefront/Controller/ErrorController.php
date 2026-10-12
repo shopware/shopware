@@ -19,7 +19,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ErrorController extends StorefrontController
 {
     /**
@@ -90,10 +90,18 @@ class ErrorController extends StorefrontController
     ): Response {
         $formViolations = new ConstraintViolationException($violations, []);
         if (!$request->isXmlHttpRequest()) {
+            // Violations without a field render as flash messages, so every form shows them.
+            foreach ($violations as $violation) {
+                if ($violation->getPropertyPath() === '') {
+                    $this->addFlash(self::DANGER, $this->trans('error.' . $violation->getCode()));
+                }
+            }
+
             $errorRoute = (string) $request->request->get('errorRoute');
             $route = $errorRoute !== '' ? $errorRoute : (($fallback = $request->attributes->getString('_route')) !== '' ? $fallback : 'frontend.home.page');
 
-            return $this->forwardToRoute($route, ['formViolations' => $formViolations]);
+            // Error routes with required parameters (e.g. {customerGroupId}) need them to be carried over.
+            return $this->forwardToRoute($route, ['formViolations' => $formViolations], $this->decodeParam($request, 'errorParameters'));
         }
 
         $response = [];

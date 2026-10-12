@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
@@ -18,11 +19,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -37,21 +38,20 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $abstractMailService = $this->createMock(AbstractMailService::class);
         $abstractMailService->expects($this->once())
             ->method('send')
-            ->with(static::callback(function (array $data) {
+            ->with(static::callback(static function (array $data) {
                 self::assertNull($data['senderEmail']);
                 self::assertSame('ShopName', $data['senderName']);
 
                 return true;
             }));
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($this->once())->method('get')
-            ->willReturn('ShopName');
+        $systemConfigService = new StaticSystemConfigService([
+            'core.basicInformation.shopName' => 'ShopName',
+        ]);
 
         $mailTemplateEntity = new MailTemplateEntity();
         $mailTemplateEntity->setUniqueIdentifier(Uuid::randomHex());
         $mailTemplateEntity->setId(Uuid::randomHex());
-        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
         $mailTemplateRepository = new StaticEntityRepository([
             new MailTemplateCollection([$mailTemplateEntity]),
         ], new MailTemplateDefinition());
@@ -59,17 +59,15 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $mailTemplateTypeEntity = new MailTemplateTypeEntity();
         $mailTemplateTypeEntity->setUniqueIdentifier(Uuid::randomHex());
         $mailTemplateTypeEntity->setId(Uuid::randomHex());
-        /** @var StaticEntityRepository<MailTemplateTypeCollection> $mailTemplateTypeRepository */
         $mailTemplateTypeRepository = new StaticEntityRepository([
             new MailTemplateTypeCollection([$mailTemplateTypeEntity]),
-        ], new MailTemplateDefinition());
+        ], new MailTemplateTypeDefinition());
 
         $userEntity = new UserEntity();
         $userEntity->setUniqueIdentifier(Uuid::randomHex());
         $userEntity->setFirstName('FirstName');
         $userEntity->setLastName('LastName');
         $userEntity->setUsername('UserName');
-        /** @var StaticEntityRepository<UserCollection> $userRepository */
         $userRepository = new StaticEntityRepository([
             new UserCollection([$userEntity]),
         ], new UserDefinition());
@@ -77,7 +75,6 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $languageEntity = new LanguageEntity();
         $languageEntity->setUniqueIdentifier(Uuid::randomHex());
         $languageEntity->setId(Uuid::randomHex());
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([
             new LanguageCollection([$languageEntity]),
         ], new LanguageDefinition());

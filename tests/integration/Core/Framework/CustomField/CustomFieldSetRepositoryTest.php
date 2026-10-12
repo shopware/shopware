@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
@@ -17,6 +18,7 @@ use Shopware\Core\System\CustomField\CustomFieldDefinition;
 /**
  * @internal
  */
+#[Package('framework')]
 class CustomFieldSetRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -192,7 +194,7 @@ class CustomFieldSetRepositoryTest extends TestCase
         static::assertCount(2, $event->getIds());
 
         $result = $this->repo->search(new Criteria([$id]), Context::createDefaultContext())->getEntities();
-        static::assertEmpty($result->getIds());
+        static::assertCount(0, $result->getIds());
     }
 
     public function testUpdate(): void

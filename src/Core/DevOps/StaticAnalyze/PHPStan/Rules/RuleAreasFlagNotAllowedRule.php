@@ -61,6 +61,14 @@ class RuleAreasFlagNotAllowedRule implements Rule
             return [];
         }
 
+        $fieldClassName = $this->resolveClassName($node->var);
+
+        $mockedClass = null;
+
+        if ($fieldClassName && $this->reflectionProvider->hasClass($fieldClassName)) {
+            $mockedClass = $this->reflectionProvider->getClass($fieldClassName);
+        }
+
         foreach ($node->getArgs() as $arg) {
             if ($this->resolveClassName($arg->value) !== RuleAreas::class) {
                 continue;
@@ -74,14 +82,7 @@ class RuleAreasFlagNotAllowedRule implements Rule
                 ];
             }
 
-            $fieldClassName = $this->resolveClassName($node->var);
-
-            if (!$fieldClassName || !$this->reflectionProvider->hasClass($fieldClassName)) {
-                continue;
-            }
-
-            $mockedClass = $this->reflectionProvider->getClass($fieldClassName);
-            if (!$mockedClass->is(AssociationField::class)) {
+            if ($mockedClass && !$mockedClass->is(AssociationField::class)) {
                 return [
                     RuleErrorBuilder::message('RuleAreas flag may only be added on instances of AssociationField')
                         ->identifier('shopware.ruleAreaFlag')

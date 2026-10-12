@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Validation;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\Constraint\NoHtml;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -55,16 +56,19 @@ class CustomerProfileValidationFactory implements DataValidationFactoryInterface
             ->add('title', new Length(max: CustomerDefinition::MAX_LENGTH_TITLE))
             ->add('firstName', new NotBlank(), new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))
             ->add('lastName', new NotBlank(), new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME))
-            ->add('accountType', new Choice(choices: $this->accountTypes));
+            ->add('accountType', new Choice(choices: $this->accountTypes))
+            ->add('title', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'))
+            ->add('firstName', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'))
+            ->add('lastName', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'));
 
         $salesChannelId = $context->getSalesChannelId();
 
         if ($this->systemConfigService->get('core.loginRegistration.showBirthdayField', $salesChannelId)
             && $this->systemConfigService->get('core.loginRegistration.birthdayFieldRequired', $salesChannelId)) {
             $definition
-                ->add('birthdayDay', new GreaterThanOrEqual(value: 1), new LessThanOrEqual(value: 31))
-                ->add('birthdayMonth', new GreaterThanOrEqual(value: 1), new LessThanOrEqual(value: 12))
-                ->add('birthdayYear', new GreaterThanOrEqual(value: 1900), new LessThanOrEqual(value: date('Y')));
+                ->add('birthdayDay', new NotBlank(), new GreaterThanOrEqual(value: 1), new LessThanOrEqual(value: 31))
+                ->add('birthdayMonth', new NotBlank(), new GreaterThanOrEqual(value: 1), new LessThanOrEqual(value: 12))
+                ->add('birthdayYear', new NotBlank(), new GreaterThanOrEqual(value: 1900), new LessThanOrEqual(value: date('Y')));
         }
     }
 }

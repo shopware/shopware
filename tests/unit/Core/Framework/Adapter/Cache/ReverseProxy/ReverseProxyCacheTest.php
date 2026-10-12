@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ReverseProxyCache::class)]
 class ReverseProxyCacheTest extends TestCase
 {
@@ -34,9 +36,10 @@ class ReverseProxyCacheTest extends TestCase
             $gateway,
             [],
             new CacheTagCollector(
-                $this->createMock(RequestStack::class),
-                $this->createMock(EventDispatcherInterface::class),
-            )
+                static::createStub(RequestStack::class),
+                static::createStub(EventDispatcherInterface::class),
+            ),
+            reverseProxyEnabled: true,
         );
 
         // this is the only way to call the destructor
@@ -56,9 +59,10 @@ class ReverseProxyCacheTest extends TestCase
             $gateway,
             [],
             new CacheTagCollector(
-                $this->createMock(RequestStack::class),
-                $this->createMock(EventDispatcherInterface::class),
-            )
+                static::createStub(RequestStack::class),
+                static::createStub(EventDispatcherInterface::class),
+            ),
+            reverseProxyEnabled: true,
         );
 
         $response = new Response();
@@ -76,12 +80,13 @@ class ReverseProxyCacheTest extends TestCase
     public function testLookup(): void
     {
         $store = new ReverseProxyCache(
-            $this->createMock(AbstractReverseProxyGateway::class),
+            static::createStub(AbstractReverseProxyGateway::class),
             [],
             new CacheTagCollector(
-                $this->createMock(RequestStack::class),
-                $this->createMock(EventDispatcherInterface::class),
-            )
+                static::createStub(RequestStack::class),
+                static::createStub(EventDispatcherInterface::class),
+            ),
+            reverseProxyEnabled: true,
         );
 
         static::assertNull($store->lookup(new Request()));
@@ -98,12 +103,13 @@ class ReverseProxyCacheTest extends TestCase
     public function testWriteAddsGlobalStates(): void
     {
         $store = new ReverseProxyCache(
-            $this->createMock(AbstractReverseProxyGateway::class),
+            static::createStub(AbstractReverseProxyGateway::class),
             [CacheStateSubscriber::STATE_LOGGED_IN],
             new CacheTagCollector(
-                $this->createMock(RequestStack::class),
-                $this->createMock(EventDispatcherInterface::class),
-            )
+                static::createStub(RequestStack::class),
+                static::createStub(EventDispatcherInterface::class),
+            ),
+            reverseProxyEnabled: true,
         );
 
         $request = new Request();
@@ -123,9 +129,10 @@ class ReverseProxyCacheTest extends TestCase
             $gateway,
             [],
             new CacheTagCollector(
-                $this->createMock(RequestStack::class),
-                $this->createMock(EventDispatcherInterface::class),
-            )
+                static::createStub(RequestStack::class),
+                static::createStub(EventDispatcherInterface::class),
+            ),
+            reverseProxyEnabled: true,
         );
 
         $store->purge('/foo');
@@ -139,9 +146,10 @@ class ReverseProxyCacheTest extends TestCase
             $gateway,
             [],
             new CacheTagCollector(
-                $this->createMock(RequestStack::class),
-                $this->createMock(EventDispatcherInterface::class),
-            )
+                static::createStub(RequestStack::class),
+                static::createStub(EventDispatcherInterface::class),
+            ),
+            reverseProxyEnabled: true,
         );
         $store->invalidate(new Request());
     }
@@ -154,7 +162,7 @@ class ReverseProxyCacheTest extends TestCase
         $collector = $this->createMock(CacheTagCollector::class);
         $collector->expects($this->once())->method('get')->willReturn(['product-1', 'category-1']);
 
-        $store = new ReverseProxyCache($gateway, [], $collector);
+        $store = new ReverseProxyCache($gateway, [], $collector, reverseProxyEnabled: true);
 
         $request = new Request();
         $store->write($request, new Response());
@@ -165,9 +173,25 @@ class ReverseProxyCacheTest extends TestCase
         $gateway = $this->createMock(AbstractReverseProxyGateway::class);
         $gateway->expects($this->once())->method('invalidate')->with(['foo']);
         $store = new ReverseProxyCache($gateway, [], new CacheTagCollector(
-            $this->createMock(RequestStack::class),
-            $this->createMock(EventDispatcherInterface::class)
-        ));
+            static::createStub(RequestStack::class),
+            static::createStub(EventDispatcherInterface::class)
+        ), reverseProxyEnabled: true);
         $store(new InvalidateCacheEvent(['foo']));
+    }
+
+    public function testDisabledReverseProxyIgnoresInvalidationsAndDoesNotFlush(): void
+    {
+        $gateway = $this->createMock(AbstractReverseProxyGateway::class);
+        $gateway->expects($this->never())->method('invalidate');
+        $gateway->expects($this->never())->method('flush');
+
+        $store = new ReverseProxyCache($gateway, [], new CacheTagCollector(
+            static::createStub(RequestStack::class),
+            static::createStub(EventDispatcherInterface::class)
+        ), reverseProxyEnabled: false);
+        $store(new InvalidateCacheEvent(['foo']));
+
+        // this is the only way to call the destructor
+        unset($store);
     }
 }

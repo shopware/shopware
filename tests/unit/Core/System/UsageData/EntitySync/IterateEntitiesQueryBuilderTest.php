@@ -58,8 +58,8 @@ class IterateEntitiesQueryBuilderTest extends TestCase
 
         new StaticDefinitionInstanceRegistry(
             $entityDefinitions,
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $this->iteratorFactory = new IterateEntitiesQueryBuilder(
@@ -97,14 +97,14 @@ class IterateEntitiesQueryBuilderTest extends TestCase
 
     public function testCreateAddsLastRunConditionIfGiven(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($connection));
 
         $expressionBuilder = new ExpressionBuilder($connection);
         $connection->method('createExpressionBuilder')->willReturn($expressionBuilder);
 
-        $queryBuilderMock = $this->createMock(QueryBuilder::class);
+        $queryBuilderMock = static::createStub(QueryBuilder::class);
         $connection->method('createQueryBuilder')->willReturn($queryBuilderMock);
 
         $lastRun = new \DateTimeImmutable('2023-08-11');

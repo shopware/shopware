@@ -13,20 +13,11 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'flowBuilderService',
-    ],
+    inject: ['repositoryFactory', 'flowBuilderService'],
 
-    emits: [
-        'modal-close',
-        'process-finish',
-    ],
+    emits: ['modal-close', 'process-finish'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('notification')],
 
     props: {
         sequence: {
@@ -211,10 +202,7 @@ export default {
             if (!customFieldSet) {
                 return;
             }
-            Shopware.Store.get('swFlow').customFieldSets = [
-                ...this.customFieldSets,
-                customFieldSet,
-            ];
+            Shopware.Store.get('swFlow').customFieldSets = [...this.customFieldSets, customFieldSet];
             this.customFieldId = null;
             this.customFieldValue = null;
             this.renderedFieldConfig = {};
@@ -226,10 +214,7 @@ export default {
             }
             this.customField = customField;
 
-            Shopware.Store.get('swFlow').customFields = [
-                ...this.customFields,
-                customField,
-            ];
+            Shopware.Store.get('swFlow').customFields = [...this.customFields, customField];
             this.customFieldValue = null;
             this.renderedFieldConfig = this.validateOptionSelectFieldLabel(customField.config);
             if (this.renderedFieldConfig.componentName === 'sw-entity-multi-id-select') {

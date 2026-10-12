@@ -22,7 +22,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -78,7 +78,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
         );
         $listener->removeUsedMedia($event);
 
-        static::assertEmpty($event->getUnusedIds());
+        static::assertCount(0, $event->getUnusedIds());
     }
 
     public function testUnusedMediaIsPresent(): void

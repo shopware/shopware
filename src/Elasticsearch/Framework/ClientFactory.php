@@ -113,7 +113,7 @@ class ClientFactory
 
     /**
      * @param non-empty-string $host
-     * @param array{verify_server_cert: bool, cert_path?: string, cert_password?: string, cert_key_path?: string, cert_key_password?: string} $sslConfig
+     * @param array{verify_server_cert: bool, cert_path?: string, cert_password?: string, cert_key_path?: string, cert_key_password?: string, sigV4?: array{enabled: bool, region?: string, service?: string, credentials_provider?: array{key_id?: string, secret_key?: string}}} $sslConfig
      */
     private static function createHttpClient(string $host, LoggerInterface $logger, bool $debug, array $sslConfig): GuzzleClient
     {

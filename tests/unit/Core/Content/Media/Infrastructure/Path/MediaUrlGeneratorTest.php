@@ -12,11 +12,13 @@ use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Core\Params\UrlParamsSource;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Content\Media\MediaException;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(MediaUrlGenerator::class)]
 #[CoversClass(AbstractMediaUrlGenerator::class)]
 class MediaUrlGeneratorTest extends TestCase
@@ -67,8 +69,6 @@ class MediaUrlGeneratorTest extends TestCase
 
     public function testWithActive68Major(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
         $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test file.jpg', null);
         $generator = new MediaUrlGenerator(
             new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
@@ -79,10 +79,21 @@ class MediaUrlGeneratorTest extends TestCase
         static::assertSame(['http://localhost:8000/media/foo/3a/test%20file.jpg'], $url);
     }
 
+    public function testWithActive68MajorKeepsLiteralPercentInStoragePath(): void
+    {
+        $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/ab/cd/50%20off.jpg', null);
+        $generator = new MediaUrlGenerator(
+            new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
+        );
+
+        $url = $generator->generate([$params]);
+
+        static::assertSame(['http://localhost:8000/media/ab/cd/50%2520off.jpg'], $url);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testWithInactive68Major(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test file.jpg', null);
         $generator = new MediaUrlGenerator(
             new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),

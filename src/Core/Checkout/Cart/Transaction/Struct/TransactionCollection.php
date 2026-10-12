@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<Transaction>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class TransactionCollection extends Collection

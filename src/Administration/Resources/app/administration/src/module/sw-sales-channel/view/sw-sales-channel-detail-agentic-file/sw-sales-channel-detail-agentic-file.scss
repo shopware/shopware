@@ -26,7 +26,7 @@
         text-decoration: none;
 
         &:hover {
-            color: var(--color-shopware-brand-600);
+            color: var(--color-text-brand-default);
             text-decoration: underline;
         }
     }
@@ -127,7 +127,7 @@
         flex-direction: column;
         gap: var(--scale-size-16);
         padding-top: var(--scale-size-20);
-        border-top: 1px solid var(--color-border-primary-default);
+        border-top: 1px solid var(--color-border-secondary-default);
     }
 
     &__custom-notes-input {
@@ -140,7 +140,7 @@
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: var(--scale-size-20) var(--scale-size-32);
         padding-top: var(--scale-size-20);
-        border-top: 1px solid var(--color-border-primary-default);
+        border-top: 1px solid var(--color-border-secondary-default);
     }
 
     &__metadata-item {
@@ -189,7 +189,7 @@
 
         &:hover,
         &:focus-visible {
-            color: var(--color-shopware-brand-600);
+            color: var(--color-text-brand-default);
             text-decoration: none;
         }
     }
@@ -203,7 +203,7 @@
         max-height: 420px;
         padding: var(--scale-size-16);
         overflow: auto;
-        border: 1px solid var(--color-border-primary-default);
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: var(--border-radius-default);
         background: var(--color-elevation-surface-sunken);
         color: var(--color-text-primary-default);
@@ -261,7 +261,7 @@
 
         &:hover,
         &:focus-visible {
-            color: var(--color-shopware-brand-600);
+            color: var(--color-text-brand-default);
         }
     }
 

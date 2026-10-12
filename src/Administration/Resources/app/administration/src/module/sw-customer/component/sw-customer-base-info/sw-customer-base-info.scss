@@ -1,30 +1,32 @@
-@import "~scss/variables";
-
-$sw-customer-detail-base-color-text: var(--color-text-secondary-default);
-
 .sw-customer-base-info {
-    color: $sw-customer-detail-base-color-text;
-    font-size: $font-size-xs;
-    margin-bottom: 16px;
+    font-size: var(--font-size-xs);
+    line-height: var(--font-line-height-xs);
+    margin-bottom: var(--scale-size-8);
+    margin-top: var(--scale-size-8);
 
     .sw-customer-base-info-columns {
+        dl {
+            margin-bottom: var(--scale-size-18);
+        }
+
         dt {
-            padding: 21px 4px 4px;
+            padding: 0 0 var(--scale-size-2);
+            color: var(--color-text-primary-default);
+            font-weight: var(--font-weight-semibold);
         }
 
         dd {
-            padding: 1px 4px;
+            padding: 0;
+            color: var(--color-text-secondary-default);
         }
     }
-}
 
-.sw-bound-sales-channel {
-    &__label {
+    .sw-bound-sales-channel__label {
         display: flex;
         align-items: center;
 
         .sw-help-text {
-            margin-left: 10px;
+            margin-left: var(--scale-size-8);
         }
     }
 }

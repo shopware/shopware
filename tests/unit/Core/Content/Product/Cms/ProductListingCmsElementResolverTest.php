@@ -30,7 +30,7 @@ class ProductListingCmsElementResolverTest extends TestCase
 {
     public function testGetType(): void
     {
-        $route = $this->createMock(AbstractProductListingRoute::class);
+        $route = static::createStub(AbstractProductListingRoute::class);
         /** @var StaticEntityRepository<ProductSortingCollection> */
         $repository = new StaticEntityRepository([]);
 
@@ -40,7 +40,7 @@ class ProductListingCmsElementResolverTest extends TestCase
 
     public function testGetCollectReturnsNull(): void
     {
-        $route = $this->createMock(AbstractProductListingRoute::class);
+        $route = static::createStub(AbstractProductListingRoute::class);
         /** @var StaticEntityRepository<ProductSortingCollection> */
         $repository = new StaticEntityRepository([]);
 
@@ -74,7 +74,7 @@ class ProductListingCmsElementResolverTest extends TestCase
         $context = new ResolverContext(Generator::generateSalesChannelContext(), $request);
         $data = new ElementDataCollection();
 
-        $expectedResult = $this->createMock(ProductListingResult::class);
+        $expectedResult = static::createStub(ProductListingResult::class);
         $response = new ProductListingRouteResponse($expectedResult);
 
         $route = $this->createMock(AbstractProductListingRoute::class);
@@ -124,7 +124,7 @@ class ProductListingCmsElementResolverTest extends TestCase
         $context = new ResolverContext(Generator::generateSalesChannelContext(), $request);
         $data = new ElementDataCollection();
 
-        $expectedResult = $this->createMock(ProductListingResult::class);
+        $expectedResult = static::createStub(ProductListingResult::class);
         $response = new ProductListingRouteResponse($expectedResult);
 
         $route = $this->createMock(AbstractProductListingRoute::class);

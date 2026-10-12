@@ -26,14 +26,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @internal
  */
-#[CoversClass(AmountCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(AmountCalculator::class)]
 class AmountCalculatorTest extends TestCase
 {
     #[DataProvider('calculateAmountWithGrossPricesProvider')]
     public function testCalculateAmountWithGrossPrices(CartPrice $expected, PriceCollection $prices, string $calculationType): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn(new SalesChannelEntity());
 
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
@@ -55,7 +55,7 @@ class AmountCalculatorTest extends TestCase
     #[DataProvider('calculateAmountWithNetPricesProvider')]
     public function testCalculateAmountWithNetPrices(CartPrice $expected, PriceCollection $prices, string $calculationType): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn(new SalesChannelEntity());
 
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
@@ -77,7 +77,7 @@ class AmountCalculatorTest extends TestCase
     #[DataProvider('calculateAmountForNetDeliveriesProvider')]
     public function testCalculateAmountForNetDeliveries(CartPrice $expected, PriceCollection $prices): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannel')->willReturn(new SalesChannelEntity());
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_FREE);
 
@@ -93,6 +93,39 @@ class AmountCalculatorTest extends TestCase
         static::assertEquals($expected->getTaxRules(), $cartPrice->getTaxRules());
         static::assertEquals($expected->getCalculatedTaxes(), $cartPrice->getCalculatedTaxes());
         static::assertSame($expected->getNetPrice(), $cartPrice->getNetPrice());
+    }
+
+    public function testCalculateGrossAmountSnapsFullyDiscountedCartToZero(): void
+    {
+        // a voucher zeroing the cart must yield an exact 0.0 position price, not a residual,
+        // and must not divide by a near-zero total when building the percentage tax rules
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getSalesChannel')->willReturn(new SalesChannelEntity());
+        $context->method('getContext')->willReturn(Context::createDefaultContext());
+        $context->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_VERTICAL);
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getTotalRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+
+        $tax = new TaxRuleCollection([new TaxRule(19)]);
+        $prices = new PriceCollection([
+            new CalculatedPrice(169, 169, new CalculatedTaxCollection([new CalculatedTax(26.98, 19, 169)]), $tax),
+            new CalculatedPrice(-208.9, -208.9, new CalculatedTaxCollection([new CalculatedTax(-33.35, 19, -208.9)]), $tax),
+            new CalculatedPrice(39.9, 39.9, new CalculatedTaxCollection([new CalculatedTax(6.37, 19, 39.9)]), $tax),
+            new CalculatedPrice(0, 0, new CalculatedTaxCollection([new CalculatedTax(0, 19, 0)]), $tax),
+        ]);
+
+        $calculator = new AmountCalculator(
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
+        );
+
+        $cartPrice = $calculator->calculate($prices, new PriceCollection(), $context);
+
+        static::assertSame(0.0, $cartPrice->getPositionPrice());
+        static::assertSame(0.0, $cartPrice->getTotalPrice());
+        static::assertSame(0.0, $cartPrice->getNetPrice());
     }
 
     /**
@@ -142,7 +175,7 @@ class AmountCalculatorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{0: CartPrice, 1: PriceCollection}>
+     * @return iterable<string, array{0: CartPrice, 1: PriceCollection, 2: string}>
      */
     public static function calculateAmountWithNetPricesProvider(): iterable
     {
@@ -321,7 +354,7 @@ class AmountCalculatorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{0: CartPrice, 1: PriceCollection}>
+     * @return iterable<string, array{0: CartPrice, 1: PriceCollection, 2: string}>
      */
     public static function calculateAmountWithGrossPricesProvider(): iterable
     {
@@ -560,7 +593,7 @@ class AmountCalculatorTest extends TestCase
     #[DataProvider('cashRoundingProvider')]
     public function testCashRounding(CashRoundingConfig $item, CashRoundingConfig $total, PriceCollection $prices, CartPrice $expected): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getItemRounding')->willReturn($item);
         $context->method('getTotalRounding')->willReturn($total);
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);

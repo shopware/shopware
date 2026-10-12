@@ -6,8 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
-use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Event\BeforeCartMergeEvent;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -19,6 +19,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,6 +30,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\Builder\Promotion\PromotionFixtureBuilder;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -38,6 +40,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
+#[Package('framework')]
 class CartRestorerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -81,7 +84,7 @@ class CartRestorerTest extends TestCase
         $this->contextPersister = static::getContainer()->get(SalesChannelContextPersister::class);
         /** @var AbstractSalesChannelContextFactory $contextFactory */
         $contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
-        $cartRuleLoader = static::getContainer()->get(CartRuleLoader::class);
+        $cartCalculator = static::getContainer()->get(CartCalculator::class);
         $requestStack = static::getContainer()->get(RequestStack::class);
 
         $this->customerId = $this->createCustomer()->getId();
@@ -90,7 +93,7 @@ class CartRestorerTest extends TestCase
             $contextFactory,
             $this->contextPersister,
             $this->cartService,
-            $cartRuleLoader,
+            $cartCalculator,
             $this->cartPersister,
             $this->eventDispatcher,
             $requestStack
@@ -114,7 +117,7 @@ class CartRestorerTest extends TestCase
         $this->contextPersister->save($currentContextToken, [], $currentContext->getSalesChannelId());
         $this->contextPersister->save($guestToken, [], $guestContext->getSalesChannelId());
 
-        $this->eventDispatcher->addListener(SalesChannelContextRestoredEvent::class, $this->callbackFn);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SalesChannelContextRestoredEvent::class, $this->callbackFn);
 
         $productLineItem1 = $this->createLineItem($currentContext, 2);
         $productLineItem2 = $this->createLineItem($currentContext, 3);
@@ -203,7 +206,7 @@ class CartRestorerTest extends TestCase
         $formerContext = $this->createSalesChannelContext('formerToken');
         $currentContext = $this->createSalesChannelContext('currentToken');
 
-        $this->eventDispatcher->addListener(SalesChannelContextRestoredEvent::class, $this->callbackFn);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SalesChannelContextRestoredEvent::class, $this->callbackFn);
 
         $restoredContext = $this->cartRestorer->restoreByToken($formerContext->getToken(), $this->customerId, $currentContext);
 
@@ -320,7 +323,7 @@ class CartRestorerTest extends TestCase
 
         $this->contextPersister->save($expectedContext->getToken(), [], $currentContext->getSalesChannelId(), $this->customerId);
 
-        $this->eventDispatcher->addListener(SalesChannelContextRestoredEvent::class, $this->callbackFn);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SalesChannelContextRestoredEvent::class, $this->callbackFn);
 
         $restoredContext = $this->cartRestorer->restore($this->customerId, $currentContext);
 
@@ -452,7 +455,7 @@ class CartRestorerTest extends TestCase
             'id' => $productLineItem3->getReferencedId(),
         ]], $customerContext->getContext());
 
-        $this->eventDispatcher->addListener(CartMergedEvent::class, $this->callbackFn);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CartMergedEvent::class, $this->callbackFn);
 
         $restoreContext = $this->cartRestorer->restore($this->customerId, $currentContext);
 
@@ -461,7 +464,7 @@ class CartRestorerTest extends TestCase
         static::assertFalse($restoreCart->isModified());
         static::assertIsString($productLineItem3->getReferencedId());
         // The deleted product will be removed from the cart as a result of recalculation
-        static::assertEmpty($restoreCart->getLineItems()->get($productLineItem3->getReferencedId()));
+        static::assertNull($restoreCart->getLineItems()->get($productLineItem3->getReferencedId()));
 
         static::assertArrayHasKey(CartMergedEvent::class, $this->events);
         $cartMergedEvent = $this->events[CartMergedEvent::class];
@@ -502,8 +505,8 @@ class CartRestorerTest extends TestCase
         $customerCart = new Cart($customerToken);
         $this->cartPersister->save($customerCart, $customerContext);
 
-        $this->eventDispatcher->addListener(BeforeCartMergeEvent::class, $this->callbackFn);
-        $this->eventDispatcher->addListener(CartMergedEvent::class, $this->callbackFn);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(BeforeCartMergeEvent::class, $this->callbackFn);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CartMergedEvent::class, $this->callbackFn);
 
         $restoreContext = $this->cartRestorer->restore($this->customerId, $currentContext);
 
@@ -688,7 +691,7 @@ class CartRestorerTest extends TestCase
 
         $repo->create([$customer], Context::createDefaultContext());
 
-        $entity = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $entity = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $entity);
 
         return $entity;

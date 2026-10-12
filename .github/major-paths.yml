@@ -1,0 +1,34 @@
+# Paths owned by a pending major feature, keyed by its feature flag.
+#
+# A rewrite that lives in its own namespace leaves the old code untouched, so its pull
+# requests carry none of the version markers `major-label.ts` looks for — no deprecation,
+# no UPGRADE entry, often not even the flag name. Measured on document generation v2: 30
+# of its 56 pull requests were invisible to every marker. These globs are the only signal
+# that finds them, so a feature that gets its own namespace must be listed here.
+#
+# Every glob here labels the pull request `major/<version>` on touch alone. Keep them tight
+# enough that unrelated work cannot match: file-level markers were tried first and rejected
+# because they labelled half of all pull requests.
+#
+# A flag whose feature is woven into existing shared files has no entry and needs none —
+# its pull requests hit the flag name or a deprecation instead. Add the key with an empty
+# list to record that the decision was made rather than forgotten.
+#
+# Globs: `**` crosses directories, `*` stays inside one segment. Matched against the full
+# repository path.
+
+DOCUMENT_GENERATION_REWORK:
+  - "**/DocumentV2/**"
+  - "**/documentV2*"
+
+WEBHOOKS_REWORK:
+  - "src/Core/Framework/Webhook/Outbox/**"
+  - "src/Core/Framework/Webhook/Transport/**"
+
+BREADCRUMB_REWORK: []
+FLOW_EXECUTION_AFTER_BUSINESS_PROCESS: []
+JSON_LD_DATA: []
+PERFORMANCE_TWEAKS: []
+PERMANENT_AUTOMATIC_PROMOTIONS: []
+REPEATED_PAYMENT_FINALIZE: []
+SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION: []

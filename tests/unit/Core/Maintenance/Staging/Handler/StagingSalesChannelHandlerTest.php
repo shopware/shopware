@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\Maintenance\Staging\Handler\StagingSalesChannelHandler;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StagingSalesChannelHandler::class)]
 class StagingSalesChannelHandlerTest extends TestCase
 {
@@ -41,7 +43,7 @@ class StagingSalesChannelHandlerTest extends TestCase
 
         $event = new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             $domainMapping
         );
@@ -70,7 +72,7 @@ class StagingSalesChannelHandlerTest extends TestCase
 
         $event = new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             $domainMapping
         );
@@ -103,7 +105,7 @@ class StagingSalesChannelHandlerTest extends TestCase
 
         $event = new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             $domainMapping
         );
@@ -136,7 +138,7 @@ class StagingSalesChannelHandlerTest extends TestCase
 
         $event = new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             $domainMapping
         );

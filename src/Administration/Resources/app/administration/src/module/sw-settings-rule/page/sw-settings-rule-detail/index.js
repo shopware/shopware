@@ -9,19 +9,19 @@ const { Criteria, EntityCollection } = Shopware.Data;
  * @private
  * @sw-package fundamentals@after-sales
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: [
+        'feature',
         'ruleConditionDataProviderService',
         'ruleConditionsConfigApiService',
         'repositoryFactory',
         'acl',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -127,6 +127,19 @@ export default {
             ];
         },
 
+        ruleDetailTabs() {
+            return this.tabItems.map((tab) => {
+                return {
+                    label: tab.title,
+                    name: tab.route.name,
+                    hasError: this.tabHasError(tab),
+                    onClick: () => {
+                        void this.$router.push(tab.route);
+                    },
+                };
+            });
+        },
+
         conditionTreeFlat() {
             const getAllConditions = (conditionTree) => {
                 if (!conditionTree?.length) return [];
@@ -143,10 +156,7 @@ export default {
             return getAllConditions(this.conditionTree);
         },
 
-        ...mapPropertyErrors('rule', [
-            'name',
-            'priority',
-        ]),
+        ...mapPropertyErrors('rule', ['name', 'priority']),
     },
 
     watch: {
@@ -352,7 +362,7 @@ export default {
             const context = { ...Context.api, inheritance: true };
 
             if (conditions === null) {
-                return this.conditionRepository.search(new Criteria(), context).then((searchResult) => {
+                return this.conditionRepository.search(this.createConditionCriteria(1), context).then((searchResult) => {
                     return this.loadConditions(searchResult);
                 });
             }
@@ -362,7 +372,7 @@ export default {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria(conditions.criteria.page + 1, conditions.criteria.limit);
+            const criteria = this.createConditionCriteria(conditions.criteria.page + 1);
 
             if (conditions.entity === 'product') {
                 criteria.addAssociation('options.group');
@@ -379,10 +389,7 @@ export default {
 
         conditionsChanged({ conditions, deletedIds }) {
             this.conditionTree = conditions;
-            this.deletedIds = [
-                ...this.deletedIds,
-                ...deletedIds,
-            ];
+            this.deletedIds = [...this.deletedIds, ...deletedIds];
         },
 
         validateRuleAwareness() {
@@ -639,6 +646,16 @@ export default {
                         return false;
                     });
             });
+        },
+
+        createConditionCriteria(page) {
+            const criteria = new Criteria(page);
+
+            criteria.addSorting(Criteria.sort('parentId'));
+            criteria.addSorting(Criteria.sort('position'));
+            criteria.addSorting(Criteria.sort('id'));
+
+            return criteria;
         },
     },
 };

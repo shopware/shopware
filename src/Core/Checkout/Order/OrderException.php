@@ -7,12 +7,16 @@ use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class OrderException extends HttpException
 {
@@ -38,6 +42,7 @@ class OrderException extends HttpException
     final public const ASSOCIATION_NOT_FOUND = 'CHECKOUT__ORDER_ASSOCIATION_NOT_FOUND';
     final public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
     final public const STATE_MACHINE_STATE_NOT_FOUND = 'SYSTEM__STATE_MACHINE_STATE_NOT_FOUND';
+    final public const ORDER_RESTORATION_FAILED = 'CHECKOUT__ORDER_RESTORATION_FAILED';
 
     public static function missingAssociation(string $association): self
     {
@@ -230,9 +235,7 @@ class OrderException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function associationNotFound(string $association): self|AssociationNotFoundException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -267,6 +270,17 @@ class OrderException extends HttpException
                 'place' => $technicalPlaceName,
                 'stateMachine' => $stateMachineName,
             ]
+        );
+    }
+
+    public static function orderRestorationFailed(string $orderId, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ORDER_RESTORATION_FAILED,
+            'Order with id "{{ orderId }}" could not be restored.',
+            ['orderId' => $orderId],
+            $previous
         );
     }
 }

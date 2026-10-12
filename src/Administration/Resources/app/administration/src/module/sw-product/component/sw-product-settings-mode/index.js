@@ -12,10 +12,7 @@ import './sw-product-settings-mode.scss';
 export default {
     template,
 
-    emits: [
-        'settings-change',
-        'settings-item-change',
-    ],
+    emits: ['settings-change', 'settings-item-change'],
 
     props: {
         modeSettings: {

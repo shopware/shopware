@@ -14,25 +14,36 @@ export default {
 
     inject: ['feature'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
+
+    data() {
+        return {
+            activeTab: 'content',
+        };
+    },
 
     computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.settings'),
+                    name: 'settings',
+                },
+            ];
+        },
+
         availableDataMappings() {
             let mappings = [];
 
             Object.entries(Shopware.Store.get('cmsPage').currentMappingTypes).forEach((entry) => {
-                const [
-                    type,
-                    value,
-                ] = entry;
+                const [type, value] = entry;
 
                 if (type === 'string') {
-                    mappings = [
-                        ...mappings,
-                        ...value,
-                    ];
+                    mappings = [...mappings, ...value];
                 }
             });
 
@@ -40,9 +51,7 @@ export default {
         },
 
         customTextEditorButtons() {
-            return [
-                SwTextEditorToolbarButtonCmsDataMappingButton(() => this.availableDataMappings),
-            ];
+            return [SwTextEditorToolbarButtonCmsDataMappingButton(() => this.availableDataMappings)];
         },
 
         alignmentOptions() {

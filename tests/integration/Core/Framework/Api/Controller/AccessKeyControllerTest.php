@@ -4,11 +4,13 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class AccessKeyControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -27,8 +29,10 @@ class AccessKeyControllerTest extends TestCase
         static::assertIsArray($body);
         static::assertArrayHasKey('accessKey', $body);
         static::assertArrayHasKey('secretAccessKey', $body);
-        static::assertNotEmpty($body['secretAccessKey']);
-        static::assertNotEmpty($body['accessKey']);
+        static::assertIsString($body['secretAccessKey']);
+        static::assertNotSame('', $body['secretAccessKey']);
+        static::assertIsString($body['accessKey']);
+        static::assertNotSame('', $body['accessKey']);
 
         $e = null;
 
@@ -53,8 +57,10 @@ class AccessKeyControllerTest extends TestCase
         static::assertIsArray($body);
         static::assertArrayHasKey('accessKey', $body);
         static::assertArrayHasKey('secretAccessKey', $body);
-        static::assertNotEmpty($body['secretAccessKey']);
-        static::assertNotEmpty($body['accessKey']);
+        static::assertIsString($body['secretAccessKey']);
+        static::assertNotSame('', $body['secretAccessKey']);
+        static::assertIsString($body['accessKey']);
+        static::assertNotSame('', $body['accessKey']);
 
         $e = null;
 
@@ -78,7 +84,8 @@ class AccessKeyControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode(), print_r($body, true));
         static::assertIsArray($body);
         static::assertArrayHasKey('accessKey', $body);
-        static::assertNotEmpty($body['accessKey']);
+        static::assertIsString($body['accessKey']);
+        static::assertNotSame('', $body['accessKey']);
 
         $e = null;
 

@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Profiling\Doctrine;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
 use Symfony\Bridge\Doctrine\Middleware\Debug\Query;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(BacktraceDebugDataHolder::class)]
 class BacktraceDebugDataHolderTest extends TestCase
 {

@@ -156,7 +156,12 @@ export async function syncTestPlanSubIssue({ github, core, context }) {
                 '',
                 templateBody,
             ].join('\n'),
+            type: 'Task',
         });
+
+        if (!response.data.type) {
+            core.warning(`Test-plan issue #${response.data.number} was created without an issue type.`);
+        }
 
         return response.data;
     }

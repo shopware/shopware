@@ -38,7 +38,7 @@ class CartScopeDiscountPackagerTest extends TestCase
 
         $packager = static::getContainer()->get(CartScopeDiscountPackager::class);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $discount = new DiscountLineItem('test', new QuantityPriceDefinition(10, new TaxRuleCollection([]), 1), [
             'discountScope' => 'scope',

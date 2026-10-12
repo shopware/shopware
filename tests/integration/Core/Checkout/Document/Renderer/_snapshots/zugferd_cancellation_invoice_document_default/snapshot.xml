@@ -25,7 +25,7 @@
       </ram:SpecifiedTradeProduct>
       <ram:SpecifiedLineTradeAgreement>
         <ram:NetPriceProductTradePrice>
-          <ram:ChargeAmount>93.46</ram:ChargeAmount>
+          <ram:ChargeAmount>93.4600</ram:ChargeAmount>
           <ram:BasisQuantity unitCode="H87">1.00</ram:BasisQuantity>
         </ram:NetPriceProductTradePrice>
       </ram:SpecifiedLineTradeAgreement>
@@ -56,6 +56,12 @@
             <ram:URIID>mail@example.com</ram:URIID>
           </ram:EmailURIUniversalCommunication>
         </ram:DefinedTradeContact>
+        <ram:PostalTradeAddress>
+          <ram:PostcodeCode>12345</ram:PostcodeCode>
+          <ram:LineOne>Example Street 1</ram:LineOne>
+          <ram:CityName>Example City</ram:CityName>
+          <ram:CountryID>DE</ram:CountryID>
+        </ram:PostalTradeAddress>
         <ram:URIUniversalCommunication>
           <ram:URIID schemeID="EM">mail@example.com</ram:URIID>
         </ram:URIUniversalCommunication>
@@ -94,19 +100,19 @@
         <ram:Information>Cash on delivery</ram:Information>
       </ram:SpecifiedTradeSettlementPaymentMeans>
       <ram:ApplicableTradeTax>
-        <ram:CalculatedAmount>-6.54</ram:CalculatedAmount>
+        <ram:CalculatedAmount>-7.19</ram:CalculatedAmount>
         <ram:TypeCode>VAT</ram:TypeCode>
-        <ram:BasisAmount>-93.46</ram:BasisAmount>
+        <ram:BasisAmount>-102.81</ram:BasisAmount>
         <ram:CategoryCode>S</ram:CategoryCode>
         <ram:RateApplicablePercent>7.00</ram:RateApplicablePercent>
       </ram:ApplicableTradeTax>
       <ram:SpecifiedTradeAllowanceCharge>
         <ram:ChargeIndicator>
-          <udt:Indicator>true</udt:Indicator>
+          <udt:Indicator>false</udt:Indicator>
         </ram:ChargeIndicator>
-        <ram:ActualAmount>0.00</ram:ActualAmount>
-        <ram:ReasonCode>DL</ram:ReasonCode>
-        <ram:Reason>Delivery</ram:Reason>
+        <ram:ActualAmount>9.35</ram:ActualAmount>
+        <ram:ReasonCode>95</ram:ReasonCode>
+        <ram:Reason>Delivery refund</ram:Reason>
         <ram:CategoryTradeTax>
           <ram:TypeCode>VAT</ram:TypeCode>
           <ram:CategoryCode>S</ram:CategoryCode>
@@ -121,13 +127,13 @@
       <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
         <ram:LineTotalAmount>-93.46</ram:LineTotalAmount>
         <ram:ChargeTotalAmount>0.00</ram:ChargeTotalAmount>
-        <ram:AllowanceTotalAmount>0.00</ram:AllowanceTotalAmount>
-        <ram:TaxBasisTotalAmount>-93.46</ram:TaxBasisTotalAmount>
-        <ram:TaxTotalAmount currencyID="EUR">-6.54</ram:TaxTotalAmount>
+        <ram:AllowanceTotalAmount>9.35</ram:AllowanceTotalAmount>
+        <ram:TaxBasisTotalAmount>-102.81</ram:TaxBasisTotalAmount>
+        <ram:TaxTotalAmount currencyID="EUR">-7.19</ram:TaxTotalAmount>
         <ram:RoundingAmount>0.00</ram:RoundingAmount>
-        <ram:GrandTotalAmount>-100.00</ram:GrandTotalAmount>
+        <ram:GrandTotalAmount>-110.00</ram:GrandTotalAmount>
         <ram:TotalPrepaidAmount>0.00</ram:TotalPrepaidAmount>
-        <ram:DuePayableAmount>-100.00</ram:DuePayableAmount>
+        <ram:DuePayableAmount>-110.00</ram:DuePayableAmount>
       </ram:SpecifiedTradeSettlementHeaderMonetarySummation>
       <ram:InvoiceReferencedDocument>
         <ram:IssuerAssignedID>1001</ram:IssuerAssignedID>

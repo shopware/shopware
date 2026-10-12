@@ -40,7 +40,7 @@ class IndexingControllerTest extends TestCase
     #[DataProvider('provideOffsets')]
     public function testIterateIndexerApiShouldReturnCorrectOffset(int $offset): void
     {
-        $productIndexer = $this->createMock(ProductIndexer::class);
+        $productIndexer = static::createStub(ProductIndexer::class);
         if ($offset === 100) {
             $productIndexer->method('iterate')->willReturn(null);
         } else {

@@ -21,19 +21,19 @@ SCSS_FILES="$(changed_files '\.(scss)$')"
 SCSS_ADMIN_FILES="$(changed_files '^src/Administration/Resources/app/administration/.*\.(scss)$')"
 SCSS_STOREFRONT_FILES="$(changed_files '^src/Storefront/Resources/app/storefront/.*\.(scss)$')"
 JS_ADMIN_FILES="$(changed_files '^src/Administration/Resources/app/administration/.*\.(js)$')"
-JS_E2E_FILES="$(changed_files '^src/Administration/Resources/app/administration/test/e2e/.*\.(js)$')"
 JS_STOREFRONT_FILES="$(changed_files '^src/Storefront/Resources/app/storefront/src/.*\.(js)$')"
 JS_FILES="$(changed_files '\.(js)$')"
+GHA_FILES="$(changed_files '^\.github/(workflows|actions)/.*\.(ya?ml)$')"
 
 # exit on non-zero return code
 set -e
 
-if [[ -z "$PHP_FILES" && -z "$JS_FILES" && -z "$SCSS_FILES" ]]
+if [[ -z "$PHP_FILES" && -z "$JS_FILES" && -z "$SCSS_FILES" && -z "$GHA_FILES" ]]
 then
     exit 0
 fi
 
-UNSTAGED_FILES="$(git diff --name-only -- ${PHP_FILES} ${JS_FILES} ${SCSS_FILES})"
+UNSTAGED_FILES="$(git diff --name-only -- ${PHP_FILES} ${JS_FILES} ${SCSS_FILES} ${GHA_FILES})"
 
 if [[ -n "$UNSTAGED_FILES" ]]
 then
@@ -60,7 +60,7 @@ then
 
     echo "Fix code style"
 
-    composer run ecs-fix -- --config=.php-cs-fixer.dist.php ${PHP_FILES_FOR_CHECKS}
+    composer run cs-fix -- --config=.php-cs-fixer.dist.php ${PHP_FILES_FOR_CHECKS}
 
     composer run static-analyze -- --no-progress
 fi
@@ -105,4 +105,11 @@ then
     fi
 fi
 
-git add ${SCSS_ADMIN_FILES} ${SCSS_STOREFRONT_FILES} ${JS_ADMIN_FILES} ${JS_E2E_FILES} ${JS_STOREFRONT_FILES} ${PHP_FILES}
+if [[ -n "$GHA_FILES" ]]
+then
+    # Formats workflows/actions with yamlfmt and lints them with actionlint.
+    # Skips with an install hint if the tools are not installed locally.
+    .github/bin/lint-actions.bash --fix
+fi
+
+git add ${SCSS_ADMIN_FILES} ${SCSS_STOREFRONT_FILES} ${JS_ADMIN_FILES} ${JS_STOREFRONT_FILES} ${PHP_FILES} ${GHA_FILES}

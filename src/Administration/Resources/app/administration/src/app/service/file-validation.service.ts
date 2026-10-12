@@ -4,7 +4,12 @@ type MimeTypes = {
 
 type FileValidationService = {
     extensionByType: MimeTypes;
-    checkByExtension: (file: File, extensionAccept: string, mimeOverride: MimeTypes) => boolean;
+    checkByExtension: (
+        file: File,
+        extensionAccept: string,
+        mimeOverride?: MimeTypes | null,
+        extensionMimeTypesByExtension?: MimeTypes | null,
+    ) => boolean;
     checkByType: (file: File, mimeAccept: string) => boolean;
 };
 
@@ -16,10 +21,7 @@ type FileValidationService = {
  */
 export default function fileValidationService(): FileValidationService {
     const extensionByType: MimeTypes = {
-        'image/jpeg': [
-            'jpg',
-            'jpeg',
-        ],
+        'image/jpeg': ['jpg', 'jpeg'],
         'image/png': ['png'],
         'image/webp': ['webp'],
         'image/avif': ['avif'],
@@ -27,20 +29,13 @@ export default function fileValidationService(): FileValidationService {
         'image/svg+xml': ['svg'],
         'image/bmp': ['bmp'],
         'image/x-ms-bmp': ['bmp'],
-        'image/tiff': [
-            'tif',
-            'tiff',
-        ],
+        'image/tiff': ['tif', 'tiff'],
         'application/postscript': ['eps'],
         'video/webm': ['webm'],
         'video/x-matroska': ['mkv'],
         'video/x-flv': ['flv'],
         'video/ogg': ['ogv'],
-        'audio/ogg': [
-            'ogg',
-            'ogv',
-            'oga',
-        ],
+        'audio/ogg': ['ogg', 'ogv', 'oga'],
         'video/quicktime': ['mov'],
         'video/mp4': ['mp4'],
         'audio/mp4': ['mp4'],
@@ -82,9 +77,7 @@ export default function fileValidationService(): FileValidationService {
         'application/vnd.apple.pages': ['pages'],
         'application/vnd.apple.numbers': ['numbers'],
         'application/vnd.ms-excel': ['xls'],
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [
-            'xlsx',
-        ],
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['xlsx'],
         'application/vnd.ms-powerpoint': ['ppt'],
         'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['pptx'],
         'application/vnd.oasis.opendocument.text': ['odt'],
@@ -96,32 +89,80 @@ export default function fileValidationService(): FileValidationService {
      * @example
      * checkByExtension(file, 'png, pdf, svg', {...});
      */
-    function checkByExtension(file: File, extensionAccept: string, mimeOverride: MimeTypes): boolean {
+    function checkByExtension(
+        file: File,
+        extensionAccept: string,
+        mimeOverride: MimeTypes | null = null,
+        extensionMimeTypesByExtension: MimeTypes | null = {},
+    ): boolean {
         if (extensionAccept === '*') {
             return true;
         }
 
-        const fileExtensions: string[] = extensionAccept.replace(/\s/g, '').split(',');
+        const acceptedExtensions = extensionAccept
+            .replace(/\s/g, '')
+            .split(',')
+            .map((extension) => extension.replace(/^\./, '').toLowerCase())
+            .filter((extension) => extension.length > 0);
+        const currentFileExtension = getFileExtension(file);
 
-        const types = Object.assign(extensionByType, mimeOverride);
+        if (!currentFileExtension || !acceptedExtensions.includes(currentFileExtension)) {
+            return false;
+        }
 
-        return fileExtensions.some((extension) => {
-            const currentFileExtension = file.name.split('.').at(-1);
-
-            if (!currentFileExtension) {
-                return false;
+        if (hasExtensionMimeTypeMetadata(extensionMimeTypesByExtension)) {
+            if (!file.type) {
+                return true;
             }
 
-            if (extension !== currentFileExtension) {
-                return false;
-            }
+            return checkByMimeTypesByExtension(file.type, currentFileExtension, extensionMimeTypesByExtension);
+        }
 
-            if (!types.hasOwnProperty(file.type)) {
-                return false;
-            }
+        return checkByLegacyMimeTypeMap(file.type, currentFileExtension, mimeOverride);
+    }
 
-            return types[file.type].includes(currentFileExtension);
-        });
+    function getFileExtension(file: File): string | null {
+        if (!file.name.includes('.')) {
+            return null;
+        }
+
+        return file.name.split('.').at(-1)?.toLowerCase() ?? null;
+    }
+
+    function hasExtensionMimeTypeMetadata(mimeTypesByExtension?: MimeTypes | null): mimeTypesByExtension is MimeTypes {
+        return !!mimeTypesByExtension && Object.keys(mimeTypesByExtension).length > 0;
+    }
+
+    function checkByMimeTypesByExtension(
+        fileType: string,
+        currentFileExtension: string,
+        mimeTypesByExtension: MimeTypes,
+    ): boolean {
+        const allowedMimeTypesForExtension = mimeTypesByExtension[currentFileExtension] ?? [];
+        const knownMimeTypes = new Set(Object.values(mimeTypesByExtension).flat());
+
+        if (!knownMimeTypes.has(fileType)) {
+            return true;
+        }
+
+        return allowedMimeTypesForExtension.includes(fileType);
+    }
+
+    function checkByLegacyMimeTypeMap(
+        fileType: string,
+        currentFileExtension: string,
+        mimeOverride?: MimeTypes | null,
+    ): boolean {
+        const types = {
+            ...extensionByType,
+            ...(mimeOverride ?? {}),
+        };
+
+        if (!Object.hasOwn(types, fileType)) {
+            return false;
+        }
+
+        return types[fileType].includes(currentFileExtension);
     }
 
     /**

@@ -1,13 +1,11 @@
-@import "~scss/variables";
-
 .sw-cms-sidebar__block-preview .sw-cms-block-preview-cross-selling {
     padding: 10px;
 
     h4 {
         display: inline-block;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         margin-bottom: 10px;
-        border-bottom: 1px solid var(--color-border-primary-default);
+        border-bottom: 1px solid var(--color-border-secondary-default);
         padding-bottom: 5px;
     }
 

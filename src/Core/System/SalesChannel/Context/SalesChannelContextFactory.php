@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -73,15 +74,22 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         }
 
         if ($customer !== null) {
-            $activeShippingAddress = $customer->getActiveShippingAddress();
-            \assert($activeShippingAddress !== null);
-            $shippingLocation = ShippingLocation::createFromAddress($activeShippingAddress);
+            // prefer the billing address over the sales channel country so a missing shipping address does not change the tax country
+            $locationAddress = $customer->getActiveShippingAddress() ?? $customer->getActiveBillingAddress();
+            $shippingLocation = $locationAddress !== null
+                ? ShippingLocation::createFromAddress($locationAddress)
+                : $base->getShippingLocation();
 
             $criteria = new Criteria([$customer->getGroupId()]);
             $criteria->setTitle('context-factory::customer-group');
             $customerGroup = $this->customerGroupRepository->search($criteria, $base->getContext())->getEntities()->first() ?? $base->getCurrentCustomerGroup();
         } else {
-            $shippingLocation = $base->getShippingLocation();
+            // e.g. the order of a deleted customer still uses its own address instead of the sales channel country
+            $injectedAddress = $this->getInjectedAddress($options, SalesChannelContextService::SHIPPING_ADDRESS)
+                ?? $this->getInjectedAddress($options, SalesChannelContextService::BILLING_ADDRESS);
+            $shippingLocation = $injectedAddress !== null
+                ? ShippingLocation::createFromAddress($injectedAddress)
+                : $base->getShippingLocation();
             $customerGroup = $base->getCurrentCustomerGroup();
         }
 
@@ -190,6 +198,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     /**
      * @codeCoverageIgnore
      *
+     * @see \Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextTest
+     *
      * @param array<string, mixed> $options
      */
     private function getPaymentMethod(array $options, BaseSalesChannelContext $context, ?CustomerEntity $customer): PaymentMethodEntity
@@ -234,7 +244,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             new EqualsFilter('customer.boundSalesChannelId', $source->getSalesChannelId()),
         ]));
 
-        $customer = $this->customerRepository->search($criteria, $context)->get($customerId);
+        $customer = $this->customerRepository->search($criteria, $context)->getEntities()->get($customerId);
         // active check here instead of DAL filter due to no DB index
         if (!$customer?->getActive()) {
             return null;
@@ -256,24 +266,49 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $addresses = $this->addressRepository->search($criteria, $context)->getEntities();
 
-        $activeBillingAddress = $addresses->get($activeBillingAddressId) ?? $addresses->get($customer->getDefaultBillingAddressId());
-        \assert($activeBillingAddress !== null);
-        $customer->setActiveBillingAddress($activeBillingAddress);
-        $activeShippingAddress = $addresses->get($activeShippingAddressId) ?? $addresses->get($customer->getDefaultShippingAddressId());
-        \assert($activeShippingAddress !== null);
-        $customer->setActiveShippingAddress($activeShippingAddress);
+        // a default address id can point to a deleted row, and the setters are not nullable yet
+        // an existing requested address wins over an injected one, e.g. the order's address during recalculation
+        $activeBillingAddress = $addresses->get($options[SalesChannelContextService::BILLING_ADDRESS_ID] ?? '')
+            ?? $this->getInjectedAddress($options, SalesChannelContextService::BILLING_ADDRESS)
+            ?? $addresses->get($customer->getDefaultBillingAddressId());
+        if ($activeBillingAddress !== null) {
+            $customer->setActiveBillingAddress($activeBillingAddress);
+        }
+
+        $activeShippingAddress = $addresses->get($options[SalesChannelContextService::SHIPPING_ADDRESS_ID] ?? '')
+            ?? $this->getInjectedAddress($options, SalesChannelContextService::SHIPPING_ADDRESS)
+            ?? $addresses->get($customer->getDefaultShippingAddressId());
+        if ($activeShippingAddress !== null) {
+            $customer->setActiveShippingAddress($activeShippingAddress);
+        }
+
         $defaultBillingAddress = $addresses->get($customer->getDefaultBillingAddressId());
-        \assert($defaultBillingAddress !== null);
-        $customer->setDefaultBillingAddress($defaultBillingAddress);
+        if ($defaultBillingAddress !== null) {
+            $customer->setDefaultBillingAddress($defaultBillingAddress);
+        }
+
         $defaultShippingAddress = $addresses->get($customer->getDefaultShippingAddressId());
-        \assert($defaultShippingAddress !== null);
-        $customer->setDefaultShippingAddress($defaultShippingAddress);
+        if ($defaultShippingAddress !== null) {
+            $customer->setDefaultShippingAddress($defaultShippingAddress);
+        }
 
         return $customer;
     }
 
     /**
+     * @param array<string, mixed> $options
+     */
+    private function getInjectedAddress(array $options, string $option): ?CustomerAddressEntity
+    {
+        $address = $options[$option] ?? null;
+
+        return $address instanceof CustomerAddressEntity ? $address : null;
+    }
+
+    /**
      * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextTest
      *
      * @return array{CashRoundingConfig, CashRoundingConfig}
      */

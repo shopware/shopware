@@ -6,10 +6,7 @@
 const { Criteria } = Shopware.Data;
 
 Shopware.Mixin.register('export-channel-filter', {
-    inject: [
-        'repositoryFactory',
-        'filterFactory',
-    ],
+    inject: ['repositoryFactory', 'filterFactory'],
 
     data() {
         return {

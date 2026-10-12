@@ -22,22 +22,19 @@ class DatabaseLogTest extends TestCase
     {
         $clock = new MockClock('2026-05-01 12:00:00');
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $connection->method('insert')
-            ->with(
-                'consent_log',
-                static::callback(function (array $data) use ($clock) {
-                    static::assertSame([
-                        'consent_name' => 'test-consent',
-                        'timestamp' => $clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                        'message' => '{"consent-name":"test-consent","action":"accepted","identifier":"identifier-123","actor":"actor-456"}',
-                    ], $data);
+            ->willReturnCallback(function (string $table, array $data) use ($clock): int {
+                static::assertSame('consent_log', $table);
+                static::assertSame([
+                    'consent_name' => 'test-consent',
+                    'timestamp' => $clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'message' => '{"consent-name":"test-consent","action":"accepted","identifier":"identifier-123","actor":"actor-456"}',
+                ], $data);
 
-                    return true;
-                })
-            )
-            ->willReturn(1);
+                return 1;
+            });
 
         $logger = new DatabaseLog($connection, $clock);
 

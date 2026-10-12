@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -18,6 +19,7 @@ use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 /**
  * @internal
  */
+#[Package('framework')]
 class AppActionControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -35,7 +37,7 @@ class AppActionControllerTest extends TestCase
 
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('actions', $response);
-        static::assertEmpty($response['actions']);
+        static::assertSame([], $response['actions']);
     }
 
     public function testGetActionsPerView(): void
@@ -127,7 +129,8 @@ class AppActionControllerTest extends TestCase
 
         static::assertEquals($expectedSource, $data['source']);
         static::assertEquals($expectedData, $data['data']);
-        static::assertNotEmpty($data['meta']['timestamp']);
+        static::assertIsInt($data['meta']['timestamp']);
+        static::assertGreaterThan(0, $data['meta']['timestamp']);
         static::assertTrue(Uuid::isValid($data['meta']['reference']));
     }
 

@@ -111,8 +111,10 @@
             {% block sw_settings_payment_overview_empty_state %}
             <mt-empty-state
                 v-if="isEmpty"
+                centered
                 :icon="$route.meta.$module.icon"
                 :headline="$t('sw-empty-state.messageNoResultTitle')"
+                description=""
                 :link-text="$t('sw-empty-state.messageNoResultLink')"
                 :link-href="$router.resolve({ name: 'sw.profile.index.searchPreferences' }).href"
             />

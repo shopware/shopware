@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -22,6 +23,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('discovery')]
 class MediaPathPostUpdaterTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -51,7 +53,7 @@ class MediaPathPostUpdaterTest extends TestCase
         // There are some medias, like dummy theme images etc. that are created by the system and can not be cleaned up because of FKs
         $data = $message->getData();
         static::assertIsArray($data);
-        static::assertNotEmpty($data);
+        static::assertNotCount(0, $data);
         static::assertContains($ids->get('media-1'), $data);
         static::assertContains($ids->get('media-2'), $data);
         static::assertContains($ids->get('media-3'), $data);

@@ -11,6 +11,23 @@ import './sw-sidebar-filter-panel.scss';
 export default {
     template,
 
+    inject: {
+        parentRegisterSidebarItem: {
+            from: 'registerSidebarItem',
+            default: null,
+        },
+    },
+
+    provide() {
+        return {
+            registerSidebarItem: this.registerSidebarItem,
+        };
+    },
+
+    shortcuts: {
+        OF: 'openFilterPanel',
+    },
+
     props: {
         activeFilterNumber: {
             type: Number,
@@ -18,9 +35,26 @@ export default {
         },
     },
 
-    computed: {},
+    data() {
+        return {
+            filterSidebarItem: null,
+        };
+    },
 
     methods: {
+        registerSidebarItem(sidebarItem) {
+            this.filterSidebarItem = sidebarItem;
+            this.parentRegisterSidebarItem?.(sidebarItem);
+        },
+
+        openFilterPanel() {
+            if (!this.filterSidebarItem?.openContent) {
+                return;
+            }
+
+            this.filterSidebarItem.openContent();
+        },
+
         resetAll() {
             this.$refs.filterPanel.resetAll();
         },

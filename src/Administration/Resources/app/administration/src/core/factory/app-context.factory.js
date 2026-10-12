@@ -14,14 +14,9 @@ export default function createContext(context = {}) {
     contextStore.app.fallbackLocale = 'en-GB';
 
     // assign unknown context information
-    Object.entries(context).forEach(
-        ([
-            key,
-            value,
-        ]) => {
-            contextStore.addAppValue({ key, value });
-        },
-    );
+    Object.entries(context).forEach(([key, value]) => {
+        contextStore.addAppValue({ key, value });
+    });
 
     return Shopware.Context.app;
 }

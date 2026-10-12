@@ -1,0 +1,35 @@
+.sw-settings-language-add-modal {
+    &.sw-modal .sw-modal__footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    & &__language-select {
+        margin-bottom: 0;
+    }
+
+    &__selection-info {
+        margin: var(--scale-size-8) 0 0;
+        padding-left: var(--scale-size-20);
+        list-style: disc;
+        font-size: var(--font-size-xs);
+    }
+
+    &__selection-info-item + &__selection-info-item {
+        margin-top: var(--scale-size-4);
+    }
+
+    &.sw-modal &__hint {
+        margin-top: var(--scale-size-24);
+        margin-bottom: 0;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+    }
+
+    &__footer-actions {
+        display: flex;
+        gap: var(--scale-size-8);
+    }
+}

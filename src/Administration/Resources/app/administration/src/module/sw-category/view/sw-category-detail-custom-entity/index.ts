@@ -12,10 +12,7 @@ const EXTENSION_POSTFIX = 'SwCategories';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {
@@ -83,7 +80,7 @@ export default Shopware.Component.wrapComponentConfig({
             categoryExtensions[`${this.categoryCustomEntityProperty}${EXTENSION_POSTFIX}`] = customEntityAssignments;
         },
 
-        onEntityChange(id: string, entity?: Entity<'custom_entity'>) {
+        onEntityChange(id: EntityKey<'custom_entity'>, entity?: Entity<'custom_entity'>) {
             if (!this.category) {
                 return;
             }

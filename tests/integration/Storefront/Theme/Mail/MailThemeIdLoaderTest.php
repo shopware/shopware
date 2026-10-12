@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,6 +15,7 @@ use Shopware\Storefront\Theme\Mail\MailThemeIdLoader;
 /**
  * @internal
  */
+#[Package('discovery')]
 class MailThemeIdLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

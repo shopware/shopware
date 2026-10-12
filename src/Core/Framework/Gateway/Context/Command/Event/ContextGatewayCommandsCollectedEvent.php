@@ -16,6 +16,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  * It can be used to add custom commands, which should be executed with all other commands.
  *
  * @see AppContextGateway::process() for an example implementation
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class ContextGatewayCommandsCollectedEvent extends Event implements CartAware

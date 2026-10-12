@@ -10,13 +10,35 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: ['systemConfigApiService'],
+    inject: ['feature', 'systemConfigApiService'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
+
+    data() {
+        return {
+            activeTab: 'content',
+        };
+    },
 
     computed: {
+        tabs() {
+            const tabs = [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+            ];
+
+            if (this.requireConfigTab) {
+                tabs.push({
+                    label: this.$t('sw-cms.elements.general.config.tab.settings'),
+                    name: 'options',
+                });
+            }
+
+            return tabs;
+        },
+
         getLastMailClass() {
             if (this.element.config.mailReceiver.value.length === 1) {
                 return 'is--last';
@@ -51,10 +73,7 @@ export default {
         },
 
         requireConfigTab() {
-            return [
-                'contact',
-                'revocationRequest',
-            ].includes(this.element.config.type.value);
+            return ['contact', 'revocationRequest'].includes(this.element.config.type.value);
         },
     },
 

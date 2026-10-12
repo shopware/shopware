@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Address;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\AddressValidator;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressBlockedError;
@@ -88,11 +88,11 @@ class AddressValidator2Test extends TestCase
     }
 
     /**
-     * @return EntityRepository<EntityCollection<Entity>>&MockObject
+     * @return EntityRepository<EntityCollection<Entity>>&Stub
      */
-    private function getRepositoryMock(?IdSearchResult $result): EntityRepository&MockObject
+    private function getRepositoryMock(?IdSearchResult $result): EntityRepository&Stub
     {
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
 
         $repository->method('searchIds')
             ->willReturn($result);
@@ -112,9 +112,9 @@ class AddressValidator2Test extends TestCase
         return $country;
     }
 
-    private function getContextMock(?ShippingLocation $shippingLocation = null): MockObject&SalesChannelContext
+    private function getContextMock(?ShippingLocation $shippingLocation = null): Stub&SalesChannelContext
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context->method('getShippingLocation')
             ->willReturn($shippingLocation);

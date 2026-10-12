@@ -6,12 +6,14 @@ use PHPStan\Rules\Rule;
 use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRouteOverrideInDecoratorsRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends  RuleTestCase<NoRouteOverrideInDecoratorsRule>
  */
+#[Package('framework')]
 class NoRouteOverrideInDecoratorsRuleTest extends RuleTestCase
 {
     public function testRule(): void

@@ -2,11 +2,13 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-#[Package('framework')]
+#[Package('discovery')]
 abstract class AbstractCaptcha
 {
     /**
@@ -14,7 +16,7 @@ abstract class AbstractCaptcha
      * to be let through. This may be determined based on the given request, but
      * also the shop's configuration or other sources.
      *
-     * @param array<string, bool> $captchaConfig
+     * @param array<string, mixed> $captchaConfig
      */
     public function supports(Request $request, array $captchaConfig): bool
     {
@@ -30,11 +32,40 @@ abstract class AbstractCaptcha
     }
 
     /**
+     * validate returns the violations describing the failure, an empty list means the captcha is valid.
+     *
+     * @param array<string, mixed> $captchaConfig
+     */
+    public function validate(Request $request, array $captchaConfig): ConstraintViolationList
+    {
+        if ($this->isValid($request, $captchaConfig)) {
+            return new ConstraintViolationList();
+        }
+
+        $violations = Feature::silent('v6.8.0.0', fn (): ConstraintViolationList => $this->getViolations());
+        if ($violations->count() > 0) {
+            return $violations;
+        }
+
+        // An empty list would read as valid, so a failure always needs a violation.
+        return new ConstraintViolationList([
+            new ConstraintViolation('', '', [], '', '', '', null, CaptchaException::INVALID_CAPTCHA_ERROR),
+        ]);
+    }
+
+    /**
      * isValid returns true, when the captcha contained in the request is valid.
      *
-     * @param array<string, bool> $captchaConfig
+     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, implement validate() instead
+     *
+     * @param array<string, mixed> $captchaConfig
      */
-    abstract public function isValid(Request $request, array $captchaConfig): bool;
+    public function isValid(Request $request, array $captchaConfig): bool
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
+
+        return $this->validate($request, $captchaConfig)->count() === 0;
+    }
 
     /**
      * getName returns a unique technical name identifying this captcha.
@@ -62,8 +93,13 @@ abstract class AbstractCaptcha
         return null;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, use validate() instead
+     */
     public function getViolations(): ConstraintViolationList
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
+
         return new ConstraintViolationList();
     }
 }

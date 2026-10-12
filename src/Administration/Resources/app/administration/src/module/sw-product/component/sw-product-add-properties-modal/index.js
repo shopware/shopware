@@ -11,10 +11,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'modal-cancel',
-        'modal-save',
-    ],
+    emits: ['modal-cancel', 'modal-save'],
 
     props: {
         newProperties: {

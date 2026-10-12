@@ -6,16 +6,18 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class MySQLInvalidatorStorageTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -24,14 +26,15 @@ class MySQLInvalidatorStorageTest extends TestCase
 
     private Connection $connection;
 
-    private LoggerInterface&MockObject $logger;
+    private LoggerInterface&Stub $logger;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        // the exception test builds its own storage with a logger mock, every other test only needs a stub
+        $this->logger = static::createStub(LoggerInterface::class);
 
         $this->storage = new MySQLInvalidatorStorage($this->connection, $this->logger);
     }
@@ -64,7 +67,7 @@ class MySQLInvalidatorStorageTest extends TestCase
         $this->storage->store([]);
         $result = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testLoadAndDeleteSingleTag(): void
@@ -74,7 +77,7 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         static::assertSame(['tag1'], $result);
         $remaining = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
-        static::assertEmpty($remaining);
+        static::assertCount(0, $remaining);
     }
 
     public function testLoadAndDeleteMultipleTags(): void
@@ -84,13 +87,13 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         static::assertSame(['tag1', 'tag2'], $result);
         $remaining = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
-        static::assertEmpty($remaining);
+        static::assertCount(0, $remaining);
     }
 
     public function testLoadAndDeleteWhenEmpty(): void
     {
         $result = $this->storage->loadAndDelete();
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testStoreDuplicateTags(): void
@@ -162,7 +165,8 @@ class MySQLInvalidatorStorageTest extends TestCase
 
     public function testLoadAndDeleteExceptionIsCaughtAndLogged(): void
     {
-        $this->logger->expects($this->once())->method('warning')
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning')
             ->with('Cache tags could not be fetched or removed from storage. Possible deadlock encountered. If the error persists, try the redis adapter. Error: Deadlock');
 
         $connection = $this->createMock(Connection::class);
@@ -175,7 +179,7 @@ class MySQLInvalidatorStorageTest extends TestCase
             ->method('fetchAllAssociative')
             ->willReturn([['id' => 'id1', 'tag1'], ['id' => 'id2', 'tag2']]);
 
-        $statement = $this->createMock(Statement::class);
+        $statement = static::createStub(Statement::class);
 
         $e = new class('Deadlock') extends \Exception implements RetryableException {};
 
@@ -192,7 +196,7 @@ class MySQLInvalidatorStorageTest extends TestCase
             ->method('transactional')
             ->willReturnCallback(static fn (callable $cb) => $cb());
 
-        $storage = new MySQLInvalidatorStorage($connection, $this->logger);
+        $storage = new MySQLInvalidatorStorage($connection, $logger);
         $storage->loadAndDelete();
     }
 }

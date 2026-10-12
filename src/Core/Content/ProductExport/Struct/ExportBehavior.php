@@ -42,6 +42,9 @@ class ExportBehavior
         return $this->generateFooter;
     }
 
+    /**
+     * Resume position for the next partial-generation batch (0 starts a fresh run).
+     */
     public function offset(): int
     {
         return $this->offset;

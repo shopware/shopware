@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
@@ -36,21 +35,16 @@ class MakerCommand extends Command
         $this
             ->addArgument('plugin-name', InputArgument::OPTIONAL, 'Plugin name (PascalCase)');
 
-        if (!$this->generator->hasCommandOption()) {
-            return;
-        }
+        $option = $this->generator->getCommandOption();
 
-        $this->addOption(
-            $this->generator->getCommandOptionName(),
-            null,
-            null,
-            $this->generator->getCommandOptionDescription(),
-        );
+        if ($option !== null) {
+            $this->getDefinition()->addOption($option);
+        }
     }
 
     protected function interact(InputInterface $input, OutputInterface $output): void
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         foreach ($this->getDefinition()->getArguments() as $argument) {
             if ($input->getArgument($argument->getName())) {
@@ -101,7 +95,7 @@ class MakerCommand extends Command
 
             $this->generator->addScaffoldConfig($configuration, $input, $io);
 
-            $stubCollection = $this->scaffoldingCollector->collect($configuration);
+            $stubCollection = $this->scaffoldingCollector->collect($configuration, $this->generator);
 
             $this->scaffoldingWriter->write($stubCollection, $configuration);
 

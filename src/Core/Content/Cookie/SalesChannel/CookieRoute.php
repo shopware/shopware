@@ -3,10 +3,12 @@
 namespace Shopware\Core\Content\Cookie\SalesChannel;
 
 use Shopware\Core\Content\Cookie\CookieException;
+use Shopware\Core\Content\Cookie\Extension\CookieRouteExtension;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -20,8 +22,8 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
  */
+#[Package('discovery')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
-#[Package('framework')]
 class CookieRoute extends AbstractCookieRoute
 {
     /**
@@ -29,6 +31,7 @@ class CookieRoute extends AbstractCookieRoute
      */
     public function __construct(
         private readonly CookieProvider $cookieProvider,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -39,6 +42,15 @@ class CookieRoute extends AbstractCookieRoute
 
     #[Route(path: '/store-api/cookie-groups', name: 'store-api.cookie.groups', methods: [Request::METHOD_GET])]
     public function getCookieGroups(Request $request, SalesChannelContext $salesChannelContext): CookieRouteResponse
+    {
+        return $this->extensions->publish(
+            name: CookieRouteExtension::NAME,
+            extension: new CookieRouteExtension($request, $salesChannelContext),
+            function: $this->_getCookieGroups(...),
+        );
+    }
+
+    private function _getCookieGroups(Request $request, SalesChannelContext $salesChannelContext): CookieRouteResponse
     {
         $cookieGroups = $this->cookieProvider->getCookieGroups($request, $salesChannelContext);
         $hash = $this->generateCookieConfigurationHash($cookieGroups);

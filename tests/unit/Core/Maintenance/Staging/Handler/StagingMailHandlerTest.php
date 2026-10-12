@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\MailSender;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\Maintenance\Staging\Handler\StagingMailHandler;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -14,6 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StagingMailHandler::class)]
 class StagingMailHandlerTest extends TestCase
 {
@@ -24,7 +26,7 @@ class StagingMailHandlerTest extends TestCase
 
         $handler(new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             []
         ));
@@ -39,7 +41,7 @@ class StagingMailHandlerTest extends TestCase
 
         $handler(new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             true,
             []
         ));

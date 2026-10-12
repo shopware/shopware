@@ -14,11 +14,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'integration:create',
     description: 'Create an integration and dump the key and secret',
 )]
-#[Package('framework')]
 class CreateIntegrationCommand extends Command
 {
     /**

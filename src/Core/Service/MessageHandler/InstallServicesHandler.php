@@ -21,6 +21,6 @@ final readonly class InstallServicesHandler
 
     public function __invoke(InstallServicesMessage $installServicesMessage): void
     {
-        $this->manager->install(Context::createDefaultContext());
+        $this->manager->reconcile(Context::createDefaultContext());
     }
 }

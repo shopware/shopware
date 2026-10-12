@@ -17,13 +17,13 @@ use Shopware\Elasticsearch\ResolvedField;
 /**
  * @internal
  */
-#[CoversClass(NestedFieldQueryBuilder::class)]
 #[Package('inventory')]
+#[CoversClass(NestedFieldQueryBuilder::class)]
 class NestedFieldQueryBuilderTest extends TestCase
 {
     public function testGetDecorated(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $builder = new NestedFieldQueryBuilder($inner);
 
         static::assertSame($inner, $builder->getDecorated());
@@ -33,7 +33,7 @@ class NestedFieldQueryBuilderTest extends TestCase
     {
         $termQuery = new TermQuery('tags.name', 'foo');
 
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')->willReturn($termQuery);
 
         $builder = new NestedFieldQueryBuilder($inner);
@@ -53,7 +53,7 @@ class NestedFieldQueryBuilderTest extends TestCase
     {
         $termQuery = new TermQuery('name', 'foo');
 
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')->willReturn($termQuery);
 
         $builder = new NestedFieldQueryBuilder($inner);
@@ -67,7 +67,7 @@ class NestedFieldQueryBuilderTest extends TestCase
 
     public function testReturnsNullWhenInnerReturnsNull(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')->willReturn(null);
 
         $builder = new NestedFieldQueryBuilder($inner);
@@ -81,7 +81,7 @@ class NestedFieldQueryBuilderTest extends TestCase
 
     public function testReturnsNullWhenInnerReturnsNullAndNoRoot(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')->willReturn(null);
 
         $builder = new NestedFieldQueryBuilder($inner);

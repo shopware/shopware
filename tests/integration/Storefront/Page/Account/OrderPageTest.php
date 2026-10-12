@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Page\Account;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class OrderPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -27,7 +29,7 @@ class OrderPageTest extends TestCase
 
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertCount(0, $page->getOrders());
+        static::assertCount(0, $page->getOrders()->getEntities());
         self::assertPageEvent(AccountOrderPageLoadedEvent::class, $event, $context, $request, $page);
     }
 
@@ -51,7 +53,7 @@ class OrderPageTest extends TestCase
 
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertCount(1, $page->getOrders());
+        static::assertCount(1, $page->getOrders()->getEntities());
         self::assertPageEvent(AccountOrderPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

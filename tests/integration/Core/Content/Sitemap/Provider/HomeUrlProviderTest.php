@@ -101,7 +101,7 @@ class HomeUrlProviderTest extends TestCase
     {
         $results = (new HomeUrlProvider())->getUrls($this->salesChannelContext, 100);
 
-        static::assertEmpty($results->getUrls()[0]->getLoc());
+        static::assertSame('', $results->getUrls()[0]->getLoc());
     }
 
     public function testProviderNameIsHome(): void

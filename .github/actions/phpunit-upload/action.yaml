@@ -1,0 +1,38 @@
+name: "PHPUnit upload"
+description: "Upload PHPUnit artifacts to Codecov: cobertura coverage and junit test results. Requires ./.github/actions/phpunit-run to have run first. Call with `if: !cancelled()` so test results upload even when tests fail."
+author: "shopware AG"
+
+inputs:
+  coverage:
+    default: "false"
+    description: "Upload the cobertura coverage report produced by the run"
+  coverage-flags:
+    default: ""
+    description: "Codecov coverage flags (e.g. phpunit-unit)"
+  codecov-token:
+    default: ""
+    description: "Codecov token. Empty on fork PRs (secrets unavailable) or for callers that opt out of Codecov uploads."
+
+runs:
+  using: composite
+  steps:
+    - name: Upload coverage to Codecov
+      if: ${{ inputs.coverage == 'true' && inputs.codecov-token != '' }}
+      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+      env:
+        CODECOV_TOKEN: ${{ inputs.codecov-token }}
+      with:
+        files: coverage.xml
+        flags: ${{ inputs.coverage-flags }}
+
+    - name: Upload test results to Codecov
+      # skip when no token: fork PRs (secrets unavailable) and callers that opt out of Test Analytics.
+      # files is explicit: the former test-results-action auto-discovery also picked up unrelated
+      # *_test.xml files (e.g. DI configs like services_test.xml).
+      if: ${{ !cancelled() && inputs.codecov-token != '' }}
+      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+      env:
+        CODECOV_TOKEN: ${{ inputs.codecov-token }}
+      with:
+        report_type: test_results
+        files: junit.xml

@@ -6,6 +6,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('framework')]
 class ApiControllerAggregateTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -51,7 +53,7 @@ class ApiControllerAggregateTest extends TestCase
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         // data is empty as we only do aggregations
-        static::assertEmpty($content['data']);
+        static::assertSame([], $content['data']);
         static::assertArrayHasKey('aggregations', $content);
         static::assertSame(1, $content['aggregations']['total']['count']);
     }

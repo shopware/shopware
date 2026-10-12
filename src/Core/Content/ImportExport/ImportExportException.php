@@ -39,6 +39,7 @@ class ImportExportException extends HttpException
     final public const IMPORT_COMMAND_FAILED = 'CONTENT__IMPORT_EXPORT__COMMAND_FAILED';
     final public const DUPLICATE_TECHNICAL_NAME = 'CONTENT__IMPORT_EXPORT__DUPLICATE_TECHNICAL_NAME';
     final public const DESERIALIZE_FAILED = 'CONTENT__IMPORT_EXPORT__DESERIALIZE_FAILED';
+    final public const IMPORT_EXPORT_FILE_DOWNLOAD_THROTTLED = 'CONTENT__IMPORT_EXPORT__FILE_DOWNLOAD_THROTTLED';
 
     final public const INVALID_INSTANCE_TYPE = 'CONTENT__IMPORT_EXPORT__INVALID_INSTANCE_TYPE';
     final public const SERIALIZER_NOT_FOUND = 'CONTENT__IMPORT_EXPORT__SERIALIZER_NOT_FOUND';
@@ -63,6 +64,16 @@ class ImportExportException extends HttpException
     public static function invalidFileAccessToken(): ShopwareHttpException
     {
         return new InvalidFileAccessTokenException();
+    }
+
+    public static function fileDownloadThrottledException(int $waitTime): self
+    {
+        return new self(
+            Response::HTTP_TOO_MANY_REQUESTS,
+            self::IMPORT_EXPORT_FILE_DOWNLOAD_THROTTLED,
+            'Too many attempts to download this file. Please try again in {{ seconds }} seconds.',
+            ['seconds' => $waitTime]
+        );
     }
 
     public static function fileNotFound(string $fileId): ShopwareHttpException

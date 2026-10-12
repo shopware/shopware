@@ -7,10 +7,9 @@ import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.servi
 /**
  * @description Exposes an user search preferences
  * @constructor
- * @param {Object} Object.userConfigRepository
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default function SearchPreferencesService({ userConfigRepository: _userConfigRepository }) {
+export default function SearchPreferencesService() {
     return {
         getDefaultSearchPreferences,
         getUserSearchPreferences,
@@ -46,13 +45,9 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
      * @returns {Promise}
      */
     function getUserSearchPreferences() {
-        return new Promise((resolve) => {
-            Shopware.Service('userConfigService')
-                .search([KEY_USER_SEARCH_PREFERENCE])
-                .then((response) => {
-                    resolve(response.data[KEY_USER_SEARCH_PREFERENCE] || null);
-                });
-        });
+        return Shopware.Service('userConfigService')
+            .search([KEY_USER_SEARCH_PREFERENCE])
+            .then((response) => response?.data?.[KEY_USER_SEARCH_PREFERENCE] || null);
     }
 
     /**
@@ -60,13 +55,10 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
      * @returns {Object}
      */
     function createUserSearchPreferences() {
-        const userSearchPreferences = _userConfigRepository.create();
-
-        _getUserConfigCriteria().filters.forEach(({ field, value }) => {
-            userSearchPreferences[field] = value;
-        });
-
-        return userSearchPreferences;
+        return {
+            key: KEY_USER_SEARCH_PREFERENCE,
+            userId: _getCurrentUser()?.id,
+        };
     }
 
     /**
@@ -116,15 +108,10 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
         const searchPreferences = [];
 
         tempSearchPreferences = Object.assign({}, ...tempSearchPreferences);
-        Object.entries(tempSearchPreferences).forEach(
-            ([
-                entityName,
-                { _searchable, ...rest },
-            ]) => {
-                const fields = _getFields(rest);
-                searchPreferences.push({ entityName, _searchable, fields });
-            },
-        );
+        Object.entries(tempSearchPreferences).forEach(([entityName, { _searchable, ...rest }]) => {
+            const fields = _getFields(rest);
+            searchPreferences.push({ entityName, _searchable, fields });
+        });
 
         searchPreferences.sort((a, b) => {
             const lengthDiff = b.fields.length - a.fields.length;
@@ -205,18 +192,6 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
     /**
      * @private
      */
-    function _getUserConfigCriteria() {
-        const criteria = new Shopware.Data.Criteria();
-
-        criteria.addFilter(Shopware.Data.Criteria.equals('key', KEY_USER_SEARCH_PREFERENCE));
-        criteria.addFilter(Shopware.Data.Criteria.equals('userId', _getCurrentUser()?.id));
-
-        return criteria;
-    }
-
-    /**
-     * @private
-     */
     function _getCurrentUser() {
         return Shopware.Store.get('session').currentUser;
     }
@@ -227,15 +202,10 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
     function _getFields(data) {
         const fieldsGroup = {};
 
-        Object.entries(data).forEach(
-            ([
-                key,
-                value,
-            ]) => {
-                const fields = _flattenFields(value, `${key}.`);
-                _groupFields(fields, fieldsGroup);
-            },
-        );
+        Object.entries(data).forEach(([key, value]) => {
+            const fields = _flattenFields(value, `${key}.`);
+            _groupFields(fields, fieldsGroup);
+        });
 
         return Object.values(fieldsGroup);
     }
@@ -246,10 +216,7 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
     function _flattenFields(fields, prefix = '') {
         return Object.keys(fields).reduce((accumulator, currentValue) => {
             if (typeof fields[currentValue] === 'object') {
-                return [
-                    ...accumulator,
-                    ..._flattenFields(fields[currentValue], `${prefix + currentValue}.`),
-                ];
+                return [...accumulator, ..._flattenFields(fields[currentValue], `${prefix + currentValue}.`)];
             }
 
             if (typeof fields[currentValue] === 'number') {
@@ -257,10 +224,7 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
             }
 
             const fieldName = prefix.substring(0, prefix.length - 1);
-            return [
-                ...accumulator,
-                { fieldName, ...fields },
-            ];
+            return [...accumulator, { fieldName, ...fields }];
         }, []);
     }
 

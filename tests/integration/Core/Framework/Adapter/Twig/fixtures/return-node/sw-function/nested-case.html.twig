@@ -1,0 +1,10 @@
+{% sw_macro_function inner() %}
+    {% return [1, 2] %}
+{% end_sw_macro_function %}
+
+{% sw_macro_function outer() %}
+    {% return _self.inner() %}
+{% end_sw_macro_function %}
+
+{% set result = _self.outer() %}
+{{ result[1] }}

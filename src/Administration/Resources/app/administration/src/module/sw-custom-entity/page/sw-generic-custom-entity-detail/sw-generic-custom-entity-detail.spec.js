@@ -114,8 +114,18 @@ const customEntityRepository = {
     save: () => Promise.resolve(),
 };
 
-async function createWrapper({ activeTab = 'main', routeId = null, entityName = testEntityName } = {}) {
+async function createWrapper({
+    activeTab = 'main',
+    routeId = null,
+    entityName = testEntityName,
+    featureActive = false,
+} = {}) {
     return mount(await Shopware.Component.build('sw-generic-custom-entity-detail'), {
+        data() {
+            return {
+                activeTab,
+            };
+        },
         global: {
             stubs: {
                 'sw-page': {
@@ -124,10 +134,7 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 },
                 'sw-search-bar': {
                     template: '<div class="sw-search-bar"></div>',
-                    props: [
-                        'initial-search-type',
-                        'initial-search',
-                    ],
+                    props: ['initial-search-type', 'initial-search'],
                 },
                 'sw-card-view': {
                     template: '<div class="sw-card-view"><slot></slot></div>',
@@ -141,6 +148,26 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 'sw-tabs-item': {
                     template: '<div class="sw-tabs-item"><slot></slot></div>',
                 },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    emits: ['new-item-active'],
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
+                    template: '<div class="mt-tabs"></div>',
+                },
                 'sw-button-process': {
                     template: '<div class="sw-button-process" @click="$emit(`click`)"></div>',
                 },
@@ -152,10 +179,7 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 },
                 'sw-generic-cms-page-assignment': {
                     template: '<div class="sw-generic-cms-page-assignment"></div>',
-                    props: [
-                        'cms-page-id',
-                        'slot-overrides',
-                    ],
+                    props: ['cms-page-id', 'slot-overrides'],
                 },
                 'sw-generic-seo-general-card': {
                     template: '<div class="sw-generic-seo-general-card"></div>',
@@ -168,11 +192,7 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 },
                 'sw-generic-social-media-card': {
                     template: '<div class="sw-generic-social-media-card"></div>',
-                    props: [
-                        'og-title',
-                        'og-description',
-                        'og-image-id',
-                    ],
+                    props: ['og-title', 'og-description', 'og-image-id'],
                 },
             },
             provide: {
@@ -187,6 +207,9 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
 
                         throw new Error(`Repository for ${name} is not mocked`);
                     },
+                },
+                feature: {
+                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
                 },
             },
             mixins: [{ createNotificationError: jest.fn() }],
@@ -266,6 +289,9 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
         const wrapper = await createWrapper();
 
         // Check 4 tab-items and tabs, one of them visible
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.find('.mt-tabs').exists()).toBe(false);
+
         const tabItems = wrapper.findAll('.sw-generic-custom-entity-detail__tab-item');
         expect(tabItems).toHaveLength(4);
         expect(tabItems.at(0).text()).toBe('custom_test_entity.tabs.main');
@@ -273,6 +299,53 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
         expect(tabItems.at(2).text()).toBe('sw-custom-entity.detail.tabs.layout');
         expect(tabItems.at(3).text()).toBe('sw-custom-entity.detail.tabs.seo');
         expect(wrapper.findAll('.sw-generic-custom-entity-detail__tab')).toHaveLength(1);
+    });
+
+    it('should render mt-tabs with the expected items when the feature is active', async () => {
+        const wrapper = await createWrapper({
+            activeTab: null,
+            featureActive: true,
+        });
+
+        const mtTabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-generic-custom-entity-detail-tabs');
+        expect(mtTabs.props('defaultItem')).toBe('main');
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'custom_test_entity.tabs.main',
+                name: 'main',
+            },
+            {
+                label: 'custom_test_entity.tabs.secondary',
+                name: 'secondary',
+            },
+            {
+                label: 'sw-custom-entity.detail.tabs.layout',
+                name: 'cms-aware-tab-layout',
+            },
+            {
+                label: 'sw-custom-entity.detail.tabs.seo',
+                name: 'cms-aware-tab-seo',
+            },
+        ]);
+        expect(wrapper.findAll('.sw-generic-custom-entity-detail__tab-item')).toHaveLength(0);
+        expect(wrapper.findAll('.sw-generic-custom-entity-detail__tab')).toHaveLength(1);
+    });
+
+    it('should update active content when mt-tabs emits a new active item', async () => {
+        const wrapper = await createWrapper({
+            activeTab: null,
+            featureActive: true,
+        });
+
+        wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'secondary');
+        await flushPromises();
+
+        expect(wrapper.vm.activeTab).toBe('secondary');
+        expect(wrapper.findAll('.sw-generic-custom-entity-detail__card')).toHaveLength(1);
+        expect(wrapper.find('[title="custom_test_entity.cards.secondary-useless"]').exists()).toBe(true);
     });
 
     numberOfElementsDataProvider.forEach((data) => {

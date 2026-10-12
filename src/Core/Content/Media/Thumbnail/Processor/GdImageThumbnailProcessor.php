@@ -98,6 +98,7 @@ class GdImageThumbnailProcessor implements ThumbnailProcessorInterface
                 break;
             case 'image/jpg':
             case 'image/jpeg':
+                imageinterlace($thumbnail, true);
                 imagejpeg($thumbnail, null, $quality);
 
                 break;

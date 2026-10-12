@@ -1,0 +1,45 @@
+<ram:BuyerTradeParty>
+    {% if buyer.id %}
+        <ram:ID>{{ buyer.id }}</ram:ID>
+    {% endif %}
+
+    <ram:Name>{{ buyer.name }}</ram:Name>
+
+    {% if buyer.street or buyer.additionalAddressLine1 or buyer.additionalAddressLine2 or buyer.zipcode or buyer.city or buyer.countrySubdivision or buyer.countryIso %}
+        <ram:PostalTradeAddress>
+            {% if buyer.zipcode %}
+                <ram:PostcodeCode>{{ buyer.zipcode }}</ram:PostcodeCode>
+            {% endif %}
+
+            {% if buyer.street %}
+                <ram:LineOne>{{ buyer.street }}</ram:LineOne>
+            {% endif %}
+
+            {% if buyer.additionalAddressLine1 %}
+                <ram:LineTwo>{{ buyer.additionalAddressLine1 }}</ram:LineTwo>
+            {% endif %}
+
+            {% if buyer.additionalAddressLine2 %}
+                <ram:LineThree>{{ buyer.additionalAddressLine2 }}</ram:LineThree>
+            {% endif %}
+
+            {% if buyer.city %}
+                <ram:CityName>{{ buyer.city }}</ram:CityName>
+            {% endif %}
+
+            {% if buyer.countryIso %}
+                <ram:CountryID>{{ buyer.countryIso }}</ram:CountryID>
+            {% endif %}
+
+            {% if buyer.countrySubdivision %}
+                <ram:CountrySubDivisionName>{{ buyer.countrySubdivision }}</ram:CountrySubDivisionName>
+            {% endif %}
+        </ram:PostalTradeAddress>
+    {% endif %}
+
+    {% if buyer.email %}
+        <ram:URIUniversalCommunication>
+            <ram:URIID schemeID="EM">{{ buyer.email }}</ram:URIID>
+        </ram:URIUniversalCommunication>
+    {% endif %}
+</ram:BuyerTradeParty>

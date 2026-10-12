@@ -2,9 +2,10 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Struct;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\AssignArrayTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,7 +15,8 @@ use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\AssignTestStruct;
 /**
  * @internal
  */
-#[CoversClass(AssignArrayTrait::class)]
+#[Package('framework')]
+#[CoversTrait(AssignArrayTrait::class)]
 class AssignArrayTraitTest extends TestCase
 {
     public function testSerializedAssign(): void
@@ -245,7 +247,7 @@ class AssignArrayTraitTest extends TestCase
 
         $updatedStruct = $struct->assignRecursive(['array' => [], 'string' => null]);
 
-        static::assertEmpty($updatedStruct->getArray());
+        static::assertSame([], $updatedStruct->getArray());
         static::assertNull($updatedStruct->getString());
     }
 
@@ -254,7 +256,7 @@ class AssignArrayTraitTest extends TestCase
         $struct = (new AssignTestStruct([]))->assignRecursive(['assignTestStruct' => []]);
 
         static::assertInstanceOf(AssignTestStruct::class, $struct->getAssignTestStruct());
-        static::assertEmpty(array_filter($struct->getAssignTestStruct()->getVars()));
+        static::assertCount(0, array_filter($struct->getAssignTestStruct()->getVars()));
     }
 
     public function testRandomArrayProperty(): void

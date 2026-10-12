@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\Flow\Dispatching\FlowDispatcher;
 use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Content\Flow\Rule\OrderTagRule;
@@ -142,7 +143,7 @@ class FlowExecutorTest extends TestCase
 
         $order = $this->orderRepository
             ->search($criteria, $this->salesChannelContext->getContext())
-            ->first();
+            ->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $order);
         static::assertInstanceOf(TagCollection::class, $order->getTags());
@@ -165,7 +166,7 @@ class FlowExecutorTest extends TestCase
 
         $customer = $this->customerRepository
             ->search($criteria, $this->salesChannelContext->getContext())
-            ->first();
+            ->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertInstanceOf(TagCollection::class, $customer->getTags());
@@ -207,10 +208,11 @@ class FlowExecutorTest extends TestCase
                     ->addFilter(new EqualsFilter('orderId', $orderId))
                     ->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING)),
                 $this->salesChannelContext->getContext()
-            )->first();
+            )->getEntities()->first();
         static::assertInstanceOf(OrderTransactionEntity::class, $transaction);
 
         $this->orderTransactionStateHandler->paid($transaction->getId(), $this->salesChannelContext->getContext());
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
     }
 
     private function createTags(IdsCollection $idsCollection): void
@@ -427,7 +429,7 @@ class FlowExecutorTest extends TestCase
         $customer = $this->customerRepository->search(
             new Criteria([$ids->get('customer-1')]),
             $salesChannelContext->getContext()
-        )->first();
+        )->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
@@ -438,6 +440,7 @@ class FlowExecutorTest extends TestCase
         );
 
         $this->flowDispatcher->dispatch($event);
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
     }
 
     private function createDefaultSalesChannelContext(bool $withCustomer = true): SalesChannelContext

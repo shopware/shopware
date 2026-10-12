@@ -108,7 +108,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
 
             $groupResult = $this->groupRepository->search($cloned, $context->getContext());
 
-            $groups->fill($groupResult->getElements());
+            $groups->fill($groupResult->getEntities()->getElements());
         }
 
         foreach ($groups as $group) {
@@ -120,7 +120,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
         }
 
         $groups->sortByPositions();
-        $groups->sortByConfig();
+        $groups->sortByConfig($context->getLanguageInfo()->localeCode);
 
         $aggregations = $result->getAggregations();
 

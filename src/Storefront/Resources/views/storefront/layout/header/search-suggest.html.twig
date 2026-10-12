@@ -6,12 +6,11 @@
 
             <ul class="search-suggest-container"
                 id="search-suggest-listbox"
-                aria-label="{{ 'header.searchDropdownTitle'|trans|striptags }}"
-                role="listbox">
+                aria-label="{{ 'header.searchDropdownTitle'|trans|striptags }}">
                 {% block layout_search_suggest_results %}
-                    {% for product in page.searchResult %}
+                    {% for product in page.searchResult.entities %}
                         {% block layout_search_suggest_result_product %}
-                            <li class="search-suggest-product js-result" role="option">
+                            <li class="search-suggest-product js-result">
                                 {% block layout_search_suggest_result_link %}
                                     <a href="{{ seoUrl('frontend.detail.page', {productId: product.id}) }}"
                                        title="{{ product.translated.name }}"
@@ -19,9 +18,11 @@
                                         <div class="row align-items-center g-0">
                                             {% block layout_search_suggest_result_image %}
                                                 <div class="col-auto search-suggest-product-image-container">
+                                                    {% set altAttribute = product.cover.media.translated.alt ?: '' %}
+                                                    {% set titleAttribute = altAttribute ? (product.cover.media.translated.title ?: '') : '' %}
                                                     {% set attributes = {
                                                         class: 'search-suggest-product-image',
-                                                        title: (product.cover.media.translated.title ?: '')
+                                                        title: titleAttribute
                                                     } %}
 
                                                     {% if product.cover.media.url and product.cover.media.isSpatialObject() == false %}
@@ -32,7 +33,7 @@
                                                             } %}
                                                         {% else %}
                                                             {% set attributes = attributes|merge({
-                                                                alt: (product.cover.media.translated.alt ?: '')
+                                                                alt: altAttribute
                                                             }) %}
 
                                                             {% sw_thumbnails 'search-suggest-product-image-thumbnails' with {
@@ -111,13 +112,13 @@
                 {% block layout_search_suggest_result_total %}
                     {% if page.searchResult.total == 0 %}
                         {% block layout_search_suggest_no_result %}
-                            <li class="search-suggest-no-result" id="search-suggest-result-info" role="option">
+                            <li class="search-suggest-no-result" id="search-suggest-result-info">
                                 {{ 'header.searchNoResult'|trans|sw_sanitize }}
                             </li>
                         {% endblock %}
                     {% else %}
                         {% block layout_search_suggest_result_total_result %}
-                            <li class="js-result search-suggest-total" role="option">
+                            <li class="js-result search-suggest-total">
                                 <div class="row align-items-center g-0">
                                     {% block layout_search_suggest_result_total_link %}
                                         <div class="col">

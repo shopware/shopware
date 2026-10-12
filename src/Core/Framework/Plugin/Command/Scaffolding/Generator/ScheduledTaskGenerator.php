@@ -20,13 +20,12 @@ class ScheduledTaskGenerator implements ScaffoldingGenerator
     private const OPTION_DESCRIPTION = 'Create an example scheduled task';
     private const CLI_QUESTION = 'Do you want to create an example scheduled task?';
 
-    private string $servicesXmlEntry = <<<'EOL'
+    private string $servicesPhpEntry = <<<'EOL'
 
-            <service id="{{ namespace }}\ScheduledTask\ExampleTask">
-                <tag name="shopware.scheduled.task"/>
-            </service>
+    $services->set(\{{ namespace }}\ScheduledTask\ExampleTask::class)
+        ->tag('shopware.scheduled.task');
 
-    EOL;
+EOL;
 
     public function generateStubs(
         PluginScaffoldConfiguration $configuration,
@@ -39,11 +38,11 @@ class ScheduledTaskGenerator implements ScaffoldingGenerator
         $stubCollection->add($this->createScheduledTask($configuration));
 
         $stubCollection->append(
-            'src/Resources/config/services.xml',
+            'src/Resources/config/services.php',
             str_replace(
                 '{{ namespace }}',
                 $configuration->namespace,
-                $this->servicesXmlEntry
+                $this->servicesPhpEntry
             )
         );
     }

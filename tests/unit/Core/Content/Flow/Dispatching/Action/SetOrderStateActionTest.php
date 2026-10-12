@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
@@ -24,16 +24,16 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 #[CoversClass(SetOrderStateAction::class)]
 class SetOrderStateActionTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
-    private MockObject&OrderService $orderService;
+    private OrderService&Stub $orderService;
 
     private SetOrderStateAction $action;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->orderService = $this->createMock(OrderService::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->orderService = static::createStub(OrderService::class);
 
         $this->action = new SetOrderStateAction($this->connection, $this->orderService);
     }
@@ -66,7 +66,10 @@ class SetOrderStateActionTest extends TestCase
         ]);
         $flow->setConfig($config);
 
-        $this->connection->expects($this->exactly($expectsTimes))
+        $connection = $this->createMock(Connection::class);
+        $orderService = $this->createMock(OrderService::class);
+
+        $connection->expects($this->exactly($expectsTimes))
             ->method('fetchOne')
             ->willReturnOnConsecutiveCalls(
                 Uuid::randomHex(),
@@ -86,47 +89,48 @@ class SetOrderStateActionTest extends TestCase
             );
 
         if ($expected['order']) {
-            $this->orderService->expects($this->once())
+            $orderService->expects($this->once())
                 ->method('orderStateTransition')
                 ->with($orderId, $expected['order'], new ParameterBag());
         } else {
-            $this->orderService->expects($this->never())
+            $orderService->expects($this->never())
                 ->method('orderStateTransition');
         }
 
         if ($expected['orderDelivery']) {
-            $this->orderService->expects($this->once())
+            $orderService->expects($this->once())
                 ->method('orderDeliveryStateTransition')
                 ->with($ids->get('orderDeliveryId'), $expected['orderDelivery'], new ParameterBag());
         } else {
-            $this->orderService->expects($this->never())
+            $orderService->expects($this->never())
                 ->method('orderDeliveryStateTransition');
         }
 
         if ($expected['orderTransaction']) {
-            $this->orderService->expects($this->once())
+            $orderService->expects($this->once())
                 ->method('orderTransactionStateTransition')
                 ->with($ids->get('orderTransactionId'), $expected['orderTransaction'], new ParameterBag());
         } else {
-            $this->orderService->expects($this->never())
+            $orderService->expects($this->never())
                 ->method('orderTransactionStateTransition');
         }
 
-        $this->action->handleFlow($flow);
+        $this->createAction($connection, $orderService)->handleFlow($flow);
     }
 
     public function testActionWithNotAware(): void
     {
         $flow = new StorableFlow('foo', Context::createDefaultContext());
 
-        $this->orderService->expects($this->never())
+        $orderService = $this->createMock(OrderService::class);
+        $orderService->expects($this->never())
             ->method('orderStateTransition');
-        $this->orderService->expects($this->never())
+        $orderService->expects($this->never())
             ->method('orderDeliveryStateTransition');
-        $this->orderService->expects($this->never())
+        $orderService->expects($this->never())
             ->method('orderTransactionStateTransition');
 
-        $this->action->handleFlow($flow);
+        $this->createAction(orderService: $orderService)->handleFlow($flow);
     }
 
     public function testActionWithEmptyConfig(): void
@@ -135,14 +139,15 @@ class SetOrderStateActionTest extends TestCase
             OrderAware::ORDER_ID => Uuid::randomHex(),
         ]);
 
-        $this->orderService->expects($this->never())
+        $orderService = $this->createMock(OrderService::class);
+        $orderService->expects($this->never())
             ->method('orderStateTransition');
-        $this->orderService->expects($this->never())
+        $orderService->expects($this->never())
             ->method('orderDeliveryStateTransition');
-        $this->orderService->expects($this->never())
+        $orderService->expects($this->never())
             ->method('orderTransactionStateTransition');
 
-        $this->action->handleFlow($flow);
+        $this->createAction(orderService: $orderService)->handleFlow($flow);
     }
 
     public static function actionProvider(): \Generator
@@ -255,5 +260,13 @@ class SetOrderStateActionTest extends TestCase
                 'orderTransaction' => null,
             ],
         ];
+    }
+
+    private function createAction(?Connection $connection = null, ?OrderService $orderService = null): SetOrderStateAction
+    {
+        return new SetOrderStateAction(
+            $connection ?? $this->connection,
+            $orderService ?? $this->orderService,
+        );
     }
 }

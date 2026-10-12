@@ -1,20 +1,14 @@
-@import "~scss/variables";
-
-$sw-model-editor-collapse-color-divider: $color-gray-300;
-$sw-model-editor-collapse-color-title: $color-darkgray-200;
-$sw-model-editor-collapse-font-size-title: $font-size-s;
-
 .sw-model-editor .sw-collapse {
     .sw-model-editor-collapse__header {
         display: grid;
         grid-template-columns: 1fr auto;
         cursor: pointer;
         padding: 16px 25px 0;
-        color: $sw-model-editor-collapse-color-title;
+        color: var(--color-text-primary-default);
     }
 
     .sw-model-editor-collapse__title {
-        font-size: $sw-model-editor-collapse-font-size-title;
+        font-size: var(--font-size-s);
         font-weight: normal;
     }
 
@@ -26,5 +20,5 @@ $sw-model-editor-collapse-font-size-title: $font-size-s;
         padding: 0 25px 25px;
     }
 
-    border-bottom: 1px solid $sw-model-editor-collapse-color-divider;
+    border-bottom: 1px solid var(--color-border-secondary-default);
 }

@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\PluginListCommand;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -20,6 +22,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PluginListCommand::class)]
 class PluginListCommandTest extends TestCase
 {
@@ -28,7 +31,7 @@ class PluginListCommandTest extends TestCase
      */
     private MockObject&EntityRepository $pluginRepoMock;
 
-    private MockObject&ComposerPluginLoader $composerPluginLoaderMock;
+    private Stub&ComposerPluginLoader $composerPluginLoaderMock;
 
     private PluginListCommand $command;
 
@@ -36,7 +39,7 @@ class PluginListCommandTest extends TestCase
     {
         parent::setUp();
         $this->pluginRepoMock = $this->createMock(EntityRepository::class);
-        $this->composerPluginLoaderMock = $this->createMock(ComposerPluginLoader::class);
+        $this->composerPluginLoaderMock = static::createStub(ComposerPluginLoader::class);
 
         $this->command = new PluginListCommand($this->pluginRepoMock, $this->composerPluginLoaderMock);
     }
@@ -145,12 +148,63 @@ class PluginListCommandTest extends TestCase
             return true;
         });
 
-        $this->pluginRepoMock->method('search')->with($criteria, static::anything());
+        $this->pluginRepoMock->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $actualCriteria) use ($criteria): EntitySearchResult {
+                static::assertThat($actualCriteria, $criteria);
+
+                $result = static::createStub(EntitySearchResult::class);
+                $result->method('getEntities')->willReturn(new PluginCollection());
+
+                return $result;
+            });
 
         $commandTester = $this->executeCommand(['--filter' => $filterValue]);
 
         static::assertSame(0, $commandTester->getStatusCode());
         static::assertStringContainsString('Filtering for: ' . $filterValue, trim($commandTester->getDisplay()));
+    }
+
+    public function testTruncatesAuthorAndSupportsMissingAuthor(): void
+    {
+        $pluginWithLongAuthor = new PluginEntity();
+        $pluginWithLongAuthor->setUniqueIdentifier('1');
+        $pluginWithLongAuthor->assign([
+            'active' => false,
+            'name' => 'PluginWithLongAuthor',
+            'label' => 'Plugin with long author',
+            'version' => '1.0.0',
+            'author' => str_repeat('a', 41),
+        ]);
+
+        $pluginWithoutAuthor = new PluginEntity();
+        $pluginWithoutAuthor->setUniqueIdentifier('2');
+        $pluginWithoutAuthor->assign([
+            'active' => false,
+            'name' => 'PluginWithoutAuthor',
+            'label' => 'Plugin without author',
+            'version' => '1.0.0',
+        ]);
+
+        $pluginWithLongMultibyteAuthor = new PluginEntity();
+        $pluginWithLongMultibyteAuthor->setUniqueIdentifier('3');
+        $pluginWithLongMultibyteAuthor->assign([
+            'active' => false,
+            'name' => 'PluginWithLongMultibyteAuthor',
+            'label' => 'Plugin with long multibyte author',
+            'version' => '1.0.0',
+            'author' => str_repeat('ä', 41),
+        ]);
+
+        $this->setupEntityCollection([$pluginWithLongAuthor, $pluginWithoutAuthor, $pluginWithLongMultibyteAuthor]);
+        $this->setupComposerPluginLoaderMock([]);
+
+        $commandTester = $this->executeCommand([]);
+
+        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertStringContainsString(str_repeat('a', 37) . '...', $commandTester->getDisplay());
+        static::assertStringContainsString('PluginWithoutAuthor', $commandTester->getDisplay());
+        static::assertStringContainsString(str_repeat('ä', 37) . '...', $commandTester->getDisplay());
     }
 
     public function testFormatJsonOutput(): void
@@ -199,7 +253,7 @@ class PluginListCommandTest extends TestCase
 
     public function testInvalidFormatReturnsError(): void
     {
-        $this->setupEntityCollection([]);
+        $this->pluginRepoMock->expects($this->never())->method('search');
 
         $commandTester = $this->executeCommand(['--format' => 'xml']);
         static::assertSame(2, $commandTester->getStatusCode());
@@ -222,9 +276,9 @@ class PluginListCommandTest extends TestCase
      */
     private function setupEntityCollection(array $entities): void
     {
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new PluginCollection($entities));
-        $this->pluginRepoMock->method('search')->willReturn($result);
+        $this->pluginRepoMock->expects($this->atLeastOnce())->method('search')->willReturn($result);
     }
 
     /**

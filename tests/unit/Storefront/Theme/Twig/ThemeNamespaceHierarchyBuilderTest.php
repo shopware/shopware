@@ -7,8 +7,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\File\Event\SalesChannelFileTemplateResolveEvent;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface;
@@ -22,17 +24,21 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeNamespaceHierarchyBuilder::class)]
 class ThemeNamespaceHierarchyBuilderTest extends TestCase
 {
     private ThemeNamespaceHierarchyBuilder $builder;
 
+    private TestInheritanceBuilder $inheritanceBuilder;
+
     protected function setUp(): void
     {
-        $connectionMock = $this->createMock(Connection::class);
+        $connectionMock = static::createStub(Connection::class);
         $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
 
-        $this->builder = new ThemeNamespaceHierarchyBuilder(new TestInheritanceBuilder(), $cachedThemeLoader);
+        $this->inheritanceBuilder = new TestInheritanceBuilder();
+        $this->builder = new ThemeNamespaceHierarchyBuilder($this->inheritanceBuilder, $cachedThemeLoader);
     }
 
     public function testThemeNamespaceHierarchyBuilderSubscribesToRequestAndExceptionEvents(): void
@@ -43,6 +49,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
             KernelEvents::REQUEST,
             KernelEvents::EXCEPTION,
             DocumentTemplateRendererParameterEvent::class,
+            SalesChannelFileTemplateResolveEvent::class,
         ], array_keys($events));
     }
 
@@ -50,7 +57,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
     {
         $request = Request::createFromGlobals();
 
-        $this->builder->requestEvent(new RequestEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
+        $this->builder->requestEvent(new RequestEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
 
         $this->assertThemes([], $this->builder);
     }
@@ -60,7 +67,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         $request = Request::createFromGlobals();
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'TestTheme');
 
-        $this->builder->requestEvent(new RequestEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
+        $this->builder->requestEvent(new RequestEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
 
         $this->assertThemes([
             'Storefront' => true,
@@ -78,14 +85,29 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         $request = Request::createFromGlobals();
         $event = new DocumentTemplateRendererParameterEvent($parameters);
 
-        $expectedDB = [
-            'themeName' => $usingTheme,
-            'parentThemeName' => $usingParentTheme,
-            'themeId' => Uuid::randomHex(),
-        ];
-        $connectionMock = $this->createMock(Connection::class);
+        $expectedDB = [[
+            'themeId' => 'theme',
+            'technicalName' => $usingTheme,
+            'parentThemeId' => $usingParentTheme !== null ? 'parentTheme' : null,
+            'configInheritance' => null,
+            'assigned' => 1,
+        ]];
+
+        if ($usingParentTheme !== null) {
+            $expectedDB[] = [
+                'themeId' => 'parentTheme',
+                'technicalName' => $usingParentTheme,
+                'parentThemeId' => null,
+                'configInheritance' => null,
+                'assigned' => 0,
+            ];
+        }
+
         if (\array_key_exists('context', $parameters)) {
-            $connectionMock->expects($this->exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
+            $connectionMock = $this->createMock(Connection::class);
+            $connectionMock->expects($this->exactly(1))->method('fetchAllAssociative')->willReturn($expectedDB);
+        } else {
+            $connectionMock = static::createStub(Connection::class);
         }
         $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
 
@@ -97,7 +119,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
 
         $builder = new ThemeNamespaceHierarchyBuilder(new TestInheritanceBuilder(), $cachedThemeLoader);
 
-        $builder->requestEvent(new ExceptionEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, new \RuntimeException()));
+        $builder->requestEvent(new ExceptionEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, new \RuntimeException()));
 
         $this->assertThemes([], $builder);
     }
@@ -107,12 +129,35 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         $request = Request::createFromGlobals();
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'TestTheme');
 
-        $this->builder->requestEvent(new ExceptionEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, new \RuntimeException()));
+        $this->builder->requestEvent(new ExceptionEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, new \RuntimeException()));
 
         $this->assertThemes([
             'Storefront' => true,
             'TestTheme' => true,
         ], $this->builder);
+    }
+
+    public function testOnSalesChannelFileTemplateResolveLoadsThemeForSalesChannel(): void
+    {
+        $connectionMock = $this->createMock(Connection::class);
+        $connectionMock
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([[
+                'themeId' => 'theme',
+                'technicalName' => 'SwagTheme',
+                'parentThemeId' => null,
+                'configInheritance' => null,
+                'assigned' => 1,
+            ]]);
+
+        $builder = new ThemeNamespaceHierarchyBuilder(new TestInheritanceBuilder(), new DatabaseSalesChannelThemeLoader($connectionMock));
+        $builder->onSalesChannelFileTemplateResolve(new SalesChannelFileTemplateResolveEvent(Uuid::randomHex()));
+
+        $this->assertThemes([
+            'SwagTheme' => true,
+            'Storefront' => true,
+        ], $builder);
     }
 
     public function testThemesIfBaseNameIsSet(): void
@@ -121,7 +166,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, null);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, 'TestTheme');
 
-        $this->builder->requestEvent(new RequestEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
+        $this->builder->requestEvent(new RequestEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
 
         $this->assertThemes([
             'Storefront' => true,
@@ -135,7 +180,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, null);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, 'TestTheme');
 
-        $this->builder->requestEvent(new RequestEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
+        $this->builder->requestEvent(new RequestEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
 
         $this->builder->reset();
 
@@ -158,7 +203,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         $request = Request::createFromGlobals();
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'TestTheme');
 
-        $this->builder->requestEvent(new RequestEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
+        $this->builder->requestEvent(new RequestEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
 
         $hierarchy = $this->builder->buildNamespaceHierarchy($bundles);
 
@@ -166,6 +211,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
             'Storefront' => 1,
             'TestTheme' => 1,
         ], $hierarchy);
+        static::assertSame($bundles, $this->inheritanceBuilder->receivedBundles);
     }
 
     /**
@@ -220,9 +266,18 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
      */
     private function assertThemes(array $expectation, ThemeNamespaceHierarchyBuilder $builder): void
     {
-        $refProperty = (new \ReflectionProperty(ThemeNamespaceHierarchyBuilder::class, 'themes'))->getValue($builder);
+        $bundles = ['SomeBundle' => 1];
+        $hierarchy = $builder->buildNamespaceHierarchy($bundles);
 
-        static::assertEquals($expectation, $refProperty);
+        if ($expectation === []) {
+            // Without detected themes the hierarchy is passed through untouched
+            static::assertSame($bundles, $hierarchy);
+
+            return;
+        }
+
+        // TestInheritanceBuilder maps every theme it receives to a priority
+        static::assertEquals(array_map(static fn (bool $active): int => $active ? 1 : 0, $expectation), $hierarchy);
     }
 }
 
@@ -232,6 +287,11 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
 class TestInheritanceBuilder implements ThemeInheritanceBuilderInterface
 {
     /**
+     * @var array<string, int>|null
+     */
+    public ?array $receivedBundles = null;
+
+    /**
      * @param array<string, int> $bundles
      * @param array<int|string, bool> $themes
      *
@@ -239,6 +299,8 @@ class TestInheritanceBuilder implements ThemeInheritanceBuilderInterface
      */
     public function build(array $bundles, array $themes): array
     {
+        $this->receivedBundles = $bundles;
+
         // Convert boolean theme values to integer priorities for test purposes
         $result = [];
         foreach ($themes as $key => $value) {

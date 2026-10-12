@@ -31,7 +31,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('inventory')]
 class AgenticCommerceProductExportFlowTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -121,7 +121,7 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertFalse($exportedProduct['is_digital']);
         static::assertSame('DE', $exportedProduct['store_country']);
         static::assertIsArray($exportedProduct['target_countries']);
-        static::assertNotEmpty($exportedProduct['target_countries']);
+        static::assertNotCount(0, $exportedProduct['target_countries']);
         static::assertContains('DE', $exportedProduct['target_countries']);
         static::assertSame('1234567890123', $exportedProduct['gtin']);
         static::assertSame('MPN-123', $exportedProduct['mpn']);
@@ -525,7 +525,7 @@ class AgenticCommerceProductExportFlowTest extends TestCase
             'salesChannelDomain.language.locale',
         ]);
 
-        $productExport = $this->productExportRepository->search($criteria, $this->context)->first();
+        $productExport = $this->productExportRepository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
@@ -748,7 +748,7 @@ class AgenticCommerceProductExportFlowTest extends TestCase
             'salesChannelDomain.language.locale',
         ]);
 
-        $productExport = $this->productExportRepository->search($criteria, $this->context)->first();
+        $productExport = $this->productExportRepository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
@@ -763,7 +763,7 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         $criteria = new Criteria([$salesChannelId]);
         $criteria->addAssociation('domains');
 
-        $salesChannel = $repository->search($criteria, $this->context)->first();
+        $salesChannel = $repository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
@@ -780,7 +780,7 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         $criteria->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        $salesChannel = $repository->search($criteria, $this->context)->first();
+        $salesChannel = $repository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 

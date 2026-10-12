@@ -8,12 +8,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceGeneratorCommand;
 use Shopware\Core\DevOps\Docs\Script\ServiceReferenceGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ScriptReferenceGeneratorCommand::class)]
 class ScriptReferenceGeneratorCommandTest extends TestCase
 {

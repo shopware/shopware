@@ -1,16 +1,16 @@
 {% block sw_customer_detail_addresses %}
 <div class="sw-customer-detail-addresses">
-
     {% block sw_customer_detail_addresses_card %}
     <mt-card
         position-identifier="sw-customer-detail-addresses"
+        :title="$t('sw-customer.detailAddresses.cardTitle')"
         :is-loading="isLoading"
         :large="true"
     >
         {% block sw_customer_detail_addresses_toolbar %}
         <template #toolbar>
             <sw-card-filter
-                placeholder=""
+                :placeholder="$t('sw-customer.detailAddresses.filterPlaceholder')"
                 @sw-card-filter-term-change="onChange"
             >
                 <template #filter>
@@ -22,10 +22,6 @@
                         variant="secondary"
                         @click="onCreateNewAddress"
                     >
-                        <mt-icon
-                            name="regular-plus-circle-s"
-                            size="16px"
-                        />
                         {{ $t('sw-customer.detailAddresses.buttonAddAddress') }}
                     </mt-button>
                     {% endblock %}
@@ -40,14 +36,12 @@
             :title="$t('sw-customer.detailAddresses.modalTitleAddress')"
             @modal-close="onCloseAddressModal"
         >
-
             {% block sw_customer_detail_addresses_add_modal_address_form %}
             <sw-customer-address-form
                 :address="currentAddress"
                 :customer="activeCustomer"
                 :disabled="!customerEditMode"
             >
-
                 <sw-customer-address-form-options
                     :address="currentAddress"
                     :customer="activeCustomer"
@@ -55,7 +49,6 @@
                     :disabled="!customerEditMode"
                     @default-address-change="onChangeDefaultAddress"
                 />
-
             </sw-customer-address-form>
             {% endblock %}
 
@@ -126,15 +119,16 @@
 
                 {% block sw_customer_detail_addresses_grid_columns_last_name %}
                 <template #column-lastName="{ item }">
-                    <a
+                    <mt-link
                         v-if="customerEditMode"
+                        as="a"
                         role="link"
                         tabindex="0"
                         @click="onEditAddress(item.id)"
                         @keydown.enter="onEditAddress(item.id)"
                     >
                         {{ item.lastName }}
-                    </a>
+                    </mt-link>
 
                     <template v-else>
                         {{ item.lastName }}
@@ -145,13 +139,12 @@
 
                 {% block sw_customer_detail_addresses_grid_columns_actions %}
                 <template #actions="{ item }">
-
                     {% block sw_customer_detail_addresses_grid_columns_actions_edit %}
                     <sw-context-menu-item
                         :disabled="!customerEditMode"
                         @click="onEditAddress(item.id)"
                     >
-                        {{ $t('sw-customer.detailAddresses.contextMenuEdit') }}
+                        {{ $t('global.default.edit') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -160,7 +153,7 @@
                         :disabled="!customerEditMode"
                         @click="onDuplicateAddress(item.id)"
                     >
-                        {{ $t('sw-customer.detailAddresses.contextMenuDuplicate') }}
+                        {{ $t('global.default.duplicate') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -188,7 +181,7 @@
                         :disabled="!customerEditMode || isDefaultAddress(item.id)"
                         @click="onDeleteAddress(item.id)"
                     >
-                        {{ $t('sw-customer.detailAddresses.contextMenuDelete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -210,10 +203,6 @@
                         {% endblock %}
 
                         {% block sw_customer_detail_addresses_delete_modal_address_item %}
-                        <sw-address
-                            class="sw-customer-detail-addresses__confirm-delete-address"
-                            :address="item"
-                        />
                         {% endblock %}
 
                         {% block sw_customer_detail_addresses_delete_modal_footer %}
@@ -234,7 +223,7 @@
                                 size="small"
                                 @click="onConfirmDeleteAddress(item.id)"
                             >
-                                {{ $t('sw-customer.detailAddresses.buttonDelete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                             {% endblock %}
                         </template>

@@ -15,19 +15,15 @@ const Criteria = Shopware.Data.Criteria;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: ['element-update'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {
+            activeTab: 'content',
             mediaModalIsOpen: false,
             initialFolderId: null,
             entity: this.element,
@@ -37,6 +33,19 @@ export default {
     },
 
     computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.settings'),
+                    name: 'settings',
+                },
+            ];
+        },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
@@ -369,12 +378,7 @@ export default {
         },
 
         onChangeDisplayMode(value) {
-            if (
-                [
-                    'cover',
-                    'contain',
-                ].includes(value)
-            ) {
+            if (['cover', 'contain'].includes(value)) {
                 this.element.config.verticalAlign.value = null;
             }
 

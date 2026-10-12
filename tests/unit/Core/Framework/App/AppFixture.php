@@ -31,6 +31,7 @@ final class AppFixture
         $app = new AppEntity();
         $app->setId($id ?? Uuid::randomHex());
         $app->setName($name);
+        $app->setLabel($name);
         $app->setPath($name);
         $app->setActive($active);
         $app->setAllowDisable($allowDisable);
@@ -38,6 +39,7 @@ final class AppFixture
         $app->setIntegrationId('integration-id');
         $app->setAclRoleId('acl-role-id');
         $app->setSourceType('static');
+        $app->setCreatedAt(new \DateTimeImmutable('2026-01-01 00:00:00'));
 
         return $app;
     }
@@ -47,7 +49,6 @@ final class AppFixture
      */
     public static function createAppRepository(AppEntity ...$apps): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppCollection> $repository */
         $repository = new StaticEntityRepository([new AppCollection($apps)]);
 
         return $repository;
@@ -67,7 +68,6 @@ final class AppFixture
             'translationCode' => $localeEntity,
         ]);
 
-        /** @var StaticEntityRepository<LanguageCollection> $repository */
         $repository = new StaticEntityRepository([new LanguageCollection([$languageEntity])]);
 
         return $repository;

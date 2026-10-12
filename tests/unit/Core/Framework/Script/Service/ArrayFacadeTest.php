@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Script\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ArrayFacade::class)]
 class ArrayFacadeTest extends TestCase
 {

@@ -17,5 +17,9 @@ export default {
                 });
             },
         },
+
+        documentTypeTechnicalName() {
+            return 'storno';
+        },
     },
 };

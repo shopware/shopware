@@ -7,6 +7,7 @@ use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaPathStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -14,6 +15,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('discovery')]
 class MediaPathStorageTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -96,7 +98,7 @@ class MediaPathStorageTest extends TestCase
         $statement = $this->createMock(Statement::class);
         $statement->expects($this->never())->method('executeStatement');
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('prepare')->willReturn($statement);
 
         $storage = new SqlMediaPathStorage(static::getContainer()->get(Connection::class));

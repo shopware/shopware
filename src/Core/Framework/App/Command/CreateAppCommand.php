@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
@@ -17,6 +16,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 use function Symfony\Component\String\u;
@@ -26,8 +26,8 @@ use function Symfony\Component\String\u;
  *
  * @phpstan-type PropertyDefinitions array<string, array{name: string, description: string, prompt: string, default: string, validator?: callable(string): string, normaliser?: callable(string): string}>
  */
-#[AsCommand(name: 'app:create', description: 'Creates an app skeleton')]
 #[Package('framework')]
+#[AsCommand(name: 'app:create', description: 'Creates an app skeleton')]
 class CreateAppCommand extends Command
 {
     /**
@@ -52,7 +52,7 @@ class CreateAppCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $propertyDefinitions = self::getPropertyDefinitions();
 
         $details = $this->gatherDetails($propertyDefinitions, $io, $input);
@@ -103,7 +103,7 @@ class CreateAppCommand extends Command
      *
      * @return array<string, string>
      */
-    private function gatherDetails(array $propertyDefinitions, ShopwareStyle $io, InputInterface $input): array
+    private function gatherDetails(array $propertyDefinitions, SymfonyStyle $io, InputInterface $input): array
     {
         return array_map(
             static function (array $property) use ($io, $input) {

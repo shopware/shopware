@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ActionButton\Response;
 use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponse;
@@ -18,11 +18,13 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(OpenModalResponseFactory::class)]
 class OpenModalResponseFactoryTest extends TestCase
 {
@@ -30,11 +32,11 @@ class OpenModalResponseFactoryTest extends TestCase
 
     private AppAction $action;
 
-    private QuerySigner&MockObject $signer;
+    private QuerySigner&Stub $signer;
 
     protected function setUp(): void
     {
-        $this->signer = $this->createMock(QuerySigner::class);
+        $this->signer = static::createStub(QuerySigner::class);
         $this->factory = new OpenModalResponseFactory($this->signer);
 
         $app = new AppEntity();
@@ -63,12 +65,14 @@ class OpenModalResponseFactoryTest extends TestCase
     public function testCreatesOpenModalResponse(): void
     {
         $context = Context::createDefaultContext();
-        $this->signer->expects($this->once())
+        $signer = static::createMock(QuerySigner::class);
+        $signer->expects($this->once())
             ->method('signUri')
             ->with('http://iframe.url', $this->action->getApp(), $context)
             ->willReturn(new Uri('http://iframe.url?shopware-shop-signature=signature'));
+        $factory = new OpenModalResponseFactory($signer);
 
-        $response = $this->factory->create($this->action, [
+        $response = $factory->create($this->action, [
             'iframeUrl' => 'http://iframe.url',
             'size' => 'medium',
             'expand' => false,

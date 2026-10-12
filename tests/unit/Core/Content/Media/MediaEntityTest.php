@@ -6,6 +6,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaType\ImageType;
+use Shopware\Core\Content\Media\MediaType\MediaType;
+use Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface;
+use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -39,5 +43,69 @@ class MediaEntityTest extends TestCase
         yield 'only-ext' => ['file' => null, 'ext' => 'jpg', 'expected' => null];
         yield 'only-file' => ['file' => 'Tuscany-Landscape', 'ext' => null, 'expected' => null];
         yield 'file-and-ext' => ['file' => 'Tuscany-Landscape', 'ext' => 'jpg', 'expected' => 'Tuscany-Landscape.jpg'];
+    }
+
+    public function testHasFileRequiresTheFileMetadataOrAPath(): void
+    {
+        $media = new MediaEntity();
+        static::assertFalse($media->hasFile());
+        static::assertFalse($media->hasPath());
+        static::assertSame('', $media->getPath());
+
+        $media->setPath('media/tuscany.jpg');
+        static::assertTrue($media->hasFile());
+        static::assertTrue($media->hasPath());
+        static::assertSame('media/tuscany.jpg', $media->getPath());
+
+        $withMetadata = new MediaEntity();
+        $withMetadata->setMimeType('image/jpeg');
+        $withMetadata->setFileExtension('jpg');
+        $withMetadata->setFileName('tuscany');
+        static::assertTrue($withMetadata->hasFile());
+    }
+
+    public function testGetResolvesHasFileAsAProperty(): void
+    {
+        $media = new MediaEntity();
+        $media->setPath('media/tuscany.jpg');
+        $media->setTitle('Tuscany');
+
+        static::assertTrue($media->get('hasFile'));
+        static::assertSame('Tuscany', $media->get('title'));
+    }
+
+    public function testIsSpatialCoversEveryTypeTheViewerRenders(): void
+    {
+        $media = new MediaEntity();
+
+        static::assertFalse($media->isSpatial());
+
+        $media->setMediaType(new ImageType());
+        static::assertFalse($media->isSpatial());
+
+        $media->setMediaType(new SpatialObjectType());
+        static::assertTrue($media->isSpatial());
+        static::assertTrue($media->isSpatialObject());
+
+        $media->setMediaType(new class extends MediaType implements SpatialMediaTypeInterface {
+            protected string $name = 'EXTENSION_SPATIAL';
+        });
+        static::assertTrue($media->isSpatial());
+        static::assertFalse($media->isSpatialObject());
+    }
+
+    public function testJsonSerializeHidesTheRawDataAndAddsHasFile(): void
+    {
+        $media = new MediaEntity();
+        $media->setMediaTypeRaw('media-type-raw');
+        $media->setMetaDataRaw('meta-data-raw');
+
+        static::assertSame('media-type-raw', $media->getMediaTypeRaw());
+
+        $data = $media->jsonSerialize();
+
+        static::assertArrayNotHasKey('mediaTypeRaw', $data);
+        static::assertArrayNotHasKey('metaDataRaw', $data);
+        static::assertFalse($data['hasFile']);
     }
 }

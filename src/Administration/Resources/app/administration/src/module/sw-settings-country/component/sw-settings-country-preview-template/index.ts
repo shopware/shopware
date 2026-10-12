@@ -16,6 +16,12 @@ export default Component.wrapComponentConfig({
             type: String,
             required: true,
         },
+
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {

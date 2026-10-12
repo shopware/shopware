@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<LocaleTranslationEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class LocaleTranslationCollection extends EntityCollection

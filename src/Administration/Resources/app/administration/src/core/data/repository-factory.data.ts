@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import Repository from './repository.data';
 import type EntityHydrator from './entity-hydrator.data';
 import type ChangesetGenerator from './changeset-generator.data';
@@ -17,7 +17,7 @@ export default class RepositoryFactory {
 
     private entityFactory: EntityFactory;
 
-    private httpClient: AxiosInstance;
+    private httpClient: HttpClient;
 
     private errorResolver: ErrorResolver;
 
@@ -25,7 +25,7 @@ export default class RepositoryFactory {
         hydrator: EntityHydrator,
         changesetGenerator: ChangesetGenerator,
         entityFactory: EntityFactory,
-        httpClient: AxiosInstance,
+        httpClient: HttpClient,
         errorResolver: ErrorResolver,
     ) {
         this.hydrator = hydrator;
@@ -39,7 +39,7 @@ export default class RepositoryFactory {
      * Creates a repository for the provided entity.
      * The route parameter allows to configure a custom route for the entity - used for association loading.
      */
-    create<EntityName extends keyof EntitySchema.Entities>(
+    create<EntityName extends keyof EntitySchema.EntityKeys>(
         entityName: EntityName,
         route = '',
         options = {},

@@ -11,11 +11,11 @@ use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
 use Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 
 /**
  * @internal
@@ -24,7 +24,6 @@ use Shopware\Core\System\User\Recovery\UserRecoveryService;
 class UserRecoveryControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
-    use EventDispatcherBehaviour;
 
     private const VALID_EMAIL = UserProvisioner::USER_EMAIL_FALLBACK;
 
@@ -74,8 +73,7 @@ class UserRecoveryControllerTest extends TestCase
 
         $dispatchedEvent = null;
 
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             UserRecoveryRequestEvent::EVENT_NAME,
             static function (UserRecoveryRequestEvent $event) use (&$dispatchedEvent): void {
                 $dispatchedEvent = $event;
@@ -98,7 +96,7 @@ class UserRecoveryControllerTest extends TestCase
         $userRecovery = static::getContainer()->get('user_recovery.repository')->search(
             $criteria,
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
 
         static::assertNotNull($userRecovery);
         static::assertNotNull($dispatchedEvent);
@@ -114,7 +112,7 @@ class UserRecoveryControllerTest extends TestCase
         $logEntries = static::getContainer()->get('log_entry.repository')->search(
             $logCriteria,
             Context::createDefaultContext()
-        );
+        )->getEntities();
 
         static::assertCount(0, $logEntries);
 
@@ -138,7 +136,7 @@ class UserRecoveryControllerTest extends TestCase
         static::assertInstanceOf(UserRecoveryEntity::class, $recovery = static::getContainer()->get('user_recovery.repository')->search(
             $criteria,
             Context::createDefaultContext()
-        )->first());
+        )->getEntities()->first());
 
         return $recovery->getHash();
     }

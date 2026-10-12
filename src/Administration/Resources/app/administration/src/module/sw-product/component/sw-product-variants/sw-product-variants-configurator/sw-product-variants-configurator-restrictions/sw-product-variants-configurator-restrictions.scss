@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-product-variants-configurator-restrictions {
     display: flex;
     flex-direction: column;
@@ -10,8 +8,8 @@
         grid-template-columns: 1fr calc(var(--scale-size-160) + var(--scale-size-40));
         grid-column-gap: var(--scale-size-16);
         padding: var(--scale-size-26);
-        background-color: var(--color-background-secondary-default);
-        border-bottom: var(--scale-size-1) solid var(--color-gray-300);
+        background-color: var(--color-elevation-surface-sunken);
+        border-bottom: var(--scale-size-1) solid var(--color-border-secondary-default);
     }
 
     .sw-product-variants-configurator-restrictions__modal.sw-modal .sw-modal__body {

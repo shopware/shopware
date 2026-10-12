@@ -55,10 +55,38 @@ async function createWrapper() {
                 },
                 provide: {
                     systemConfigApiService: {
-                        getConfig: () =>
-                            Promise.resolve({
+                        getSchema: () => {
+                            return Promise.resolve([
+                                {
+                                    title: null,
+                                    name: null,
+                                    cards: [
+                                        {
+                                            title: {
+                                                'en-GB': 'SEO',
+                                            },
+                                            name: null,
+                                            elements: [
+                                                {
+                                                    name: 'redirectToCanonicalUrl',
+                                                    type: 'bool',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'Redirect to canonical URL',
+                                                        },
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            ]);
+                        },
+                        getValues: () => {
+                            return Promise.resolve({
                                 'core.seo.redirectToCanonicalUrl': true,
-                            }),
+                            });
+                        },
                     },
                 },
             },
@@ -83,5 +111,16 @@ describe('src/module/sw-settings-seo/page/sw-settings-seo', () => {
                 .find(`.${classes.settingsCard}`)
                 .exists(),
         ).toBeTruthy();
+    });
+
+    it('should hide the system config when a headless sales channel is selected', async () => {
+        await wrapper.vm.$nextTick();
+        expect(wrapper.find(`.${classes.systemConfig}`).exists()).toBe(true);
+
+        // the seo url template card reports that a headless sales channel was selected
+        wrapper.vm.onSalesChannelChanged(true);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find(`.${classes.systemConfig}`).exists()).toBe(false);
     });
 });

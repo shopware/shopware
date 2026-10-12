@@ -12,6 +12,7 @@ class Stub
 {
     public const TYPE_TEMPLATE = 'template';
     public const TYPE_RAW = 'raw';
+    public const TYPE_APPEND = 'append';
 
     /**
      * @param array<string, string> $params
@@ -27,6 +28,11 @@ class Stub
     public function getPath(): string
     {
         return $this->path;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
     }
 
     public function getContent(): ?string
@@ -62,5 +68,13 @@ class Stub
     public static function raw(string $destinationPath, string $content, array $params = []): self
     {
         return new self($destinationPath, $content, self::TYPE_RAW, $params);
+    }
+
+    /**
+     * @param array<string, string> $params
+     */
+    public static function append(string $destinationPath, string $content, array $params = []): self
+    {
+        return new self($destinationPath, $content, self::TYPE_APPEND, $params);
     }
 }

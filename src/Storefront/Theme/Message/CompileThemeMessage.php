@@ -11,14 +11,15 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
  *
  * used to compile the themes in the queue
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CompileThemeMessage implements AsyncMessageInterface
 {
     public function __construct(
         private readonly string $salesChannelId,
         private readonly string $themeId,
         private readonly bool $withAssets,
-        private readonly Context $context
+        private readonly Context $context,
+        private readonly bool $assign = false
     ) {
     }
 
@@ -40,5 +41,13 @@ class CompileThemeMessage implements AsyncMessageInterface
     public function getContext(): Context
     {
         return $this->context;
+    }
+
+    /**
+     * Whether to assign the theme to the sales channel once compiled (deferred switch).
+     */
+    public function isAssign(): bool
+    {
+        return $this->assign;
     }
 }

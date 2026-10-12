@@ -40,6 +40,11 @@ describe('listing-pagination.plugin', () => {
         // Import plugin class async because of feature toggles inside static options
         const { default: ListingPaginationPlugin }  = await import('src/plugin/listing/listing-pagination.plugin');
 
+        const canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        canonicalLink.setAttribute('href', 'https://example.com/paginated-page/?p=4');
+        document.head.appendChild(canonicalLink);
+
         document.body.innerHTML = template;
         const element = document.querySelector('[data-listing-pagination]');
 
@@ -74,8 +79,15 @@ describe('listing-pagination.plugin', () => {
                     </div>
                 </div>
                 `),
-            })
+            }),
         );
+    });
+
+    afterEach(() => {
+        const canonicalLink = document.head.querySelector('link[rel="canonical"]');
+        if (canonicalLink) {
+            canonicalLink.remove();
+        }
     });
 
     test('plugin instance is created', () => {
@@ -91,9 +103,36 @@ describe('listing-pagination.plugin', () => {
         await new Promise(process.nextTick);
 
         // Ensure correct page is communicated to listing plugin
-        expect(listingPaginationPlugin.getValues).toHaveReturnedWith({ 'p': '3' });
+        expect(listingPaginationPlugin.getValues).toHaveReturnedWith({ 'p': 3 });
         expect(getValuesSpy).toHaveBeenCalledTimes(1);
         expect(changeListingSpy).toHaveBeenCalledTimes(1);
+
+        // Ensure the canonical URL is updated
+        const canonicalMetaTag = document.head.querySelector('link[rel="canonical"]');
+        if (canonicalMetaTag?.href) {
+            const canonicalUrl = new URL(canonicalMetaTag.href);
+            expect(canonicalUrl.searchParams.get('p')).toBe('3');
+        }
+    });
+
+    test('falls back to first page when dataset page is non-numeric', () => {
+        const pageItem = document.querySelector('[data-page="3"]');
+        pageItem.dataset.page = 'page';
+
+        pageItem.dispatchEvent(new Event('click', { bubbles: true }));
+
+        const canonicalMetaTag = document.head.querySelector('link[rel="canonical"]');
+        expect(canonicalMetaTag?.href).toBe('https://example.com/paginated-page/');
+    });
+
+    test('removes pagination parameter from canonical URL when returning to first page', async () => {
+        const pageItem = document.querySelector('[data-page="1"]');
+
+        pageItem.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
+
+        const canonicalMetaTag = document.head.querySelector('link[rel="canonical"]');
+        expect(canonicalMetaTag?.href).toBe('https://example.com/paginated-page/');
     });
 
     test('tries to set the focus back to the pagination link when content changes after pagination', async () => {
@@ -110,5 +149,15 @@ describe('listing-pagination.plugin', () => {
         // Ensure the focusHandler tries to resume the focus with the correct parameters
         expect(resumeFocusSpy).toHaveBeenCalledTimes(1);
         expect(window.focusHandler.resumeFocusState).toHaveBeenCalledWith('listing-pagination', { preventScroll: true });
+    });
+
+    test('sets page from URL parameter', () => {
+        expect(listingPaginationPlugin.setValuesFromUrl({ p: '3' })).toBe(true);
+        expect(listingPaginationPlugin.getValues()).toEqual({ p: 3 });
+    });
+
+    test('falls back to first page for non-numeric URL parameter', () => {
+        expect(listingPaginationPlugin.setValuesFromUrl({ p: 'page' })).toBe(false);
+        expect(listingPaginationPlugin.getValues()).toEqual({ p: 1 });
     });
 });

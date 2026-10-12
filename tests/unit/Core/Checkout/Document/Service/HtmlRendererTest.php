@@ -7,9 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Extension\HtmlRendererExtension;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -29,7 +29,7 @@ class HtmlRendererTest extends TestCase
 {
     public function testGetContentType(): void
     {
-        $htmlRenderer = new HtmlRenderer($this->createMock(DocumentTemplateRenderer::class), '', new ExtensionDispatcher(new EventDispatcher()));
+        $htmlRenderer = new HtmlRenderer(static::createStub(DocumentTemplateRenderer::class), '', new ExtensionDispatcher(new EventDispatcher()));
 
         static::assertSame('text/html', $htmlRenderer->getContentType());
     }
@@ -38,7 +38,7 @@ class HtmlRendererTest extends TestCase
     {
         $dispatcher = new EventDispatcher();
         $renderer = new HtmlRenderer(
-            $this->createMock(DocumentTemplateRenderer::class),
+            static::createStub(DocumentTemplateRenderer::class),
             '',
             new ExtensionDispatcher($dispatcher),
         );
@@ -149,7 +149,7 @@ class HtmlRendererTest extends TestCase
         );
 
         $htmlRenderer = new HtmlRenderer(
-            $this->createMock(DocumentTemplateRenderer::class),
+            static::createStub(DocumentTemplateRenderer::class),
             '',
             new ExtensionDispatcher(new EventDispatcher()),
         );

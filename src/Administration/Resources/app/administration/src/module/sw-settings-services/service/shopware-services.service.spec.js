@@ -6,16 +6,8 @@ import SystemConfigApiService from '../../../core/service/api/system-config.api.
 
 describe('src/module/sw-settings-services/service/shopware-services-service.ts', () => {
     it.each([
-        [
-            undefined,
-            'en-US',
-            'en-US',
-        ],
-        [
-            'de-DE',
-            'en-US',
-            'de-DE',
-        ],
+        [undefined, 'en-US', 'en-US'],
+        ['de-DE', 'en-US', 'de-DE'],
     ])(
         'loads installed services using the correct language',
         async (sessionLanguage, apiContextLanguage, expectedLanguage) => {
@@ -29,14 +21,17 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
             const shopwareServicesService = new ShopwareServicesService(client, loginService, systemConfigService);
 
             clientMock.onGet('service/list').reply(200, [
-                { name: 'Service1', active: true },
-                { name: 'Service2', active: false },
-                { name: 'Service3', active: true },
+                { name: 'Service1', active: true, requirements: ['service_consent'] },
+                { name: 'Service2', active: false, requirements: ['shopware_account'] },
+                { name: 'Service3', active: true, requirements: [] },
             ]);
 
             const installedServices = await shopwareServicesService.getInstalledServices();
 
             expect(installedServices).toHaveLength(3);
+            expect(installedServices[0].requirements).toEqual(['service_consent']);
+            expect(installedServices[1].requirements).toEqual(['shopware_account']);
+            expect(installedServices[2].requirements).toEqual([]);
             expect(clientMock.history.get).toHaveLength(1);
             expect(clientMock.history.get[0].headers['sw-language-id']).toBe(expectedLanguage);
         },
@@ -149,10 +144,7 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
         expect(clientMock.history.post[0].url).toBe('services/permissions/revoke');
     });
 
-    it.each([
-        ['enable'],
-        ['disable'],
-    ])('enables and disables all services', async (action) => {
+    it.each([['enable'], ['disable']])('enables and disables all services', async (action) => {
         const client = createHTTPClient();
         const clientMock = new MockAdapter(client);
         const loginService = createLoginService(client, Shopware.Context.api);
@@ -178,6 +170,24 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
 
         expect(clientMock.history.post).toHaveLength(1);
         expect(clientMock.history.post[0].url).toBe(`services/${action}`);
+    });
+
+    it.each([
+        ['activate', 'activateService'],
+        ['deactivate', 'deactivateService'],
+    ])('%s a service', async (action, methodName) => {
+        const client = createHTTPClient();
+        const clientMock = new MockAdapter(client);
+        const loginService = createLoginService(client, Shopware.Context.api);
+        const systemConfigService = new SystemConfigApiService(client, loginService);
+        const shopwareServicesService = new ShopwareServicesService(client, loginService, systemConfigService);
+
+        clientMock.onPost(`service/${action}/MyCoolService`).reply(204);
+
+        await shopwareServicesService[methodName]('MyCoolService');
+
+        expect(clientMock.history.post).toHaveLength(1);
+        expect(clientMock.history.post[0].url).toBe(`service/${action}/MyCoolService`);
     });
 
     it('returns categorized permissions', async () => {

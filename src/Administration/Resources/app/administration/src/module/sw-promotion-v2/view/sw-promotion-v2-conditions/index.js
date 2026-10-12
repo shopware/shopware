@@ -10,11 +10,7 @@ const types = Shopware.Utils.types;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'ruleConditionDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'ruleConditionDataProviderService'],
 
     props: {
         promotion: {

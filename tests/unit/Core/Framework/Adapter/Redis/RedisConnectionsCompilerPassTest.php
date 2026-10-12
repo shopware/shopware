@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Redis;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionsCompilerPass;
@@ -81,5 +82,23 @@ class RedisConnectionsCompilerPassTest extends TestCase
         $interfaces = class_implements($className);
         static::assertIsArray($interfaces);
         static::assertArrayHasKey(ContainerInterface::class, $interfaces);
+    }
+
+    public function testPrepareConnectionsIgnoresNonArrayConnections(): void
+    {
+        $this->containerBuilder->setParameter('shopware.redis.connections', 'invalid');
+
+        static::assertSame([], (new RedisConnectionsCompilerPass())->prepareConnections($this->containerBuilder));
+    }
+
+    public function testPrepareConnectionsThrowsForNonStringDsn(): void
+    {
+        $this->containerBuilder->setParameter('shopware.redis.connections', [
+            'db' => ['dsn' => 123],
+        ]);
+
+        $this->expectExceptionObject(AdapterException::invalidRedisConnectionDsn('db'));
+
+        (new RedisConnectionsCompilerPass())->prepareConnections($this->containerBuilder);
     }
 }

@@ -11,6 +11,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const createLiveReloadServer = require('./live-reload-server/index');
+const getBrowserUrl = require('./hmr-browser-url');
 
 const proxyPort = Number(process.env.STOREFRONT_PROXY_PORT) || 9998;
 const assetPort = Number(process.env.STOREFRONT_ASSETS_PORT) || 9999;
@@ -209,7 +210,7 @@ server.then(() => {
     }
 
     if (!fs.existsSync('/.dockerenv')) {
-        openBrowserWithUrl(`${proxyUrlEnv.origin}`);
+        openBrowserWithUrl(getBrowserUrl(proxyUrlEnv, domainUrl));
     }
 
     // The "Watcher is running" message is printed by the webpack "done" hook in webpack.config.js

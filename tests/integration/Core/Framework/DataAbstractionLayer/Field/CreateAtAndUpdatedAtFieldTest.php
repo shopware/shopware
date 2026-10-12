@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\DateTimeDefinition;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('framework')]
 class CreateAtAndUpdatedAtFieldTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour {
@@ -86,9 +88,9 @@ EOF;
 
         $entities = $this->entityRepository->search(new Criteria([$id]), $context);
 
-        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->getEntities()->has($id));
 
-        $entity = $entities->get($id);
+        $entity = $entities->getEntities()->get($id);
 
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertNotNull($entity->get('createdAt'));
@@ -112,9 +114,9 @@ EOF;
 
         $entities = $this->entityRepository->search(new Criteria([$id]), $context);
 
-        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->getEntities()->has($id));
 
-        $entity = $entities->get($id);
+        $entity = $entities->getEntities()->get($id);
 
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertNotNull($entity->get('createdAt'));
@@ -140,9 +142,9 @@ EOF;
 
         $entities = $this->entityRepository->search(new Criteria([$id]), $context);
 
-        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->getEntities()->has($id));
 
-        $entity = $entities->get($id);
+        $entity = $entities->getEntities()->get($id);
 
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertNotNull($entity->get('createdAt'));
@@ -160,9 +162,9 @@ EOF;
 
         $entities = $this->entityRepository->search(new Criteria([$id]), $context);
 
-        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->getEntities()->has($id));
 
-        $entity = $entities->get($id);
+        $entity = $entities->getEntities()->get($id);
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertNull($entity->get('updatedAt'));
 
@@ -172,9 +174,9 @@ EOF;
         $this->entityRepository->update([$data], $context);
         $entities = $this->entityRepository->search(new Criteria([$id]), $context);
 
-        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->getEntities()->has($id));
 
-        $entity = $entities->get($id);
+        $entity = $entities->getEntities()->get($id);
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertNotNull($entity->get('updatedAt'));
     }
@@ -190,9 +192,9 @@ EOF;
 
         $entities = $this->entityRepository->search(new Criteria([$id]), $context);
 
-        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->getEntities()->has($id));
 
-        $entity = $entities->get($id);
+        $entity = $entities->getEntities()->get($id);
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertNull($entity->get('updatedAt'));
 
@@ -202,9 +204,9 @@ EOF;
         $this->entityRepository->update([$data], $context);
         $entities = $this->entityRepository->search(new Criteria([$id]), $context);
 
-        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->getEntities()->has($id));
 
-        $entity = $entities->get($id);
+        $entity = $entities->getEntities()->get($id);
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertNotNull($entity->get('updatedAt'));
     }
@@ -222,9 +224,9 @@ EOF;
 
         $entities = $this->entityRepository->search(new Criteria([$id]), $context);
 
-        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->getEntities()->has($id));
 
-        $entity = $entities->get($id);
+        $entity = $entities->getEntities()->get($id);
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertNull($entity->get('updatedAt'));
 
@@ -234,9 +236,9 @@ EOF;
         $this->entityRepository->update([$data], $context);
         $entities = $this->entityRepository->search(new Criteria([$id]), $context);
 
-        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->getEntities()->has($id));
 
-        $entity = $entities->get($id);
+        $entity = $entities->getEntities()->get($id);
         static::assertInstanceOf(ArrayEntity::class, $entity);
         static::assertInstanceOf(\DateTimeInterface::class, $entity->get('updatedAt'));
 

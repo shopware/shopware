@@ -1,5 +1,6 @@
 import './sw-order-promotion-field.scss';
 import template from './sw-order-promotion-field.html.twig';
+import { getCartErrorMessage } from '../../cart-error.helper';
 
 /**
  * @sw-package checkout
@@ -58,9 +59,7 @@ export default {
         'save-and-recalculate',
     ],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         isLoading: {
@@ -234,10 +233,7 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         emitLoadingChange(state) {
-            Shopware.Store.get('swOrderDetail').setLoading([
-                'recalculation',
-                state,
-            ]);
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', state]);
         },
 
         /**
@@ -270,10 +266,7 @@ export default {
         },
 
         handleError(error) {
-            Shopware.Store.get('swOrderDetail').setLoading([
-                'recalculation',
-                false,
-            ]);
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', false]);
 
             if (this.swOrderDetailOnError) {
                 this.swOrderDetailOnError(error);
@@ -319,10 +312,7 @@ export default {
                 return Promise.resolve();
             }
 
-            Shopware.Store.get('swOrderDetail').setLoading([
-                'recalculation',
-                true,
-            ]);
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', true]);
 
             await this.saveAndReload();
             await this.deleteAutomaticPromotions();
@@ -355,49 +345,21 @@ export default {
 
         handlePromotionResponse(response) {
             this.emitEntityData();
-            Shopware.Store.get('swOrderDetail').setLoading([
-                'recalculation',
-                false,
-            ]);
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', false]);
 
             if (typeof response?.data?.errors !== 'object') {
                 return;
             }
 
-            const [
-                errors,
-                promotionErrors,
-            ] = (Array.isArray(response.data.errors) ? response.data.errors : Object.values(response.data.errors)).reduce(
-                (
-                    [
-                        general,
-                        promotion,
-                    ],
-                    e,
-                ) => {
-                    return [
-                        'promotion-discount-deleted',
-                        'promotion-discount-added',
-                    ].includes(e.messageKey)
-                        ? [
-                              general,
-                              [
-                                  ...promotion,
-                                  e,
-                              ],
-                          ]
-                        : [
-                              [
-                                  ...general,
-                                  e,
-                              ],
-                              promotion,
-                          ];
+            const [errors, promotionErrors] = (
+                Array.isArray(response.data.errors) ? response.data.errors : Object.values(response.data.errors)
+            ).reduce(
+                ([general, promotion], e) => {
+                    return ['promotion-discount-deleted', 'promotion-discount-added'].includes(e.messageKey)
+                        ? [general, [...promotion, e]]
+                        : [[...general, e], promotion];
                 },
-                [
-                    [],
-                    [],
-                ],
+                [[], []],
             );
 
             this.promotionUpdates = promotionErrors;
@@ -409,24 +371,26 @@ export default {
             }
 
             Object.values(response.data.errors).forEach((value) => {
+                const message = getCartErrorMessage(value);
+
                 switch (value.level) {
                     case 0: {
                         this.createNotificationInfo({
-                            message: value.message,
+                            message,
                         });
                         break;
                     }
 
                     case 10: {
                         this.createNotificationWarning({
-                            message: value.message,
+                            message,
                         });
                         break;
                     }
 
                     default: {
                         this.createNotificationError({
-                            message: value.message,
+                            message,
                         });
                         break;
                     }
@@ -435,10 +399,7 @@ export default {
         },
 
         async onRemoveExistingCode(removedItem) {
-            Shopware.Store.get('swOrderDetail').setLoading([
-                'recalculation',
-                true,
-            ]);
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', true]);
 
             this.order.lineItems = this.order.lineItems.filter(
                 (item) => item.type !== 'promotion' || item.promotionId !== removedItem.promotionId,

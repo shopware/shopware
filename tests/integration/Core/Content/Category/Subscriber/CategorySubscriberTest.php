@@ -7,6 +7,7 @@ use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Test\Category\CategoryBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -16,6 +17,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('discovery')]
 class CategorySubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -37,11 +39,11 @@ class CategorySubscriberTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $searchResult = static::getContainer()->get('sales_channel.category.repository')
-            ->search($criteria, $salesChannelContext);
+            ->search($criteria, $salesChannelContext)->getEntities();
 
         $category = $searchResult->get($ids->get('c.1'));
 
         static::assertInstanceOf(SalesChannelCategoryEntity::class, $category);
-        static::assertSame("124c71d524604ccbad6042edce3ac799/navigation/{$ids->get('c.1')}#", $category->getSeoUrl());
+        static::assertSame("124c71d524604ccbad6042edce3ac799/store-api/category/{$ids->get('c.1')}#", $category->getSeoUrl());
     }
 }

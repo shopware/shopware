@@ -2,8 +2,7 @@
     <div class="header-logo-main text-center">
         {% block layout_header_logo_link %}
             <a class="header-logo-main-link"
-               href="{{ path('frontend.home.page') }}"
-               title="{{ 'header.logoLink'|trans|striptags }}">
+               href="{{ path('frontend.home.page') }}">
                 {% block layout_header_logo_image %}
                     <picture class="header-logo-picture d-block m-auto">
                         {% block layout_header_logo_image_tablet %}

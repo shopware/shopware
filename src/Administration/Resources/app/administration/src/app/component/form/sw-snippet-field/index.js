@@ -18,10 +18,7 @@ const {
 export default {
     template,
 
-    inject: [
-        'snippetSetService',
-        'repositoryFactory',
-    ],
+    inject: ['snippetSetService', 'repositoryFactory'],
 
     props: {
         snippet: {
@@ -33,15 +30,9 @@ export default {
             type: String,
             required: false,
             default: 'text',
-            validValues: [
-                'text',
-                'textarea',
-            ],
+            validValues: ['text', 'textarea'],
             validator(value) {
-                return [
-                    'text',
-                    'textarea',
-                ].includes(value);
+                return ['text', 'textarea'].includes(value);
             },
         },
     },

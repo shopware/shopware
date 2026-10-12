@@ -8,11 +8,7 @@ import './sw-cms-missing-element-modal.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    emits: [
-        'modal-close',
-        'modal-save',
-        'modal-dont-remind-change',
-    ],
+    emits: ['modal-close', 'modal-save', 'modal-dont-remind-change'],
 
     props: {
         missingElements: {

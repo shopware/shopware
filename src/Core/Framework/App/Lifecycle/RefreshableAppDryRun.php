@@ -42,11 +42,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
     {
         $filter = static function (string $appName) use ($names) {
             foreach ($names as $name) {
-                if (str_contains($appName, $name)) {
-                    return true;
-                }
-
-                return false;
+                return str_contains($appName, $name);
             }
 
             return false;
@@ -63,6 +59,14 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
     public function install(Manifest $manifest, AppInstallParameters $parameters, Context $context): void
     {
         $this->toBeInstalled[$manifest->getMetadata()->getName()] = $manifest;
+    }
+
+    public function activate(string $appId, Context $context): void
+    {
+    }
+
+    public function deactivate(string $appId, Context $context): void
+    {
     }
 
     public function update(Manifest $manifest, AppUpdateParameters $parameters, array $app, Context $context): void

@@ -96,6 +96,8 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
     rebuild(viewport = ViewportDetection.getCurrentViewport()) {
         this._getSettings(viewport.toLowerCase());
 
+        const activeVideoState = this._captureActiveVideoState();
+
         // get the current index and use it as the start index
         try {
             if (this._slider) {
@@ -109,6 +111,8 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
         } catch (e) {
             // something went wrong
         }
+
+        this._restoreActiveVideoState(activeVideoState);
 
         this.$emitter.publish('rebuild');
     }

@@ -1,13 +1,17 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": [],
     "components": {
         "schemas": {
             "ProductJsonApi": {
+                "description": "Added since version: 6.0.0.0",
                 "allOf": [
                     {
-                        "required": ["options"],
+                        "$ref": "#/components/schemas/resource",
+                        "required": [
+                            "options"
+                        ],
                         "properties": {
                             "options": {
                                 "type": "array",
@@ -19,20 +23,1129 @@
                                         "translated"
                                     ],
                                     "properties": {
-                                        "group": { "type": "string" },
-                                        "option": { "type": "string" },
+                                        "group": {
+                                            "type": "string"
+                                        },
+                                        "option": {
+                                            "type": "string"
+                                        },
                                         "translated": {
                                             "type": "object",
                                             "properties": {
-                                                "group": { "type": "string" },
-                                                "option": { "type": "string" }
+                                                "group": {
+                                                    "type": "string"
+                                                },
+                                                "option": {
+                                                    "type": "string"
+                                                }
                                             },
-                                            "required": ["group", "option"]
+                                            "required": [
+                                                "group",
+                                                "option"
+                                            ]
                                         }
                                     }
                                 }
                             }
                         }
+                    },
+                    {
+                        "required": [
+                            "id",
+                            "taxId",
+                            "productNumber",
+                            "stock",
+                            "name"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "versionId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "parentId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "parentVersionId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "manufacturerId": {
+                                "description": "Unique identity of the manufacturer.",
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "productManufacturerVersionId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "unitId": {
+                                "description": "Unique identity of the unit.",
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "taxId": {
+                                "description": "Unique identity of tax.",
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "coverId": {
+                                "description": "Unique identity of a ProductMedia item used as product cover.",
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "productMediaVersionId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "deliveryTimeId": {
+                                "description": "Unique identity of delivery time.",
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "canonicalProductId": {
+                                "description": "Unique identity of canonical product.",
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "canonicalProductVersionId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "cmsPageId": {
+                                "description": "Unique identity of CMS page.",
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "cmsPageVersionId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "openGraphMediaId": {
+                                "description": "Media used as Open Graph image for social media sharing.",
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "productNumber": {
+                                "description": "Unique number assigned to individual products. Define rules for automatic assignment of every product creation as per your number range.",
+                                "type": "string"
+                            },
+                            "restockTime": {
+                                "description": "The restock time in days indicates how long it will take until a sold out item is back in stock.",
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "active": {
+                                "description": "When boolean value is `true`, the products are available for selection in the storefront for purchase.",
+                                "type": "boolean"
+                            },
+                            "available": {
+                                "description": "Indicates weather the product is available or not.",
+                                "type": "boolean",
+                                "readOnly": true
+                            },
+                            "isCloseout": {
+                                "description": "When the value is set to true, the product is hidden when sold out.",
+                                "type": "boolean"
+                            },
+                            "availableStock": {
+                                "description": "Indicates the number of products still available. This value results from the stock minus the open orders.",
+                                "type": "integer",
+                                "format": "int64",
+                                "readOnly": true
+                            },
+                            "stock": {
+                                "description": "Indicates the number of products available.",
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "displayGroup": {
+                                "description": "Runtime field, cannot be used as part of the criteria.",
+                                "type": "string",
+                                "readOnly": true
+                            },
+                            "manufacturerNumber": {
+                                "description": "Unique number that describes the manufacturer.",
+                                "type": "string"
+                            },
+                            "ean": {
+                                "description": "Indicates EAN of the product.",
+                                "type": "string"
+                            },
+                            "purchaseSteps": {
+                                "description": "Specifies the scales in which the item is to be offered. For example, a scale of 2 means that your customers can purchase 2, 4, 6 products, etc., but not 1, 3 or 5.",
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "maxPurchase": {
+                                "description": "Maximum number of items that can be purchased.",
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "minPurchase": {
+                                "description": "Minimum number of items that can be purchased.",
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "purchaseUnit": {
+                                "description": "Quantity of the item purchased. For example, 500ml, 2kg, etc.",
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "referenceUnit": {
+                                "description": "Price of purchased item calculated as per the reference unit. Say, you bought 500ml of milk and the price is calculated in reference to 1000ml.",
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "shippingFree": {
+                                "description": "Indicates weather the shipping price is free or not.",
+                                "type": "boolean"
+                            },
+                            "markAsTopseller": {
+                                "description": "Indicates weather the product is top seller or not.",
+                                "type": "boolean"
+                            },
+                            "weight": {
+                                "description": "The weight of the product.",
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "width": {
+                                "description": "The width of the product.",
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "height": {
+                                "description": "The height of the product.",
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "length": {
+                                "description": "The length of the product.",
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "releaseDate": {
+                                "description": "The release date of a product or product model. This can be used to distinguish the exact variant of a product.",
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "ratingAverage": {
+                                "description": "Average of all the ratings.",
+                                "type": "number",
+                                "format": "float",
+                                "readOnly": true
+                            },
+                            "categoryTree": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{32}$"
+                                },
+                                "readOnly": true
+                            },
+                            "propertyIds": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{32}$"
+                                },
+                                "readOnly": true
+                            },
+                            "optionIds": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{32}$"
+                                },
+                                "readOnly": true
+                            },
+                            "streamIds": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{32}$"
+                                },
+                                "readOnly": true
+                            },
+                            "tagIds": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{32}$"
+                                },
+                                "readOnly": true
+                            },
+                            "categoryIds": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{32}$"
+                                },
+                                "readOnly": true
+                            },
+                            "childCount": {
+                                "type": "integer",
+                                "format": "int64",
+                                "readOnly": true
+                            },
+                            "sales": {
+                                "description": "Frequency of the product sales.",
+                                "type": "integer",
+                                "format": "int64",
+                                "readOnly": true
+                            },
+                            "metaDescription": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "keywords": {
+                                "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
+                            },
+                            "descriptionTeaser": {
+                                "description": "Read-only, HTML-stripped excerpt of the description, derived on write.",
+                                "type": "string",
+                                "readOnly": true
+                            },
+                            "metaTitle": {
+                                "type": "string"
+                            },
+                            "packUnit": {
+                                "type": "string"
+                            },
+                            "packUnitPlural": {
+                                "type": "string"
+                            },
+                            "customFields": {
+                                "type": "object"
+                            },
+                            "ogTitle": {
+                                "type": "string"
+                            },
+                            "ogDescription": {
+                                "type": "string"
+                            },
+                            "type": {
+                                "description": "The type of the product, e.g., physical or digital.",
+                                "type": "string",
+                                "enum": [
+                                    "physical",
+                                    "digital"
+                                ]
+                            },
+                            "states": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "readOnly": true,
+                                "deprecated": true
+                            },
+                            "calculatedPrice": {
+                                "type": "object"
+                            },
+                            "calculatedPrices": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "additionalProperties": false
+                                }
+                            },
+                            "calculatedMaxPurchase": {
+                                "description": "Runtime field, cannot be used as part of the criteria.",
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "calculatedCheapestPrice": {
+                                "type": "object"
+                            },
+                            "isNew": {
+                                "description": "Runtime field, cannot be used as part of the criteria.",
+                                "type": "boolean"
+                            },
+                            "sortedProperties": {
+                                "type": "object"
+                            },
+                            "measurements": {
+                                "type": "object"
+                            },
+                            "createdAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "readOnly": true
+                            },
+                            "updatedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "readOnly": true
+                            },
+                            "translated": {
+                                "type": "object"
+                            },
+                            "relationships": {
+                                "properties": {
+                                    "downloads": {
+                                        "description": "Downloadable files associated with the product (e.g., manuals, digital content)",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/downloads"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "example": "product_download"
+                                                        },
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "d07d50a751bc6ddf12bf3af0efee9b45"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "parent": {
+                                        "description": "Unique identity of the product.",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/parent"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "product"
+                                                    },
+                                                    "id": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9a-f]{32}$",
+                                                        "example": "d0e45878043844ffc41aac437e86b602"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "children": {
+                                        "description": "Product variants that inherit from this parent product",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/children"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "example": "product"
+                                                        },
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "268184c12df027f536154d099d497b31"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "deliveryTime": {
+                                        "description": "Estimated delivery time for the product",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/deliveryTime"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "delivery_time"
+                                                    },
+                                                    "id": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9a-f]{32}$",
+                                                        "example": "8c888ae25a7bd42057370e31f7e01044"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "tax": {
+                                        "description": "Tax configuration (rate and calculation rules)",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/tax"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "tax"
+                                                    },
+                                                    "id": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9a-f]{32}$",
+                                                        "example": "06565e5611f23fdf8cc43e5077b92b54"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "manufacturer": {
+                                        "description": "Product manufacturer or brand information",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/manufacturer"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "product_manufacturer"
+                                                    },
+                                                    "id": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9a-f]{32}$",
+                                                        "example": "c2904bca62b22443d6cf5e9d89cab204"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "unit": {
+                                        "description": "Product unit of measure (e.g., piece, liter, kg)",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/unit"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "unit"
+                                                    },
+                                                    "id": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9a-f]{32}$",
+                                                        "example": "3e34bdebd9bd5edda27e8728904a2552"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "cover": {
+                                        "description": "Main product image displayed in listings and detail pages",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/cover"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "product_media"
+                                                    },
+                                                    "id": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9a-f]{32}$",
+                                                        "example": "41d0e299ca1abeb2094852da042165c7"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "openGraphMedia": {
+                                        "description": "Open Graph image for social media sharing",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/openGraphMedia"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "media"
+                                                    },
+                                                    "id": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9a-f]{32}$",
+                                                        "example": "bbda52d941a3452369a00f2880f4f358"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "cmsPage": {
+                                        "description": "Custom CMS page layout for the product detail page",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/cmsPage"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "cms_page"
+                                                    },
+                                                    "id": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9a-f]{32}$",
+                                                        "example": "7b1460918b1abb93311108f3dc021c9b"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "canonicalProduct": {
+                                        "description": "Canonical product reference for variant consolidation and SEO purposes",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/canonicalProduct"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "product"
+                                                    },
+                                                    "id": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9a-f]{32}$",
+                                                        "example": "023995a50b56c0de077323e958b2bbcd"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "media": {
+                                        "description": "Product images and media gallery",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/media"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "example": "product_media"
+                                                        },
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "62933a2951ef01f4eafd9bdf4d3cd2f0"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "crossSellings": {
+                                        "description": "Cross-selling configurations (related products, accessories, similar items)",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/crossSellings"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "example": "product_cross_selling"
+                                                        },
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "89936e14544d1b403cecef938101b6b0"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "configuratorSettings": {
+                                        "description": "Variant configurator settings defining available options for product variants",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/configuratorSettings"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "example": "product_configurator_setting"
+                                                        },
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "c0827fee13725d41f1fd7e292243f5aa"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "productReviews": {
+                                        "description": "Customer reviews and ratings for the product",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/productReviews"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "example": "product_review"
+                                                        },
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "01e78541ea343ed72424a5222796a4cd"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "mainCategories": {
+                                        "description": "Primary category assignments per sales channel for SEO and navigation",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/mainCategories"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "example": "main_category"
+                                                        },
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "1fb731fc4139cbb575429e28846f0c39"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "seoUrls": {
+                                        "description": "SEO-friendly URLs for the product across different sales channels",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/seoUrls"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "example": "seo_url"
+                                                        },
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "5321b5a71127b8b98cdd4b068ad56c4c"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "options": {
+                                        "description": "Product variant options (e.g., size, color) that define different variants",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/options"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "example": "property_group_option"
+                                                        },
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "93da65a9fd0004d9477aeac024e08e15"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "properties": {
+                                        "description": "Product properties and characteristics for filtering",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/properties"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "example": "property_group_option"
+                                                        },
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "74693d2fc58b46bd06410f278e39aa71"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "categories": {
+                                        "description": "Categories this product is assigned to",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/categories"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "example": "category"
+                                                        },
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "b0b5ccb4a195a07fd3eed14affb8695f"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "streams": {
+                                        "description": "Dynamic product streams this product belongs to based on defined filters",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/streams"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "example": "product_stream"
+                                                        },
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "2f6f4768f1c2d7c8f1f54823723f1a70"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "categoriesRo": {
+                                        "description": "Read-only category tree including all parent categories for optimized queries",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/categoriesRo"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "example": "category"
+                                                        },
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "7f0702d3a90d965b8c9158c451f43fdb"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "tags": {
+                                        "description": "Tags for organizing and filtering products",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/tags"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "example": "tag"
+                                                        },
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "d57ac45256849d9b13e2422d91580fb9"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "seoCategory": {
+                                        "description": "Main category used for SEO URL generation in the current sales channel",
+                                        "properties": {
+                                            "links": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "related": {
+                                                        "type": "string",
+                                                        "format": "uri-reference",
+                                                        "example": "/product/deb10517653c255364175796ace3553f/seoCategory"
+                                                    }
+                                                }
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "category"
+                                                    },
+                                                    "id": {
+                                                        "type": "string",
+                                                        "pattern": "^[0-9a-f]{32}$",
+                                                        "example": "9354d004d12e03d35ad8292bf0bb234d"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
                     }
                 ]
             }

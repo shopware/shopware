@@ -37,22 +37,17 @@ export default function initializeRepositoryFactory(container: InitContainer) {
             let hasCmsAwareDefinitions = false;
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            Object.entries(data).forEach(
-                ([
-                    key,
-                    value,
-                ]) => {
-                    entityDefinitionFactory.add(key, value);
+            Object.entries(data).forEach(([key, value]) => {
+                entityDefinitionFactory.add(key, value);
 
-                    if (key.startsWith('custom_entity_') || key.startsWith('ce_')) {
-                        // @ts-expect-error - value is defined
-                        customEntityDefinitionService.addDefinition(value);
-                        // @ts-expect-error - value is defined
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                        hasCmsAwareDefinitions = hasCmsAwareDefinitions || !!value?.flags?.['cms-aware'];
-                    }
-                },
-            );
+                if (key.startsWith('custom_entity_') || key.startsWith('ce_')) {
+                    // @ts-expect-error - value is defined
+                    customEntityDefinitionService.addDefinition(value);
+                    // @ts-expect-error - value is defined
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    hasCmsAwareDefinitions = hasCmsAwareDefinitions || !!value?.flags?.['cms-aware'];
+                }
+            });
 
             if (hasCmsAwareDefinitions) {
                 customEntityTypes.forEach((customEntityType) => {

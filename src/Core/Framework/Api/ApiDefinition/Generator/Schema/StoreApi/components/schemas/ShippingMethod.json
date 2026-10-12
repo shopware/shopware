@@ -1,0 +1,106 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ShippingMethod": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "technicalName",
+                    "deliveryTimeId",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "technicalName": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "description": "When boolean value is `true`, the shipping methods are available for selection in the storefront.",
+                        "type": "boolean"
+                    },
+                    "position": {
+                        "description": "The order of the tabs of your defined shipping methods in the storefront by entering numerical values like 1,2,3, etc.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "mediaId": {
+                        "description": "Unique identity of media.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "deliveryTimeId": {
+                        "description": "Unique identity of deliveryTime.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "taxType": {
+                        "description": "Refers `Free`, `Net` or `Gross` type of taxes.",
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "trackingUrl": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "translated": {
+                        "type": "object"
+                    },
+                    "deliveryTime": {
+                        "$ref": "#/components/schemas/DeliveryTime",
+                        "description": "Estimated delivery time information"
+                    },
+                    "availabilityRule": {
+                        "$ref": "#/components/schemas/Rule",
+                        "description": "Rule defining when this shipping method is available"
+                    },
+                    "prices": {
+                        "description": "Shipping prices based on weight, volume, or cart value",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ShippingMethodPrice"
+                        }
+                    },
+                    "media": {
+                        "$ref": "#/components/schemas/Media",
+                        "description": "Shipping method logo or carrier image"
+                    },
+                    "tags": {
+                        "description": "Tags for organizing shipping methods",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Tag"
+                        }
+                    },
+                    "tax": {
+                        "$ref": "#/components/schemas/Tax",
+                        "description": "Tax configuration for shipping costs"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

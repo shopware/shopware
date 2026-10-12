@@ -32,6 +32,8 @@ class AnnotationTagTest extends TestCase
         'storefront/vendor',
         // no need to check external js added as assets
         'storefront/dist/assets/js',
+        // compiled administration bundles merge annotations with unrelated minified code
+        'public/administration/assets',
         // we cannot remove the method, because old migrations could still use it
         'Migration/MigrationStep.php',
         // example plugin
@@ -50,6 +52,10 @@ class AnnotationTagTest extends TestCase
         'Core/Framework/ApiRoutesHaveASchemaTest.php',
         // copies DBAL code that don't use our deprecation policies
         'Core/Framework/Adapter/Doctrine/Patch',
+        // PHPStan rule fixtures intentionally contain malformed annotations and attributes
+        'DevOps/StaticAnalyse/PHPStan/Rules/data',
+        // asserts rule messages that quote deprecation and experimental annotations verbatim
+        'DevOps/StaticAnalyse/PHPStan/Rules/BCChangeAttributeUsageRuleTest.php',
     ];
 
     private string $rootDir;
@@ -97,7 +103,69 @@ class AnnotationTagTest extends TestCase
             }
         }
 
-        static::assertEmpty($invalidFiles, print_r($invalidFiles, true));
+        static::assertCount(0, $invalidFiles, print_r($invalidFiles, true));
+    }
+
+    public function testSourceFilesForWrongBCChangeAttributeVersions(): void
+    {
+        $finder = new Finder();
+        $finder->in([$this->rootDir, $this->rootDir . '/../tests'])
+            ->files()
+            ->name('*.php')
+            ->exclude('node_modules')
+            ->contains('Framework\Deprecation\BCChange');
+
+        foreach ($this->whiteList as $path) {
+            $finder->notPath($path);
+        }
+
+        $invalidFiles = [];
+
+        foreach ($finder->getIterator() as $file) {
+            $filePath = $file->getRealPath();
+            $content = (string) file_get_contents($filePath);
+
+            try {
+                $this->getDeprecationTagTester()->validateBCChangeAttributeVersions($content);
+            } catch (\InvalidArgumentException $error) {
+                $area = $this->getAreaForContent($content);
+                $invalidFiles[$area ?? 'undefined'][$filePath] = $error->getMessage();
+            }
+        }
+
+        static::assertCount(0, $invalidFiles, print_r($invalidFiles, true));
+    }
+
+    public function testSourceFilesForWrongSilentUntilMarkers(): void
+    {
+        $finder = new Finder();
+        $finder->in([$this->rootDir, $this->rootDir . '/../tests'])
+            ->files()
+            ->name('*.php')
+            ->exclude('node_modules')
+            ->contains('silentUntil:');
+
+        foreach ($this->whiteList as $path) {
+            $finder->notPath($path);
+        }
+
+        $finder->notPath('unit/Core/Framework/FeatureTest.php');
+
+        $invalidFiles = [];
+
+        foreach ($finder->getIterator() as $file) {
+            $filePath = $file->getRealPath();
+            $content = (string) file_get_contents($filePath);
+
+            try {
+                $this->getDeprecationTagTester()->validateSilentUntilMarkers($content);
+            } catch (\InvalidArgumentException $error) {
+                $area = $this->getAreaForContent($content);
+                $invalidFiles[$area ?? 'undefined'][$filePath] = $error->getMessage();
+            }
+        }
+
+        static::assertCount(0, $invalidFiles, print_r($invalidFiles, true));
     }
 
     public function testConfigFilesForWrongDeprecatedTags(): void
@@ -128,7 +196,7 @@ class AnnotationTagTest extends TestCase
             }
         }
 
-        static::assertEmpty($invalidFiles, print_r($invalidFiles, true));
+        static::assertCount(0, $invalidFiles, print_r($invalidFiles, true));
     }
 
     private function getPathForClass(string $className): string

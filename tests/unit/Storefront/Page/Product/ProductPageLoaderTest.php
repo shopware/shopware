@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Page\Product;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
@@ -32,10 +33,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
@@ -45,6 +48,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductPageLoader::class)]
 class ProductPageLoaderTest extends TestCase
 {
@@ -55,7 +59,7 @@ class ProductPageLoaderTest extends TestCase
         $salesChannelContext = $this->getSalesChannelContext();
         $reviews = $this->getCmsSlotConfig();
 
-        $productPageLoader = $this->getProductPageLoaderWithProduct($productId, $reviews, $request, $salesChannelContext);
+        $productPageLoader = $this->getProductPageLoaderWithProduct($productId, $reviews);
 
         $page = $productPageLoader->load($request, $salesChannelContext);
 
@@ -63,6 +67,31 @@ class ProductPageLoaderTest extends TestCase
         static::assertIsString($slot);
 
         static::assertSame($reviews, json_decode($slot, true, 512, \JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the BREADCRUMB_REWORK flag
+     */
+    #[DisabledFeatures(['BREADCRUMB_REWORK'])]
+    public function testExplicitBreadcrumbOptOutWinsWithMajorActive(): void
+    {
+        $productId = Uuid::randomHex();
+        $request = new Request([], [], ['productId' => $productId]);
+        $context = $this->getSalesChannelContext();
+        $category = new CategoryEntity();
+        $category->setId(Uuid::randomHex());
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->expects($this->never())->method('getCategoryBreadcrumbUrls');
+
+        $page = $this->getProductPageLoaderWithProduct(
+            $productId,
+            $this->getCmsSlotConfig(),
+            seoCategory: $category,
+            breadcrumbBuilder: $breadcrumbBuilder,
+        )->load($request, $context);
+
+        static::assertNull($page->getBreadcrumb());
     }
 
     public function testItLoadsStructuredDataReviewsForJsonLd(): void
@@ -100,8 +129,6 @@ class ProductPageLoaderTest extends TestCase
         $productPageLoader = $this->getProductPageLoaderWithProduct(
             $productId,
             $this->getCmsSlotConfig(),
-            $request,
-            $salesChannelContext,
             $reviewRepositoryMock
         );
 
@@ -113,7 +140,7 @@ class ProductPageLoaderTest extends TestCase
             static::assertSame(1, $reviewData->getTotal());
             static::assertSame($productId, $reviewData->getProductId());
 
-            $loadedReview = $reviewData->first();
+            $loadedReview = $reviewData->getEntities()->first();
             static::assertNotNull($loadedReview);
             static::assertSame('Great product', $loadedReview->getTitle());
         } else {
@@ -123,8 +150,6 @@ class ProductPageLoaderTest extends TestCase
 
     public function testItSkipsStructuredDataReviewsWhenReviewsAreDisabled(): void
     {
-        Feature::skipTestIfInActive('JSON_LD_DATA', $this);
-
         $productId = Uuid::randomHex();
         $request = new Request([], [], ['productId' => $productId]);
         $salesChannelContext = $this->getSalesChannelContext();
@@ -132,14 +157,12 @@ class ProductPageLoaderTest extends TestCase
         $reviewRepositoryMock = $this->createMock(EntityRepository::class);
         $reviewRepositoryMock->expects($this->never())->method('search');
 
-        $systemConfigMock = $this->createMock(SystemConfigService::class);
-        $systemConfigMock->method('getBool')->with('core.listing.showReview')->willReturn(false);
+        $systemConfigMock = static::createStub(SystemConfigService::class);
+        $systemConfigMock->method('getBool')->willReturn(false);
 
         $productPageLoader = $this->getProductPageLoaderWithProduct(
             $productId,
             $this->getCmsSlotConfig(),
-            $request,
-            $salesChannelContext,
             $reviewRepositoryMock,
             $systemConfigMock,
         );
@@ -175,8 +198,6 @@ class ProductPageLoaderTest extends TestCase
         $productPageLoader = $this->getProductPageLoaderWithProduct(
             $productId,
             $this->getCmsSlotConfig(),
-            $request,
-            $salesChannelContext,
             $reviewRepositoryMock
         );
 
@@ -199,12 +220,16 @@ class ProductPageLoaderTest extends TestCase
     private function getProductPageLoaderWithProduct(
         string $productId,
         array $reviews,
-        Request $request,
-        SalesChannelContext $salesChannelContext,
         ?EntityRepository $reviewRepository = null,
         ?SystemConfigService $systemConfigService = null,
+        ?CategoryEntity $seoCategory = null,
+        ?CategoryBreadcrumbBuilder $breadcrumbBuilder = null,
     ): ProductPageLoader {
         $product = $this->getProductWithReviews($productId, $reviews);
+
+        if ($seoCategory !== null) {
+            $product->setSeoCategory($seoCategory);
+        }
 
         // set cms page which later will be set by the subscriber
         $product->setCmsPage($this->getCmsPage($product));
@@ -222,10 +247,9 @@ class ProductPageLoaderTest extends TestCase
             new FieldSorting('position')
         );
 
-        $productDetailRouteMock = $this->createMock(ProductDetailRoute::class);
+        $productDetailRouteMock = static::createStub(ProductDetailRoute::class);
         $productDetailRouteMock
             ->method('load')
-            ->with($productId, $request, $salesChannelContext, $criteria)
             ->willReturn(new ProductDetailRouteResponse($product, null));
 
         if ($reviewRepository === null) {
@@ -245,18 +269,18 @@ class ProductPageLoaderTest extends TestCase
         }
 
         if ($systemConfigService === null) {
-            $systemConfigService = $this->createMock(SystemConfigService::class);
+            $systemConfigService = static::createStub(SystemConfigService::class);
             // Default: reviews are enabled so the repository is actually called.
-            $systemConfigService->method('getBool')->with('core.listing.showReview')->willReturn(true);
+            $systemConfigService->method('getBool')->willReturn(true);
         }
 
         return new ProductPageLoader(
-            $this->createMock(GenericPageLoader::class),
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(GenericPageLoader::class),
+            static::createStub(EventDispatcherInterface::class),
             $productDetailRouteMock,
             $reviewRepository,
             $systemConfigService,
-            $this->createMock(CategoryBreadcrumbBuilder::class)
+            $breadcrumbBuilder ?? static::createStub(CategoryBreadcrumbBuilder::class)
         );
     }
 
@@ -329,17 +353,19 @@ class ProductPageLoaderTest extends TestCase
         $review->setTitle('myReviewTitle');
         $review->setComment('this product changed my life');
 
-        $productReviewResult = new ProductReviewResult(
-            ProductReviewDefinition::ENTITY_NAME,
+        return ProductReviewResult::fromSearchResult(
+            new EntitySearchResult(
+                ProductReviewDefinition::ENTITY_NAME,
+                1,
+                new ProductReviewCollection([$review]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            ),
+            new RatingMatrix([]),
+            Uuid::randomHex(),
             1,
-            new ProductReviewCollection([$review]),
-            null,
-            new Criteria(),
-            Context::createDefaultContext()
         );
-        $productReviewResult->setMatrix(new RatingMatrix([]));
-
-        return $productReviewResult;
     }
 
     private function getReviewBlock(SalesChannelProductEntity $productEntity): CmsBlockEntity

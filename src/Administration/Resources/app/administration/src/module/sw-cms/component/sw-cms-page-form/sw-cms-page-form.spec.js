@@ -64,18 +64,12 @@ async function createWrapper() {
                 stubs: {
                     'sw-cms-el-config-text': {
                         template: '<div class="sw-cms-el-config-text">Config element</div>',
-                        props: [
-                            'element',
-                            'elementData',
-                        ],
+                        props: ['element', 'elementData'],
                     },
                     'sw-extension-component-section': true,
                     'sw-cms-form-sync': {
                         template: '<slot />',
-                        props: [
-                            'element',
-                            'contentEntity',
-                        ],
+                        props: ['element', 'contentEntity'],
                     },
                 },
                 provide: {

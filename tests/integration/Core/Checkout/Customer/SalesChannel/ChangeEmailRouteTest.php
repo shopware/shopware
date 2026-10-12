@@ -69,7 +69,7 @@ class ChangeEmailRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
@@ -183,7 +183,7 @@ class ChangeEmailRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('customerId', $this->customerId));
-        $ids = $customerRecoveryRepository->search($criteria, Context::createDefaultContext());
+        $ids = $customerRecoveryRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
         static::assertSame('test@fooware.de', $response['email']);
         static::assertCount(0, $ids);
@@ -264,7 +264,7 @@ class ChangeEmailRouteTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame(400, $this->browser->getResponse()->getStatusCode());
-        static::assertNotEmpty($response['errors']);
+        static::assertNotCount(0, $response['errors']);
         static::assertSame('VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE', $response['errors'][0]['code']);
 
         $this->browser

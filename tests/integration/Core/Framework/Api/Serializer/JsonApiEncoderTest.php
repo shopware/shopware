@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldPlainTestDefinition;
@@ -45,6 +46,7 @@ use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestMainRe
 /**
  * @internal
  */
+#[Package('framework')]
 class JsonApiEncoderTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour {
@@ -236,7 +238,7 @@ class JsonApiEncoderTest extends TestCase
 
         $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->get($productId);
         $encoder = static::getContainer()->get(JsonApiEncoder::class);
         $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
         $actual = json_decode((string) $encodedResponse, true, 512, \JSON_THROW_ON_ERROR);
@@ -245,9 +247,10 @@ class JsonApiEncoderTest extends TestCase
             if ($included['type'] !== 'extension') {
                 continue;
             }
-            static::assertNotEmpty($included['relationships']['toOne']['data'], 'The relationship data to the loaded extension association is missing');
+            static::assertIsArray($included['relationships']['toOne']['data'], 'The relationship data to the loaded extension association is missing');
             static::assertSame('extended_product', $included['relationships']['toOne']['data']['type']);
-            static::assertNotEmpty($included['relationships']['toOne']['data']['id']);
+            static::assertIsString($included['relationships']['toOne']['data']['id']);
+            static::assertNotSame('', $included['relationships']['toOne']['data']['id']);
         }
     }
 
@@ -284,7 +287,7 @@ class JsonApiEncoderTest extends TestCase
 
         $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->get($productId);
         $encoder = static::getContainer()->get(JsonApiEncoder::class);
         $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
         $actual = json_decode((string) $encodedResponse, true, 512, \JSON_THROW_ON_ERROR);
@@ -293,10 +296,11 @@ class JsonApiEncoderTest extends TestCase
             if ($included['type'] !== 'extension') {
                 continue;
             }
-            static::assertNotEmpty($included['relationships']['oneToMany']['data'], 'The relationship data to the loaded extension association is missing');
+            static::assertIsArray($included['relationships']['oneToMany']['data'], 'The relationship data to the loaded extension association is missing');
             static::assertCount(2, $included['relationships']['oneToMany']['data']);
             static::assertSame('extended_product', $included['relationships']['oneToMany']['data'][0]['type']);
-            static::assertNotEmpty($included['relationships']['oneToMany']['data'][0]['id']);
+            static::assertIsString($included['relationships']['oneToMany']['data'][0]['id']);
+            static::assertNotSame('', $included['relationships']['oneToMany']['data'][0]['id']);
         }
     }
 

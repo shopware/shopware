@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Serializer\JsonApiDecoder;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(JsonApiDecoder::class)]
 class JsonApiDecoderTest extends TestCase
 {

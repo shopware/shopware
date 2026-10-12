@@ -110,7 +110,7 @@ class HappyPathValidator implements ValidatorInterface
             return $value;
         }
 
-        if (empty($constraint->normalizer)) {
+        if ($constraint->normalizer === null) {
             return $value;
         }
 
@@ -120,7 +120,6 @@ class HappyPathValidator implements ValidatorInterface
             return $value;
         }
 
-        /** @var callable(mixed): mixed $normalizer */
         return $normalizer($value);
     }
 
@@ -143,7 +142,8 @@ class HappyPathValidator implements ValidatorInterface
 
                 break;
             case $constraint instanceof NotBlank:
-                if ($value === false || (empty($value) && $value !== '0')) {
+                // NotBlank rejects all falsy values except the string '0'
+                if ($value === false || (!$value && $value !== '0')) {
                     return false;
                 }
 
@@ -222,7 +222,6 @@ class HappyPathValidator implements ValidatorInterface
 
                     if (($existsInArray || $existsInArrayAccess) && property_exists($fieldConstraint, 'constraints')) {
                         if ((is_countable($fieldConstraint->constraints) ? \count($fieldConstraint->constraints) : 0) > 0) {
-                            /** @var array<mixed>|\ArrayAccess<string|int, mixed> $value */
                             if (!$this->validateConstraint($value[$field], $fieldConstraint->constraints)) {
                                 return false;
                             }

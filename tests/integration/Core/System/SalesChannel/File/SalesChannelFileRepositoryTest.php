@@ -42,7 +42,7 @@ class SalesChannelFileRepositoryTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $entity = $repository->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        $entity = $repository->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(SalesChannelFileEntity::class, $entity);
         static::assertSame(TestDefaults::SALES_CHANNEL, $entity->getSalesChannelId());
@@ -75,7 +75,7 @@ class SalesChannelFileRepositoryTest extends TestCase
         ], Context::createDefaultContext());
 
         $criteria = (new Criteria([TestDefaults::SALES_CHANNEL]))->addAssociation('salesChannelFiles');
-        $salesChannel = $this->getSalesChannelRepository()->search($criteria, Context::createDefaultContext())->first();
+        $salesChannel = $this->getSalesChannelRepository()->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
         static::assertNotNull($salesChannel->getSalesChannelFiles());

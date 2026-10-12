@@ -21,10 +21,7 @@ async function createWrapper(salesChannelOverride = {}) {
                 'mt-text-field': {
                     template:
                         '<input type="text" :disabled="disabled || undefined" :value="modelValue" @input="$emit(\'update:model-value\', $event.target.value)" />',
-                    props: [
-                        'modelValue',
-                        'disabled',
-                    ],
+                    props: ['modelValue', 'disabled'],
                 },
             },
         },

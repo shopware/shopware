@@ -24,11 +24,11 @@ class BusinessEventsResourceTest extends TestCase
         $definition = new BusinessEventDefinition('test.event', TestResourceEventClass::class, ['orderId' => 'string']);
         $response = new BusinessEventCollectorResponse([$definition]);
 
-        $collector = $this->createMock(BusinessEventCollector::class);
+        $collector = static::createStub(BusinessEventCollector::class);
         $collector->method('collect')->willReturn($response);
 
         $context = Context::createDefaultContext();
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
         $resource = new BusinessEventsResource($collector, $contextProvider);

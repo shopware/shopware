@@ -38,8 +38,7 @@ class DeleteExpiredFilesService
     {
         $criteria = $this->buildCriteria();
 
-        $ids = $this->fileRepository->searchIds($criteria, $context)->getIds();
-        $ids = array_map(static fn ($id) => ['id' => $id], $ids);
+        $ids = $this->fileRepository->searchIds($criteria, $context)->getPrimaryKeyData();
         $this->fileRepository->delete($ids, $context);
     }
 

@@ -10,10 +10,7 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('cms-element'), Mixin.getByName('placeholder')],
 
     computed: {
         product() {
@@ -29,9 +26,7 @@ export default {
                     deliveryTime: {
                         name: '1-3 days',
                     },
-                    price: [
-                        { gross: 0.0 },
-                    ],
+                    price: [{ gross: 0.0 }],
                 };
             }
 
@@ -67,12 +62,6 @@ export default {
         },
     },
 
-    watch: {
-        pageType(newPageType) {
-            this.element.locked = newPageType === 'product_detail';
-        },
-    },
-
     created() {
         this.createdComponent();
     },
@@ -81,8 +70,6 @@ export default {
         createdComponent() {
             this.initElementConfig('buy-box');
             this.initElementData('buy-box');
-
-            this.element.locked = this.isProductPageType;
         },
     },
 };

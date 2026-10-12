@@ -86,8 +86,8 @@ class CountryAgnosticFileLinter
                 $currentDomain,
                 $locale,
                 $currentFileData['language'],
-                $currentFileData['script'] ?? null,
-                $currentFileData['region'] ?? null,
+                $currentFileData['script'],
+                $currentFileData['region'],
                 $isBase,
             );
 

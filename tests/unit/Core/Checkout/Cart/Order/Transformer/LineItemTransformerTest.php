@@ -18,8 +18,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[CoversClass(LineItemTransformer::class)]
 #[Package('checkout')]
+#[CoversClass(LineItemTransformer::class)]
 class LineItemTransformerTest extends TestCase
 {
     private int $position = 1;
@@ -144,7 +144,7 @@ class LineItemTransformerTest extends TestCase
 
         $level4Item = $level3Item->getChildren()->first();
         static::assertNotNull($level4Item);
-        static::assertEmpty($level4Item->getChildren());
+        static::assertCount(0, $level4Item->getChildren());
     }
 
     public function testTransformFlatToNestedDoesNotAddNoneExistingParentIds(): void
@@ -178,7 +178,7 @@ class LineItemTransformerTest extends TestCase
 
         $level3Item = $level2Item->getChildren()->first();
         static::assertNotNull($level3Item);
-        static::assertEmpty($level3Item->getChildren());
+        static::assertCount(0, $level3Item->getChildren());
 
         $allLineItems = $nestedCollection->getFlat();
         static::assertCount(3, $allLineItems);
@@ -192,7 +192,7 @@ class LineItemTransformerTest extends TestCase
         $orderLineItemCollection = new OrderLineItemCollection();
 
         $nestedCollection = LineItemTransformer::transformFlatToNested($orderLineItemCollection);
-        static::assertEmpty($nestedCollection);
+        static::assertCount(0, $nestedCollection);
     }
 
     public function testTransformFlatToNestedAddsNestedAndFlatButNotNoneExistingParentSimultaneously(): void
@@ -226,11 +226,11 @@ class LineItemTransformerTest extends TestCase
 
         $level3Item = $level2Item->getChildren()->first();
         static::assertNotNull($level3Item);
-        static::assertEmpty($level3Item->getChildren());
+        static::assertCount(0, $level3Item->getChildren());
 
         $productItem = $nestedCollection->get($product);
         static::assertNotNull($productItem);
-        static::assertEmpty($productItem->getChildren());
+        static::assertCount(0, $productItem->getChildren());
 
         $allLineItems = $nestedCollection->getFlat();
         static::assertCount(4, $allLineItems);

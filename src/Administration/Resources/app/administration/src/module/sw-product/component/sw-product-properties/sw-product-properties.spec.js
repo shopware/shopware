@@ -98,10 +98,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-inheritance-switch': {
-                    props: [
-                        'isInherited',
-                        'disabled',
-                    ],
+                    props: ['isInherited', 'disabled'],
                     template: `
                         <div class="sw-inheritance-switch">
                             <div v-if="isInherited"
@@ -147,10 +144,7 @@ async function createWrapper() {
                     `,
                 },
                 'mt-empty-state': {
-                    props: [
-                        'headline',
-                        'description',
-                    ],
+                    props: ['headline', 'description'],
                     template: `
                         <div class="mt-empty-state">
                             <div class="mt-empty-state__headline">{{ headline }}</div>
@@ -173,13 +167,19 @@ async function createWrapper() {
                     `,
                 },
                 'sw-entity-listing': {
-                    props: ['items'],
+                    props: ['items', 'dataSource'],
+                    computed: {
+                        listingItems() {
+                            return this.dataSource || this.items || [];
+                        },
+                    },
                     methods: {
                         resetSelection: () => {},
                     },
                     template: `
                         <div class="sw-entity-listing" ref="entityListing">
-                            <template v-for="item in items">
+                            <template v-for="item in listingItems" :key="item.id">
+                                <slot name="column-values" v-bind="{ item }"></slot>
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </template>
                         </div>
@@ -240,12 +240,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
 
-        expect(wrapper.vm.groupIds).toEqual(
-            expect.arrayContaining([
-                'sizeId',
-                'colorId',
-            ]),
-        );
+        expect(wrapper.vm.groupIds).toEqual(expect.arrayContaining(['sizeId', 'colorId']));
     });
 
     it('should get group ids failed', async () => {
@@ -319,6 +314,33 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.vm.properties).toEqual(expect.arrayContaining([]));
         wrapper.vm.getProperties.mockRestore();
+    });
+
+    it('should render property value labels in one wrapping container per property', async () => {
+        global.activeAclRoles = ['product.deleter'];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            groupIds: ['sizeId', 'colorId'],
+            properties: propertiesMock,
+        });
+
+        const valueContainers = wrapper.findAll('.sw-product-properties-list__column-values').filter((container) => {
+            return container.findAll('sw-label-stub').length > 0;
+        });
+
+        expect(valueContainers).toHaveLength(propertiesMock.length);
+        expect(valueContainers[0].findAll('sw-label-stub')).toHaveLength(propertiesMock[0].options.length);
+        expect(valueContainers[0].find('sw-label-stub').attributes('dismissable')).toBe('true');
+    });
+
+    it('should allow the property value column to wrap', async () => {
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.propertyColumns.find((column) => column.property === 'values').multiLine).toBe(true);
     });
 
     it('should delete property value successful', async () => {

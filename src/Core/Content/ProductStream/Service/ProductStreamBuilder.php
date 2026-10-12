@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\ProductStream\Service;
 
-use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
+use Shopware\Core\Content\ProductStream\ProductStreamException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
@@ -36,20 +36,18 @@ class ProductStreamBuilder extends AbstractProductStreamBuilder implements Produ
         $criteria->addFilter(...$this->parseFilters($stream, $id));
 
         if (!$stream->isDisplayAsGroup()) {
-            $criteria->addState(self::STATE_DISPLAY_AS_GROUP_DISABLED);
+            $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
         }
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed, use enrichCriteria instead
-     *
-     * @return array<int, Filter>
+     * @deprecated tag:v6.8.0 - Will be removed, use AbstractProductStreamBuilder::enrichCriteria instead.
      */
     public function buildFilters(string $id, Context $context): array
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', AbstractProductStreamBuilder::class . '::enrichCriteria')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'AbstractProductStreamBuilder::enrichCriteria')
         );
 
         return $this->parseFilters($this->loadStream($id, $context), $id);
@@ -59,13 +57,13 @@ class ProductStreamBuilder extends AbstractProductStreamBuilder implements Produ
     {
         $criteria = new Criteria([$id]);
 
-        /** @var ProductStreamEntity|null $stream */
         $stream = $this->repository
             ->search($criteria, $context)
+            ->getEntities()
             ->get($id);
 
         if (!$stream) {
-            throw new EntityNotFoundException('product_stream', $id);
+            throw ProductStreamException::productStreamNotFound($id);
         }
 
         return $stream;
@@ -78,7 +76,13 @@ class ProductStreamBuilder extends AbstractProductStreamBuilder implements Produ
     {
         $data = $stream->getApiFilter();
         if (!$data) {
-            throw new NoFilterException($id);
+            // Empty api_filter ([]) on a valid stream means all filters were removed; a broken/invalid
+            // stream (api_filter null or invalid) stays a NoFilterException so callers can tell them apart.
+            if ($data === [] && !$stream->isInvalid()) {
+                throw ProductStreamException::emptyProductStream($id);
+            }
+
+            throw ProductStreamException::noFilters($id);
         }
 
         $filters = [];

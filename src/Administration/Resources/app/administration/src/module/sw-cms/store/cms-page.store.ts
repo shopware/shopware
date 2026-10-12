@@ -1,3 +1,7 @@
+import Store from 'src/app/store';
+
+type CmsSlot = Entity<'cms_slot'> & { config?: Record<string, unknown> };
+
 type CmsPageState = {
     currentPage: null | Entity<'cms_page'>;
     currentPageType: null | string;
@@ -13,11 +17,29 @@ type CmsPageState = {
     isSystemDefaultLanguage: boolean;
 };
 
+/** The slot carrying `elementId`, searched across the sections and blocks of the open page. */
+function findSlot(page: null | Entity<'cms_page'>, elementId: string): CmsSlot | null {
+    for (const section of page?.sections ?? []) {
+        for (const block of section.blocks ?? []) {
+            const slot = (block.slots ?? []).find((candidate) => candidate.id === elementId);
+
+            if (slot) {
+                return slot as CmsSlot;
+            }
+        }
+    }
+
+    return null;
+}
+
 /**
  * @private
  * @sw-package discovery
+ *
+ * Registered on the store singleton instead of `Shopware.Store`: `src/core/shopware.ts` loads this file
+ * through `Shopware.Composables` before the global object exists.
  */
-const cmsPageStore = Shopware.Store.register({
+const cmsPageStore = Store.instance.register({
     id: 'cmsPage',
 
     state: (): CmsPageState => ({
@@ -88,7 +110,7 @@ const cmsPageStore = Shopware.Store.register({
             this.pageEntityName = 'cms_page';
         },
 
-        setDefaultMediaFolderId(folderId: string) {
+        setDefaultMediaFolderId(folderId: EntityKey<'media_folder'>) {
             this.defaultMediaFolderId = folderId;
         },
 
@@ -140,6 +162,21 @@ const cmsPageStore = Shopware.Store.register({
         setBlock(block: Entity<'cms_block'>) {
             this.removeSelectedSection();
             this.setSelectedBlock(block);
+        },
+
+        /**
+         * Writes one config value of an element of the open page, addressed by its slot id and a path
+         * relative to that slot's `config` (`'media.value'`). Editor components own the element they
+         * render, not the page it belongs to, so the write goes through the store that does.
+         */
+        updateElementConfig(elementId: string, path: string, value: unknown) {
+            const slot = findSlot(this.currentPage, elementId);
+
+            if (!slot) {
+                return;
+            }
+
+            Shopware.Utils.object.set(slot, `config.${path}`, value);
         },
     },
 });

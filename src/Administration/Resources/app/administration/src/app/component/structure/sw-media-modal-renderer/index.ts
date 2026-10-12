@@ -31,11 +31,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         onSelectionChange(selection: EntityCollection<'media'>): void {
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-            const selectors: string[] = (this.mediaModal?.selectors as string[] | undefined) || [
-                'id',
-                'fileName',
-                'url',
-            ];
+            const selectors: string[] = (this.mediaModal?.selectors as string[] | undefined) || ['id', 'fileName', 'url'];
 
             const mediaSelection = this.transformObjectsByPaths(selection, selectors);
 
@@ -103,12 +99,12 @@ export default Shopware.Component.wrapComponentConfig({
             currentContext[finalSegment] = value;
         },
 
-        onSaveMedia(params: { fileName: string; folderId: string; mediaId?: string }): void {
+        onSaveMedia(params: { fileName: string; folderId: EntityKey<'media_folder'>; mediaId?: EntityKey<'media'> }): void {
             if (this.saveMediaModal && typeof this.saveMediaModal.callback === 'function') {
                 const callbackFn = this.saveMediaModal.callback as (params: {
                     fileName: string;
-                    folderId: string;
-                    mediaId?: string;
+                    folderId: EntityKey<'media_folder'>;
+                    mediaId?: EntityKey<'media'>;
                 }) => void;
                 callbackFn(params);
             }

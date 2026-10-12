@@ -24,7 +24,7 @@ class LineItemRuleTest extends TestCase
         $rule = (new LineItemRule())
             ->assign(['identifiers' => ['A']]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $lineItem = new LineItem('A', 'product', 'A');
 
@@ -45,7 +45,7 @@ class LineItemRuleTest extends TestCase
         $rule = (new LineItemRule())
             ->assign(['identifiers' => ['A']]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $lineItem = new LineItem('A', 'product', 'B');
 

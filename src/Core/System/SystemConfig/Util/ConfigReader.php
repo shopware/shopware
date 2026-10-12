@@ -9,6 +9,10 @@ use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Symfony\Component\Config\Util\XmlUtils;
 
+/**
+ * @phpstan-type CardDefinition array{title: array<string, string|null>, subtitle?: array<string, string|null>, name: string|null, elements: list<array<string, mixed>>, flag?: string|null}
+ * @phpstan-type TabDefinition array{title: array<string, string|null>|null, name: string|null, cards: array<CardDefinition>}
+ */
 #[Package('framework')]
 class ConfigReader extends XmlReader
 {
@@ -48,22 +52,67 @@ class ConfigReader extends XmlReader
      */
     protected function parseFile(\DOMDocument $xml): array
     {
-        return $this->getCardDefinitions($xml);
+        \assert($xml->firstChild instanceof \DOMElement);
+
+        return $this->getTabDefinitions($xml->firstChild);
     }
 
     /**
-     * @return array<array{title: array<string, string|null>, name: string|null, elements: list<array<string, mixed>>, flag?: string|null}>
+     * @return array<TabDefinition>
      */
-    private function getCardDefinitions(\DOMDocument $xml): array
+    private function getTabDefinitions(\DOMElement $xml): array
+    {
+        $tabDefinitions = [];
+        $globalCardDefinitions = $this->getCardDefinitions($xml, true);
+
+        if ($globalCardDefinitions !== []) {
+            $tabDefinitions[] = [
+                'title' => null,
+                'name' => null,
+                'cards' => $globalCardDefinitions,
+            ];
+        }
+
+        $tabElements = $xml->getElementsByTagName('tab');
+
+        if ($tabElements->length === 0) {
+            return $tabDefinitions;
+        }
+
+        foreach ($tabElements as $element) {
+            $tabDefinition = [
+                'title' => $this->getTitles($element, 'tab'),
+                'name' => $this->getName($element, 'tab'),
+                'cards' => $this->getCardDefinitions($element),
+            ];
+
+            $tabDefinitions[] = $tabDefinition;
+        }
+
+        return $tabDefinitions;
+    }
+
+    /**
+     * @return array<CardDefinition>
+     */
+    private function getCardDefinitions(\DOMElement $xml, bool $onlyGlobalTabs = false): array
     {
         $cardDefinitions = [];
 
         foreach ($xml->getElementsByTagName('card') as $element) {
+            if ($onlyGlobalTabs && $element->parentNode?->nodeName === 'tab') {
+                continue;
+            }
+
             $cardDefinition = [
-                'title' => $this->getCardTitles($element),
-                'name' => $this->getCardName($element),
+                'title' => $this->getTitles($element, 'card'),
+                'name' => $this->getName($element, 'card'),
                 'elements' => $this->getElements($element),
             ];
+
+            if ($this->getCardSubtitles($element) !== []) {
+                $cardDefinition['subtitle'] = $this->getCardSubtitles($element);
+            }
 
             if ($this->getCardFlag($element) !== null) {
                 $cardDefinition['flag'] = $this->getCardFlag($element);
@@ -78,14 +127,49 @@ class ConfigReader extends XmlReader
     /**
      * @return array<string, string|null>
      */
-    private function getCardTitles(\DOMElement $element): array
+    private function getTitles(\DOMElement $element, string $parentNodeName): array
     {
         $titles = [];
+
         foreach ($element->getElementsByTagName('title') as $title) {
+            $parentNode = $title->parentNode;
+
+            if (($parentNode !== null) && $parentNode->nodeName !== $parentNodeName) {
+                continue;
+            }
+
             $titles[$this->getLocaleCodeFromElement($title)] = $title->nodeValue;
         }
 
         return $titles;
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    private function getCardSubtitles(\DOMElement $element): array
+    {
+        $subtitles = [];
+        foreach ($element->getElementsByTagName('subtitle') as $subtitle) {
+            $subtitles[$this->getLocaleCodeFromElement($subtitle)] = $subtitle->nodeValue;
+        }
+
+        return $subtitles;
+    }
+
+    private function getName(\DOMElement $element, string $parentNodeName): ?string
+    {
+        foreach ($element->getElementsByTagName('name') as $name) {
+            $parentNode = $name->parentNode;
+
+            if (($parentNode !== null) && $parentNode->nodeName !== $parentNodeName) {
+                continue;
+            }
+
+            return $name->nodeValue;
+        }
+
+        return null;
     }
 
     /**
@@ -96,7 +180,7 @@ class ConfigReader extends XmlReader
         $elements = [];
         foreach (static::getAllChildren($xml) as $element) {
             $nodeName = $element->nodeName;
-            if (\in_array($nodeName, ['title', 'name', 'flag'], true)) {
+            if (\in_array($nodeName, ['title', 'subtitle', 'name', 'flag'], true)) {
                 continue;
             }
 
@@ -104,20 +188,6 @@ class ConfigReader extends XmlReader
         }
 
         return $elements;
-    }
-
-    private function getCardName(\DOMElement $element): ?string
-    {
-        foreach ($element->getElementsByTagName('name') as $name) {
-            $parentNode = $name->parentNode;
-            if (($parentNode !== null) && $parentNode->nodeName !== 'card') {
-                continue;
-            }
-
-            return $name->nodeValue;
-        }
-
-        return null;
     }
 
     private function getCardFlag(\DOMElement $element): ?string

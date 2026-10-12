@@ -6,6 +6,7 @@ use Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
@@ -44,6 +45,36 @@ class ProductCriteriaSubscriber implements EventSubscriberInterface
 
         if ($config->get('includeVariants') !== true) {
             $criteria->addFilter(new EqualsFilter('parentId', null));
+        }
+
+        $this->excludeUnmappedDescription($criteria, $config);
+    }
+
+    /**
+     * Skips loading the heavy `description` column when the export profile never maps it. The column
+     * is exported through the `translations` association, so it is dropped there too (only when the
+     * association is already loaded — we never add it just to reduce it). Left untouched if a field
+     * selection is already set.
+     */
+    private function excludeUnmappedDescription(Criteria $criteria, Config $config): void
+    {
+        foreach ($config->getMapping() as $mapping) {
+            if (\in_array('description', explode('.', $mapping->getKey()), true)) {
+                return;
+            }
+        }
+
+        if ($criteria->getFields() === [] && $criteria->getExcludedFields() === []) {
+            $criteria->excludeFields(['description']);
+        }
+
+        if (!$criteria->hasAssociation('translations')) {
+            return;
+        }
+
+        $translations = $criteria->getAssociation('translations');
+        if ($translations->getFields() === [] && $translations->getExcludedFields() === []) {
+            $translations->excludeFields(['description']);
         }
     }
 }

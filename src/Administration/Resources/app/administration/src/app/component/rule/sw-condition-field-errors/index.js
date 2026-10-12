@@ -25,12 +25,7 @@ export default {
     computed: {
         labels() {
             return Object.entries(this.errors)
-                .filter(
-                    ([
-                        ,
-                        error,
-                    ]) => !!error,
-                )
+                .filter(([, error]) => !!error)
                 .map(([field]) => this.resolveLabel(field));
         },
 

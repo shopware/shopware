@@ -24,7 +24,7 @@ class MeterTest extends TestCase
     private TraceableTransport $traceableTransport;
 
     /**
-     * @var array<string, array{type: string, description: string, unit?: string, config?: array<string, mixed>, enabled?: bool}>
+     * @var array<string, array{type: string, description: string, enabled?: bool, parameters: array<mixed>, labels: array<mixed>, unit?: string}>
      */
     private array $definitions;
 
@@ -71,6 +71,6 @@ class MeterTest extends TestCase
         static::assertIsString($firstConfiguredMetric);
         $this->traceableTransport->reset();
         $this->meter->emit(new ConfiguredMetric(name: $firstConfiguredMetric, value: 1, labels: []));
-        static::assertEmpty($this->traceableTransport->getEmittedMetrics());
+        static::assertCount(0, $this->traceableTransport->getEmittedMetrics());
     }
 }

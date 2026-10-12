@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(VariantNotFoundException::class)]
 class VariantNotFoundExceptionTest extends TestCase
 {

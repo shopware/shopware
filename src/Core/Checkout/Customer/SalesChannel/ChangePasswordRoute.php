@@ -5,9 +5,11 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerPasswordChangedEvent;
+use Shopware\Core\Checkout\Customer\Extension\ChangePasswordRouteExtension;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -30,13 +32,13 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('checkout')]
 #[Route(
     defaults: [
         PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
         PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED => true,
     ]
 )]
-#[Package('checkout')]
 class ChangePasswordRoute extends AbstractChangePasswordRoute
 {
     /**
@@ -48,7 +50,8 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
         private readonly EntityRepository $customerRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfigService,
-        private readonly DataValidator $validator
+        private readonly DataValidator $validator,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -64,6 +67,15 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
         methods: [Request::METHOD_POST]
     )]
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): ContextTokenResponse
+    {
+        return $this->extensions->publish(
+            name: ChangePasswordRouteExtension::NAME,
+            extension: new ChangePasswordRouteExtension($requestDataBag, $context, $customer),
+            function: $this->_change(...),
+        );
+    }
+
+    private function _change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): ContextTokenResponse
     {
         $this->validatePasswordFields($requestDataBag, $context);
 

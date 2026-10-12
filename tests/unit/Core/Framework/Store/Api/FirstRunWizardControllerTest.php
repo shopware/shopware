@@ -572,7 +572,7 @@ class FirstRunWizardControllerTest extends TestCase
 
     private function createClientException(string $message): ClientException
     {
-        return new ClientException($message, $this->createMock(GuzzleRequest::class), new Response(400));
+        return new ClientException($message, static::createStub(GuzzleRequest::class), new Response(400));
     }
 
     /**
@@ -600,7 +600,7 @@ class FirstRunWizardControllerTest extends TestCase
     private function createPluginSearchResult(Context $context, array $pluginData): EntitySearchResult
     {
         return new EntitySearchResult(
-            PluginEntity::class,
+            'plugin',
             \count($pluginData),
             $this->createPluginCollection($pluginData),
             null,

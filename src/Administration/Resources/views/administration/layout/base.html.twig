@@ -15,14 +15,16 @@
     {% endblock %}
 
     {% block administration_favicons %}
-        <link rel="apple-touch-icon" href="{{ asset('administration/static/img/favicon/apple-touch-icon.png', '@Administration') }}">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('administration/static/img/favicon/favicon-16x16.png', '@Administration') }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('administration/static/img/favicon/favicon-32x32.png', '@Administration') }}" id="dynamic-favicon">
-        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('administration/static/img/favicon/android-chrome-192x192.png', '@Administration') }}">
-        <link rel="icon" type="image/png" sizes="256x256" href="{{ asset('administration/static/img/favicon/android-chrome-256x256.png', '@Administration') }}">
-        <meta name="msapplication-TileImage" content="{{ asset('administration/static/img/favicon/mstile-150x150.png', '@Administration') }}">
-        <meta name="msapplication-TileColor" content="#189eff">
-        <meta name="theme-color" content="#189eff">
+        {# @deprecated tag:v6.8.0 - Raster fallback for Safari < 26, which cannot render SVG favicons.
+           Remove this link together with `static/img/favicon/favicon-32x32.png` once Safari < 26 usage
+           is negligible. Must stay BEFORE the SVG link: Firefox picks the last supported candidate. #}
+        <link rel="icon" href="{{ asset('administration/static/img/favicon/favicon-32x32.png', '@Administration') }}" sizes="32x32">
+
+        {# Swapped at runtime to the icon of the active module. Must stay the LAST `rel="icon"` link,
+           browsers pick one icon out of all declared ones. #}
+        <link rel="icon" type="image/svg+xml" sizes="any" href="{{ asset('administration/static/img/favicon/favicon.svg', '@Administration') }}" id="dynamic-favicon">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('administration/static/img/favicon/apple-touch-icon.png', '@Administration') }}">
+        <meta name="theme-color" content="#0870ff">
         <meta name="referrer" content="always">
     {% endblock %}
 

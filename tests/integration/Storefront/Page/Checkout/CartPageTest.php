@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\SalesChannel\CountryRoute;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('checkout')]
 class CartPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -52,7 +54,7 @@ class CartPageTest extends TestCase
 
         $context = $this->createSalesChannelContextWithNavigation();
 
-        $cartService = $this->createMock(StorefrontCartFacade::class);
+        $cartService = static::createStub(StorefrontCartFacade::class);
         $cartService
             ->method('getWithCheckoutGateway')
             ->willReturn(new StorefrontCartGatewayResult(new Cart($context->getToken()), $response));

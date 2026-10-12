@@ -12,15 +12,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         isSetDefaultPrice: {
@@ -45,6 +39,11 @@ export default {
     },
 
     computed: {
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
         product() {
             return Shopware.Store.get('swProductDetail').product;
         },
@@ -200,14 +199,30 @@ export default {
                 },
             ];
 
-            return [
-                ...priceColumns,
-                ...this.currencyColumns,
-            ];
+            return [...priceColumns, ...this.currencyColumns];
         },
 
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
+        emptyStateDescription() {
+            if (!this.isChild) {
+                return this.$t('sw-product.advancedPrices.advancedPricesNotExisting');
+            }
+
+            if (this.isInherited) {
+                return this.$t('sw-product.advancedPrices.advancedPricesInherited');
+            }
+
+            return this.$t('sw-product.advancedPrices.advancedPricesNotInherited');
+        },
+
+        parentPricesHref() {
+            if (!this.isChild || !this.isInherited) {
+                return undefined;
+            }
+
+            return this.$router.resolve({
+                name: 'sw.product.detail.prices',
+                params: { id: this.product.parentId },
+            }).href;
         },
     },
 
@@ -239,19 +254,13 @@ export default {
             );
 
             if (this.canSetLoadingRules) {
-                Shopware.Store.get('swProductDetail').setLoading([
-                    'rules',
-                    true,
-                ]);
+                Shopware.Store.get('swProductDetail').setLoading(['rules', true]);
             }
             this.ruleRepository.search(ruleCriteria).then((res) => {
                 this.rules = res;
                 this.totalRules = res.total;
 
-                Shopware.Store.get('swProductDetail').setLoading([
-                    'rules',
-                    false,
-                ]);
+                Shopware.Store.get('swProductDetail').setLoading(['rules', false]);
             });
 
             this.isInherited = this.isChild && !this.product.prices.total;
@@ -532,9 +541,7 @@ export default {
         },
 
         getPriceRuleGroupClass(number) {
-            return [
-                `context-price-group-${number}`,
-            ];
+            return [`context-price-group-${number}`];
         },
 
         restoreInheritance() {

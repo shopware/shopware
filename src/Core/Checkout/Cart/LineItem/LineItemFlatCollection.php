@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Struct\Collection;
  * without bundling them together using a single line item id/key.
  *
  * @extends Collection<LineItem>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class LineItemFlatCollection extends Collection

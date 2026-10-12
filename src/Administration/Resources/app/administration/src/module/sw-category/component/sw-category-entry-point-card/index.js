@@ -11,9 +11,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'acl',
-    ],
+    inject: ['acl'],
 
     props: {
         category: {
@@ -93,9 +91,7 @@ export default {
 
             if (this.hasExistingNavigation) {
                 criteria.addFilter(
-                    Criteria.not('or', [
-                        Criteria.equalsAny('id', this.initialNavigationSalesChannels.getIds()),
-                    ]),
+                    Criteria.not('or', [Criteria.equalsAny('id', this.initialNavigationSalesChannels.getIds())]),
                 );
             }
 

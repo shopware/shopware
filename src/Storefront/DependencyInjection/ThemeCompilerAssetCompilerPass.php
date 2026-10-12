@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\Reference;
  *
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeCompilerAssetCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

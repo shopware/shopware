@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Requirement\ServiceConsentRequirement;
 use Shopware\Core\Service\ServiceClient;
 use Shopware\Core\Service\ServiceException;
@@ -18,6 +19,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceClient::class)]
 class ServiceClientTest extends TestCase
 {
@@ -83,7 +85,7 @@ class ServiceClientTest extends TestCase
 
     public function testLatestInfoThrowsExceptionWhenRequestFails(): void
     {
-        $response = static::createMock(ResponseInterface::class);
+        $response = static::createStub(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
 
         static::expectExceptionObject(ServiceException::requestFailed($response));

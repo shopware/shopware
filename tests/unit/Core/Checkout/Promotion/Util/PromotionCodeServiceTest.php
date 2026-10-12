@@ -33,8 +33,8 @@ class PromotionCodeServiceTest extends TestCase
 
         $codeService = new PromotionCodeService(
             $promotionRepository,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(Connection::class)
+            static::createStub(EntityRepository::class),
+            static::createStub(Connection::class)
         );
 
         $this->expectExceptionObject(PromotionException::promotionsNotFound(['promotionId']));
@@ -54,8 +54,8 @@ class PromotionCodeServiceTest extends TestCase
 
         $codeService = new PromotionCodeService(
             $promotionRepository,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(Connection::class)
+            static::createStub(EntityRepository::class),
+            static::createStub(Connection::class)
         );
 
         $this->expectExceptionObject(PromotionException::patternNotComplexEnough());
@@ -93,7 +93,7 @@ class PromotionCodeServiceTest extends TestCase
 
         $codeService->addIndividualCodes($promotionId, 10, $context);
 
-        static::assertNotEmpty($individualCodeRepository->upserts[0]);
+        static::assertNotCount(0, $individualCodeRepository->upserts[0]);
         static::assertCount(10, $individualCodeRepository->upserts[0]);
     }
 
@@ -132,7 +132,7 @@ class PromotionCodeServiceTest extends TestCase
 
         $codeService->addIndividualCodes($promotionId, 10, $context);
 
-        static::assertNotEmpty($individualCodeRepository->upserts[0]);
+        static::assertNotCount(0, $individualCodeRepository->upserts[0]);
         static::assertCount(10, $individualCodeRepository->upserts[0]);
     }
 }

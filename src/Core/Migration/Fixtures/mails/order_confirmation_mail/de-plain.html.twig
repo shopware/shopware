@@ -34,6 +34,15 @@ Beschreibung {{ lineItem.label|u.wordwrap(80) }},
 {{ referencePriceFeature.value.purchaseUnit }} {{ referencePriceFeature.value.unitName }}({{ referencePriceFeature.value.price|currency(currencyIsoCode) }} pro {{ referencePriceFeature.value.referenceUnit }} {{ referencePriceFeature.value.unitName }}),
 {% endif %}
 {% endif %}
+{% if lineItem.productId is defined and lineItem.productId %}
+{% set garanLabel = garanLabels[lineItem.productId] ?? null %}
+{% if garanLabel %}
+Gewerbliche Haltbarkeitsgarantie (GARAN) {{ garanLabel.duration }} Jahre,
+{% if garanLabel.termsUrl %}
+Garantiebedingungen: {{ garanLabel.termsUrl }},
+{% endif %}
+{% endif %}
+{% endif %}
 Menge {{ lineItem.quantity }},
 Preis {{ lineItem.unitPrice|currency(currencyIsoCode) }},
 Summe {{ lineItem.totalPrice|currency(currencyIsoCode) }},
@@ -113,4 +122,8 @@ Folgend stellen wir barrierefreie Dokumente als HTML-Version zur Verfügung:
 
 Aus Datenschutzgründen ist für die HTML-Version ein Login erforderlich.
 Im Falle einer Gastbestellung können Sie Ihre E-Mail-Adresse und die Postleitzahl der Rechnungsanschrift verwenden.
+{% endif %}
+
+{% if config('core.cart.showLegalGuaranteeNotice') %}
+Hinweis zu Ihren gesetzlichen Gewährleistungsrechten: {{ context.languageId|sw_legal_guarantee_notice_link }}
 {% endif %}

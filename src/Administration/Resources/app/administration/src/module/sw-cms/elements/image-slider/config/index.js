@@ -15,16 +15,15 @@ const Criteria = Shopware.Data.Criteria;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['feature', 'repositoryFactory'],
 
     emits: ['element-update'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {
+            activeTab: 'content',
             mediaModalIsOpen: false,
             initialFolderId: null,
             entity: this.element,
@@ -34,6 +33,19 @@ export default {
     },
 
     computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.settings'),
+                    name: 'settings',
+                },
+            ];
+        },
+
         uploadTag() {
             return `cms-element-media-config-${this.element.id}`;
         },
@@ -335,6 +347,12 @@ export default {
             this.element.config.useFetchPriorityOnFirstItem.value = value;
 
             this.$emit('element-update', this.element);
+        },
+
+        getMediaItemById(mediaId) {
+            return this.mediaItems.find((item) => {
+                return item.id === mediaId;
+            });
         },
     },
 };

@@ -581,7 +581,7 @@ describe('CookieConfiguration plugin tests', () => {
             expect(mockFetch).not.toHaveBeenCalled();
         });
 
-        test('shows cookie bar when user has preference but no hash for current language', async () => {
+        test('shows the cookie bar without clearing consent when no hash exists for the current language', async () => {
             const languageId = 'test-language-id';
             const mockApiResponse = {
                 hash: 'abc123hash',
@@ -605,7 +605,6 @@ describe('CookieConfiguration plugin tests', () => {
             CookieStorage.setItem(plugin.options.cookiePreference, '1', '30');
 
             const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
-            const checkAndShowCookieBarSpy = jest.spyOn(plugin, '_checkAndShowCookieBarIfNeeded');
 
             // Mock dispatchEvent to simulate showCookieBar event
             const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation((event) => {
@@ -625,15 +624,14 @@ describe('CookieConfiguration plugin tests', () => {
                 },
             });
 
-            // Cookie preference should be removed to trigger re-consent
-            expect(removeItemSpy).toHaveBeenCalledWith('cookie-preference');
+            // The shared cookie-preference must NOT be removed - that would reset consent given
+            // for another language and re-trigger the banner there.
+            expect(removeItemSpy).not.toHaveBeenCalledWith('cookie-preference');
 
-            // Cookie bar should be shown for this language
-            expect(checkAndShowCookieBarSpy).toHaveBeenCalled();
+            // Cookie bar is shown so the user can consent for this language.
             expect(mockCookiePermissionPlugin._showCookieBar).toHaveBeenCalled();
 
             removeItemSpy.mockRestore();
-            checkAndShowCookieBarSpy.mockRestore();
             dispatchEventSpy.mockRestore();
         });
 

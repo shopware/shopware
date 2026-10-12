@@ -40,10 +40,7 @@ describe('integrationApiService', () => {
     it('saveMcpAllowlist sends POST to correct endpoint with allowlist', async () => {
         const { integrationApiService, clientMock } = getIntegrationApiService();
         const integrationId = 'abc123';
-        const allowlist = [
-            'shopware-entity-read',
-            'shopware-entity-search',
-        ];
+        const allowlist = ['shopware-entity-read', 'shopware-entity-search'];
 
         clientMock.onPost(`/_action/integration/${integrationId}/mcp-allowlist`).reply(204, null);
 

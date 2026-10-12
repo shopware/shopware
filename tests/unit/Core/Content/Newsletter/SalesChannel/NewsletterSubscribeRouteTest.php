@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Newsletter\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
@@ -12,11 +12,14 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
+use Shopware\Core\Content\Newsletter\Extension\NewsletterSubscribeRouteExtension;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRouteResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -25,12 +28,15 @@ use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -44,11 +50,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(NewsletterSubscribeRoute::class)]
 class NewsletterSubscribeRouteTest extends TestCase
 {
-    private MockObject&SalesChannelContext $salesChannelContext;
+    private Stub&SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $this->salesChannelContext = static::createStub(SalesChannelContext::class);
     }
 
     public function testSubscribeWithDOIEnabled(): void
@@ -68,7 +74,6 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
         $newsletterRecipientEntity->setStatus(NewsletterSubscribeRoute::STATUS_OPT_IN);
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -92,18 +97,66 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
             $entityRepository,
-            $this->createMock(DataValidator::class),
+            static::createStub(DataValidator::class),
             $eventDispatcher,
             $systemConfig,
-            $this->createMock(RateLimiter::class),
-            $this->createMock(RequestStack::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
 
         static::assertSame(NewsletterSubscribeRoute::STATUS_OPT_IN, $response->getStatus());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with NewsletterSubscribeRoute::subscribe().
+     *
+     * The deprecated method has to keep answering with the old response object. Extensions written
+     * before v6.7 declare NoContentResponse as their own return type, so handing them the new
+     * response object is a TypeError inside their code.
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDeprecatedSubscribeKeepsReturningTheOldResponse(): void
+    {
+        $this->salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $requestData = new RequestDataBag();
+        $requestData->add([
+            'email' => 'test@example.com',
+            'option' => 'direct',
+        ]);
+
+        $newsletterRecipientEntity = new NewsletterRecipientEntity();
+        $newsletterRecipientEntity->setId(Uuid::randomHex());
+        $newsletterRecipientEntity->setStatus(NewsletterSubscribeRoute::STATUS_DIRECT);
+        $newsletterRecipientEntity->setEmail('test@example.com');
+
+        $entityRepository = new StaticEntityRepository([
+            [$newsletterRecipientEntity->getId()],
+            new NewsletterRecipientCollection([$newsletterRecipientEntity]),
+            new NewsletterRecipientCollection([$newsletterRecipientEntity]),
+        ]);
+
+        $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
+            $entityRepository,
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            new StaticSystemConfigService([TestDefaults::SALES_CHANNEL => ['core.newsletter.doubleOptIn' => false]]),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $response = $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+
+        static::assertInstanceOf(NoContentResponse::class, $response);
+        static::assertSame(204, $response->getStatusCode());
     }
 
     public function testSubscribeWithDOIDisabled(): void
@@ -123,7 +176,6 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
         $newsletterRecipientEntity->setStatus(NewsletterSubscribeRoute::STATUS_DIRECT);
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -147,18 +199,66 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
             $entityRepository,
-            $this->createMock(DataValidator::class),
+            static::createStub(DataValidator::class),
             $eventDispatcher,
             $systemConfig,
-            $this->createMock(RateLimiter::class),
-            $this->createMock(RequestStack::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
 
         static::assertSame(NewsletterSubscribeRoute::STATUS_DIRECT, $response->getStatus());
+    }
+
+    public function testConfirmSubscribeCannotBypassDoubleOptIn(): void
+    {
+        $this->salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $requestData = new RequestDataBag();
+        $requestData->add([
+            'email' => 'confirm-subscribe-probe@example.com',
+            'option' => 'confirmSubscribe',
+            'storefrontUrl' => 'http://localhost',
+        ]);
+
+        $recipient = new NewsletterRecipientEntity();
+        $recipient->setId(Uuid::randomHex());
+        $recipient->setEmail('confirm-subscribe-probe@example.com');
+        $recipient->setStatus(NewsletterSubscribeRoute::STATUS_NOT_SET);
+
+        $entityRepository = new StaticEntityRepository([
+            [],
+            new NewsletterRecipientCollection([$recipient]),
+        ]);
+
+        $systemConfig = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.newsletter.doubleOptIn' => true,
+            ],
+        ]);
+
+        $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
+            $entityRepository,
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            $systemConfig,
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $response = $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
+        $upserts = $entityRepository->getPayloads(StaticEntityRepository::UPSERT);
+
+        static::assertCount(1, $upserts);
+        static::assertSame(NewsletterSubscribeRoute::STATUS_NOT_SET, $upserts[0]['status']);
+        static::assertSame(NewsletterSubscribeRoute::STATUS_NOT_SET, $response->getStatus());
     }
 
     /**
@@ -176,13 +276,12 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
         ]);
 
-        $mock = $this->createMock(DataValidator::class);
+        $mock = static::createStub(DataValidator::class);
         $mock->method('validate')->willReturnCallback(static function (array $data, DataValidationDefinition $definition) use ($properties, $constraints): void {
             foreach ($properties as $propertyName => $value) {
                 static::assertEquals($value, $data[$propertyName] ?? null);
@@ -193,12 +292,13 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
             $entityRepository,
             $mock,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(RateLimiter::class),
-            $this->createMock(RequestStack::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
@@ -216,7 +316,11 @@ class NewsletterSubscribeRouteTest extends TestCase
             ['firstName' => 'Y http://localhost', 'lastName' => 'Tran http://localhost'],
             [
                 new NotBlank(),
-                new Regex(pattern: NewsletterSubscribeRoute::DOMAIN_NAME_REGEX, match: false),
+                new Regex(
+                    pattern: NewsletterSubscribeRoute::DOMAIN_NAME_REGEX,
+                    message: 'error.urlNotAllowed',
+                    match: false,
+                ),
             ],
         ];
 
@@ -230,7 +334,11 @@ class NewsletterSubscribeRouteTest extends TestCase
             ['firstName' => 'Y', 'lastName' => 'Tran'],
             [
                 new NotBlank(),
-                new Regex(pattern: NewsletterSubscribeRoute::DOMAIN_NAME_REGEX, match: false),
+                new Regex(
+                    pattern: NewsletterSubscribeRoute::DOMAIN_NAME_REGEX,
+                    message: 'error.urlNotAllowed',
+                    match: false,
+                ),
             ],
         ];
     }
@@ -247,7 +355,6 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -269,13 +376,14 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
             $entityRepository,
-            $this->createMock(DataValidator::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
             $rateLimiterMock,
             $requestStack,
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
@@ -305,14 +413,15 @@ class NewsletterSubscribeRouteTest extends TestCase
             ->willThrowException(new RateLimitExceededException(2));
 
         $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(DataValidator::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
             $rateLimiterMock,
             $requestStack,
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         static::expectException(RateLimitExceededException::class);
@@ -349,7 +458,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->salesChannelContext->method('getCustomerId')->willReturn(null);
         }
 
-        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository = static::createStub(EntityRepository::class);
 
         $customerEntity = new CustomerEntity();
         $customerEntity->setId($customerData['id']);
@@ -380,10 +489,10 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->salesChannelContext->getContext(),
         );
 
-        $newsletterRecipientRepository = $this->createMock(EntityRepository::class);
+        $newsletterRecipientRepository = static::createStub(EntityRepository::class);
         $newsletterRecipientRepository->method('search')->willReturn($newsletterRecipientSearchResult);
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatchedEvents = [];
         $eventDispatcher
             ->method('dispatch')
@@ -395,13 +504,14 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
             $newsletterRecipientRepository,
-            $this->createMock(DataValidator::class),
+            static::createStub(DataValidator::class),
             $eventDispatcher,
             $systemConfig,
-            $this->createMock(RateLimiter::class),
-            $this->createMock(RequestStack::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
             $customerRepository,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
@@ -787,5 +897,34 @@ class NewsletterSubscribeRouteTest extends TestCase
             ],
             'expectedEvent' => NewsletterRegisterEvent::class,
         ];
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $dataBag = new RequestDataBag();
+        $validateStorefrontUrl = true;
+        $response = static::createStub(NewsletterSubscribeRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('newsletter-subscribe-route.subscribe.pre', function (NewsletterSubscribeRouteExtension $extension) use ($dataBag, $validateStorefrontUrl, $response): void {
+            static::assertSame(['dataBag' => $dataBag, 'context' => $this->salesChannelContext, 'validateStorefrontUrl' => $validateStorefrontUrl], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new NewsletterSubscribeRoute(
+            static::createStub(EntityRepository::class),
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->subscribeWithResponse($dataBag, $this->salesChannelContext, $validateStorefrontUrl));
     }
 }

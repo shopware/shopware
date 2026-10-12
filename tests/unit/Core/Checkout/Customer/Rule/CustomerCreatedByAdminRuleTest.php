@@ -60,7 +60,7 @@ class CustomerCreatedByAdminRuleTest extends TestCase
     public function testMatchWithWrongRuleScope(): void
     {
         $rule = new CustomerCreatedByAdminRule();
-        $scope = $this->createMock(TestRuleScope::class);
+        $scope = static::createStub(TestRuleScope::class);
 
         $match = $rule->match($scope);
 

@@ -27,18 +27,11 @@ async function createWrapper(props = {}) {
                 stubs: {
                     'mt-icon': {
                         template: '<i class="mt-icon" :name="name"></i>',
-                        props: [
-                            'name',
-                            'size',
-                            'color',
-                        ],
+                        props: ['name', 'size', 'color'],
                     },
                     'mt-link': {
                         template: '<button class="mt-link" @click="$emit(\'click\')"><slot /></button>',
-                        props: [
-                            'variant',
-                            'as',
-                        ],
+                        props: ['variant', 'as'],
                     },
                     'sw-confirm-modal': {
                         template: `
@@ -206,10 +199,7 @@ describe('src/module/sw-cms/component/sw-cms-reset-inheritance', () => {
         Shopware.Store.get('cmsPage').setCurrentPage({
             sections: [
                 {
-                    blocks: [
-                        { slots: [slot1] },
-                        { slots: [slot2] },
-                    ],
+                    blocks: [{ slots: [slot1] }, { slots: [slot2] }],
                 },
             ],
         });

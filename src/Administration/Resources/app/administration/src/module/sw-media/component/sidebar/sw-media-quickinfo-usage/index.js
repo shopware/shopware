@@ -12,9 +12,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         item: {
@@ -396,7 +394,6 @@ export default {
             const module = this.moduleFactory.getModuleRegistry().get(name);
             return {
                 name: module.manifest.icon,
-                color: module.manifest.color,
             };
         },
     },

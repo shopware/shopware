@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('framework')]
+#[Package('discovery')]
 class SalesChannelMappingException extends StorefrontFrameworkException
 {
     public function __construct(string $url)

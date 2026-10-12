@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Order\Api;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 /**
  * @internal
  */
+#[Package('checkout')]
 class OrderActionControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;

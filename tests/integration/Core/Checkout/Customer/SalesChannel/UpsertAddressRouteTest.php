@@ -66,7 +66,7 @@ class UpsertAddressRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
@@ -104,7 +104,7 @@ class UpsertAddressRouteTest extends TestCase
         }
 
         // Check existence
-        $address = $this->addressRepository->search(new Criteria([$content['id']]), Context::createDefaultContext())->first();
+        $address = $this->addressRepository->search(new Criteria([$content['id']]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerAddressEntity::class, $address);
         $serializedAddress = $address->jsonSerialize();
 
@@ -222,7 +222,7 @@ class UpsertAddressRouteTest extends TestCase
         }
 
         // Check existence
-        $address = $this->addressRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->first();
+        $address = $this->addressRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerAddressEntity::class, $address);
 
         foreach ($data as $key => $val) {

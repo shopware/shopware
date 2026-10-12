@@ -84,7 +84,7 @@ class ToolResultCacheStorageTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn(false);
 
         $storage = new ToolResultCacheStorage($connection, new NativeClock());
@@ -97,7 +97,7 @@ class ToolResultCacheStorageTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn(false);
 
         $storage = new ToolResultCacheStorage($connection, new NativeClock());

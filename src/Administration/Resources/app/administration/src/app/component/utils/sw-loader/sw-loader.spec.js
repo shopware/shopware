@@ -18,18 +18,15 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-loader', () => {
-    it('should render the deprecated sw-loader when major feature flag is disabled', async () => {
-        global.activeFeatureFlags = [''];
-
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-loader implementation.
+    it.deprecated('v6.8.0.0')('should render the deprecated sw-loader', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('sw-loader-deprecated');
         expect(wrapper.html()).not.toContain('mt-loader');
     });
 
-    it('should render the mt-loader when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
-
+    it.activeFeatureFlags(['ENABLE_METEOR_COMPONENTS'])('should render the mt-loader', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('mt-loader');

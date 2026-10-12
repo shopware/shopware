@@ -4,7 +4,7 @@ import type { NotificationType } from './notification.store';
 
 describe('notifications.store', () => {
     beforeAll(() => {
-        Shopware.Store.get('session').currentUser = { id: '1' } as EntitySchema.user;
+        Shopware.Store.get('session').currentUser = { id: '1' } as Entity<'user'>;
     });
 
     beforeEach(() => {

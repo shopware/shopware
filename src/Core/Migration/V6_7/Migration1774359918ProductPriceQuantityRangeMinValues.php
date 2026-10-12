@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('inventory')]
 class Migration1774359918ProductPriceQuantityRangeMinValues extends MigrationStep
 {
     public function getCreationTimestamp(): int

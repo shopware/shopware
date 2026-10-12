@@ -85,7 +85,7 @@ const { Module } = Shopware;
 Module.register('sw-bulk-edit', {
     type: 'core',
     name: 'bulk-edit',
-    title: 'sw-bulk-edit.general.mainMenuTitle',
+    title: 'global.default.bulkEdit',
     description: 'sw-bulk-edit.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',

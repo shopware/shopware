@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1738661307AddMediaIndices;
@@ -12,6 +13,7 @@ use Shopware\Core\Migration\V6_6\Migration1738661307AddMediaIndices;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1738661307AddMediaIndices::class)]
 class Migration1738661307AddMediaIndicesTest extends TestCase
 {

@@ -7,7 +7,18 @@
         margin-bottom: 10px;
     }
 
-    .sw-simple-search-field.is--searching {
-        margin-bottom: 12px;
+    .mt-search {
+        margin-top: 4px;
+        margin-bottom: 16px;
+    }
+
+    .sw-media-breadcrumbs {
+        margin-bottom: 24px;
+    }
+
+    .sw-media-base-item .sw-context-button .sw-context-button__button {
+        height: var(--scale-size-24);
+        padding: 0 var(--scale-size-8);
+        line-height: var(--font-line-height-xs);
     }
 }

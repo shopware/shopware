@@ -120,20 +120,20 @@ class ProcessorTest extends TestCase
 
         $processor = new Processor(
             new Validator([]),
-            $this->createMock(AmountCalculator::class),
-            $this->createMock(TransactionProcessor::class),
+            static::createStub(AmountCalculator::class),
+            static::createStub(TransactionProcessor::class),
             [
                 new class implements CartProcessorInterface {
                     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
                     {
-                        TestCase::assertNotEmpty($original->getExtension('unit-test'));
-                        TestCase::assertNotEmpty($toCalculate->getExtension('unit-test'));
+                        TestCase::assertNotNull($original->getExtension('unit-test'));
+                        TestCase::assertNotNull($toCalculate->getExtension('unit-test'));
                         TestCase::assertSame($original->getExtension('unit-test'), $toCalculate->getExtension('unit-test'));
                     }
                 },
             ],
             [],
-            $this->createMock(ScriptExecutor::class)
+            static::createStub(ScriptExecutor::class)
         );
 
         $newCart = $processor->process($cart, $this->context, new CartBehavior());
@@ -198,12 +198,12 @@ class ProcessorTest extends TestCase
 
         $calculatedTaxForCustomItem = array_filter($creditCalculatedTaxes, static fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForCustomItem);
 
-        static::assertNotEmpty($calculatedTaxForCustomItem);
+        static::assertNotCount(0, $calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
         $calculatedTaxForProductItem = array_filter($creditCalculatedTaxes, static fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForProductItem);
 
-        static::assertNotEmpty($calculatedTaxForProductItem);
+        static::assertNotCount(0, $calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);
     }
 
@@ -291,12 +291,12 @@ class ProcessorTest extends TestCase
 
         $calculatedTaxForCustomItem = array_filter($shippingCalculatedTaxes, static fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForCustomItem);
 
-        static::assertNotEmpty($calculatedTaxForCustomItem);
+        static::assertNotCount(0, $calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
         $calculatedTaxForProductItem = array_filter($shippingCalculatedTaxes, static fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForProductItem);
 
-        static::assertNotEmpty($calculatedTaxForProductItem);
+        static::assertNotCount(0, $calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);
     }
 
@@ -354,6 +354,19 @@ class ProcessorTest extends TestCase
             }
             static::assertInstanceOf(AutoPromotionNotFoundError::class, $error);
         }
+    }
+
+    public function testProcessKeepsPersistedStateOfOriginalCart(): void
+    {
+        $cart = new Cart('test');
+
+        $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
+        static::assertFalse($calculated->isPersisted());
+
+        $cart->setPersisted(true);
+
+        $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
+        static::assertTrue($calculated->isPersisted());
     }
 
     public function testProcessorsAndCollectorsAreSkippedIfCartIsEmpty(): void

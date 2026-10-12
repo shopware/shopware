@@ -22,21 +22,19 @@ class StorefrontControllerGenerator implements ScaffoldingGenerator
     private const OPTION_DESCRIPTION = 'Create an example storefront controller';
     private const CLI_QUESTION = 'Do you want to create an example storefront controller?';
 
-    private string $servicesXmlEntry = <<<'EOL'
+    private string $servicesPhpEntry = <<<'EOL'
 
-            <service id="{{ namespace }}\Storefront\Controller\ExampleController" public="true">
-                <call method="setContainer">
-                    <argument type="service" id="service_container"/>
-                </call>
-            </service>
+    $services->set(\{{ namespace }}\Storefront\Controller\ExampleController::class)
+        ->public()
+        ->call('setContainer', [service('service_container')]);
 
-    EOL;
+EOL;
 
-    private string $routesXmlEntry = <<<'EOL'
+    private string $routesPhpEntry = <<<'EOL'
 
-        <import resource="../../Storefront/Controller/**/*Controller.php" type="attribute" />
+    $routes->import('../../Storefront/Controller/**/*Controller.php', 'attribute');
 
-    EOL;
+EOL;
 
     public function addScaffoldConfig(
         PluginScaffoldConfiguration $config,
@@ -70,17 +68,17 @@ class StorefrontControllerGenerator implements ScaffoldingGenerator
         $stubCollection->add($this->createTemplate());
 
         $stubCollection->append(
-            'src/Resources/config/services.xml',
+            'src/Resources/config/services.php',
             str_replace(
                 '{{ namespace }}',
                 $configuration->namespace,
-                $this->servicesXmlEntry
+                $this->servicesPhpEntry
             )
         );
 
         $stubCollection->append(
-            'src/Resources/config/routes.xml',
-            $this->routesXmlEntry
+            'src/Resources/config/routes.php',
+            $this->routesPhpEntry
         );
     }
 

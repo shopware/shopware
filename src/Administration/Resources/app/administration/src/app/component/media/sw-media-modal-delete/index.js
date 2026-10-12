@@ -18,14 +18,9 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'media-delete-modal-close',
-        'media-delete-modal-items-delete',
-    ],
+    emits: ['media-delete-modal-close', 'media-delete-modal-items-delete'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         itemsToDelete: {

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<CookieGroup>
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CookieGroupCollection extends Collection
 {
     public function set($key, $element): void

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
 use Shopware\Core\Content\Product\Extension\LoadPreviewExtension;
@@ -13,28 +14,31 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
-use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductListingLoader::class)]
 class ProductListingLoaderTest extends TestCase
 {
@@ -45,11 +49,11 @@ class ProductListingLoaderTest extends TestCase
 
     private MockObject&SystemConfigService $systemConfigService;
 
-    private MockObject&Connection $connection;
+    private Stub&Connection $connection;
 
     private EventDispatcher $eventDispatcher;
 
-    private MockObject&AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
+    private Stub&AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -57,9 +61,9 @@ class ProductListingLoaderTest extends TestCase
     {
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->systemConfigService = $this->createMock(SystemConfigService::class);
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->eventDispatcher = new EventDispatcher();
-        $this->productCloseoutFilterFactory = $this->createMock(AbstractProductCloseoutFilterFactory::class);
+        $this->productCloseoutFilterFactory = static::createStub(AbstractProductCloseoutFilterFactory::class);
         $this->salesChannelContext = Generator::generateSalesChannelContext();
     }
 
@@ -72,8 +76,8 @@ class ProductListingLoaderTest extends TestCase
                 static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
 
                 return match ($key) {
+                    'core.listing.partialDataLoading' => false,
                     'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
-                    'core.listing.findBestVariant' => false,
                     default => throw new \RuntimeException('Unexpected config key ' . $key),
                 };
             });
@@ -83,10 +87,10 @@ class ProductListingLoaderTest extends TestCase
             ->method('searchIds')
             ->willReturnCallback(function (Criteria $criteria): IdSearchResult {
                 static::assertCount(1, $criteria->getGroupFields());
-                static::assertTrue(\count(array_filter(
+                static::assertTrue(array_filter(
                     $criteria->getFilters(),
                     static fn ($filter): bool => $filter instanceof NotEqualsFilter && $filter->getField() === 'displayGroup'
-                )) > 0);
+                ) !== []);
 
                 return $this->createIdSearchResult($criteria, [
                     'red-l' => ['score' => 10.0],
@@ -119,7 +123,7 @@ class ProductListingLoaderTest extends TestCase
 
         $result = $this->createLoader()->load(new Criteria(), $this->salesChannelContext);
 
-        static::assertSame(['red-l', 'blue-m'], array_values($result->getIds()));
+        static::assertSame(['red-l', 'blue-m'], array_values($result->getEntities()->getIds()));
         static::assertSame(2, $result->getTotal());
     }
 
@@ -129,12 +133,13 @@ class ProductListingLoaderTest extends TestCase
         $resolvePreviewEventSeen = false;
 
         $this->systemConfigService
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('getBool')
             ->willReturnCallback(function (string $key, string $salesChannelId): bool {
                 static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
 
                 return match ($key) {
+                    'core.listing.partialDataLoading' => false,
                     'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
                     default => throw new \RuntimeException('Unexpected config key ' . $key),
                 };
@@ -145,10 +150,10 @@ class ProductListingLoaderTest extends TestCase
             ->method('searchIds')
             ->willReturnCallback(function (Criteria $criteria): IdSearchResult {
                 static::assertCount(0, $criteria->getGroupFields());
-                static::assertFalse(\count(array_filter(
+                static::assertFalse(array_filter(
                     $criteria->getFilters(),
                     static fn ($filter): bool => $filter instanceof NotEqualsFilter && $filter->getField() === 'displayGroup'
-                )) > 0);
+                ) !== []);
 
                 return $this->createIdSearchResult($criteria, [
                     'variant-a' => ['score' => 10.0],
@@ -191,13 +196,13 @@ class ProductListingLoaderTest extends TestCase
             });
 
         $criteria = new Criteria();
-        $criteria->addState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
+        $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
 
         $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
 
         static::assertFalse($previewLoaded);
         static::assertTrue($resolvePreviewEventSeen);
-        static::assertSame(['variant-a', 'variant-b'], array_values($result->getIds()));
+        static::assertSame(['variant-a', 'variant-b'], array_values($result->getEntities()->getIds()));
     }
 
     public function testLoadResolvesPreviewOnSearchRouteWithOptionPostFilterWhenFindBestVariantIsDisabled(): void
@@ -207,13 +212,14 @@ class ProductListingLoaderTest extends TestCase
         $configKeys = [];
 
         $this->systemConfigService
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(4))
             ->method('getBool')
             ->willReturnCallback(function (string $key, string $salesChannelId) use (&$configKeys): bool {
                 static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
                 $configKeys[] = $key;
 
                 return match ($key) {
+                    'core.listing.partialDataLoading' => false,
                     'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
                     'core.listing.findBestVariant' => false,
                     default => throw new \RuntimeException('Unexpected config key ' . $key),
@@ -240,6 +246,7 @@ class ProductListingLoaderTest extends TestCase
             ExtensionDispatcher::pre(LoadPreviewExtension::NAME),
             static function (LoadPreviewExtension $extension) use (&$previewLoaded): void {
                 $previewLoaded = true;
+                static::assertEquals([new EqualsFilter('product.options.id', 'option-id')], $extension->postFilters);
                 $extension->result = [
                     'variant-id' => 'preview-id',
                 ];
@@ -275,11 +282,12 @@ class ProductListingLoaderTest extends TestCase
         static::assertTrue($previewLoaded);
         static::assertTrue($resolvePreviewEventSeen);
         static::assertSame([
+            'core.listing.partialDataLoading',
             'core.listing.findBestVariant',
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             'core.listing.findBestVariant',
         ], $configKeys);
-        static::assertSame(['preview-id'], array_values($result->getIds()));
+        static::assertSame(['preview-id'], array_values($result->getEntities()->getIds()));
     }
 
     public function testLoadSkipsPreviewOnSearchRouteWhenFindBestVariantIsEnabled(): void
@@ -287,12 +295,13 @@ class ProductListingLoaderTest extends TestCase
         $previewLoaded = false;
 
         $this->systemConfigService
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(4))
             ->method('getBool')
             ->willReturnCallback(function (string $key, string $salesChannelId): bool {
                 static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
 
                 return match ($key) {
+                    'core.listing.partialDataLoading' => false,
                     'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
                     'core.listing.findBestVariant' => true,
                     default => throw new \RuntimeException('Unexpected config key ' . $key),
@@ -339,7 +348,7 @@ class ProductListingLoaderTest extends TestCase
         $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
 
         static::assertFalse($previewLoaded);
-        static::assertSame(['variant-id'], array_values($result->getIds()));
+        static::assertSame(['variant-id'], array_values($result->getEntities()->getIds()));
     }
 
     public function testScoreRankedGroupingExcludesProductsWithVariants(): void
@@ -348,6 +357,7 @@ class ProductListingLoaderTest extends TestCase
 
         $expected = new Criteria();
         $expected->addState(ResolvedCriteriaProductSearchRoute::STATE);
+        $expected->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $expected->addGroupField(new FieldGrouping('displayGroup'));
         $expected->addFilter(new NotEqualsFilter('displayGroup', null));
         $expected->addState(Criteria::STATE_SCORE_RANKED_GROUPING);
@@ -365,6 +375,120 @@ class ProductListingLoaderTest extends TestCase
 
         static::assertFalse($criteria->hasState(Criteria::STATE_SCORE_RANKED_GROUPING));
         static::assertNull($this->findChildCountFilter($criteria));
+    }
+
+    public function testLoadPreviewsChecksMainVariantAgainstPostFilters(): void
+    {
+        $ids = new IdsCollection();
+        $postFilter = new EqualsFilter('product.options.id', $ids->get('green'));
+
+        [$availabilityCriteria, $resultIds] = $this->loadWithPreviews(
+            [$this->createPreviewConfigRow($ids, 'found-a', 'parent-a', ['mainVariantId' => $ids->get('main-a')])],
+            [$postFilter],
+            []
+        );
+
+        static::assertContainsEquals(new AndFilter([$postFilter]), $availabilityCriteria->getFilters());
+        static::assertSame([$ids->get('found-a')], $resultIds);
+    }
+
+    public function testLoadPreviewsExemptsParentFromPostFilters(): void
+    {
+        $ids = new IdsCollection();
+        $postFilter = new EqualsFilter('product.options.id', $ids->get('green'));
+
+        [$availabilityCriteria, $resultIds] = $this->loadWithPreviews(
+            [
+                $this->createPreviewConfigRow($ids, 'found-a', 'parent-a', ['mainVariantId' => $ids->get('main-a')]),
+                $this->createPreviewConfigRow($ids, 'found-b', 'parent-b', ['mainVariantId' => $ids->get('main-b'), 'displayParent' => true]),
+            ],
+            [$postFilter],
+            [$ids->get('parent-b')]
+        );
+
+        static::assertContainsEquals(new OrFilter([
+            new EqualsAnyFilter('id', [$ids->get('parent-b')]),
+            new AndFilter([$postFilter]),
+        ]), $availabilityCriteria->getFilters());
+        static::assertSame([$ids->get('found-a'), $ids->get('parent-b')], $resultIds);
+    }
+
+    public function testLoadPreviewsWithoutPostFiltersUsesMainVariant(): void
+    {
+        $ids = new IdsCollection();
+
+        [$availabilityCriteria, $resultIds] = $this->loadWithPreviews(
+            [$this->createPreviewConfigRow($ids, 'found-a', 'parent-a', ['mainVariantId' => $ids->get('main-a')])],
+            [],
+            [$ids->get('main-a')]
+        );
+
+        static::assertCount(1, $availabilityCriteria->getFilters());
+        static::assertSame([$ids->get('main-a')], $resultIds);
+    }
+
+    /**
+     * @param list<array{variantListingConfig: string, id: string, parentId: string}> $configRows
+     * @param list<Filter> $postFilters
+     * @param list<string> $availableIds
+     *
+     * @return array{Criteria, list<string>}
+     */
+    private function loadWithPreviews(array $configRows, array $postFilters, array $availableIds): array
+    {
+        $this->systemConfigService
+            ->expects($this->atLeastOnce())
+            ->method('getBool')
+            ->willReturnCallback(static fn (string $key): bool => match ($key) {
+                'core.listing.partialDataLoading', 'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
+                default => throw new \RuntimeException('Unexpected config key ' . $key),
+            });
+
+        $this->connection->method('fetchAllAssociative')->willReturn($configRows);
+
+        $availabilityCriteria = null;
+        $this->productRepository
+            ->expects($this->exactly(2))
+            ->method('searchIds')
+            ->willReturnCallback(function (Criteria $criteria) use ($configRows, $availableIds, &$availabilityCriteria): IdSearchResult {
+                if ($criteria->getIds() === []) {
+                    return $this->createIdSearchResult($criteria, array_fill_keys(array_column($configRows, 'id'), []));
+                }
+
+                $availabilityCriteria = $criteria;
+
+                return $this->createIdSearchResult($criteria, array_fill_keys($availableIds, []));
+            });
+
+        $this->productRepository->method('aggregate')->willReturn(new AggregationResultCollection());
+        $this->productRepository
+            ->method('search')
+            ->willReturnCallback(fn (Criteria $criteria): EntitySearchResult => $this->createProductSearchResult($criteria, array_values(array_filter($criteria->getIds(), 'is_string'))));
+
+        $criteria = new Criteria();
+        foreach ($postFilters as $postFilter) {
+            $criteria->addPostFilter($postFilter);
+        }
+
+        $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
+
+        static::assertInstanceOf(Criteria::class, $availabilityCriteria);
+
+        return [$availabilityCriteria, array_values($result->getEntities()->getIds())];
+    }
+
+    /**
+     * @param array<string, mixed> $variantListingConfig
+     *
+     * @return array{variantListingConfig: string, id: string, parentId: string}
+     */
+    private function createPreviewConfigRow(IdsCollection $ids, string $childKey, string $parentKey, array $variantListingConfig): array
+    {
+        return [
+            'variantListingConfig' => json_encode($variantListingConfig, \JSON_THROW_ON_ERROR),
+            'id' => $ids->get($childKey),
+            'parentId' => $ids->get($parentKey),
+        ];
     }
 
     private function createLoader(): ProductListingLoader
@@ -410,39 +534,49 @@ class ProductListingLoaderTest extends TestCase
         return new EntitySearchResult('product', $products->count(), $products, new AggregationResultCollection(), $criteria, $this->salesChannelContext->getContext());
     }
 
+    /**
+     * Runs a search-route listing through the public loader and returns the criteria the
+     * loader resolved the ids with.
+     */
     private function resolveSearchIds(bool $findBestVariant): Criteria
     {
-        $salesChannelId = Uuid::randomHex();
+        $this->systemConfigService
+            ->expects($this->atLeastOnce())
+            ->method('getBool')
+            ->willReturnCallback(function (string $key, string $salesChannelId) use ($findBestVariant): bool {
+                static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
 
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getSalesChannelId')->willReturn($salesChannelId);
-        $context->method('getContext')->willReturn(Context::createDefaultContext());
+                return match ($key) {
+                    'core.listing.findBestVariant' => $findBestVariant,
+                    'core.listing.partialDataLoading', 'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
+                    default => throw new \RuntimeException('Unexpected config key ' . $key),
+                };
+            });
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->method('getBool')->willReturnMap([
-            ['core.listing.findBestVariant', $salesChannelId, $findBestVariant],
-            ['core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId, false],
-        ]);
+        $resolved = null;
+        $this->productRepository
+            ->expects($this->once())
+            ->method('searchIds')
+            ->willReturnCallback(function (Criteria $criteria) use (&$resolved): IdSearchResult {
+                $resolved = $criteria;
 
-        /** @var StaticSalesChannelRepository<ProductCollection> $productRepository */
-        $productRepository = new StaticSalesChannelRepository([[]]);
+                // no ids: the loader stops right after resolving them
+                return $this->createIdSearchResult($criteria, []);
+            });
 
-        $loader = new ProductListingLoader(
-            $productRepository,
-            $systemConfigService,
-            $this->createMock(Connection::class),
-            new EventDispatcher(),
-            $this->createMock(AbstractProductCloseoutFilterFactory::class),
-            new ExtensionDispatcher(new EventDispatcher()),
-        );
+        $this->productRepository
+            ->expects($this->once())
+            ->method('aggregate')
+            ->willReturn(new AggregationResultCollection());
 
         $criteria = new Criteria();
         $criteria->addState(ResolvedCriteriaProductSearchRoute::STATE);
 
-        $method = new \ReflectionMethod($loader, 'resolveIds');
-        $method->invoke($loader, $criteria, $context);
+        $this->createLoader()->load($criteria, $this->salesChannelContext);
 
-        return $criteria;
+        static::assertInstanceOf(Criteria::class, $resolved);
+
+        return $resolved;
     }
 
     private function findChildCountFilter(Criteria $criteria): ?MultiFilter

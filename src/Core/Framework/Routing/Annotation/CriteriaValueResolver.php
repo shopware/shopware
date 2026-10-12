@@ -41,18 +41,26 @@ class CriteriaValueResolver implements ValueResolverInterface
             throw RoutingException::missingRouteAttribute('default "_entity" value', $route);
         }
 
-        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_EFFECTIVE_CONTEXT_OBJECT);
+        if (!$context instanceof Context) {
+            $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        }
+
         if (!$context instanceof Context) {
             $route = $request->attributes->get('_route');
 
             throw RoutingException::missingRouteAttribute('context', $route);
         }
 
-        yield $this->criteriaBuilder->handleRequest(
+        $criteria = $this->criteriaBuilder->handleRequest(
             $request,
             new Criteria(),
             $this->registry->getByEntityName($entity),
             $context
         );
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CRITERIA, $criteria);
+
+        yield $criteria;
     }
 }

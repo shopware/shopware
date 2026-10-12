@@ -1,6 +1,5 @@
 {% block sw_order_state_change_modal_attach_documents %}
 <div class="sw-order-state-change-modal-attach-document">
-
     {% block sw_order_state_change_modal_attach_documents_documents_grid %}
     <sw-order-document-card
         ref="attachDocuments"
@@ -23,7 +22,6 @@
     <div class="sw-order-state-change-modal-attach-documents__button-wrapper">
         <div>
             {% block sw_order_state_change_modal_attach_documents_send_mail_switch %}
-
             <mt-switch
                 v-model="sendMail"
                 class="sw-order-state-change-modal-attach-documents__switch"

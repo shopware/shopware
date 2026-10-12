@@ -20,7 +20,7 @@ class UnknownConditionRuleTest extends TestCase
     {
         $rule = new UnknownConditionRule(['_name' => 'unknownPluginRule']);
 
-        static::assertFalse($rule->match($this->createMock(RuleScope::class)));
+        static::assertFalse($rule->match(static::createStub(RuleScope::class)));
     }
 
     public function testGetConstraintsIsEmpty(): void

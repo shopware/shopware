@@ -12,10 +12,7 @@ import template from './sw-select-result.html.twig';
 export default {
     template,
 
-    inject: [
-        'setActiveItemIndex',
-        'feature',
-    ],
+    inject: ['setActiveItemIndex', 'feature'],
 
     props: {
         index: {
@@ -40,17 +37,9 @@ export default {
             type: String,
             required: false,
             default: 'right',
-            validValues: [
-                'bottom',
-                'right',
-                'left',
-            ],
+            validValues: ['bottom', 'right', 'left'],
             validator(value) {
-                return [
-                    'bottom',
-                    'right',
-                    'left',
-                ].includes(value);
+                return ['bottom', 'right', 'left'].includes(value);
             },
         },
         ariaLabel: {

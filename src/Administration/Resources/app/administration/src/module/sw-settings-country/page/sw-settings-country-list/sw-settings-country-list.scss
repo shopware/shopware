@@ -1,16 +1,11 @@
-@import "~scss/variables";
-
-$sw-country-list-color-error: var(--color-icon-critical-default);
-$sw-country-list-color-success: var(--color-icon-positive-default);
-
 .sw-settings-country-list {
     .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
         .is--inactive {
-            color: $sw-country-list-color-error;
+            color: var(--color-icon-critical-default);
         }
 
         .is--active {
-            color: $sw-country-list-color-success;
+            color: var(--color-icon-positive-default);
         }
     }
 }

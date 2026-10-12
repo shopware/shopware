@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBu
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
@@ -19,6 +20,7 @@ use Twig\Loader\FilesystemLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 class TwigSwIncludeTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -133,11 +135,11 @@ class TwigSwIncludeTest extends TestCase
 
         $twig = new TwigEnvironment($loader, ['cache' => false]);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getBundles')
             ->willReturn($bundles);
 
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')
             ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 

@@ -125,9 +125,7 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
     });
 
     it('should be able to save the delivery time', async () => {
-        const wrapper = await createWrapper([
-            'delivery_times.editor',
-        ]);
+        const wrapper = await createWrapper(['delivery_times.editor']);
 
         await wrapper.vm.$nextTick();
 
@@ -151,10 +149,7 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
     });
 
     it('should be able to create new delivery time', async () => {
-        const wrapper = await createWrapper([
-            'delivery_times.creator',
-            'delivery_times.editor',
-        ]);
+        const wrapper = await createWrapper(['delivery_times.creator', 'delivery_times.editor']);
 
         await wrapper.vm.$nextTick();
 

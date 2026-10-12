@@ -4,14 +4,18 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Api\ConsumeMessagesController;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\Stats\AbstractStatsRepository;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
+use Shopware\Core\PlatformRequest;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -26,6 +30,7 @@ use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ConsumeMessagesController::class)]
 class ConsumeMessagesControllerTest extends TestCase
 {
@@ -33,14 +38,14 @@ class ConsumeMessagesControllerTest extends TestCase
     {
         $controller = new ConsumeMessagesController(
             new ServiceLocator([]),
-            $this->createMock(MessageBusInterface::class),
-            $this->createMock(StopWorkerOnRestartSignalListener::class),
-            $this->createMock(EarlyReturnMessagesListener::class),
-            $this->createMock(MessageQueueStatsSubscriber::class),
+            static::createStub(MessageBusInterface::class),
+            static::createStub(StopWorkerOnRestartSignalListener::class),
+            static::createStub(EarlyReturnMessagesListener::class),
+            static::createStub(MessageQueueStatsSubscriber::class),
             'async',
             '128M',
             20,
-            $this->createMock(LockFactory::class)
+            static::createStub(LockFactory::class)
         );
 
         $this->expectExceptionObject(MessageQueueException::validReceiverNameNotProvided());
@@ -50,10 +55,10 @@ class ConsumeMessagesControllerTest extends TestCase
 
     public function testLocked(): void
     {
-        $lock = $this->createMock(SharedLockInterface::class);
+        $lock = static::createStub(SharedLockInterface::class);
         $lock->method('acquire')->willReturn(false);
 
-        $lockFactory = $this->createMock(LockFactory::class);
+        $lockFactory = static::createStub(LockFactory::class);
         $lockFactory
             ->method('createLock')
             ->willReturn($lock);
@@ -62,10 +67,10 @@ class ConsumeMessagesControllerTest extends TestCase
             new ServiceLocator(['async' => static function (): \ArrayObject {
                 return new \ArrayObject();
             }]),
-            $this->createMock(MessageBusInterface::class),
-            $this->createMock(StopWorkerOnRestartSignalListener::class),
-            $this->createMock(EarlyReturnMessagesListener::class),
-            $this->createMock(MessageQueueStatsSubscriber::class),
+            static::createStub(MessageBusInterface::class),
+            static::createStub(StopWorkerOnRestartSignalListener::class),
+            static::createStub(EarlyReturnMessagesListener::class),
+            static::createStub(MessageQueueStatsSubscriber::class),
             'async',
             '128M',
             20,
@@ -77,6 +82,14 @@ class ConsumeMessagesControllerTest extends TestCase
         $request = new Request();
         $request->request->set('receiver', 'async');
         $controller->consumeMessages($request);
+    }
+
+    public function testConsumeRouteRequiresQueueProcessPrivilege(): void
+    {
+        $route = (new AttributeRouteControllerLoader())->load(ConsumeMessagesController::class)->get('api.action.message-queue.consume');
+
+        static::assertNotNull($route, \sprintf('Route "api.action.message-queue.consume" is not defined on %s', ConsumeMessagesController::class));
+        static::assertSame(['system:queue:process'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
     }
 
     public function testWorkerDoesNotBusyPollReceiverDuringLongPollAfterHandlingMessage(): void
@@ -114,12 +127,12 @@ class ConsumeMessagesControllerTest extends TestCase
             ->expects($this->once())
             ->method('release');
 
-        $lockFactory = $this->createMock(LockFactory::class);
+        $lockFactory = static::createStub(LockFactory::class);
         $lockFactory
             ->method('createLock')
             ->willReturn($lock);
 
-        $bus = $this->createMock(MessageBusInterface::class);
+        $bus = static::createStub(MessageBusInterface::class);
         $bus
             ->method('dispatch')
             ->willReturnCallback(static fn (Envelope $envelope): Envelope => $envelope);
@@ -173,7 +186,8 @@ class ConsumeMessagesControllerTest extends TestCase
 
         return new MessageQueueStatsSubscriber(
             new IncrementGatewayRegistry([$incrementer]),
-            new StatsService($this->createMock(AbstractStatsRepository::class), false, new NativeClock())
+            new StatsService(static::createStub(AbstractStatsRepository::class), false, new NativeClock()),
+            new NullLogger()
         );
     }
 }

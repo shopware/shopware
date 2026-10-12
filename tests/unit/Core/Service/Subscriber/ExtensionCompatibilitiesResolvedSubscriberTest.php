@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Update\Event\ExtensionCompatibilitiesResolvedEvent;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
@@ -17,6 +18,7 @@ use Shopware\Core\Service\Subscriber\ExtensionCompatibilitiesResolvedSubscriber;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ExtensionCompatibilitiesResolvedSubscriber::class)]
 class ExtensionCompatibilitiesResolvedSubscriberTest extends TestCase
 {

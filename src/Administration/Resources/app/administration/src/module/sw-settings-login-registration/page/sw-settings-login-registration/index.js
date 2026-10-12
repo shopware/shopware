@@ -9,9 +9,7 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -43,10 +41,7 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            Promise.all([
-                this.$refs.systemConfig.saveAll(),
-                this.$refs.systemConfigSystemWide.saveAll(),
-            ])
+            Promise.all([this.$refs.systemConfig.saveAll(), this.$refs.systemConfigSystemWide.saveAll()])
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;

@@ -8,10 +8,7 @@ import './sw-extension-removal-modal.scss';
 export default {
     template,
 
-    emits: [
-        'modal-close',
-        'remove-extension',
-    ],
+    emits: ['modal-close', 'remove-extension'],
 
     props: {
         extensionName: {
@@ -26,12 +23,6 @@ export default {
             type: Boolean,
             required: true,
         },
-    },
-
-    data() {
-        return {
-            removePluginData: false,
-        };
     },
 
     computed: {
@@ -54,7 +45,7 @@ export default {
         btnLabel() {
             return this.isLicensed
                 ? this.$t('sw-extension-store.component.sw-extension-removal-modal.labelCancel')
-                : this.$t('sw-extension-store.component.sw-extension-removal-modal.labelRemove');
+                : this.$t('global.default.remove');
         },
     },
 

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\AbstractFieldSe
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -19,16 +20,17 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AbstractFieldSerializer::class)]
 class AbstractFieldSerializerTest extends TestCase
 {
     public function testGetConstraintsOnlyCalledOnce(): void
     {
-        $validator = $this->createMock(ValidatorInterface::class);
+        $validator = static::createStub(ValidatorInterface::class);
         $validator->method('validate')->willReturn(new ConstraintViolationList());
         $serializer = new TestFieldSerializer(
             $validator,
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(DefinitionInstanceRegistry::class)
         );
 
         static::assertSame(0, $serializer->getConstraintsCallCounter);
@@ -37,22 +39,22 @@ class AbstractFieldSerializerTest extends TestCase
 
         $data = new KeyValuePair('foo', 'bar', true);
 
-        static::assertNotNull($serializer->encode($field, $entityExistence, $data, $this->createMock(WriteParameterBag::class))->current());
+        static::assertNotNull($serializer->encode($field, $entityExistence, $data, static::createStub(WriteParameterBag::class))->current());
         static::assertSame(1, $serializer->getConstraintsCallCounter);
 
-        static::assertNotNull($serializer->encode($field, $entityExistence, $data, $this->createMock(WriteParameterBag::class))->current());
+        static::assertNotNull($serializer->encode($field, $entityExistence, $data, static::createStub(WriteParameterBag::class))->current());
         static::assertSame(1, $serializer->getConstraintsCallCounter);
     }
 
     public function testCaching(): void
     {
-        $validator = $this->createMock(ValidatorInterface::class);
+        $validator = static::createStub(ValidatorInterface::class);
         $validator->method('validate')->willReturn(new ConstraintViolationList());
         $serializer = new TestFieldSerializer(
             $validator,
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(DefinitionInstanceRegistry::class)
         );
-        $parameters = $this->createMock(WriteParameterBag::class);
+        $parameters = static::createStub(WriteParameterBag::class);
 
         static::assertSame(0, $serializer->getConstraintsCallCounter);
         $entityExistence = new EntityExistence('test', ['id' => Uuid::randomHex()], true, false, false, []);

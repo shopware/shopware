@@ -1,0 +1,423 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig;
+
+use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('after-sales')]
+#[ClassMoved(version: 'v6.9.0', previousClassName: 'Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity')]
+class DocumentBaseConfigEntity extends Entity
+{
+    use EntityCustomFieldsTrait;
+    use EntityIdTrait;
+
+    protected string $name;
+
+    protected ?string $filenamePrefix = null;
+
+    protected ?string $filenameSuffix = null;
+
+    /**
+     * @var array<string, string>|null
+     */
+    protected ?array $filenameInfixes = null;
+
+    protected string $documentNumber;
+
+    protected bool $global = false;
+
+    protected ?string $documentTypeId = null;
+
+    protected ?string $typeName = null;
+
+    protected ?string $logoId = null;
+
+    /**
+     * @var array<string, string|bool|array<int, string>>|null
+     */
+    protected ?array $config = null;
+
+    /**
+     * @internal
+     */
+    protected ?string $pageSize = null;
+
+    /**
+     * @internal
+     */
+    protected ?string $pageOrientation = null;
+
+    /**
+     * @internal
+     */
+    protected ?int $itemsPerPage = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayHeader = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayFooter = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayPageCount = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayCompanyAddress = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayReturnAddress = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayCustomerVatId = null;
+
+    protected ?DocumentBaseConfigSalesChannelCollection $salesChannels = null;
+
+    protected ?DocumentTypeEntity $documentType = null;
+
+    protected ?MediaEntity $logo = null;
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getSalesChannels(): ?DocumentBaseConfigSalesChannelCollection
+    {
+        return $this->salesChannels;
+    }
+
+    public function setSalesChannels(DocumentBaseConfigSalesChannelCollection $salesChannels): void
+    {
+        $this->salesChannels = $salesChannels;
+    }
+
+    /**
+     * @deprecated tag:v6.9.0 - Will be removed. Use getTypeName() instead.
+     */
+    public function getDocumentTypeId(): ?string
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'getTypeName()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
+        return $this->documentTypeId;
+    }
+
+    /**
+     * @deprecated tag:v6.9.0 - Will be removed. Use setTypeName() instead.
+     */
+    public function setDocumentTypeId(?string $documentTypeId): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'setTypeName()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
+        $this->documentTypeId = $documentTypeId;
+    }
+
+    public function getTypeName(): ?string
+    {
+        return $this->typeName;
+    }
+
+    public function setTypeName(?string $typeName): void
+    {
+        $this->typeName = $typeName;
+    }
+
+    public function getDocumentNumber(): string
+    {
+        return $this->documentNumber;
+    }
+
+    public function setDocumentNumber(string $documentNumber): void
+    {
+        $this->documentNumber = $documentNumber;
+    }
+
+    public function isGlobal(): bool
+    {
+        return $this->global;
+    }
+
+    public function setGlobal(bool $global): void
+    {
+        $this->global = $global;
+    }
+
+    /**
+     * @deprecated tag:v6.9.0 - Will be removed. Use getTypeName() instead.
+     */
+    public function getDocumentType(): ?DocumentTypeEntity
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'getTypeName()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
+        return $this->documentType;
+    }
+
+    /**
+     * @deprecated tag:v6.9.0 - Will be removed. Use setTypeName() instead.
+     */
+    public function setDocumentType(DocumentTypeEntity $documentType): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'setTypeName()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
+        $this->documentType = $documentType;
+    }
+
+    public function getLogoId(): ?string
+    {
+        return $this->logoId;
+    }
+
+    public function setLogoId(string $logoId): void
+    {
+        $this->logoId = $logoId;
+    }
+
+    public function getLogo(): ?MediaEntity
+    {
+        return $this->logo;
+    }
+
+    public function setLogo(?MediaEntity $logo): void
+    {
+        $this->logo = $logo;
+    }
+
+    /**
+     * @return array<string, string|bool|array<int, string>>|null
+     */
+    public function getConfig(): ?array
+    {
+        return $this->config;
+    }
+
+    /**
+     * @param array<string, string|bool|array<int, string>>|null $config
+     */
+    public function setConfig(?array $config): void
+    {
+        $this->config = $config;
+    }
+
+    public function getFilenamePrefix(): ?string
+    {
+        return $this->filenamePrefix;
+    }
+
+    public function setFilenamePrefix(?string $filenamePrefix): void
+    {
+        $this->filenamePrefix = $filenamePrefix;
+    }
+
+    public function getFilenameSuffix(): ?string
+    {
+        return $this->filenameSuffix;
+    }
+
+    public function setFilenameSuffix(?string $filenameSuffix): void
+    {
+        $this->filenameSuffix = $filenameSuffix;
+    }
+
+    /**
+     * @return array<string, string>|null
+     */
+    public function getFilenameInfixes(): ?array
+    {
+        return $this->filenameInfixes;
+    }
+
+    /**
+     * @param array<string, string>|null $filenameInfixes
+     */
+    public function setFilenameInfixes(?array $filenameInfixes): void
+    {
+        $this->filenameInfixes = $filenameInfixes;
+    }
+
+    /**
+     * @internal
+     */
+    public function getPageSize(): ?string
+    {
+        return $this->pageSize;
+    }
+
+    /**
+     * @internal
+     */
+    public function setPageSize(?string $pageSize): void
+    {
+        $this->pageSize = $pageSize;
+    }
+
+    /**
+     * @internal
+     */
+    public function getPageOrientation(): ?string
+    {
+        return $this->pageOrientation;
+    }
+
+    /**
+     * @internal
+     */
+    public function setPageOrientation(?string $pageOrientation): void
+    {
+        $this->pageOrientation = $pageOrientation;
+    }
+
+    /**
+     * @internal
+     */
+    public function getItemsPerPage(): ?int
+    {
+        return $this->itemsPerPage;
+    }
+
+    /**
+     * @internal
+     */
+    public function setItemsPerPage(?int $itemsPerPage): void
+    {
+        $this->itemsPerPage = $itemsPerPage;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayHeader(): ?bool
+    {
+        return $this->displayHeader;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayHeader(?bool $displayHeader): void
+    {
+        $this->displayHeader = $displayHeader;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayFooter(): ?bool
+    {
+        return $this->displayFooter;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayFooter(?bool $displayFooter): void
+    {
+        $this->displayFooter = $displayFooter;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayPageCount(): ?bool
+    {
+        return $this->displayPageCount;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayPageCount(?bool $displayPageCount): void
+    {
+        $this->displayPageCount = $displayPageCount;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayCompanyAddress(): ?bool
+    {
+        return $this->displayCompanyAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayCompanyAddress(?bool $displayCompanyAddress): void
+    {
+        $this->displayCompanyAddress = $displayCompanyAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayReturnAddress(): ?bool
+    {
+        return $this->displayReturnAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayReturnAddress(?bool $displayReturnAddress): void
+    {
+        $this->displayReturnAddress = $displayReturnAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayCustomerVatId(): ?bool
+    {
+        return $this->displayCustomerVatId;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayCustomerVatId(?bool $displayCustomerVatId): void
+    {
+        $this->displayCustomerVatId = $displayCustomerVatId;
+    }
+}

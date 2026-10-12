@@ -2,7 +2,10 @@
  * @package admin
  */
 
-const eslintPluginVueProcessor = require('eslint-plugin-vue/lib/processor');
+// eslint-plugin-vue 10 ships as ESM under dist/ (the processor sits on the
+// module's `default` export); older layouts exported it directly.
+const eslintPluginVueProcessorModule = require('eslint-plugin-vue/dist/processor');
+const eslintPluginVueProcessor = eslintPluginVueProcessorModule.default ?? eslintPluginVueProcessorModule;
 
 const templateTagBefore = '<template>\n';
 const templateTagAfter = '</template>';

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
@@ -25,7 +25,7 @@ type AppModuleDefinition = {
  * @private
  */
 export default class AppModulesService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService) {
+    constructor(httpClient: HttpClient, loginService: LoginService) {
         super(httpClient, loginService, '', 'application/json');
         this.name = 'appModulesService';
     }

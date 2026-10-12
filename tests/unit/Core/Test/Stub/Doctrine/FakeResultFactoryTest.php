@@ -22,7 +22,7 @@ class FakeResultFactoryTest extends TestCase
             ['id' => 2, 'name' => 'bar', 'description' => 'foo description'],
         ];
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $result = FakeResultFactory::createResult($data, $connection);
 

@@ -1,0 +1,33 @@
+{
+  "openapi": "3.2.0",
+  "info": [],
+  "paths": [],
+  "components": {
+    "schemas": {
+      "SchemaWithInvalidRequiredProperty": {
+        "type": "object",
+        "properties": {
+          "existing": {
+            "type": "string"
+          },
+          "nested": {
+            "type": "object",
+            "required": [
+              "existingNested",
+              "missingNested"
+            ],
+            "properties": {
+              "existingNested": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "existing",
+          "missing"
+        ]
+      }
+    }
+  }
+}

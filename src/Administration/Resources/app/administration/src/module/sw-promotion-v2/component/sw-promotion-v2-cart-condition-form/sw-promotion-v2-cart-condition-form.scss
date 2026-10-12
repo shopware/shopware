@@ -1,9 +1,7 @@
-@import "~scss/variables";
-
 .sw-promotion-v2-cart-condition-form {
     &__setgroup-card-title {
-        font-size: $font-size-m;
-        line-height: $line-height-md;
+        font-size: var(--font-size-m);
+        line-height: var(--font-line-height-m);
         margin-bottom: 32px;
     }
 

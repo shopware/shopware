@@ -16,7 +16,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\Struct\ThemeDependencies;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeLifecycleHandler
 {
     /**

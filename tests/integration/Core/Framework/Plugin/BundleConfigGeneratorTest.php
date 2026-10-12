@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\BundleConfigGeneratorInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -13,6 +14,7 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 /**
  * @internal
  */
+#[Package('framework')]
 class BundleConfigGeneratorTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -35,7 +37,7 @@ class BundleConfigGeneratorTest extends TestCase
 
     public function testGenerateAppConfigWithThemeAndScriptAndStylePaths(): void
     {
-        $appPath = $this->fixturePath . 'apps/theme/';
+        $appPath = $this->fixturePath . 'apps/theme/SwagApp/';
         $this->loadAppsFromDir($appPath);
         $projectDir = static::getContainer()->getParameter('kernel.project_dir');
 
@@ -67,7 +69,7 @@ class BundleConfigGeneratorTest extends TestCase
 
         // Style files can and need only be imported if storefront is installed
         if (static::getContainer()->has(StorefrontPluginRegistry::class)) {
-            $appPath = 'tests/integration/Core/Framework/Plugin/_fixtures/apps/theme/';
+            $appPath = 'tests/integration/Core/Framework/Plugin/_fixtures/apps/theme/SwagApp/';
             $expectedStyles = [
                 $appPath . 'Resources/app/storefront/src/scss/base.scss',
                 $appPath . 'Resources/app/storefront/src/scss/overrides.scss',
@@ -78,7 +80,7 @@ class BundleConfigGeneratorTest extends TestCase
 
     public function testGenerateAppConfigWithPluginAndScriptAndStylePaths(): void
     {
-        $appPath = $this->fixturePath . 'apps/plugin/';
+        $appPath = $this->fixturePath . 'apps/plugin/SwagApp/';
         $this->loadAppsFromDir($appPath);
 
         $configs = $this->configGenerator->getConfig();
@@ -110,7 +112,7 @@ class BundleConfigGeneratorTest extends TestCase
                 $appPath = ltrim(mb_substr((string) realpath($appPath), mb_strlen($projectDir)), '/');
             }
 
-            // Only base.scss from /_fixture/apps/plugin/ should be included
+            // Only base.scss from /_fixture/apps/plugin/SwagApp/ should be included
             $expectedStyles = [
                 $appPath . '/Resources/app/storefront/src/scss/base.scss',
             ];
@@ -121,7 +123,7 @@ class BundleConfigGeneratorTest extends TestCase
 
     public function testGenerateAppConfigIgnoresInactiveApps(): void
     {
-        $appPath = $this->fixturePath . 'apps/theme/';
+        $appPath = $this->fixturePath . 'apps/theme/SwagApp/';
         $this->loadAppsFromDir($appPath, false);
 
         $configs = $this->configGenerator->getConfig();
@@ -131,7 +133,7 @@ class BundleConfigGeneratorTest extends TestCase
 
     public function testGenerateAppConfigWithWebpackConfig(): void
     {
-        $appPath = $this->fixturePath . 'apps/with-webpack/';
+        $appPath = $this->fixturePath . 'apps/SwagTest/';
         $this->loadAppsFromDir($appPath);
 
         $configs = $this->configGenerator->getConfig();
@@ -159,7 +161,7 @@ class BundleConfigGeneratorTest extends TestCase
 
     public function testGenerateAppConfigDetectsStorefrontComponentAssets(): void
     {
-        $this->loadAppsFromDir($this->fixturePath . 'apps/component-assets/');
+        $this->loadAppsFromDir($this->fixturePath . 'apps/SwagComponentAssets/');
 
         $configs = $this->configGenerator->getConfig();
 
@@ -172,7 +174,7 @@ class BundleConfigGeneratorTest extends TestCase
 
     public function testGenerateAppConfigIgnoresNonBuildableStorefrontComponentAssets(): void
     {
-        $this->loadAppsFromDir($this->fixturePath . 'apps/component-assets-ignored/');
+        $this->loadAppsFromDir($this->fixturePath . 'apps/SwagComponentAssetsIgnored/');
 
         $configs = $this->configGenerator->getConfig();
 

@@ -11,8 +11,8 @@ use Shopware\Core\Service\Event\CommercialLicenseProvidedEvent;
 /**
  * @internal
  */
-#[CoversClass(CommercialLicenseProvidedEvent::class)]
 #[Package('framework')]
+#[CoversClass(CommercialLicenseProvidedEvent::class)]
 class CommercialLicenseProvidedEventTest extends TestCase
 {
     public function testPayload(): void

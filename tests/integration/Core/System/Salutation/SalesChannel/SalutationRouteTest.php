@@ -13,8 +13,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('checkout')]
+#[Group('store-api')]
 class SalutationRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

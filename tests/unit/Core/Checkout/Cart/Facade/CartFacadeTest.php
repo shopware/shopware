@@ -23,8 +23,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(CartFacade::class)]
 #[Package('checkout')]
+#[CoversClass(CartFacade::class)]
 class CartFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void
@@ -52,10 +52,10 @@ class CartFacadeTest extends TestCase
         ]));
 
         $facade = new CartFacade(
-            $this->createMock(CartFacadeHelper::class),
-            $this->createMock(ScriptPriceStubs::class),
+            static::createStub(CartFacadeHelper::class),
+            static::createStub(ScriptPriceStubs::class),
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $items = $facade->items();
@@ -89,10 +89,10 @@ class CartFacadeTest extends TestCase
     public function testCalculateRequiresABehavior(): void
     {
         $facade = new CartFacade(
-            $this->createMock(CartFacadeHelper::class),
-            $this->createMock(ScriptPriceStubs::class),
+            static::createStub(CartFacadeHelper::class),
+            static::createStub(ScriptPriceStubs::class),
             new Cart('foo'),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $this->expectExceptionObject(CartException::missingCartBehavior());
@@ -110,9 +110,9 @@ class CartFacadeTest extends TestCase
 
         $facade = new CartFacade(
             $helper,
-            $this->createMock(ScriptPriceStubs::class),
+            static::createStub(ScriptPriceStubs::class),
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $facade->calculate();

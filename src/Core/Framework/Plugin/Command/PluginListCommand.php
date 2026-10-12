@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Console\OutputFormatTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,15 +19,16 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @phpstan-import-type PluginInfo from KernelPluginLoader
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'plugin:list',
     description: 'Lists all plugins',
 )]
-#[Package('framework')]
 class PluginListCommand extends Command
 {
     use OutputFormatTrait;
@@ -61,7 +61,7 @@ class PluginListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
 
         if ($input->getOption('json')) {
@@ -124,7 +124,7 @@ class PluginListCommand extends Command
                 $plugin->getComposerName() ?? '',
                 $plugin->getVersion(),
                 $pluginUpgradeable,
-                $plugin->getAuthor(),
+                mb_strimwidth($plugin->getAuthor() ?? '', 0, 40, '...'),
                 $pluginInstalled ? 'Yes' : 'No',
                 $pluginActive ? 'Yes' : 'No',
                 $pluginUpgradeable ? 'Yes' : 'No',

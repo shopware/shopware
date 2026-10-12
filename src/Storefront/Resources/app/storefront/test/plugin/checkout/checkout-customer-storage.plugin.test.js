@@ -1,5 +1,5 @@
 import CheckoutCustomerStoragePlugin from 'src/plugin/checkout/checkout-customer-storage.plugin';
-import Storage from 'src/helper/storage/storage.helper';
+import SessionStorage from 'src/helper/storage/session-storage.helper';
 import template from './checkout-customer-storage.plugin.template.html';
 
 describe('CheckoutCustomerStoragePlugin tests', () => {
@@ -15,11 +15,13 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
             }),
         };
 
-        Storage.clear();
+        SessionStorage.clear();
+        window.localStorage.clear();
     });
 
     afterEach(() => {
-        Storage.clear();
+        SessionStorage.clear();
+        window.localStorage.clear();
     });
 
     function createPlugin(customerId) {
@@ -32,15 +34,16 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
         return {
             customerComment: document.querySelector('#customerComment'),
             tos: document.querySelector('#tos'),
+            revocation: document.querySelector('#revocation'),
         };
     }
 
     function storedCustomers() {
-        return JSON.parse(Storage.getItem(storageKey));
+        return JSON.parse(SessionStorage.getItem(storageKey));
     }
 
     test('restores the comment for the active customer only', () => {
-        Storage.setItem(storageKey, JSON.stringify({
+        SessionStorage.setItem(storageKey, JSON.stringify({
             customerA: {
                 customerComment: 'comment from customer A',
             },
@@ -55,7 +58,7 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
     });
 
     test('restores tos for the active customer only', () => {
-        Storage.setItem(storageKey, JSON.stringify({
+        SessionStorage.setItem(storageKey, JSON.stringify({
             customerA: {
                 customerComment: 'comment from customer A',
             },
@@ -69,8 +72,49 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
         expect(tos.checked).toBe(true);
     });
 
+    test('restores revocation for the active customer only', () => {
+        SessionStorage.setItem(storageKey, JSON.stringify({
+            customerA: {
+                customerComment: 'comment from customer A',
+            },
+            customerB: {
+                revocation: true,
+            },
+        }));
+
+        const { revocation } = createPlugin('customerB');
+
+        expect(revocation.checked).toBe(true);
+    });
+
+    test('restores both consent boxes when the checkout page is loaded again', () => {
+        const { tos, revocation } = createPlugin('customerA');
+
+        tos.checked = true;
+        tos.dispatchEvent(new Event('change'));
+        revocation.checked = true;
+        revocation.dispatchEvent(new Event('change'));
+
+        document.body.innerHTML = template;
+
+        const restored = createPlugin('customerA');
+
+        expect(restored.tos.checked).toBe(true);
+        expect(restored.revocation.checked).toBe(true);
+    });
+
+    test('persists into the session storage and never into the local storage', () => {
+        const { tos } = createPlugin('customerA');
+
+        tos.checked = true;
+        tos.dispatchEvent(new Event('change'));
+
+        expect(window.sessionStorage.getItem(storageKey)).not.toBeNull();
+        expect(window.localStorage.getItem(storageKey)).toBeNull();
+    });
+
     test('updates only the active customer comment entry', () => {
-        Storage.setItem(storageKey, JSON.stringify({
+        SessionStorage.setItem(storageKey, JSON.stringify({
             customerA: {
                 customerComment: 'comment from customer A',
             },
@@ -97,7 +141,7 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
     });
 
     test('updates only the active customer tos entry', () => {
-        Storage.setItem(storageKey, JSON.stringify({
+        SessionStorage.setItem(storageKey, JSON.stringify({
             customerA: {
                 customerComment: 'comment from customer A',
             },
@@ -123,7 +167,7 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
     });
 
     test('removes tos when it is unchecked', () => {
-        Storage.setItem(storageKey, JSON.stringify({
+        SessionStorage.setItem(storageKey, JSON.stringify({
             customerA: {
                 customerComment: 'comment from customer A',
                 tos: true,
@@ -142,8 +186,28 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
         });
     });
 
+    test('removes revocation when it is unchecked', () => {
+        SessionStorage.setItem(storageKey, JSON.stringify({
+            customerA: {
+                customerComment: 'comment from customer A',
+                revocation: true,
+            },
+        }));
+
+        const { revocation } = createPlugin('customerA');
+
+        revocation.checked = false;
+        revocation.dispatchEvent(new Event('change'));
+
+        expect(storedCustomers()).toEqual({
+            customerA: {
+                customerComment: 'comment from customer A',
+            },
+        });
+    });
+
     test('removes the whole storage key when the last customer entry is cleared', () => {
-        Storage.setItem(storageKey, JSON.stringify({
+        SessionStorage.setItem(storageKey, JSON.stringify({
             customerA: {
                 customerComment: 'comment from customer A',
             },
@@ -154,11 +218,11 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
         customerComment.value = '';
         customerComment.dispatchEvent(new Event('change'));
 
-        expect(Storage.getItem(storageKey)).toBeNull();
+        expect(SessionStorage.getItem(storageKey)).toBeNull();
     });
 
     test.each(['submit', 'reset'])('clears only the active customer entry on %s', (eventType) => {
-        Storage.setItem(storageKey, JSON.stringify({
+        SessionStorage.setItem(storageKey, JSON.stringify({
             customerA: {
                 customerComment: 'comment from customer A',
                 tos: true,
@@ -181,20 +245,22 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
     });
 
     test('ignores malformed storage payloads safely', () => {
-        Storage.setItem(storageKey, 'not-json');
+        SessionStorage.setItem(storageKey, 'not-json');
 
-        const { customerComment, tos } = createPlugin('customerA');
+        const { customerComment, tos, revocation } = createPlugin('customerA');
 
         expect(customerComment.value).toBe('');
         expect(tos.checked).toBe(false);
-        expect(Storage.getItem(storageKey)).toBe('not-json');
+        expect(revocation.checked).toBe(false);
+        expect(SessionStorage.getItem(storageKey)).toBe('not-json');
     });
 
     test('does not restore shared checkout data if the customer id is missing', () => {
-        Storage.setItem(storageKey, JSON.stringify({
+        SessionStorage.setItem(storageKey, JSON.stringify({
             customerA: {
                 customerComment: 'comment from customer A',
                 tos: true,
+                revocation: true,
             },
         }));
 
@@ -203,5 +269,21 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
 
         expect(document.querySelector('#customerComment').value).toBe('');
         expect(document.querySelector('#tos').checked).toBe(false);
+        expect(document.querySelector('#revocation').checked).toBe(false);
+    });
+
+    test('keeps working when the revocation checkbox is not rendered', () => {
+        document.querySelector('#revocation').remove();
+
+        SessionStorage.setItem(storageKey, JSON.stringify({
+            customerA: {
+                revocation: true,
+                tos: true,
+            },
+        }));
+
+        const { tos } = createPlugin('customerA');
+
+        expect(tos.checked).toBe(true);
     });
 });

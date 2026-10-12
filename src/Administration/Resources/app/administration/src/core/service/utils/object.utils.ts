@@ -112,46 +112,47 @@ export function getObjectDiff(a: any, b: any): any {
         return b;
     }
 
-    return Object.keys(b).reduce((acc, key) => {
-        if (!hasOwnProperty(a, key)) {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            return { ...acc, [key]: b[key] };
+    const currentObject = a as Record<string, unknown>;
+    const nextObject = b as Record<string, unknown>;
+
+    return Object.keys(nextObject).reduce<Record<string, unknown>>((acc, key) => {
+        const currentValue = currentObject[key];
+        const nextValue = nextObject[key];
+
+        if (!hasOwnProperty(currentObject, key)) {
+            return { ...acc, [key]: nextValue };
         }
 
-        // @ts-expect-error
-        if (type.isArray(b[key])) {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            const changes = getArrayChanges(a[key], b[key]);
+        if (type.isArray(nextValue)) {
+            if (!type.isArray(currentValue) || currentValue.length !== nextValue.length) {
+                return { ...acc, [key]: nextValue };
+            }
+
+            const changes = getArrayChanges(currentValue, nextValue);
 
             if (Object.keys(changes).length > 0) {
-                // @ts-expect-error
-                return { ...acc, [key]: b[key] };
+                return { ...acc, [key]: nextValue };
             }
 
             return acc;
         }
 
-        // @ts-expect-error
-        if (type.isObject(b[key])) {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const changes = getObjectDiff(a[key], b[key]);
+        if (type.isObject(nextValue)) {
+            if (type.isObject(currentValue) && Object.keys(currentValue).length > Object.keys(nextValue).length) {
+                return { ...acc, [key]: nextValue };
+            }
+
+            const changes: unknown = getObjectDiff(currentValue, nextValue);
 
             if (!type.isObject(changes) || Object.keys(changes).length > 0) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 return { ...acc, [key]: changes };
             }
 
             return acc;
         }
 
-        // @ts-expect-error
-        if (a[key] !== b[key]) {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            return { ...acc, [key]: b[key] };
+        if (currentValue !== nextValue) {
+            return { ...acc, [key]: nextValue };
         }
 
         return acc;

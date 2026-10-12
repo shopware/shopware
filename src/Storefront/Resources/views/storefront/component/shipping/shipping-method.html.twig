@@ -42,8 +42,6 @@
                                     {% if shipping.translated.description and shipping.id is same as(selectedShippingMethodId) %}
                                         {% set shippingDescription = shipping.translated.description|raw %}
 
-                                        {% set shippingDescription = (shippingDescription|length > 75 ? shippingDescription[:75] ~ ' ...' : shippingDescription) %}
-
                                         <p class="mb-0" title="{{ shipping.translated.description|raw }}">{{ shippingDescription }}</p>
                                     {% endif %}
                                 </div>

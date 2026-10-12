@@ -8,6 +8,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -16,6 +17,7 @@ use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\TestCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Collection::class)]
 class CollectionTest extends TestCase
 {
@@ -42,7 +44,7 @@ class CollectionTest extends TestCase
         $collection->add('b');
 
         $collection->clear();
-        static::assertEmpty($collection->getElements());
+        static::assertCount(0, $collection->getElements());
     }
 
     public function testCount(): void
@@ -167,7 +169,7 @@ class CollectionTest extends TestCase
     public function testSlice(): void
     {
         $collection = new TestCollection();
-        static::assertEmpty($collection->slice(0)->getElements());
+        static::assertCount(0, $collection->slice(0)->getElements());
 
         $collection->add('a');
         $collection->add('b');

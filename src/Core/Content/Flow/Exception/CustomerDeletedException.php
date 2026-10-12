@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Flow\Exception;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class CustomerDeletedException extends \Exception
 {

@@ -68,7 +68,7 @@ export default {
 
     methods: {
         isActive() {
-            return this.theme && this.theme.salesChannels && this.theme.salesChannels.length > 0 || this.active;
+            return (this.theme && this.theme.salesChannels && this.theme.salesChannels.length > 0) || this.active;
         },
 
         onChangePreviewImage(theme) {

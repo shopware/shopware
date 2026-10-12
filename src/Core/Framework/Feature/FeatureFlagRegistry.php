@@ -21,6 +21,11 @@ class FeatureFlagRegistry
     public const STORAGE_KEY = 'feature.flags';
 
     /**
+     * @var array<string, FeatureFlagConfig>
+     */
+    private readonly array $staticFeatureFlags;
+
+    /**
      * @param array<string, FeatureFlagConfig> $staticFeatureFlags
      *
      * @internal
@@ -28,9 +33,15 @@ class FeatureFlagRegistry
     public function __construct(
         private readonly AbstractKeyValueStorage $keyValueStorage,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly array $staticFeatureFlags = [],
+        array $staticFeatureFlags = [],
         private readonly bool $enabledFeatureToggle = false
     ) {
+        $normalized = [];
+        foreach ($staticFeatureFlags as $name => $flag) {
+            $normalized[Feature::normalizeName($name)] = $flag;
+        }
+
+        $this->staticFeatureFlags = $normalized;
     }
 
     public function register(): void
@@ -46,13 +57,29 @@ class FeatureFlagRegistry
         try {
             $stored = $this->keyValueStorage->get(self::STORAGE_KEY, []);
 
-            if (!empty($stored) && \is_string($stored)) {
+            if (\is_string($stored) && $stored !== '') {
                 $stored = \json_decode($stored, true, 512, \JSON_THROW_ON_ERROR);
             }
 
-            $stored = array_filter($stored, static function (array $flag) {
-                return !\array_key_exists('major', $flag) || !$flag['major'];
-            });
+            // Version flags are never persisted. Keep filtering old unversioned `major: true`
+            // entries unless a current static flag supersedes their stale metadata.
+            $stored = array_filter($stored, static function (array $flag, string $name) use ($static): bool {
+                return !Feature::isMajorVersionFlag($name)
+                    && (isset($static[$name]) || ($flag['major'] ?? null) !== true);
+            }, \ARRAY_FILTER_USE_BOTH);
+
+            foreach ($stored as $name => $flag) {
+                if (!\is_string($flag['major'] ?? null)) {
+                    unset($stored[$name]['major']);
+                }
+
+                if (!isset($static[$name])) {
+                    continue;
+                }
+
+                // Static metadata may have changed since this flag was persisted; only the toggle is user state.
+                $stored[$name] = [...$static[$name], ...array_intersect_key($flag, ['active' => true, 'static' => true])];
+            }
 
             $flags = array_merge($static, $stored);
         } catch (DBALException) {
@@ -86,7 +113,7 @@ class FeatureFlagRegistry
             throw FeatureException::featureNotRegistered($feature);
         }
 
-        if (!\array_key_exists('toggleable', $registeredFlags[$feature]) || (bool) $registeredFlags[$feature]['toggleable'] === false) {
+        if (!\array_key_exists('toggleable', $registeredFlags[$feature]) || !$registeredFlags[$feature]['toggleable']) {
             throw FeatureException::featureCannotBeToggled($feature);
         }
 

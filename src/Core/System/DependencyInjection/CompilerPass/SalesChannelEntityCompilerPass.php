@@ -13,6 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\FilteredBulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -25,6 +27,7 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\Reference;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class SalesChannelEntityCompilerPass implements CompilerPassInterface
 {
     private const PREFIX = 'sales_channel_definition.';
@@ -109,6 +112,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
                         new Reference(EntityAggregatorInterface::class),
                         new Reference('event_dispatcher'),
                         new Reference(EntityLoadedEventFactory::class),
+                        new Reference(DalSearchInstrumentor::class),
                     ]
                 );
                 $repository->setPublic(true);
@@ -138,7 +142,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
     /**
      * @param array<string, array<mixed>> $taggedServiceIds
      *
-     * @return array<string, array{entityName: string, fallback?: string}>
+     * @return array<string, array{entityName: string, fallBack?: string}>
      */
     private function formatData(
         array $taggedServiceIds,
@@ -213,8 +217,8 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * @param array<string, array{entityName: string}> $baseEntityDefinitions
-     * @param array<string, array{entityName: string}> $salesChannelDefinitions
+     * @param array<string, array{entityName: string, fallBack?: string}> $baseEntityDefinitions
+     * @param array<string, array{entityName: string, fallBack?: string}> $salesChannelDefinitions
      */
     private function addExtensions(ContainerBuilder $container, array $baseEntityDefinitions, array $salesChannelDefinitions): void
     {

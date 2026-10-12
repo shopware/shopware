@@ -8,7 +8,6 @@
     "general": {
       "mainMenuItemGeneral": "Anreden",
       "buttonCreate": "Anrede anlegen",
-      "buttonSave": "Speichern",
       "placeholderSearchBar": "Durchsuche Anreden ..."
     },
     "list": {

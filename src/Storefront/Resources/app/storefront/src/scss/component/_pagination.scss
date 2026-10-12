@@ -8,6 +8,20 @@ https://getbootstrap.com/docs/5.2/components/pagination
 
 .pagination {
     margin-bottom: 0;
+    flex-wrap: wrap;
+
+    // Keep pagination controls on one line on small screens by showing only the current page and its adjacent page numbers.
+    @include media-breakpoint-only(xs) {
+        .page-item:not(.page-first):not(.page-prev):not(.page-next):not(.page-last):not(.active) {
+            display: none;
+        }
+
+        .page-item:not(.page-first):not(.page-prev):not(.page-next):not(.page-last):has(+ .active),
+        .page-item.active
+            + .page-item:not(.page-first):not(.page-prev):not(.page-next):not(.page-last) {
+            display: block;
+        }
+    }
 
     .page-link {
         cursor: pointer;

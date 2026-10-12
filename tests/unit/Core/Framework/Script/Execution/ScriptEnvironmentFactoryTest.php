@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Script\Execution;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptEnvironmentFactory;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -14,6 +15,7 @@ use Twig\Extension\DebugExtension;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ScriptEnvironmentFactory::class)]
 class ScriptEnvironmentFactoryTest extends TestCase
 {

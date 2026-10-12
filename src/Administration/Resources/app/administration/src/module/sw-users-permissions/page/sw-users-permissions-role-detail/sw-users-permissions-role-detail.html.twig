@@ -53,26 +53,39 @@
         {% block sw_users_permissions_role_detail_content_card_view %}
         <sw-card-view>
             {% block sw_users_permissions_role_detail_content_card_view_tabs %}
-            <sw-tabs
-                default-item="general"
-                position-identifier="sw-users-permissions-role-detail-content"
-            >
-                <template #default="{ active }">
-                    <sw-tabs-item
-                        :route="{ name: 'sw.users.permissions.role.detail.general', params: { id: $route.params.id } }"
-                        :title="$t('sw-users-permissions.roles.tabs.general')"
-                    >
-                        {{ $t('sw-users-permissions.roles.tabs.general') }}
-                    </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                {% block sw_users_permissions_role_detail_content_card_view_mt_tabs %}
+                <mt-tabs
+                    position-identifier="sw-users-permissions-role-detail-content"
+                    :default-item="$route.name"
+                    :items="roleDetailTabs"
+                    :small="true"
+                />
+                {% endblock %}
+            </template>
 
-                    <sw-tabs-item
-                        :route="{ name: 'sw.users.permissions.role.detail.detailed-privileges', params: { id: $route.params.id } }"
-                        :title="$t('sw-users-permissions.roles.tabs.detailed')"
-                    >
-                        {{ $t('sw-users-permissions.roles.tabs.detailed') }}
-                    </sw-tabs-item>
-                </template>
-            </sw-tabs>
+            <template v-else>
+                <sw-tabs
+                    default-item="general"
+                    position-identifier="sw-users-permissions-role-detail-content"
+                >
+                    <template #default="{ active }">
+                        <sw-tabs-item
+                            :route="{ name: 'sw.users.permissions.role.detail.general', params: { id: $route.params.id } }"
+                            :title="$t('sw-users-permissions.roles.tabs.general')"
+                        >
+                            {{ $t('sw-users-permissions.roles.tabs.general') }}
+                        </sw-tabs-item>
+
+                        <sw-tabs-item
+                            :route="{ name: 'sw.users.permissions.role.detail.detailed-privileges', params: { id: $route.params.id } }"
+                            :title="$t('sw-users-permissions.roles.tabs.detailed')"
+                        >
+                            {{ $t('sw-users-permissions.roles.tabs.detailed') }}
+                        </sw-tabs-item>
+                    </template>
+                </sw-tabs>
+            </template>
             {% endblock %}
 
             <router-view

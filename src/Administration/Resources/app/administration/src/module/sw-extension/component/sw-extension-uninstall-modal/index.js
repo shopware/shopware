@@ -8,10 +8,7 @@ import './sw-extension-uninstall-modal.scss';
 export default {
     template,
 
-    emits: [
-        'modal-close',
-        'uninstall-extension',
-    ],
+    emits: ['modal-close', 'uninstall-extension'],
 
     props: {
         extensionName: {

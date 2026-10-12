@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1768986102AddInternalColumnToProductStream;
@@ -12,6 +13,7 @@ use Shopware\Core\Migration\V6_7\Migration1768986102AddInternalColumnToProductSt
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1768986102AddInternalColumnToProductStream::class)]
 class Migration1768986102AddInternalColumnToProductStreamTest extends TestCase
 {

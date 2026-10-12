@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Service;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 /**
  * @internal
  */
+#[Package('framework')]
 class PermissionsServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -53,7 +55,7 @@ class PermissionsServiceTest extends TestCase
         $this->permissionsService->grant($revision, $this->context);
 
         $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
-        static::assertNotEmpty($storedRevision);
+        static::assertNotSame('', $storedRevision);
 
         // Verify the stored data contains the expected revision
         $decodedData = json_decode($storedRevision, true);
@@ -68,7 +70,7 @@ class PermissionsServiceTest extends TestCase
             return $listener['event'] === PermissionsGrantedEvent::class;
         });
 
-        static::assertNotEmpty($permissionsGrantedEvents, 'PermissionsGrantedEvent should have been dispatched');
+        static::assertNotCount(0, $permissionsGrantedEvents, 'PermissionsGrantedEvent should have been dispatched');
 
         if ($profilerNeedsToBeDisabledAgain) {
             self::getContainer()->get('profiler')->disable();
@@ -87,7 +89,7 @@ class PermissionsServiceTest extends TestCase
 
         // Verify permissions were granted
         $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
-        static::assertNotEmpty($storedRevision);
+        static::assertNotSame('', $storedRevision);
 
         $this->permissionsService->revoke($this->context);
 
@@ -99,7 +101,7 @@ class PermissionsServiceTest extends TestCase
             return $listener['event'] === PermissionsRevokedEvent::class;
         });
 
-        static::assertNotEmpty($permissionsRevokedEvents, 'PermissionsRevokedEvent should have been dispatched');
+        static::assertNotCount(0, $permissionsRevokedEvents, 'PermissionsRevokedEvent should have been dispatched');
 
         if ($profilerNeedsToBeDisabledAgain) {
             self::getContainer()->get('profiler')->disable();
@@ -111,9 +113,13 @@ class PermissionsServiceTest extends TestCase
         $invalidRevision = 'invalid-date';
 
         $this->expectExceptionObject(ServiceException::invalidPermissionsRevisionFormat($invalidRevision));
-        $this->permissionsService->grant($invalidRevision, $this->context);
-        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
-        static::assertSame('', $storedRevision);
+
+        try {
+            $this->permissionsService->grant($invalidRevision, $this->context);
+        } finally {
+            $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
+            static::assertSame('', $storedRevision);
+        }
     }
 
     public function testMultipleGrantPermissionsCallsOverridesPrevious(): void

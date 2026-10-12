@@ -36,20 +36,16 @@ class MultiInsertQueryQueueTest extends TestCase
     #[DataProvider('preparedQueriesDataProvider')]
     public function testPrepareQueries(array $inserts, array $queries, int $batchSize = 5, bool $ignoreErrors = false, bool $useReplace = false): void
     {
-        $queue = new MultiInsertQueryQueue($this->createMock(Connection::class), $batchSize, $ignoreErrors, $useReplace);
+        $executed = [];
+        $queue = new MultiInsertQueryQueue($this->createRecordingConnection($executed), $batchSize, $ignoreErrors, $useReplace);
         foreach ($inserts as $insert) {
             $queue->addInsert($insert['table'], $insert['data'], $insert['types'] ?? null);
         }
 
-        $prepareQueries = new \ReflectionMethod(MultiInsertQueryQueue::class, 'prepareQueries');
-        $generatedQueries = $prepareQueries->invoke($queue);
+        $queue->execute();
 
-        static::assertIsArray($generatedQueries);
-        static::assertCount(\count($queries), $generatedQueries);
-        foreach ($generatedQueries as $index => $query) {
-            static::assertArrayHasKey('query', $query);
-            static::assertArrayHasKey('values', $query);
-            static::assertArrayHasKey('types', $query);
+        static::assertCount(\count($queries), $executed);
+        foreach ($executed as $index => $query) {
             static::assertSame($queries[$index]['query'], $query['query']);
             static::assertSame($queries[$index]['values'], $query['values']);
             // we don't want to provide types for default values
@@ -214,22 +210,18 @@ class MultiInsertQueryQueueTest extends TestCase
 
     public function testAddInserts(): void
     {
-        $queue = new MultiInsertQueryQueue($this->createMock(Connection::class));
+        $executed = [];
+        $queue = new MultiInsertQueryQueue($this->createRecordingConnection($executed));
         $queue->addInserts('table1', [
             ['id' => 1, 'name' => 'test1', 'description' => 'test1'],
             ['id' => 2, 'name' => 'test2', 'description' => 'test2'],
         ]);
 
-        $prepareQueries = new \ReflectionMethod(MultiInsertQueryQueue::class, 'prepareQueries');
-        $generatedQueries = $prepareQueries->invoke($queue);
+        $queue->execute();
 
-        static::assertIsArray($generatedQueries);
-        static::assertCount(1, $generatedQueries);
-        $query = reset($generatedQueries);
+        static::assertCount(1, $executed);
+        $query = $executed[0];
 
-        static::assertArrayHasKey('query', $query);
-        static::assertArrayHasKey('values', $query);
-        static::assertArrayHasKey('types', $query);
         static::assertSame('INSERT INTO `table1` (`id`, `name`, `description`) VALUES (?,?,?), (?,?,?);', $query['query']);
         static::assertSame([1, 'test1', 'test1', 2, 'test2', 'test2'], $query['values']);
         static::assertSame(
@@ -240,22 +232,19 @@ class MultiInsertQueryQueueTest extends TestCase
 
     public function testUpdateOnDuplicateKeys(): void
     {
-        $queue = new MultiInsertQueryQueue($this->createMock(Connection::class));
+        $executed = [];
+        $queue = new MultiInsertQueryQueue($this->createRecordingConnection($executed));
         $queue->addInsert('table1', ['id' => 1, 'name' => 'test1', 'description' => 'test1']);
         $queue->addInsert('table1', ['id' => 2, 'name' => 'test2', 'description' => 'test2']);
         $queue->addUpdateFieldOnDuplicateKey('table1', 'name');
         $queue->addUpdateFieldOnDuplicateKey('table1', 'non_existing_field');
         $queue->addUpdateFieldOnDuplicateKey('table1', 'description');
 
-        $prepareQueries = new \ReflectionMethod(MultiInsertQueryQueue::class, 'prepareQueries');
-        $generatedQueries = $prepareQueries->invoke($queue);
-        static::assertIsArray($generatedQueries);
-        static::assertCount(1, $generatedQueries);
-        $query = reset($generatedQueries);
+        $queue->execute();
 
-        static::assertArrayHasKey('query', $query);
-        static::assertArrayHasKey('values', $query);
-        static::assertArrayHasKey('types', $query);
+        static::assertCount(1, $executed);
+        $query = $executed[0];
+
         static::assertSame('INSERT INTO `table1` (`id`, `name`, `description`) VALUES (?,?,?), (?,?,?) ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `description` = VALUES(`description`);', $query['query']);
         static::assertSame([1, 'test1', 'test1', 2, 'test2', 'test2'], $query['values']);
         static::assertSame(
@@ -264,10 +253,54 @@ class MultiInsertQueryQueueTest extends TestCase
         );
     }
 
+    public function testExecuteWithoutInsertsDoesNotTouchTheConnection(): void
+    {
+        $executed = [];
+        $queue = new MultiInsertQueryQueue($this->createRecordingConnection($executed));
+
+        $queue->execute();
+
+        static::assertSame([], $executed);
+    }
+
+    public function testExecuteClearsTheQueue(): void
+    {
+        $executed = [];
+        $queue = new MultiInsertQueryQueue($this->createRecordingConnection($executed));
+        $queue->addInsert('table1', ['id' => 1]);
+
+        $queue->execute();
+        $queue->execute();
+
+        static::assertCount(1, $executed);
+    }
+
     public function testConstructorThrowsOnWrongBatchSize(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         self::expectExceptionObject(DataAbstractionLayerException::invalidChunkSize(0));
         new MultiInsertQueryQueue($connection, 0);
+    }
+
+    /**
+     * Records the statements the queue executes, so the generated SQL can be asserted afterwards.
+     *
+     * @param list<array{query: string, values: array<mixed>, types: array<mixed>}> $executed
+     */
+    private function createRecordingConnection(array &$executed): Connection
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('transactional')->willReturnCallback(
+            static fn (\Closure $callback): mixed => $callback($connection)
+        );
+        $connection->method('executeStatement')->willReturnCallback(
+            function (string $sql, array $params = [], array $types = []) use (&$executed): int {
+                $executed[] = ['query' => $sql, 'values' => $params, 'types' => $types];
+
+                return 1;
+            }
+        );
+
+        return $connection;
     }
 }

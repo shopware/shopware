@@ -41,7 +41,7 @@ class LineItemStockRuleTest extends TestCase
     {
         $rule = new LineItemStockRule();
 
-        static::assertFalse($rule->match($this->createMock(RuleScope::class)));
+        static::assertFalse($rule->match(static::createStub(RuleScope::class)));
     }
 
     public function testItThrowsUnsupportedValueExceptionIfStockIsNotSet(): void
@@ -51,7 +51,7 @@ class LineItemStockRuleTest extends TestCase
         $ruleScope = $this->createMock(LineItemScope::class);
         $ruleScope->expects($this->once())
             ->method('getLineItem')
-            ->willReturn(static::createMock(LineItem::class));
+            ->willReturn(static::createStub(LineItem::class));
 
         if (!Feature::isActive('v6.8.0.0')) {
             $this->expectException(UnsupportedValueException::class);
@@ -72,7 +72,7 @@ class LineItemStockRuleTest extends TestCase
         (new LineItemStockRule())->match(
             new LineItemScope(
                 new LineItem(Uuid::randomHex(), 'product'),
-                $this->createMock(SalesChannelContext::class)
+                static::createStub(SalesChannelContext::class)
             )
         );
     }
@@ -108,7 +108,7 @@ class LineItemStockRuleTest extends TestCase
     {
         $ruleScope = new LineItemScope(
             $this->createLineItem($lineItemStock),
-            static::createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $rule = new LineItemStockRule($operator, 5);
@@ -124,7 +124,7 @@ class LineItemStockRuleTest extends TestCase
             $this->createLineItem($lineItemStock),
         ]));
 
-        $ruleScope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
+        $ruleScope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         $rule = new LineItemStockRule($operator, 5);
 
@@ -135,7 +135,7 @@ class LineItemStockRuleTest extends TestCase
     {
         $ruleScope = new CartRuleScope(
             new Cart('test-token'),
-            static::createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $rule = new LineItemStockRule(Rule::OPERATOR_EQ, 5);
@@ -163,11 +163,11 @@ class LineItemStockRuleTest extends TestCase
         $rule = new LineItemStockRule(Rule::OPERATOR_EQ, 5);
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cartMatchingFirst, static::createMock(SalesChannelContext::class)))
+            $rule->match(new CartRuleScope($cartMatchingFirst, static::createStub(SalesChannelContext::class)))
         );
 
         static::assertTrue(
-            $rule->match(new CartRuleScope($cartMatchingLast, static::createMock(SalesChannelContext::class)))
+            $rule->match(new CartRuleScope($cartMatchingLast, static::createStub(SalesChannelContext::class)))
         );
     }
 
@@ -182,7 +182,7 @@ class LineItemStockRuleTest extends TestCase
         $rule = new LineItemStockRule(Rule::OPERATOR_EQ, 5);
 
         static::assertFalse(
-            $rule->match(new CartRuleScope($cart, static::createMock(SalesChannelContext::class)))
+            $rule->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class)))
         );
     }
 
@@ -195,8 +195,8 @@ class LineItemStockRuleTest extends TestCase
         $cart = new Cart('some-token');
         $cart->setLineItems(new LineItemCollection([$lineItem]));
 
-        $lineItemScope = new LineItemScope($lineItem, static::createMock(SalesChannelContext::class));
-        $cartScope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
+        $lineItemScope = new LineItemScope($lineItem, static::createStub(SalesChannelContext::class));
+        $cartScope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertFalse((new LineItemStockRule(Rule::OPERATOR_EQ, 5))->match($lineItemScope));
         static::assertFalse((new LineItemStockRule(Rule::OPERATOR_EQ, 5))->match($cartScope));

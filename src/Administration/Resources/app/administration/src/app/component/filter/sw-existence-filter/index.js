@@ -12,10 +12,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    emits: [
-        'filter-update',
-        'filter-reset',
-    ],
+    emits: ['filter-update', 'filter-reset'],
 
     props: {
         filter: {

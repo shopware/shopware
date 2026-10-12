@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Content\Breadcrumb\Struct;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(Breadcrumb::class)]
 class BreadcrumbTest extends TestCase
 {

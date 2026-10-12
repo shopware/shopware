@@ -3,10 +3,13 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Extension\ImitateCustomerRouteExtension;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
 use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -27,13 +30,13 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('checkout')]
 #[Route(
     defaults: [
         PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
         PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED => false,
     ]
 )]
-#[Package('checkout')]
 class ImitateCustomerRoute extends AbstractImitateCustomerRoute
 {
     final public const TOKEN = 'token';
@@ -57,7 +60,8 @@ class ImitateCustomerRoute extends AbstractImitateCustomerRoute
         private readonly AbstractLogoutRoute $logoutRoute,
         private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly DataValidator $validator
+        private readonly DataValidator $validator,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -66,9 +70,7 @@ class ImitateCustomerRoute extends AbstractImitateCustomerRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-name-change - The parameter `$requestDataBag` will be renamed to `$data` to align with abstract route
-     */
+    #[ParameterNameChange(version: 'v6.8.0', parameterName: 'requestDataBag', newName: 'data', description: 'Aligns with the abstract route.')]
     #[Route(
         path: '/store-api/account/login/imitate-customer',
         name: 'store-api.account.imitate-customer-login',
@@ -76,14 +78,23 @@ class ImitateCustomerRoute extends AbstractImitateCustomerRoute
     )]
     public function imitateCustomerLogin(RequestDataBag $requestDataBag, SalesChannelContext $context): ContextTokenResponse
     {
-        $tokenString = $requestDataBag->getString(self::TOKEN);
+        return $this->extensions->publish(
+            name: ImitateCustomerRouteExtension::NAME,
+            extension: new ImitateCustomerRouteExtension($requestDataBag, $context),
+            function: $this->_imitateCustomerLogin(...),
+        );
+    }
+
+    private function _imitateCustomerLogin(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
+    {
+        $tokenString = $data->getString(self::TOKEN);
 
         if (!Feature::isActive('v6.8.0.0')) {
-            $this->validateRequestDataFields($requestDataBag, $context->getContext());
+            $this->validateRequestDataFields($data, $context->getContext());
 
             $token = new ImitateCustomerToken();
-            $token->customerId = $requestDataBag->getString(self::CUSTOMER_ID);
-            $token->iss = $requestDataBag->getString(self::USER_ID);
+            $token->customerId = $data->getString(self::CUSTOMER_ID);
+            $token->iss = $data->getString(self::USER_ID);
 
             Feature::silent('v6.8.0.0', fn () => $this->imitateCustomerTokenGenerator->validate($tokenString, $context->getSalesChannelId(), $token->customerId, $token->iss));
         } else {

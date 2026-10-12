@@ -123,7 +123,7 @@ class ResetPasswordRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     public function testSuccessResetWithLegacyPassword(): void
@@ -179,12 +179,12 @@ class ResetPasswordRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $criteria = new Criteria([$customerId]);
 
         /** @var CustomerEntity $customer */
-        $customer = static::getContainer()->get('customer.repository')->search($criteria, Context::createDefaultContext())->first();
+        $customer = static::getContainer()->get('customer.repository')->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNull($customer->getLegacyEncoder());
         static::assertNull($customer->getLegacyPassword());
@@ -245,7 +245,7 @@ class ResetPasswordRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     private function createCustomer(string $password, ?string $email = null, bool $addLegacyPassword = false, bool $doubleOptInRegistration = false): string
@@ -290,7 +290,7 @@ class ResetPasswordRouteTest extends TestCase
     {
         $criteria = new Criteria([$customerId]);
 
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
         return $customer;

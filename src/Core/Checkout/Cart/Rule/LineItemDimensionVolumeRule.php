@@ -41,6 +41,10 @@ class LineItemDimensionVolumeRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if ($lineItem->getDeliveryInformation() === null && !\array_key_exists(LineItem::PAYLOAD_PRODUCT_TYPE, $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchVolumeDimension($lineItem)) {
                 return true;
             }
@@ -60,7 +64,7 @@ class LineItemDimensionVolumeRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, false, true)
             ->numberField('amount', ['unit' => RuleConfig::UNIT_VOLUME]);
     }
 

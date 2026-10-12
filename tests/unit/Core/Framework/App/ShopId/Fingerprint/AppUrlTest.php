@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 /**
  * @internal
  */
-#[CoversClass(AppUrl::class)]
 #[Package('framework')]
+#[CoversClass(AppUrl::class)]
 class AppUrlTest extends TestCase
 {
     use EnvTestBehaviour;

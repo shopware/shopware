@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -14,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
+#[Package('fundamentals@discovery')]
 #[Group('store-api')]
 class LanguageRouteTest extends TestCase
 {
@@ -75,7 +77,7 @@ class LanguageRouteTest extends TestCase
         static::assertContains($this->ids->get('language2'), $ids);
         static::assertContains('match', $names);
         static::assertContains('match2', $names);
-        static::assertEmpty($response['elements'][0]['locale']);
+        static::assertNull($response['elements'][0]['locale']);
     }
 
     public function testIncludes(): void
@@ -115,7 +117,7 @@ class LanguageRouteTest extends TestCase
 
         static::assertSame(2, $response['total']);
         static::assertArrayHasKey('locale', $response['elements'][0]);
-        static::assertNotEmpty($response['elements'][0]['locale']);
+        static::assertIsArray($response['elements'][0]['locale']);
         static::assertArrayHasKey('id', $response['elements'][0]['locale']);
     }
 

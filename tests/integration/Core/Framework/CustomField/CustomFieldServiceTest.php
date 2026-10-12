@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
@@ -22,6 +23,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 /**
  * @internal
  */
+#[Package('framework')]
 class CustomFieldServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

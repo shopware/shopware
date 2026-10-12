@@ -2,11 +2,38 @@
  * @sw-package framework
  *
  */
-import { computed, onBeforeUnmount, provide, ref, watch, type ComponentInternalInstance, type Slot } from 'vue';
+import {
+    computed,
+    getCurrentInstance,
+    onBeforeUnmount,
+    onBeforeUpdate,
+    provide,
+    ref,
+    watch,
+    type ComponentInternalInstance,
+    type Slot,
+} from 'vue';
 import { hasBlockEntries, getBlockEntries } from 'src/core/factory/twig-block-index';
 import parentsInjectionKey from './parents-injection-key';
 import useBlockContext from '../../../../composables/use-block-context';
 import { createShimSlot } from '../shim/create-shim-slot';
+import reduceToSingleRoot from '../reduce-to-single-root';
+import useLegacyConditionContext from '../shim/legacy-condition-context';
+
+/**
+ * Builds the key under which a block registers and resolves its slots.
+ *
+ * Native `<sw-block>` identifies a block by `componentName + blockName`, mirroring Twig, so that block
+ * `foo` in one component never resolves overrides meant for block `foo` in another. The owning component
+ * name reaches this component through the required `sw-internal-component-name` attribute that the Shopware
+ * setup transform stamps onto every `<sw-block>` when it lowers the SFC.
+ *
+ * @example
+ * componentBlockKey('sw-product-detail', 'sw_product_detail_base'); // 'sw-product-detail sw_product_detail_base'
+ */
+function componentBlockKey(componentName: string, blockName: string): string {
+    return `${componentName} ${blockName}`;
+}
 
 /**
  * @private
@@ -66,26 +93,65 @@ export default Shopware.Component.wrapComponentConfig({
         extends: {
             type: String,
         },
+        swInternalComponentName: {
+            type: String,
+            required: true,
+        },
         data: {
             type: Object as PropType<ComponentInternalInstance['proxy']>,
             default: null,
         },
+        /**
+         * Internal, set by the template factory - never write it by hand.
+         *
+         * Twig components get their extension points generated, and their legacy Twig overrides are
+         * already merged into the template at that point. Rendering the shim slots on top would apply
+         * the same override a second time, so the generated wrapper turns them off.
+         */
+        swInternalLegacyShim: {
+            type: Boolean,
+            default: true,
+        },
     },
     setup(props, { slots }) {
-        const { addBlock, removeBlock, getBlocks } = useBlockContext();
+        const { addBlock, removeBlock, getBlocks, invalidateBlock } = useBlockContext();
+        const { clearLegacyConditionChainsForBlock } = useLegacyConditionContext();
+        const instance = getCurrentInstance();
 
         if (props.extends) {
-            // addBlock is a no-op for undefined, so an explicit guard is not needed.
-            addBlock(props.extends, slots.default);
+            const extendsKey = componentBlockKey(props.swInternalComponentName, props.extends);
 
-            onBeforeUnmount(() => {
-                if (props.extends) {
-                    removeBlock(props.extends, slots.default);
-                }
-            });
+            if (slots.default) {
+                // Vue reassigns `slots.default` whenever the surrounding slot scope changes.
+                // Registering the function itself would pin the first scope forever and leave
+                // `removeBlock` with a reference that no longer matches anything, so register a
+                // stable wrapper that resolves the current slot function on every call instead.
+                const overrideSlot: Slot = (data?: unknown) => slots.default?.(data) ?? [];
+                addBlock(extendsKey, overrideSlot);
+
+                // The block rendering this override has no reactive link to the scope this
+                // override lives in. Vue has already swapped in the new slot function when this
+                // hook runs, so this is the moment to make the rendering block pick it up.
+                onBeforeUpdate(() => {
+                    invalidateBlock(extendsKey);
+                });
+
+                onBeforeUnmount(() => {
+                    removeBlock(extendsKey, overrideSlot);
+                });
+            }
 
             return { template: null };
         }
+
+        onBeforeUnmount(() => {
+            if (!props.name) {
+                return;
+            }
+
+            const ownerUid = instance?.parent?.uid;
+            clearLegacyConditionChainsForBlock(props.name, ownerUid);
+        });
 
         // Shim slots are created once in setup() to guarantee a stable VNode type
         // reference across renders. A new object on every render call would cause
@@ -94,8 +160,13 @@ export default Shopware.Component.wrapComponentConfig({
         // multiple simultaneous instances of <sw-block name="foo"> each maintain
         // their own isolated shim slots and cannot double-render each other's content.
         const shimSlots: Slot[] =
-            props.name && hasBlockEntries(props.name)
-                ? getBlockEntries(props.name).map((entry) => createShimSlot(entry, props.name!))
+            props.swInternalLegacyShim && props.name && hasBlockEntries(props.swInternalComponentName, props.name)
+                ? getBlockEntries(props.swInternalComponentName, props.name).map((entry) => {
+                      // The transformed Twig helper calls reveal how many conditional cases this shim must reserve.
+                      const shimSlot = createShimSlot(entry, props.name!);
+
+                      return shimSlot;
+                  })
                 : [];
 
         if (process.env.NODE_ENV !== 'production') {
@@ -118,7 +189,18 @@ export default Shopware.Component.wrapComponentConfig({
         const providedParents = ref<ReturnType<Slot>[]>([]);
         provide(parentsInjectionKey, providedParents);
 
+        // Slot scope arrives as a function argument, not a reactive read, so a
+        // scope-only change never invalidates the computed below — bump a counter
+        // on every update so the cached nodes are rebuilt from the fresh slots.
+        const slotGeneration = ref(0);
+        onBeforeUpdate(() => {
+            slotGeneration.value += 1;
+        });
+
         const template = computed(() => {
+            // Read so a new slot function from the parent invalidates the cached nodes below.
+            void slotGeneration.value;
+
             if (!props.name) {
                 throw new Error('[sw-block] The "name" prop is required when "extends" is not set.');
             }
@@ -127,12 +209,8 @@ export default Shopware.Component.wrapComponentConfig({
             // at boot time) are positioned below native <sw-block extends> overrides
             // (registered at mount time), matching the expected stacking order:
             //   default → shim (legacy plugin) → native (newer plugin or core extension)
-            const nativeBlocks = getBlocks(props.name);
-            const blocksAndParent = [
-                slots.default ?? (() => []),
-                ...shimSlots,
-                ...nativeBlocks,
-            ];
+            const nativeBlocks = getBlocks(componentBlockKey(props.swInternalComponentName, props.name));
+            const blocksAndParent = [slots.default ?? (() => []), ...shimSlots, ...nativeBlocks];
             const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
 
             const lastNode = blocksNodes.pop();
@@ -149,6 +227,6 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
     render() {
-        return this.template;
+        return reduceToSingleRoot(this.template);
     },
 });

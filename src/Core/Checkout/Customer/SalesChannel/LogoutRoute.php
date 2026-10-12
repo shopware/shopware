@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
+use Shopware\Core\Checkout\Customer\Extension\LogoutRouteExtension;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -21,8 +23,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class LogoutRoute extends AbstractLogoutRoute
 {
     /**
@@ -34,6 +36,7 @@ class LogoutRoute extends AbstractLogoutRoute
         private readonly SystemConfigService $systemConfig,
         private readonly CartService $cartService,
         private readonly SalesChannelContextServiceInterface $contextService,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -52,6 +55,15 @@ class LogoutRoute extends AbstractLogoutRoute
         methods: [Request::METHOD_POST]
     )]
     public function logout(SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse
+    {
+        return $this->extensions->publish(
+            name: LogoutRouteExtension::NAME,
+            extension: new LogoutRouteExtension($context, $data),
+            function: $this->_logout(...),
+        );
+    }
+
+    private function _logout(SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse
     {
         /** @var CustomerEntity $customer */
         $customer = $context->getCustomer();

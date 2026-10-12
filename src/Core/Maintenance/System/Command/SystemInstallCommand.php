@@ -5,7 +5,8 @@ namespace Shopware\Core\Maintenance\System\Command;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\SystemInstallCompletedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Finish\SystemLocker;
 use Shopware\Core\Maintenance\MaintenanceException;
@@ -19,15 +20,17 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal should be used over the CLI only
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'system:install',
     description: 'Installs the Shopware 6 system',
 )]
-#[Package('framework')]
 class SystemInstallCommand extends Command
 {
     public function __construct(
@@ -37,6 +40,7 @@ class SystemInstallCommand extends Command
         private readonly CacheClearer $cacheClearer,
         private readonly SystemLocker $systemLocker,
         private readonly ClockInterface $clock,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
         parent::__construct();
     }
@@ -59,7 +63,7 @@ class SystemInstallCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output = new ShopwareStyle($input, $output);
+        $output = new SymfonyStyle($input, $output);
 
         // set default
         $isBlueGreen = EnvironmentHelper::getVariable('BLUE_GREEN_DEPLOYMENT', '1');
@@ -178,12 +182,12 @@ class SystemInstallCommand extends Command
 
         if ($this->shouldSkipFileOperations()) {
             $output->comment('Skipping install.lock and .htaccess creation (SHOPWARE_SKIP_WEBINSTALLER is set)');
-
-            return $result;
+        } else {
+            $this->ensureHtaccessExists();
+            $this->systemLocker->lock();
         }
 
-        $this->ensureHtaccessExists();
-        $this->systemLocker->lock();
+        $this->eventDispatcher->dispatch(new SystemInstallCompletedEvent(Context::createCLIContext()));
 
         return $result;
     }
@@ -218,7 +222,7 @@ class SystemInstallCommand extends Command
         return self::SUCCESS;
     }
 
-    private function initializeDatabase(ShopwareStyle $output, InputInterface $input): void
+    private function initializeDatabase(SymfonyStyle $output, InputInterface $input): void
     {
         $databaseConnectionInformation = DatabaseConnectionInformation::fromEnv();
 

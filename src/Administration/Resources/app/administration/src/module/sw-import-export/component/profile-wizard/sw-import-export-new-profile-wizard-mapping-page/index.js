@@ -10,9 +10,7 @@ import './sw-import-export-new-profile-wizard-mapping-page.scss';
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     emits: ['next-allow'],
 
@@ -47,10 +45,7 @@ export default {
 
         mergeMappings() {
             const requiredMappings = Object.entries(this.systemRequiredFields).map((mapping) => {
-                const [
-                    key,
-                    mappedKey,
-                ] = mapping;
+                const [key, mappedKey] = mapping;
 
                 return { key, mappedKey };
             });

@@ -8,6 +8,13 @@ import { mount } from '@vue/test-utils';
 import Entity from 'src/core/data/entity.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+const userConfigServiceMock = {
+    search: jest.fn(() => Promise.resolve({ data: {} })),
+    upsert: jest.fn(() => Promise.resolve()),
+};
+
+Shopware.Service().register('userConfigService', () => userConfigServiceMock);
+
 const defaultUserConfig = {
     createdAt: '2021-01-21T06:52:41.857+00:00',
     id: '021150d043ee49e18642daef58e92c96',
@@ -57,6 +64,15 @@ describe('components/data-grid/sw-data-grid', () => {
             props = { ...defaultProps, ...props };
         }
 
+        const configurationKey = `grid.setting.${(props ?? defaultProps).identifier}`;
+
+        userConfigServiceMock.search.mockResolvedValue({
+            data: {
+                [configurationKey]: (userConfig ?? defaultUserConfig).value,
+            },
+        });
+        userConfigServiceMock.upsert.mockResolvedValue();
+
         stubs = {
             'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
             'sw-context-button': await wrapTestComponent('sw-context-button', {
@@ -82,7 +98,9 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
             'sw-loader': true,
-            'mt-floating-ui': true,
+            'mt-floating-ui': {
+                template: '<div><slot /></div>',
+            },
             'mt-switch': true,
             'sw-provide': true,
         };
@@ -102,9 +120,7 @@ describe('components/data-grid/sw-data-grid', () => {
                     repositoryFactory: {
                         create: () => ({
                             search: () => {
-                                return Promise.resolve([
-                                    userConfig ?? defaultUserConfig,
-                                ]);
+                                return Promise.resolve([userConfig ?? defaultUserConfig]);
                             },
                             save: () => {
                                 return Promise.resolve();
@@ -145,13 +161,18 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
             'sw-loader': true,
-            'mt-floating-ui': true,
+            'mt-floating-ui': {
+                template: '<div><slot /></div>',
+            },
             'mt-switch': true,
         };
     });
 
     beforeEach(() => {
+        jest.restoreAllMocks();
         jest.clearAllMocks();
+        userConfigServiceMock.search.mockResolvedValue({ data: {} });
+        userConfigServiceMock.upsert.mockResolvedValue();
     });
 
     it('should be in compact mode by default', async () => {
@@ -243,14 +264,30 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(wrapper.vm.currentColumns[0].visible).toBe(valueChecked);
     });
 
+    it('should save user configuration through the admin user config store', async () => {
+        const wrapper = await createWrapper({
+            showSettings: true,
+        });
+
+        await flushPromises();
+
+        wrapper.vm.onChangePreviews(true);
+
+        expect(userConfigServiceMock.upsert).toHaveBeenCalledWith({
+            'grid.setting.sw-customer-list': {
+                columns: wrapper.vm.currentColumns,
+                compact: wrapper.vm.compact,
+                previews: true,
+            },
+        });
+    });
+
     it('remove property in client', async () => {
         const wrapper = await createWrapper(
             {
                 showSettings: true,
                 identifier: 'sw-customer-list',
-                columns: [
-                    { property: 'name', label: 'Name' },
-                ],
+                columns: [{ property: 'name', label: 'Name' }],
                 dataSource: [
                     { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
                     {
@@ -381,12 +418,8 @@ describe('components/data-grid/sw-data-grid', () => {
             {
                 showSettings: true,
                 identifier: 'sw-customer-list',
-                columns: [
-                    { property: 'name', label: 'Name', mockProperty: true },
-                ],
-                dataSource: [
-                    { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
-                ],
+                columns: [{ property: 'name', label: 'Name', mockProperty: true }],
+                dataSource: [{ id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }],
             },
             {
                 createdAt: '2021-01-21T06:52:41.857+00:00',
@@ -445,9 +478,7 @@ describe('components/data-grid/sw-data-grid', () => {
             {
                 showSettings: true,
                 identifier: 'sw-customer-list',
-                columns: [
-                    { property: 'name', label: 'Name' },
-                ],
+                columns: [{ property: 'name', label: 'Name' }],
                 dataSource: [
                     { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
                     {
@@ -564,109 +595,88 @@ describe('components/data-grid/sw-data-grid', () => {
     };
 
     // This test cases previously tested for console.warn calls. This was removed because vue compat emits too many warnings
-    Object.entries(cases).forEach(
-        ([
-            key,
-            testCase,
-        ]) => {
-            it(`should render columns with ${key}`, async () => {
-                jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation(() => {});
+    Object.entries(cases).forEach(([key, testCase]) => {
+        it(`should render columns with ${key}`, async () => {
+            jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation(() => {});
 
-                const wrapper = await createWrapper();
-                const grid = wrapper.vm;
+            const wrapper = await createWrapper();
+            const grid = wrapper.vm;
 
-                const data = {
-                    name: 'original',
-                    translated: {
-                        name: 'translated',
-                    },
-                    manufacturer: new Entity('test', 'product_manufacturer', {
-                        description: 'manufacturer-description',
-                        name: 'manufacturer',
-                        translated: { name: 'manufacturer-translated' },
-                    }),
-                    plainObject: {
-                        name: 'object',
-                    },
-                    transactions: new EntityCollection(
-                        '',
-                        'order_transaction',
-                        {},
-                        {},
-                        [
-                            { name: 'first' },
-                            { name: 'second' },
-                            { name: 'last' },
-                        ],
-                        1,
-                        null,
-                    ),
-                    arrayField: [
-                        1,
-                        2,
-                        3,
-                    ],
-                    payload: null,
-                    customer: { type: null },
-                };
+            const data = {
+                name: 'original',
+                translated: {
+                    name: 'translated',
+                },
+                manufacturer: new Entity('test', 'product_manufacturer', {
+                    description: 'manufacturer-description',
+                    name: 'manufacturer',
+                    translated: { name: 'manufacturer-translated' },
+                }),
+                plainObject: {
+                    name: 'object',
+                },
+                transactions: new EntityCollection(
+                    '',
+                    'order_transaction',
+                    {},
+                    {},
+                    [{ name: 'first' }, { name: 'second' }, { name: 'last' }],
+                    1,
+                    null,
+                ),
+                arrayField: [1, 2, 3],
+                payload: null,
+                customer: { type: null },
+            };
 
-                const entity = new Entity('123', 'test', data);
+            const entity = new Entity('123', 'test', data);
 
-                const column = { property: testCase.accessor };
-                const result = grid.renderColumn(entity, column);
+            const column = { property: testCase.accessor };
+            const result = grid.renderColumn(entity, column);
 
-                expect(result).toBe(testCase.expected);
-            });
+            expect(result).toBe(testCase.expected);
+        });
 
-            it(`should render different columns dynamically with ${key}`, async () => {
-                const wrapper = await createWrapper();
-                const grid = wrapper.vm;
+        it(`should render different columns dynamically with ${key}`, async () => {
+            const wrapper = await createWrapper();
+            const grid = wrapper.vm;
 
-                const data = {
-                    name: 'original',
-                    translated: {
-                        name: 'translated',
-                    },
-                    manufacturer: new Entity('test', 'product_manufacturer', {
-                        description: 'manufacturer-description',
-                        name: 'manufacturer',
-                        translated: { name: 'manufacturer-translated' },
-                    }),
-                    plainObject: {
-                        name: 'object',
-                    },
-                    transactions: new EntityCollection(
-                        '',
-                        'order_transaction',
-                        {},
-                        {},
-                        [
-                            { name: 'first' },
-                            { name: 'second' },
-                            { name: 'last' },
-                        ],
-                        1,
-                        null,
-                    ),
-                    arrayField: [
-                        1,
-                        2,
-                        3,
-                    ],
-                    payload: null,
-                    customer: { type: null },
-                };
+            const data = {
+                name: 'original',
+                translated: {
+                    name: 'translated',
+                },
+                manufacturer: new Entity('test', 'product_manufacturer', {
+                    description: 'manufacturer-description',
+                    name: 'manufacturer',
+                    translated: { name: 'manufacturer-translated' },
+                }),
+                plainObject: {
+                    name: 'object',
+                },
+                transactions: new EntityCollection(
+                    '',
+                    'order_transaction',
+                    {},
+                    {},
+                    [{ name: 'first' }, { name: 'second' }, { name: 'last' }],
+                    1,
+                    null,
+                ),
+                arrayField: [1, 2, 3],
+                payload: null,
+                customer: { type: null },
+            };
 
-                const entity = new Entity('123', 'test', data);
+            const entity = new Entity('123', 'test', data);
 
-                const column = { property: testCase.accessor };
+            const column = { property: testCase.accessor };
 
-                const result = grid.renderColumn(entity, column);
+            const result = grid.renderColumn(entity, column);
 
-                expect(result).toBe(testCase.expected);
-            });
-        },
-    );
+            expect(result).toBe(testCase.expected);
+        });
+    });
 
     it('should pre select grid using preSelection prop', async () => {
         const preSelection = {
@@ -849,9 +859,7 @@ describe('components/data-grid/sw-data-grid', () => {
         await wrapper.vm.$nextTick();
 
         await wrapper.setProps({
-            dataSource: [
-                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
-            ],
+            dataSource: [{ id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }],
         });
 
         const previousRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
@@ -1018,9 +1026,7 @@ describe('components/data-grid/sw-data-grid', () => {
                 },
                 { property: 'company', label: 'Company' },
             ],
-            dataSource: [
-                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
-            ],
+            dataSource: [{ id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }],
         });
         expect(wrapper.find('.sw-data-grid__cell--icon-label').exists()).toBe(true);
         expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').classes()).toContain('icon--regular-file-text');
@@ -1040,9 +1046,7 @@ describe('components/data-grid/sw-data-grid', () => {
                 },
                 { property: 'company', label: 'Company' },
             ],
-            dataSource: [
-                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
-            ],
+            dataSource: [{ id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }],
         });
 
         expect(wrapper.find('.sw-data-grid__cell--icon-label').exists()).toBe(true);

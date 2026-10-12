@@ -20,7 +20,7 @@ class NoDatabaseSourceResolverTest extends TestCase
     {
         static::expectExceptionObject(AppException::notFoundByField('TestApp', 'name'));
 
-        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $activeAppsLoader = static::createStub(ActiveAppsLoader::class);
         $activeAppsLoader->method('getActiveApps')->willReturn([]);
 
         $resolver = new NoDatabaseSourceResolver($activeAppsLoader);
@@ -29,7 +29,7 @@ class NoDatabaseSourceResolverTest extends TestCase
 
     public function testFilesystemForActiveAppUsesPath(): void
     {
-        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $activeAppsLoader = static::createStub(ActiveAppsLoader::class);
         $activeAppsLoader->method('getActiveApps')->willReturn([
             [
                 'name' => 'TestApp',

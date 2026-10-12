@@ -57,14 +57,14 @@ class LanguageLoaderTest extends TestCase
      */
     private function getConnectionMockObject(array $returnData = []): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
         $queryBuilder->method('select')->willReturn($queryBuilder);
         $queryBuilder->method('from')->willReturn($queryBuilder);
         $queryBuilder->method('leftJoin')->willReturn($queryBuilder);
 
-        $result = $this->createMock(Result::class);
+        $result = static::createStub(Result::class);
         $result->method('fetchAllAssociative')->willReturn($returnData);
 
         $queryBuilder->method('executeQuery')->willReturn($result);

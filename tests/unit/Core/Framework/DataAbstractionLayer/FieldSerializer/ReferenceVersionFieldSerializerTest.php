@@ -21,12 +21,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\Container;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ReferenceVersionFieldSerializer::class)]
 class ReferenceVersionFieldSerializerTest extends TestCase
 {

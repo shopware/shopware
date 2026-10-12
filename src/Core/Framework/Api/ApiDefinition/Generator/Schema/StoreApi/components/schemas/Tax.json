@@ -1,0 +1,51 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Tax": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "taxRate",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "taxRate": {
+                        "description": "Rate of tax.",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "name": {
+                        "description": "Name defined for a Tax.",
+                        "type": "string"
+                    },
+                    "position": {
+                        "description": "The order of the tabs of your defined taxes in the storefront by entering numerical values like 1,2,3, etc. Added since version: 6.4.0.0.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

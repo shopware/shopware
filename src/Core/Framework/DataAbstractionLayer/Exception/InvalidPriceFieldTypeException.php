@@ -8,6 +8,8 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use CartException::invalidPriceFieldTypeException() instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class InvalidPriceFieldTypeException extends ShopwareHttpException

@@ -8,10 +8,7 @@ import template from './sw-import-export-new-profile-wizard-general-page.html.tw
 export default {
     template,
 
-    emits: [
-        'next-allow',
-        'next-disable',
-    ],
+    emits: ['next-allow', 'next-disable'],
 
     props: {
         profile: {

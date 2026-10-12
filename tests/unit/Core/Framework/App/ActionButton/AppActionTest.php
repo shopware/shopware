@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[CoversClass(AppAction::class)]
 #[Package('framework')]
+#[CoversClass(AppAction::class)]
 class AppActionTest extends TestCase
 {
     public function testAsPayload(): void

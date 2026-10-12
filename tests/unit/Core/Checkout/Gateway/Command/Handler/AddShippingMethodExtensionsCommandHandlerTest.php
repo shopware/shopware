@@ -21,8 +21,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(AddShippingMethodExtensionsCommandHandler::class)]
 #[Package('checkout')]
+#[CoversClass(AddShippingMethodExtensionsCommandHandler::class)]
 class AddShippingMethodExtensionsCommandHandlerTest extends TestCase
 {
     public function testSupportedCommands(): void
@@ -51,7 +51,7 @@ class AddShippingMethodExtensionsCommandHandlerTest extends TestCase
             new ErrorCollection()
         );
 
-        $handler = new AddShippingMethodExtensionsCommandHandler($this->createMock(ExceptionLogger::class));
+        $handler = new AddShippingMethodExtensionsCommandHandler(static::createStub(ExceptionLogger::class));
         $handler->handle($command, $response, Generator::generateSalesChannelContext());
 
         static::assertCount(2, $response->getAvailableShippingMethods());
@@ -65,7 +65,7 @@ class AddShippingMethodExtensionsCommandHandlerTest extends TestCase
         $expected = new ArrayStruct(['foo' => 'bar', 1 => 2]);
 
         static::assertEquals(['foo_key' => $expected], $shipping1->getExtensions());
-        static::assertEmpty($shipping2->getExtensions());
+        static::assertCount(0, $shipping2->getExtensions());
     }
 
     public function testUnknownMethodIsLogged(): void

@@ -1,25 +1,31 @@
 # Decorator pattern
 
-The decorator pattern is a design pattern that allows behavior to be added to an individual object, either statically or dynamically, without affecting the behavior of other objects from the same class. 
+The decorator pattern is a design pattern that allows behavior to be added to an individual object,
+either statically or dynamically, without affecting the behavior of other objects from the same class.
 
 ## When to use the decorator pattern
 
-You should choose the decorator pattern, when you want that other developers can extend your functionality. The most common use case is that other developers should be allowed to decorate or rewrite your DI container services.
+You should choose the decorator pattern, when you want that other developers can extend your functionality.
+The most common use case is that other developers should be allowed to decorate or rewrite your DI container services.
 
 https://symfony.com/doc/current/service_container/service_decoration.html
 
+Do not use the decorator pattern for new Store-API route classes, according to this [ADR](https://github.com/shopware/shopware/blob/trunk/adr/2026-09-24-replace-abstract-route-classes-with-extension-events.md).
+
 ## How to use the decorator pattern
 
-Instead of interfaces, we use abstract classes to define the base functionality of a service. This allows us to add more functions without breaking existing code. This decision was made in this [ADR](https://github.com/shopware/shopware/blob/trunk/adr/2020-11-25-decoration-pattern.md).
+Instead of interfaces, we use abstract classes to define the base functionality of a service.
+This allows us to add more functions without breaking existing code.
+This decision was made in this [ADR](https://github.com/shopware/shopware/blob/trunk/adr/2020-11-25-decoration-pattern.md).
 
 ## Rules for the decorator pattern
 
-When defining a service, which should be decorated, you have to follow these rules: 
+When defining a service which should be decorated, you have to follow these rules:
 - The abstract class has to implement a `getDecorated()` function which returns the abstract class.
 - The core service has to throw a `DecorationPatternException` if the `getDecorated()` function is called.
-- The abstract class **can not** be marked as `@internal` or `@final`
-- An implementation of the abstract class **can not** provide any other public functions than the ones defined in the abstract class.
-- Implementations of the abstract class **can not** act as an event subscriber, symfony event system **can not** handle this correctly.
+- The abstract class **cannot** be marked as `@internal` or `@final`
+- An implementation of the abstract class **cannot** provide any other public functions than the ones defined in the abstract class.
+- Implementations of the abstract class **cannot** act as an event subscriber, symfony event system **cannot** handle this correctly.
 
 These rules are enforced by the `\Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DecorationPatternRule` class.
 
@@ -37,20 +43,20 @@ class CoreRuleLoader
     public function getDecorated(): AbstractRuleLoader {
         throw new DecorationPatternException(self::class);
     }
-    
+
     public function load(Context $context): RuleCollection {
-        // do some stuff 
+        // do some stuff
     }
 }
 
 class SomePlugin extends AbstractRuleLoader
 {
     public function __construct(private AbstractRuleLoader $inner) {}
-    
+
     public function getDecorated(): AbstractRuleLoader {
         return $this->inner;
     }
-    
+
     public function load(Context $context): RuleCollection {
         $rules = $this->inner->load($context);
         // add some data or execute some logic
@@ -59,7 +65,8 @@ class SomePlugin extends AbstractRuleLoader
 }
 ```
 
-When you add a new functionality to such a service, you have to add it to the abstract class but not as abstract function. This allows you to add new functions without breaking existing code.
+When you add a new functionality to such a service, you have to add it to the abstract class but not as an abstract method.
+This allows you to add new functions without breaking existing code.
 
 ```php
 abstract class AbstractRuleLoader
@@ -69,7 +76,7 @@ abstract class AbstractRuleLoader
     abstract public function load(Context $context): RuleCollection;
 
     // introduced with shopware/platform v6.6
-    public function create(Context $context): RuleCollection 
+    public function create(Context $context): RuleCollection
     {
         return $this->getDecorated()->create($context);
     }
@@ -107,7 +114,7 @@ class CachedLoader extends AbstractRuleLoader
 
     public function load(Context $context): RuleCollection {
         return $this->cache->get(
-            self::CACHE_KEY, 
+            self::CACHE_KEY,
             fn (): RuleCollection => $this->decorated->load($context)
         );
     }

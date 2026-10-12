@@ -1,6 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { glob } from 'tinyglobby';
+import { normalizeComponentEntryName, warnForDuplicateEntryNames } from './component-entry-name.cjs';
 
 /**
  * Absolute path to the Shopware project root.
@@ -55,12 +56,15 @@ export async function buildComponentEntries(): Promise<Record<string, string>> {
         ignore: ['**/node_modules/**', '**/*.test.{js,ts}', '**/*.stories.*'],
     });
 
-    return Object.fromEntries(
-        files.map(file => [
-            file.replace(/\.(js|ts)$/, ''),
-            path.join(componentRoot, file),
-        ]),
-    );
+    warnForDuplicateEntryNames(files, normalizeComponentEntryName, '[component-entries]', 'JavaScript');
+
+    const entries = new Map<string, string>();
+    for (const file of files) {
+        const entryName = normalizeComponentEntryName(file);
+        entries.set(entryName, path.join(componentRoot, file));
+    }
+
+    return Object.fromEntries(entries);
 }
 
 /**
@@ -141,18 +145,27 @@ export async function buildComponentStyleEntries(): Promise<ComponentStyleEntrie
         }
     }
 
-    const scssEntries = Object.fromEntries(
-        scssFiles.map(file => [file, path.join(componentRoot, file)]),
+    warnForDuplicateEntryNames(
+        [...scssFiles, ...cssFiles],
+        file => normalizeComponentEntryName(file, true),
+        '[component-entries]',
+        'Style',
     );
+
+    const scssEntries = new Map<string, string>();
+    for (const file of scssFiles) {
+        const entryName = normalizeComponentEntryName(file, true);
+        scssEntries.set(entryName, path.join(componentRoot, file));
+    }
 
     const plainCssShims = new Map<string, string>();
     const plainCssEntries: Record<string, string> = {};
     for (const cssFile of cssFiles) {
-        const virtualId = `${PLAIN_CSS_SHIM_PREFIX}${cssFile}`;
+        const entryName = normalizeComponentEntryName(cssFile, true);
+        const virtualId = `${PLAIN_CSS_SHIM_PREFIX}${entryName}`;
         plainCssShims.set(virtualId, path.join(componentRoot, cssFile));
-        plainCssEntries[cssFile] = virtualId;
+        plainCssEntries[entryName] = virtualId;
     }
 
-    return { scssEntries, plainCssEntries, plainCssShims };
+    return { scssEntries: Object.fromEntries(scssEntries), plainCssEntries, plainCssShims };
 }
-

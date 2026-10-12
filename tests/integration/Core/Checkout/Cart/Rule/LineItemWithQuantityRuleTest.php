@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -33,7 +32,6 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('fundamentals@after-sales')]
 class LineItemWithQuantityRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
@@ -212,7 +210,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             $this->conditionRepository->search(
                 new Criteria([$conditionIdEq, $conditionIdNEq, $conditionIdLTE, $conditionIdGTE]),
                 $this->context
-            )
+            )->getEntities()
         );
     }
 
@@ -261,7 +259,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     #[DataProvider('matchProvider')]
@@ -270,7 +268,7 @@ class LineItemWithQuantityRuleTest extends TestCase
         $cart = new Cart('test');
         $cart->setLineItems(new LineItemCollection([$lineItem]));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertSame(
             $shouldMatch,

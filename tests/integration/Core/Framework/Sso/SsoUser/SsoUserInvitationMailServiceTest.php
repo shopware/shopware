@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Sso\SsoUser;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Defaults;
@@ -15,13 +14,13 @@ use Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
 #[Package('framework')]
-#[Group('slow')]
 class SsoUserInvitationMailServiceTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -37,7 +36,7 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $localeRepository = static::getContainer()->get('locale.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('code', 'pl-PL'));
-        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->first();
+        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(LocaleEntity::class, $locale);
 
@@ -74,8 +73,7 @@ class SsoUserInvitationMailServiceTest extends TestCase
         );
 
         $caughtEvent = null;
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             MailBeforeSentEvent::class,
             static function (MailBeforeSentEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;

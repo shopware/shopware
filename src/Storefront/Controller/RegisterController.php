@@ -27,6 +27,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
+use Shopware\Storefront\Framework\Guard\DoubleSubmitGuard;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\AbstractCustomerGroupRegistrationPageLoader;
@@ -48,10 +49,15 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class RegisterController extends StorefrontController
 {
+    /**
+     * Scopes the double submit marker and lock of the registration submission.
+     */
+    public const DOUBLE_SUBMIT_SCOPE = 'storefront-registration';
+
     /**
      * @internal
      *
@@ -70,6 +76,7 @@ class RegisterController extends StorefrontController
         private readonly EntityRepository $domainRepository,
         private readonly HeaderPageletLoaderInterface $headerPageletLoader,
         private readonly FooterPageletLoaderInterface $footerPageletLoader,
+        private readonly DoubleSubmitGuard $doubleSubmitGuard,
     ) {
     }
 
@@ -90,7 +97,7 @@ class RegisterController extends StorefrontController
         }
 
         // Add '_httpCache' => true, to defaults in Route and remove _noStore
-        if (Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('PERFORMANCE_TWEAKS')) {
             $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
             $request->attributes->remove(PlatformRequest::ATTRIBUTE_NO_STORE);
         }
@@ -128,7 +135,7 @@ class RegisterController extends StorefrontController
         }
 
         // Add '_httpCache' => true, to defaults in Route and remove _noStore
-        if (Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('PERFORMANCE_TWEAKS')) {
             $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
             $request->attributes->remove(PlatformRequest::ATTRIBUTE_NO_STORE);
         }
@@ -186,6 +193,9 @@ class RegisterController extends StorefrontController
             [
                 'redirectTo' => $redirect,
                 'errorRoute' => $errorRoute,
+                'loginError' => $request->attributes->getBoolean('loginError'),
+                'errorSnippet' => $request->attributes->get('errorSnippet'),
+                'waitTime' => $request->attributes->get('waitTime'),
                 'page' => $page,
                 'header' => $header,
                 'footer' => $footer,
@@ -215,12 +225,16 @@ class RegisterController extends StorefrontController
             $data = $this->prepareAffiliateTracking($data, $request->getSession());
             $data->set('guest', !$data->getBoolean('createCustomerAccount'));
 
-            $this->registerRoute->register(
-                $data->toRequestDataBag(),
-                $context,
-                false,
-                $this->getAdditionalRegisterValidationDefinitions($data, $context)
-            );
+            $additionalValidationDefinitions = $this->getAdditionalRegisterValidationDefinitions($data, $context);
+
+            $this->doubleSubmitGuard->guard(self::DOUBLE_SUBMIT_SCOPE, $context, function () use ($data, $context, $additionalValidationDefinitions): void {
+                $this->registerRoute->register(
+                    $data->toRequestDataBag(),
+                    $context,
+                    false,
+                    $additionalValidationDefinitions
+                );
+            });
         } catch (ConstraintViolationException $formViolations) {
             if (!$request->request->has('errorRoute')) {
                 throw RoutingException::missingRequestParameter('errorRoute');

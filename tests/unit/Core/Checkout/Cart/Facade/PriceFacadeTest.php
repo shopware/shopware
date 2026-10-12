@@ -35,8 +35,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(PriceFacade::class)]
 #[Package('checkout')]
+#[CoversClass(PriceFacade::class)]
 class PriceFacadeTest extends TestCase
 {
     public function testLineItemsGetUpdatePriceDefinition(): void
@@ -44,7 +44,7 @@ class PriceFacadeTest extends TestCase
         $item = new LineItem('test', 'test', 'temp');
 
         $original = new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection());
-        $price = new PriceFacade($item, $original, $this->createMock(ScriptPriceStubs::class), $this->createMock(SalesChannelContext::class));
+        $price = new PriceFacade($item, $original, static::createStub(ScriptPriceStubs::class), static::createStub(SalesChannelContext::class));
 
         $price->change(new PriceCollection([
             new Price(Defaults::CURRENCY, 2, 2, false),
@@ -60,10 +60,10 @@ class PriceFacadeTest extends TestCase
     {
         $item = new Entity();
         $original = new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection());
-        $stubs = $this->createMock(ScriptPriceStubs::class);
+        $stubs = static::createStub(ScriptPriceStubs::class);
         $stubs->method('calculateQuantity')->willReturn(new CalculatedPrice(2, 2, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
-        $price = new PriceFacade($item, $original, $stubs, $this->createMock(SalesChannelContext::class));
+        $price = new PriceFacade($item, $original, $stubs, static::createStub(SalesChannelContext::class));
 
         $price->change(new PriceCollection([
             new Price(Defaults::CURRENCY, 2, 2, false),
@@ -211,7 +211,7 @@ class PriceFacadeTest extends TestCase
 
         $stubs = new ScriptPriceStubs(
             // not necessary for this test
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $quantityCalculator,
             new PercentagePriceCalculator(new CashRounding(), $quantityCalculator, new PercentageTaxRuleBuilder()),
         );
@@ -219,7 +219,7 @@ class PriceFacadeTest extends TestCase
         $original = new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(new TaxRuleCollection([new TaxRule(10)])));
 
         // mock context to simulate currency and tax states
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         // currency key will be provided, we want to test different currencies are taking into account
         $context->method('getCurrencyId')->willReturn($ids->get($currencyKey));

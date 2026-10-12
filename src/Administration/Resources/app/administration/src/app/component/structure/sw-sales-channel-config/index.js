@@ -11,16 +11,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'systemConfigApiService',
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['systemConfigApiService', 'repositoryFactory', 'feature'],
 
-    emits: [
-        'update:value',
-        'salesChannelChanged',
-    ],
+    emits: ['update:value', 'salesChannelChanged'],
 
     props: {
         domain: {

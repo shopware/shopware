@@ -7,10 +7,10 @@ use Composer\IO\NullIO;
 use Composer\Semver\Constraint\Constraint;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
@@ -32,7 +33,6 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\VersionMismatchException;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -44,7 +44,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use SwagTestPlugin\Migration\Migration1536761533TestMigration;
 use SwagTestPlugin\SwagTestPlugin;
 use Symfony\Component\Clock\NativeClock;
@@ -55,7 +57,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class PluginLifecycleServiceTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -88,11 +90,6 @@ class PluginLifecycleServiceTest extends TestCase
     private string $iso = 'sv-SE';
 
     private string $fixturePath;
-
-    /**
-     * @var array<array{string, callable}>
-     */
-    private array $registeredListeners = [];
 
     protected function setUp(): void
     {
@@ -145,14 +142,6 @@ class PluginLifecycleServiceTest extends TestCase
         if (isset($_SERVER['TEST_KEEP_MIGRATIONS'])) {
             unset($_SERVER['TEST_KEEP_MIGRATIONS']);
         }
-
-        $dispatcher = $this->container->get('event_dispatcher');
-
-        foreach ($this->registeredListeners as [$eventName, $listener]) {
-            $dispatcher->removeListener($eventName, $listener);
-        }
-
-        $this->registeredListeners = [];
     }
 
     public function testInstallPlugin(): void
@@ -325,6 +314,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
+            $this->container->get(CustomFieldSetPersister::class),
             new NativeClock()
         );
 
@@ -483,14 +473,14 @@ class PluginLifecycleServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTestTheme'));
 
-        static::assertCount(1, $themeRepo->search($criteria, $this->context)->getElements());
+        static::assertCount(1, $themeRepo->search($criteria, $this->context)->getEntities()->getElements());
 
         $this->pluginLifecycleService->uninstallPlugin($pluginInstalled, $this->context, $keepUserData);
 
         $pluginUninstalled = $this->getTestPlugin($this->context);
         static::assertNull($pluginUninstalled->getInstalledAt());
         static::assertFalse($pluginUninstalled->getActive());
-        static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getElements());
+        static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getEntities()->getElements());
     }
 
     /**
@@ -547,7 +537,7 @@ class PluginLifecycleServiceTest extends TestCase
             throw $expectedException;
         };
 
-        $this->addTestListener(PluginPostInstallEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(PluginPostInstallEvent::class, $listener);
 
         try {
             $this->pluginLifecycleService->installPlugin($plugin, $this->context);
@@ -865,6 +855,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
+            $this->container->get(CustomFieldSetPersister::class),
             new NativeClock()
         );
     }
@@ -910,14 +901,5 @@ class PluginLifecycleServiceTest extends TestCase
     private function getTestPlugin(Context $context): PluginEntity
     {
         return $this->pluginService->getPluginByName(self::PLUGIN_NAME, $context);
-    }
-
-    private function addTestListener(string $eventName, callable $listener): void
-    {
-        $dispatcher = $this->container->get('event_dispatcher');
-
-        $dispatcher->addListener($eventName, $listener);
-
-        $this->registeredListeners[] = [$eventName, $listener];
     }
 }

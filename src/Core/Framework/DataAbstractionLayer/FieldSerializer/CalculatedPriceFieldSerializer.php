@@ -30,13 +30,17 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
     ): \Generator {
         $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
-        unset($value['extensions']);
-        if (isset($value['listPrice'])) {
-            unset($value['listPrice']['extensions']);
-        }
+        // a non-array value must survive untouched, `parent::encode()` turns it into a write constraint violation
+        if (\is_array($value)) {
+            unset($value['extensions']);
 
-        if (isset($value['regulationPrice'])) {
-            unset($value['regulationPrice']['extensions']);
+            if (\is_array($value['listPrice'] ?? null)) {
+                unset($value['listPrice']['extensions']);
+            }
+
+            if (\is_array($value['regulationPrice'] ?? null)) {
+                unset($value['regulationPrice']['extensions']);
+            }
         }
 
         $data->setValue($value);
@@ -86,18 +90,15 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         }
 
         $listPrice = null;
-        if (isset($decoded['listPrice']) && ((float) ($decoded['listPrice']['price'] ?? 0)) > 0) {
-            $listPrice = ListPrice::createFromUnitPrice(
-                (float) $decoded['unitPrice'],
-                (float) $decoded['listPrice']['price']
-            );
+        $listPriceValue = (float) ($decoded['listPrice']['price'] ?? 0);
+        if ($listPriceValue > 0) {
+            $listPrice = ListPrice::createFromUnitPrice((float) $decoded['unitPrice'], $listPriceValue);
         }
 
         $regulationPrice = null;
-        if (isset($decoded['regulationPrice'])) {
-            $regulationPrice = new RegulationPrice(
-                (float) $decoded['regulationPrice']['price']
-            );
+        $regulationPriceValue = (float) ($decoded['regulationPrice']['price'] ?? 0);
+        if ($regulationPriceValue > 0) {
+            $regulationPrice = RegulationPrice::createFromUnitPrice((float) $decoded['unitPrice'], $regulationPriceValue);
         }
 
         return new CalculatedPrice(

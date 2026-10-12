@@ -5,10 +5,12 @@ namespace Shopware\Tests\DevOps\Core;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class DefaultsTest extends TestCase
 {
     private const CURRENT_AMOUNT_OF_DEFAULT_CONSTANTS = 11;

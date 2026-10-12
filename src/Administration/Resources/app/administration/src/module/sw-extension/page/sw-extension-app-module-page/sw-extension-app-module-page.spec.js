@@ -59,6 +59,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
     beforeEach(() => {
         Shopware.Store.get('session').currentLocale = 'en-GB';
         Shopware.Store.get('shopwareApps').apps = testApps;
+        Shopware.Store.get('shopwareApps').appsLoaded = true;
     });
 
     it('sets the correct heading and source with a regular module', async () => {
@@ -88,6 +89,30 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         });
 
         expect(wrapper.get('.smart-bar__header h2').text()).toBe('sw-extension-my-apps.general.mainMenuItemGeneral');
+    });
+
+    it('shows the error page for an unknown app once apps are loaded', async () => {
+        const wrapper = await createWrapper({
+            appName: 'notInStore',
+            moduleName: 'notAvailable',
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-extension-app-module-error-page').exists()).toBe(true);
+        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+    });
+
+    it('shows a loader instead of the error page while apps are still loading', async () => {
+        Shopware.Store.get('shopwareApps').appsLoaded = false;
+
+        const wrapper = await createWrapper({
+            appName: 'notInStore',
+            moduleName: 'notAvailable',
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-extension-app-module-error-page').exists()).toBe(false);
+        expect(wrapper.find('sw-loader-stub').exists()).toBe(true);
     });
 
     it('shows error page if module can not load', async () => {

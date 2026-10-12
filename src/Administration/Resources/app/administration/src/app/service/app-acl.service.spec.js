@@ -28,9 +28,7 @@ describe('app/service/app-acl.service.js', () => {
                 roles: {
                     all: {
                         privileges: [],
-                        dependencies: [
-                            'app.appExample',
-                        ],
+                        dependencies: ['app.appExample'],
                     },
                 },
             },

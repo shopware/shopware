@@ -96,7 +96,12 @@ class ShopIdProvider implements ResetInterface
         }
 
         $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $shopId->toArray(), null, false);
-        $this->eventDispatcher->dispatch(new ShopIdChangedEvent($shopId, $oldShopId));
+
+        // A regeneration can keep the id while refreshing fingerprints (APP_URL move, V1->V2 upgrade);
+        // that is not a change of shop identity, so the event only fires when the id actually differs.
+        if ($oldShopId?->id !== $shopId->id) {
+            $this->eventDispatcher->dispatch(new ShopIdChangedEvent($shopId, $oldShopId));
+        }
 
         $this->shopId = $shopId;
     }

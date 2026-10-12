@@ -4,7 +4,6 @@
       "mainMenuItemGeneral": "Stammdaten",
       "description": "Hier können Einstellungen an den Stammdaten vorgenommen werden.",
       "textHeadline": "Stammdaten",
-      "buttonSave": "Speichern",
       "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert."
     },
     "captcha": {

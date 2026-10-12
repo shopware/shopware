@@ -95,6 +95,7 @@
                         :allow-view="acl.can('number_ranges.viewer') || undefined"
                         @page-change="onPageChange"
                         @column-sort="onSortColumn"
+                        @inline-edit-save="onInlineEditSave"
                     >
                         {% block sw_number_range_list_grid_columns_name %}
                         <template #column-global="{ item }">
@@ -127,7 +128,7 @@
                                 :disabled="!acl.can('number_ranges.editor') || undefined"
                                 :router-link="{ name: 'sw.settings.number.range.detail', params: { id: item.id, edit: 'edit' }}"
                             >
-                                {{ $t('sw-settings-number-range.list.contextMenuEdit') }}
+                                {{ $t('global.default.edit') }}
                             </sw-context-menu-item>
                             {% endblock %}
 
@@ -138,7 +139,7 @@
                                 :disabled="!acl.can('number_ranges.deleter') || undefined"
                                 @click="onDelete(item.id)"
                             >
-                                {{ $t('sw-settings-number-range.list.contextMenuDelete') }}
+                                {{ $t('global.default.delete') }}
                             </sw-context-menu-item>
                             {% endblock %}
                         </template>
@@ -177,7 +178,7 @@
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
-                                        {{ $t('sw-settings-number-range.list.buttonDelete') }}
+                                        {{ $t('global.default.delete') }}
                                     </mt-button>
                                     {% endblock %}
                                 </template>
@@ -190,9 +191,29 @@
                     {% block sw_settings_number_ranges_set_list_empty_message %}
                     <mt-empty-state
                         v-if="!isLoading && !total"
+                        centered
                         :icon="$route.meta.$module.icon"
-                        :headline="$t('sw-settings-number-range.list.messageEmpty')"
-                    />
+                        :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-settings-number-range.list.messageEmpty')"
+                        :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSublineSimple') : ''"
+                    >
+                        <template
+                            v-if="!isValidTerm(term)"
+                            #button
+                        >
+                            <mt-button
+                                v-tooltip="{
+                                    message: $t('sw-privileges.tooltip.warning'),
+                                    disabled: acl.can('number_ranges.creator'),
+                                    showOnDisabledElements: true
+                                }"
+                                variant="primary"
+                                :disabled="!acl.can('number_ranges.creator')"
+                                @click="$router.push({ name: 'sw.settings.number.range.create' })"
+                            >
+                                {{ $t('sw-settings-number-range.list.buttonAddNumberRange') }}
+                            </mt-button>
+                        </template>
+                    </mt-empty-state>
                     {% endblock %}
                     {% endblock %}
                 </template>

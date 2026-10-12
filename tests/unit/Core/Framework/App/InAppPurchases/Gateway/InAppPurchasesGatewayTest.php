@@ -18,8 +18,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(InAppPurchasesGateway::class)]
 #[Package('checkout')]
+#[CoversClass(InAppPurchasesGateway::class)]
 class InAppPurchasesGatewayTest extends TestCase
 {
     public function testProcess(): void

@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Adapter;
 
-use AsyncAws\Core\AbstractApi;
 use AsyncAws\S3\S3Client;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\S3ClientFactory;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @internal
@@ -115,17 +115,23 @@ class S3ClientFactoryTest extends TestCase
 
     public function testCreateWithCustomHttpClient(): void
     {
-        $httpClient = $this->createMock(HttpClientInterface::class);
+        $requests = [];
+        $httpClient = new MockHttpClient(static function (string $method, string $url) use (&$requests): MockResponse {
+            $requests[] = $method . ' ' . $url;
+
+            return new MockResponse('', ['http_code' => 200]);
+        });
 
         $result = S3ClientFactory::create([
             'bucket' => 'test-bucket',
             'region' => 'eu-west-1',
+            'endpoint' => 'http://localhost:9000',
+            'use_path_style_endpoint' => true,
+            'credentials' => ['key' => 'access-key', 'secret' => 'secret-key'],
         ], $httpClient);
 
-        static::assertInstanceOf(S3Client::class, $result['client']);
+        $result['client']->headObject(['Bucket' => 'test-bucket', 'Key' => 'file.txt'])->resolve();
 
-        // Verify the custom HTTP client was injected via reflection
-        $property = new \ReflectionProperty(AbstractApi::class, 'httpClient');
-        static::assertSame($httpClient, $property->getValue($result['client']));
+        static::assertSame(['HEAD http://localhost:9000/test-bucket/file.txt'], $requests);
     }
 }

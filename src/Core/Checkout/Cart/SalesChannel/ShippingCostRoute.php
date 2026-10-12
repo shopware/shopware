@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingCost;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingCostCollection;
+use Shopware\Core\Checkout\Cart\Extension\ShippingCostRouteExtension;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -15,17 +16,19 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ShippingCostRoute extends AbstractShippingCostRoute
 {
     /**
@@ -36,7 +39,8 @@ class ShippingCostRoute extends AbstractShippingCostRoute
     public function __construct(
         private readonly EntityRepository $shippingMethodRepository,
         private readonly CartRuleLoader $cartRuleLoader,
-        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute
+        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -59,6 +63,18 @@ class ShippingCostRoute extends AbstractShippingCostRoute
         methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function shippingCostsCart(Cart $cart, SalesChannelContext $salesChannelContext, ?array $availableShippingMethodIds = null): ShippingCostRouteResponse
+    {
+        return $this->extensions->publish(
+            name: ShippingCostRouteExtension::NAME,
+            extension: new ShippingCostRouteExtension($cart, $salesChannelContext, $availableShippingMethodIds),
+            function: $this->_shippingCostsCart(...),
+        );
+    }
+
+    /**
+     * @param non-empty-list<string>|null $availableShippingMethodIds
+     */
+    private function _shippingCostsCart(Cart $cart, SalesChannelContext $salesChannelContext, ?array $availableShippingMethodIds): ShippingCostRouteResponse
     {
         return Profiler::trace('shipping-cost-calculator::cart', function () use ($cart, $salesChannelContext, $availableShippingMethodIds) {
             $shippingCosts = new ShippingCostCollection();
@@ -125,6 +141,8 @@ class ShippingCostRoute extends AbstractShippingCostRoute
     ): DeliveryCollection {
         $clonedContext = clone $salesChannelContext;
         $cart = clone $originalCart;
+        // the what-if calculation must never address the customer's persisted cart
+        $cart->setToken(Uuid::randomHex());
 
         // Setting data to avoid loading them twice - and separate
         $cart->getData()->set('shipping-method-' . $shippingMethod->getId(), $shippingMethod);

@@ -1,15 +1,13 @@
-@import "~scss/variables";
-
 .sw-description-list {
-    line-height: $line-height-sm;
-    font-size: $font-size-xs;
+    line-height: var(--font-line-height-s);
+    font-size: var(--font-size-xs);
     display: grid;
     place-content: start;
 
     dt,
     dd {
         padding: 15px;
-        border-bottom: 1px solid var(--color-border-primary-default);
+        border-bottom: 1px solid var(--color-border-secondary-default);
 
         &:last-of-type {
             border-bottom-color: transparent;
@@ -17,7 +15,7 @@
     }
 
     dt {
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
         color: var(--color-text-primary-default);
     }
 }

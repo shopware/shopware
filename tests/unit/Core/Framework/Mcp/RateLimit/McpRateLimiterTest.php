@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpRateLimiter::class)]
 class McpRateLimiterTest extends TestCase
 {
@@ -58,20 +60,29 @@ class McpRateLimiterTest extends TestCase
         $this->mcpRateLimiter->enforceForAdminApi($request);
     }
 
-    public function testEnforceForStoreApiUsesSalesChannelContextKey(): void
+    public function testEnforceForStoreApiEnforcesBothContextAndPerIpBuckets(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn('sales-channel-id');
         $salesChannelContext->method('getToken')->willReturn('context-token');
 
         $request = new Request();
+        $request->server->set('REMOTE_ADDR', '192.168.1.1');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
 
-        $this->rateLimiter->expects($this->once())
+        $calls = [];
+        $this->rateLimiter->expects($this->exactly(2))
             ->method('ensureAccepted')
-            ->with(RateLimiter::MCP_STORE_API, 'sales-channel-id-context-token');
+            ->willReturnCallback(static function (string $route, string $key) use (&$calls): void {
+                $calls[] = [$route, $key];
+            });
 
         $this->mcpRateLimiter->enforceForStoreApi($request);
+
+        static::assertSame([
+            [RateLimiter::MCP_STORE_API, 'sales-channel-id-context-token'],
+            [RateLimiter::MCP_STORE_API, '192.168.1.1'],
+        ], $calls);
     }
 
     /**
@@ -84,7 +95,7 @@ class McpRateLimiterTest extends TestCase
     }
 
     #[DataProvider('storeApiFallbackKeyProvider')]
-    public function testEnforceForStoreApiFallsBackWithoutContext(?string $remoteAddr, string $expectedKey): void
+    public function testEnforceForStoreApiWithoutContextOnlyEnforcesPerIpBucket(?string $remoteAddr, string $expectedKey): void
     {
         $request = new Request();
         if ($remoteAddr !== null) {
@@ -102,7 +113,7 @@ class McpRateLimiterTest extends TestCase
     {
         $rateLimitException = new RateLimitExceededException((new \DateTimeImmutable('+60 seconds'))->getTimestamp());
 
-        $this->rateLimiter->method('ensureAccepted')->willThrowException($rateLimitException);
+        $this->rateLimiter->expects($this->once())->method('ensureAccepted')->willThrowException($rateLimitException);
 
         $this->expectExceptionObject(McpException::throttled($rateLimitException->getWaitTime(), $rateLimitException));
 
@@ -113,7 +124,7 @@ class McpRateLimiterTest extends TestCase
     {
         $rateLimitException = new RateLimitExceededException((new \DateTimeImmutable('+60 seconds'))->getTimestamp());
 
-        $this->rateLimiter->method('ensureAccepted')->willThrowException($rateLimitException);
+        $this->rateLimiter->expects($this->once())->method('ensureAccepted')->willThrowException($rateLimitException);
 
         $this->expectExceptionObject(McpException::throttled($rateLimitException->getWaitTime(), $rateLimitException));
 

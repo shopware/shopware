@@ -17,6 +17,8 @@
             :class="{ 'is--placeholder': currentValue === null }"
             :disabled="disabled"
             :value="currentValue"
+            :aria-label="$attrs['aria-label']"
+            :aria-labelledby="$attrs['aria-labelledby']"
             @change="onChange"
             @focus="setFocusClass"
             @blur="removeFocusClass"

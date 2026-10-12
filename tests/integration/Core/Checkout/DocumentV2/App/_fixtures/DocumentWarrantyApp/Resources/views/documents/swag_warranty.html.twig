@@ -1,0 +1,14 @@
+{#
+    Template for the app-registered `swag_warranty` document type used by AppDocumentTypeGenerationTest.
+#}
+{% sw_extends '@Framework/documents/base.html.twig' %}
+
+{% block document_title_tag %}
+    Warranty {{ config.documentNumber }}
+{% endblock %}
+
+{% block document_headline %}
+    <h1 class="headline" tabindex="0">
+        Warranty {{ config.documentNumber }}
+    </h1>
+{% endblock %}

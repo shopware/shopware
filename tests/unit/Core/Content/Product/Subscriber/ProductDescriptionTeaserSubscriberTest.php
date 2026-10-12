@@ -9,11 +9,13 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserB
 use Shopware\Core\Content\Product\Subscriber\ProductDescriptionTeaserSubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductDescriptionTeaserSubscriber::class)]
 class ProductDescriptionTeaserSubscriberTest extends TestCase
 {
@@ -28,7 +30,7 @@ class ProductDescriptionTeaserSubscriberTest extends TestCase
     public function testStripsHtmlAndKeepsText(): void
     {
         $command = $this->createMock(WriteCommand::class);
-        $command->method('hasField')->with('description')->willReturn(true);
+        $command->expects($this->once())->method('hasField')->with('description')->willReturn(true);
         $command->method('getPayload')->willReturn([
             'description' => '<p style="color: red;">Hello <strong>World</strong></p>',
         ]);
@@ -42,7 +44,7 @@ class ProductDescriptionTeaserSubscriberTest extends TestCase
     public function testTruncatesToMaxLength(): void
     {
         $command = $this->createMock(WriteCommand::class);
-        $command->method('hasField')->with('description')->willReturn(true);
+        $command->expects($this->once())->method('hasField')->with('description')->willReturn(true);
         $command->method('getPayload')->willReturn([
             'description' => str_repeat('a', 1000),
         ]);
@@ -60,7 +62,7 @@ class ProductDescriptionTeaserSubscriberTest extends TestCase
     public function testKeepsNullDescription(): void
     {
         $command = $this->createMock(WriteCommand::class);
-        $command->method('hasField')->with('description')->willReturn(true);
+        $command->expects($this->once())->method('hasField')->with('description')->willReturn(true);
         $command->method('getPayload')->willReturn(['description' => null]);
         $command->expects($this->once())
             ->method('addPayload')
@@ -72,7 +74,7 @@ class ProductDescriptionTeaserSubscriberTest extends TestCase
     public function testIgnoresCommandsWithoutDescription(): void
     {
         $command = $this->createMock(WriteCommand::class);
-        $command->method('hasField')->with('description')->willReturn(false);
+        $command->expects($this->once())->method('hasField')->with('description')->willReturn(false);
         $command->expects($this->never())->method('addPayload');
 
         $this->dispatch($command);

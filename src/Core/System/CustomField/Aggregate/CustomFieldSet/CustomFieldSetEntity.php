@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationCollection;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class CustomFieldSetEntity extends Entity
 {
@@ -35,6 +38,8 @@ class CustomFieldSetEntity extends Entity
     protected ?ProductCollection $products = null;
 
     protected ?string $appId = null;
+
+    protected ?string $extensionName = null;
 
     protected ?AppEntity $app = null;
 
@@ -132,6 +137,16 @@ class CustomFieldSetEntity extends Entity
     public function setAppId(?string $appId): void
     {
         $this->appId = $appId;
+    }
+
+    public function getExtensionName(): ?string
+    {
+        return $this->extensionName;
+    }
+
+    public function setExtensionName(?string $extensionName): void
+    {
+        $this->extensionName = $extensionName;
     }
 
     public function getApp(): ?AppEntity

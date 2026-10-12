@@ -67,22 +67,10 @@ describe('src/app/component/modal/sw-confirm-modal', () => {
     }
 
     const typeExpectations = [
-        [
-            'confirm',
-            expectedValues('primary', 'confirm', 'cancel'),
-        ],
-        [
-            'yesno',
-            expectedValues('primary', 'yes', 'no'),
-        ],
-        [
-            'delete',
-            expectedValues('critical', 'delete', 'cancel'),
-        ],
-        [
-            'discard',
-            expectedValues('critical', 'discard', 'cancel'),
-        ],
+        ['confirm', expectedValues('primary', 'confirm', 'cancel')],
+        ['yesno', expectedValues('primary', 'yes', 'no')],
+        ['delete', expectedValues('critical', 'delete', 'cancel')],
+        ['discard', expectedValues('critical', 'discard', 'cancel')],
     ];
 
     it.each(typeExpectations)(

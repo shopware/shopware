@@ -8,6 +8,7 @@ use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\ValidateResponse;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\Generator;
@@ -15,6 +16,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
+#[Package('checkout')]
 class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 {
     public function testValidate(): void
@@ -40,9 +42,9 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
         static::assertSame(hash_hmac('sha256', $body, $appSecret), $request->getHeaderLine('shopware-shop-signature'));
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
         $content = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Extension;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -17,12 +18,13 @@ use Twig\TwigFunction;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ConfigExtension::class)]
 class ConfigExtensionTest extends TestCase
 {
     public function testGetFunctionsReturnsExpectedFunctions(): void
     {
-        $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
+        $extension = new ConfigExtension(static::createStub(TemplateConfigAccessor::class));
         $functions = $extension->getFunctions();
 
         static::assertCount(4, $functions);
@@ -114,7 +116,7 @@ class ConfigExtensionTest extends TestCase
 
     public function testThemeThrowsWhenContextKeyIsMissing(): void
     {
-        $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
+        $extension = new ConfigExtension(static::createStub(TemplateConfigAccessor::class));
 
         $this->expectExceptionObject(StorefrontFrameworkException::salesChannelContextObjectNotFound());
 
@@ -123,7 +125,7 @@ class ConfigExtensionTest extends TestCase
 
     public function testThemeThrowsWhenContextIsNotSalesChannelContext(): void
     {
-        $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
+        $extension = new ConfigExtension(static::createStub(TemplateConfigAccessor::class));
 
         $this->expectExceptionObject(StorefrontFrameworkException::salesChannelContextObjectNotFound());
 
@@ -177,7 +179,7 @@ class ConfigExtensionTest extends TestCase
 
     public function testThemeCssVarsThrowsWhenContextKeyIsMissing(): void
     {
-        $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
+        $extension = new ConfigExtension(static::createStub(TemplateConfigAccessor::class));
 
         $this->expectExceptionObject(StorefrontFrameworkException::salesChannelContextObjectNotFound());
 

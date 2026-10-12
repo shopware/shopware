@@ -11,7 +11,14 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('framework')]
 class ScriptException extends HttpException
 {
+    /**
+     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed with the deprecated core script response render method.
+     */
     public const HOOK_METHOD_OUTSIDE_SALES_CHANNEL_CONTEXT = 'FRAMEWORK__HOOK_METHOD_OUTSIDE_SALES_CHANNEL_CONTEXT';
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed with the deprecated core script response render method.
+     */
     public const HOOK_METHOD_STOREFRONT_BUNDLE_MISSING = 'FRAMEWORK__HOOK_METHOD_STOREFRONT_BUNDLE_MISSING';
     public const ACCESS_FROM_SCRIPT_EXECUTION_NOT_ALLOWED = 'FRAMEWORK__ACCESS_FROM_SCRIPT_EXECUTION_NOT_ALLOWED';
     public const FUNCTION_DOES_NOT_EXIST_IN_INTERFACE_HOOK = 'FRAMEWORK__FUNCTION_DOES_NOT_EXIST_IN_INTERFACE_HOOK';
@@ -27,6 +34,9 @@ class ScriptException extends HttpException
         return new ScriptExecutionFailedException($hook, $scriptName, $previous);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed with the deprecated core script response render method.
+     */
     public static function hookMethodOutsideOfSalesChannelContext(string $method): self
     {
         return new self(
@@ -37,6 +47,9 @@ class ScriptException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed with the deprecated core script response render method.
+     */
     public static function storefrontBundleMissingForHookMethod(string $method): self
     {
         return new self(

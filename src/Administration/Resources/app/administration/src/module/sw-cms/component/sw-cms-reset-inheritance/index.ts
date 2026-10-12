@@ -9,9 +9,7 @@ const { set, merge } = Shopware.Utils.object;
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-    mixins: [
-        Shopware.Mixin.getByName('cms-state'),
-    ],
+    mixins: [Shopware.Mixin.getByName('cms-state')],
     data() {
         return {
             showModal: false,

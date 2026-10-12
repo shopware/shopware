@@ -1,11 +1,3 @@
-@import "~scss/variables";
-
-$sw-order-state-card-neutral: var(--color-icon-secondary-default);
-$sw-order-state-card-progress: var(--color-icon-brand-default);
-$sw-order-state-card-danger: var(--color-icon-critical-default);
-$sw-order-state-card-success: var(--color-icon-positive-default);
-$sw-order-state-card-warning: var(--color-icon-attention-default);
-
 .sw-order-state-history-card-entry {
     .sw-order-state-card__history-entry {
         display: block;
@@ -13,8 +5,8 @@ $sw-order-state-card-warning: var(--color-icon-attention-default);
 
         .sw-order-state-card__date {
             float: right;
-            line-height: $line-height-md;
-            font-size: $font-size-xxs;
+            line-height: var(--font-line-height-m);
+            font-size: var(--font-size-2xs);
         }
 
         .sw-order-state-card__text {
@@ -44,23 +36,23 @@ $sw-order-state-card-warning: var(--color-icon-attention-default);
         }
 
         .sw-order-state__neutral-icon {
-            color: $sw-order-state-card-neutral;
+            color: var(--color-icon-secondary-default);
         }
 
         .sw-order-state__progress-icon {
-            color: $sw-order-state-card-progress;
+            color: var(--color-icon-brand-default);
         }
 
         .sw-order-state__warning-icon {
-            color: $sw-order-state-card-warning;
+            color: var(--color-icon-attention-default);
         }
 
         .sw-order-state__danger-icon {
-            color: $sw-order-state-card-danger;
+            color: var(--color-icon-critical-default);
         }
 
         .sw-order-state__success-icon {
-            color: $sw-order-state-card-success;
+            color: var(--color-icon-positive-default);
         }
 
         .icon--regular-chevron-down-xxs {

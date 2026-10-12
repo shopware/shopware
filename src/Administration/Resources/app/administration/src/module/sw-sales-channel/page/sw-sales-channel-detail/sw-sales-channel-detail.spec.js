@@ -8,12 +8,22 @@ import { mount } from '@vue/test-utils';
 
 const mockSave = jest.fn(() => Promise.resolve());
 const mockGet = jest.fn();
+const mockCreateRepository = jest.fn();
 const mockGetSystemConfig = jest.fn(() => Promise.resolve([]));
 const mockGetSystemConfigValues = jest.fn(() => Promise.resolve({}));
+const mockGetCustomFieldSets = jest.fn(() => Promise.resolve([]));
 
 const defaultSalesChannelResponse = {
     id: '1a2b3c4d',
     typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
+    name: 'Storefront',
+    customerGroupId: 'customer-group-id',
+    currencyId: 'currency-id',
+    languageId: 'language-id',
+    paymentMethodId: 'payment-method-id',
+    shippingMethodId: 'shipping-method-id',
+    countryId: 'country-id',
+    navigationCategoryId: 'navigation-category-id',
     analyticsId: '1a2b3c',
     analytics: {
         id: '1a2b3c',
@@ -25,13 +35,29 @@ const defaultSalesChannelResponse = {
 };
 
 async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
+    const hasOptionsShape =
+        typeof optionsOrLegacyArg === 'object' &&
+        optionsOrLegacyArg !== null &&
+        !Array.isArray(optionsOrLegacyArg) &&
+        [
+            'routeParams',
+            'salesChannelResponse',
+            'routeName',
+            'routerPush',
+        ].some((key) => Object.hasOwn(optionsOrLegacyArg, key));
+
     const normalizedOptions = Array.isArray(optionsOrLegacyArg)
         ? { routeParams: { id: '1a2b3c4d' } }
-        : optionsOrLegacyArg.routeParams || optionsOrLegacyArg.salesChannelResponse
+        : hasOptionsShape
           ? optionsOrLegacyArg
           : { routeParams: optionsOrLegacyArg };
 
-    const { routeParams = { id: '1a2b3c4d' }, salesChannelResponse = {} } = normalizedOptions;
+    const {
+        routeParams = { id: '1a2b3c4d' },
+        salesChannelResponse = {},
+        routeName = '',
+        routerPush = jest.fn(),
+    } = normalizedOptions;
 
     mockGet.mockResolvedValue({
         ...defaultSalesChannelResponse,
@@ -64,42 +90,58 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                 },
                 'sw-language-info': true,
                 'sw-tabs': {
+                    name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot /></div>',
+                    props: ['positionIdentifier'],
                 },
                 'sw-tabs-item': {
+                    name: 'sw-tabs-item',
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: [
-                        'route',
-                        'title',
-                        'disabled',
-                    ],
+                    props: ['route', 'title', 'disabled'],
+                },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    template: '<div class="mt-tabs"></div>',
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
                 },
                 'router-view': true,
                 'sw-skeleton': true,
                 'mt-banner': {
                     template: '<div class="mt-banner"><slot /></div>',
-                    props: [
-                        'variant',
-                        'title',
-                    ],
+                    props: ['variant', 'title'],
                 },
                 'mt-button': {
                     template: '<button class="mt-button"><slot /></button>',
-                    props: [
-                        'variant',
-                        'size',
-                    ],
+                    props: ['variant', 'size'],
                 },
             },
             provide: {
                 repositoryFactory: {
-                    create: () => ({
-                        create: () => ({}),
-                        get: mockGet,
-                        search: () => Promise.resolve([]),
-                        delete: () => Promise.resolve(),
-                        save: mockSave,
-                    }),
+                    create: (...args) => {
+                        mockCreateRepository(...args);
+
+                        return {
+                            create: () => ({}),
+                            get: mockGet,
+                            search: () => Promise.resolve([]),
+                            delete: () => Promise.resolve(),
+                            save: mockSave,
+                        };
+                    },
                 },
                 exportTemplateService: {
                     getProductExportTemplateRegistry: () => ({}),
@@ -109,15 +151,36 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                     getValues: mockGetSystemConfigValues,
                     batchSave: () => Promise.resolve(),
                 },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: mockGetCustomFieldSets,
+                },
             },
             mocks: {
                 $route: {
                     params: routeParams,
-                    name: '',
+                    name: routeName,
+                },
+                $router: {
+                    push: routerPush,
                 },
             },
         },
     });
+}
+
+/**
+ * Tab labels of whichever tab implementation rendered. The tests below used to read them off
+ * `wrapper.text()`, which only worked while a local feature mock kept the component on the legacy
+ * `sw-tabs` branch — the `mt-tabs` stub renders no labels at all.
+ */
+function tabLabels(wrapper) {
+    const meteorTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+    if (meteorTabs.exists()) {
+        return meteorTabs.props('items').map((item) => item.label);
+    }
+
+    return wrapper.findAll('.sw-tabs-item').map((tab) => tab.text());
 }
 
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
@@ -125,8 +188,17 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         global.activeAclRoles = [];
         mockSave.mockClear();
         mockGet.mockClear();
+        mockCreateRepository.mockClear();
         mockGetSystemConfig.mockClear();
         mockGetSystemConfigValues.mockClear();
+        mockGetCustomFieldSets.mockClear();
+        Shopware.Store.get('error').resetApiErrors();
+    });
+
+    it('loads custom field sets through the shared provider', async () => {
+        await createWrapper();
+
+        expect(mockGetCustomFieldSets).toHaveBeenCalledWith('sales_channel', false, 100);
     });
 
     it('should disable the save button when privilege does not exist', async () => {
@@ -154,9 +226,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     });
 
     it('should remove analytics association on save when analyticsId is empty', async () => {
-        const wrapper = await createWrapper([
-            'sales_channel.editor',
-        ]);
+        const wrapper = await createWrapper(['sales_channel.editor']);
 
         await wrapper.setData({
             isLoading: false,
@@ -187,26 +257,11 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     });
 
     it.each([
-        [
-            'paymentMethods',
-            'distinguishableName',
-        ],
-        [
-            'shippingMethods',
-            'name',
-        ],
-        [
-            'countries',
-            'name',
-        ],
-        [
-            'currencies',
-            'name',
-        ],
-        [
-            'languages',
-            'name',
-        ],
+        ['paymentMethods', 'distinguishableName'],
+        ['shippingMethods', 'name'],
+        ['countries', 'name'],
+        ['currencies', 'name'],
+        ['languages', 'name'],
     ])('should load %s association with alphabetical sort', async (associationName, sortField) => {
         await createWrapper();
 
@@ -222,8 +277,20 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         await createWrapper();
 
         const criteria = mockGet.mock.calls[0][2];
-        expect(criteria.parse().associations.languages.filter).toEqual([
-            { type: 'equals', field: 'active', value: true },
+        expect(criteria.parse().associations.languages.filter).toEqual([{ type: 'equals', field: 'active', value: true }]);
+    });
+
+    it('should allow storefront and headless sales channels as product export source', async () => {
+        const wrapper = await createWrapper();
+
+        const filters = wrapper.vm.storefrontSalesChannelCriteria.filters;
+
+        expect(filters).toEqual([
+            {
+                type: 'equalsAny',
+                field: 'typeId',
+                value: [Shopware.Defaults.storefrontSalesChannelTypeId, Shopware.Defaults.apiSalesChannelTypeId].join('|'),
+            },
         ]);
     });
 
@@ -287,8 +354,8 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         await flushPromises();
 
-        expect(wrapper.text()).toContain('sw-sales-channel.detail.productExport.tabInsights');
-        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.tabAnalytics');
+        expect(tabLabels(wrapper).join(' ')).toContain('sw-sales-channel.detail.productExport.tabInsights');
+        expect(tabLabels(wrapper).join(' ')).not.toContain('sw-sales-channel.detail.tabAnalytics');
     });
 
     it('shows storefront analytics tab for storefront channels and hides insights', async () => {
@@ -303,12 +370,12 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         await flushPromises();
 
-        expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAnalytics');
-        expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
-        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+        const labels = tabLabels(wrapper);
 
-        const tabs = wrapper.findAll('.sw-tabs-item');
-        expect(tabs[tabs.length - 1].text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
+        expect(labels.join(' ')).toContain('sw-sales-channel.detail.tabAnalytics');
+        expect(labels.join(' ')).toContain('sw-sales-channel.detail.tabAgenticFiles');
+        expect(labels.join(' ')).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+        expect(labels[labels.length - 1]).toContain('sw-sales-channel.detail.tabAgenticFiles');
     });
 
     it('shows agentic files tab for headless sales channels', async () => {
@@ -323,7 +390,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         await flushPromises();
 
-        expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
+        expect(tabLabels(wrapper).join(' ')).toContain('sw-sales-channel.detail.tabAgenticFiles');
     });
 
     it('hides the insights tab for product comparison channels', async () => {
@@ -335,8 +402,8 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         await flushPromises();
 
-        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
-        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.tabAgenticFiles');
+        expect(tabLabels(wrapper).join(' ')).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+        expect(tabLabels(wrapper).join(' ')).not.toContain('sw-sales-channel.detail.tabAgenticFiles');
     });
 
     it('returns true for isProductExportChannel on product comparison and agentic channels', async () => {
@@ -375,13 +442,20 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.isProductExportChannel).toBe(false);
     });
 
+    it('should create the sales channel repository with sync enabled', async () => {
+        await createWrapper();
+        await flushPromises();
+
+        expect(mockCreateRepository).toHaveBeenCalledWith('sales_channel', null, { useSync: true });
+    });
+
     it('should save without reloading entity data when saveOnLanguageChange is called', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
         mockGet.mockClear();
 
-        await wrapper.vm.saveOnLanguageChange();
+        await expect(wrapper.vm.saveOnLanguageChange()).resolves.toBe(true);
         await flushPromises();
 
         expect(mockSave).toHaveBeenCalledTimes(1);
@@ -401,7 +475,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(mockGet).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle errors in saveOnLanguageChange without reloading entity data', async () => {
+    it('should reject saveOnLanguageChange without reloading entity data when saving fails', async () => {
         mockSave.mockRejectedValueOnce(new Error('Save failed'));
 
         const wrapper = await createWrapper();
@@ -409,12 +483,31 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         mockGet.mockClear();
 
-        await wrapper.vm.saveOnLanguageChange();
+        await expect(wrapper.vm.saveOnLanguageChange()).rejects.toBeUndefined();
         await flushPromises();
 
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
         expect(wrapper.vm.isLoading).toBe(false);
         expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should reject saveOnLanguageChange without saving when a required sales channel field is missing', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockSave.mockClear();
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.salesChannel.languageId = null;
+
+        await expect(wrapper.vm.saveOnLanguageChange()).rejects.toBeUndefined();
+        await flushPromises();
+
+        expect(mockSave).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+        });
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
+        expect(wrapper.vm.isLoading).toBe(false);
     });
 
     it('should handle errors in onSave without reloading entity data', async () => {
@@ -431,6 +524,68 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
         expect(wrapper.vm.isLoading).toBe(false);
         expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should show validation errors without saving when a required sales channel field is missing', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockSave.mockClear();
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.salesChannel.languageId = null;
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(mockSave).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+        });
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should keep backend validation errors when product comparison local validation fails', async () => {
+        const wrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.productComparisonTypeId,
+            },
+        });
+        await flushPromises();
+
+        const errorStore = Shopware.Store.get('error');
+        const resetApiErrorsSpy = jest.spyOn(errorStore, 'resetApiErrors');
+
+        errorStore.addApiError({
+            expression: 'product_export.product-export-id.fileName',
+            error: new Shopware.Classes.ShopwareError({
+                code: 'PRODUCT_EXPORT_FILE_NAME_REQUIRED',
+                detail: 'File name is required',
+            }),
+        });
+
+        wrapper.vm.salesChannel.name = '';
+
+        wrapper.vm.validateRequiredSalesChannelFields();
+
+        expect(resetApiErrorsSpy).not.toHaveBeenCalled();
+        expect(errorStore.api.product_export['product-export-id'].fileName).toBeDefined();
+        expect(errorStore.api.sales_channel['1a2b3c4d'].name).toBeDefined();
+    });
+
+    it('should clear required field errors when missing values are filled', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.salesChannel.languageId = null;
+        wrapper.vm.validateRequiredSalesChannelFields();
+
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
+
+        wrapper.vm.salesChannel.languageId = 'language-id';
+        await wrapper.vm.$nextTick();
+
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeUndefined();
     });
 
     it('should detect current template on load when product export bodyTemplate matches', async () => {

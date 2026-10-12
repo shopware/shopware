@@ -9,14 +9,9 @@ import './sw-first-run-wizard-welcome.scss';
 export default {
     template,
 
-    emits: [
-        'frw-set-title',
-        'buttons-update',
-    ],
+    emits: ['frw-set-title', 'buttons-update'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     computed: {
         assetFilter() {

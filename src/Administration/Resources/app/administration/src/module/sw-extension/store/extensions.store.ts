@@ -19,7 +19,7 @@ export interface ShopwareExtensionsState {
         filter: $TSFixMe;
     };
     extensionListing: Extension[];
-    categoriesLanguageId: string | null;
+    categoriesLanguageId: EntityKey<'language'> | null;
     myExtensions: {
         loading: boolean;
         data: Extension[];

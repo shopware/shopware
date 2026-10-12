@@ -1,8 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Storefront Cypress" type="ComposerRunConfigurationType" factoryName="Composer Script">
-    <option name="commandLineParameters" value="" />
-    <option name="pathToComposerJson" value="$PROJECT_DIR$/composer.json" />
-    <option name="script" value="e2e:storefront:open" />
-    <method v="2" />
-  </configuration>
-</component>

@@ -21,8 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class MediaUploadController extends AbstractController
 {
     /**
@@ -37,17 +37,17 @@ class MediaUploadController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/upload', name: 'api.action.media.upload', methods: ['POST'])]
+    #[Route(path: '/api/_action/media/{mediaId}/upload', name: 'api.action.media.upload', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:update']], methods: ['POST'])]
     public function upload(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
+        $fileName = $request->query->getString('fileName', $mediaId);
+        $destination = PathHelper::stripControlAndFormatChars($fileName);
+
         $tempFile = tempnam(sys_get_temp_dir(), '');
 
         if (!$tempFile) {
             throw MediaException::cannotCreateTempFile();
         }
-
-        $fileName = $request->query->getString('fileName', $mediaId);
-        $destination = PathHelper::stripControlAndFormatChars($fileName);
 
         try {
             $uploadedFile = $this->mediaService->fetchFile($request, $tempFile);
@@ -66,7 +66,7 @@ class MediaUploadController extends AbstractController
         return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/rename', name: 'api.action.media.rename', methods: ['POST'])]
+    #[Route(path: '/api/_action/media/{mediaId}/rename', name: 'api.action.media.rename', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:update']], methods: ['POST'])]
     public function renameMediaFile(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
         $fileName = $request->request->getString('fileName');
@@ -81,7 +81,7 @@ class MediaUploadController extends AbstractController
         return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);
     }
 
-    #[Route(path: '/api/_action/media/provide-name', name: 'api.action.media.provide-name', methods: ['GET'])]
+    #[Route(path: '/api/_action/media/provide-name', name: 'api.action.media.provide-name', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:read']], methods: ['GET'])]
     public function provideName(Request $request, Context $context): JsonResponse
     {
         $fileName = $request->query->getString('fileName');

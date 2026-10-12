@@ -7,16 +7,16 @@ $sw-avatar-size-default: 40px;
     width: $sw-avatar-size-default;
     height: $sw-avatar-size-default;
     border-radius: 100%;
-    background: $color-gray-200 no-repeat center center;
+    background: var(--color-background-secondary-default) no-repeat center center;
     background-size: cover;
     text-align: center;
-    font-weight: $font-weight-semi-bold;
+    font-weight: var(--font-weight-semibold);
     text-transform: uppercase;
-    color: $color-white;
+    color: var(--color-static-white);
     user-select: none;
 
     .mt-icon {
-        color: $color-shopware-brand-500;
+        color: var(--color-icon-brand-default);
     }
 
     &.sw-avatar__square {

@@ -9,6 +9,7 @@ use Shopware\Core\DevOps\Docs\Script\TriggerReferenceGeneratorCommand;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Exception\IOException;
@@ -17,6 +18,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TriggerReferenceGeneratorCommand::class)]
 class TriggerReferenceGeneratorCommandTest extends TestCase
 {
@@ -33,7 +35,7 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
 
     public function testExecuteFailsWhenDescriptionsFileDoesNotExist(): void
     {
-        $this->filesystem->method('readFile')->willThrowException(new IOException('File not found.'));
+        $this->filesystem->expects($this->once())->method('readFile')->willThrowException(new IOException('File not found.'));
         $this->collector->expects($this->once())->method('collect')->willReturn(new BusinessEventCollectorResponse());
 
         $command = new TriggerReferenceGeneratorCommand($this->collector, $this->filesystem);
@@ -46,7 +48,7 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
 
     public function testExecuteFailsWhenDescriptionsFileContainsInvalidJson(): void
     {
-        $this->filesystem->method('readFile')->willReturn('"just a string"');
+        $this->filesystem->expects($this->once())->method('readFile')->willReturn('"just a string"');
 
         $this->collector->expects($this->once())->method('collect')->willReturn(new BusinessEventCollectorResponse());
 
@@ -59,7 +61,7 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
 
     public function testExecuteSucceedsAndWritesMarkdownFile(): void
     {
-        $this->filesystem->method('readFile')->willReturn(json_encode([
+        $this->filesystem->expects($this->once())->method('readFile')->willReturn(json_encode([
             'test.event.one' => 'Triggers when an order enters status "Open"',
             'test.event.two' => 'Triggers when an order enters status "Cancelled"',
         ], \JSON_THROW_ON_ERROR));
@@ -78,7 +80,7 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
             aware: []
         ));
 
-        $this->collector->method('collect')->willReturn($response);
+        $this->collector->expects($this->once())->method('collect')->willReturn($response);
 
         $writtenContent = null;
         $this->filesystem->expects($this->once())
@@ -103,7 +105,7 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
 
     public function testExecuteUsesEventClassAsDescriptionFallback(): void
     {
-        $this->filesystem->method('readFile')->willReturn('{}');
+        $this->filesystem->expects($this->once())->method('readFile')->willReturn('{}');
 
         $response = new BusinessEventCollectorResponse();
         $response->set('no.description.event', new BusinessEventDefinition(
@@ -113,7 +115,7 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
             aware: []
         ));
 
-        $this->collector->method('collect')->willReturn($response);
+        $this->collector->expects($this->once())->method('collect')->willReturn($response);
 
         $writtenContent = null;
         $this->filesystem->method('dumpFile')
@@ -132,13 +134,13 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
 
     public function testExecuteSortsRowsByEventName(): void
     {
-        $this->filesystem->method('readFile')->willReturn('{}');
+        $this->filesystem->expects($this->once())->method('readFile')->willReturn('{}');
 
         $response = new BusinessEventCollectorResponse();
         $response->set('z.event', new BusinessEventDefinition(name: 'z.event', class: \stdClass::class, data: [], aware: []));
         $response->set('a.event', new BusinessEventDefinition(name: 'a.event', class: \stdClass::class, data: [], aware: []));
 
-        $this->collector->method('collect')->willReturn($response);
+        $this->collector->expects($this->once())->method('collect')->willReturn($response);
 
         $writtenContent = null;
         $this->filesystem->method('dumpFile')

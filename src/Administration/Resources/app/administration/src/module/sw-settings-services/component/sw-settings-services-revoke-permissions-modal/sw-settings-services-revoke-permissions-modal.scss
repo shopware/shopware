@@ -10,6 +10,37 @@
     }
 }
 
+.sw-settings-services-revoke-permissions-modal__account-requirement-message {
+    display: flex;
+    gap: var(--scale-size-8);
+    align-items: flex-start;
+    margin-bottom: var(--scale-size-8);
+
+    p {
+        margin-bottom: 0;
+    }
+}
+
+.sw-settings-services-revoke-permissions-modal__account-requirement-icon {
+    flex: 0 0 auto;
+    margin-top: var(--scale-size-2);
+}
+
+.sw-settings-services-revoke-permissions-modal__services-list {
+    margin: 0;
+    list-style: none;
+
+    li {
+        display: flex;
+        gap: var(--scale-size-4);
+    }
+
+    li::before {
+        content: "-";
+        flex: 0 0 auto;
+    }
+}
+
 .sw-settings-services-revoke-permissions-modal__footer {
     text-align: end;
 }

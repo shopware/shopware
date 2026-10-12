@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
@@ -19,6 +20,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 class RefreshIndexCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -79,7 +81,7 @@ class RefreshIndexCommandTest extends TestCase
         $seoUrl = $repo->search(
             (new Criteria())->addFilter(new EqualsFilter('pathInfo', \sprintf('/navigation/%s', $categoryA))),
             $context
-        )->first();
+        )->getEntities()->first();
 
         static::assertNotNull($seoUrl);
 
@@ -92,7 +94,7 @@ class RefreshIndexCommandTest extends TestCase
         $seoUrl = $repo->search(
             (new Criteria())->addFilter(new EqualsFilter('pathInfo', \sprintf('/navigation/%s', $categoryB))),
             $context
-        )->first();
+        )->getEntities()->first();
 
         static::assertNull($seoUrl);
     }

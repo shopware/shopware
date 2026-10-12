@@ -8,12 +8,14 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MigrationStep::class)]
 class MigrationStepTest extends TestCase
 {

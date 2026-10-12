@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Subscriber\ActiveRulesDataCollectorSubscriber;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ActiveRulesDataCollectorSubscriber::class)]
 class ActiveRulesDataCollectorSubscriberTest extends TestCase
 {
@@ -38,7 +40,7 @@ class ActiveRulesDataCollectorSubscriberTest extends TestCase
     {
         $ruleId = Uuid::randomHex();
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $context = new Context(new SystemSource(), [$ruleId]);
         $salesChannelContext->method('getContext')->willReturn($context);
         $event = new SalesChannelContextResolvedEvent($salesChannelContext, Uuid::randomHex());
@@ -48,7 +50,7 @@ class ActiveRulesDataCollectorSubscriberTest extends TestCase
         $activeRule->setName('Demo rule');
         $activeRule->setPriority(100);
 
-        $ruleRepository = $this->createMock(EntityRepository::class);
+        $ruleRepository = static::createStub(EntityRepository::class);
         $ruleRepository
             ->method('search')
             ->willReturn(new EntitySearchResult(
@@ -81,7 +83,7 @@ class ActiveRulesDataCollectorSubscriberTest extends TestCase
 
     public function testEmptyRuleIds(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $context = new Context(new SystemSource(), []);
         $salesChannelContext->method('getContext')->willReturn($context);
         $event = new SalesChannelContextResolvedEvent($salesChannelContext, Uuid::randomHex());

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1736866790AddDocumentA11yMediaFileIdForDocumentTable;
@@ -12,6 +13,7 @@ use Shopware\Core\Migration\V6_6\Migration1736866790AddDocumentA11yMediaFileIdFo
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(Migration1736866790AddDocumentA11yMediaFileIdForDocumentTable::class)]
 class Migration1736866790AddDocumentA11yMediaFileIdForDocumentTableTest extends TestCase
 {

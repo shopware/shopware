@@ -49,7 +49,7 @@ class StoreControllerTest extends TestCase
     public function testCheckLoginWithoutStoreToken(): void
     {
         /** @var UserEntity $adminUser */
-        $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->first();
+        $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->getEntities()->first();
 
         $storeController = $this->getStoreController();
         $context = new Context(new AdminApiSource($adminUser->getId()));
@@ -69,7 +69,7 @@ class StoreControllerTest extends TestCase
         ]);
 
         /** @var UserEntity $adminUser */
-        $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->first();
+        $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->getEntities()->first();
 
         $context = new Context(new AdminApiSource($adminUser->getId()));
 
@@ -93,11 +93,11 @@ class StoreControllerTest extends TestCase
         ]);
 
         /** @var UserEntity $adminUser */
-        $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->first();
+        $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->getEntities()->first();
 
         $context = new Context(new AdminApiSource($adminUser->getId()));
 
-        $clientExceptionMock = $this->createMock(ClientException::class);
+        $clientExceptionMock = static::createStub(ClientException::class);
         $clientExceptionMock->method('getResponse')
             ->willReturn(new Response());
 
@@ -120,7 +120,7 @@ class StoreControllerTest extends TestCase
         ]);
 
         /** @var UserEntity $adminUser */
-        $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->first();
+        $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->getEntities()->first();
 
         $context = new Context(new AdminApiSource($adminUser->getId()));
 
@@ -137,7 +137,7 @@ class StoreControllerTest extends TestCase
     public function testCheckLoginWithStoreToken(): void
     {
         /** @var UserEntity $adminUser */
-        $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->first();
+        $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->getEntities()->first();
 
         $this->userRepository->update([[
             'id' => $adminUser->getId(),
@@ -160,7 +160,7 @@ class StoreControllerTest extends TestCase
     public function testCheckLoginWithMultipleStoreTokens(): void
     {
         /** @var UserEntity $adminUser */
-        $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->first();
+        $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->getEntities()->first();
 
         $this->userRepository->update([[
             'id' => $adminUser->getId(),

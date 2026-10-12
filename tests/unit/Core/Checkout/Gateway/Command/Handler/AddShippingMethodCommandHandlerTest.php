@@ -26,8 +26,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(AddShippingMethodCommandHandler::class)]
 #[Package('checkout')]
+#[CoversClass(AddShippingMethodCommandHandler::class)]
 class AddShippingMethodCommandHandlerTest extends TestCase
 {
     public function testSupportsCommands(): void
@@ -90,7 +90,7 @@ class AddShippingMethodCommandHandlerTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $handler = new AddShippingMethodCommandHandler($repo, $this->createMock(ExceptionLogger::class));
+        $handler = new AddShippingMethodCommandHandler($repo, static::createStub(ExceptionLogger::class));
         $handler->handle($command, $response, $context);
 
         static::assertSame($shippingMethod, $response->getAvailableShippingMethods()->first());

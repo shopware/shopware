@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class NumberRangeStateDefinition extends EntityDefinition
 {

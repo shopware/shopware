@@ -5,8 +5,6 @@ General styling for cms sections
 */
 
 .cms-section {
-    overflow: hidden;
-
     &.bg-image {
         background-repeat: no-repeat;
         background-position: 50%;
@@ -17,6 +15,10 @@ General styling for cms sections
         // Mixin make-container() only provides the padding but no max-widths. Keep alias .boxed.
         // stylelint-disable-next-line scss/at-extend-no-missing-placeholder
         @extend .container;
+    }
+
+    &:has(.full-width) {
+        overflow-x: clip;
     }
 
     .full-width {

@@ -13,10 +13,7 @@ const { get, format } = Utils;
 export default {
     template,
 
-    emits: [
-        'on-save-item',
-        'on-remove-items',
-    ],
+    emits: ['on-save-item', 'on-remove-items'],
 
     props: {
         salesChannelId: {
@@ -84,6 +81,10 @@ export default {
 
                 return keyWords.every((key) => item.label.toLowerCase().includes(key.toLowerCase()));
             });
+        },
+
+        lineItemIds() {
+            return this.cart.lineItems.map((item) => item.id);
         },
 
         lineItemTypes() {
@@ -181,6 +182,14 @@ export default {
         },
     },
 
+    watch: {
+        lineItemIds(lineItemIds) {
+            Object.values(this.selectedItems)
+                .filter((item) => !lineItemIds.includes(item.id))
+                .forEach((item) => this.$refs.dataGrid?.selectItem(false, item));
+        },
+    },
+
     methods: {
         onInlineEditSave(item) {
             if (item.label === '') {
@@ -192,8 +201,9 @@ export default {
 
         onInlineEditCancel(item) {
             if (item._isNew) {
-                this.initLineItem(item);
-                delete item.identifier;
+                Store.get('swOrder').removeEmptyLineItem(item.id);
+
+                return;
             }
 
             // Reset quantity
@@ -235,24 +245,30 @@ export default {
         onInsertExistingItem() {
             const item = this.createNewOrderLineItem();
             item.type = this.lineItemTypes.PRODUCT;
-            this.cartLineItems.unshift(item);
-            Store.get('swOrder').setCartLineItems(this.cartLineItems);
+            this.insertLineItem(item);
         },
 
         onInsertBlankItem() {
             const item = this.createNewOrderLineItem();
             item.description = 'custom line item';
             item.type = this.lineItemTypes.CUSTOM;
-            this.cartLineItems.unshift(item);
-            Store.get('swOrder').setCartLineItems(this.cartLineItems);
+            this.insertLineItem(item);
         },
 
         onInsertCreditItem() {
             const item = this.createNewOrderLineItem();
             item.description = 'credit line item';
             item.type = this.lineItemTypes.CREDIT;
+            this.insertLineItem(item);
+        },
+
+        insertLineItem(item) {
             this.cartLineItems.unshift(item);
             Store.get('swOrder').setCartLineItems(this.cartLineItems);
+
+            this.$nextTick(() => {
+                this.$refs.dataGrid?.onDbClickCell(item);
+            });
         },
 
         onSelectionChanged(selection) {

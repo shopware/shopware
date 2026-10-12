@@ -12,13 +12,13 @@ use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
@@ -33,16 +33,17 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[AsCommand(
     name: 'framework:demodata',
     description: 'Generates demo data',
 )]
-#[Package('fundamentals@after-sales')]
 class DemodataCommand extends Command
 {
     /**
@@ -86,7 +87,7 @@ class DemodataCommand extends Command
             return self::INVALID;
         }
 
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $io->title('Demodata Generator');
 
         if (!$this->ensureAllDependenciesArePresent($io)) {
@@ -124,6 +125,7 @@ class DemodataCommand extends Command
         $request->add(MailTemplateDefinition::class, $this->getCount($input, 'mail-template'));
         $request->add(MailHeaderFooterDefinition::class, $this->getCount($input, 'mail-header-footer'));
         $request->add(SalesChannelDomainDefinition::class, $this->getCount($input, 'sales-channel-domain'));
+        $request->add(NewsletterRecipientDefinition::class, $this->getCount($input, 'newsletter-recipients'));
 
         $this->eventDispatcher->dispatch(new DemodataRequestCreatedEvent($request, $context, $input));
 
@@ -168,7 +170,7 @@ class DemodataCommand extends Command
         return $this->defaults[$name] ?? 0;
     }
 
-    private function ensureAllDependenciesArePresent(ShopwareStyle $io): bool
+    private function ensureAllDependenciesArePresent(SymfonyStyle $io): bool
     {
         foreach ($this->requiredClasses as $class) {
             if (!class_exists($class)) {

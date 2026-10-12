@@ -54,18 +54,11 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'landing_page_tag:update',
                 'landing_page_tag:delete',
             ],
-            dependencies: [
-                'tag.viewer',
-            ],
+            dependencies: ['tag.viewer'],
         },
         creator: {
-            privileges: [
-                'tag:create',
-            ],
-            dependencies: [
-                'tag.viewer',
-                'tag.editor',
-            ],
+            privileges: ['tag:create'],
+            dependencies: ['tag.viewer', 'tag.editor'],
         },
         deleter: {
             privileges: [
@@ -79,9 +72,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'shipping_method_tag:delete',
                 'landing_page_tag:delete',
             ],
-            dependencies: [
-                'tag.viewer',
-            ],
+            dependencies: ['tag.viewer'],
         },
     },
 });

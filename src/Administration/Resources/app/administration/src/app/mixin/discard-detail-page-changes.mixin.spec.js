@@ -31,9 +31,7 @@ async function createWrapper(...entityNames) {
               <slot></slot>
             </div>
         `,
-            mixins: [
-                Shopware.Mixin.getByName('discard-detail-page-changes')(...entityNames),
-            ],
+            mixins: [Shopware.Mixin.getByName('discard-detail-page-changes')(...entityNames)],
             data() {
                 return {
                     product: {
@@ -50,9 +48,7 @@ async function createWrapper(...entityNames) {
         },
         {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
             },
             attachTo: document.body,
         },
@@ -82,10 +78,7 @@ describe('src/app/mixin/discard-detail-page-changes.mixin.ts', () => {
 
     it('should call the entity discardChanges function on every given name', async () => {
         await wrapper.unmount();
-        wrapper = await createWrapper('product', [
-            'category',
-            'property',
-        ]);
+        wrapper = await createWrapper('product', ['category', 'property']);
 
         expect(wrapper.vm.product.discardChanges).not.toHaveBeenCalled();
         expect(wrapper.vm.category.discardChanges).not.toHaveBeenCalled();

@@ -6,6 +6,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
+use Shopware\Core\Content\Category\Extension\CategoryRouteExtension;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -22,8 +24,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CategoryRoute extends AbstractCategoryRoute
 {
     final public const HOME = 'home';
@@ -39,6 +41,7 @@ class CategoryRoute extends AbstractCategoryRoute
         private readonly EntityCmsSlotConfigInheritanceBuilder $cmsSlotConfigInheritanceBuilder,
         private readonly CategoryDefinition $categoryDefinition,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -60,8 +63,15 @@ class CategoryRoute extends AbstractCategoryRoute
     )]
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
-        $this->cacheTagCollector->addTag(self::buildName($navigationId));
+        return $this->extensions->publish(
+            name: CategoryRouteExtension::NAME,
+            extension: new CategoryRouteExtension($navigationId, $request, $context),
+            function: $this->_load(...),
+        );
+    }
 
+    private function _load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
+    {
         if ($navigationId === self::HOME) {
             $navigationId = $context->getSalesChannel()->getNavigationCategoryId();
             $request->attributes->set('navigationId', $navigationId);
@@ -70,6 +80,8 @@ class CategoryRoute extends AbstractCategoryRoute
             $routeParams['navigationId'] = $navigationId;
             $request->attributes->set('_route_params', $routeParams);
         }
+
+        $this->cacheTagCollector->addTag(self::buildName($navigationId));
 
         $category = $this->loadCategory($navigationId, $context);
 
@@ -106,7 +118,7 @@ class CategoryRoute extends AbstractCategoryRoute
             $resolverContext,
         );
 
-        $cmsPage = $pages->first();
+        $cmsPage = $pages->getEntities()->first();
         if ($cmsPage === null) {
             throw CategoryException::pageNotFound($pageId);
         }
@@ -144,7 +156,7 @@ class CategoryRoute extends AbstractCategoryRoute
             $slots = explode('|', $slots);
         }
 
-        if (!empty($slots) && \is_array($slots)) {
+        if (\is_array($slots) && $slots !== []) {
             $criteria
                 ->getAssociation('sections.blocks')
                 ->addFilter(new EqualsAnyFilter('slots.id', $slots));

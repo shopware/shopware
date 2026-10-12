@@ -1,0 +1,80 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "SalesChannelDomain": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "url",
+                    "salesChannelId",
+                    "languageId",
+                    "currencyId",
+                    "snippetSetId"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "url": {
+                        "description": "URL of the sales channel domain.",
+                        "type": "string"
+                    },
+                    "salesChannelId": {
+                        "description": "Unique identity of sales channel.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "languageId": {
+                        "description": "Unique identity of language used.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "currencyId": {
+                        "description": "Unique identity of currency.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "snippetSetId": {
+                        "description": "Unique identity of snippet set.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "measurementUnits": {
+                        "$ref": "#/components/schemas/MeasurementUnits"
+                    },
+                    "hreflangUseOnlyLocale": {
+                        "description": "This is used to toggle the language configurations, say between DE and DE-DE for instance.",
+                        "type": "boolean"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/Language"
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency"
+                    },
+                    "salesChannelDefaultHreflang": {
+                        "$ref": "#/components/schemas/SalesChannel"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

@@ -21,7 +21,7 @@
             :disabled="disableEdit || undefined"
             class="sw-sales-channel-detail__button-domain-add"
             variant="secondary"
-            @click="onClickOpenCreateDomainModal"
+            @click="onClickOpenCreateDomainModal()"
         >
             {{ $t('sw-sales-channel.detail.buttonAddDomain') }}
         </mt-button>
@@ -155,16 +155,16 @@
             gap="0px 30px"
         >
             {% block sw_sales_channel_detail_domains_input_currency %}
-            <sw-single-select
+            <sw-entity-single-select
                 v-model:value="currentDomain.currencyId"
                 class="sw-sales-channel-detail-domains__domain-currency-select"
+                entity="currency"
+                :criteria="currencyCriteria"
                 :label="$t('sw-sales-channel.detail.labelInputCurrency')"
                 required
                 show-clearable-button
-                :options="salesChannel.currencies"
-                label-property="translated.name"
-                value-property="id"
-                @update:value="onCurrencySelect"
+                label-property="name"
+                @option-select="onOptionSelect"
             />
             {% endblock %}
 
@@ -194,6 +194,17 @@
             :label="$t('sw-sales-channel.detail.hreflang.domainSettings.label')"
             identification="hreflang"
             :options="hreflangLocalisationOptions"
+        />
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_domains_is_external_storefront %}
+        <mt-checkbox
+            v-if="salesChannelIsHeadless"
+            v-model:checked="currentDomain.isExternalStorefront"
+            class="sw-sales-channel-detail-domains__is-external-storefront"
+            :disabled="isExternalStorefrontDisabled && !currentDomain.isExternalStorefront"
+            :label="$t('sw-sales-channel.detail.labelIsExternalStorefront')"
+            :help-text="$t('sw-sales-channel.detail.helpTextIsExternalStorefront')"
         />
         {% endblock %}
         {% endblock %}
@@ -253,7 +264,7 @@
                 variant="critical"
                 @click="onConfirmDeleteDomain(deleteDomain)"
             >
-                {{ $t('sw-sales-channel.detail.buttonConfirmDeleteDomain') }}
+                {{ $t('global.default.delete') }}
             </mt-button>
             {% endblock %}
         </template>

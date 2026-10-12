@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingCost;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingCostCollection;
+use Shopware\Core\Checkout\Cart\Extension\ProductShippingCostRouteExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\CheckoutPermissions;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -29,8 +31,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ProductShippingCostRoute extends AbstractProductShippingCostRoute
 {
     /**
@@ -42,6 +44,7 @@ class ProductShippingCostRoute extends AbstractProductShippingCostRoute
         private readonly ProductGatewayInterface $productGateway,
         private readonly EntityRepository $shippingMethodRepository,
         private readonly Processor $processor,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -64,6 +67,15 @@ class ProductShippingCostRoute extends AbstractProductShippingCostRoute
         methods: [Request::METHOD_GET]
     )]
     public function shippingCostsByProduct(string $productId, Criteria $criteria, SalesChannelContext $salesChannelContext): ShippingCostRouteResponse
+    {
+        return $this->extensions->publish(
+            name: ProductShippingCostRouteExtension::NAME,
+            extension: new ProductShippingCostRouteExtension($productId, $criteria, $salesChannelContext),
+            function: $this->_shippingCostsByProduct(...),
+        );
+    }
+
+    private function _shippingCostsByProduct(string $productId, Criteria $criteria, SalesChannelContext $salesChannelContext): ShippingCostRouteResponse
     {
         return Profiler::trace('shipping-cost-calculator::product', function () use ($productId, $criteria, $salesChannelContext) {
             $clonedContext = clone $salesChannelContext;

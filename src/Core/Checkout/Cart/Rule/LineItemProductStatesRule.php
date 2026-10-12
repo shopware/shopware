@@ -14,8 +14,6 @@ use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemProductTypeRule instead.
- *
- * @codeCoverageIgnore
  */
 #[Package('fundamentals@after-sales')]
 class LineItemProductStatesRule extends Rule
@@ -68,7 +66,7 @@ class LineItemProductStatesRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
             ->selectField('productState', [
                 State::IS_PHYSICAL,
                 State::IS_DOWNLOAD,

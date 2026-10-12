@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Seo\Validation;
 
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
+use Shopware\Core\Content\Seo\Validation\Constraint\ValidSeoPathInfo;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
@@ -42,7 +43,7 @@ class SeoUrlValidationFactory implements SeoUrlDataValidationFactoryInterface
             ->add('foreignKey', ...$fkConstraints)
             ->add('routeName', new NotBlank(), new Type('string'))
             ->add('pathInfo', new NotBlank(), new Type('string'))
-            ->add('seoPathInfo', new NotBlank(), new Type('string'), new RouteNotBlocked())
+            ->add('seoPathInfo', new NotBlank(), new Type('string'), new ValidSeoPathInfo(), new RouteNotBlocked())
             ->add('salesChannelId', new NotBlank(), new EntityExists(
                 entity: SalesChannelDefinition::ENTITY_NAME,
                 context: $context,

@@ -74,7 +74,7 @@ class ProductApiTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('prices');
 
-        $products = $this->repository->search($criteria, $context);
+        $products = $this->repository->search($criteria, $context)->getEntities();
         $product = $products->get($id);
         static::assertNotNull($product);
         static::assertNotNull($product->getPrices());
@@ -111,7 +111,7 @@ class ProductApiTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('prices');
 
-        $products = $this->repository->search($criteria, $context);
+        $products = $this->repository->search($criteria, $context)->getEntities();
         $product = $products->get($id);
         static::assertNotNull($product);
         static::assertNotNull($product->getPrices());
@@ -147,7 +147,7 @@ class ProductApiTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('prices');
 
-        $products = $this->repository->search($criteria, $context);
+        $products = $this->repository->search($criteria, $context)->getEntities();
         $product = $products->get($id);
         static::assertNotNull($product);
         static::assertNotNull($product->getPrices());
@@ -193,7 +193,7 @@ class ProductApiTest extends TestCase
         static::assertIsString($response->getContent());
         $product = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($product);
+        static::assertIsArray($product);
         static::assertArrayHasKey('data', $product);
         static::assertSame($description, $product['data']['description']);
     }
@@ -237,9 +237,9 @@ class ProductApiTest extends TestCase
         static::assertArrayNotHasKey('translated', $product['attributes']);
         static::assertArrayNotHasKey('manufacturerId', $product['attributes']);
         static::assertArrayNotHasKey('parentId', $product['attributes']);
-        static::assertEmpty($product['relationships']);
+        static::assertSame([], $product['relationships']);
 
-        static::assertEmpty($products['included']);
+        static::assertSame([], $products['included']);
     }
 
     public function testIncludesWithRelationships(): void

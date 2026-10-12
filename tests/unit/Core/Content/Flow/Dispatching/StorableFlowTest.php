@@ -40,23 +40,33 @@ class StorableFlowTest extends TestCase
         static::assertSame(['config' => 'value'], $this->storableFlow->getConfig());
     }
 
-    public function testGetFlowState(): void
+    public function testGetFlowStateWithoutStateThrows(): void
     {
-        static::expectException(FlowException::class);
+        static::expectExceptionObject(FlowException::methodNotCompatible('getFlowState()', StorableFlow::class));
         $this->storableFlow->getFlowState();
-
-        $this->storableFlow->setFlowState(new FlowState());
-
-        static::assertSame(new FlowState(), $this->storableFlow->getFlowState());
     }
 
-    public function testStop(): void
+    public function testGetFlowStateReturnsSetState(): void
     {
-        static::expectException(FlowException::class);
+        $state = new FlowState();
+
+        $this->storableFlow->setFlowState($state);
+
+        static::assertSame($state, $this->storableFlow->getFlowState());
+    }
+
+    public function testStopWithoutStateThrows(): void
+    {
+        static::expectExceptionObject(FlowException::methodNotCompatible('stop()', StorableFlow::class));
+        $this->storableFlow->stop();
+    }
+
+    public function testStopMarksStateStopped(): void
+    {
+        $this->storableFlow->setFlowState(new FlowState());
+
         $this->storableFlow->stop();
 
-        $this->storableFlow->setFlowState(new FlowState());
-        $this->storableFlow->stop();
         static::assertTrue($this->storableFlow->getFlowState()->stop);
     }
 

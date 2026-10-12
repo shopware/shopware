@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CalculatedPriceFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class CalculatedPriceField extends JsonField
 {
@@ -27,6 +30,8 @@ class CalculatedPriceField extends JsonField
             ]),
             new JsonField('regulationPrice', 'regulationPrice', [
                 new FloatField('price', 'price'),
+                new FloatField('discount', 'discount'),
+                new FloatField('percentage', 'percentage'),
             ]),
         ];
 

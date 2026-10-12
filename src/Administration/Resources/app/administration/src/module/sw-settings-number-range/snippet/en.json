@@ -11,15 +11,13 @@
     },
     "list": {
       "textHeadline": "Number ranges",
+      "messageEmpty": "No number ranges yet",
       "textDeleteConfirm": "Are you sure you want to delete the number range \"{name}\"?",
       "columnName": "Name",
       "columnUsedIn": "Type",
       "columnAssignment": "Assignment",
       "buttonAddNumberRange": "Add number range",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
       "messageDeleteSuccess": "Number range \"{name}\" has been deleted.",
-      "buttonDelete": "Delete",
       "global": "Global"
     },
     "detail": {

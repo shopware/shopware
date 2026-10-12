@@ -51,15 +51,13 @@ final class CleanupCorruptedMediaHandler extends ScheduledTaskHandler
             $criteria = $this->buildCleanupCriteria($lastId);
             $criteria->setLimit(self::CORRUPTED_MEDIA_BATCH_SIZE);
 
-            $ids = $this->mediaRepository->searchIds($criteria, $context)->getIds();
-
+            $ids = $this->mediaRepository->searchIds($criteria, $context)->getPrimaryKeyData();
             if ($ids === []) {
                 return;
             }
 
-            $lastId = array_last($ids);
+            $lastId = array_last($ids)['id'];
 
-            $ids = array_map(static fn ($id) => ['id' => $id], $ids);
             $this->mediaRepository->delete($ids, $context);
         }
     }

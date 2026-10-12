@@ -35,6 +35,16 @@ class SalesChannelFileControllerTest extends TestCase
                     'Framework' => 'merchant override',
                 ],
             ],
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'fileFamily' => 'agentic',
+                'fileName' => 'agents.md',
+                'enabled' => true,
+                'templateOverrides' => [
+                    'Framework' => 'legacy merchant override',
+                ],
+            ],
         ], Context::createDefaultContext());
 
         $this->getBrowser()->request('GET', '/api/_action/sales-channel-file/agentic/' . TestDefaults::SALES_CHANNEL);
@@ -44,7 +54,10 @@ class SalesChannelFileControllerTest extends TestCase
         $response = $this->decodeResponse();
         $files = array_column($response['data'], null, 'fileName');
 
-        static::assertSame(['agents.md', 'llms.txt'], array_keys($files));
+        static::assertSame(['.well-known/ai-catalog.json', 'AGENTS.md', 'llms.txt'], array_keys($files));
+        static::assertTrue($files['AGENTS.md']['configuration']['enabled']);
+        static::assertSame(['Framework' => 'legacy merchant override'], $files['AGENTS.md']['configuration']['templateOverrides']);
+        static::assertSame('application/json; charset=utf-8', $files['.well-known/ai-catalog.json']['contentType']);
         static::assertSame('agentic', $files['llms.txt']['fileFamily']);
         static::assertSame('text/plain; charset=utf-8', $files['llms.txt']['contentType']);
         static::assertArrayNotHasKey('templatePath', $files['llms.txt']);
@@ -108,6 +121,67 @@ class SalesChannelFileControllerTest extends TestCase
         static::assertSame('llms.txt', $response['fileName']);
         static::assertSame('text/plain; charset=utf-8', $response['contentType']);
         static::assertSame('Preview body', $response['content']);
+    }
+
+    public function testItUsesStoredOverridesForReadOnlyPreviewRequests(): void
+    {
+        $this->getSalesChannelFileRepository()->upsert([
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'fileFamily' => 'agentic',
+                'fileName' => 'llms.txt',
+                'enabled' => true,
+                'templateOverrides' => ['Framework' => 'Stored preview'],
+            ],
+        ], Context::createDefaultContext());
+
+        $browser = $this->getBrowser(true, [], ['sales_channel_file:read']);
+        $browser->jsonRequest('POST', '/api/_action/sales-channel-file/agentic/' . TestDefaults::SALES_CHANNEL . '/preview', [
+            'fileName' => 'llms.txt',
+            'templateOverrides' => ['Framework' => 'Ignored preview'],
+        ]);
+
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+        static::assertSame('Stored preview', $this->decodeResponse()['content']);
+    }
+
+    public function testItUsesSuppliedOverridesForSalesChannelFileEditors(): void
+    {
+        $browser = $this->getBrowser(true, [], ['sales_channel_file:read', 'sales_channel_file:update']);
+        $browser->jsonRequest('POST', '/api/_action/sales-channel-file/agentic/' . TestDefaults::SALES_CHANNEL . '/preview', [
+            'fileName' => 'llms.txt',
+            'templateOverrides' => ['Framework' => 'Editor preview'],
+        ]);
+
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+        static::assertSame('Editor preview', $this->decodeResponse()['content']);
+    }
+
+    public function testItRequiresSalesChannelFileReadAccessForPreviews(): void
+    {
+        $browser = $this->getBrowser(true, [], []);
+        $browser->jsonRequest('POST', '/api/_action/sales-channel-file/agentic/' . TestDefaults::SALES_CHANNEL . '/preview', [
+            'fileName' => 'llms.txt',
+        ]);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+    }
+
+    public function testItRequiresSalesChannelFileReadAccessForLists(): void
+    {
+        $browser = $this->getBrowser(true, [], []);
+        $browser->request('GET', '/api/_action/sales-channel-file/agentic/' . TestDefaults::SALES_CHANNEL);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+    }
+
+    public function testItRequiresSalesChannelFileReadAccessForDetails(): void
+    {
+        $browser = $this->getBrowser(true, [], []);
+        $browser->request('GET', '/api/_action/sales-channel-file/agentic/' . TestDefaults::SALES_CHANNEL . '/detail?fileName=llms.txt');
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
     }
 
     public function testItRejectsInvalidPreviewPath(): void

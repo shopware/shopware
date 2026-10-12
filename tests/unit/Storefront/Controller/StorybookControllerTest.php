@@ -3,23 +3,23 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\StorybookController;
 use Shopware\Storefront\Storybook\StorybookService;
+use Shopware\Tests\Unit\Storefront\Controller\Stub\StorybookTwigEnvironmentStub;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use Twig\Loader\ArrayLoader;
-use Twig\TemplateWrapper;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorybookController::class)]
 class StorybookControllerTest extends TestCase
 {
@@ -27,14 +27,14 @@ class StorybookControllerTest extends TestCase
 
     private const STORYBOOK_ORIGIN = 'http://localhost:6006';
 
-    private StorybookTwigEnvironment $twig;
+    private StorybookTwigEnvironmentStub $twig;
 
-    private StorybookService&MockObject $storybookService;
+    private StorybookService&Stub $storybookService;
 
     protected function setUp(): void
     {
-        $this->twig = new StorybookTwigEnvironment();
-        $this->storybookService = $this->createMock(StorybookService::class);
+        $this->twig = new StorybookTwigEnvironmentStub();
+        $this->storybookService = static::createStub(StorybookService::class);
     }
 
     public function testStorybookRendersComponentSuccessfully(): void
@@ -68,7 +68,6 @@ class StorybookControllerTest extends TestCase
             ->willReturn($salesChannelContext);
 
         $this->storybookService->method('getThemeId')
-            ->with($salesChannelId)
             ->willReturn('theme-id-123');
 
         $request = $this->createStorybookRequest();
@@ -100,19 +99,20 @@ class StorybookControllerTest extends TestCase
         $firstContext = Generator::generateSalesChannelContext();
         $secondContext = Generator::generateSalesChannelContext();
 
-        $this->storybookService->expects($this->exactly(2))
+        $storybookService = $this->createMock(StorybookService::class);
+        $storybookService->expects($this->exactly(2))
             ->method('createSalesChannelContext')
             ->willReturnOnConsecutiveCalls($firstContext, $secondContext);
 
-        $this->storybookService->expects($this->exactly(2))
+        $storybookService->expects($this->exactly(2))
             ->method('getThemeId')
             ->willReturnOnConsecutiveCalls('theme-id-1', 'theme-id-2');
 
-        $this->storybookService->expects($this->exactly(2))
+        $storybookService->expects($this->exactly(2))
             ->method('resolveComponentProps')
             ->willReturn([]);
 
-        $controller = $this->createController();
+        $controller = $this->createController($storybookService);
         $controller->storybook('my-button', $this->createStorybookRequest());
         $controller->storybook('my-button', $this->createStorybookRequest());
 
@@ -231,78 +231,11 @@ class StorybookControllerTest extends TestCase
         return $request;
     }
 
-    private function createController(): StorybookController
+    private function createController(?StorybookService $storybookService = null): StorybookController
     {
         return new StorybookController(
             $this->twig,
-            $this->storybookService,
+            $storybookService ?? $this->storybookService,
         );
-    }
-}
-
-/**
- * @internal
- *
- * A test-specific Twig Environment that avoids mocking the final TemplateWrapper class.
- */
-class StorybookTwigEnvironment extends Environment
-{
-    public string $renderOutput = '';
-
-    public ?\Throwable $renderException = null;
-
-    public ?\Throwable $createTemplateException = null;
-
-    /**
-     * @var \Closure(string|TemplateWrapper, array<string, mixed>): string|null
-     */
-    public ?\Closure $renderCallback = null;
-
-    /**
-     * @var array<string, mixed>
-     */
-    public array $globals = [];
-
-    /**
-     * @var array<string, mixed>
-     */
-    public array $renderContext = [];
-
-    public function __construct()
-    {
-        parent::__construct(new ArrayLoader([]));
-    }
-
-    public function addGlobal(string $name, mixed $value): void
-    {
-        $this->globals[$name] = $value;
-    }
-
-    public function createTemplate(string $template, ?string $name = null): TemplateWrapper
-    {
-        if ($this->createTemplateException !== null) {
-            throw $this->createTemplateException;
-        }
-
-        return parent::createTemplate('');
-    }
-
-    /**
-     * @param string|TemplateWrapper $name
-     * @param array<string, mixed> $context
-     */
-    public function render($name, array $context = []): string
-    {
-        $this->renderContext = $context;
-
-        if ($this->renderException !== null) {
-            throw $this->renderException;
-        }
-
-        if ($this->renderCallback !== null) {
-            return ($this->renderCallback)($name, $context);
-        }
-
-        return $this->renderOutput;
     }
 }

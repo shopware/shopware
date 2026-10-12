@@ -20,8 +20,8 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\RulesTe
 /**
  * @internal
  */
-#[CoversClass(AnyRuleLineItemMatcher::class)]
 #[Package('checkout')]
+#[CoversClass(AnyRuleLineItemMatcher::class)]
 class AnyRuleLineItemMatcherTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;

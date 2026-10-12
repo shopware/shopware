@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @internal
  *
- * @phpstan-type CustomEntityField array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool, ignoreMissingReference?: bool}
+ * @phpstan-type CustomEntityField array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool, ignoreMissingReference?: bool, default?: mixed}
  */
 #[Package('framework')]
 class SchemaUpdater
@@ -23,6 +23,10 @@ class SchemaUpdater
     final public const SHORTHAND_TABLE_PREFIX = 'ce_';
 
     private const COMMENT = 'custom-entity-element';
+
+    public function __construct(private readonly CustomEntityNameValidator $nameValidator)
+    {
+    }
 
     /**
      * @param list<array{name: string, fields: string}> $customEntities
@@ -43,6 +47,8 @@ class SchemaUpdater
                 );
             }
 
+            $this->nameValidator->validate($entityName, $this->fieldNames($fields));
+
             $tables[$entityName] = $fields;
         }
 
@@ -54,6 +60,16 @@ class SchemaUpdater
         foreach ($tables as $name => $fields) {
             $this->addAssociationFields($schema, $name, $fields);
         }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function fieldNames(mixed $fields): array
+    {
+        \assert(\is_array($fields) && \array_is_list($fields));
+
+        return array_map(static fn (array $field): string => (string) $field['name'], $fields);
     }
 
     /**

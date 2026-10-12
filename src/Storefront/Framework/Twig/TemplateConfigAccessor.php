@@ -8,19 +8,29 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
+use Symfony\Component\Asset\Package as AssetPackage;
 
-#[Package('framework')]
+#[Package('discovery')]
 class TemplateConfigAccessor
 {
     /**
+     * @var array<string, AssetPackage>
+     */
+    private array $packages;
+
+    /**
      * @internal
+     *
+     * @param iterable<string, AssetPackage> $packages
      */
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly ThemeConfigValueAccessor $themeConfigAccessor,
         private readonly ThemeScripts $themeScripts,
         private readonly string $kernelEnvironment = 'prod',
+        iterable $packages = [],
     ) {
+        $this->packages = \is_array($packages) ? $packages : iterator_to_array($packages);
     }
 
     /**
@@ -70,10 +80,11 @@ class TemplateConfigAccessor
      * can treat dev-server component CSS as a replacement for the compiled theme
      * stylesheet (the dev server re-compiles component SCSS on the fly).
      *
-     * In production the stored map already contains full URLs pre-computed at theme
-     * compile time. The `styles` key,
-     * if present, lists the component CSS files at public/storefront/components/ that must be
-     * loaded alongside the regular compiled theme stylesheet.
+     * In production the stored map contains relative bundle paths from theme compile.
+     * They are resolved to request-aware URLs via the `asset` package at render time.
+     * The `styles` key, if present, lists the component CSS files at
+     * public/storefront/components/ that must be loaded alongside the regular
+     * compiled theme stylesheet.
      *
      * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>, styles?: list<string>, scripts?: list<string>, themeId?: string, isDevServer?: bool}
      */
@@ -88,7 +99,7 @@ class TemplateConfigAccessor
             }
         }
 
-        return $this->themeScripts->getImportMap() ?? ['imports' => []];
+        return $this->resolveImportMapUrls($this->themeScripts->getImportMap() ?? ['imports' => []]);
     }
 
     /**
@@ -117,5 +128,59 @@ class TemplateConfigAccessor
             'cms.tosCmsPageId' => '00B9A8636F954277AE424E6C1C36A1F5',
             'confirm.revocationNotice' => true,
         ];
+    }
+
+    /**
+     * @param array{imports: array<string, string>, scopes?: array<string, array<string, string>>, styles?: list<string>, scripts?: list<string>, themeId?: string, isDevServer?: bool} $importMap
+     *
+     * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>, styles?: list<string>, scripts?: list<string>, themeId?: string, isDevServer?: bool}
+     */
+    private function resolveImportMapUrls(array $importMap): array
+    {
+        $package = $this->packages['asset'] ?? null;
+        if ($package === null) {
+            return $importMap;
+        }
+
+        $resolvedImports = [];
+        foreach ($importMap['imports'] as $specifier => $path) {
+            $resolvedImports[$specifier] = $package->getUrl($path);
+        }
+        $importMap['imports'] = $resolvedImports;
+
+        if (isset($importMap['scopes'])) {
+            $resolvedScopes = [];
+            foreach ($importMap['scopes'] as $scopeKey => $scopedImports) {
+                $resolvedScopeKey = $this->stripQueryString($package->getUrl($scopeKey));
+                foreach ($scopedImports as $specifier => $path) {
+                    $resolvedScopes[$resolvedScopeKey][$specifier] = $package->getUrl($path);
+                }
+            }
+            $importMap['scopes'] = $resolvedScopes;
+        }
+
+        if (isset($importMap['styles'])) {
+            $importMap['styles'] = array_map(
+                fn (string $path): string => $package->getUrl($path),
+                $importMap['styles'],
+            );
+        }
+
+        return $importMap;
+    }
+
+    /**
+     * Import-map scope keys are matched by URL prefix. Query strings on scope keys
+     * break that prefix matching against module URLs and therefore must be removed.
+     */
+    private function stripQueryString(string $url): string
+    {
+        $queryPos = strpos($url, '?');
+
+        if ($queryPos === false) {
+            return $url;
+        }
+
+        return substr($url, 0, $queryPos);
     }
 }

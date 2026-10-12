@@ -89,24 +89,20 @@
                     {% endblock %}
 
                     {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty %}
-                    <sw-empty-state
+                    <mt-empty-state
                         v-if="productStreams.length <= 0"
-                        :show-description="false"
-                        :title="productStreams.length <= 0 && term
+                        centered
+                        icon="regular-products"
+                        :headline="productStreams.length <= 0 && term
                             ? $t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.titleNoProductStreamsMatching')
                             : $t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.titleNoProductStreamsAvailable')
                         "
-                    >
-                        <template #icon>
-                            {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon %}
-                            <img
-                                :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                                alt=""
-                            >
-                            {% endblock %}
-                        </template>
-                    </sw-empty-state>
+                        description=""
+                    />
                     {% endblock %}
+
+                    {# @deprecated tag:v6.8.0 - Kept as extension anchor, the icon became an mt-empty-state prop. #}
+                    {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon %}{% endblock %}
                 </sw-card-section>
                 {% endblock %}
             </div>

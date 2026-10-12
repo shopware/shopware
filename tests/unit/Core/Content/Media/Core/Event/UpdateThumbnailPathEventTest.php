@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Core\Event;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Event\UpdateThumbnailPathEvent;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(UpdateThumbnailPathEvent::class)]
 class UpdateThumbnailPathEventTest extends TestCase
 {

@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
+use Shopware\Core\Checkout\Order\Extension\CancelOrderRouteExtension;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -18,8 +20,8 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CancelOrderRoute extends AbstractCancelOrderRoute
 {
     /**
@@ -31,6 +33,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
         private readonly OrderService $orderService,
         private readonly EntityRepository $orderRepository,
         private readonly SystemConfigService $systemConfigService,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -49,6 +52,15 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
         methods: [Request::METHOD_POST]
     )]
     public function cancel(Request $request, SalesChannelContext $context): CancelOrderRouteResponse
+    {
+        return $this->extensions->publish(
+            name: CancelOrderRouteExtension::NAME,
+            extension: new CancelOrderRouteExtension($request, $context),
+            function: $this->_cancel(...),
+        );
+    }
+
+    private function _cancel(Request $request, SalesChannelContext $context): CancelOrderRouteResponse
     {
         if (!$this->systemConfigService->getBool('core.cart.enableOrderRefunds', $context->getSalesChannelId())) {
             throw OrderException::orderNotCancellable();

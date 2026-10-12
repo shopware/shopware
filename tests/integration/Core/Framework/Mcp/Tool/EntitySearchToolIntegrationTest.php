@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -29,16 +30,19 @@ class EntitySearchToolIntegrationTest extends TestCase
     {
         $registry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
-        /** @var RequestCriteriaBuilder $criteriaBuilder */
         $criteriaBuilder = static::getContainer()->get(RequestCriteriaBuilder::class);
+        \assert($criteriaBuilder instanceof RequestCriteriaBuilder);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
-        /** @var JsonEntityEncoder $encoder */
         $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+        \assert($encoder instanceof JsonEntityEncoder);
 
-        $this->tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $criteriaValidator = static::getContainer()->get(AclCriteriaValidator::class);
+        \assert($criteriaValidator instanceof AclCriteriaValidator);
+
+        $this->tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, $criteriaValidator);
     }
 
     public function testSearchCurrencyReturnsResults(): void
@@ -47,7 +51,7 @@ class EntitySearchToolIntegrationTest extends TestCase
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($data['success']);
-        static::assertNotEmpty($data['data']);
+        static::assertNotCount(0, $data['data']);
         static::assertGreaterThan(0, $data['_meta']['total']);
         static::assertSame(1, $data['_meta']['page']);
     }
@@ -132,6 +136,6 @@ class EntitySearchToolIntegrationTest extends TestCase
 
         static::assertTrue($data['success']);
         static::assertSame(0, $data['_meta']['total']);
-        static::assertEmpty($data['data']);
+        static::assertCount(0, $data['data']);
     }
 }

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Adapter\Cache\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class AddCacheTagEvent
 {

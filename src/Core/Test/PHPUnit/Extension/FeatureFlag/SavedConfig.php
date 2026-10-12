@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class SavedConfig

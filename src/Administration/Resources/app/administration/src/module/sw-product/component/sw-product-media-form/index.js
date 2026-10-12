@@ -11,17 +11,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'systemConfigApiService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'systemConfigApiService'],
 
     emits: ['media-open'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         disabled: {
@@ -64,8 +58,12 @@ export default {
             return state.product;
         },
 
+        galleryItems() {
+            return this.productMedia.slice();
+        },
+
         mediaItems() {
-            const mediaItems = this.productMedia.slice();
+            const mediaItems = this.galleryItems.slice();
             const placeholderCount = this.getPlaceholderCount(this.columnCount);
 
             if (placeholderCount === 0) {
@@ -79,11 +77,11 @@ export default {
         },
 
         cover() {
-            if (!this.product) {
+            if (this.productMedia.length === 0) {
                 return null;
             }
             const coverId = this.product.cover ? this.product.cover.mediaId : this.product.coverId;
-            return this.product.media.find((media) => media.id === coverId);
+            return this.productMedia.find((media) => media.id === coverId);
         },
 
         isStoreLoading() {
@@ -103,7 +101,7 @@ export default {
         },
 
         productMedia() {
-            if (!this.product) {
+            if (!this.product?.media) {
                 return [];
             }
             return this.product.media;
@@ -162,14 +160,14 @@ export default {
         },
 
         getPlaceholderCount(columnCount) {
-            if (this.productMedia.length + 3 < columnCount * 2) {
+            if (this.galleryItems.length + 3 < columnCount * 2) {
                 columnCount *= 2;
             }
 
             let placeholderCount = columnCount;
 
-            if (this.productMedia.length !== 0) {
-                placeholderCount = columnCount - (this.productMedia.length % columnCount);
+            if (this.galleryItems.length !== 0) {
+                placeholderCount = columnCount - (this.galleryItems.length % columnCount);
                 if (placeholderCount === columnCount) {
                     return 0;
                 }
@@ -272,7 +270,7 @@ export default {
         isCover(productMedia) {
             const coverId = this.product.cover ? this.product.cover.id : this.product.coverId;
 
-            if (this.product.media.length === 0 || productMedia.isPlaceholder) {
+            if (this.productMedia.length === 0 || productMedia.isPlaceholder) {
                 return false;
             }
 
@@ -312,8 +310,7 @@ export default {
             this.product.cover = productMedia;
             this.product.coverId = productMedia.id;
 
-            this.product.media.moveItem(productMedia.position, 0);
-            this.updateMediaItemPositions();
+            this.moveGalleryItem(productMedia, 0);
         },
 
         onDropMedia(dragData) {
@@ -341,8 +338,11 @@ export default {
                 return;
             }
 
-            this.product.media.moveItem(dragData.position, dropData.position);
+            this.moveGalleryItem(dragData, dropData.position);
+        },
 
+        moveGalleryItem(item, position) {
+            this.product.media.moveItem(item.position, position);
             this.updateMediaItemPositions();
         },
 

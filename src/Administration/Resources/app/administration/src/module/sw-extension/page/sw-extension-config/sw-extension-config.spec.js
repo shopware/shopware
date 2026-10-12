@@ -43,6 +43,60 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                         updateExtensionData: jest.fn(),
                     },
                     systemConfigApiService: {
+                        getSchema: () => {
+                            return Promise.resolve([
+                                {
+                                    title: null,
+                                    name: null,
+                                    cards: [
+                                        {
+                                            title: {
+                                                'en-GB': 'Store',
+                                            },
+                                            name: null,
+                                            elements: [
+                                                {
+                                                    name: 'apiUri',
+                                                    type: 'text',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'API URI',
+                                                        },
+                                                    },
+                                                },
+                                                {
+                                                    name: 'licenseHost',
+                                                    type: 'text',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'License host',
+                                                        },
+                                                    },
+                                                },
+                                                {
+                                                    name: 'shopSecret',
+                                                    type: 'text',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'Shop secret',
+                                                        },
+                                                    },
+                                                },
+                                                {
+                                                    name: 'shopwareId',
+                                                    type: 'text',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'Shopware ID',
+                                                        },
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            ]);
+                        },
                         getValues: () => {
                             return Promise.resolve({
                                 'core.store.apiUri': 'https://api.shopware.com',

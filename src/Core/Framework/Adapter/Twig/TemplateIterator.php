@@ -3,14 +3,13 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\TwigBundle\TemplateIterator as TwigBundleIterator;
 use Symfony\Component\Finder\Finder;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
- */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class TemplateIterator implements TemplatePathIteratorInterface
 {
     /**

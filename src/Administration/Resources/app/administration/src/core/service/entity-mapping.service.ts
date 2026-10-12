@@ -42,17 +42,12 @@ function getEntityMapping(entityName?: string, entityNameMapping?: EntityNameMap
     }
 
     if (entityNameMapping && Object.keys(entityNameMapping).length > 0) {
-        Object.entries(entityNameMapping).forEach(
-            ([
-                mappedKey,
-                mappedValue,
-            ]) => {
-                schema.properties[mappedKey] = {
-                    entity: mappedValue,
-                    type: 'object',
-                };
-            },
-        );
+        Object.entries(entityNameMapping).forEach(([mappedKey, mappedValue]) => {
+            schema.properties[mappedKey] = {
+                entity: mappedValue,
+                type: 'object',
+            };
+        });
     } else {
         return schema.properties;
     }

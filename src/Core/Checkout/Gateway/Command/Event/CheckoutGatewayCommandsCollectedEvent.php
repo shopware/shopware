@@ -15,6 +15,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  * It can be used to add custom commands, which should be executed after the checkout gateway has processed all apps.
  *
  * @see AppCheckoutGateway::process() for an example implementation
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class CheckoutGatewayCommandsCollectedEvent extends Event implements CartAware

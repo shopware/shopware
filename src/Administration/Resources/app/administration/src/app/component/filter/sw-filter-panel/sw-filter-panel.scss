@@ -1,9 +1,8 @@
-@import "~scss/variables";
-
 .sw-filter-panel {
-    padding: 0 25px 25px;
+    padding: var(--scale-size-24);
+    padding-top: 0;
 
     &__item {
-        margin-top: 25px;
+        margin-top: var(--scale-size-24);
     }
 }

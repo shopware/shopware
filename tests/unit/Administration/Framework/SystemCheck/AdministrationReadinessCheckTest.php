@@ -3,11 +3,12 @@
 namespace Shopware\Tests\Unit\Administration\Framework\SystemCheck;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\SystemCheck\AdministrationReadinessCheck;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
@@ -21,26 +22,27 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AdministrationReadinessCheck::class)]
 class AdministrationReadinessCheckTest extends TestCase
 {
-    private RouterInterface&MockObject $router;
+    private RouterInterface&Stub $router;
 
-    private KernelInterface&MockObject $kernel;
+    private KernelInterface&Stub $kernel;
 
-    private ViteFileAccessorDecorator&MockObject $viteFileAccessor;
+    private ViteFileAccessorDecorator&Stub $viteFileAccessor;
 
-    private Filesystem&MockObject $filesystem;
+    private Filesystem&Stub $filesystem;
 
     private AdministrationReadinessCheck $check;
 
     protected function setUp(): void
     {
-        $this->router = $this->createMock(RouterInterface::class);
+        $this->router = static::createStub(RouterInterface::class);
         $this->router->method('generate')->willReturn('/admin');
-        $this->kernel = $this->createMock(KernelInterface::class);
-        $this->viteFileAccessor = $this->createMock(ViteFileAccessorDecorator::class);
-        $this->filesystem = $this->createMock(Filesystem::class);
+        $this->kernel = static::createStub(KernelInterface::class);
+        $this->viteFileAccessor = static::createStub(ViteFileAccessorDecorator::class);
+        $this->filesystem = static::createStub(Filesystem::class);
 
         $this->check = new AdministrationReadinessCheck(
             $this->router,
@@ -132,7 +134,7 @@ class AdministrationReadinessCheckTest extends TestCase
     {
         $response = new Response('<html><body><script type="module" src="/bundles/administration/app.js"></script></body></html>');
 
-        $symfonyBundle = $this->createMock(\Symfony\Component\HttpKernel\Bundle\Bundle::class);
+        $symfonyBundle = static::createStub(\Symfony\Component\HttpKernel\Bundle\Bundle::class);
 
         $this->kernel->method('handle')->willReturn($response);
         $this->kernel->method('getBundles')->willReturn([$symfonyBundle]);
@@ -148,7 +150,7 @@ class AdministrationReadinessCheckTest extends TestCase
     {
         $response = new Response('<html><body><script type="module" src="/bundles/administration/app.js"></script></body></html>');
 
-        $bundle = $this->createMock(Bundle::class);
+        $bundle = static::createStub(Bundle::class);
         $bundle->method('getPath')->willReturn('/path/to/bundle');
 
         $this->kernel->method('handle')->willReturn($response);
@@ -166,7 +168,7 @@ class AdministrationReadinessCheckTest extends TestCase
 
     public function testRunHandlesNullResponseContent(): void
     {
-        $response = $this->createMock(Response::class);
+        $response = static::createStub(Response::class);
         $response->method('getStatusCode')->willReturn(Response::HTTP_OK);
         $response->method('getContent')->willReturn(false);
 

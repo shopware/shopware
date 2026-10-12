@@ -2,6 +2,7 @@ import ApiService from '../api.service';
 
 /**
  * @sw-package checkout
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
  * Gateway for the API end point "order/document"
  * @private
  * @class

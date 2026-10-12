@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Event\InstalledExtensionsListingLoadedEvent;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
@@ -17,6 +18,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(InstalledExtensionsListingLoadedSubscriber::class)]
 class InstalledExtensionsListingLoadedSubscriberTest extends TestCase
 {
@@ -34,7 +36,6 @@ class InstalledExtensionsListingLoadedSubscriberTest extends TestCase
         $app1->setUniqueIdentifier(Uuid::randomHex());
         $app1->setName('Ext2');
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([
             new AppCollection([$app1]),
         ]);

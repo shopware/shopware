@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-sales-channel-detail-domains {
     .sw-sales-channel-detail__button-domain-add {
         margin: 0 0 15px;
@@ -12,7 +10,7 @@
     .sw-sales-channel-detail-domains__domain-delete {
         margin-left: auto;
         text-decoration: none;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         color: var(--color-text-critical-default);
         background: 0 none;
         cursor: pointer;

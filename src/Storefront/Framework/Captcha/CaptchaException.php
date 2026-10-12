@@ -6,10 +6,19 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('framework')]
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('discovery')]
 class CaptchaException extends HttpException
 {
     public const INVALID_CAPTCHA_ERROR = 'FRAMEWORK__INVALID_CAPTCHA_VALUE';
+
+    // Used by the storefront when the cookies reCAPTCHA needs were not accepted.
+    public const RECAPTCHA_COOKIE_REQUIRED_VIOLATION = 'VIOLATION::RECAPTCHA_COOKIE_REQUIRED';
+
+    // No reCAPTCHA token was submitted, for a reason the server cannot narrow down.
+    public const RECAPTCHA_TOKEN_REQUIRED_VIOLATION = 'VIOLATION::RECAPTCHA_TOKEN_REQUIRED';
 
     public static function invalid(AbstractCaptcha $captcha): self
     {

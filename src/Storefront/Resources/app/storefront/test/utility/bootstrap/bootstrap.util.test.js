@@ -8,6 +8,11 @@ describe('BootstrapUtil tests', () => {
         global.bootstrap = {
             Tooltip: jest.fn(),
             Popover: jest.fn(),
+            Dropdown: {
+                Default: {
+                    offset: [0, 0],
+                },
+            },
         }
 
         document.body.innerHTML = `
@@ -40,5 +45,11 @@ describe('BootstrapUtil tests', () => {
 
         expect(bootstrap.Tooltip).toHaveBeenCalledTimes(0);
         expect(bootstrap.Popover).toHaveBeenCalledTimes(1);
+    });
+
+    test('sets Bootstrap dropdown default offset', () => {
+        BootstrapUtil.setDropdownDefaultOffset();
+
+        expect(bootstrap.Dropdown.Default.offset).toEqual([0, 6]);
     });
 });

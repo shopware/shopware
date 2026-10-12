@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 
 use Monolog\Handler\FingersCrossedHandler;
+use Monolog\Handler\Handler;
 use Monolog\Level;
 use Monolog\LogRecord;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -11,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\Log\Monolog\ErrorCodeLogLevelHandler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
@@ -18,6 +20,7 @@ use Symfony\Component\Messenger\Exception\HandlerFailedException;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ErrorCodeLogLevelHandler::class)]
 class ErrorCodeLogLevelHandlerTest extends TestCase
 {
@@ -42,6 +45,46 @@ class ErrorCodeLogLevelHandlerTest extends TestCase
         );
 
         $handler->handle($record);
+    }
+
+    public function testResetIsForwardedToResettableInnerHandler(): void
+    {
+        $innerHandler = $this->createMock(FingersCrossedHandler::class);
+        $innerHandler->expects($this->once())->method('reset');
+
+        $handler = new ErrorCodeLogLevelHandler($innerHandler, []);
+
+        $handler->reset();
+    }
+
+    public function testResetSkipsInnerHandlerWithoutReset(): void
+    {
+        // a handler without reset(): forwarding the call unconditionally would fail here
+        $innerHandler = new class extends Handler {
+            /**
+             * @var list<LogRecord>
+             */
+            public array $records = [];
+
+            public function isHandling(LogRecord $record): bool
+            {
+                return true;
+            }
+
+            public function handle(LogRecord $record): bool
+            {
+                $this->records[] = $record;
+
+                return false;
+            }
+        };
+        $handler = new ErrorCodeLogLevelHandler($innerHandler, []);
+
+        $handler->reset();
+        $handler->handle(new LogRecord(new \DateTimeImmutable(), 'app', Level::Error, 'after reset'));
+
+        static::assertCount(1, $innerHandler->records);
+        static::assertSame('after reset', $innerHandler->records[0]->message);
     }
 
     /**

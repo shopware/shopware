@@ -4,62 +4,89 @@
     :class="classList"
 >
     <template v-if="variant === 'detail'">
-        <sw-skeleton-bar style="width: 170px" />
+        <mt-skeleton-bar
+            class="sw-skeleton-bar"
+            style="width: 170px"
+        />
 
         <div class="sw-skeleton__detail-container">
-            <sw-skeleton-bar style="width: 359px" />
-            <sw-skeleton-bar style="width: 323px" />
+            <mt-skeleton-bar
+                class="sw-skeleton-bar"
+                style="width: 359px"
+            />
+            <mt-skeleton-bar
+                class="sw-skeleton-bar"
+                style="width: 323px"
+            />
         </div>
 
-        <sw-skeleton-bar style="width: 443px" />
-        <sw-skeleton-bar style="width: 234px" />
+        <mt-skeleton-bar
+            class="sw-skeleton-bar"
+            style="width: 443px"
+        />
+        <mt-skeleton-bar
+            class="sw-skeleton-bar"
+            style="width: 234px"
+        />
     </template>
 
     <template v-if="variant === 'detail-bold'">
-        <sw-skeleton-bar style="width: 520px" />
+        <mt-skeleton-bar
+            class="sw-skeleton-bar"
+            style="width: 520px"
+        />
 
         <div class="sw-skeleton__detail-container">
-            <sw-skeleton-bar style="width: 359px" />
-            <sw-skeleton-bar style="width: 323px" />
+            <mt-skeleton-bar
+                class="sw-skeleton-bar"
+                style="width: 359px"
+            />
+            <mt-skeleton-bar
+                class="sw-skeleton-bar"
+                style="width: 323px"
+            />
         </div>
 
-        <sw-skeleton-bar style="height: 122px" />
+        <mt-skeleton-bar
+            class="sw-skeleton-bar"
+            style="height: 122px"
+        />
     </template>
 
     <template v-if="variant === 'gallery'">
-        <sw-skeleton-bar />
+        <mt-skeleton-bar class="sw-skeleton-bar" />
     </template>
 
     <template v-if="variant === 'media'">
-        <sw-skeleton-bar class="sw-skeleton__media-preview" />
-        <sw-skeleton-bar class="sw-skeleton__media-subtitle" />
+        <mt-skeleton-bar class="sw-skeleton-bar sw-skeleton__media-preview" />
+        <mt-skeleton-bar class="sw-skeleton-bar sw-skeleton__media-subtitle" />
     </template>
 
     <template v-if="['tree-item', 'tree-item-nested'].includes(variant)">
-        <sw-skeleton-bar class="sw-skeleton__tree-item-checkbox" />
-        <sw-skeleton-bar class="sw-skeleton__tree-item-text" />
+        <mt-skeleton-bar class="sw-skeleton-bar sw-skeleton__tree-item-checkbox" />
+        <mt-skeleton-bar class="sw-skeleton-bar sw-skeleton__tree-item-text" />
     </template>
 
     <template v-if="variant === 'listing'">
-        <sw-skeleton-bar />
+        <mt-skeleton-bar class="sw-skeleton-bar" />
     </template>
 
     <template v-if="variant === 'extension-apps'">
-        <sw-skeleton-bar />
-        <sw-skeleton-bar />
-        <sw-skeleton-bar />
-        <sw-skeleton-bar />
-        <sw-skeleton-bar />
-        <sw-skeleton-bar />
-        <sw-skeleton-bar />
+        <mt-skeleton-bar class="sw-skeleton-bar" />
+        <mt-skeleton-bar class="sw-skeleton-bar" />
+        <mt-skeleton-bar class="sw-skeleton-bar" />
+        <mt-skeleton-bar class="sw-skeleton-bar" />
+        <mt-skeleton-bar class="sw-skeleton-bar" />
+        <mt-skeleton-bar class="sw-skeleton-bar" />
+        <mt-skeleton-bar class="sw-skeleton-bar" />
     </template>
 
     <template v-if="variant === 'extension-themes'">
-        <sw-skeleton-bar />
-        <sw-skeleton-bar />
-        <sw-skeleton-bar />
-        <sw-skeleton-bar />
-        <sw-skeleton-bar />
+        <mt-skeleton-bar class="sw-skeleton-bar" />
+        <mt-skeleton-bar class="sw-skeleton-bar" />
+        <mt-skeleton-bar class="sw-skeleton-bar" />
+        <mt-skeleton-bar class="sw-skeleton-bar" />
+        <mt-skeleton-bar class="sw-skeleton-bar" />
     </template>
 </div>
 {% endblock %}

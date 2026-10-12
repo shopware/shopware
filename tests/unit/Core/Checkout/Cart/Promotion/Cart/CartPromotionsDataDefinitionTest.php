@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(CartPromotionsDataDefinition::class)]
 #[Package('checkout')]
+#[CoversClass(CartPromotionsDataDefinition::class)]
 class CartPromotionsDataDefinitionTest extends TestCase
 {
     /**

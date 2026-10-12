@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\MailTemplate\Api;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -55,7 +57,7 @@ class MailActionControllerTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('orderCustomer');
-        $order = static::getContainer()->get('order.repository')->search($criteria, $context)->get($orderId);
+        $order = static::getContainer()->get('order.repository')->search($criteria, $context)->getEntities()->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
 
         $documentId = $this->createDocumentWithFile($orderId, $context);
@@ -66,7 +68,7 @@ class MailActionControllerTest extends TestCase
         /** @var ?MailTemplateEntity $mailTemplate */
         $mailTemplate = static::getContainer()
             ->get('mail_template.repository')
-            ->search($criteria, $context)
+            ->search($criteria, $context)->getEntities()
             ->first();
         static::assertInstanceOf(MailTemplateEntity::class, $mailTemplate);
 
@@ -74,7 +76,7 @@ class MailActionControllerTest extends TestCase
         $criteria->setLimit(1);
         $salesChannel = static::getContainer()
             ->get('sales_channel.repository')
-            ->search($criteria, $context)
+            ->search($criteria, $context)->getEntities()
             ->first();
         static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
@@ -183,6 +185,11 @@ class MailActionControllerTest extends TestCase
 
     public function testSimulateSuccess(): void
     {
+        TestUser::createNewTestUser(
+            $this->getBrowser()->getContainer()->get(Connection::class),
+            ['mail_template:update']
+        )->authorizeBrowser($this->getBrowser());
+
         $this->getBrowser()->request(
             'POST',
             '/api/_action/mail-template/simulate',
@@ -202,6 +209,19 @@ class MailActionControllerTest extends TestCase
         static::assertIsArray($response);
         static::assertSame('success', $response['contentHtml']['type']);
         static::assertNotSame('', $response['contentHtml']['content']);
+    }
+
+    public function testSimulateRequiresMailTemplateUpdatePrivilege(): void
+    {
+        $browser = $this->getBrowser();
+        TestUser::createNewTestUser(
+            $browser->getContainer()->get(Connection::class),
+            ['mail_template:read']
+        )->authorizeBrowser($browser);
+
+        $browser->request('POST', '/api/_action/mail-template/simulate');
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
     }
 
     public function testAvailableVariablesSuccess(): void
@@ -342,7 +362,7 @@ class MailActionControllerTest extends TestCase
 
         /** @var EntityRepository<MailTemplateTypeCollection> $mailTemplateTypeRepository */
         $mailTemplateTypeRepository = static::getContainer()->get('mail_template_type.repository');
-        $mailTemplateType = $mailTemplateTypeRepository->search($typeCriteria, $context)->first();
+        $mailTemplateType = $mailTemplateTypeRepository->search($typeCriteria, $context)->getEntities()->first();
 
         static::assertInstanceOf(MailTemplateTypeEntity::class, $mailTemplateType);
 
@@ -359,7 +379,7 @@ class MailActionControllerTest extends TestCase
             'contentPlain' => 'Hello {{ customName }}',
         ]], $context);
 
-        $mailTemplate = $mailTemplateRepository->search(new Criteria([$mailTemplateId]), $context)->first();
+        $mailTemplate = $mailTemplateRepository->search(new Criteria([$mailTemplateId]), $context)->getEntities()->first();
 
         static::assertInstanceOf(MailTemplateEntity::class, $mailTemplate);
 

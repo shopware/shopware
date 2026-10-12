@@ -1,0 +1,16 @@
+<ram:SpecifiedTradeSettlementPaymentMeans>
+    <ram:TypeCode>{{ means.typeCode.value }}</ram:TypeCode>
+    <ram:Information>{{ means.information }}</ram:Information>
+
+    {% if means.payeeIban %}
+        <ram:PayeePartyCreditorFinancialAccount>
+            <ram:IBANID>{{ means.payeeIban }}</ram:IBANID>
+        </ram:PayeePartyCreditorFinancialAccount>
+    {% endif %}
+
+    {% if means.payeeBic %}
+        <ram:PayeeSpecifiedCreditorFinancialInstitution>
+            <ram:BICID>{{ means.payeeBic }}</ram:BICID>
+        </ram:PayeeSpecifiedCreditorFinancialInstitution>
+    {% endif %}
+</ram:SpecifiedTradeSettlementPaymentMeans>

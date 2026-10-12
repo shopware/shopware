@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('checkout')]
 class ConfirmPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -39,7 +41,7 @@ class ConfirmPageTest extends TestCase
         static::assertSame($context->getToken(), $page->getCart()->getToken());
         static::assertCount(StorefrontPageTestConstants::AVAILABLE_SHIPPING_METHOD_COUNT, $page->getShippingMethods());
         static::assertCount(StorefrontPageTestConstants::AVAILABLE_PAYMENT_METHOD_COUNT, $page->getPaymentMethods());
-        static::assertNotEmpty($page->getPaymentMethods());
+        static::assertNotCount(0, $page->getPaymentMethods());
         self::assertPageEvent(CheckoutConfirmPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

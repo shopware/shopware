@@ -43,7 +43,7 @@ class Migration1729843379FixBelgianVatIdPatternTest extends TestCase
             ->executeQuery('SELECT `vat_id_pattern` FROM country WHERE vat_id_pattern = :pat', ['pat' => 'BE(0|1)\d{9}'])
             ->fetchAssociative();
 
-        static::assertNotEmpty($result);
+        static::assertNotFalse($result);
         static::assertSame('BE(0|1)\d{9}', $result['vat_id_pattern']);
     }
 }

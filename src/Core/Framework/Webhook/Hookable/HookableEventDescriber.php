@@ -6,8 +6,11 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * This interface describes how additional webhook event names and their
- * required privileges are provided to the app-system.
+ * Describes the webhook events an area of the system offers to apps.
+ *
+ * A describer only says which events exist and what privileges they require. Who may
+ * subscribe to or receive an event is decided by the policies covering it, see
+ * Shopware\Core\Framework\Webhook\Authorization\Policy\Policy.
  *
  * Implementations are discovered through the `shopware.hookable_event.describer` tag.
  *
@@ -17,14 +20,16 @@ use Shopware\Core\Framework\Log\Package;
 interface HookableEventDescriber
 {
     /**
-     *  Use describe() to list the events based on the current running system configuration.
+     * Every event this describer offers on the running system.
      *
      * @return list<HookableEventDescription>
      */
     public function describe(): array;
 
     /**
-     * Use describeForValidation() to provide the full list of events for manifest validation. If events are generated based off other configurations, then this method can use the manifest to list those dynamic events, which are not part of the running system yet.
+     * The events that exist once the given manifest is installed: everything describe()
+     * returns, plus events the manifest itself brings into being. A manifest can only add
+     * events here, never take them away.
      *
      * @return list<HookableEventDescription>
      */

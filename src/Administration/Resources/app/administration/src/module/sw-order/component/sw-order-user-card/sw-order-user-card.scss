@@ -1,7 +1,3 @@
-@import "~scss/variables";
-
-$sw-order-user-card-link: var(--color-text-brand-default);
-
 .sw-order-user-card {
     .sw-order-user-card__container {
         padding-bottom: 24px;
@@ -9,8 +5,8 @@ $sw-order-user-card-link: var(--color-text-brand-default);
 
     .sw-order-user-card__metadata-user-name,
     .sw-order-user-card__metadata-price {
-        font-weight: $font-weight-semi-bold;
-        font-size: $font-size-m;
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-m);
         margin-bottom: 8px;
     }
 
@@ -23,7 +19,7 @@ $sw-order-user-card-link: var(--color-text-brand-default);
 
     .sw-order-user-card__metadata-item {
         margin-bottom: 8px;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
     }
 
     .sw-order-user-card__actions {
@@ -56,7 +52,7 @@ $sw-order-user-card-link: var(--color-text-brand-default);
         }
 
         dt {
-            font-weight: $font-weight-semi-bold;
+            font-weight: var(--font-weight-semibold);
 
             &:not(:first-child),
             &:only-of-type {
@@ -68,7 +64,7 @@ $sw-order-user-card-link: var(--color-text-brand-default);
     .sw-description-list {
         .sw-order-user-card__address-edit-button,
         .sw-order-user-card__address-add-button {
-            color: $sw-order-user-card-link;
+            color: var(--color-text-brand-default);
             background: transparent;
             border: none;
             line-height: 10px;

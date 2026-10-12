@@ -5,12 +5,14 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRuntimeExceptionInDomainExceptionsRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends RuleTestCase<NoRuntimeExceptionInDomainExceptionsRule>
  */
+#[Package('framework')]
 class NoStaticRuntimeExceptionReturnRuleTest extends RuleTestCase
 {
     public function testRule(): void

@@ -95,11 +95,7 @@ describe('app/service/search-ranking.service.js', () => {
             },
             {},
         ],
-        [
-            'empty search ranking fields',
-            {},
-            {},
-        ],
+        ['empty search ranking fields', {}, {}],
         [
             'entity is unsearchable',
             {
@@ -195,6 +191,7 @@ describe('app/service/search-ranking.service.js', () => {
         };
 
         clearModules();
+        Shopware.Service('userConfigService').search = () => Promise.resolve({ data: {} });
     });
 
     const userConfigSearchPreferenceCase = [

@@ -50,6 +50,10 @@ class LineItemCustomFieldRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('customFields', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->isCustomFieldValid($lineItem, $scope->getSalesChannelContext())) {
                 return true;
             }

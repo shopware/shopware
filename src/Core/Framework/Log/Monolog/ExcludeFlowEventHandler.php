@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Log\Monolog;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\HandlerInterface;
 use Monolog\LogRecord;
+use Monolog\ResettableInterface;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -44,5 +45,12 @@ class ExcludeFlowEventHandler extends AbstractHandler
         }
 
         return $this->handler->handle($record);
+    }
+
+    public function reset(): void
+    {
+        if ($this->handler instanceof ResettableInterface) {
+            $this->handler->reset();
+        }
     }
 }

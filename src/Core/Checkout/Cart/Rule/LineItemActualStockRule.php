@@ -43,6 +43,10 @@ class LineItemActualStockRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('stock', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchStock($lineItem)) {
                 return true;
             }
@@ -62,7 +66,7 @@ class LineItemActualStockRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, false, true)
             ->intField('stock');
     }
 

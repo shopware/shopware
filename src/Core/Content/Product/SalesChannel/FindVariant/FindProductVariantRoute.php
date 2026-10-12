@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\FindVariant;
 
+use Shopware\Core\Content\Product\Extension\FindProductVariantRouteExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -22,8 +24,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('inventory')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class FindProductVariantRoute extends AbstractFindProductVariantRoute
 {
     /**
@@ -36,6 +38,7 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly SystemConfigService $systemConfigService,
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -52,6 +55,15 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context): FindProductVariantRouteResponse
     {
+        return $this->extensions->publish(
+            name: FindProductVariantRouteExtension::NAME,
+            extension: new FindProductVariantRouteExtension($productId, $request, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(string $productId, Request $request, SalesChannelContext $context): FindProductVariantRouteResponse
+    {
         $switchedGroup = RequestParamHelper::get($request, 'switchedGroup');
 
         $options = RequestParamHelper::get($request, 'options', []);
@@ -62,7 +74,7 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
             }
         }
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             $this->cacheTagCollector->addTag(EntityCacheKeyGenerator::buildProductTag($productId));
         }
 

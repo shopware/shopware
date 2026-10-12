@@ -47,7 +47,7 @@ class RenderStateTest extends TestCase
 
     public function testAddThrowsOnDuplicate(): void
     {
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             DocumentV2Exception::duplicateRenderResult(DocumentFormat::PDF->value)
         );
 
@@ -59,10 +59,18 @@ class RenderStateTest extends TestCase
 
     public function testRequireThrowsIfMissing(): void
     {
-        static::expectExceptionObject(
+        $this->expectExceptionObject(
             DocumentV2Exception::unknownRenderResult(DocumentFormat::HTML->value)
         );
 
+        $state = new RenderState();
+        $state->add($this->result);
+
+        $state->require(DocumentFormat::HTML->value);
+    }
+
+    public function testRequireReturnsResultIfPresent(): void
+    {
         $state = new RenderState();
         $state->add($this->result);
 
@@ -70,7 +78,5 @@ class RenderStateTest extends TestCase
             $this->result,
             $state->require(DocumentFormat::PDF->value)
         );
-
-        $state->require(DocumentFormat::HTML->value);
     }
 }

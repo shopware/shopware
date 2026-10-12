@@ -8,10 +8,7 @@ import './sw-media-add-thumbnail-form.scss';
 export default {
     template,
 
-    emits: [
-        'thumbnail-form-size-add',
-        'on-input',
-    ],
+    emits: ['thumbnail-form-size-add', 'on-input'],
 
     props: {
         disabled: {

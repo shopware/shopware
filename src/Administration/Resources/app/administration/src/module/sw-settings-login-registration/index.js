@@ -14,9 +14,9 @@ Module.register('sw-settings-login-registration', {
     description: 'sw-settings-login-registration.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-icon-secondary-default)',
-    icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    color: 'var(--sw-color-module-neutral-default)',
+    icon: 'regular-sign-in',
+    favicon: 'icon-module-settings.svg',
 
     routes: {
         index: {

@@ -4,11 +4,14 @@ services:
         ports:
             - 8000:8000
             - 5173:5173
+            - 5175:5175
             - 9998:9998
             - 9999:9999
         environment:
             COMPOSER_ROOT_VERSION: 6.7.9999999-dev
             HOST: '0.0.0.0'
+            STOREFRONT_VITE_HOST: '0.0.0.0'
+            STOREFRONT_VITE_ORIGIN: http://localhost:5175
             APP_URL: http://localhost:8000
             DATABASE_URL: mysql://root:root@database/shopware
             MAILER_DSN: smtp://mailer:1025

@@ -12,15 +12,11 @@ export default Component.wrapComponentConfig({
 
     compatConfig: Shopware.compatConfig,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     emits: ['modal-close'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         currentStateMachineState: {
@@ -40,9 +36,7 @@ export default Component.wrapComponentConfig({
             return this.repositoryFactory.create('state_machine_state');
         },
 
-        ...mapPropertyErrors('stateMachineState', [
-            'name',
-        ]),
+        ...mapPropertyErrors('stateMachineState', ['name']),
     },
 
     created() {

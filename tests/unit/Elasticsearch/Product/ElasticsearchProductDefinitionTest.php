@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
@@ -38,6 +39,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchProductDefinition::class)]
 class ElasticsearchProductDefinitionTest extends TestCase
 {
@@ -286,7 +288,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
         ]);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn([Defaults::CURRENCY, 'c0d2554b0ce847cd82f3ac9bd1c0dfca']);
 
         $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
         $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
@@ -296,21 +299,39 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $fieldMapper = new ElasticsearchFieldMapper($utils);
 
         $definition = new ElasticsearchProductDefinition(
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $connection,
-            $this->createMock(ProductSearchQueryBuilder::class),
+            static::createStub(ProductSearchQueryBuilder::class),
             $fieldBuilder,
             $fieldMapper,
             $salesChannelLanguageLoader,
             false,
             'dev',
-            $this->createMock(LanguageLoaderInterface::class)
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         $expectedMapping = [
             'properties' => [
                 'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'parentId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'price' => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'c_' . Defaults::CURRENCY => [
+                            'properties' => [
+                                'gross' => AbstractElasticsearchDefinition::FLOAT_FIELD,
+                                'net' => AbstractElasticsearchDefinition::FLOAT_FIELD,
+                            ],
+                        ],
+                        'c_c0d2554b0ce847cd82f3ac9bd1c0dfca' => [
+                            'properties' => [
+                                'gross' => AbstractElasticsearchDefinition::FLOAT_FIELD,
+                                'net' => AbstractElasticsearchDefinition::FLOAT_FIELD,
+                            ],
+                        ],
+                    ],
+                ],
                 'parent' => [
                     'type' => 'nested',
                     'properties' => [
@@ -520,6 +541,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     ],
                 ],
                 ],
+                ['price_fields' => [
+                    'path_match' => 'price.*.*',
+                    'mapping' => [
+                        'type' => 'double',
+                    ],
+                ],
+                ],
                 [
                     'long_to_double' => [
                         'match_mapping_type' => 'long',
@@ -532,16 +560,15 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ];
 
         if (Feature::isActive('v6.8.0.0')) {
-            unset($expectedMapping['properties']['visibilities']);
-            unset($expectedMapping['properties']['categoriesRo']);
             unset($expectedMapping['properties']['states']);
         }
+
         static::assertEquals($expectedMapping, $definition->getMapping(Context::createDefaultContext()));
     }
 
     public function testMappingCustomFields(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $languageLoader = new StaticLanguageLoader([
             'lang_en' => [
@@ -579,13 +606,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = new ElasticsearchProductDefinition(
             $instanceRegistry->get(ProductDefinition::class),
             $connection,
-            $this->createMock(ProductSearchQueryBuilder::class),
+            static::createStub(ProductSearchQueryBuilder::class),
             $fieldBuilder,
             $fieldMapper,
             $salesChannelLoader,
             false,
             'dev',
-            $this->createMock(LanguageLoaderInterface::class)
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         $mapping = $definition->getMapping(Context::createDefaultContext());
@@ -673,14 +700,14 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $esDefinition = new ElasticsearchProductDefinition(
             $definition,
-            $this->createMock(Connection::class),
-            $this->createMock(ProductSearchQueryBuilder::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
-            $this->createMock(ElasticsearchFieldMapper::class),
-            $this->createMock(SalesChannelLanguageLoader::class),
+            static::createStub(Connection::class),
+            static::createStub(ProductSearchQueryBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldMapper::class),
+            static::createStub(SalesChannelLanguageLoader::class),
             false,
             'dev',
-            $this->createMock(LanguageLoaderInterface::class)
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         static::assertSame($definition, $esDefinition->getEntityDefinition());
@@ -688,7 +715,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
     public function testBuildTermQueryUsingSearchQueryBuilder(): void
     {
-        $searchQueryBuilder = $this->createMock(ProductSearchQueryBuilder::class);
+        $searchQueryBuilder = static::createStub(ProductSearchQueryBuilder::class);
         $boolQuery = new BoolQuery();
         $boolQuery->add(new MatchQuery('name', 'test'));
         $searchQueryBuilder
@@ -699,20 +726,20 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = $registry->get(ProductDefinition::class);
         static::assertInstanceOf(ProductDefinition::class, $definition);
 
-        $utils = new ElasticsearchIndexingUtils($this->createMock(Connection::class), new EventDispatcher(), new ParameterBag([]));
+        $utils = new ElasticsearchIndexingUtils(static::createStub(Connection::class), new EventDispatcher(), new ParameterBag([]));
         $fieldBuilder = new ElasticsearchFieldBuilder(new StaticLanguageLoader([]), $utils, []);
         $fieldMapper = new ElasticsearchFieldMapper($utils);
 
         $definition = new ElasticsearchProductDefinition(
             $definition,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $searchQueryBuilder,
             $fieldBuilder,
             $fieldMapper,
-            $this->createMock(SalesChannelLanguageLoader::class),
+            static::createStub(SalesChannelLanguageLoader::class),
             false,
             'dev',
-            $this->createMock(LanguageLoaderInterface::class)
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         $criteria = new Criteria();
@@ -744,13 +771,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = new ElasticsearchProductDefinition(
             $definition,
             $connection,
-            $this->createMock(ProductSearchQueryBuilder::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
-            $this->createMock(ElasticsearchFieldMapper::class),
+            static::createStub(ProductSearchQueryBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldMapper::class),
             $salesChannelLanguageLoader,
             false,
             'dev',
-            $this->createMock(LanguageLoaderInterface::class)
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         $uuid = $this->ids->get('product-1');
@@ -778,6 +805,16 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
             static::assertSame($price, $document[$key]);
         }
+
+        // keyed by `c_<currencyId>` to match the accessor of the criteria parser, and the `c` prefix of the
+        // database key is only stripped once - the currency id of the second price starts with a `c` itself
+        static::assertSame(
+            [
+                'c_b7d2554b0ce847cd82f3ac9bd1c0dfca' => ['gross' => 10.0, 'net' => 8.0],
+                'c_c0d2554b0ce847cd82f3ac9bd1c0dfca' => ['gross' => 20.0, 'net' => 16.0],
+            ],
+            $document['price']
+        );
 
         static::assertSame(
             [
@@ -871,6 +908,32 @@ class ElasticsearchProductDefinitionTest extends TestCase
         );
     }
 
+    public function testFetchingSkipsPriceNotKeyedByCurrency(): void
+    {
+        $registry = $this->getDefinitionRegistry();
+        $definition = $registry->get(ProductDefinition::class);
+        static::assertInstanceOf(ProductDefinition::class, $definition);
+
+        $definition = new ElasticsearchProductDefinition(
+            $definition,
+            $this->getConnection(price: '[{"currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca", "net": 8, "gross": 10}]'),
+            static::createStub(ProductSearchQueryBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldMapper::class),
+            new StaticSalesChannelLanguageLoader([
+                Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
+            ]),
+            false,
+            'dev',
+            static::createStub(LanguageLoaderInterface::class)
+        );
+
+        $uuid = $this->ids->get('product-1');
+        $documents = $definition->fetch([$uuid], Context::createDefaultContext());
+
+        static::assertSame([], $documents[$uuid]['price']);
+    }
+
     public function testFetchingWithSalesChannelLanguageMissingDefaultLang(): void
     {
         $registry = $this->getDefinitionRegistry();
@@ -887,13 +950,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = new ElasticsearchProductDefinition(
             $definition,
             $connection,
-            $this->createMock(ProductSearchQueryBuilder::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
-            $this->createMock(ElasticsearchFieldMapper::class),
+            static::createStub(ProductSearchQueryBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldMapper::class),
             $salesChannelLanguageLoader,
             false,
             'dev',
-            $this->createMock(LanguageLoaderInterface::class)
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         $uuid = $this->ids->get('product-1');
@@ -937,13 +1000,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = new ElasticsearchProductDefinition(
             $instanceRegistry->get(ProductDefinition::class),
             $connection,
-            $this->createMock(ProductSearchQueryBuilder::class),
+            static::createStub(ProductSearchQueryBuilder::class),
             $fieldBuilder,
             $fieldMapper,
             $salesChannelLanguageLoader,
             false,
             'dev',
-            $this->createMock(LanguageLoaderInterface::class)
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         $uuid = $this->ids->get('product-1');
@@ -969,17 +1032,17 @@ class ElasticsearchProductDefinitionTest extends TestCase
             Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
         ]);
 
-        $connection = $this->getConnectionWithProductData('PRODUCT-123', 'PARENT-456');
+        $connection = $this->getConnectionWithProductData('PARENT-456');
         $definition = new ElasticsearchProductDefinition(
             $definition,
             $connection,
-            $this->createMock(ProductSearchQueryBuilder::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
-            $this->createMock(ElasticsearchFieldMapper::class),
+            static::createStub(ProductSearchQueryBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldMapper::class),
             $salesChannelLanguageLoader,
             false,
             'dev',
-            $this->createMock(LanguageLoaderInterface::class)
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         $uuid = $this->ids->get('product-1');
@@ -1005,17 +1068,17 @@ class ElasticsearchProductDefinitionTest extends TestCase
             Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
         ]);
 
-        $connection = $this->getConnectionWithProductData('PRODUCT-123', null);
+        $connection = $this->getConnectionWithProductData(null);
         $definition = new ElasticsearchProductDefinition(
             $definition,
             $connection,
-            $this->createMock(ProductSearchQueryBuilder::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
-            $this->createMock(ElasticsearchFieldMapper::class),
+            static::createStub(ProductSearchQueryBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldMapper::class),
             $salesChannelLanguageLoader,
             false,
             'dev',
-            $this->createMock(LanguageLoaderInterface::class)
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         $uuid = $this->ids->get('product-1');
@@ -1042,7 +1105,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ]);
 
         $connection = $this->getConnectionWithProductData(
-            productNumber: 'PRODUCT-123',
             parentProductNumber: 'PARENT-456',
             name: 'Child Product',
             parentName: 'Parent Product'
@@ -1050,13 +1112,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = new ElasticsearchProductDefinition(
             $definition,
             $connection,
-            $this->createMock(ProductSearchQueryBuilder::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
-            $this->createMock(ElasticsearchFieldMapper::class),
+            static::createStub(ProductSearchQueryBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldMapper::class),
             $salesChannelLanguageLoader,
             false,
             'dev',
-            $this->createMock(LanguageLoaderInterface::class)
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         $uuid = $this->ids->get('product-1');
@@ -1074,9 +1136,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
         );
     }
 
-    private function getConnection(int $numberOfTranslations = 1): MockObject&Connection
+    private function getConnection(int $numberOfTranslations = 1, ?string $price = null): Stub&Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $calls = [
             [
@@ -1108,6 +1170,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     'coverId' => null,
                     'childCount' => 0,
                     'cheapest_price_accessor' => '{"rule-1": {"b7d2554b0ce847cd82f3ac9bd1c0dfca": {"gross": 5, "net": 4}, "b7d2554b0ce847cd82f3ac9bd1c0dfc2": {"gross": 5, "net": 4, "percentage": {"gross": 1, "net": 2}}}}',
+                    'price' => $price ?? '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca": {"currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca", "net": 8, "gross": 10}, "cc0d2554b0ce847cd82f3ac9bd1c0dfca": {"currencyId": "c0d2554b0ce847cd82f3ac9bd1c0dfca", "net": 16, "gross": 20}}',
                     'visibilities' => '[{"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 20, "salesChannelId": "sc-2"}]',
                     'propertyIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
                     'optionIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
@@ -1170,17 +1233,16 @@ class ElasticsearchProductDefinitionTest extends TestCase
     }
 
     private function getConnectionWithProductData(
-        string $productNumber,
         ?string $parentProductNumber,
         string $name = 'Test Product',
         ?string $parentName = null
-    ): MockObject&Connection {
-        $connection = $this->createMock(Connection::class);
+    ): Stub&Connection {
+        $connection = static::createStub(Connection::class);
 
         $baseProductData = [
             'id' => $this->ids->get('product-1'),
-            'parentId' => $parentProductNumber ?? null,
-            'productNumber' => $productNumber,
+            'parentId' => $parentProductNumber,
+            'productNumber' => 'PRODUCT-123',
             'parentProductNumber' => $parentProductNumber,
             'autoIncrement' => 1,
             'ean' => '',
@@ -1238,8 +1300,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 ProductDefinition::class,
                 ProductTranslationDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 }

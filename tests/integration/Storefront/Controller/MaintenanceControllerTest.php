@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -21,6 +22,7 @@ use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 /**
  * @internal
  */
+#[Package('discovery')]
 class MaintenanceControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -47,7 +49,7 @@ class MaintenanceControllerTest extends TestCase
 
         static::assertSame(503, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(MaintenancePageLoadedHook::HOOK_NAME, $traces);
     }
@@ -57,9 +59,23 @@ class MaintenanceControllerTest extends TestCase
         $response = $this->request('GET', '/maintenance/singlepage/' . $this->ids->get('page'), []);
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(MaintenancePageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testMaintenancePageIsRenderedForClientNotInAllowlist(): void
+    {
+        // a configured allowlist that does not contain the requesting client must still render the maintenance page;
+        // this exercises the allowlist IP header handling (DomainLoader -> RequestTransformer -> controller)
+        $this->setMaintenanceMode(['10.253.0.1']);
+
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser->followRedirects();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/');
+        $response = $browser->getResponse();
+
+        static::assertSame(503, $response->getStatusCode());
     }
 
     private function createData(): void
@@ -105,7 +121,10 @@ class MaintenanceControllerTest extends TestCase
         static::getContainer()->get('cms_page.repository')->create([$page], Context::createDefaultContext());
     }
 
-    private function setMaintenanceMode(): void
+    /**
+     * @param list<string>|null $allowlist
+     */
+    private function setMaintenanceMode(?array $allowlist = null): void
     {
         /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
@@ -120,12 +139,16 @@ class MaintenanceControllerTest extends TestCase
 
         static::assertNotNull($salesChannel);
 
-        $salesChannelRepository->update([
-            [
-                'id' => $salesChannel->getId(),
-                'maintenance' => true,
-            ],
-        ], Context::createDefaultContext());
+        $update = [
+            'id' => $salesChannel->getId(),
+            'maintenance' => true,
+        ];
+
+        if ($allowlist !== null) {
+            $update['maintenanceIpAllowlist'] = $allowlist;
+        }
+
+        $salesChannelRepository->update([$update], Context::createDefaultContext());
 
         static::getContainer()->get(SystemConfigService::class)->set('core.basicInformation.maintenancePage', $this->ids->get('page'));
     }

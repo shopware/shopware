@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -34,6 +35,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class ApiControllerCreateTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -62,7 +64,7 @@ class ApiControllerCreateTest extends TestCase
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $this->getBrowser()->jsonRequest('GET', '/api/product/' . $id);
@@ -90,7 +92,7 @@ class ApiControllerCreateTest extends TestCase
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $this->getBrowserAuthenticatedWithIntegration()->jsonRequest('GET', '/api/product/' . $id);
@@ -106,7 +108,7 @@ class ApiControllerCreateTest extends TestCase
         $this->getBrowser()->jsonRequest('POST', '/api/country', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         $this->getBrowser()->jsonRequest('GET', '/api/country/' . $id);
@@ -122,7 +124,7 @@ class ApiControllerCreateTest extends TestCase
         $this->getBrowser()->jsonRequest('POST', '/api/country/' . $id . '/states/', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/country-state/' . $id, $response->headers->get('Location'));
 
         $this->getBrowser()->jsonRequest('GET', '/api/country/' . $id . '/states/');
@@ -157,7 +159,7 @@ class ApiControllerCreateTest extends TestCase
         $browser->jsonRequest('POST', '/api/country', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($browser, 'country', $id);
@@ -186,7 +188,7 @@ class ApiControllerCreateTest extends TestCase
         $this->getBrowser()->jsonRequest('POST', '/api/country', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         $browser = $this->getBrowser();
@@ -207,7 +209,7 @@ class ApiControllerCreateTest extends TestCase
 
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($browser, 'country', $id);
@@ -250,7 +252,7 @@ class ApiControllerCreateTest extends TestCase
         $this->getBrowser()->jsonRequest('POST', '/api/country', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         $browser = $this->getBrowser();
@@ -291,7 +293,7 @@ class ApiControllerCreateTest extends TestCase
         $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), 'Create product failed id:' . $id);
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $data = [
@@ -303,7 +305,7 @@ class ApiControllerCreateTest extends TestCase
         $this->getBrowser()->jsonRequest('POST', '/api/product/' . $id . '/manufacturer', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), 'Create manufacturer over product failed id:' . $id . "\n" . $this->getBrowser()->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product-manufacturer/' . $manufacturer, $response->headers->get('Location'));
 
         $this->getBrowser()->jsonRequest('GET', '/api/product/' . $id . '/manufacturer');
@@ -339,7 +341,7 @@ class ApiControllerCreateTest extends TestCase
         $browser->jsonRequest('POST', '/api/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), 'Create product failed id:' . $id);
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $user->authorizeBrowser($browser);
@@ -384,7 +386,7 @@ class ApiControllerCreateTest extends TestCase
         $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $data = [
@@ -395,7 +397,7 @@ class ApiControllerCreateTest extends TestCase
         $this->getBrowser()->jsonRequest('POST', '/api/product/' . $id . '/categories/', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/category/' . $id, $response->headers->get('Location'));
 
         $this->getBrowser()->jsonRequest('GET', '/api/product/' . $id . '/categories/');
@@ -438,7 +440,7 @@ class ApiControllerCreateTest extends TestCase
         $browser->jsonRequest('POST', '/api/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $data = [
@@ -673,7 +675,7 @@ class ApiControllerCreateTest extends TestCase
         $this->getBrowser()->jsonRequest('POST', '/api/language', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/language/' . $childId, $response->headers->get('Location'));
     }
 

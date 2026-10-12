@@ -71,8 +71,7 @@
         {% endblock %}
         <a
             v-if="hasSelectedVisibilities && showModeSetting"
-            class="sw-card__quick-link advanced-visibility"
-            style="text-align: right; display: block"
+            class="sw-card__quick-link advanced-visibility sw-product-category-form__visibility-link"
             role="button"
             tabindex="0"
             @click="displayAdvancedVisibility"
@@ -111,7 +110,6 @@
 
     {% block sw_product_category_form_category_field %}
     <sw-container
-        rows="2em 4em 4em"
         class="sw-product-feature-set-form__description"
     >
         {% block sw_product_category_form_categories_title %}

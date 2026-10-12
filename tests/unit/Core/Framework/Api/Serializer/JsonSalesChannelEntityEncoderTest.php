@@ -52,8 +52,8 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
                 ExtendableDefinition::class => ExtendableDefinition::class,
                 ExtendedDefinition::class => ExtendedDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 

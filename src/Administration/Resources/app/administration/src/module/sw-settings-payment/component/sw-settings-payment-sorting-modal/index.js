@@ -10,16 +10,9 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['acl', 'repositoryFactory', 'feature'],
 
-    emits: [
-        'modal-close',
-        'modal-save',
-    ],
+    emits: ['modal-close', 'modal-save'],
 
     mixins: [Mixin.getByName('notification')],
 

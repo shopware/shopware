@@ -43,9 +43,7 @@ async function createWrapper(privileges = []) {
 
 describe('module/sw-settings-country/component/sw-country-state-detail', () => {
     it('should be able to create a new country state', async () => {
-        const wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        const wrapper = await createWrapper(['country.editor']);
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-country-state-detail__save-button');
@@ -63,9 +61,7 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
     });
 
     it('should be able to edit a country state', async () => {
-        const wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        const wrapper = await createWrapper(['country.editor']);
         await wrapper.vm.$nextTick();
         await flushPromises();
 

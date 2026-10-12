@@ -4,11 +4,9 @@ namespace Shopware\Core\System\Snippet\Files;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
 use League\Flysystem\StorageAttributes;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
@@ -20,8 +18,6 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @description Loads storefront snippet files from the core, plugins, and apps into a SnippetFileCollection.
- *
- * @phpstan-import-type App from ActiveAppsLoader
  */
 #[Package('discovery')]
 class SnippetFileLoader implements SnippetFileLoaderInterface
@@ -42,20 +38,61 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         private readonly ActiveAppsLoader $activeAppsLoader,
         private readonly TranslationConfig $config,
         private readonly AbstractTranslationLoader $translationLoader,
-        private readonly Filesystem $translationReader,
-        private readonly SourceResolver $sourceResolver,
-        private readonly LoggerInterface $logger,
+        private readonly FilesystemOperator $translationReader,
+        private readonly StorefrontSnippetStorage $snippetStorage,
+        private readonly FilesystemOperator $privateFilesystem,
     ) {
     }
 
     public function loadSnippetFilesIntoCollection(SnippetFileCollection $snippetFileCollection): void
     {
+        // Load snippets placed in the private filesystem first, every other source overrides them
+        $this->loadFilesystemSnippets($snippetFileCollection);
         // Load snippets from private translation system
         $this->loadTranslationSnippets($snippetFileCollection);
         // Load snippets from Shopware bundles and plugins
         $this->loadShippedSnippets($snippetFileCollection);
         // Load snippets from active apps
         $this->loadAppSnippets($snippetFileCollection);
+    }
+
+    /**
+     * Files below `snippets/storefront/` in the private filesystem, see {@see FilesystemStorefrontSnippets}.
+     * Inside a `<source>/` directory, that directory becomes author and technical name of the snippet file.
+     * Files placed directly in the root get the author `custom` and their domain (`storefront` for
+     * `storefront.de.json`) as technical name.
+     */
+    private function loadFilesystemSnippets(SnippetFileCollection $snippetFileCollection): void
+    {
+        if (!$this->privateFilesystem->directoryExists(FilesystemStorefrontSnippets::DIRECTORY)) {
+            return;
+        }
+
+        $files = $this->privateFilesystem
+            ->listContents(FilesystemStorefrontSnippets::DIRECTORY, true)
+            ->filter(static fn (StorageAttributes $node): bool => $node->isFile() && \str_ends_with($node->path(), '.json'));
+
+        foreach ($files as $file) {
+            $relativeDirectory = Path::makeRelative(Path::getDirectory($file->path()), FilesystemStorefrontSnippets::DIRECTORY);
+            $source = explode('/', $relativeDirectory)[0];
+            $nameParts = $this->parseSnippetFileName(Path::getFilenameWithoutExtension($file->path()));
+
+            if ($source === '..' || $nameParts === null) {
+                continue;
+            }
+
+            $author = $source !== '' ? $source : FilesystemStorefrontSnippets::ROOT_AUTHOR;
+            $technicalName = $source !== '' ? $source : explode('.', $nameParts['name'])[0];
+
+            $snippetFileCollection->add(new FilesystemSnippetFile(
+                $nameParts['name'],
+                $file->path(),
+                $nameParts['iso'],
+                $author,
+                $nameParts['isBase'],
+                $technicalName,
+            ));
+        }
     }
 
     private function loadTranslationSnippets(SnippetFileCollection $snippetFileCollection): void
@@ -91,7 +128,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
 
             // Check if the path matches the expected structure. If not, the directory was modified and the file should be skipped.
             $validityCheck = \array_intersect_key($pathComponents, array_fill_keys(['locale', 'component'], true));
-            if (\count($validityCheck) !== 2 || empty($pathComponents['locale']) || empty($pathComponents['component'])) {
+            if (\count($validityCheck) !== 2 || $pathComponents['locale'] === '' || $pathComponents['component'] === '') {
                 continue;
             }
 
@@ -182,37 +219,17 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     private function loadAppSnippets(SnippetFileCollection $snippetFileCollection): void
     {
         foreach ($this->activeAppsLoader->getActiveApps() as $app) {
-            foreach ($this->loadSnippetFilesForApp($app) as $snippetFile) {
+            $directory = $this->snippetStorage->directory($app['name'], $app['version']);
+
+            if ($directory === null) {
+                continue;
+            }
+
+            foreach ($this->appSnippetFileLoader->loadSnippetFilesFromApp($app['author'] ?? '', $directory, true) as $snippetFile) {
                 $snippetFile->setTechnicalName($app['name']);
                 $snippetFileCollection->add($snippetFile);
             }
         }
-    }
-
-    /**
-     * @param App $app
-     *
-     * @return GenericSnippetFile[]
-     */
-    private function loadSnippetFilesForApp(array $app): array
-    {
-        if (!$app['selfManaged']) {
-            return $this->appSnippetFileLoader->loadSnippetFilesFromApp($app['author'] ?? '', $app['path']);
-        }
-
-        // self-managed apps (e.g. services) have no files at `path`, they are resolved through their app source
-        try {
-            $filesystem = $this->sourceResolver->filesystemForAppName($app['name']);
-        } catch (\Throwable $e) {
-            $this->logger->error(
-                \sprintf('Could not load snippet files of app "%s": %s', $app['name'], $e->getMessage()),
-                ['exception' => $e]
-            );
-
-            return [];
-        }
-
-        return $this->appSnippetFileLoader->loadSnippetFilesFromApp($app['author'] ?? '', $filesystem->location, true);
     }
 
     /**
@@ -230,40 +247,38 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         $snippetFiles = [];
 
         foreach ($finder->getIterator() as $fileInfo) {
-            $nameParts = explode('.', $fileInfo->getFilenameWithoutExtension());
-
-            $snippetFile = null;
-            switch (\count($nameParts)) {
-                case 2:
-                    $snippetFile = new GenericSnippetFile(
-                        implode('.', $nameParts),
-                        $fileInfo->getPathname(),
-                        $nameParts[1],
-                        $this->getAuthorFromBundle($bundle, $authors),
-                        false,
-                        $bundle->getName(),
-                    );
-
-                    break;
-                case 3:
-                    $snippetFile = new GenericSnippetFile(
-                        implode('.', [$nameParts[0], $nameParts[1]]),
-                        $fileInfo->getPathname(),
-                        $nameParts[1],
-                        $this->getAuthorFromBundle($bundle, $authors),
-                        $nameParts[2] === 'base',
-                        $bundle->getName(),
-                    );
-
-                    break;
+            $nameParts = $this->parseSnippetFileName($fileInfo->getFilenameWithoutExtension());
+            if ($nameParts === null) {
+                continue;
             }
 
-            if ($snippetFile) {
-                $snippetFiles[] = $snippetFile;
-            }
+            $snippetFiles[] = new GenericSnippetFile(
+                $nameParts['name'],
+                $fileInfo->getPathname(),
+                $nameParts['iso'],
+                $this->getAuthorFromBundle($bundle, $authors),
+                $nameParts['isBase'],
+                $bundle->getName(),
+            );
         }
 
         return $snippetFiles;
+    }
+
+    /**
+     * Snippet files are named `<name>.<iso>.json` or `<name>.<iso>.base.json`.
+     *
+     * @return array{name: string, iso: string, isBase: bool}|null
+     */
+    private function parseSnippetFileName(string $filenameWithoutExtension): ?array
+    {
+        $nameParts = explode('.', $filenameWithoutExtension);
+
+        return match (\count($nameParts)) {
+            2 => ['name' => implode('.', $nameParts), 'iso' => $nameParts[1], 'isBase' => false],
+            3 => ['name' => $nameParts[0] . '.' . $nameParts[1], 'iso' => $nameParts[1], 'isBase' => $nameParts[2] === 'base'],
+            default => null,
+        };
     }
 
     /**

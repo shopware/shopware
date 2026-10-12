@@ -43,7 +43,7 @@ class TelemetryFlushListenerTest extends TestCase
         $collection->expects($this->never())->method('getIterator');
 
         $clock = new MockClock();
-        $listener = new TelemetryFlushListener($collection, $this->createMock(LoggerInterface::class), $clock, 60);
+        $listener = new TelemetryFlushListener($collection, static::createStub(LoggerInterface::class), $clock, 60);
 
         // advance less than the interval — still fresh
         $clock->sleep(30);
@@ -58,7 +58,7 @@ class TelemetryFlushListenerTest extends TestCase
         $collection = $this->createTransportCollectionMock([$transport]);
 
         $clock = new MockClock();
-        $listener = new TelemetryFlushListener($collection, $this->createMock(LoggerInterface::class), $clock, 60);
+        $listener = new TelemetryFlushListener($collection, static::createStub(LoggerInterface::class), $clock, 60);
 
         // advance past the interval — stale
         $clock->sleep(61);
@@ -74,7 +74,7 @@ class TelemetryFlushListenerTest extends TestCase
 
         $collection = $this->createTransportCollectionMock([$transport1, $transport2]);
 
-        $listener = new TelemetryFlushListener($collection, $this->createMock(LoggerInterface::class), new MockClock());
+        $listener = new TelemetryFlushListener($collection, static::createStub(LoggerInterface::class), new MockClock());
         $listener->flush();
     }
 
@@ -103,7 +103,7 @@ class TelemetryFlushListenerTest extends TestCase
 
     private function createWorkerRunningEvent(): WorkerRunningEvent
     {
-        return new WorkerRunningEvent($this->createMock(Worker::class), false);
+        return new WorkerRunningEvent(static::createStub(Worker::class), false);
     }
 
     /**

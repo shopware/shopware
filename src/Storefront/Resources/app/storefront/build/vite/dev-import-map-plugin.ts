@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import type { Plugin, ViteDevServer } from 'vite';
 import { glob } from 'tinyglobby';
 import { compileAsync } from 'sass-embedded';
+import { normalizeComponentEntryName } from './component-entry-name.cjs';
 
 type BundleEntry = {
     basePath?: string;
@@ -29,10 +30,10 @@ const COMP_CSS_PREFIX = '/__sw-comp-css/';
  * colon-separated tag used in `data-component` attributes and the import map.
  *
  *   'Sw/Header/Navbar.ts'      → 'Sw:Header:Navbar'
- *   'Wusel/Counter.ts' (+ ns)  → 'ComponentTestApp:Wusel:Counter'
+ *   'Custom/Counter.ts' (+ ns)  → 'ComponentTestApp:Custom:Counter'
  */
 function fileToTag(relPath: string, namespace: string | undefined): string {
-    const withoutExt = relPath.replace(/\.(ts|js)$/, '');
+    const withoutExt = normalizeComponentEntryName(relPath);
     const colonPath = withoutExt.split('/').join(':');
     return namespace ? `${namespace}:${colonPath}` : colonPath;
 }
@@ -79,6 +80,15 @@ export function devImportMapPlugin(projectRoot: string, scssLoadPaths: string[] 
     const flagFile = path.join(projectRoot, 'var/cache/storefront_components.dev.json');
     let viteRoot = '';
     const resolveBundleBasePath = (basePath?: string): string => path.resolve(projectRoot, basePath ?? '');
+    const resolveDevOrigin = (server: ViteDevServer): string => {
+        const configuredOrigin = server.config.server.origin;
+        if (configuredOrigin) {
+            return configuredOrigin.replace(/\/$/, '');
+        }
+
+        const port = server.config.server.port ?? 5175;
+        return `http://localhost:${port}`;
+    };
 
     const cleanup = (): void => {
         try {
@@ -330,8 +340,7 @@ export function devImportMapPlugin(projectRoot: string, scssLoadPaths: string[] 
             });
 
             const write = (): void => {
-                const port = server.config.server.port ?? 5175;
-                const origin = `http://localhost:${port}`;
+                const origin = resolveDevOrigin(server);
                 const imports: Record<string, string> = {};
 
                 // shopware runtime module — lives inside the Vite root so it

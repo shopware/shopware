@@ -40,6 +40,10 @@ class LineItemClearanceSaleRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('isCloseout', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchesClearanceSaleCondition($lineItem)) {
                 return true;
             }
@@ -58,7 +62,9 @@ class LineItemClearanceSaleRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->booleanField('clearanceSale');
+            ->booleanField('clearanceSale', [
+                'isMatchAny' => true,
+            ]);
     }
 
     /**

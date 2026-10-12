@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<UnitTranslationEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class UnitTranslationCollection extends EntityCollection

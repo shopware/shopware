@@ -7,6 +7,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(TemplateDataExtension::class)]
 class TemplateDataExtensionTest extends TestCase
 {

@@ -12,10 +12,7 @@ const { uniqBy } = Shopware.Utils.array;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['feature', 'repositoryFactory', 'acl'],
 
     data() {
         return {
@@ -63,6 +60,23 @@ export default {
             return this.repositoryFactory.create('property_group_option');
         },
 
+        variantCardTabs() {
+            return [
+                {
+                    label: this.$t('sw-product.variations.variationCard.tabs.allProducts'),
+                    name: 'all',
+                },
+                {
+                    label: this.$t('sw-product.variations.variationCard.tabs.physicalProducts'),
+                    name: 'physical',
+                },
+                {
+                    label: this.$t('sw-product.variations.variationCard.tabs.digitalProducts'),
+                    name: 'digital',
+                },
+            ];
+        },
+
         productProperties() {
             return this.isChild && this.product?.properties?.length <= 0
                 ? this.parentProduct.properties
@@ -102,12 +116,7 @@ export default {
             if (groupIds.length === 0) {
                 return [];
             }
-            const groupMap = new Map(
-                this.groups.map((group) => [
-                    group.id,
-                    group,
-                ]),
-            );
+            const groupMap = new Map(this.groups.map((group) => [group.id, group]));
             return groupIds.map((id) => groupMap.get(id)).filter(Boolean);
         },
     },
@@ -282,10 +291,7 @@ export default {
 
             const results = await Promise.all(promises);
 
-            return [
-                initialResult,
-                ...results,
-            ].flatMap((result) => result);
+            return [initialResult, ...results].flatMap((result) => result);
         },
     },
 };

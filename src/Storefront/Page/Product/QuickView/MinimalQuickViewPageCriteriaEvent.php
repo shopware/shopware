@@ -9,7 +9,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('framework')]
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('discovery')]
 class MinimalQuickViewPageCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
     public function __construct(

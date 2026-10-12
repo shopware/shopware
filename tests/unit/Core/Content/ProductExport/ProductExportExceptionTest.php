@@ -5,11 +5,14 @@ namespace Shopware\Tests\Unit\Core\Content\ProductExport;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductExportException::class)]
 class ProductExportExceptionTest extends TestCase
 {
@@ -82,7 +85,17 @@ class ProductExportExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(ProductExportException::SALES_CHANNEL_NOT_ALLOWED_EXCEPTION, $exception->getErrorCode());
-        static::assertSame('Only sales channels from type "Storefront" can be used for exports.', $exception->getMessage());
+        static::assertSame('Only sales channels from type "Storefront" or "Headless" can be used for exports.', $exception->getMessage());
+    }
+
+    public function testSalesChannelNotFound(): void
+    {
+        $exception = ProductExportException::salesChannelNotFound();
+
+        static::assertInstanceOf(SalesChannelNotFoundException::class, $exception);
+        static::assertSame(Response::HTTP_PRECONDITION_FAILED, $exception->getStatusCode());
+        static::assertSame('FRAMEWORK__ROUTING_SALES_CHANNEL_NOT_FOUND', $exception->getErrorCode());
+        static::assertSame('No matching sales channel found.', $exception->getMessage());
     }
 
     public function testSalesChannelDomainNotFound(): void

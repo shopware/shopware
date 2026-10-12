@@ -20,8 +20,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[CoversClass(CustomerRemoteAddressSubscriber::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerRemoteAddressSubscriber::class)]
 class CustomerRemoteAddressSubscriberTest extends TestCase
 {
     public function testEvents(): void
@@ -37,12 +37,12 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         $configService->expects($this->never())->method('getBool');
 
         $subscriber = new CustomerRemoteAddressSubscriber(
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             new RequestStack(),
             $configService
         );
 
-        $subscriber->updateRemoteAddressByLogin(new CustomerLoginEvent($this->createMock(SalesChannelContext::class), new CustomerEntity(), 'test'));
+        $subscriber->updateRemoteAddressByLogin(new CustomerLoginEvent(static::createStub(SalesChannelContext::class), new CustomerEntity(), 'test'));
     }
 
     public function testNullIpDoesNothing(): void
@@ -54,12 +54,12 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         $requestStack->push(new Request());
 
         $subscriber = new CustomerRemoteAddressSubscriber(
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $requestStack,
             $configService
         );
 
-        $subscriber->updateRemoteAddressByLogin(new CustomerLoginEvent($this->createMock(SalesChannelContext::class), new CustomerEntity(), 'test'));
+        $subscriber->updateRemoteAddressByLogin(new CustomerLoginEvent(static::createStub(SalesChannelContext::class), new CustomerEntity(), 'test'));
     }
 
     public static function providerIPs(): \Generator
@@ -110,6 +110,6 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         $customer->setUniqueIdentifier(TestDefaults::SALES_CHANNEL);
         $customer->setId(TestDefaults::SALES_CHANNEL);
 
-        $subscriber->updateRemoteAddressByLogin(new CustomerLoginEvent($this->createMock(SalesChannelContext::class), $customer, 'test'));
+        $subscriber->updateRemoteAddressByLogin(new CustomerLoginEvent(static::createStub(SalesChannelContext::class), $customer, 'test'));
     }
 }

@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class SnippetEntity extends Entity
 {

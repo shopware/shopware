@@ -1,4 +1,4 @@
-import { assetMigration, defineDeprecations, reference, replaceExtension } from './helpers';
+import { assetMigration, defineDeprecations, reference, removeAsset, replaceExtension } from './helpers';
 
 export default defineDeprecations({
     assetMigrations: [
@@ -57,6 +57,19 @@ export default defineDeprecations({
                     ],
                     to: '.webp',
                 }),
+            ],
+        }),
+        assetMigration({
+            id: 'asset.sw-login-background-webp',
+            deprecatedIn: '6.7.15.0',
+            removedIn: '6.8.0',
+            description:
+                'The login page no longer shows a background image, so its WebP background is deprecated without replacement. Ship your own image if you still need it.',
+            files: [
+                '/src/module/sw-login/page/index/assets/sw-login-background.webp',
+            ],
+            usage: [
+                removeAsset(),
             ],
         }),
     ],

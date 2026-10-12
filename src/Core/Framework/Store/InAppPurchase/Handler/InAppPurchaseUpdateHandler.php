@@ -16,8 +16,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  *
  * @codeCoverageIgnore
  */
-#[AsMessageHandler(handles: InAppPurchaseUpdateTask::class)]
 #[Package('checkout')]
+#[AsMessageHandler(handles: InAppPurchaseUpdateTask::class)]
 final class InAppPurchaseUpdateHandler extends ScheduledTaskHandler
 {
     public function __construct(

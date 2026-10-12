@@ -19,16 +19,9 @@ export default {
         'mediaService',
     ],
 
-    emits: [
-        'generator-open',
-        'delivery-open',
-        'variants-finish-update',
-    ],
+    emits: ['generator-open', 'delivery-open', 'variants-finish-update'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing')],
 
     props: {
         productEntity: {
@@ -309,10 +302,7 @@ export default {
                     return;
                 }
 
-                Shopware.Store.get('swProductDetail').setLoading([
-                    'variants',
-                    true,
-                ]);
+                Shopware.Store.get('swProductDetail').setLoading(['variants', true]);
 
                 // Get criteria for search and for option sorting
                 const searchCriteria = new Criteria(1, 25);
@@ -365,10 +355,7 @@ export default {
                 this.productRepository.search(searchCriteria).then((res) => {
                     this.total = res.total;
                     Shopware.Store.get('swProductDetail').variants = res;
-                    Shopware.Store.get('swProductDetail').setLoading([
-                        'variants',
-                        false,
-                    ]);
+                    Shopware.Store.get('swProductDetail').setLoading(['variants', false]);
                     this.$emit('variants-finish-update', this.variants);
                     resolve();
                 });
@@ -376,19 +363,24 @@ export default {
         },
 
         buildSearchQuery(criteria) {
-            if (!this.term) {
+            // Normalize the term: leading/trailing whitespace must not leak into the
+            // query. Otherwise the split below yields empty entries that build a
+            // `contains` filter with an empty value and the API rejects the whole
+            // query with FRAMEWORK__INVALID_FILTER_QUERY.
+            const term = this.term ? this.term.trim() : '';
+            if (!term) {
                 return criteria;
             }
 
-            // Split each word for search
-            const terms = this.term.split(' ');
+            // Split each word for search; empty entries from repeated spaces are dropped.
+            const terms = term.split(' ').filter((word) => word !== '');
 
             // Create query for each single word
-            terms.forEach((term) => {
-                criteria.addQuery(Criteria.equals('product.options.name', term), 3500);
-                criteria.addQuery(Criteria.contains('product.options.name', term), 500);
+            terms.forEach((word) => {
+                criteria.addQuery(Criteria.equals('product.options.name', word), 3500);
+                criteria.addQuery(Criteria.contains('product.options.name', word), 500);
             });
-            criteria.addQuery(Criteria.contains('product.productNumber', this.term), 5000);
+            criteria.addQuery(Criteria.contains('product.productNumber', term), 5000);
 
             // return the input
             return criteria;
@@ -439,17 +431,11 @@ export default {
                         };
                     });
 
-                return [
-                    ...result,
-                    ...optionsForGroup,
-                ];
+                return [...result, ...optionsForGroup];
             }, []);
 
             // Assign groups and children to order objects
-            this.filterOptions = [
-                ...groups,
-                ...children,
-            ];
+            this.filterOptions = [...groups, ...children];
         },
 
         resetFilterOptions() {

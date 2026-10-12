@@ -15,6 +15,15 @@
         height: 500px;
     }
 
+    &__container {
+        height: 100%;
+    }
+
+    &__empty-state {
+        height: 100%;
+        justify-content: center;
+    }
+
     &__content {
         .sw-data-grid__header .sw-data-grid__row th:first-child {
             pointer-events: none;

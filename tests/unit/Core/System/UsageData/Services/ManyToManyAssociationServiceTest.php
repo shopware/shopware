@@ -79,8 +79,8 @@ class ManyToManyAssociationServiceTest extends TestCase
         $toManyDefinition = new ToManyDefinition();
         $registry = new StaticDefinitionInstanceRegistry(
             [$mappingDefinition, $toManyDefinition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $associationField = new ManyToManyAssociationField(

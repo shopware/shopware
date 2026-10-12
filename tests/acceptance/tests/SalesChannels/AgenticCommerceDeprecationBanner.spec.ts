@@ -1,10 +1,31 @@
 import { test } from '@fixtures/AcceptanceTest';
 
 const AGENTIC_COMMERCE_TYPE_ID = '5e29f9890c4d4d519a1c7f9d5c24b7c1';
+interface ShopwareBundleConfig {
+    SwagAgenticCommerce?: unknown;
+    SwagExtensionStore?: unknown;
+}
+
+interface ShopwareContextConfig {
+    Shopware?: {
+        Context?: {
+            app?: {
+                config?: {
+                    bundles?: ShopwareBundleConfig;
+                };
+            };
+        };
+    };
+}
 
 test(
     'Agentic Commerce sales channel detail page shows deprecation banner when SwagAgenticCommerce is not installed, and clicking the install button causes no JS error',
-    { tag: ['@SalesChannel', '@AgenticCommerce'] },
+    {
+        tag: [
+            '@SalesChannel',
+            '@AgenticCommerce',
+        ],
+    },
     async ({ ShopAdmin, TestDataService, page }) => {
         // Create an Agentic Commerce sales channel
         const sc = TestDataService.defaultSalesChannel as unknown as {
@@ -39,33 +60,38 @@ test(
 
         TestDataService.addCreatedRecord('sales-channel', salesChannelId);
 
-        // Capture any JS errors before navigating
-        const jsErrors: string[] = [];
-        page.on('pageerror', (err: Error) => jsErrors.push(err.message));
-
         await ShopAdmin.goesTo(`/admin#/sw/sales/channel/detail/${salesChannelId}/base`);
 
         const pluginInstalled = await page.evaluate(() => {
-            const shopware = (globalThis as any).Shopware;
-            return !!(shopware?.Context?.app?.config?.bundles?.SwagAgenticCommerce);
+            const shopware = (globalThis as ShopwareContextConfig).Shopware;
+            return !!shopware?.Context?.app?.config?.bundles?.SwagAgenticCommerce;
         });
+
+        const deprecationBanner = page.locator('.sw-sales-channel-detail__agentic-commerce-deprecation-banner');
 
         if (!pluginInstalled) {
             await test.step('deprecation banner is visible', async () => {
-                await ShopAdmin.expects(page.locator('.mt-banner')).toBeVisible();
+                await ShopAdmin.expects(deprecationBanner).toBeVisible();
             });
 
             await test.step('clicking the install button always navigates somewhere', async () => {
                 const extensionStoreDetailExists = await page.evaluate(() => {
-                    const shopware = (globalThis as any).Shopware;
-                    return !!(shopware?.Context?.app?.config?.bundles?.SwagExtensionStore);
+                    const shopware = (globalThis as ShopwareContextConfig).Shopware;
+                    return !!shopware?.Context?.app?.config?.bundles?.SwagExtensionStore;
                 });
 
-                await page.locator('.mt-banner .mt-button').click();
+                const pageErrors: string[] = [];
+                page.on('pageerror', (err: Error) => {
+                    if (err.name !== 'AxiosError') {
+                        pageErrors.push(`${err.name}: ${err.message}`);
+                    }
+                });
+
+                await deprecationBanner.getByRole('button', { name: 'Install extension', exact: true }).click();
                 await page.waitForTimeout(500);
 
-                if (jsErrors.length > 0) {
-                    throw new Error(`Unexpected JS errors after button click:\n${jsErrors.join('\n')}`);
+                if (pageErrors.length > 0) {
+                    throw new Error(`Unexpected JS errors after button click:\n${pageErrors.join('\n')}`);
                 }
 
                 if (extensionStoreDetailExists) {
@@ -78,7 +104,7 @@ test(
             });
         } else {
             await test.step('banner is hidden when plugin is installed', async () => {
-                await ShopAdmin.expects(page.locator('.mt-banner')).not.toBeVisible();
+                await ShopAdmin.expects(deprecationBanner).not.toBeVisible();
             });
         }
     },

@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing\Facade;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Facade\RequestFacade;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RequestFacade::class)]
 class RequestFacadeTest extends TestCase
 {

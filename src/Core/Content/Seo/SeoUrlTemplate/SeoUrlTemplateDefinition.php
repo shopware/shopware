@@ -17,6 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class SeoUrlTemplateDefinition extends EntityDefinition
 {
@@ -52,6 +55,7 @@ class SeoUrlTemplateDefinition extends EntityDefinition
             (new StringField('route_name', 'routeName'))->addFlags(new Required())->setDescription('Name of the route.'),
             (new StringField('template', 'template', 750))->addFlags(new AllowEmptyString())->setDescription('Template to generate an URL.'),
             (new BoolField('is_valid', 'isValid'))->addFlags(new ApiAware())->setDescription('Created SEO URL template can be made usable by setting `isValid` to true.'),
+            (new BoolField('is_headless', 'isHeadless'))->addFlags(new ApiAware())->setDescription('Whether the template applies to headless (API type) sales channels. Derived from the route family.'),
             (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
         ]);

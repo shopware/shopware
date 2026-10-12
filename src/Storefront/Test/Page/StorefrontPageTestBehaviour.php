@@ -25,6 +25,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
@@ -278,7 +279,7 @@ trait StorefrontPageTestBehaviour
      */
     protected function catchEvent(string $eventName, ?Event &$eventResult): void
     {
-        $this->addEventListener(static::getContainer()->get('event_dispatcher'), $eventName, static function (Event $event) use (&$eventResult): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on($eventName, static function (Event $event) use (&$eventResult): void {
             $eventResult = $event;
         });
     }

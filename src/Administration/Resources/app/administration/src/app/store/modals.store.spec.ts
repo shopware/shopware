@@ -68,6 +68,21 @@ describe('modals.store', () => {
         ]);
     });
 
+    it('stores a custom z-index when provided', () => {
+        store.openModal({
+            locationId: 'test',
+            title: 'Test Modal',
+            closable: true,
+            showHeader: true,
+            showFooter: true,
+            variant: 'default',
+            zIndex: 2000,
+            baseUrl: 'https://example.com',
+        });
+
+        expect(store.modals[0].zIndex).toBe(2000);
+    });
+
     it('closes a modal with locationId', () => {
         store.openModal({
             locationId: 'test',

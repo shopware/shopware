@@ -48,6 +48,17 @@ class Permissions extends XmlElement
     }
 
     /**
+     * Add non-CRUD privileges (single tokens, no `resource:operation` shape), e.g. capability
+     * permissions implied by the app's manifest. They are emitted verbatim by asParsedPrivileges().
+     *
+     * @param list<string> $privileges
+     */
+    public function addPrivileges(array $privileges): void
+    {
+        $this->additionalPrivileges = array_values(array_unique([...$this->additionalPrivileges, ...$privileges]));
+    }
+
+    /**
      * @return list<string>
      */
     public function getAdditionalPrivileges(): array

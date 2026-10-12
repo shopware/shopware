@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorefrontPluginConfiguration::class)]
 class StorefrontPluginConfigurationTest extends TestCase
 {

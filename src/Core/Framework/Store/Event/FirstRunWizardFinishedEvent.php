@@ -9,6 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('fundamentals@after-sales')]
 class FirstRunWizardFinishedEvent extends Event

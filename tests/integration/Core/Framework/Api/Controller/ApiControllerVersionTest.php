@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -22,6 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class ApiControllerVersionTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -39,7 +43,7 @@ class ApiControllerVersionTest extends TestCase
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertSame('http://localhost/api/category/' . $id, $response->headers->get('Location'));
 
         $this->getBrowser()->jsonRequest(
             'POST',
@@ -73,7 +77,7 @@ class ApiControllerVersionTest extends TestCase
         $browser->jsonRequest('POST', '/api/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($browser, 'product', $id);
@@ -92,18 +96,29 @@ class ApiControllerVersionTest extends TestCase
         $browser->jsonRequest('POST', '/api/_action/version/' . $response['versionId'] . '/product/' . $id);
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertEmpty($response);
+        static::assertSame([], $response);
 
         $this->assertEntityExists($browser, 'product', $id);
 
-        /** @var EntityRepository<ProductCollection> $productRepo */
+        $actions = static::getContainer()->get(Connection::class)->fetchFirstColumn(
+            'SELECT commit_data.action
+             FROM version_commit_data AS commit_data
+             INNER JOIN version_commit ON version_commit.id = commit_data.version_commit_id
+             WHERE version_commit.version_id = :version',
+            ['version' => Uuid::fromHexToBytes($versionId)]
+        );
+
+        static::assertSame([], $actions, 'a discarded version must not leave a change set behind that merge() could replay');
+
         $productRepo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        static::assertInstanceOf(EntityRepository::class, $productRepo);
+
         $criteria = new Criteria([$id]);
         $criteria->addFilter(
             new EqualsFilter('versionId', $versionId)
         );
 
-        static::assertCount(0, $productRepo->search($criteria, Context::createDefaultContext()));
+        static::assertCount(0, $productRepo->search($criteria, Context::createDefaultContext())->getEntities());
     }
 
     public function testDeleteVersionWithLiveVersion(): void
@@ -138,5 +153,76 @@ class ApiControllerVersionTest extends TestCase
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(ApiException::deleteLiveVersion()->getErrorCode(), $content['errors'][0]['code']);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function malformedDeleteVersionPathProvider(): iterable
+    {
+        $id = Uuid::randomHex();
+
+        yield 'malformed version id' => [\sprintf('/api/_action/version/not-a-uuid/product/%s', $id)];
+        yield 'malformed entity id' => [\sprintf('/api/_action/version/%s/product/not-a-uuid', $id)];
+    }
+
+    #[DataProvider('malformedDeleteVersionPathProvider')]
+    public function testDeleteVersionWithAMalformedIdIsNotRouted(string $path): void
+    {
+        $browser = $this->getBrowser();
+        $browser->jsonRequest('POST', $path);
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+    }
+
+    public function testMergeCannotResurrectADiscardedVersion(): void
+    {
+        $id = Uuid::randomHex();
+        $browser = $this->getBrowser();
+
+        $browser->jsonRequest('POST', '/api/product', [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => 'live name',
+            'tax' => ['name' => 'test', 'taxRate' => 10],
+            'manufacturer' => ['name' => 'test'],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+        ]);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $browser->jsonRequest('POST', '/api/_action/version/product/' . $id);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $versionId = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['versionId'];
+        static::assertIsString($versionId);
+
+        $browser->jsonRequest('PATCH', '/api/product/' . $id, ['name' => 'draft name'], ['HTTP_SW_VERSION_ID' => $versionId]);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $browser->jsonRequest('POST', '/api/_action/version/' . $versionId . '/product/' . $id);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        // The discard deleted the version row; recreating it is the only way to let merge() run at all.
+        static::getContainer()->get('version.repository')->create([['id' => $versionId]], Context::createDefaultContext());
+
+        $browser->jsonRequest('POST', '/api/_action/version/merge/product/' . $versionId);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(DataAbstractionLayerException::VERSION_NO_COMMITS_FOUND, $content['errors'][0]['code']);
+
+        $connection = static::getContainer()->get(Connection::class);
+        $live = ['id' => Uuid::fromHexToBytes($id), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)];
+
+        static::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM product WHERE id = :id AND version_id = :version', $live));
+
+        $name = $connection->fetchOne('SELECT name FROM product_translation WHERE product_id = :id AND product_version_id = :version', $live);
+        static::assertSame('live name', $name, 'a discarded draft must not be merged into the live entity');
     }
 }

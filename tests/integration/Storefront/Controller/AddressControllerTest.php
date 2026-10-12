@@ -25,6 +25,7 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AddressController;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
@@ -92,7 +93,7 @@ class AddressControllerTest extends TestCase
 
         /** @var EntityRepository<CustomerAddressCollection> $repository */
         $repository = static::getContainer()->get('customer_address.repository');
-        $address = $repository->search($criteria, $context->getContext())
+        $address = $repository->search($criteria, $context->getContext())->getEntities()
             ->get($id2);
 
         static::assertInstanceOf(CustomerAddressEntity::class, $address);
@@ -104,7 +105,7 @@ class AddressControllerTest extends TestCase
         /** @var EntityRepository<CustomerAddressCollection> $repository */
         $repository = static::getContainer()->get('customer_address.repository');
         $exists = $repository
-            ->search($criteria, $context->getContext())
+            ->search($criteria, $context->getContext())->getEntities()
             ->has($id2);
 
         static::assertFalse($exists);
@@ -119,7 +120,7 @@ class AddressControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('address-listing-page-loaded', $traces);
     }
@@ -133,7 +134,7 @@ class AddressControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('address-detail-page-loaded', $traces);
     }
@@ -147,7 +148,7 @@ class AddressControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('address-detail-page-loaded', $traces);
     }
@@ -568,20 +569,21 @@ class AddressControllerTest extends TestCase
             ],
         ]);
 
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        $renderEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             StorefrontRenderEvent::class,
-            static function (StorefrontRenderEvent $event): void {
-                $data = $event->getParameters();
-
-                static::assertArrayHasKey('formViolations', $data);
-                static::assertArrayHasKey('postedAddress', $data);
+            static function (StorefrontRenderEvent $event) use (&$renderEvent): void {
+                $renderEvent = $event;
             },
-            0,
             true
         );
 
         $controller->addressManagerUpsert($request, $dataBag, $context, $customer, null, self::ADDRESS_TYPE_SHIPPING);
+
+        static::assertInstanceOf(StorefrontRenderEvent::class, $renderEvent);
+        $data = $renderEvent->getParameters();
+        static::assertArrayHasKey('formViolations', $data);
+        static::assertArrayHasKey('postedAddress', $data);
     }
 
     public function testAccountAddressOverview(): void
@@ -640,6 +642,57 @@ class AddressControllerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testAddressManagerCreateFormUsesTextInputType(): void
+    {
+        [$customerId] = $this->createCustomers();
+
+        $context = static::getContainer()
+            ->get(SalesChannelContextFactory::class)
+            ->create(
+                Uuid::randomHex(),
+                TestDefaults::SALES_CHANNEL,
+                [
+                    SalesChannelContextService::CUSTOMER_ID => $customerId,
+                ]
+            );
+
+        $controller = static::getContainer()->get(AddressController::class);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
+        $request->setSession($this->getSession());
+
+        static::getContainer()->get('request_stack')->push($request);
+
+        $customer = $context->getCustomer();
+        static::assertNotNull($customer);
+
+        foreach ([self::ADDRESS_TYPE_SHIPPING, self::ADDRESS_TYPE_BILLING] as $addressType) {
+            $response = $controller->addressManagerUpsert($request, new RequestDataBag(), $context, $customer, null, $addressType);
+
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Failed for address type: ' . $addressType);
+
+            $content = (string) $response->getContent();
+
+            static::assertMatchesRegularExpression(
+                '/<input(?=[^>]*name="address\[firstName\]")(?=[^>]*type="text")[^>]*>/',
+                $content,
+                'First name input must use type="text" for address type: ' . $addressType
+            );
+            static::assertMatchesRegularExpression(
+                '/<input(?=[^>]*name="address\[street\]")(?=[^>]*type="text")[^>]*>/',
+                $content,
+                'Street input must use type="text" for address type: ' . $addressType
+            );
+            static::assertDoesNotMatchRegularExpression(
+                '/<input(?=[^>]*class="[^"]*form-control[^"]*")(?=[^>]*type="' . $addressType . '")[^>]*>/',
+                $content,
+                'Form control inputs must not use invalid type="' . $addressType . '"'
+            );
+        }
     }
 
     private function login(): KernelBrowser

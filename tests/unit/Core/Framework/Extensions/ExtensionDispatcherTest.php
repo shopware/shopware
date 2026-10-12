@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ExtensionDispatcher::class)]
 class ExtensionDispatcherTest extends TestCase
 {
@@ -38,6 +40,29 @@ class ExtensionDispatcherTest extends TestCase
             'eventName.pre' => $extension,
             'eventName.post' => $extension,
         ], $dispatcher->getEvents());
+    }
+
+    public function testDetectsListenersForEveryLifecycleEvent(): void
+    {
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventNames = [];
+        $dispatcher->expects($this->exactly(3))
+            ->method('hasListeners')
+            ->with(static::callback(static function (string $eventName) use (&$eventNames): bool {
+                $eventNames[] = $eventName;
+
+                return true;
+            }))
+            ->willReturnOnConsecutiveCalls(false, false, true);
+
+        $extensionDispatcher = new ExtensionDispatcher($dispatcher);
+
+        static::assertTrue($extensionDispatcher->hasListeners('test.extension'));
+        static::assertSame([
+            'test.extension.pre',
+            'test.extension.post',
+            'test.extension.error',
+        ], $eventNames);
     }
 
     public function testHandlesExceptionGracefully(): void

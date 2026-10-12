@@ -11,9 +11,7 @@ const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         disabled: {
@@ -42,10 +40,7 @@ export default {
             ],
         ),
 
-        ...mapPropertyErrors('shippingMethod', [
-            'taxType',
-            'taxId',
-        ]),
+        ...mapPropertyErrors('shippingMethod', ['taxType', 'taxId']),
 
         shippingCostTaxOptions() {
             return [

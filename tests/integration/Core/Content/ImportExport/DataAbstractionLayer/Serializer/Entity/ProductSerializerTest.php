@@ -164,7 +164,7 @@ class ProductSerializerTest extends TestCase
     {
         $product = $this->getProduct();
 
-        $mediaService = $this->createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $expectedMediaFile = new MediaFile(
             '/tmp/foo/bar/shopware-logo.png',
             'image/png',
@@ -187,7 +187,7 @@ class ProductSerializerTest extends TestCase
                 );
             });
 
-        $fileSaver = $this->createMock(FileSaver::class);
+        $fileSaver = static::createStub(FileSaver::class);
         $mediaSerializer = new MediaSerializer(
             $mediaService,
             $fileSaver,
@@ -196,7 +196,7 @@ class ProductSerializerTest extends TestCase
         );
         $mediaSerializer->setRegistry(static::getContainer()->get(SerializerRegistry::class));
 
-        $serializerRegistry = $this->createMock(SerializerRegistry::class);
+        $serializerRegistry = static::createStub(SerializerRegistry::class);
         $serializerRegistry->method('getEntity')
             ->willReturn($mediaSerializer);
         $serializerRegistry->method('getFieldSerializer')
@@ -347,7 +347,7 @@ class ProductSerializerTest extends TestCase
         $criteria->addAssociation('media.media');
         $criteria->getAssociation('media')->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
 
-        $product = $productRepository->search($criteria, Context::createDefaultContext())->first();
+        $product = $productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
 
         return $product;

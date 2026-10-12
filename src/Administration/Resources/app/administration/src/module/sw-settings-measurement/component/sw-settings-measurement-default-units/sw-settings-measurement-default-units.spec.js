@@ -140,10 +140,7 @@ const createWrapper = async (privileges = []) => {
                                 {{ option.label }}
                             </option>
                         </select>`,
-                        props: [
-                            'modelValue',
-                            'options',
-                        ],
+                        props: ['modelValue', 'options'],
                     },
                     'sw-highlight-text': true,
                     'i18n-t': {

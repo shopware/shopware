@@ -4,9 +4,11 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Extension\ResetPasswordRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -14,6 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -21,8 +25,11 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SuccessResponse;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -30,6 +37,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(ResetPasswordRoute::class)]
 class ResetPasswordRouteTest extends TestCase
 {
@@ -55,7 +63,7 @@ class ResetPasswordRouteTest extends TestCase
 
         $recoveryCollection = new CustomerRecoveryCollection([$recovery]);
 
-        $customerRecoveryRepository = $this->createMock(EntityRepository::class);
+        $customerRecoveryRepository = static::createStub(EntityRepository::class);
         $customerRecoveryRepository->method('search')
             ->willReturn(new EntitySearchResult(
                 'customer_recovery',
@@ -63,10 +71,10 @@ class ResetPasswordRouteTest extends TestCase
                 $recoveryCollection,
                 null,
                 new Criteria(),
-                $this->createMock(SalesChannelContext::class)->getContext()
+                static::createStub(SalesChannelContext::class)->getContext()
             ));
 
-        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository = static::createStub(EntityRepository::class);
 
         $resetCalls = [];
         $resetIfConfiguredCalls = [];
@@ -87,18 +95,19 @@ class ResetPasswordRouteTest extends TestCase
         $requestStack = new RequestStack();
         $requestStack->push($mainRequest);
 
-        $passwordValidationFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $passwordValidationFactory = static::createStub(DataValidationFactoryInterface::class);
         $passwordValidationFactory->method('update')->willReturn(new DataValidationDefinition());
 
         $route = new ResetPasswordRoute(
             $customerRepository,
             $customerRecoveryRepository,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             static::createStub(DataValidator::class),
             $requestStack,
             $rateLimiter,
             $passwordValidationFactory,
-            new NativeClock()
+            new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -158,6 +167,35 @@ class ResetPasswordRouteTest extends TestCase
         static::assertArrayNotHasKey('doubleOptInConfirmDate', $customerUpdate);
     }
 
+    public function testPublishesExtension(): void
+    {
+        $data = new RequestDataBag();
+        $context = Generator::generateSalesChannelContext();
+        $response = new SuccessResponse();
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('reset-password-route.reset-password.pre', static function (ResetPasswordRouteExtension $extension) use ($data, $context, $response): void {
+            static::assertSame(['data' => $data, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ResetPasswordRoute(
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(DataValidator::class),
+            static::createStub(RequestStack::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(DataValidationFactoryInterface::class),
+            static::createStub(ClockInterface::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->resetPassword($data, $context));
+    }
+
     private function createCustomer(): CustomerEntity
     {
         $customer = new CustomerEntity();
@@ -179,7 +217,7 @@ class ResetPasswordRouteTest extends TestCase
         $recovery->setCustomer($customer);
         $recovery->setCreatedAt(new \DateTimeImmutable());
 
-        $customerRecoveryRepository = $this->createMock(EntityRepository::class);
+        $customerRecoveryRepository = static::createStub(EntityRepository::class);
         $customerRecoveryRepository->method('search')
             ->willReturn(new EntitySearchResult(
                 'customer_recovery',
@@ -202,21 +240,22 @@ class ResetPasswordRouteTest extends TestCase
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
             });
 
-        $passwordValidationFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $passwordValidationFactory = static::createStub(DataValidationFactoryInterface::class);
         $passwordValidationFactory->method('update')->willReturn(new DataValidationDefinition());
 
         $route = new ResetPasswordRoute(
             $customerRepository,
             $customerRecoveryRepository,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             static::createStub(DataValidator::class),
             new RequestStack(),
-            $this->createMock(RateLimiter::class),
+            static::createStub(RateLimiter::class),
             $passwordValidationFactory,
-            $clock ?? new MockClock()
+            $clock ?? new MockClock(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
 
         $route->resetPassword(

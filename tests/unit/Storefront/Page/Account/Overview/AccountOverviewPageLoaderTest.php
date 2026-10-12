@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Page\Account\Overview;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute;
@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
@@ -32,37 +33,24 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(AccountOverviewPageLoader::class)]
 class AccountOverviewPageLoaderTest extends TestCase
 {
     private CollectingEventDispatcher $eventDispatcher;
 
-    /**
-     * @var OrderRoute&MockObject
-     */
-    private OrderRoute $orderRoute;
+    private OrderRoute&Stub $orderRoute;
 
-    private AccountOverviewPageLoader $pageLoader;
+    private AbstractTranslator&Stub $translator;
 
-    private AbstractTranslator&MockObject $translator;
-
-    private GenericPageLoader&MockObject $genericPageLoader;
+    private GenericPageLoader&Stub $genericPageLoader;
 
     protected function setUp(): void
     {
         $this->eventDispatcher = new CollectingEventDispatcher();
-        $this->orderRoute = $this->createMock(OrderRoute::class);
-        $this->translator = $this->createMock(AbstractTranslator::class);
-        $this->genericPageLoader = $this->createMock(GenericPageLoader::class);
-
-        $this->pageLoader = new AccountOverviewPageLoader(
-            $this->genericPageLoader,
-            $this->eventDispatcher,
-            $this->orderRoute,
-            $this->createMock(CustomerRoute::class),
-            $this->createMock(NewsletterAccountPageletLoader::class),
-            $this->translator
-        );
+        $this->orderRoute = static::createStub(OrderRoute::class);
+        $this->translator = static::createStub(AbstractTranslator::class);
+        $this->genericPageLoader = static::createStub(GenericPageLoader::class);
     }
 
     public function testLoad(): void
@@ -82,7 +70,8 @@ class AccountOverviewPageLoaderTest extends TestCase
             )
         );
 
-        $this->orderRoute
+        $orderRoute = $this->createMock(OrderRoute::class);
+        $orderRoute
             ->expects($this->once())
             ->method('load')
             ->willReturn($orderResponse);
@@ -91,18 +80,26 @@ class AccountOverviewPageLoaderTest extends TestCase
         $page->setMetaInformation(new MetaInformation());
         $page->getMetaInformation()?->setMetaTitle('testshop');
 
-        $this->genericPageLoader
+        $genericPageLoader = $this->createMock(GenericPageLoader::class);
+        $genericPageLoader
             ->expects($this->once())
             ->method('load')
             ->willReturn($page);
 
-        $this->translator
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator
             ->expects($this->once())
             ->method('trans')
             ->willReturn('translated');
 
+        $pageLoader = $this->createPageLoader(
+            genericPageLoader: $genericPageLoader,
+            orderRoute: $orderRoute,
+            translator: $translator,
+        );
+
         $customer = new CustomerEntity();
-        $page = $this->pageLoader->load(new Request(), $this->createMock(SalesChannelContext::class), $customer);
+        $page = $pageLoader->load(new Request(), static::createStub(SalesChannelContext::class), $customer);
 
         static::assertSame($order, $page->getNewestOrder());
         $metaInformation = $page->getMetaInformation();
@@ -120,11 +117,11 @@ class AccountOverviewPageLoaderTest extends TestCase
     public function testSetStandardMetaData(): void
     {
         $pageLoader = new TestAccountOverviewPageLoader(
-            $this->createMock(GenericPageLoader::class),
+            static::createStub(GenericPageLoader::class),
             $this->eventDispatcher,
             $this->orderRoute,
-            $this->createMock(CustomerRoute::class),
-            $this->createMock(NewsletterAccountPageletLoader::class),
+            static::createStub(CustomerRoute::class),
+            static::createStub(NewsletterAccountPageletLoader::class),
             $this->translator
         );
 
@@ -135,6 +132,21 @@ class AccountOverviewPageLoaderTest extends TestCase
         $pageLoader->setMetaInformationAccess($page);
 
         static::assertInstanceOf(MetaInformation::class, $page->getMetaInformation());
+    }
+
+    private function createPageLoader(
+        ?GenericPageLoader $genericPageLoader = null,
+        ?OrderRoute $orderRoute = null,
+        ?AbstractTranslator $translator = null,
+    ): AccountOverviewPageLoader {
+        return new AccountOverviewPageLoader(
+            $genericPageLoader ?? $this->genericPageLoader,
+            $this->eventDispatcher,
+            $orderRoute ?? $this->orderRoute,
+            static::createStub(CustomerRoute::class),
+            static::createStub(NewsletterAccountPageletLoader::class),
+            $translator ?? $this->translator
+        );
     }
 }
 

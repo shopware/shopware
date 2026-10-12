@@ -77,10 +77,7 @@ async function createWrapper(categories = null, props = {}) {
                 'sw-loader': true,
                 'sw-skeleton': true,
                 'sw-tree': {
-                    props: [
-                        'items',
-                        'initiallyExpandedRoot',
-                    ],
+                    props: ['items', 'initiallyExpandedRoot'],
                     template: `
                         <div
                             class="sw-tree"
@@ -410,9 +407,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     [
         { serviceSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7a' }] },
         {
-            navigationSalesChannels: [
-                { id: '4d9ef75adbb149aa99785a0a969b3b7b' },
-            ],
+            navigationSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7b' }],
         },
         { footerSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7c' }] },
     ].forEach((entryPoint) => {

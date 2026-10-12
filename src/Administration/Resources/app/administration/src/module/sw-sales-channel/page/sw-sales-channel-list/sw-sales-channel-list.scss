@@ -8,4 +8,11 @@
     .favorite-switch {
         margin: 0;
     }
+
+    .sw-card-view__content:has(.sw-sales-channel-list__empty-state) {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
 }

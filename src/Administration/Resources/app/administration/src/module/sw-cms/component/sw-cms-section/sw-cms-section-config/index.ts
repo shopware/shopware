@@ -11,18 +11,11 @@ const { Mixin } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    emits: [
-        'section-delete',
-        'section-duplicate',
-    ],
+    emits: ['section-delete', 'section-duplicate'],
 
-    mixins: [
-        Mixin.getByName('cms-state'),
-    ],
+    mixins: [Mixin.getByName('cms-state')],
 
     props: {
         section: {
@@ -115,7 +108,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.section.backgroundMedia = undefined;
         },
 
-        onSectionDelete(sectionId: string) {
+        onSectionDelete(sectionId: EntityKey<'cms_section'>) {
             if (this.quickactionsDisabled) {
                 return;
             }

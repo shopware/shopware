@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @internal
@@ -19,7 +18,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  * apps in the current installation will be uninstalled without informing them about that (as they still run on the old installation)
  */
 #[Package('framework')]
-class UninstallAppsStrategy extends AbstractShopIdChangeStrategy
+class UninstallAppsStrategy implements ShopIdChangeStrategy
 {
     final public const STRATEGY_NAME = 'uninstall-apps';
 
@@ -31,11 +30,6 @@ class UninstallAppsStrategy extends AbstractShopIdChangeStrategy
         private readonly ShopIdProvider $shopIdProvider,
         private readonly AppManager $appManager,
     ) {
-    }
-
-    public function getDecorated(): AbstractShopIdChangeStrategy
-    {
-        throw new DecorationPatternException(self::class);
     }
 
     public function getName(): string

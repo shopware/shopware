@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
 /**
  * @phpstan-import-type MappingArray from Mapping
+ *
+ * @method array{mapping: MappingCollection, updateBy: UpdateByCollection, parameters: array<string, mixed>} jsonSerialize()
  */
 #[Package('fundamentals@after-sales')]
 class Config

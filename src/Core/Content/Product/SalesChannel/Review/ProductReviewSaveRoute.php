@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
+use Shopware\Core\Content\Product\Extension\ProductReviewSaveRouteExtension;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExists;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -34,8 +36,8 @@ use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('after-sales')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 {
     /**
@@ -49,6 +51,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         private readonly SystemConfigService $config,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ProductProvider $productProvider,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -64,6 +67,15 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         methods: [Request::METHOD_POST]
     )]
     public function save(string $productId, RequestDataBag $data, SalesChannelContext $context): NoContentResponse
+    {
+        return $this->extensions->publish(
+            name: ProductReviewSaveRouteExtension::NAME,
+            extension: new ProductReviewSaveRouteExtension($productId, $data, $context),
+            function: $this->_save(...),
+        );
+    }
+
+    private function _save(string $productId, RequestDataBag $data, SalesChannelContext $context): NoContentResponse
     {
         $salesChannelId = $context->getSalesChannelId();
         if (!$this->config->getBool('core.listing.showReview', $salesChannelId)) {

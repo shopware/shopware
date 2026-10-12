@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(CartBeforeSerializationEvent::class)]
 #[Package('checkout')]
+#[CoversClass(CartBeforeSerializationEvent::class)]
 class CartBeforeSerializationEventTest extends TestCase
 {
     public function testConstructor(): void

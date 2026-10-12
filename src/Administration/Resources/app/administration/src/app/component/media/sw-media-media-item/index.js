@@ -32,10 +32,7 @@ export default {
 
     inheritAttrs: false,
 
-    inject: [
-        'mediaService',
-        'acl',
-    ],
+    inject: ['mediaService', 'acl'],
 
     props: {
         item: {
@@ -52,10 +49,7 @@ export default {
         'media-item-replaced',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('video-cover'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('video-cover')],
 
     data() {
         return {

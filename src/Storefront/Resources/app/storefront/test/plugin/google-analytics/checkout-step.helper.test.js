@@ -66,4 +66,22 @@ describe('plugin/google-analytics/checkout-step.helper', () => {
 
         expect(CheckoutStepHelper.hasReported('add_shipping_info')).toBe(false);
     });
+
+    test('keeps the steps in memory when the session storage is unavailable', () => {
+        jest.isolateModules(() => {
+            const setItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+                throw new Error('storage disabled');
+            });
+
+            // the module caches the storage probe, so a fresh copy has to run it with the failing storage
+            const IsolatedHelper = require('src/plugin/google-analytics/checkout-step.helper').default;
+
+            IsolatedHelper.markReported('add_shipping_info', 'Standard');
+
+            expect(IsolatedHelper.hasReported('add_shipping_info', 'Standard')).toBe(true);
+            expect(IsolatedHelper.hasReported('add_payment_info')).toBe(false);
+
+            setItem.mockRestore();
+        });
+    });
 });

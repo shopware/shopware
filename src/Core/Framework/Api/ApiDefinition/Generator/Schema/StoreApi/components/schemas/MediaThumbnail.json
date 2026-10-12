@@ -47,7 +47,7 @@
                         "type": "string"
                     },
                     "customFields": {
-                        "type": "object"
+                        "type": ["object", "null"]
                     },
                     "createdAt": {
                         "type": "string",
@@ -55,7 +55,7 @@
                         "readOnly": true
                     },
                     "updatedAt": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "format": "date-time",
                         "readOnly": true
                     }

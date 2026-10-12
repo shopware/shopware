@@ -92,7 +92,7 @@
                                         :disabled="!allowEdit || isResponsiveViewportMode(field.key, field) || option.disabled || undefined"
                                         :aria-label="option.label"
                                         :title="option.label"
-                                        @click="onUpdateResponsiveGlobalProperty(field.key, field.property, field, option.value)"
+                                        @click="onUpdateResponsiveGlobalProperty(field.key, field.property, field, getRadioPanelEmitValue(field.key, field.property, option.value))"
                                     >
                                         <span
                                             v-if="option.cornerRadius"
@@ -211,7 +211,7 @@
                                             :disabled="!allowEdit || option.disabled || undefined"
                                             :aria-label="option.label"
                                             :title="option.label"
-                                            @click="onUpdateResponsiveViewportProperty(field.key, field.property, field, viewport, option.value)"
+                                            @click="onUpdateResponsiveViewportProperty(field.key, field.property, field, viewport, getRadioPanelEmitValue(field.key, field.property, option.value))"
                                         >
                                             <span
                                                 v-if="option.cornerRadius"
@@ -315,7 +315,7 @@
                                     :disabled="!allowEdit || option.disabled || undefined"
                                     :aria-label="option.label"
                                     :title="option.label"
-                                    @click="onUpdateRadioPanelProperty(field.key, option.value)"
+                                    @click="onUpdateRadioPanelProperty(field.key, field.property, option.value)"
                                 >
                                     <span
                                         v-if="option.cornerRadius"

@@ -62,6 +62,40 @@ tester.run('no-tc-translation', rule, {
     ],
 });
 
+const templateTester = new RuleTester({
+    languageOptions: {
+        parser: require('vue-eslint-parser'),
+        ecmaVersion: 2022,
+        sourceType: 'module',
+    },
+});
+
+templateTester.run('no-tc-translation in templates', rule, {
+    valid: [
+        {
+            name: 'allows $t() in a bound template attribute',
+            filename: 'test.html.twig',
+            code: `<template><sw-button :label="$t('a.b')" /></template>`,
+        },
+    ],
+    invalid: [
+        {
+            name: 'replaces $tc() with $t() in a bound template attribute',
+            filename: 'test.html.twig',
+            code: `<template><sw-button :label="$tc('a.b')" /></template>`,
+            output: `<template><sw-button :label="$t('a.b')" /></template>`,
+            errors: [{ messageId: 'noTc' }],
+        },
+        {
+            name: 'replaces $tc() with $t() in a v-if condition',
+            filename: 'test.html.twig',
+            code: `<template><div v-if="$tc('x')" /></template>`,
+            output: `<template><div v-if="$t('x')" /></template>`,
+            errors: [{ messageId: 'noTc' }],
+        },
+    ],
+});
+
 describe('no-tc-translation message', () => {
     it('carries the registry description and the pluralization review hint', () => {
         const message = rule.meta.messages.noTc;

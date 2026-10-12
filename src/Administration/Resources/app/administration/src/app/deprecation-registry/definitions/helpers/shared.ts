@@ -2,14 +2,7 @@
  * @sw-package framework
  */
 
-import type {
-    ComponentUsageRuleApi,
-    DeprecationDefinition,
-    DeprecationMigration,
-    DeprecationReference,
-    DeprecationUsage,
-    FixLevel,
-} from './types';
+import type { ComponentUsageRuleApi, DeprecationMigration, DeprecationReference, DeprecationUsage, FixLevel } from './types';
 
 export function withoutUndefined<T>(value: T): T {
     if (Array.isArray(value)) {
@@ -38,10 +31,6 @@ export function withoutUndefined<T>(value: T): T {
                 ],
             ),
     ) as T;
-}
-
-export function defineDeprecations(definition: DeprecationDefinition): DeprecationDefinition {
-    return withoutUndefined(definition);
 }
 
 export function reference({ type, target }: { type: string; target: string }): DeprecationReference {

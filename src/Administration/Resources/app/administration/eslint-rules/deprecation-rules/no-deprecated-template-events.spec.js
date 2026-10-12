@@ -116,6 +116,28 @@ tester.run('no-deprecated-template-events', rule, {
             ],
         },
         {
+            name: 'does not fix when the element already listens to a camelCase replacement event',
+            filename: 'test.html.twig',
+            code: '<template><sw-radio-panel @input="a" @update:modelValue="b" /></template>',
+            output: null,
+            errors: [
+                {
+                    message: /Use "update:modelValue" instead/,
+                },
+            ],
+        },
+        {
+            name: 'does not fix when the element already listens to a kebab-case replacement event',
+            filename: 'test.html.twig',
+            code: '<template><sw-radio-panel @input="a" @update:model-value="b" /></template>',
+            output: null,
+            errors: [
+                {
+                    message: /Use "update:modelValue" instead/,
+                },
+            ],
+        },
+        {
             name: 'does not fix when object v-on can hide deprecated listeners',
             filename: 'test.html.twig',
             code: '<template><sw-text-field v-on="listeners" @input="onInput" /></template>',

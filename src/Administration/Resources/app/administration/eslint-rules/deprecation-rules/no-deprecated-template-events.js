@@ -40,9 +40,28 @@ function usageFixesAutomatically(usage) {
  * hasReplacementListener(node, 'update:value'); // true for <sw-text-field @input="a" @update:value="b" />
  */
 function hasReplacementListener(node, eventName) {
+    const normalizedEventName = normalizeEventName(eventName);
+
     return node.startTag.attributes.some((attribute) => {
-        return attribute.key?.name?.name === 'on' && attribute.key?.argument?.name === eventName;
+        const argument = attribute.key?.argument;
+        const listenedName = argument?.rawName ?? argument?.name;
+
+        return (
+            attribute.key?.name?.name === 'on' &&
+            typeof listenedName === 'string' &&
+            normalizeEventName(listenedName) === normalizedEventName
+        );
     });
+}
+
+/**
+ * vue-eslint-parser lowercases v-on argument names; registry names may be camelCase or kebab-case.
+ *
+ * @example
+ * normalizeEventName('update:modelValue') === normalizeEventName('update:model-value'); // true
+ */
+function normalizeEventName(name) {
+    return name.replace(/-/g, '').toLowerCase();
 }
 
 function getEventName(attribute) {

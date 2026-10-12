@@ -2,17 +2,28 @@
  * @sw-package framework
  */
 
-import type { DeprecationUsage } from '../types';
-import { normalizeFixLevel, withoutUndefined } from '../shared';
+import type { DeprecationUsage, FixLevel, MigrationTransform } from '../types';
+import { withoutUndefined } from '../shared';
 import { createRemovePropEslint } from './eslint';
 
-const DEFAULT_FIX = 'auto';
+const DEFAULT_FIX: FixLevel = 'auto';
 
-export function removeProp(config: Record<string, unknown>): DeprecationUsage {
-    const usageConfig: DeprecationUsage = withoutUndefined({
+/** Definition input of `removeProp`: the prop that is removed without replacement. */
+export type RemovePropConfig = {
+    prop: string;
+    fix?: FixLevel;
+    message?: string;
+    transform?: MigrationTransform;
+};
+
+export function removeProp(config: RemovePropConfig): DeprecationUsage {
+    const { prop, fix = DEFAULT_FIX, message, transform } = config;
+    const usageConfig: DeprecationUsage & RemovePropConfig = withoutUndefined({
         kind: 'remove-prop',
-        ...config,
-        fix: normalizeFixLevel(config.fix, DEFAULT_FIX),
+        prop,
+        fix,
+        message,
+        transform,
     });
 
     return {

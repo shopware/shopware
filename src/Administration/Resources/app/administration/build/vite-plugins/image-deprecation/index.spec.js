@@ -72,7 +72,7 @@ describe('build/vite-plugins/image-deprecation', () => {
     });
 
     it('builds the default deprecated list from the asset migration files of the registry', () => {
-        expect(deprecatedList).toEqual(assets.assetMigrations.flatMap((migration) => migration.files ?? []));
+        expect(deprecatedList).toEqual(assets.flatMap((migration) => migration.files ?? []));
         expect(deprecatedList).toContain('/static/img/sw-login-background.png');
     });
 });

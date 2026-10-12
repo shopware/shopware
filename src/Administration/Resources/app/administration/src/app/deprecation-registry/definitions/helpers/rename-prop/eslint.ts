@@ -4,9 +4,12 @@
  */
 
 import type { ComponentUsageRuleApi, DeprecationUsage } from '../types';
+import type { RenamePropConfig } from './index';
 import { componentUsageMessage, hasObjectVBind, usageFixesAutomatically } from '../shared';
 
-function hasConflictingDeprecatedProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage): boolean {
+type RenamePropUsage = DeprecationUsage & RenamePropConfig;
+
+function hasConflictingDeprecatedProp(api: ComponentUsageRuleApi, usageConfig: RenamePropUsage): boolean {
     return api.migration.usage.some((candidate) => {
         return (
             candidate !== api.usage &&
@@ -18,11 +21,7 @@ function hasConflictingDeprecatedProp(api: ComponentUsageRuleApi, usageConfig: D
     });
 }
 
-function reportRenameProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage): void {
-    if (typeof usageConfig.from !== 'string') {
-        return;
-    }
-
+function reportRenameProp(api: ComponentUsageRuleApi, usageConfig: RenamePropUsage): void {
     const attribute = api.ast.findMatchingPropAttribute(api.node, usageConfig.from);
 
     if (!attribute) {
@@ -31,10 +30,9 @@ function reportRenameProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUs
 
     const transform = api.getTransformResult(usageConfig, api.node, attribute);
     const objectVBindUsed = hasObjectVBind(api);
-    const objectVBindMessage =
-        objectVBindUsed && typeof usageConfig.to === 'string'
-            ? `Object v-bind can hide the replacement prop. Review the bound object and rename "${usageConfig.from}" to "${usageConfig.to}" manually if needed.`
-            : undefined;
+    const objectVBindMessage = objectVBindUsed
+        ? `Object v-bind can hide the replacement prop. Review the bound object and rename "${usageConfig.from}" to "${usageConfig.to}" manually if needed.`
+        : undefined;
 
     api.reportWithDuplicateReplacementGuard({
         node: attribute,
@@ -49,10 +47,6 @@ function reportRenameProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUs
             }
 
             if (transform?.kind === 'replace-with-static-value') {
-                if (typeof usageConfig.to !== 'string') {
-                    return null;
-                }
-
                 if (api.ast.hasMatchingPropAttribute(api.node, usageConfig.to)) {
                     return fixer.remove(attribute);
                 }
@@ -70,21 +64,12 @@ function reportRenameProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUs
                 }
 
                 const value = api.ast.getAttributeValueSource(attribute);
-                const replacementName = usageConfig.to;
-
-                if (typeof replacementName !== 'string') {
-                    return null;
-                }
 
                 if (api.ast.getDirectiveName(attribute) === 'bind') {
-                    return fixer.replaceText(attribute, `:${replacementName}="!(${value})"`);
+                    return fixer.replaceText(attribute, `:${usageConfig.to}="!(${value})"`);
                 }
 
-                return fixer.replaceText(attribute, `${replacementName}="!(${value})"`);
-            }
-
-            if (typeof usageConfig.to !== 'string') {
-                return null;
+                return fixer.replaceText(attribute, `${usageConfig.to}="!(${value})"`);
             }
 
             if (api.ast.getDirectiveName(attribute) === 'bind') {
@@ -96,7 +81,7 @@ function reportRenameProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUs
     });
 }
 
-export function createRenamePropEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
+export function createRenamePropEslint(usageConfig: RenamePropUsage): DeprecationUsage['eslint'] {
     return {
         report: (api) => reportRenameProp(api, usageConfig),
     };

@@ -13,59 +13,20 @@ import packageMigrationsDefinition from './definitions/packages';
 import snippetKeyMigrationsDefinition from './definitions/snippet-keys';
 import templateBlockMigrationsDefinition from './definitions/template-blocks';
 import templateEvents from './definitions/template-events';
-import type { DeprecationDefinition } from './definitions/helpers';
+import type { DeprecationMigration } from './definitions/helpers';
 
-const definitionFiles: DeprecationDefinition[] = [
-    {
-        componentApiMigrations: componentApiMigrationsDefinition,
-    },
-    {
-        globalApiMigrations: globalApiMigrationsDefinition,
-    },
-    {
-        jsApiMigrations: jsApiMigrationsDefinition,
-    },
-    {
-        templateBlockMigrations: templateBlockMigrationsDefinition,
-    },
-    {
-        snippetKeyMigrations: snippetKeyMigrationsDefinition,
-    },
-    {
-        packageMigrations: packageMigrationsDefinition,
-    },
-    assets,
-    templateEvents,
-];
+export const componentApiMigrations: DeprecationMigration[] = componentApiMigrationsDefinition;
 
-export const componentApiMigrations = definitionFiles.flatMap((definition) => {
-    return definition.componentApiMigrations ?? [];
-});
+export const globalApiMigrations: DeprecationMigration[] = globalApiMigrationsDefinition;
 
-export const globalApiMigrations = definitionFiles.flatMap((definition) => {
-    return definition.globalApiMigrations ?? [];
-});
+export const jsApiMigrations: DeprecationMigration[] = jsApiMigrationsDefinition;
 
-export const jsApiMigrations = definitionFiles.flatMap((definition) => {
-    return definition.jsApiMigrations ?? [];
-});
+export const assetMigrations: DeprecationMigration[] = assets;
 
-export const assetMigrations = definitionFiles.flatMap((definition) => {
-    return definition.assetMigrations ?? [];
-});
+export const templateBlockMigrations: DeprecationMigration[] = templateBlockMigrationsDefinition;
 
-export const templateBlockMigrations = definitionFiles.flatMap((definition) => {
-    return definition.templateBlockMigrations ?? [];
-});
+export const templateEventMigrations: DeprecationMigration[] = templateEvents;
 
-export const templateEventMigrations = definitionFiles.flatMap((definition) => {
-    return definition.templateEventMigrations ?? [];
-});
+export const snippetKeyMigrations: DeprecationMigration[] = snippetKeyMigrationsDefinition;
 
-export const snippetKeyMigrations = definitionFiles.flatMap((definition) => {
-    return definition.snippetKeyMigrations ?? [];
-});
-
-export const packageMigrations = definitionFiles.flatMap((definition) => {
-    return definition.packageMigrations ?? [];
-});
+export const packageMigrations: DeprecationMigration[] = packageMigrationsDefinition;

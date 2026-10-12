@@ -7,7 +7,7 @@ import type { DeprecationMigration } from '../../../src/app/deprecation-registry
  * @private
  * The asset migrations of the deprecation registry, one per group of deprecated files.
  */
-export const assetMigrations: DeprecationMigration[] = assets.assetMigrations ?? [];
+export const assetMigrations: DeprecationMigration[] = assets;
 
 /**
  * @sw-package framework

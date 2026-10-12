@@ -4,13 +4,10 @@
  */
 
 import type { ComponentUsageRuleApi, DeprecationUsage } from '../types';
+import type { MapPropValueConfig } from './index';
 import { componentUsageMessage, usageFixesAutomatically } from '../shared';
 
-function reportMapPropValue(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage): void {
-    if (typeof usageConfig.prop !== 'string') {
-        return;
-    }
-
+function reportMapPropValue(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage & MapPropValueConfig): void {
     const attribute = api.ast.findMatchingPropAttribute(api.node, usageConfig.prop);
 
     if (!attribute || api.ast.getDirectiveName(attribute) === 'bind' || attribute.value?.value !== usageConfig.from) {
@@ -48,7 +45,7 @@ function reportMapPropValue(api: ComponentUsageRuleApi, usageConfig: Deprecation
     });
 }
 
-export function createMapPropValueEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
+export function createMapPropValueEslint(usageConfig: DeprecationUsage & MapPropValueConfig): DeprecationUsage['eslint'] {
     return {
         report: (api) => reportMapPropValue(api, usageConfig),
     };

@@ -2,10 +2,6 @@
  * @sw-package framework
  */
 
-// eslint-plugin-vue 10 ships as ESM under dist/ (utils sit on the module's
-// `default` export); older layouts exported them directly from lib/.
-const utilsModule = require('eslint-plugin-vue/dist/utils');
-const utils = utilsModule.default ?? utilsModule;
 const { loadRegistry } = require('../deprecation-rules/registry/load-registry');
 const { isMigrationSelected } = require('../deprecation-rules/registry/filter-migrations');
 const { appendRegistryContext } = require('../deprecation-rules/registry/format-migration-message');
@@ -84,9 +80,10 @@ module.exports = {
             CallExpression: checkCallExpression,
         };
 
-        // If vue parser is available, register both script and template visitors
-        if (context.parserServices && context.parserServices.defineTemplateBodyVisitor) {
-            return utils.defineTemplateBodyVisitor(context, templateVisitors, scriptVisitors);
+        // Plain .js/.ts files run without vue-eslint-parser, so only templates get the template visitor.
+        const defineTemplateBodyVisitor = context.sourceCode.parserServices?.defineTemplateBodyVisitor;
+        if (defineTemplateBodyVisitor) {
+            return defineTemplateBodyVisitor(templateVisitors, scriptVisitors);
         }
 
         // Fallback for non-vue files (plain JS/TS)

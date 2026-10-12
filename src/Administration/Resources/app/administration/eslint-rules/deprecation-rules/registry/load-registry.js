@@ -12,11 +12,7 @@ process.env.TS_NODE_COMPILER_OPTIONS = JSON.stringify({
 require('ts-node/register/transpile-only');
 
 function getRegistryPath() {
-    return path.resolve(
-        __dirname,
-        '../../..',
-        'src/app/deprecation-registry/index.ts',
-    );
+    return path.resolve(__dirname, '../../..', 'src/app/deprecation-registry/index.ts');
 }
 
 // One registry per ESLint process; the definitions are static and transpiling index.ts per rule and file is slow.
@@ -27,28 +23,10 @@ function loadRegistry() {
         return cachedRegistry;
     }
 
-    const {
-        componentApiMigrations,
-        globalApiMigrations,
-        jsApiMigrations,
-        assetMigrations,
-        templateBlockMigrations,
-        templateEventMigrations,
-        snippetKeyMigrations,
-        packageMigrations,
-    } = require(getRegistryPath());
-
     cachedRegistry = {
-        componentApiMigrations,
-        globalApiMigrations,
-        jsApiMigrations,
-        assetMigrations,
-        templateBlockMigrations,
-        templateEventMigrations,
-        snippetKeyMigrations,
-        packageMigrations,
+        ...require(getRegistryPath()),
         getComponentApiMigration(componentName) {
-            return componentApiMigrations.find((migration) => migration.component === componentName) ?? null;
+            return cachedRegistry.componentApiMigrations.find((migration) => migration.component === componentName) ?? null;
         },
     };
 

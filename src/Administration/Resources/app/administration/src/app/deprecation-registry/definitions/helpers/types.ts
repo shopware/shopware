@@ -103,14 +103,3 @@ export type DeprecationMigration = {
     api?: string;
     files?: string[];
 };
-
-export type DeprecationDefinition = {
-    componentApiMigrations?: DeprecationMigration[];
-    globalApiMigrations?: DeprecationMigration[];
-    jsApiMigrations?: DeprecationMigration[];
-    assetMigrations?: DeprecationMigration[];
-    templateBlockMigrations?: DeprecationMigration[];
-    templateEventMigrations?: DeprecationMigration[];
-    snippetKeyMigrations?: DeprecationMigration[];
-    packageMigrations?: DeprecationMigration[];
-};

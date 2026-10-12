@@ -4,13 +4,10 @@
  */
 
 import type { ComponentUsageRuleApi, DeprecationUsage } from '../types';
+import type { RemovePropConfig } from './index';
 import { componentUsageMessage, hasObjectVBind, usageFixesAutomatically } from '../shared';
 
-function reportRemoveProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage): void {
-    if (typeof usageConfig.prop !== 'string') {
-        return;
-    }
-
+function reportRemoveProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUsage & RemovePropConfig): void {
     const attribute = api.ast.findMatchingPropAttribute(api.node, usageConfig.prop);
 
     if (!attribute) {
@@ -65,7 +62,7 @@ function reportRemoveProp(api: ComponentUsageRuleApi, usageConfig: DeprecationUs
     });
 }
 
-export function createRemovePropEslint(usageConfig: DeprecationUsage): DeprecationUsage['eslint'] {
+export function createRemovePropEslint(usageConfig: DeprecationUsage & RemovePropConfig): DeprecationUsage['eslint'] {
     return {
         report: (api) => reportRemoveProp(api, usageConfig),
     };

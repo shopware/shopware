@@ -194,6 +194,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
             await flushPromises();
 
             await wrapper.find('.sw-product-modal-delivery__save-button').trigger('click');
+            await flushPromises();
 
             expect(save).toHaveBeenCalledTimes(1);
 

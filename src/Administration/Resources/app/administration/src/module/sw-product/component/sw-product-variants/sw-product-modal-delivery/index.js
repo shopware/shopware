@@ -96,8 +96,6 @@ export default {
             }
 
             if (product && product.listingMode === 'single') {
-                // Save the shown variant choice and disable the properties for listings,
-                // which would otherwise still expand the variants in the storefront
                 product.variantListingConfig.displayParent = product.variantListingConfig.displayParent === true;
                 product.variantListingConfig.configuratorGroupConfig?.forEach((group) => {
                     group.expressionForListings = false;

@@ -788,7 +788,6 @@ export default {
 
             const mainVariantId = this.productEntity.variantListingConfig?.mainVariantId;
             if (mainVariantId && variantIds.includes(mainVariantId)) {
-                // "Main product" stays, "Variant" keeps showing a variant, now without a chosen one
                 this.productEntity.variantListingConfig.mainVariantId = null;
                 this.productEntity.variantListingConfig.displayParent =
                     this.productEntity.variantListingConfig.displayParent === true;

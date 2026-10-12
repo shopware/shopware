@@ -1,7 +1,7 @@
 /**
  * @sw-package inventory
  */
-import { mount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import { reactive } from 'vue';
 
 const expandedGroup = { id: 'group-id', expressionForListings: true, representation: 'box' };
@@ -9,7 +9,7 @@ const expandedGroup = { id: 'group-id', expressionForListings: true, representat
 async function createWrapper(variantListingConfig) {
     const product = reactive({ id: 'product-id', variantListingConfig });
 
-    const wrapper = mount(await wrapTestComponent('sw-product-variants-delivery-listing', { sync: true }), {
+    const wrapper = shallowMount(await wrapTestComponent('sw-product-variants-delivery-listing', { sync: true }), {
         props: {
             product,
             selectedGroups: [{ id: 'group-id', translated: { name: 'Size' } }],
@@ -132,8 +132,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         });
         const { listingModeField, variantModeField } = getRadioFields(wrapper);
 
-        await listingModeField.vm.$emit('update:value', 'expanded');
-        await listingModeField.vm.$emit('update:value', 'single');
+        listingModeField.vm.$emit('update:value', 'expanded');
+        listingModeField.vm.$emit('update:value', 'single');
+        await flushPromises();
 
         expect(product.listingMode).toBe('single');
         expect(product.variantListingConfig.displayParent).toBe(false);
@@ -147,8 +148,10 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             configuratorGroupConfig: [],
         });
 
-        await getRadioFields(wrapper).listingModeField.vm.$emit('update:value', 'expanded');
-        await wrapper.findComponent({ name: 'mt-checkbox' }).vm.$emit('update:checked', true);
+        getRadioFields(wrapper).listingModeField.vm.$emit('update:value', 'expanded');
+        await flushPromises();
+        wrapper.findComponent({ name: 'mt-checkbox' }).vm.$emit('update:checked', true);
+        await flushPromises();
 
         expect(product.listingMode).toBe('expanded');
         expect(product.variantListingConfig.configuratorGroupConfig).toEqual([expandedGroup]);

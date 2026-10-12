@@ -48,8 +48,6 @@ export default {
                 return 'single';
             }
 
-            // Like the storefront, only properties enabled for listings expand the variants,
-            // otherwise a single variant is shown
             const configuratorGroupConfig = this.product.variantListingConfig.configuratorGroupConfig ?? [];
 
             return configuratorGroupConfig.some((group) => group.expressionForListings === true) ? 'expanded' : 'single';

@@ -25,6 +25,7 @@ use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -262,20 +263,10 @@ class CustomerProfileValidationFactoryTest extends TestCase
         $notBlank = $definition->getProperty($field)[0] ?? null;
         static::assertInstanceOf(NotBlank::class, $notBlank);
 
-        $normalizer = $notBlank->normalizer;
-        static::assertIsCallable($normalizer);
-        static::assertSame('', $normalizer('   '));
-        static::assertSame('Ada', $normalizer('  Ada  '));
-
-        static::assertNull($normalizer(null));
-    }
-
-    /**
-     * @return callable(mixed): mixed
-     */
-    private static function trimNormalizer(): callable
-    {
-        return static fn (mixed $value): mixed => \is_string($value) ? trim($value) : $value;
+        $validator = Validation::createValidator();
+        static::assertCount(1, $validator->validate('   ', $notBlank));
+        static::assertCount(1, $validator->validate(null, $notBlank));
+        static::assertCount(0, $validator->validate('  Ada  ', $notBlank));
     }
 
     private function getSalesChannelContext(): SalesChannelContext
@@ -293,8 +284,8 @@ class CustomerProfileValidationFactoryTest extends TestCase
     {
         $definition
             ->add('salutationId', new EntityExists(entity: SalutationDefinition::ENTITY_NAME, context: $context->getContext()))
-            ->add('firstName', new NotBlank(normalizer: self::trimNormalizer()))
-            ->add('lastName', new NotBlank(normalizer: self::trimNormalizer()))
+            ->add('firstName', new NotBlank(normalizer: 'trim'))
+            ->add('lastName', new NotBlank(normalizer: 'trim'))
             ->add('accountType', new Choice(choices: $this->accountTypes))
             ->add('title', new Length(max: CustomerDefinition::MAX_LENGTH_TITLE))
             ->add('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))

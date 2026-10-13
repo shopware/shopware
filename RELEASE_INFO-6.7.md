@@ -93,6 +93,10 @@ Deactivating a plugin now removes its asset manifest entry but retains its publi
 
 `AbstractProductStreamBuilder` now implements the deprecated `ProductStreamBuilderInterface` and forwards `buildFilters()` to `enrichCriteria()`. Extensions can therefore migrate their implementations to the abstract class while remaining compatible with code that still consumes the legacy interface.
 
+### Dynamic product groups without usable filters
+
+Cross-selling, category listings and CMS product sliders no longer fail on such a group. An empty group selects all products, like the product export, and a broken one selects none and logs a warning.
+
 ### Feature flags can belong to a major version
 
 Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatically when `V6_8_0_0=1` is set. An explicit setting for the individual flag still takes precedence, so `JSON_LD_DATA=0` keeps that feature off. Standalone major flags are recognized by their version-shaped names; the `major` field is only for sub-features and must name a parent version flag. Flags without a parent omit `major` from their metadata and the feature-flag API response. `FEATURE_ALL` now activates every registered feature for any truthy value; use a version flag to test only that major's changes.
@@ -349,6 +353,14 @@ Shopware now requires `symfony/mcp-bundle` 0.14.1, still on `mcp/sdk` 0.8. The e
 One behaviour changes for extensions: a `%` in MCP metadata, for example a tool description or schema such as "discount in %", is now kept as written. Before, the bundle read it as a container parameter placeholder, which either broke the container build ("non-existent parameter") or changed the text. If your extension worked around that by writing `%%`, remove the workaround, or the description now shows `%%`.
 The additional 10-minute limits of the old configuration (1000 and 600 requests) are gone, so the sustained maximum is now 300 and 120 requests per minute.
 
+### MCP endpoints are rate-limited with a sliding window
+
+`mcp_admin_api` and `mcp_store_api` in `shopware.api.rate_limiter` now use the `sliding_window` policy: 300 requests per minute per OAuth token on `/api/_mcp`, and 120 per minute per sales-channel context and per IP on `/store-api/_mcp`. Before, they used `time_backoff`, which accepts only one request per interval once the first limit is reached and keeps that state for an hour. A busy MCP client therefore got HTTP 429 on almost every call, including the handshake of a new session.
+
+If you override these limits in your configuration, set `policy`, `limit` and `interval` for the new policy. The `reset` and `limits` keys only apply to `time_backoff`.
+
+The additional 10-minute limits of the old configuration (1000 and 600 requests) are gone, so the sustained maximum is now 300 and 120 requests per minute.
+
 ### Every Store API route publishes an extension event
 
 All Store API routes in core now publish an extension event, so you can extend a route with a subscriber instead of decorating its abstract route class. Each route has a `<Route>Extension` in the `Extension` namespace of its domain that carries the route's input parameters, for example `Shopware\Core\Content\Product\Extension\ProductListingRouteExtension`:
@@ -458,6 +470,10 @@ GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_I
 ### Apps without permissions can't declare required privileges for MCP tools
 
 An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the app declares in the `<permissions>` of its manifest, because the tool's script runs with the app's integration role. Apps without a `<permissions>` block skipped this check, although they have no privileges at all. They are now checked like every other app, so such an app fails to install or update with the message naming the missing permission. Add the permissions to the manifest, or remove the required privileges from the tool.
+
+### `AssertValuesTrait` deprecated in favour of `ArrayValues`
+
+The test helper trait `\Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait` is deprecated and will be removed in 6.8. Its `assertValues()` method now triggers a deprecation, and throws when the `v6.8.0.0` flag is active. Extension tests that use the trait should call `\Shopware\Core\Test\Assert\ArrayValues::assertValues($expected, $actual)` instead; the comparison is unchanged.
 
 ## API
 

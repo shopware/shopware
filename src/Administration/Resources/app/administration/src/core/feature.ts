@@ -7,6 +7,15 @@
 import { error, warn } from 'src/core/service/utils/debug.utils';
 
 /**
+ * Majors the Administration already deprecates for, while the backend does not register their flag yet.
+ * `triggerDeprecationOrThrow` reports them as a regular deprecation instead of a typo.
+ * Remove a version once it is registered in the backend `feature.yaml`.
+ *
+ * @private
+ */
+export const UNREGISTERED_UPCOMING_MAJORS = ['V6_9_0_0'];
+
+/**
  * A static registry containing a list of all registered flags and the associated activation state
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -46,7 +55,7 @@ export default class Feature {
     /**
      * Guards a deprecated API where it is used, like the PHP `Feature::triggerDeprecationOrThrow()`:
      * warns while `majorFlag` is inactive, throws once it is active. An unregistered flag can never
-     * become active, so it logs an error instead.
+     * become active, so it logs an error instead, unless it is an upcoming major the backend does not register yet.
      *
      * @example
      * Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'oldMethod() is deprecated. Use newMethod() instead.');
@@ -63,7 +72,7 @@ export default class Feature {
 
         this.reportedDeprecations.add(message);
 
-        if (this.isRegistered(majorFlag)) {
+        if (this.isRegistered(majorFlag) || UNREGISTERED_UPCOMING_MAJORS.includes(majorFlag.toUpperCase())) {
             warn('Deprecation', message);
         } else {
             error(

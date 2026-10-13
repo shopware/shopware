@@ -31,8 +31,9 @@
                         >
                         </span>
                     {% endblock %}
-                {% elseif lineItem.type == 'promotion' and lineItem.payload.code|default('') is not empty %}
-                    {# Automatic promotions have no code, and a promotion with several discounts adds one line item per discount. #}
+                {% elseif lineItem.payload.code|default('') is not empty %}
+                    {# Any discount with a code, a promotion or the voucher of an extension, whatever its type. Automatic #}
+                    {# promotions have no code, and a promotion with several discounts adds one line item per discount. #}
                     {% block component_hidden_line_item_coupon %}
                         <span class="hidden-line-item-coupon" data-code="{{ lineItem.payload.code }}"></span>
                     {% endblock %}

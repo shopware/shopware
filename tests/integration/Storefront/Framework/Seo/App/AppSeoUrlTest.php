@@ -459,8 +459,7 @@ class AppSeoUrlTest extends TestCase
         $imprintFlags = $this->fetchDeletedFlags(self::IMPRINT_ROUTE);
         $productFlags = $this->fetchDeletedFlags(self::PRODUCT_ROUTE);
 
-        static::assertNotEmpty($imprintFlags);
-        static::assertNotEmpty($productFlags);
+        // an empty flag list fails the equality below, so no separate emptiness check is needed
         static::assertSame([1], array_values(array_unique($imprintFlags)));
         static::assertSame([1], array_values(array_unique($productFlags)));
         static::assertNotNull($this->fetchDefaultTemplate(self::PRODUCT_ROUTE));
@@ -476,8 +475,7 @@ class AppSeoUrlTest extends TestCase
         $imprintFlags = $this->fetchDeletedFlags(self::IMPRINT_ROUTE);
         $productFlags = $this->fetchDeletedFlags(self::PRODUCT_ROUTE);
 
-        static::assertNotEmpty($imprintFlags);
-        static::assertNotEmpty($productFlags);
+        // an empty flag list fails the equality below, so no separate emptiness check is needed
         static::assertSame([1], array_values(array_unique($imprintFlags)));
         static::assertSame([1], array_values(array_unique($productFlags)));
         static::assertNull($this->fetchDefaultTemplate(self::PRODUCT_ROUTE));

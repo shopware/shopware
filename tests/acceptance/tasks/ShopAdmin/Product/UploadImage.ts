@@ -1,39 +1,43 @@
 import { test as base, expect } from '@playwright/test';
 import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
-import { createRandomImage, getMediaId, encodeImage } from '@fixtures/AcceptanceTest';
+import { createRandomImage, encodeImage } from '@fixtures/AcceptanceTest';
 
 export const UploadImage = base.extend<{ UploadImage: Task }, FixtureTypes>({
     UploadImage: async ({ AdminProductDetail, AdminApiContext }, use) => {
-        let uploadedMediaName: string;
+        let uploadedMediaId: string | undefined;
 
         const task = (imageName: string) => {
             return async function UploadImage() {
-                uploadedMediaName = imageName;
-
                 // Create Image
                 const image = createRandomImage();
 
                 const fileChooserPromise = AdminProductDetail.page.waitForEvent('filechooser');
                 await AdminProductDetail.uploadMediaButton.click();
                 const fileChooser = await fileChooserPromise;
+
+                // Wait for the upload itself, other media searches can answer before the file is stored.
+                const uploadResponsePromise = AdminProductDetail.page.waitForResponse(
+                    (response) => response.url().includes('/api/_action/media/') && response.url().includes('/upload'),
+                );
                 await fileChooser.setFiles({
                     name: `${imageName}.png`,
                     mimeType: 'image/png',
                     buffer: encodeImage(image),
                 });
 
-                // Wait until media is saved via API
-                const response = await AdminProductDetail.page.waitForResponse(`${process.env['APP_URL']}api/search/media`);
-                expect(response.ok()).toBeTruthy();
+                const uploadResponse = await uploadResponsePromise;
+                expect(uploadResponse.ok()).toBeTruthy();
 
-                const mediaResourceResponse = await response.json();
+                uploadedMediaId = uploadResponse.url().split('/api/_action/media/')[1].split('/')[0];
 
-                expect(mediaResourceResponse.data[0]).toEqual(
+                const mediaResponse = await AdminApiContext.get(`media/${uploadedMediaId}`);
+                expect(mediaResponse.ok()).toBeTruthy();
+
+                const { data: media } = await mediaResponse.json();
+                expect(media).toEqual(
                     expect.objectContaining({
-                        attributes: expect.objectContaining({
-                            fileName: imageName,
-                            mimeType: 'image/png',
-                        }),
+                        fileName: imageName,
+                        mimeType: 'image/png',
                     }),
                 );
             };
@@ -42,8 +46,7 @@ export const UploadImage = base.extend<{ UploadImage: Task }, FixtureTypes>({
         await use(task);
 
         // Delete image from database
-        if (uploadedMediaName) {
-            const uploadedMediaId = await getMediaId(uploadedMediaName, AdminApiContext);
+        if (uploadedMediaId) {
             await AdminApiContext.delete(`media/${uploadedMediaId}`);
         }
     },

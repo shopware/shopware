@@ -103,8 +103,8 @@ class Client implements ResetInterface
                 $service['label'],
                 $service['host'],
                 $service['app-endpoint'],
-                (bool) ($service['activate-on-install'] ?? true),
-                \is_string($service['status'] ?? null) ? ServiceStatus::tryFrom($service['status']) : null,
+                (bool) $service['activate-on-install'],
+                ServiceStatus::tryFrom($service['status']),
             ),
             $rawServices
         );
@@ -227,7 +227,7 @@ class Client implements ResetInterface
                 return false;
             }
 
-            if (!isset($service['name']) || !isset($service['label']) || !isset($service['host']) || !isset($service['app-endpoint'])) {
+            if (!isset($service['name']) || !isset($service['label']) || !isset($service['host']) || !isset($service['app-endpoint']) || !isset($service['activate-on-install']) || !isset($service['status'])) {
                 return false;
             }
         }

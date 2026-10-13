@@ -20,6 +20,7 @@ use Shopware\Core\Service\Message\InstallServicesMessage;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Shopware\Core\Service\ServiceRegistry\ServiceStatus;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
@@ -284,7 +285,7 @@ class AllServiceInstallerTest extends TestCase
 
     private function entry(string $name): ServiceEntry
     {
-        return new ServiceEntry($name, $name, 'https://' . $name . '.example.com', '/app-endpoint');
+        return new ServiceEntry($name, $name, 'https://' . $name . '.example.com', '/app-endpoint', true, ServiceStatus::ACTIVE);
     }
 
     /**

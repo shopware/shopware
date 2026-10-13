@@ -78,7 +78,7 @@ class ServiceLifecycleTest extends TestCase
     protected function setUp(): void
     {
         $this->appManager = $this->createMock(AppManager::class);
-        $this->entry = new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/service/lifecycle/choose-app', status: ServiceStatus::ACTIVE);
+        $this->entry = new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/service/lifecycle/choose-app', true, ServiceStatus::ACTIVE);
         $this->appInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://example.com/service/lifecycle/app-zip/6.6.0.0', ['service_consent'], 'sha256', '6.6.0.0');
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->manifestFactory = $this->createMock(ManifestFactory::class);
@@ -410,7 +410,7 @@ class ServiceLifecycleTest extends TestCase
 
     public function testInstallDoesNotActivateIfRegistryEntrySpecifiesNotTo(): void
     {
-        $entry = new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/service/lifecycle/choose-app', activateOnInstall: false);
+        $entry = new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/service/lifecycle/choose-app', false, ServiceStatus::ACTIVE);
         $this->fetchReturnsAppInfo();
         $this->requirementsMet(true);
 
@@ -507,7 +507,7 @@ class ServiceLifecycleTest extends TestCase
     public function testUpdateDoesNothingForAServiceThatIsNotActive(?ServiceStatus $status): void
     {
         $this->registryClient->method('get')->willReturn(
-            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/service/lifecycle/choose-app', status: $status)
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/service/lifecycle/choose-app', true, $status)
         );
 
         $serviceClientFactory = $this->createMock(ServiceClientFactory::class);

@@ -98,6 +98,17 @@ The Rule Builder condition `orderDaysSincePlaced` compares the order's `orderDat
 
 Extensions can evaluate `Shopware\Core\Content\Flow\Rule\OrderDaysSincePlacedRule` in a `FlowRuleScope` or a derived scope to apply date limits to existing orders.
 
+### Attribute entities can generate the reverse side of a many-to-many association
+
+`Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany` now accepts `reversedBy`, `reverseApi` and `reverseOnDelete`:
+
+```php
+#[ManyToMany(entity: 'product', onDelete: OnDelete::CASCADE, api: true, reversedBy: 'attributeEntities', reverseApi: ['admin-api' => true, 'store-api' => false], reverseOnDelete: OnDelete::CASCADE)]
+public array $products = [];
+```
+
+When `reversedBy` is set, the target entity (`product` in the example) gains a reverse many-to-many association with that property name over the same mapping table, added as an entity extension and therefore available on the target struct through its extensions for loading and filtering. `reverseApi` and `reverseOnDelete` control the reverse association's API visibility and delete behaviour independently; when omitted, they mirror the forward association's `api` and `onDelete`. Without `reversedBy`, the relation stays one-sided as before.
+
 ### Unlimited DAL searches with next-pages totals
 
 Database-backed DAL searches using `Criteria::TOTAL_COUNT_MODE_NEXT_PAGES` without a limit now return all matching entities after the requested offset and report the exact total, as `TOTAL_COUNT_MODE_EXACT` does.

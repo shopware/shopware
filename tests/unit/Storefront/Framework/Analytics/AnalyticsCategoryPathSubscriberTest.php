@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Analytics;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
@@ -130,6 +131,45 @@ class AnalyticsCategoryPathSubscriberTest extends TestCase
         (new AnalyticsCategoryPathSubscriber($loader))->addCategoryPaths($this->event('frontend.home.page', $this->homepage($this->cmsPage($listing))));
 
         static::assertEquals(new ArrayStruct(['Guitars']), $product->getExtension(AnalyticsCategoryPathSubscriber::EXTENSION));
+    }
+
+    /**
+     * Extensions add Shopping Experience elements with their own data structs, so the products are
+     * found wherever an element keeps them, here two levels down in a plugin struct.
+     */
+    public function testFindsTheProductsOfAnExtensionElement(): void
+    {
+        $product = $this->product('plugin-product');
+
+        $loader = $this->createMock(AnalyticsCategoryPathLoader::class);
+        $loader->expects($this->once())->method('load')
+            ->with([$product])
+            ->willReturn(['plugin-product' => ['Drums']]);
+
+        $pluginData = new ArrayStruct([
+            'headline' => 'Bestsellers',
+            'tabs' => [['products' => new ProductCollection([$product])]],
+        ]);
+
+        (new AnalyticsCategoryPathSubscriber($loader))->addCategoryPaths($this->event('frontend.home.page', $this->homepage($this->cmsPage($pluginData))));
+
+        static::assertEquals(new ArrayStruct(['Drums']), $product->getExtension(AnalyticsCategoryPathSubscriber::EXTENSION));
+    }
+
+    /**
+     * The products of other entities, such as the cross selling of a product, are not on the page.
+     */
+    public function testDoesNotWalkIntoEntities(): void
+    {
+        $nested = $this->product('nested-product');
+        $category = new CategoryEntity();
+        $category->setId('category');
+        $category->addExtension('products', new ProductCollection([$nested]));
+
+        $loader = $this->createMock(AnalyticsCategoryPathLoader::class);
+        $loader->expects($this->never())->method('load');
+
+        (new AnalyticsCategoryPathSubscriber($loader))->addCategoryPaths($this->event('frontend.home.page', $this->homepage($this->cmsPage(new ArrayStruct(['category' => $category])))));
     }
 
     /**

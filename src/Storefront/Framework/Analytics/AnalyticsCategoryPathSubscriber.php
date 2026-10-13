@@ -3,12 +3,15 @@
 namespace Shopware\Storefront\Framework\Analytics;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
-use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
-use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
-use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Page\LandingPage\LandingPage;
@@ -31,6 +34,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class AnalyticsCategoryPathSubscriber implements EventSubscriberInterface
 {
     final public const EXTENSION = 'analyticsCategoryPath';
+
+    /**
+     * Slot data, a struct or collection in it, and the products of that: deep enough for the
+     * elements of Shopware and of extensions, shallow enough to never walk large object graphs.
+     */
+    private const MAX_DEPTH = 4;
 
     public function __construct(private readonly AnalyticsCategoryPathLoader $loader)
     {
@@ -78,6 +87,11 @@ class AnalyticsCategoryPathSubscriber implements EventSubscriberInterface
     }
 
     /**
+     * The products the slots of the page show, whatever element shows them: the Shopware sliders,
+     * boxes and listings, and the elements of extensions, which carry their products in their own
+     * data structs. A product is not walked into, and neither is any other entity, so the walk stays
+     * at the few objects an element keeps in its data.
+     *
      * @return array<string, SalesChannelProductEntity>
      */
     private function collectProducts(?CmsPageEntity $cmsPage): array
@@ -85,23 +99,39 @@ class AnalyticsCategoryPathSubscriber implements EventSubscriberInterface
         $products = [];
 
         foreach ($cmsPage?->getSections()?->getBlocks()->getSlots() ?? [] as $slot) {
-            $data = $slot->getData();
-
-            $found = match (true) {
-                $data instanceof ProductSliderStruct => $data->getProducts()?->getElements() ?? [],
-                $data instanceof ProductBoxStruct => [$data->getProduct()],
-                // a listing on the homepage or a landing page has no category either
-                $data instanceof ProductListingStruct => $data->getListing()?->getEntities()->getElements() ?? [],
-                default => [],
-            };
-
-            foreach ($found as $product) {
-                if ($product instanceof SalesChannelProductEntity) {
-                    $products[$product->getId()] = $product;
-                }
-            }
+            $this->collect($slot->getData(), $products, 0);
         }
 
         return $products;
+    }
+
+    /**
+     * @param array<string, SalesChannelProductEntity> $products
+     */
+    private function collect(mixed $value, array &$products, int $depth): void
+    {
+        if ($value instanceof SalesChannelProductEntity) {
+            $products[$value->getId()] = $value;
+
+            return;
+        }
+
+        if ($depth > self::MAX_DEPTH || $value instanceof Entity || $value instanceof Context || $value instanceof Criteria) {
+            return;
+        }
+
+        $children = match (true) {
+            $value instanceof EntitySearchResult => $value->getEntities()->getElements(),
+            $value instanceof Collection => $value->getElements(),
+            $value instanceof Struct => $value->getVars(),
+            \is_array($value) => $value,
+            default => [],
+        };
+
+        foreach ($children as $child) {
+            if (\is_object($child) || \is_array($child)) {
+                $this->collect($child, $products, $depth + 1);
+            }
+        }
     }
 }

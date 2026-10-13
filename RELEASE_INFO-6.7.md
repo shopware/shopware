@@ -60,6 +60,10 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Preview three 6.8 behavior changes independently
+
+Set `MEDIA_URL_PATH_ENCODING=1` to test encoded media URL paths, `PROPORTIONAL_CART_TAXES=1` to test proportional tax calculation for percentage prices and split line items, or `DELETE_CART_AFTER_ORDER_CREATION=1` to test the earlier persisted-cart deletion during checkout. Each flag can be enabled without the other 6.8 changes. When `V6_8_0_0=1`, all three activate unless explicitly disabled. The corresponding migration guidance is in `UPGRADE-6.8.md`.
+
 ### New `ProductBackInStockEvent` replaces `ProductNoLongerAvailableEvent` for products that become available
 
 The new `Shopware\Core\Content\Product\Events\ProductBackInStockEvent` is dispatched with the ids of products whose `available` flag changed from `false` to `true`, for example after a restock of a closeout product.

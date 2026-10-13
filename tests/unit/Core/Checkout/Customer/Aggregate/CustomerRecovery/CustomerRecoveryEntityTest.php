@@ -18,11 +18,6 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(CustomerRecoveryEntity::class)]
 class CustomerRecoveryEntityTest extends TestCase
 {
-    protected function tearDown(): void
-    {
-        FieldVisibility::$isInTwigRenderingContext = false;
-    }
-
     public function testAccessorsRoundTrip(): void
     {
         $customer = new CustomerEntity();
@@ -48,10 +43,15 @@ class CustomerRecoveryEntityTest extends TestCase
         $recovery = $this->createRecoveryWithInternalHash();
         $recovery->setHash('hash-value');
 
+        $this->expectExceptionObject(DataAbstractionLayerException::internalFieldAccessNotAllowed('hash', CustomerRecoveryEntity::class));
+
         FieldVisibility::$isInTwigRenderingContext = true;
 
-        $this->expectExceptionObject(DataAbstractionLayerException::internalFieldAccessNotAllowed('hash', CustomerRecoveryEntity::class));
-        $recovery->getHash();
+        try {
+            $recovery->getHash();
+        } finally {
+            FieldVisibility::$isInTwigRenderingContext = false;
+        }
     }
 
     private function createRecoveryWithInternalHash(): CustomerRecoveryEntity

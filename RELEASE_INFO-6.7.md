@@ -455,7 +455,14 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 
-The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8 (Rolldown and Oxc instead of Rollup and esbuild). The watcher (`composer watch:admin`) then serves the Administration over HTTPS with a self-signed certificate at `https://localhost:5173`, so the browser loads all files, including the files of extensions, over HTTP/2. Without the flag, the Administration is still built with Vite 6 and the watcher still runs at `http://localhost:5173`.
+The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8 (Rolldown and Oxc instead of Rollup and esbuild). Without the flag, the Administration is still built with Vite 6. The watcher (`composer watch:admin`) runs at `http://localhost:5173` with and without the flag.
+
+With the flag, the watcher can serve all files, including the files of extensions, over HTTP/2. Browsers only use HTTP/2 over TLS, so put HTTPS in front of the watcher in one of these ways:
+
+* Use a TLS-terminating proxy, for example the proxy of shopware-cli: run `shopware-cli project proxy up` and open `https://admin-watch.<project>.shopware.local`.
+* Set `SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE` and `SHOPWARE_ADMIN_HTTPS_KEY_FILE` to a certificate and its key, for example files created with [mkcert](https://github.com/FiloSottile/mkcert). The paths must be readable where the watcher runs. The watcher then serves `https://localhost:5173`.
+
+Without the flag, the certificate variables still enable HTTPS, but Vite 6 serves it over HTTP/1.1.
 
 The flag becomes the default with Shopware 6.8. Activate it to test your extensions with Vite 8 already now:
 

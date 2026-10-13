@@ -45,7 +45,6 @@ export type Vite8Toolchain = {
         ) => Promise<{ code: string; map: Vite.Rollup.SourceMapInput }>;
     };
     vue: typeof vue;
-    basicSsl: (options: { name: string; domains: string[] }) => Vite.Plugin;
     nodePolyfills: typeof nodePolyfills;
     symfonyPlugin: typeof symfonyPlugin;
     svgLoader: typeof svgLoader;
@@ -87,7 +86,6 @@ export function loadVite8Toolchain(): Vite8Toolchain {
     return {
         vite: toolchainRequire('vite') as Vite8Toolchain['vite'],
         vue: toolchainRequire('@vitejs/plugin-vue').default as Vite8Toolchain['vue'],
-        basicSsl: toolchainRequire('@vitejs/plugin-basic-ssl').default as Vite8Toolchain['basicSsl'],
         nodePolyfills: toolchainRequire('vite-plugin-node-polyfills').nodePolyfills as Vite8Toolchain['nodePolyfills'],
         symfonyPlugin: toolchainRequire('vite-plugin-symfony').default as Vite8Toolchain['symfonyPlugin'],
         svgLoader: toolchainRequire('vite-svg-loader').default as Vite8Toolchain['svgLoader'],

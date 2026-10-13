@@ -34,8 +34,6 @@ The Administration and the Administration code of plugins and apps were built wi
 
 In Shopware 6.7, you can already build with Vite 8 by activating the `ADMIN_VITE_8` feature flag, for example with `ADMIN_VITE_8=1 composer watch:admin`.
 
-The watcher serves the Administration at `https://localhost:5173` instead of `http://localhost:5173` now. Accept the self-signed certificate once in the browser.
-
 The most important changes at a glance:
 
 | What breaks | How to fix it |
@@ -43,7 +41,6 @@ The most important changes at a glance:
 | Building with Node.js below 20.19 or 22.12 fails. | Update Node.js to `^20.19.0 \|\| >=22.12.0`. |
 | `import.meta.glob` with extglob patterns like `!(*.spec)` silently matches no files. | Use negated patterns: `['./**/*.ts', '!./**/*.spec.ts']`. |
 | Default imports of CommonJS dependencies return a different value. | Check default imports of CommonJS packages and use named imports or `.default` where needed. |
-| The watcher is no longer reachable at `http://localhost:5173`. | Open `https://localhost:5173` and accept the self-signed certificate once. |
 | Your own `vite.config.*` logs deprecation warnings for `rollupOptions`, `esbuildOptions`, or `esbuild`. | Rename them to `rolldownOptions`, `optimizeDeps.rolldownOptions`, and `oxc`. |
 | Your own `vite.config.*` uses the object form of `manualChunks`, the legacy Sass API, or `splitVendorChunkPlugin`. | Use `codeSplitting`, remove the Sass `api` option, and remove `splitVendorChunkPlugin`. |
 | Your own Vite plugins fail to load or behave differently. | Update them to a version that supports Vite 8 and check the plugin hook changes below. |

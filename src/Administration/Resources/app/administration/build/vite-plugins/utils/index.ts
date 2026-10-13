@@ -322,3 +322,15 @@ export const isInsideDockerContainer = (): boolean => {
     // Resolve root path
     return fs.existsSync('/.dockerenv');
 };
+
+/**
+ * @private
+ *
+ * Without both files the dev server serves plain HTTP, which TLS-terminating proxies like the one of shopware-cli expect.
+ */
+export function getDevServerHttpsConfig(env: NodeJS.ProcessEnv = process.env): { cert: string; key: string } | undefined {
+    const cert = env.SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE;
+    const key = env.SHOPWARE_ADMIN_HTTPS_KEY_FILE;
+
+    return cert && key ? { cert, key } : undefined;
+}

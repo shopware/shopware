@@ -6,6 +6,11 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
+use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexingMessage;
+use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
@@ -126,6 +131,57 @@ class CacheInvalidationSubscriberTest extends TestCase
 
         $this->logger->expects($this->never())->method('log');
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
+    }
+
+    public function testOnlyGroupCategoriesInvalidateTheListingsAboveThem(): void
+    {
+        $context = Context::createDefaultContext();
+
+        static::getContainer()->get('product_stream.repository')->create([[
+            'id' => $this->ids->create('stream'),
+            'name' => 'stream',
+            'filters' => [['type' => 'equals', 'field' => 'active', 'value' => '1']],
+        ]], $context);
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $this->ids->create('root'),
+            'name' => 'root',
+            'children' => [[
+                'id' => $this->ids->create('parent'),
+                'name' => 'parent',
+                'children' => [
+                    ['id' => $this->ids->create('manual'), 'name' => 'manual'],
+                    [
+                        'id' => $this->ids->create('group'),
+                        'name' => 'group',
+                        'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                        'productStreamId' => $this->ids->get('stream'),
+                    ],
+                ],
+            ]],
+        ]], $context);
+        static::getContainer()->get(CategoryIndexer::class)->handle(
+            new CategoryIndexingMessage(array_values($this->ids->getList(['root', 'parent', 'manual', 'group'])), null, $context)
+        );
+
+        $invalidatedTags = [];
+        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $cacheInvalidator->method('invalidate')
+            ->willReturnCallback(static function (array $tags) use (&$invalidatedTags): void {
+                $invalidatedTags = $tags;
+            });
+        $subscriber = new CacheInvalidationSubscriber($cacheInvalidator, static::getContainer()->get(Connection::class), true);
+
+        // a manual category only invalidates its own listing, the listings above it are not affected by it
+        $subscriber->invalidateProductListingRouteByCategoryIds(new CategoryIndexerEvent([$this->ids->get('manual')], $context));
+        static::assertSame([ProductListingRoute::buildName($this->ids->get('manual'))], $invalidatedTags);
+
+        // a group category also reaches the listings above it, which show its products
+        $subscriber->invalidateProductListingRouteByCategoryIds(new CategoryIndexerEvent([$this->ids->get('group')], $context));
+        static::assertEqualsCanonicalizing(
+            array_map(ProductListingRoute::buildName(...), array_values($this->ids->getList(['group', 'parent', 'root']))),
+            $invalidatedTags
+        );
     }
 
     private function insertDefaultPropertyGroup(): void

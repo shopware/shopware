@@ -562,12 +562,20 @@ class CacheInvalidationSubscriber
             return [];
         }
 
+        // Listings carry the tags of every category on the way down to a subcategory with a dynamic product group,
+        // so only such a subcategory has to reach the listings above it, e.g. when it is created or moved there.
         $rows = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(id)) as id, path
              FROM category
              WHERE id IN (:ids)
-             AND version_id = :version',
-            ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes($versionId)],
+             AND version_id = :version
+             AND product_assignment_type = :productStream
+             AND product_stream_id IS NOT NULL',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+                'version' => Uuid::fromHexToBytes($versionId),
+                'productStream' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+            ],
             ['ids' => ArrayParameterType::BINARY]
         );
 

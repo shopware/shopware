@@ -60,6 +60,12 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### New `ProductBackInStockEvent` replaces `ProductNoLongerAvailableEvent` for products that become available
+
+The new `Shopware\Core\Content\Product\Events\ProductBackInStockEvent` is dispatched with the ids of products whose `available` flag changed from `false` to `true`, for example after a restock of a closeout product.
+
+`Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent` now only contains products whose `available` flag changed from `true` to `false`. If your subscriber reacts to both directions, for example to invalidate caches, subscribe to both events.
+
 ### Homepage hreflang links restored for existing `HreflangLoaderParameter` callers
 
 When `HreflangLoaderParameter` is constructed without the `$homepage` argument, `isHomepage()` again detects the homepage from the `frontend.home.page` route name, so homepage hreflang links are generated for these callers. This fallback is deprecated and will be removed in 6.8. If you construct `HreflangLoaderParameter` yourself, pass `$homepage` explicitly.
@@ -493,11 +499,14 @@ Shopware.Component.override('sw-cms-list', {
 
 Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
 
-### Category SEO form shows the recommended meta length
+### Category and product SEO forms show the recommended meta length
 
-The meta title and meta description fields of the category SEO form show how many characters they contain against the recommended length of 70 and 150 characters, and highlight the hint when the recommendation is exceeded. The `n/255` counter for the stored maximum stays unchanged.
+The meta title and meta description fields of the category and product SEO forms show how many characters they contain against the recommended length, and highlight the hint when the recommendation is exceeded.
 
-Extensions can customize the hints through the new Twig blocks `sw_category_seo_form_meta_title_hint` and `sw_category_seo_form_meta_description_hint`.
+- Category: 70 characters for the meta title and 150 for the meta description. The `n/255` counter for the stored maximum stays unchanged.
+- Product: 56 characters for the meta title and 155 for the meta description, as named in their help texts. Inherited values are counted as well.
+
+Extensions can customize the hints through the new Twig blocks `sw_category_seo_form_meta_title_hint` and `sw_category_seo_form_meta_description_hint` for categories, and `sw_product_seo_form_meta_title_hint` and `sw_product_seo_form_meta_description_hint` for products.
 
 ### Admin list and card empty states use `mt-empty-state`
 

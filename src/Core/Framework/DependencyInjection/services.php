@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyServiceFactory;
 use Shopware\Core\Framework\Adapter\Command\S3FilesystemVisibilityCommand;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnectionResetter;
 use Shopware\Core\Framework\Adapter\Kernel\EnvIntOrNullProcessor;
@@ -72,6 +74,7 @@ use Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler;
 use Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTask;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTaskHandler;
+use Shopware\Core\Framework\Log\SystemActivitySubscriber;
 use Shopware\Core\Framework\Migration\Command\CreateMigrationCommand;
 use Shopware\Core\Framework\Migration\Command\MigrationCommand;
 use Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand;
@@ -100,6 +103,8 @@ use Shopware\Core\Framework\Routing\RouteScope;
 use Shopware\Core\Framework\Routing\RouteScopeListener;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
+use Shopware\Core\Framework\Routing\SessionContextTokenSubscriber;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Routing\SymfonyRouteScopeWhitelist;
 use Shopware\Core\Framework\Routing\Telemetry\AreaResolver;
@@ -154,6 +159,7 @@ use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Runtime\Runner\Symfony\HttpKernelRunner;
 use Symfony\Component\Runtime\Runner\Symfony\ResponseRunner;
@@ -164,6 +170,7 @@ use Twig\Extra\String\StringExtension;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service_locator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -198,17 +205,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('shopware.http.cache.default_ttl', env('SHOPWARE_HTTP_DEFAULT_TTL')->default('shopware_http_cache_default_ttl_default'));
 
     $containerConfigurator->extension('monolog', [
-        'channels' => ['business_events'],
+        'channels' => ['business_events', 'system_activity'],
         'handlers' => [
             'business_event_handler_buffer' => [
                 'type' => 'buffer',
                 'handler' => 'business_event_handler',
-                'channels' => ['business_events'],
+                'channels' => ['business_events', 'system_activity'],
             ],
             'business_event_handler' => [
                 'type' => 'service',
                 'id' => DoctrineSQLHandler::class,
-                'channels' => ['business_events'],
+                'channels' => ['business_events', 'system_activity'],
             ],
         ],
     ]);
@@ -486,6 +493,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service('shopware.filesystem.translation'),
             service('filesystem'),
+            service('shopware.filesystem.private'),
         ]);
 
     $services->set(SnippetController::class)
@@ -520,6 +528,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TranslationLoader::class),
             service('shopware.filesystem.translation'),
             service(StorefrontSnippetStorage::class),
+            service('shopware.filesystem.private'),
         ]);
 
     $services->set(AppSnippetFileLoader::class)
@@ -725,6 +734,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RouteScopeRegistry::class),
         ]);
 
+    $services->set(SessionContextTokenAccessor::class)
+        ->args([
+            param('session.storage.options'),
+            service(SystemConfigService::class),
+        ]);
+
+    $services->set(SessionContextTokenSubscriber::class)
+        ->args([
+            service(SessionContextTokenAccessor::class),
+            service('request_stack'),
+            service(RouteScopeRegistry::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
     $services->set(SalesChannelRequestContextResolver::class)
         ->decorate(ApiRequestContextResolver::class)
         ->args([
@@ -774,6 +797,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     // Logging
+    $services->set(SystemActivitySubscriber::class)
+        ->args([service('logger'), service(Connection::class)])
+        ->tag('monolog.logger', ['channel' => 'system_activity'])
+        ->tag('kernel.event_subscriber');
+
     $services->set(LoggingService::class)
         ->args([
             param('kernel.environment'),
@@ -943,8 +971,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.http_cache.reverse_proxy.enabled'),
         ]);
 
-    $services->set(CacheStore::class)
+    $services->set(CacheStore::class, StoreInterface::class)
         ->public()
+        ->factory([ReverseProxyServiceFactory::class, 'createStore'])
+        ->args([
+            param('shopware.http_cache.reverse_proxy.enabled'),
+            service_locator([
+                ReverseProxyServiceFactory::DEFAULT_STORE => service('shopware.http_cache.store.default'),
+                ReverseProxyServiceFactory::REVERSE_PROXY_STORE => service(ReverseProxyCache::class),
+            ]),
+        ]);
+
+    $services->set('shopware.http_cache.store.default', CacheStore::class)
         ->args([
             service('cache.http'),
             service(CacheStateValidator::class)->nullOnInvalid(),

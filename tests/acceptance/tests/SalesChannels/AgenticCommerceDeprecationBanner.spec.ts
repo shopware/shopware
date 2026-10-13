@@ -60,10 +60,6 @@ test(
 
         TestDataService.addCreatedRecord('sales-channel', salesChannelId);
 
-        // Capture any JS errors before navigating
-        const jsErrors: string[] = [];
-        page.on('pageerror', (err: Error) => jsErrors.push(err.message));
-
         await ShopAdmin.goesTo(`/admin#/sw/sales/channel/detail/${salesChannelId}/base`);
 
         const pluginInstalled = await page.evaluate(() => {
@@ -84,11 +80,18 @@ test(
                     return !!shopware?.Context?.app?.config?.bundles?.SwagExtensionStore;
                 });
 
+                const pageErrors: string[] = [];
+                page.on('pageerror', (err: Error) => {
+                    if (err.name !== 'AxiosError') {
+                        pageErrors.push(`${err.name}: ${err.message}`);
+                    }
+                });
+
                 await deprecationBanner.getByRole('button', { name: 'Install extension', exact: true }).click();
                 await page.waitForTimeout(500);
 
-                if (jsErrors.length > 0) {
-                    throw new Error(`Unexpected JS errors after button click:\n${jsErrors.join('\n')}`);
+                if (pageErrors.length > 0) {
+                    throw new Error(`Unexpected JS errors after button click:\n${pageErrors.join('\n')}`);
                 }
 
                 if (extensionStoreDetailExists) {

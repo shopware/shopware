@@ -3,14 +3,33 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\Garan;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
+use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
+use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
 use Shopware\Core\Content\Product\Garan\GaranLabelInlineImage;
 use Shopware\Core\Content\Product\Garan\GaranLabelMailSubscriber;
+use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
+use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Part\DataPart;
+use Twig\Environment;
 
 /**
  * @internal
@@ -19,12 +38,182 @@ use Symfony\Component\Mime\Part\DataPart;
 #[CoversClass(GaranLabelMailSubscriber::class)]
 class GaranLabelMailSubscriberTest extends TestCase
 {
-    public function testSubscribesToMailBeforeSentEvent(): void
+    private const TEMPLATE = '{% set garanLabel = garanLabels[nestedItem.productId] ?? null %}';
+
+    public function testSubscribesToMailEvents(): void
     {
         static::assertSame(
-            [MailBeforeSentEvent::class => 'embedLabelImages'],
+            [
+                MailBeforeValidateEvent::class => 'addLabels',
+                MailBeforeSentEvent::class => 'embedLabelImages',
+            ],
             GaranLabelMailSubscriber::getSubscribedEvents()
         );
+    }
+
+    public function testAddsTheLabelsOfAllProductsKeyedByProductIdWithOneSearch(): void
+    {
+        $event = $this->createEvent(['product-a', 'product-b', null, 'product-a']);
+
+        $this->createSubscriber([
+            static function (Criteria $criteria): ProductCollection {
+                static::assertSame(['product-a', 'product-b'], $criteria->getIds(), 'each product once, line items without product skipped');
+                static::assertTrue($criteria->hasAssociation('manufacturer'), 'the label needs the brand');
+
+                return new ProductCollection([
+                    self::createProduct('product-a', guaranteeConfirmed: true),
+                    self::createProduct('product-b', guaranteeConfirmed: true, guaranteeMonths: 30),
+                ]);
+            },
+            static fn () => static::fail('cid and duration have to come from a single product search'),
+        ])->addLabels($event);
+
+        static::assertSame(
+            [
+                'product-a' => ['cid' => 'cid:garan-label-nested-36.png', 'duration' => '3', 'termsUrl' => null],
+                'product-b' => ['cid' => 'cid:garan-label-nested-30.png', 'duration' => '2,5', 'termsUrl' => null],
+            ],
+            $event->getTemplateData()['garanLabels']
+        );
+    }
+
+    public function testLoadsProductsWithInheritanceSoVariantsGetTheirParentsLabel(): void
+    {
+        $event = $this->createEvent(['product-id']);
+        static::assertFalse($event->getContext()->considerInheritance(), 'admin-triggered mails come without inheritance');
+
+        $this->createSubscriber([
+            static function (Criteria $criteria, Context $context): ProductCollection {
+                static::assertTrue($context->considerInheritance());
+
+                return new ProductCollection([self::createProduct('product-id', guaranteeConfirmed: true)]);
+            },
+        ])->addLabels($event);
+
+        static::assertArrayHasKey('product-id', $event->getTemplateData()['garanLabels']);
+        static::assertFalse($event->getContext()->considerInheritance(), 'the mail context is left as it was');
+    }
+
+    public function testKeepsTheDurationWithoutPreRenderedImage(): void
+    {
+        $event = $this->createEvent(['product-id']);
+
+        $this->createSubscriber([
+            new ProductCollection([self::createProduct('product-id', guaranteeConfirmed: true, guaranteeMonths: 606)]),
+        ])->addLabels($event);
+
+        static::assertSame(
+            ['product-id' => ['cid' => null, 'duration' => '50,5', 'termsUrl' => null]],
+            $event->getTemplateData()['garanLabels'],
+            'Legacy durations above the maximum have no image, the template falls back to the duration text'
+        );
+    }
+
+    public function testSkipsProductsWithoutConfirmedGuarantee(): void
+    {
+        $event = $this->createEvent(['product-id']);
+
+        $this->createSubscriber([
+            new ProductCollection([self::createProduct('product-id', guaranteeConfirmed: false)]),
+        ])->addLabels($event);
+
+        static::assertSame([], $event->getTemplateData()['garanLabels']);
+    }
+
+    public function testAddsTheLabelsForThePlainTextTemplate(): void
+    {
+        $event = new MailBeforeValidateEvent(
+            ['contentHtml' => '<p>Order</p>', 'contentPlain' => self::TEMPLATE],
+            Context::createDefaultContext(),
+            ['order' => self::createOrder(['product-id'])],
+        );
+
+        $this->createSubscriber([
+            new ProductCollection([self::createProduct('product-id', guaranteeConfirmed: true)]),
+        ])->addLabels($event);
+
+        static::assertArrayHasKey('product-id', $event->getTemplateData()['garanLabels']);
+    }
+
+    public function testLinksTheTermsUrlOrElseThePublicTermsDocument(): void
+    {
+        $event = $this->createEvent(['with-url', 'with-document', 'with-private-document']);
+
+        $this->createSubscriber([
+            static function (Criteria $criteria): ProductCollection {
+                static::assertTrue($criteria->hasAssociation('guaranteeTermsMedia'));
+
+                return new ProductCollection([
+                    self::createProduct('with-url', guaranteeConfirmed: true, termsUrl: 'https://example.com/terms', termsMediaUrl: 'https://shop.example.com/terms.pdf'),
+                    self::createProduct('with-document', guaranteeConfirmed: true, termsMediaUrl: 'https://shop.example.com/terms.pdf'),
+                    self::createProduct('with-private-document', guaranteeConfirmed: true, termsMediaUrl: ''),
+                ]);
+            },
+        ])->addLabels($event);
+
+        static::assertSame(
+            [
+                'with-url' => 'https://example.com/terms',
+                'with-document' => 'https://shop.example.com/terms.pdf',
+                'with-private-document' => null,
+            ],
+            array_map(static fn (array $label): ?string => $label['termsUrl'], $event->getTemplateData()['garanLabels'])
+        );
+    }
+
+    public function testAttachesTheTermsDocumentsOfLabelledProductsOnce(): void
+    {
+        $mailSendConfig = new MailSendSubscriberConfig(false, mediaIds: ['admin-selected-media']);
+        $event = new MailBeforeValidateEvent(
+            [
+                'contentHtml' => self::TEMPLATE,
+                'attachmentsConfig' => new MailAttachmentsConfig(Context::createDefaultContext(), new MailTemplateEntity(), $mailSendConfig, [], null),
+            ],
+            Context::createDefaultContext(),
+            ['order' => self::createOrder(['product-a', 'product-b', 'unlabelled', 'without-file'])],
+        );
+
+        $withoutFile = self::createProduct('without-file', guaranteeConfirmed: true);
+        $emptyMedia = new MediaEntity();
+        $emptyMedia->setId('empty-media');
+        $withoutFile->setGuaranteeTermsMedia($emptyMedia);
+
+        $this->createSubscriber([
+            new ProductCollection([
+                self::createProduct('product-a', guaranteeConfirmed: true, termsMediaUrl: 'https://shop.example.com/terms.pdf', termsMediaId: 'terms-media'),
+                self::createProduct('product-b', guaranteeConfirmed: true, termsMediaUrl: 'https://shop.example.com/terms.pdf', termsMediaId: 'terms-media'),
+                self::createProduct('unlabelled', guaranteeConfirmed: false, termsMediaUrl: 'https://shop.example.com/other.pdf', termsMediaId: 'other-media'),
+                $withoutFile,
+            ]),
+        ])->addLabels($event);
+
+        static::assertSame(['admin-selected-media', 'terms-media'], $mailSendConfig->getMediaIds());
+    }
+
+    /**
+     * @return \Generator<string, array{string, array<string, mixed>}>
+     */
+    public static function mailWithoutLabelsProvider(): \Generator
+    {
+        yield 'template without labels' => ['<p>{{ order.orderNumber }}</p>', ['order' => self::createOrder(['product-id'])]];
+        yield 'no order entity' => [self::TEMPLATE, ['order' => ['lineItems' => [['productId' => 'product-id']]]]];
+        yield 'no order' => [self::TEMPLATE, []];
+        yield 'no product line items' => [self::TEMPLATE, ['order' => self::createOrder([null])]];
+    }
+
+    /**
+     * @param array<string, mixed> $templateData
+     */
+    #[DataProvider('mailWithoutLabelsProvider')]
+    public function testAddsNoLabelsAndDoesNotSearch(string $template, array $templateData): void
+    {
+        $event = new MailBeforeValidateEvent(['contentHtml' => $template], Context::createDefaultContext(), $templateData);
+
+        $this->createSubscriber([
+            static fn () => static::fail('mails that cannot show a label must not load products'),
+        ])->addLabels($event);
+
+        static::assertArrayNotHasKey('garanLabels', $event->getTemplateData());
     }
 
     public function testEmbedsReferencedLabelAsInlineImage(): void
@@ -91,7 +280,89 @@ class GaranLabelMailSubscriberTest extends TestCase
 
     private function dispatch(Email $email): void
     {
-        (new GaranLabelMailSubscriber(new GaranLabelInlineImage()))
+        $this->createSubscriber([])
             ->embedLabelImages(new MailBeforeSentEvent([], $email, Context::createDefaultContext()));
+    }
+
+    /**
+     * @param list<string|null> $productIds
+     */
+    private function createEvent(array $productIds): MailBeforeValidateEvent
+    {
+        return new MailBeforeValidateEvent(
+            ['contentHtml' => self::TEMPLATE],
+            Context::createDefaultContext(),
+            ['order' => self::createOrder($productIds)],
+        );
+    }
+
+    /**
+     * @param list<mixed> $searchResults
+     */
+    private function createSubscriber(array $searchResults): GaranLabelMailSubscriber
+    {
+        $resolver = new GaranLabelResolver(
+            new GaranLabelDurationFormatter(),
+            new GaranLabelRenderer(static::createStub(Environment::class)),
+        );
+
+        /** @var StaticEntityRepository<ProductCollection> $productRepository */
+        $productRepository = new StaticEntityRepository($searchResults, new ProductDefinition());
+
+        return new GaranLabelMailSubscriber(new GaranLabelInlineImage(), $productRepository, $resolver);
+    }
+
+    /**
+     * @param list<string|null> $productIds
+     */
+    private static function createOrder(array $productIds): OrderEntity
+    {
+        $lineItems = new OrderLineItemCollection();
+
+        foreach ($productIds as $index => $productId) {
+            $lineItem = new OrderLineItemEntity();
+            $lineItem->setId('line-item-' . $index);
+            $lineItem->setProductId($productId);
+            $lineItems->add($lineItem);
+        }
+
+        $order = new OrderEntity();
+        $order->setLineItems($lineItems);
+
+        return $order;
+    }
+
+    private static function createProduct(
+        string $id,
+        bool $guaranteeConfirmed,
+        int $guaranteeMonths = 36,
+        ?string $termsUrl = null,
+        ?string $termsMediaUrl = null,
+        string $termsMediaId = 'terms-media-id',
+    ): ProductEntity {
+        $manufacturer = new ProductManufacturerEntity();
+        $manufacturer->setId('manufacturer-id');
+        $manufacturer->setName('ACME');
+        $manufacturer->setTranslated(['name' => 'ACME']);
+
+        $product = new ProductEntity();
+        $product->setId($id);
+        $product->setManufacturer($manufacturer);
+        $product->setManufacturerNumber('ACME-123');
+        $product->setGuaranteeMonths($guaranteeMonths);
+        $product->setGuaranteeConfirmed($guaranteeConfirmed);
+        $product->setGuaranteeTermsUrl($termsUrl);
+
+        if ($termsMediaUrl !== null) {
+            $media = new MediaEntity();
+            $media->setId($termsMediaId);
+            $media->setUrl($termsMediaUrl);
+            $media->setPath('media/terms.pdf');
+
+            $product->setGuaranteeTermsMediaId($termsMediaId);
+            $product->setGuaranteeTermsMedia($media);
+        }
+
+        return $product;
     }
 }

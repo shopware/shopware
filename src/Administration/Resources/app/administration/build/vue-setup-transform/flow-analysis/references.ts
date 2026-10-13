@@ -29,9 +29,11 @@
 
 import { parse, parseExpression, type ParserPlugin } from '@babel/parser';
 import type { Node as BabelNode, PatternLike } from '@babel/types';
-import { ShopwareSetupTransformError } from '../utils/transform-error';
+import { getNodeRange, unwrapTransparentMacroExpression } from '../script-analyzer/utils';
+import { ShopwareSetupInternalError } from '../utils/transform-error';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
 import { childBabelNodes, isFunctionLikeNode, isTypeKey } from '../utils/ast-traversal';
+import type { SourceRange } from '../utils/source-range';
 import { isValueReadPosition } from './identifier-position';
 
 type BindingPatternResult = {
@@ -77,7 +79,7 @@ function parseBindingPattern(source: string): BindingPatternResult {
     const statement = ast.program.body[0];
 
     if (statement.type !== 'VariableDeclaration') {
-        throw new ShopwareSetupTransformError('Unable to parse Vue binding pattern.', 0);
+        throw new ShopwareSetupInternalError('Unable to parse Vue binding pattern.', 0);
     }
 
     const declaration = statement.declarations[0];
@@ -285,8 +287,8 @@ function collectBabelReferences(
  * write to a forwarded override binding silently no-ops. Member writes (`count.value = 1`) and nested
  * shadowing are out of scope; template-local names are filtered by the caller's scope.
  */
-function collectBabelWriteTargets(root: BabelNode): Map<string, number> {
-    const targets = new Map<string, number>();
+function collectBabelWriteTargets(root: BabelNode): Map<string, SourceRange> {
+    const targets = new Map<string, SourceRange>();
 
     function visit(node: BabelNode | null | undefined): void {
         if (!node || typeof node.type !== 'string') {
@@ -297,7 +299,7 @@ function collectBabelWriteTargets(root: BabelNode): Map<string, number> {
             node.type === 'AssignmentExpression' ? node.left : node.type === 'UpdateExpression' ? node.argument : null;
 
         if (written?.type === 'Identifier' && !targets.has(written.name)) {
-            targets.set(written.name, written.start ?? 0);
+            targets.set(written.name, getNodeRange(written));
         }
 
         childBabelNodes(node).forEach(visit);
@@ -309,7 +311,7 @@ function collectBabelWriteTargets(root: BabelNode): Map<string, number> {
 }
 
 /**
- * Returns written identifiers and their first offset in the decoded expression, including implicit v-model writes.
+ * Returns written identifiers and their first range in the decoded expression, including implicit v-model writes.
  *
  * @param templateScope names already bound by the surrounding template (v-for aliases, slot props);
  *   a write to one of those is template-local, so it is filtered out of the result.
@@ -318,28 +320,18 @@ function collectExpressionWriteTargets(
     expression: string | undefined,
     templateScope: Set<string>,
     isModel = false,
-): Map<string, number> {
+): Map<string, SourceRange> {
     if (!expression || expression.trim() === '') {
-        return new Map<string, number>();
+        return new Map<string, SourceRange>();
     }
 
-    let root = parseTemplateExpression(expression);
+    const root = parseTemplateExpression(expression);
     const targets = collectBabelWriteTargets(root);
-
     // v-model implicitly assigns to its expression. TypeScript wrappers do not change its target.
-    if (isModel) {
-        while (
-            root.type === 'TSAsExpression' ||
-            root.type === 'TSTypeAssertion' ||
-            root.type === 'TSNonNullExpression' ||
-            root.type === 'TSSatisfiesExpression'
-        ) {
-            root = root.expression;
-        }
+    const modelTarget = isModel ? unwrapTransparentMacroExpression(root) : null;
 
-        if (root.type === 'Identifier') {
-            targets.set(root.name, root.start ?? 0);
-        }
+    if (modelTarget?.type === 'Identifier') {
+        targets.set(modelTarget.name, getNodeRange(modelTarget));
     }
 
     return new Map([...targets].filter(([name]) => !templateScope.has(name)));

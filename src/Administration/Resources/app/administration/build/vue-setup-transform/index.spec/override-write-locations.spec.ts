@@ -49,20 +49,27 @@ describe('build/vue-setup-transform override write locations', () => {
             'save(); count++; count = 1',
             'count++',
         ],
+        [
+            'logical operator',
+            'enabled && (count = 1)',
+            'count =',
+        ],
     ])('locates the write: %s', (_name, expression, token) => {
         const source = overrideSource(`<button @click="${expression}" />`);
         const error = captureTransformError(source, 'sw-write.override.vue');
         const expectedIndex = source.indexOf(token, source.indexOf('<button'));
         const precedingLines = source.slice(0, expectedIndex).split(/\r\n|\r|\n/);
+        const column = precedingLines[precedingLines.length - 1].length;
 
         expect(error.message).toContain('Cannot assign to "count"');
         expect(error.index).toBe(expectedIndex);
+        expect(error.endIndex).toBe(expectedIndex + 'count'.length);
         expect(error.loc).toEqual({
             file: 'sw-write.override.vue',
             line: precedingLines.length,
-            column: precedingLines[precedingLines.length - 1].length,
+            column,
         });
-        expect(error.frame).toContain('^');
+        expect(error.frame).toContain(`   |  ${' '.repeat(column)}^^^^^\n`);
     });
 
     it.each([
@@ -79,9 +86,11 @@ describe('build/vue-setup-transform override write locations', () => {
     ])('rejects the implicit write in %s', (directive) => {
         const source = overrideSource(`<input ${directive} />`);
         const error = captureTransformError(source, 'sw-model.override.vue');
+        const expectedIndex = source.indexOf('count', source.indexOf('<input'));
 
         expect(error.message).toContain('Cannot assign to "count"');
-        expect(error.index).toBe(source.indexOf('count', source.indexOf('<input')));
+        expect(error.index).toBe(expectedIndex);
+        expect(error.endIndex).toBe(expectedIndex + 'count'.length);
     });
 
     it('points at the whole expression when entities shift the decoded offsets', () => {
@@ -90,6 +99,7 @@ describe('build/vue-setup-transform override write locations', () => {
 
         expect(error.message).toContain('Cannot assign to "count"');
         expect(error.index).toBe(source.indexOf('ready &amp;'));
+        expect(error.endIndex).toBe(source.indexOf('count++') + 'count++'.length);
     });
 
     it.each([

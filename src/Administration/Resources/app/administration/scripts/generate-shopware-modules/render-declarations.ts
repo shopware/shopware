@@ -14,6 +14,7 @@ import type { ModuleRegistry } from '../../build/vite-plugins/virtual-shopware-m
 
 const UTILS_MODULE = 'src/core/service/util.service';
 const DATA_MODULE = 'src/core/data/index';
+const COMPOSABLES_MODULE = 'src/app/composables/index';
 
 /** @private The command shown in generated files and drift diagnostics. */
 export const REGENERATE_COMMAND = 'composer admin:generate-shopware-modules';
@@ -26,6 +27,9 @@ export const REGENERATE_COMMAND = 'composer admin:generate-shopware-modules';
  */
 const EXPERIMENTAL = '/** @experimental stableVersion:v6.8.0 */';
 
+/** The composables keep the marker of their own sources, which stabilise a major later. */
+const COMPOSABLES_EXPERIMENTAL = '/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */';
+
 const FILE_HEADER = `/**
  * @sw-package framework
  *
@@ -35,12 +39,12 @@ const FILE_HEADER = `/**
  * imports. \`build/vite-plugins/virtual-shopware-modules\` generates their runtime counterpart from
  * the same \`shopware-modules.json\`.
  *
- * Generated. Run \`${REGENERATE_COMMAND}\` after adding a utility, DAL class, mixin, or store.
+ * Generated. Run \`${REGENERATE_COMMAND}\` after adding a utility, DAL class, composable, mixin, or store.
  */`;
 
-function block(specifier: string, body: string[]): string {
+function block(specifier: string, body: string[], stability = EXPERIMENTAL): string {
     return [
-        EXPERIMENTAL,
+        stability,
         `declare module '${specifier}' {`,
         // A blank line keeps its emptiness: an indented one would fail the formatting check.
         ...body.map((line) => (line === '' ? '' : `    ${line}`)),
@@ -54,27 +58,31 @@ function namedExports(value: string, names: string[]): string[] {
 }
 
 /** A subpath of a branch that is itself an object, e.g. `shopware:utils/debug`. */
-function branchSubpath(specifier: string, branchModule: string, key: string, exports: string[]): string {
-    return block(specifier, [
+function branchSubpath(specifier: string, branchModule: string, key: string, exports: string[], stability?: string): string {
+    const body = [
         `import type branch from '${branchModule}';`,
         '',
         `const member: (typeof branch)['${key}'];`,
         '',
         'export default member;',
         ...namedExports('member', exports),
-    ]);
+    ];
+
+    return block(specifier, body, stability);
 }
 
 /** The root import of a branch, e.g. `shopware:utils`, which publishes the whole branch and its members. */
-function branchRoot(specifier: string, branchModule: string, exports: string[]): string {
-    return block(specifier, [
+function branchRoot(specifier: string, branchModule: string, exports: string[], stability?: string): string {
+    const body = [
         `import type branch from '${branchModule}';`,
         '',
         'const members: typeof branch;',
         '',
         'export default members;',
         ...namedExports('members', exports),
-    ]);
+    ];
+
+    return block(specifier, body, stability);
 }
 
 function defaultOnlyModule(specifier: string, value: string, type: string): string {
@@ -103,6 +111,24 @@ export function renderDeclarations(registry: ModuleRegistry): string {
             key,
             exports,
         ]) => blocks.push(branchSubpath(`shopware:data/${key}`, DATA_MODULE, key, exports)),
+    );
+
+    blocks.push(
+        branchRoot(
+            'shopware:composables',
+            COMPOSABLES_MODULE,
+            registry['shopware:composables'].exports,
+            COMPOSABLES_EXPERIMENTAL,
+        ),
+    );
+    Object.entries(registry['shopware:composables'].subpaths).forEach(
+        ([
+            key,
+            exports,
+        ]) =>
+            blocks.push(
+                branchSubpath(`shopware:composables/${key}`, COMPOSABLES_MODULE, key, exports, COMPOSABLES_EXPERIMENTAL),
+            ),
     );
 
     Object.keys(registry['shopware:mixins'].subpaths).forEach((key) =>

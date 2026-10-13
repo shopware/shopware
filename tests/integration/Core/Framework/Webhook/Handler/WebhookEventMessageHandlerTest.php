@@ -640,7 +640,6 @@ class WebhookEventMessageHandlerTest extends TestCase
         $this->appendNewResponse(new Response(500, [], pack('C*', 0xB1)));
 
         Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage): void {
-            $caught = null;
             try {
                 ($this->webhookEventMessageHandler)($webhookEventMessage);
                 static::fail('Malformed failure response should still throw for Messenger retry.');

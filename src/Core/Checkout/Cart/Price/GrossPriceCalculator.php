@@ -53,7 +53,7 @@ class GrossPriceCalculator
             $definition->getQuantity(),
             $reference,
             $this->calculateListPrice($unitPrice, $definition, $config),
-            $this->calculateRegulationPrice($definition, $config)
+            $this->calculateRegulationPrice($unitPrice, $definition, $config)
         );
     }
 
@@ -95,7 +95,7 @@ class GrossPriceCalculator
         return ListPrice::createFromUnitPrice($unitPrice, $listPrice);
     }
 
-    private function calculateRegulationPrice(QuantityPriceDefinition $definition, CashRoundingConfig $config): ?RegulationPrice
+    private function calculateRegulationPrice(float $unitPrice, QuantityPriceDefinition $definition, CashRoundingConfig $config): ?RegulationPrice
     {
         $price = $definition->getRegulationPrice();
         if (!$price) {
@@ -111,7 +111,11 @@ class GrossPriceCalculator
 
         $regulationPrice = $this->priceRounding->cashRound($price, $config);
 
-        return new RegulationPrice($regulationPrice);
+        if ($regulationPrice <= 0) {
+            return null;
+        }
+
+        return RegulationPrice::createFromUnitPrice($unitPrice, $regulationPrice);
     }
 
     private function calculateReferencePrice(float $price, ?ReferencePriceDefinition $definition, CashRoundingConfig $config): ?ReferencePrice

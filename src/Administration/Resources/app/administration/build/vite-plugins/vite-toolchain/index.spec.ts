@@ -5,6 +5,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {
+    getViteBinPath,
     getViteCommand,
     isBundledDevActive,
     isVite8ToolchainActive,
@@ -13,6 +14,7 @@ import {
 } from './index';
 
 const vite8NodeModules = path.join(VITE_8_TOOLCHAIN_PATH, 'node_modules');
+const vite6Bin = path.join(path.dirname(require.resolve('vite/package.json')), 'bin', 'vite.js');
 
 describe('build/vite-plugins/vite-toolchain', () => {
     const originalProjectRoot = process.env.PROJECT_ROOT;
@@ -49,20 +51,23 @@ describe('build/vite-plugins/vite-toolchain', () => {
 
     it('uses Vite 6 when the feature flags are not dumped', () => {
         expect(isVite8ToolchainActive()).toBe(false);
-        expect(getViteCommand()).toBe('vite');
+        expect(getViteBinPath()).toBe(vite6Bin);
+        expect(getViteCommand()).toBe(`node "${vite6Bin}"`);
     });
 
     it('uses Vite 6 when the ADMIN_VITE_8 feature flag is inactive', () => {
         dumpFeatureFlags({ ADMIN_VITE_8: false, V6_8_0_0: false });
 
         expect(isVite8ToolchainActive()).toBe(false);
-        expect(getViteCommand()).toBe('vite');
+        expect(getViteBinPath()).toBe(vite6Bin);
+        expect(getViteCommand()).toBe(`node "${vite6Bin}"`);
     });
 
     it('uses the Vite 8 binary of the toolchain when the ADMIN_VITE_8 feature flag is active', () => {
         dumpFeatureFlags({ ADMIN_VITE_8: true });
 
         expect(isVite8ToolchainActive()).toBe(true);
+        expect(getViteBinPath()).toBe(path.join(vite8NodeModules, 'vite', 'bin', 'vite.js'));
         expect(getViteCommand()).toBe(`node "${path.join(vite8NodeModules, 'vite', 'bin', 'vite.js')}"`);
         expect(fs.existsSync(path.join(vite8NodeModules, 'vite', 'bin', 'vite.js'))).toBe(true);
     });

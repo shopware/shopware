@@ -102,10 +102,15 @@ function loadVite8Toolchain(): ViteToolchain {
 }
 
 /** @private */
-export function getViteCommand(): string {
-    if (!isVite8ToolchainActive()) {
-        return 'vite';
-    }
+export function getViteBinPath(): string {
+    const viteRoot = isVite8ToolchainActive()
+        ? path.join(VITE_8_TOOLCHAIN_PATH, 'node_modules', 'vite')
+        : path.dirname(require.resolve('vite/package.json'));
 
-    return `node "${path.join(VITE_8_TOOLCHAIN_PATH, 'node_modules', 'vite', 'bin', 'vite.js')}"`;
+    return path.join(viteRoot, 'bin', 'vite.js');
+}
+
+/** @private */
+export function getViteCommand(): string {
+    return `node "${getViteBinPath()}"`;
 }

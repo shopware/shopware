@@ -47,8 +47,8 @@
     "unit:extension-tooling-e2e": "EXTENSION_TOOLING_E2E=1 jest --config jest.config.js --ci --coverage=false scripts/extensionTooling/e2e.spec",
     "unit-setup": "npm run generate-component-import-resolver-map",
     "unit-watch": "jest --config jest.config.js --watch",
-    "vite": "vite",
-    "vite:build": "vite build",
+    "vite": "ts-node -T build/vite-plugins/vite-toolchain/cli.ts",
+    "vite:build": "ts-node -T build/vite-plugins/vite-toolchain/cli.ts build",
     "perf": "lhci autorun --config=./lighthouserc.js",
     "perf:collect": "lhci collect --config=./lighthouserc.js",
     "perf:assert": "lhci assert --config=./lighthouserc.js"

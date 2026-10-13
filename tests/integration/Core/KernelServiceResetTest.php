@@ -64,6 +64,33 @@ class KernelServiceResetTest extends TestCase
         }
     }
 
+    /**
+     * Same as a project config with `framework.http_cache.enabled: false`, but without `LONGRUNNING_ENVIRONMENT`.
+     */
+    public function testServicesAreNotResetWithoutLongrunningEnvironmentAndWithoutSymfonyHttpCache(): void
+    {
+        Feature::skipTestIfInActive('LONGRUNNING_ENVIRONMENT', $this);
+
+        $kernel = KernelLifecycleManager::createKernel();
+        $kernel->boot();
+
+        try {
+            static::assertFalse($kernel->getContainer()->has('http_cache'));
+
+            $counter = $kernel->getContainer()->get(TestResetCounter::class);
+            static::assertInstanceOf(TestResetCounter::class, $counter);
+
+            Feature::withFeatureDisabled('LONGRUNNING_ENVIRONMENT', static function () use ($kernel): void {
+                $kernel->handle(Request::create('/api/_info/version'));
+                $kernel->handle(Request::create('/api/_info/version'));
+            });
+
+            static::assertSame(0, $counter->resetCount);
+        } finally {
+            $kernel->shutdown();
+        }
+    }
+
     public function testHandleOnAnUnbootedKernelRegistersThePluginBundles(): void
     {
         $kernel = KernelLifecycleManager::createKernel();

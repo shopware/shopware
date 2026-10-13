@@ -139,7 +139,7 @@ class Kernel extends HttpKernel
         $this->boot();
 
         // @deprecated tag:v6.8.0 - always delegate to `parent::handle()`
-        if ($this->getContainer()->has('http_cache')) {
+        if (!Feature::isActive('LONGRUNNING_ENVIRONMENT') || $this->getContainer()->has('http_cache')) {
             return $this->getHttpKernel()->handle($request, $type, $catch);
         }
 

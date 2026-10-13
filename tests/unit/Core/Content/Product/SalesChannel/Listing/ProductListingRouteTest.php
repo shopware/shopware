@@ -21,7 +21,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -51,6 +55,8 @@ class ProductListingRouteTest extends TestCase
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
                 ]),
             ]),
+            // no subcategories with a dynamic product group
+            new EntityCollection([]),
         ]);
 
         $eventDispatcher = new EventDispatcher();
@@ -87,6 +93,10 @@ class ProductListingRouteTest extends TestCase
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
                 ]),
             ]),
+            // no subcategories with a dynamic product group
+            new EntityCollection([]),
+            // no manual child categories
+            new EntityCollection([]),
         ]);
 
         $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
@@ -136,10 +146,13 @@ class ProductListingRouteTest extends TestCase
                     'id' => $categoryId,
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
                 ]),
+            ]),
+            new EntityCollection([
                 new PartialEntity([
                     'id' => $childCategoryId,
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
                     'productStreamId' => $streamId,
+                    'path' => '|' . $categoryId . '|',
                 ]),
             ]),
         ]);
@@ -176,9 +189,19 @@ class ProductListingRouteTest extends TestCase
             'product.visibilities.visibility',
             'product.visibilities.salesChannelId',
             'product.active',
-            'product.product_stream',
             'product.categoriesRo.id',
+            'product.product_stream',
         ], $criteria->getFilterFields());
+
+        // the requested category alone covers all manual assignments below it, because categoriesRo holds every
+        // category of a product's tree
+        static::assertEquals(
+            new OrFilter([
+                new EqualsFilter('product.categoriesRo.id', $categoryId),
+                new EqualsFilter('product.product_stream', $streamId),
+            ]),
+            array_values($criteria->getFilters())[1]
+        );
     }
 
     public function testBrokenProductStreamListsNoProductsAndLogsAWarning(): void
@@ -243,6 +266,8 @@ class ProductListingRouteTest extends TestCase
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
                 ]),
             ]),
+            // no subcategories with a dynamic product group
+            new EntityCollection([]),
         ]);
 
         $eventDispatcher = new EventDispatcher();
@@ -311,6 +336,10 @@ class ProductListingRouteTest extends TestCase
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
                 ]),
             ]),
+            // no subcategories with a dynamic product group
+            new EntityCollection([]),
+            // no manual child categories
+            new EntityCollection([]),
         ]);
 
         $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
@@ -344,10 +373,13 @@ class ProductListingRouteTest extends TestCase
                     'id' => $categoryId,
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
                 ]),
+            ]),
+            new EntityCollection([
                 new PartialEntity([
                     'id' => 'child-category',
                     'productStreamId' => 'streamId',
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                    'path' => '|' . $categoryId . '|',
                 ]),
             ]),
         ]);
@@ -388,6 +420,10 @@ class ProductListingRouteTest extends TestCase
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
                 ]),
             ]),
+            // no subcategories with a dynamic product group
+            new EntityCollection([]),
+            // no manual child categories
+            new EntityCollection([]),
         ]);
 
         // A builder that only implements the deprecated interface (e.g. a decorator that has not yet
@@ -424,15 +460,19 @@ class ProductListingRouteTest extends TestCase
                     'id' => $categoryId,
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
                 ]),
+            ]),
+            new EntityCollection([
                 new PartialEntity([
                     'id' => 'broken-child-category',
                     'productStreamId' => 'brokenStreamId',
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                    'path' => '|' . $categoryId . '|',
                 ]),
                 new PartialEntity([
                     'id' => 'child-category',
                     'productStreamId' => 'streamId',
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                    'path' => '|' . $categoryId . '|',
                 ]),
             ]),
         ]);
@@ -476,8 +516,8 @@ class ProductListingRouteTest extends TestCase
             'product.visibilities.visibility',
             'product.visibilities.salesChannelId',
             'product.active',
-            'product.product_stream',
             'product.categoriesRo.id',
+            'product.product_stream',
         ], $criteria->getFilterFields());
     }
 
@@ -500,6 +540,8 @@ class ProductListingRouteTest extends TestCase
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
                 ]),
             ]),
+            // no subcategories with a dynamic product group
+            new EntityCollection([]),
         ]);
 
         $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
@@ -523,17 +565,221 @@ class ProductListingRouteTest extends TestCase
         $controller->load($categoryId, new Request(), static::createStub(SalesChannelContext::class), new Criteria());
     }
 
+    public function testSubcategoriesAreLoadedThroughTheGroupReference(): void
+    {
+        $categoryId = 'categoryId';
+        $subcategoryCriteria = null;
+        $categoryRepository = new StaticEntityRepository([
+            new EntityCollection([
+                new PartialEntity([
+                    'id' => $categoryId,
+                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
+                ]),
+            ]),
+            static function (Criteria $criteria) use (&$subcategoryCriteria, $categoryId): EntityCollection {
+                $subcategoryCriteria = $criteria;
+
+                return new EntityCollection([
+                    new PartialEntity([
+                        'id' => 'group-subcategory',
+                        'productStreamId' => 'streamId',
+                        'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                        'path' => '|' . $categoryId . '|',
+                    ]),
+                ]);
+            },
+        ]);
+
+        $controller = new ProductListingRoute(
+            static::createStub(ProductListingLoader::class),
+            $categoryRepository,
+            static::createStub(ProductStreamBuilder::class),
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+            static::createStub(LoggerInterface::class),
+        );
+
+        $controller->load($categoryId, new Request(), static::createStub(SalesChannelContext::class), new Criteria());
+
+        // only subcategories that show a group, so the database can use the index on the group reference
+        static::assertInstanceOf(Criteria::class, $subcategoryCriteria);
+        static::assertEquals([
+            new EqualsFilter('productAssignmentType', CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM),
+            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('productStreamId', null)]),
+            new ContainsFilter('path', '|' . $categoryId . '|'),
+        ], $subcategoryCriteria->getFilters());
+    }
+
+    public function testGroupCategoryAddsTheManualCategoriesBelowIt(): void
+    {
+        $categoryId = 'group-category';
+        $categoryRepository = new StaticEntityRepository([
+            new EntityCollection([
+                new PartialEntity([
+                    'id' => $categoryId,
+                    'productStreamId' => 'streamId',
+                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                ]),
+            ]),
+            new EntityCollection([
+                new PartialEntity([
+                    'id' => 'group-subcategory',
+                    'productStreamId' => 'subcategoryStreamId',
+                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                    'path' => '|' . $categoryId . '|',
+                ]),
+            ]),
+            static function (Criteria $criteria) use ($categoryId): EntityCollection {
+                // the topmost manual categories are the children of the group category and of its group subcategories
+                static::assertEquals([new EqualsAnyFilter('parentId', [$categoryId, 'group-subcategory'])], $criteria->getFilters());
+
+                return new EntityCollection([
+                    new PartialEntity([
+                        'id' => 'manual-child',
+                        'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
+                    ]),
+                    new PartialEntity([
+                        'id' => 'group-subcategory',
+                        'productStreamId' => 'subcategoryStreamId',
+                        'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                    ]),
+                ]);
+            },
+        ]);
+
+        $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
+        $productStreamBuilder->method('enrichCriteria')
+            ->willReturnCallback(static function (Criteria $criteria, string $id, mixed ...$_): void {
+                $criteria->addFilter(new EqualsFilter('product.product_stream', $id));
+            });
+
+        $controller = new ProductListingRoute(
+            static::createStub(ProductListingLoader::class),
+            $categoryRepository,
+            $productStreamBuilder,
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+            static::createStub(LoggerInterface::class),
+        );
+
+        $criteria = new Criteria();
+        $controller->load($categoryId, new Request(), static::createStub(SalesChannelContext::class), $criteria);
+
+        static::assertEquals(
+            new OrFilter([
+                new EqualsFilter('product.product_stream', 'streamId'),
+                new EqualsFilter('product.product_stream', 'subcategoryStreamId'),
+                new EqualsAnyFilter('product.categoriesRo.id', ['manual-child']),
+            ]),
+            array_values($criteria->getFilters())[1]
+        );
+    }
+
+    public function testListingIsTaggedWithTheCategoriesDownToAGroupSubcategory(): void
+    {
+        $categoryId = 'parent-category';
+        $categoryRepository = new StaticEntityRepository([
+            new EntityCollection([
+                new PartialEntity([
+                    'id' => $categoryId,
+                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
+                ]),
+            ]),
+            new EntityCollection([
+                new PartialEntity([
+                    'id' => 'group-subcategory',
+                    'productStreamId' => 'streamId',
+                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                    'path' => '|root-category|' . $categoryId . '|category-between|',
+                ]),
+            ]),
+        ]);
+
+        $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
+        $productStreamBuilder->method('enrichCriteria')
+            ->willReturnCallback(static function (Criteria $criteria, string $id, mixed ...$_): void {
+                $criteria->addFilter(new EqualsFilter('product.product_stream', $id));
+            });
+
+        // moving or deleting any category on the way down to the group subcategory has to invalidate the listing,
+        // the categories above the requested one do not matter
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector->expects($this->once())
+            ->method('addTag')
+            ->with(
+                ProductListingRoute::buildName($categoryId),
+                ProductListingRoute::buildName('category-between'),
+                ProductListingRoute::buildName('group-subcategory'),
+                EntityCacheKeyGenerator::buildStreamTag('streamId')
+            );
+
+        $controller = new ProductListingRoute(
+            static::createStub(ProductListingLoader::class),
+            $categoryRepository,
+            $productStreamBuilder,
+            $cacheTagCollector,
+            new ExtensionDispatcher(new EventDispatcher()),
+            static::createStub(LoggerInterface::class),
+        );
+
+        $controller->load($categoryId, new Request(), static::createStub(SalesChannelContext::class), new Criteria());
+    }
+
+    public function testCategoryWithoutGroupIdIsTreatedAsManualCategory(): void
+    {
+        $categoryId = 'categoryId';
+        $categoryRepository = new StaticEntityRepository([
+            new EntityCollection([
+                new PartialEntity([
+                    'id' => $categoryId,
+                    'productStreamId' => '',
+                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                ]),
+            ]),
+            new EntityCollection([]),
+        ]);
+
+        $productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
+        $productStreamBuilder->expects($this->never())->method('enrichCriteria');
+
+        $controller = new ProductListingRoute(
+            static::createStub(ProductListingLoader::class),
+            $categoryRepository,
+            $productStreamBuilder,
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+            static::createStub(LoggerInterface::class),
+        );
+
+        $criteria = new Criteria();
+        $controller->load($categoryId, new Request(), static::createStub(SalesChannelContext::class), $criteria);
+
+        static::assertSame([
+            'product.visibilities.visibility',
+            'product.visibilities.salesChannelId',
+            'product.active',
+            'product.categoriesRo.id',
+        ], $criteria->getFilterFields());
+    }
+
     private function loadProductStreamListing(\Throwable $streamException, LoggerInterface $logger): Criteria
     {
         /** @var StaticEntityRepository<EntityCollection<PartialEntity>> */
-        $categoryRepository = new StaticEntityRepository([new EntityCollection([
-            new PartialEntity(
-                [
-                    'id' => 'categoryId',
-                    'productStreamId' => 'streamId',
-                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
-                ]
-            )])]);
+        $categoryRepository = new StaticEntityRepository([
+            new EntityCollection([
+                new PartialEntity(
+                    [
+                        'id' => 'categoryId',
+                        'productStreamId' => 'streamId',
+                        'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                    ]
+                ),
+            ]),
+            // no subcategories with a dynamic product group
+            new EntityCollection([]),
+            // no manual child categories
+            new EntityCollection([]),
+        ]);
 
         $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
         $productStreamBuilder->method('enrichCriteria')->willThrowException($streamException);

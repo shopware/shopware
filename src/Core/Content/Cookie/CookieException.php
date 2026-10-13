@@ -32,7 +32,7 @@ class CookieException extends HttpException
      */
     public static function invalidLegacyCookieGroupProvided(array $cookieGroup): self
     {
-        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
 
         try {
             $encodedCookieGroup = json_encode($cookieGroup, \JSON_THROW_ON_ERROR);
@@ -55,7 +55,7 @@ class CookieException extends HttpException
      */
     public static function invalidLegacyCookieEntryProvided(array $entry): self
     {
-        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
 
         try {
             $encodedEntry = json_encode($entry, \JSON_THROW_ON_ERROR);

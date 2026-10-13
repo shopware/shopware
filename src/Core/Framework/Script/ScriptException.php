@@ -40,7 +40,7 @@ class ScriptException extends HttpException
      */
     public static function hookMethodOutsideOfSalesChannelContext(string $method): self
     {
-        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
 
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -55,7 +55,7 @@ class ScriptException extends HttpException
      */
     public static function storefrontBundleMissingForHookMethod(string $method): self
     {
-        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
 
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,

@@ -87,7 +87,8 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/RemovedExceptions.php'], [
             ['Deprecated framework method "Shopware\\Core\\DevOps\\MyFakeNamespace\\RemovedException::getErrorCode" must remain callable without a deprecation guard.', 23],
             ['Deprecated framework method "Shopware\\Core\\DevOps\\MyFakeNamespace\\RemovedException::missingFactoryGuard" must start with "Feature::throwIfActive" for feature flag "v6.8.0.0".', 30],
-            ['Deprecated framework method "Shopware\\Core\\DevOps\\MyFakeNamespace\\ExceptionFactories::wrongFactoryFlag" must start with "Feature::throwIfActive" for feature flag "v6.8.0.0".', 61],
+            ['Method "guardedFactory" of class "Shopware\\Core\\DevOps\\MyFakeNamespace\\ExceptionFactories" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.', 41],
+            ['Method "wrongFactoryFlag" of class "Shopware\\Core\\DevOps\\MyFakeNamespace\\ExceptionFactories" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.', 61],
             ['Deprecated framework method "Shopware\\Core\\DevOps\\MyFakeNamespace\\UnguardedException::__construct" must start with "Feature::throwIfActive" for feature flag "v6.8.0.0".', 74],
             ['Deprecated framework method "Shopware\\Core\\DevOps\\MyFakeNamespace\\UnguardedException::getCustomData" must start with "Feature::throwIfActive" for feature flag "v6.8.0.0".', 79],
         ]);

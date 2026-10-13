@@ -29,7 +29,7 @@ class DeprecatedExceptionPattern implements DeprecationPattern
     public function isSupported(ClassMethod $method, Scope $scope, ClassReflection $class, string $deprecation, bool $isClassDeprecation): bool
     {
         return $class->is(\Throwable::class)
-            && ($isClassDeprecation || $class->getDeprecatedDescription() !== null || $method->isStatic());
+            && ($isClassDeprecation || $class->getDeprecatedDescription() !== null);
     }
 
     /**

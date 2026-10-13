@@ -1,6 +1,7 @@
 import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 import AddPaymentInfoEvent from 'src/plugin/google-analytics/events/add-payment-info.event';
 import AddShippingInfoEvent from 'src/plugin/google-analytics/events/add-shipping-info.event';
+import AddShippingInfoOnRegisterEvent from 'src/plugin/google-analytics/events/add-shipping-info-on-register.event';
 import AddToCartEvent from 'src/plugin/google-analytics/events/add-to-cart.event';
 import AddToCartByNumberEvent from 'src/plugin/google-analytics/events/add-to-cart-by-number.event';
 import AddToWishlistEvent from 'src/plugin/google-analytics/events/add-to-wishlist.event';
@@ -133,6 +134,7 @@ describe('plugin/google-analytics/google-analytics.plugin', () => {
         const expectedEventTypes = [
             AddPaymentInfoEvent,
             AddShippingInfoEvent,
+            AddShippingInfoOnRegisterEvent,
             AddToCartEvent,
             AddToCartByNumberEvent,
             BeginCheckoutEvent,

@@ -60,6 +60,8 @@ import MtActionMenu from '@shopware-ag/meteor-component-library/dist/esm/MtActio
 import MtActionMenuItem from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuItem';
 import MtActionMenuGroup from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuGroup';
 import MtTooltip from '@shopware-ag/meteor-component-library/dist/esm/MtTooltip';
+import MtDivider from '@shopware-ag/meteor-component-library/dist/esm/MtDivider';
+import MtHelpText from '@shopware-ag/meteor-component-library/dist/esm/MtHelpText';
 import {
     MtDropdownMenuRoot,
     MtDropdownMenuTrigger,
@@ -477,6 +479,8 @@ export default class VueAdapter extends ViewAdapter {
             MtDropdownMenuPortal,
             MtDropdownMenuSub,
             MtTooltip,
+            MtDivider,
+            MtHelpText,
         } as const;
 
         const lazyMeteorComponents = {
@@ -743,7 +747,8 @@ export default class VueAdapter extends ViewAdapter {
         Shopware.Vue.watch(
             useSession().currentLocale,
             (currentLocale: string | null) => {
-                i18n.global.locale.value = currentLocale ?? '';
+                // Keep the last known locale until the session locale is resolved, otherwise the fallback locale is shown
+                i18n.global.locale.value = currentLocale ?? lastKnownLocale;
             },
             { immediate: true },
         );

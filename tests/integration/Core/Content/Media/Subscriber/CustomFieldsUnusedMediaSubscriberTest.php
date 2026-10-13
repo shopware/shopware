@@ -78,7 +78,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
         );
         $listener->removeUsedMedia($event);
 
-        static::assertEmpty($event->getUnusedIds());
+        static::assertCount(0, $event->getUnusedIds());
     }
 
     public function testUnusedMediaIsPresent(): void

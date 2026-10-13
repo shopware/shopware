@@ -6,8 +6,22 @@
 // (index.js) under Jest, which loads the real module outside Jest's transform pipeline and leaves
 // every transform source reported as 0% covered. The '.ts' specifier keeps coverage attribution
 // on the actual source.
-import { transformShopwareSetupSfc } from '../index.ts';
+import { ShopwareSetupTransformError, transformShopwareSetupSfc } from '../index.ts';
 import { parse, compileScript } from '@vue/compiler-sfc';
+
+function captureTransformError(source: string, filename: string): ShopwareSetupTransformError {
+    try {
+        transformShopwareSetupSfc(source, filename);
+    } catch (error) {
+        if (error instanceof ShopwareSetupTransformError) {
+            return error;
+        }
+
+        throw error;
+    }
+
+    throw new Error('Expected a Shopware setup diagnostic');
+}
 
 type TransformResult = NonNullable<ReturnType<typeof transformShopwareSetupSfc>>;
 
@@ -87,6 +101,7 @@ function expectVueCompilerScriptToReject(code: string, filename: string, message
  * @private
  */
 export {
+    captureTransformError,
     expectVueCompilerScriptToCompile,
     expectVueCompilerScriptToReject,
     stripIndent,

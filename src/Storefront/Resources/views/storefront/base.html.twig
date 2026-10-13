@@ -87,7 +87,7 @@
                         {% block base_main_container %}
                             <div class="container-main">
                                 {% block base_breadcrumb %}
-                                    {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
+                                    {% if feature('BREADCRUMB_REWORK') %}
                                         {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
                                             context: context,
                                             themeIconConfig: themeIconConfig,

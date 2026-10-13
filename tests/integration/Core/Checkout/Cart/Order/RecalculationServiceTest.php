@@ -789,21 +789,21 @@ class RecalculationServiceTest extends TestCase
             ),
         ]));
 
-        ['orderId' => $orderId, 'orderDateTime' => $orderDateTime, 'stateId' => $stateId] = $this->persistCart($cart);
+        ['orderId' => $orderId, 'orderDateTime' => $orderDateTime] = $this->persistCart($cart);
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
 
-        $promotionId = $this->createShippingDiscount(100);
+        $this->createShippingDiscount(100);
 
-        $this->toggleAutomaticPromotionsForDelivery($orderId, $versionId, $promotionId, $orderDateTime, $stateId);
+        $this->toggleAutomaticPromotionsForDelivery($orderId, $versionId, $orderDateTime);
     }
 
     public function testApplyAutomaticPromotions(): void
     {
         // create order
         $cart = $this->generateDemoCart();
-        ['orderId' => $orderId, 'orderDateTime' => $orderDateTime, 'stateId' => $stateId] = $this->persistCart($cart);
+        ['orderId' => $orderId, 'stateId' => $stateId] = $this->persistCart($cart);
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -824,7 +824,7 @@ class RecalculationServiceTest extends TestCase
         [$order, $content] = $this->applyAutomaticPromotions($orderId, $versionId, $promotionId);
         $newPromotionItem = $order->getLineItems()?->filterByType(PromotionProcessor::LINE_ITEM_TYPE)->first();
 
-        static::assertEmpty($content['errors']);
+        static::assertCount(0, $content['errors']);
         static::assertNotNull($newPromotionItem);
         static::assertSame($promotionItem->getId(), $newPromotionItem->getId(), 'line-item id of promotion should not differ between recalculations');
         static::assertSame($promotionItem->getPayload(), $newPromotionItem->getPayload());
@@ -834,7 +834,7 @@ class RecalculationServiceTest extends TestCase
     {
         // create order
         $cart = $this->generateDemoCart();
-        ['orderId' => $orderId, 'orderDateTime' => $orderDateTime, 'stateId' => $stateId] = $this->persistCart($cart);
+        ['orderId' => $orderId, 'stateId' => $stateId] = $this->persistCart($cart);
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -859,7 +859,7 @@ class RecalculationServiceTest extends TestCase
         // On recalculation, promotion is applied once more, creating a new delivery.
         // The old one is expected to be deleted.
         [$order, $content] = $this->applyAutomaticPromotions($orderId, $versionId, $promotionId);
-        static::assertEmpty($content['errors']);
+        static::assertCount(0, $content['errors']);
         static::assertNotNull($order->getDeliveries());
         $deliveryIds = $order->getDeliveries()->getKeys();
         static::assertCount(2, $deliveryIds);
@@ -2026,7 +2026,7 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
         $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
-        static::assertNotEmpty($order);
+        static::assertNotNull($order);
         static::assertNotNull($order->getLineItems());
         static::assertSame($oldTotal + $creditAmount, $order->getAmountTotal());
 
@@ -2075,7 +2075,7 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
         $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
-        static::assertNotEmpty($order);
+        static::assertNotNull($order);
         static::assertNotNull($order->getLineItems());
         static::assertCount(3, $order->getLineItems());
         static::assertSame($order->getOrderDateTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT), $orderDateTime->format(Defaults::STORAGE_DATE_TIME_FORMAT));
@@ -2123,7 +2123,7 @@ class RecalculationServiceTest extends TestCase
         $criteria->addAssociation('lineItems');
         $criteria->addAssociation('deliveries');
         $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
-        static::assertNotEmpty($order);
+        static::assertNotNull($order);
         static::assertNotNull($order->getLineItems());
         static::assertCount(3, $order->getLineItems());
 
@@ -2169,7 +2169,7 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
         $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
-        static::assertNotEmpty($order);
+        static::assertNotNull($order);
         static::assertNotNull($order->getLineItems());
         static::assertCount(3, $order->getLineItems());
         static::assertSame($order->getOrderDateTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT), $orderDateTime->format(Defaults::STORAGE_DATE_TIME_FORMAT));
@@ -2193,7 +2193,7 @@ class RecalculationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
-    private function toggleAutomaticPromotionsForDelivery(string $orderId, string $versionId, string $promotionId, \DateTimeInterface $orderDateTime, string $stateId): void
+    private function toggleAutomaticPromotionsForDelivery(string $orderId, string $versionId, \DateTimeInterface $orderDateTime): void
     {
         $orderRepository = $this->orderRepository;
 
@@ -2218,7 +2218,7 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('deliveries');
         $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->getEntities()->get($orderId);
-        static::assertNotEmpty($order);
+        static::assertNotNull($order);
         static::assertNotNull($order->getDeliveries());
         static::assertCount(2, $order->getDeliveries());
         static::assertSame($order->getOrderDateTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT), $orderDateTime->format(Defaults::STORAGE_DATE_TIME_FORMAT));

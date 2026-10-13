@@ -84,7 +84,7 @@ class PromotionCalculatorTest extends TestCase
         $toCalculate = new Cart(Uuid::randomHex());
 
         $this->promotionCalculator->calculate($discountItems, $original, $toCalculate, $this->salesChannelContext, new CartBehavior());
-        static::assertEmpty($toCalculate->getLineItems());
+        static::assertCount(0, $toCalculate->getLineItems());
     }
 
     public function testCalculateDoesNotAddDiscountItemsWithDeliveryScope(): void
@@ -97,7 +97,7 @@ class PromotionCalculatorTest extends TestCase
         $toCalculate = new Cart(Uuid::randomHex());
 
         $this->promotionCalculator->calculate($discountItems, $original, $toCalculate, $this->salesChannelContext, new CartBehavior());
-        static::assertEmpty($toCalculate->getLineItems());
+        static::assertCount(0, $toCalculate->getLineItems());
     }
 
     public function testCalculateAddsValidPromotionToCalculatedCart(): void

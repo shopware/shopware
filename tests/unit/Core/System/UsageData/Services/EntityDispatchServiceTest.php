@@ -253,9 +253,6 @@ class EntityDispatchServiceTest extends TestCase
 
     public function testItDoesNotStartMultipleRuns(): void
     {
-        $lastConsentDate = new \DateTimeImmutable('2023-07-25T07:00:19.803422+0000');
-        $now = new \DateTimeImmutable();
-
         $appConfig = new ArrayKeyValueStorage([]);
         $messageBus = new CollectingMessageBus();
         $entityDispatchService = new EntityDispatchService(

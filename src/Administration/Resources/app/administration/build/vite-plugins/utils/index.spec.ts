@@ -4,7 +4,8 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { getDevServerHttpsConfig, readFeatureFlags } from './index';
+import { createPluginDevJson, getDevServerHttpsConfig, readFeatureFlags } from './index';
+import type { ExtensionDefinition } from './index';
 
 describe('build/vite-plugins/utils', () => {
     describe('getDevServerHttpsConfig', () => {
@@ -84,6 +85,59 @@ describe('build/vite-plugins/utils', () => {
             );
 
             expect(readFeatureFlags()).toEqual({ ADMIN_VITE_8: true, V6_8_0_0: false });
+        });
+    });
+
+    describe('createPluginDevJson', () => {
+        const plugin: ExtensionDefinition = {
+            name: 'SwagExample',
+            technicalName: 'swag-example',
+            technicalFolderName: 'swagexample',
+            basePath: '/plugins/SwagExample/src',
+            path: '/plugins/SwagExample/src/Resources/app/administration/src',
+            filePath: '/plugins/SwagExample/src/Resources/app/administration/src/main.ts',
+            isPlugin: true,
+            isApp: false,
+        };
+        const app: ExtensionDefinition = {
+            name: 'ExampleApp',
+            technicalName: 'example-app',
+            technicalFolderName: 'exampleapp',
+            basePath: '/apps/ExampleApp',
+            path: '/apps/ExampleApp/Resources/app/administration/src',
+            filePath: '/apps/ExampleApp/Resources/app/administration/src/main.ts',
+            isPlugin: false,
+            isApp: true,
+        };
+
+        it('loads the entry files of plugins through the Vite client without the bundled dev mode', () => {
+            expect(createPluginDevJson([plugin, app], false)).toEqual({
+                metadata: 'shopware',
+                'swag-example': {
+                    js: '/_internal_ext/swag-example/main.ts',
+                    hmrSrc: '/_internal_ext/swag-example/@vite/client',
+                },
+                'example-app': {
+                    html: '/_internal_ext/example-app/index.html',
+                },
+            });
+        });
+
+        it('loads the bundles of plugins through the bundled dev client in the bundled dev mode', () => {
+            expect(createPluginDevJson([plugin, app], true)).toEqual({
+                metadata: 'shopware',
+                'swag-example': {
+                    js: '/_internal_ext/swag-example/assets/swag-example.js',
+                    hmrSrc: '/_internal_ext/swag-example/bundledDevClient.mjs',
+                },
+                'example-app': {
+                    html: '/_internal_ext/example-app/index.html',
+                },
+            });
+        });
+
+        it('only contains the metadata without extensions', () => {
+            expect(createPluginDevJson([], true)).toEqual({ metadata: 'shopware' });
         });
     });
 });

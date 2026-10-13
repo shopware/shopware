@@ -347,3 +347,38 @@ export function readFeatureFlags(): Record<string, boolean> {
 
     return JSON.parse(fs.readFileSync(flagsPath, 'utf-8')) as Record<string, boolean>;
 }
+
+/**
+ * @private
+ */
+export type PluginDevJson = { metadata: 'shopware' } & Record<string, { js?: string; hmrSrc?: string; html?: string }>;
+
+/**
+ * @private
+ *
+ * Builds the content of the sw-plugin-dev.json, which tells the Administration where to load the extensions from.
+ */
+export function createPluginDevJson(extensions: ExtensionDefinition[], useBundledDev: boolean): PluginDevJson {
+    const pluginDevJson = { metadata: 'shopware' } as PluginDevJson;
+
+    extensions.forEach((extension) => {
+        const base = `/_internal_ext/${extension.technicalName}/`;
+        const entry: PluginDevJson[string] = {};
+
+        if (extension.isApp) {
+            entry.html = `${base}index.html`;
+        }
+
+        if (extension.isPlugin) {
+            // The bundled dev mode of Vite forces `assets/[name].js` as the name of the entry files.
+            entry.js = useBundledDev
+                ? `${base}assets/${extension.technicalName}.js`
+                : `${base}${path.basename(extension.filePath)}`;
+            entry.hmrSrc = useBundledDev ? `${base}bundledDevClient.mjs` : `${base}@vite/client`;
+        }
+
+        pluginDevJson[extension.technicalName] = entry;
+    });
+
+    return pluginDevJson;
+}

@@ -40,6 +40,15 @@ export function isVite8ToolchainActive(): boolean {
     return readFeatureFlags()[FEATURE_FLAG] === true;
 }
 
+/**
+ * @private
+ *
+ * Extension bundles need the `__rolldown_runtime__` of the bundled core, so the core and the plugins use the same condition.
+ */
+export function isBundledDevActive(isDev: boolean): boolean {
+    return isDev && process.env.SHOPWARE_ADMIN_BUNDLED_DEV === '1' && isVite8ToolchainActive();
+}
+
 /** @private */
 export async function loadViteToolchain(): Promise<ViteToolchain> {
     if (isVite8ToolchainActive()) {

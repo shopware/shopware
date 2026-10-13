@@ -26,11 +26,11 @@ import AssetCssPostprocessPlugin from './vite-plugins/asset-css-postprocess-plug
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
 import ShopwareSetupPlugin from './vite-plugins/shopware-setup';
 import VirtualShopwareModulesPlugin from './vite-plugins/virtual-shopware-modules';
-import { loadExtensions, getViteServerPorts, isInsideDockerContainer } from './vite-plugins/utils';
+import { createPluginDevJson, loadExtensions, getViteServerPorts, isInsideDockerContainer } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
 import ExtglobCompatPlugin from './vite-plugins/extglob-compat';
-import { loadViteToolchain } from './vite-plugins/vite-toolchain';
+import { isBundledDevActive, loadViteToolchain } from './vite-plugins/vite-toolchain';
 import type { ViteToolchain } from './vite-plugins/vite-toolchain';
 
 const VITE_MODE = process.env.VITE_MODE || 'development';
@@ -43,7 +43,12 @@ const host = process.env.VITE_HOST || 'localhost';
 const extensionEntries = loadExtensions();
 
 // Common configuration shared between dev and build
-const getBaseConfig = (toolchain: ViteToolchain, extension: ExtensionDefinition, isProd: boolean): UserConfig => {
+const getBaseConfig = (
+    toolchain: ViteToolchain,
+    extension: ExtensionDefinition,
+    isProd: boolean,
+    useBundledDev = false,
+): UserConfig => {
     const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
     const configInfoDebug = debug('vite:config');
     const useSourceMap =
@@ -173,6 +178,8 @@ const getBaseConfig = (toolchain: ViteToolchain, extension: ExtensionDefinition,
                 output: {
                     entryFileNames: 'assets/[name]-[hash].js',
                 },
+                // Rolldown requests lazy chunks from the absolute `/@vite/lazy` URL, which ignores `base` and hits the main admin server
+                ...(useBundledDev ? { experimental: { devMode: { lazy: false } } } : {}),
             },
         },
     };
@@ -185,43 +192,19 @@ const main = async () => {
 
     if (isDev) {
         const extensionPorts = getViteServerPorts();
+        const useBundledDev = isBundledDevActive(isDev);
 
-        // Create sw-plugin-dev.json for development mode
-        const swPluginDevJsonData = {
-            metadata: 'shopware',
-        } as {
-            metadata: string;
-        } & Record<
-            string,
-            {
-                js?: string;
-                hmrSrc?: string;
-                html?: string;
-            }
-        >;
-
-        extensionEntries.forEach((extension, index) => {
-            const fileName = extension.filePath.split('/').pop();
-
-            if (!swPluginDevJsonData[extension.technicalName]) {
-                swPluginDevJsonData[extension.technicalName] = {};
-            }
-
-            if (extension.isApp) {
-                swPluginDevJsonData[extension.technicalName].html = `/_internal_ext/${extension.technicalName}/index.html`;
-            }
-
-            if (extension.isPlugin) {
-                swPluginDevJsonData[extension.technicalName].js = `/_internal_ext/${extension.technicalName}/${fileName}`;
-                swPluginDevJsonData[extension.technicalName].hmrSrc =
-                    `/_internal_ext/${extension.technicalName}/@vite/client`;
-            }
-        });
+        if (useBundledDev) {
+            console.log(colors.yellow('# Experimental bundled dev mode activated for plugins'));
+        }
 
         // Write outside of public/administration on purpose: a parallel production
         // build empties that directory (emptyOutDir), which would delete this file
         // out from under the running watcher.
-        fs.writeFileSync(path.resolve(__dirname, '../../../sw-plugin-dev.json'), JSON.stringify(swPluginDevJsonData));
+        fs.writeFileSync(
+            path.resolve(__dirname, '../../../sw-plugin-dev.json'),
+            JSON.stringify(createPluginDevJson(extensionEntries, useBundledDev)),
+        );
 
         // Start dev servers
         for (let i = 0; i < extensionEntries.length; i++) {
@@ -247,7 +230,9 @@ const main = async () => {
             } else {
                 // For plugins
                 server = await toolchain.vite.createServer({
-                    ...getBaseConfig(toolchain, extension, false),
+                    ...getBaseConfig(toolchain, extension, false, useBundledDev),
+                    // Typed with Vite 6, which does not know the bundled dev mode
+                    ...(useBundledDev ? { experimental: { bundledDev: true } as UserConfig['experimental'] } : {}),
                     base: `/_internal_ext/${extension.technicalName}/`,
                     server: {
                         host: '127.0.0.1',

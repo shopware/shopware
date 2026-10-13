@@ -24,7 +24,7 @@ import VirtualShopwareModulesPlugin from './build/vite-plugins/virtual-shopware-
 import NodeEnvDefinePlugin from './build/vite-plugins/node-env-define';
 import AdminIndexHtmlPlugin from './build/vite-plugins/admin-index-html';
 import ExtglobCompatPlugin from './build/vite-plugins/extglob-compat';
-import { loadViteToolchain } from './build/vite-plugins/vite-toolchain';
+import { isBundledDevActive, loadViteToolchain } from './build/vite-plugins/vite-toolchain';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
 
@@ -56,7 +56,7 @@ export default (async ({ command }) => {
         (isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||
         (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
     const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1' && !isInsideDockerContainer();
-    const useBundledDev = toolchain.isVite8 && isDev && process.env.SHOPWARE_ADMIN_BUNDLED_DEV === '1';
+    const useBundledDev = isBundledDevActive(isDev);
 
     if (isProd) {
         console.log(colors.yellow('# Production mode activated 🚀'));

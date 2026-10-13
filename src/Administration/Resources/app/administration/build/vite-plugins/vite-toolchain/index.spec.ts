@@ -4,12 +4,19 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { getViteCommand, isVite8ToolchainActive, loadViteToolchain, VITE_8_TOOLCHAIN_PATH } from './index';
+import {
+    getViteCommand,
+    isBundledDevActive,
+    isVite8ToolchainActive,
+    loadViteToolchain,
+    VITE_8_TOOLCHAIN_PATH,
+} from './index';
 
 const vite8NodeModules = path.join(VITE_8_TOOLCHAIN_PATH, 'node_modules');
 
 describe('build/vite-plugins/vite-toolchain', () => {
     const originalProjectRoot = process.env.PROJECT_ROOT;
+    const originalBundledDev = process.env.SHOPWARE_ADMIN_BUNDLED_DEV;
     let projectRoot: string;
 
     function dumpFeatureFlags(flags: Record<string, boolean>): void {
@@ -29,6 +36,12 @@ describe('build/vite-plugins/vite-toolchain', () => {
             delete process.env.PROJECT_ROOT;
         } else {
             process.env.PROJECT_ROOT = originalProjectRoot;
+        }
+
+        if (originalBundledDev === undefined) {
+            delete process.env.SHOPWARE_ADMIN_BUNDLED_DEV;
+        } else {
+            process.env.SHOPWARE_ADMIN_BUNDLED_DEV = originalBundledDev;
         }
 
         jest.restoreAllMocks();
@@ -65,4 +78,25 @@ describe('build/vite-plugins/vite-toolchain', () => {
             `The ADMIN_VITE_8 feature flag is active, but the Vite 8 toolchain is not installed. Run "npm ci" in "${VITE_8_TOOLCHAIN_PATH}".`,
         );
     });
+
+    it.each([
+        { isDev: false, bundledDev: '1', vite8: true, expected: false },
+        { isDev: true, bundledDev: undefined, vite8: true, expected: false },
+        { isDev: true, bundledDev: '0', vite8: true, expected: false },
+        { isDev: true, bundledDev: '1', vite8: false, expected: false },
+        { isDev: true, bundledDev: '1', vite8: true, expected: true },
+    ])(
+        'activates the bundled dev mode only in dev with SHOPWARE_ADMIN_BUNDLED_DEV=1 and Vite 8: %o',
+        ({ isDev, bundledDev, vite8, expected }) => {
+            dumpFeatureFlags({ ADMIN_VITE_8: vite8 });
+
+            if (bundledDev === undefined) {
+                delete process.env.SHOPWARE_ADMIN_BUNDLED_DEV;
+            } else {
+                process.env.SHOPWARE_ADMIN_BUNDLED_DEV = bundledDev;
+            }
+
+            expect(isBundledDevActive(isDev)).toBe(expected);
+        },
+    );
 });

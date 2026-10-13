@@ -471,7 +471,7 @@ ADMIN_VITE_8=1 composer watch:admin
 ADMIN_VITE_8=1 composer build:js:admin
 ```
 
-To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
+To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`. This bundles the Administration code of plugins as well, but not of apps. Changes to plugin files reload the page instead of updating it through HMR.
 
 Vite 8 is installed as an own package in `src/Administration/Resources/app/administration/build/vite-8` by the `postinstall` script of the Administration, next to Vite 6. With the flag, building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
 

@@ -232,6 +232,24 @@ class WebhookLoaderTest extends TestCase
         static::assertSame([$integration->getAclRoleId()], $webhook->ownerRoleIds);
     }
 
+    public function testAnAppIntegrationOnlyHasTheAppsRole(): void
+    {
+        $this->installApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
+        [$integrationId, $appRoleId] = $this->connection->fetchNumeric('SELECT integration_id, acl_role_id FROM app WHERE name = \'minimal\'') ?: [];
+
+        $broadRoleId = TestIntegration::create($this->connection, ['order:read'])->getAclRoleId();
+        $this->connection->insert('integration_role', ['integration_id' => $integrationId, 'acl_role_id' => Uuid::fromHexToBytes((string) $broadRoleId)]);
+        $this->connection->update('integration', ['admin' => 1], ['id' => $integrationId]);
+
+        $this->insertWebhook(ownerIntegrationId: Uuid::fromBytesToHex($integrationId));
+
+        $webhook = $this->loadWebhook();
+        static::assertSame(OwnerType::Restricted, $webhook->ownerType);
+        static::assertSame([Uuid::fromBytesToHex($appRoleId)], $webhook->ownerRoleIds);
+
+        $this->removeApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
+    }
+
     public function testGetWebhooksSkipsWebhooksWithoutAnOwner(): void
     {
         $this->insertWebhook();

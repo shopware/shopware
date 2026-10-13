@@ -251,6 +251,7 @@ class VatIdPatternProvider implements ResetInterface
 
     private function toRegex(string $pattern): string
     {
-        return '/^' . $pattern . '$/';
+        // the stored pattern is wrapped so an alternation inside it stays anchored on both sides
+        return '/^(?:' . $pattern . ')$/D';
     }
 }

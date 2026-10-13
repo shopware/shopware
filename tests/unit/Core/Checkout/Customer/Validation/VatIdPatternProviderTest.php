@@ -351,6 +351,10 @@ class VatIdPatternProviderTest extends TestCase
 
         yield 'the pattern is anchored, so a leading prefix is rejected' => ['NL\d{9}B\d{2}', 'XNL123456789B01', false];
 
+        yield 'the pattern is anchored, so a trailing newline is rejected' => ['NL\d{9}B\d{2}', "NL123456789B01\n", false];
+
+        yield 'an alternation stays anchored on both sides' => ['DE\d{9}|AT\d{8}', 'DE123456789X', false];
+
         yield 'the pattern is case sensitive' => ['[A-Z]+', 'abc', false];
 
         // The shipped Spanish pattern embeds its own anchors and only works with the wrapping anchors.

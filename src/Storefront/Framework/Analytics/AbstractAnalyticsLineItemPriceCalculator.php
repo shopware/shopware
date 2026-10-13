@@ -11,7 +11,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Resolves the price and the discount an analytics integration reports per product line item.
  *
  * Decorate it to change how promotion discounts are allocated to the products, for example for a
- * promotion type of an extension that does not store a composition.
+ * promotion type of an extension that does not store a composition. The service is registered under
+ * this class name, so a decorator targets it without referring to the implementation:
+ *
+ * ```php
+ * $services->set(MyAnalyticsLineItemPriceCalculator::class)
+ *     ->decorate(AbstractAnalyticsLineItemPriceCalculator::class)
+ *     ->args([service('.inner')]);
+ * ```
  */
 #[Package('discovery')]
 abstract class AbstractAnalyticsLineItemPriceCalculator

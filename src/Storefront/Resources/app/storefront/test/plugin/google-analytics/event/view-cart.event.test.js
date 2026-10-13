@@ -66,7 +66,7 @@ describe('plugin/google-analytics/events/view-cart.event', () => {
         // GA4 only defines `coupon` on the items of view_cart
         document.body.innerHTML = `
             <div class="hidden-line-items-information" data-currency="EUR">
-                <span class="hidden-line-item" data-id="product-1" data-sku="SW1" data-quantity="1" data-price="90" data-discount="10" data-coupon="SUMMER,VIP"></span>
+                <span class="hidden-line-item" data-id="product-1" data-sku="SW1" data-quantity="1" data-price="90" data-discount="10" data-coupon="SUMMER, VIP"></span>
                 <span class="hidden-line-item" data-id="product-2" data-sku="SW2" data-quantity="1" data-price="50" data-coupon=""></span>
                 <span class="hidden-line-item-coupon" data-code="SUMMER"></span>
             </div>
@@ -76,7 +76,7 @@ describe('plugin/google-analytics/events/view-cart.event', () => {
 
         const parameters = window.gtag.mock.calls[0][2];
         expect(parameters).not.toHaveProperty('coupon');
-        expect(parameters.items[0]).toEqual(expect.objectContaining({ item_id: 'SW1', coupon: 'SUMMER,VIP' }));
+        expect(parameters.items[0]).toEqual(expect.objectContaining({ item_id: 'SW1', coupon: 'SUMMER, VIP' }));
         expect(parameters.items[1]).not.toHaveProperty('coupon');
     });
 

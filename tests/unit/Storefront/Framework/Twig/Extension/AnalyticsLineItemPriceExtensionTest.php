@@ -68,6 +68,7 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
         $product->setGood(true);
 
         $promotion = new LineItem('promotion-1', LineItem::PROMOTION_LINE_ITEM_TYPE);
+        $promotion->setGood(false);
         $promotion->setPayloadValue('code', 'SUMMER');
         $promotion->setPayloadValue('composition', [['id' => 'product-1', 'quantity' => 1, 'discount' => 1.0]]);
 

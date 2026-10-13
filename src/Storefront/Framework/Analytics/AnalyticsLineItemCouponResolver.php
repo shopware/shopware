@@ -12,9 +12,9 @@ use Shopware\Core\Framework\Log\Package;
  * the item level `coupon`. Google Analytics only defines the coupon on the items for `view_cart`,
  * while the checkout events also carry it on the event.
  *
- * A promotion line item lists the products it discounted in `payload.composition`, so no data has to
- * be loaded. Automatic promotions have no code and shipping discounts discount no product, so neither
- * is reported.
+ * A discount line item with a code, such as a promotion, lists the products it discounted in
+ * `payload.composition`, so no data has to be loaded. Automatic promotions have no code and shipping
+ * discounts discount no product, so neither is reported.
  *
  * @internal
  */
@@ -38,7 +38,8 @@ class AnalyticsLineItemCouponResolver
 
         $codesByCartId = [];
         foreach ($lineItems as $lineItem) {
-            if ($lineItem->getType() !== LineItem::PROMOTION_LINE_ITEM_TYPE) {
+            // any discount with a code, not only promotions, whatever the extension calls its type
+            if ($this->isGood($lineItem)) {
                 continue;
             }
 

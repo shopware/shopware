@@ -122,6 +122,82 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
         static::assertEquals(new AnalyticsLineItemPrice(0.0, 10.0, 0.0), $prices['product-1']);
     }
 
+    /**
+     * App Scripts, admin credits and extensions add discount line items of their own type, mostly
+     * without a composition, so they are spread over the products by their line totals.
+     *
+     * @return iterable<string, array{string}>
+     */
+    public static function discountTypeProvider(): iterable
+    {
+        yield 'App Script discount' => [LineItem::DISCOUNT_LINE_ITEM];
+        yield 'admin credit' => [LineItem::CREDIT_LINE_ITEM_TYPE];
+        yield 'extension type' => ['swag-loyalty-points'];
+    }
+
+    #[DataProvider('discountTypeProvider')]
+    public function testSpreadsADiscountWithoutCompositionOverTheProducts(string $type): void
+    {
+        $prices = $this->calculate(new LineItemCollection([
+            $this->product('product-1', 30.0, 1),
+            $this->product('product-2', 10.0, 1),
+            $this->discount($type, 8.0),
+        ]), $this->context());
+
+        // 30 and 10 carry three quarters and one quarter of the 8.00 discount
+        static::assertEquals(new AnalyticsLineItemPrice(24.0, 6.0, 24.0), $prices['product-1']);
+        static::assertEquals(new AnalyticsLineItemPrice(8.0, 2.0, 8.0), $prices['product-2']);
+    }
+
+    public function testAllocatesTheCompositionOfAnExtensionDiscount(): void
+    {
+        $discount = $this->discount('swag-loyalty-points', 5.0);
+        $discount->setPayloadValue('composition', [['id' => 'product-2', 'quantity' => 1, 'discount' => 5.0]]);
+
+        $prices = $this->calculate(new LineItemCollection([
+            $this->product('product-1', 30.0, 1),
+            $this->product('product-2', 10.0, 1),
+            $discount,
+        ]), $this->context());
+
+        static::assertEquals(new AnalyticsLineItemPrice(30.0, 0.0, 30.0), $prices['product-1']);
+        static::assertEquals(new AnalyticsLineItemPrice(5.0, 5.0, 5.0), $prices['product-2']);
+    }
+
+    /**
+     * App Scripts add surcharges with the discount type, but a positive amount, which is no discount.
+     */
+    public function testIgnoresSurchargesAndFees(): void
+    {
+        $surcharge = $this->discount(LineItem::DISCOUNT_LINE_ITEM, 5.0);
+        $surcharge->setPrice($this->price(5.0, 1));
+
+        $prices = $this->calculate(new LineItemCollection([
+            $this->product('product-1', 30.0, 1),
+            $surcharge,
+        ]), $this->context());
+
+        static::assertEquals(['product-1' => new AnalyticsLineItemPrice(30.0, 0.0, 30.0)], $prices);
+    }
+
+    public function testSpreadsAnOrderCreditOnTheFinishPage(): void
+    {
+        $credit = new OrderLineItemEntity();
+        $credit->setId('order-credit');
+        $credit->setIdentifier('credit');
+        $credit->setType(LineItem::CREDIT_LINE_ITEM_TYPE);
+        $credit->setGood(false);
+        $credit->setQuantity(1);
+        $credit->setPrice($this->price(-4.0, 1));
+
+        $prices = $this->calculate(new OrderLineItemCollection([
+            $this->orderProduct('order-line-item-1', 'product-1', 10.0, 2),
+            $credit,
+        ]), $this->context());
+
+        static::assertEquals(['order-line-item-1' => new AnalyticsLineItemPrice(8.0, 2.0, 16.0)], $prices);
+    }
+
     public function testIgnoresShippingDiscounts(): void
     {
         $promotion = $this->promotion([['id' => 'product-1', 'quantity' => 1, 'discount' => 5.0]]);
@@ -398,6 +474,15 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
         $lineItem = new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $id, $quantity);
         $lineItem->setGood(true);
         $lineItem->setPrice($this->price($unitPrice, $quantity));
+
+        return $lineItem;
+    }
+
+    private function discount(string $type, float $amount): LineItem
+    {
+        $lineItem = new LineItem('discount-' . $type, $type);
+        $lineItem->setGood(false);
+        $lineItem->setPrice($this->price(-$amount, 1));
 
         return $lineItem;
     }

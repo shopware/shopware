@@ -8,6 +8,11 @@ import './sw-media-grid.scss';
 export default {
     template,
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement, there is now explicit unselect
+     */
+    emits: ['media-grid-selection-clear'],
+
     props: {
         presentation: {
             required: false,

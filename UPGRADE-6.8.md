@@ -32,6 +32,8 @@ Alternatively, decouple your test runner from the platform by explicitly requiri
 
 The Administration and the Administration code of plugins and apps were built with Vite 6 before and are built with Vite 8 now. Vite 8 uses Rolldown and Oxc instead of Rollup and esbuild. Building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
 
+In Shopware 6.7, you can already build with Vite 8 by activating the `ADMIN_VITE_8` feature flag, for example with `ADMIN_VITE_8=1 composer watch:admin`.
+
 The watcher serves the Administration at `https://localhost:5173` instead of `http://localhost:5173` now. Accept the self-signed certificate once in the browser.
 
 The most important changes at a glance:

@@ -3,11 +3,11 @@
  */
 
 import { defineConfig, loadEnv } from 'vite';
+import type { UserConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import svgLoader from 'vite-svg-loader';
 import vue from '@vitejs/plugin-vue';
-import basicSsl from '@vitejs/plugin-basic-ssl';
 import * as path from 'path';
 import * as fs from 'fs';
 import symfonyPlugin from 'vite-plugin-symfony';
@@ -21,6 +21,7 @@ import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postproces
 import ShopwareSetupPlugin from './build/vite-plugins/shopware-setup';
 import VirtualShopwareModulesPlugin from './build/vite-plugins/virtual-shopware-modules';
 import NodeEnvDefinePlugin from './build/vite-plugins/node-env-define';
+import { isVite8ToolchainActive, loadVite8Toolchain } from './build/vite-plugins/vite-toolchain';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
 
@@ -41,6 +42,12 @@ if (fs.existsSync(flagsPath)) {
     featureFlags = JSON.parse(fs.readFileSync(flagsPath, 'utf-8'));
 }
 
+const vite8 = isVite8ToolchainActive() ? loadVite8Toolchain() : null;
+const vitePlugins = vite8 ?? { createHtmlPlugin, nodePolyfills, svgLoader, vue, symfonyPlugin };
+
+// Vite 8 renamed `rollupOptions` to `rolldownOptions`
+const bundlerOptionsKey = vite8 ? 'rolldownOptions' : 'rollupOptions';
+
 const pageLoadingScreenPath = path.join(__dirname, '..', '..', 'shared', 'page-loading-screen');
 const pageLoadingScreen = {
     script: fs.readFileSync(path.join(pageLoadingScreenPath, 'page-loading-screen.js')),
@@ -57,10 +64,14 @@ export default defineConfig(({ command }) => {
         (isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||
         (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
     const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1' && !isInsideDockerContainer();
-    const useBundledDev = isDev && process.env.SHOPWARE_ADMIN_BUNDLED_DEV === '1';
+    const useBundledDev = !!vite8 && isDev && process.env.SHOPWARE_ADMIN_BUNDLED_DEV === '1';
 
     if (isProd) {
         console.log(colors.yellow('# Production mode activated 🚀'));
+    }
+
+    if (vite8) {
+        console.log(colors.yellow('# Vite 8 activated by the ADMIN_VITE_8 feature flag'));
     }
 
     if (useBundledDev) {
@@ -86,9 +97,14 @@ export default defineConfig(({ command }) => {
 
         logLevel: isProd ? 'warn' : 'info',
 
-        experimental: {
-            bundledDev: useBundledDev,
-        },
+        ...(vite8
+            ? {
+                  // Typed with Vite 6, which does not know the bundled dev mode
+                  experimental: {
+                      bundledDev: useBundledDev,
+                  } as UserConfig['experimental'],
+              }
+            : {}),
 
         server: {
             open: openBrowserForWatch,
@@ -124,11 +140,11 @@ export default defineConfig(({ command }) => {
                 }),
 
                 // Twig.JS loads node modules, so we need to polyfill them
-                nodePolyfills({
-                    // In the unbundled dev mode, the globals are only provided via the pre-bundled dependencies.
-                    // Injecting them into every source module costs a lot of time on each server start.
+                vitePlugins.nodePolyfills({
+                    // In the unbundled dev mode of Vite 8, the globals are only provided via the pre-bundled
+                    // dependencies. Injecting them into every source module costs a lot of time on each server start.
                     globals:
-                        isDev && !useBundledDev
+                        vite8 && isDev && !useBundledDev
                             ? {
                                   Buffer: 'dev',
                                   global: 'dev',
@@ -141,8 +157,8 @@ export default defineConfig(({ command }) => {
                         'events',
                     ],
                 }),
-                svgLoader(),
-                vue(),
+                vitePlugins.svgLoader(),
+                vitePlugins.vue(),
             ];
 
             if (isDev) {
@@ -150,16 +166,20 @@ export default defineConfig(({ command }) => {
                 return [
                     ...sharedPlugins,
 
-                    NodeEnvDefinePlugin(),
+                    ...(vite8
+                        ? [
+                              NodeEnvDefinePlugin(vite8.vite.transformWithOxc),
 
-                    // Browsers only use HTTP/2 over TLS, so the dev server needs a certificate
-                    basicSsl({
-                        name: 'localhost',
-                        domains: ['localhost'],
-                    }),
+                              // Browsers only use HTTP/2 over TLS, so the dev server needs a certificate
+                              vite8.basicSsl({
+                                  name: 'localhost',
+                                  domains: ['localhost'],
+                              }),
+                          ]
+                        : []),
 
                     // used to serve index.html and link index.vite.ts automatically
-                    createHtmlPlugin({
+                    vitePlugins.createHtmlPlugin({
                         minify: false,
                         /**
                          * After writing entry here, you will not need to add script tags in `index.html`,
@@ -192,7 +212,7 @@ export default defineConfig(({ command }) => {
                 ...sharedPlugins,
 
                 // We only use the symfony integration for build, as serving the Shared Worker doesn't work
-                symfonyPlugin(),
+                vitePlugins.symfonyPlugin(),
             ];
         })(),
 
@@ -223,12 +243,17 @@ export default defineConfig(({ command }) => {
             ],
         },
 
-        css: {
-            // Lightning CSS minifies the CSS since Vite 8. It fails on invalid rules, which esbuild and browsers just drop.
-            lightningcss: {
-                errorRecovery: true,
-            },
-        },
+        ...(vite8
+            ? {
+                  css: {
+                      // Lightning CSS minifies the CSS since Vite 8. It fails on invalid rules, which esbuild and
+                      // browsers just drop.
+                      lightningcss: {
+                          errorRecovery: true,
+                      },
+                  },
+              }
+            : {}),
 
         optimizeDeps: {
             include: [
@@ -245,19 +270,30 @@ export default defineConfig(({ command }) => {
             exclude: ['@shopware-ag/dive'],
             // This avoids full-page reload but the browser can't process more requests in parallel
             holdUntilCrawlEnd: true,
-            rolldownOptions: {
-                transform: {
-                    // Node.js global to browser globalThis
-                    define: {
-                        global: 'globalThis',
-                    },
-                },
-            },
+            ...(vite8
+                ? {
+                      rolldownOptions: {
+                          transform: {
+                              // Node.js global to browser globalThis
+                              define: {
+                                  global: 'globalThis',
+                              },
+                          },
+                      },
+                  }
+                : {
+                      esbuildOptions: {
+                          // Node.js global to browser globalThis
+                          define: {
+                              global: 'globalThis',
+                          },
+                      },
+                  }),
         },
 
         worker: {
             format: 'es',
-            rolldownOptions: {
+            [bundlerOptionsKey]: {
                 output: {
                     format: 'iife',
                 },
@@ -275,7 +311,7 @@ export default defineConfig(({ command }) => {
             // generate .vite/manifest.json in outDir
             manifest: true,
             sourcemap: useSourceMap,
-            rolldownOptions: {
+            [bundlerOptionsKey]: {
                 // overwrite default .html entry, except for the bundled dev mode, which serves the index.html from the bundle
                 input: {
                     administration: useBundledDev ? 'index.html' : 'src/index.ts',

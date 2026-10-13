@@ -5,6 +5,7 @@
 import { spawn } from 'child_process';
 import { build } from 'vite';
 import { startDevelopmentProcesses } from './build/vite-plugins/development-process-runner';
+import { isVite8ToolchainActive, loadVite8Toolchain } from './build/vite-plugins/vite-toolchain';
 import { exportViteServerMapping } from './build/vite-plugins/utils';
 
 async function runPluginsBuild(): Promise<void> {
@@ -38,7 +39,8 @@ async function main() {
                 await runPluginsBuild();
             } else {
                 // Run Vite build
-                await build();
+                const viteBuild = isVite8ToolchainActive() ? loadVite8Toolchain().vite.build : build;
+                await viteBuild();
                 // Then run plugins build
                 await runPluginsBuild();
             }

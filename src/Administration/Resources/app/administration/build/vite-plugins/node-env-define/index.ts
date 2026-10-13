@@ -1,8 +1,8 @@
 /**
  * @sw-package framework
  */
-import { transformWithOxc } from 'vite';
 import type { Plugin } from 'vite';
+import type { Vite8Toolchain } from '../vite-toolchain';
 
 /**
  * @private
@@ -11,7 +11,7 @@ import type { Plugin } from 'vite';
  * source modules. Vite replaces `process.env.NODE_ENV` only afterwards and skips it then, because `process` is no global
  * identifier anymore. This plugin replaces it before the polyfills are injected, like it happens in production builds.
  */
-export default function NodeEnvDefinePlugin(): Plugin {
+export default function NodeEnvDefinePlugin(transformWithOxc: Vite8Toolchain['vite']['transformWithOxc']): Plugin {
     let nodeEnv = JSON.stringify('development');
 
     return {

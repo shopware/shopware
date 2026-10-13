@@ -375,20 +375,22 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 ## Administration
 
-### Administration build and watcher use Vite 8 and HTTP/2
+### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 
-The Administration and the Administration code of extensions are now built with Vite 8 (Rolldown and Oxc instead of Rollup and esbuild). The watcher (`composer watch:admin`) serves the Administration over HTTPS with a self-signed certificate at `https://localhost:5173`, so the browser loads all files, including the files of extensions, over HTTP/2.
+The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8 (Rolldown and Oxc instead of Rollup and esbuild). The watcher (`composer watch:admin`) then serves the Administration over HTTPS with a self-signed certificate at `https://localhost:5173`, so the browser loads all files, including the files of extensions, over HTTP/2. Without the flag, the Administration is still built with Vite 6 and the watcher still runs at `http://localhost:5173`.
 
-To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite, start the watcher with `SHOPWARE_ADMIN_BUNDLED_DEV=1 composer watch:admin`.
+The flag becomes the default with Shopware 6.8. Activate it to test your extensions with Vite 8 already now:
 
-Building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
+```bash
+ADMIN_VITE_8=1 composer watch:admin
+ADMIN_VITE_8=1 composer build:js:admin
+```
 
-Extension developers should check their Administration code for:
+To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
 
-* Extglob patterns like `!(*.spec)` in `import.meta.glob`. They no longer match. Use negated patterns instead: `import.meta.glob(['./**/*.ts', '!./**/*.spec.ts'])`.
-* Default imports of CommonJS modules, which now follow the Node.js interop rules. See the [Vite 8 migration guide](https://vite.dev/guide/migration).
+Vite 8 is installed as an own package in `src/Administration/Resources/app/administration/build/vite-8` by the `postinstall` script of the Administration, next to Vite 6. With the flag, building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
 
-Invalid CSS rules are still dropped during minification, but now reported as warnings.
+See the "Administration build updated to Vite 8" section in `UPGRADE-6.8.md` for the changes extension developers should check.
 
 ### [Internal] Native `<sw-block>` names are isolated per component
 

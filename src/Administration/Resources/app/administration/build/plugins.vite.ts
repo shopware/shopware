@@ -31,6 +31,7 @@ import VirtualShopwareModulesPlugin from './vite-plugins/virtual-shopware-module
 import { loadExtensions, getViteServerPorts, isInsideDockerContainer } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
+import { isVite8ToolchainActive, loadVite8Toolchain } from './vite-plugins/vite-toolchain';
 
 const VITE_MODE = process.env.VITE_MODE || 'development';
 const isDev = VITE_MODE === 'development';
@@ -41,6 +42,12 @@ const host = process.env.VITE_HOST || 'localhost';
 
 const extensionEntries = loadExtensions();
 
+const vite8 = isVite8ToolchainActive() ? loadVite8Toolchain() : null;
+const toolchain = vite8 ?? { vite: { createServer, build, createLogger }, vue, svgLoader, symfonyPlugin };
+
+// Vite 8 renamed `rollupOptions` to `rolldownOptions`
+const bundlerOptionsKey = vite8 ? 'rolldownOptions' : 'rollupOptions';
+
 // Common configuration shared between dev and build
 const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
     const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
@@ -49,7 +56,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
         (!isProd && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||
         (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
 
-    const logger = createLogger();
+    const logger = toolchain.vite.createLogger();
 
     logger.info = (msg) => {
         if (msg.includes('vite:config')) {
@@ -74,7 +81,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
             AssetPlugin(!isDev, path.resolve(extension.basePath, 'Resources/app/administration')),
             AssetPathPlugin(extension.technicalFolderName),
             AssetCssPostprocessPlugin(`/bundles/${extension.technicalFolderName}/administration/assets/`),
-            svgLoader(),
+            toolchain.svgLoader(),
             OverrideComponentRegisterPlugin({
                 root: extension.path,
                 pluginEntryFile: extension.filePath,
@@ -86,7 +93,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
                 administrationRoot: path.dirname(__dirname),
                 consumer: 'extension',
             }),
-            vue({
+            toolchain.vue({
                 template: {
                     compilerOptions: {
                         compatConfig: {
@@ -98,7 +105,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
             ExternalsPlugin(),
 
             // Prod plugins
-            ...(isDev ? [] : [symfonyPlugin()]),
+            ...(isDev ? [] : [toolchain.symfonyPlugin()]),
         ],
 
         resolve: {
@@ -133,29 +140,44 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
                           'date-fns-tz',
                       ],
                       holdUntilCrawlEnd: true,
-                      rolldownOptions: {
-                          transform: {
-                              define: {
-                                  global: 'globalThis',
-                              },
-                          },
-                      },
+                      ...(vite8
+                          ? {
+                                rolldownOptions: {
+                                    transform: {
+                                        define: {
+                                            global: 'globalThis',
+                                        },
+                                    },
+                                },
+                            }
+                          : {
+                                esbuildOptions: {
+                                    define: {
+                                        global: 'globalThis',
+                                    },
+                                },
+                            }),
                   },
               }),
 
-        css: {
-            // Lightning CSS minifies the CSS since Vite 8. It fails on invalid rules, which esbuild and browsers just drop.
-            lightningcss: {
-                errorRecovery: true,
-            },
-        },
+        ...(vite8
+            ? {
+                  css: {
+                      // Lightning CSS minifies the CSS since Vite 8. It fails on invalid rules, which esbuild and
+                      // browsers just drop.
+                      lightningcss: {
+                          errorRecovery: true,
+                      },
+                  },
+              }
+            : {}),
 
         build: {
             outDir: path.resolve(extension.basePath, 'Resources/public/administration'),
             emptyOutDir: true,
             manifest: true,
             sourcemap: useSourceMap,
-            rolldownOptions: {
+            [bundlerOptionsKey]: {
                 input: {
                     [extension.technicalName]: extension.filePath,
                 },
@@ -220,7 +242,7 @@ const main = async () => {
 
             if (extension.isApp) {
                 // For apps
-                server = await createServer({
+                server = await toolchain.vite.createServer({
                     root: extension.path,
                     base: `/_internal_ext/${extension.technicalName}/`,
                     server: {
@@ -233,7 +255,7 @@ const main = async () => {
                 console.log(colors.green(`# App "${extension.name}": Injected successfully`));
             } else {
                 // For plugins
-                server = await createServer({
+                server = await toolchain.vite.createServer({
                     ...getBaseConfig(extension, false),
                     base: `/_internal_ext/${extension.technicalName}/`,
                     server: {
@@ -256,7 +278,7 @@ const main = async () => {
                 if (extension.isApp) {
                     console.log(colors.green(`# Building app "${extension.name}"`));
                     // For apps
-                    await build({
+                    await toolchain.vite.build({
                         root: extension.path,
                         base: '',
                         build: {
@@ -277,7 +299,7 @@ const main = async () => {
                 } else {
                     console.log(colors.green(`# Building plugin "${extension.name}"`));
                     // For plugins
-                    await build(getBaseConfig(extension, true));
+                    await toolchain.vite.build(getBaseConfig(extension, true));
                 }
             } catch (error) {
                 hasFailedBuilds = true;

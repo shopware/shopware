@@ -3,6 +3,7 @@
  */
 import { execFileSync } from 'child_process';
 import path from 'path';
+import { VITE_8_TOOLCHAIN_PATH } from '../vite-toolchain';
 
 type TransformResult = {
     name: string;
@@ -13,8 +14,8 @@ type TransformResult = {
 };
 
 /**
- * Vite 8 is published as ESM only, which Jest cannot load. The plugin therefore runs with the real Vite in a separate
- * Node process.
+ * Vite 8 is published as ESM only, which Jest cannot load. The plugin therefore runs with the real Vite 8 of the
+ * toolchain in a separate Node process.
  */
 function transform(code: string, config: object, env: Record<string, string> = {}): TransformResult {
     const script = `
@@ -23,7 +24,8 @@ function transform(code: string, config: object, env: Record<string, string> = {
 
         (async () => {
             const { default: NodeEnvDefinePlugin } = await jiti.import(${JSON.stringify(path.join(__dirname, 'index.ts'))});
-            const plugin = NodeEnvDefinePlugin();
+            const { transformWithOxc } = await import(require.resolve('vite', { paths: [${JSON.stringify(VITE_8_TOOLCHAIN_PATH)}] }));
+            const plugin = NodeEnvDefinePlugin(transformWithOxc);
             plugin.configResolved(${JSON.stringify(config)});
             const result = await plugin.transform.handler(${JSON.stringify(code)}, '/src/core/application.ts');
 

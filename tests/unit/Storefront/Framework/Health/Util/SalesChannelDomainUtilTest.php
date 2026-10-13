@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Health\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
@@ -181,7 +182,15 @@ class SalesChannelDomainUtilTest extends TestCase
 
     public function testCreateExceptionResult(): void
     {
-        $result = $this->getUtil()->createExceptionResult('http://localhost', new \RuntimeException('Currency not found'));
+        $exception = new \RuntimeException('Currency not found');
+
+        // without a request in the context, the log line has to name the page that could not be probed on its own
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with('Error during systemcheck: "Currency not found"', ['exception' => $exception, 'url' => 'http://localhost', 'request' => null]);
+
+        $result = $this->getUtil(logger: $logger)->createExceptionResult('http://localhost', $exception);
 
         static::assertSame('http://localhost', $result->storefrontUrl);
         static::assertSame(Response::HTTP_BAD_REQUEST, $result->responseCode);
@@ -189,13 +198,13 @@ class SalesChannelDomainUtilTest extends TestCase
         static::assertSame('Currency not found', $result->errorMessage);
     }
 
-    private function getUtil(?RouterInterface $router = null): SalesChannelDomainUtil
+    private function getUtil(?RouterInterface $router = null, ?LoggerInterface $logger = null): SalesChannelDomainUtil
     {
         return new SalesChannelDomainUtil(
             $router ?? $this->router,
             $this->requestStack,
             $this->kernel,
-            new NullLogger(),
+            $logger ?? new NullLogger(),
             new NativeClock()
         );
     }

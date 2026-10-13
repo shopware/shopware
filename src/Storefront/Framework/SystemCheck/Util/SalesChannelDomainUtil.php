@@ -94,7 +94,7 @@ readonly class SalesChannelDomainUtil
      */
     public function createExceptionResult(string $url, \Exception $e, float $responseTime = 0.0, ?Request $request = null): StorefrontHealthCheckResult
     {
-        $this->logger->error(\sprintf('Error during systemcheck: "%s"', $e->getMessage()), ['exception' => $e, 'request' => $request]);
+        $this->logger->error(\sprintf('Error during systemcheck: "%s"', $e->getMessage()), ['exception' => $e, 'url' => $url, 'request' => $request]);
 
         return StorefrontHealthCheckResult::create($url, Response::HTTP_BAD_REQUEST, $responseTime, $e->getMessage());
     }

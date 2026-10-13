@@ -101,6 +101,10 @@ class CheckoutLegalGuaranteeTemplateTest extends TestCase
         static::assertSame($accessibilityTweaks ? 'button' : 'a', $termsLink->nodeName());
         static::assertStringNotContainsString('Gewährleistungsrechte', $crawler->text());
         static::assertCount($requireDataProtectionCheckbox ? 1 : 0, $crawler->filter('input[name="acceptedDataProtection"]'));
+        static::assertSame(
+            $requireDataProtectionCheckbox ? 0 : 1,
+            substr_count($crawler->text(), 'Bitte beachten Sie unsere Datenschutzbestimmungen und AGB.'),
+        );
     }
 
     /**

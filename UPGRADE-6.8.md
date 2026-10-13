@@ -1112,6 +1112,26 @@ Refection has significantly improved in particular since PHP 8.1, therefore the 
 + $fileName = \ReflectionClass(MyClass::class)->getFileName();
 ```
 
+## Removal of `\Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait`
+
+The test helper trait `AssertValuesTrait` is removed. Use the static assertion class `\Shopware\Core\Test\Assert\ArrayValues` instead, which compares the same way:
+
+```diff
+- use Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait;
++ use Shopware\Core\Test\Assert\ArrayValues;
+
+  class MyTest extends TestCase
+  {
+-     use AssertValuesTrait;
+
+      public function testSomething(): void
+      {
+-         $this->assertValues($expected, $actual);
++         ArrayValues::assertValues($expected, $actual);
+      }
+  }
+```
+
 ## Removal of ErrorRoutes
 
 `Shopware\Core\Checkout\Cart\Error\ErrorRoute` is specific to the standard Storefront and therefore should not be in the Core package.
@@ -2226,11 +2246,6 @@ The following Twig blocks have been removed:
   - `sw_theme_manager_detail_content_areas`
   - `sw_theme_manager_detail_content_sections`
   - `sw_theme_manager_detail_content_fields`
-
-## Removal of $tc function:
-
-* The `$tc` function will be completely removed
-* All translation calls should use `$t` instead
 
 ## Removed translation of import/export profile label
 

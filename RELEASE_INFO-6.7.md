@@ -92,6 +92,10 @@ Deactivating a plugin now removes its asset manifest entry but retains its publi
 
 `AbstractProductStreamBuilder` now implements the deprecated `ProductStreamBuilderInterface` and forwards `buildFilters()` to `enrichCriteria()`. Extensions can therefore migrate their implementations to the abstract class while remaining compatible with code that still consumes the legacy interface.
 
+### Dynamic product groups without usable filters
+
+Cross-selling, category listings and CMS product sliders no longer fail on such a group. An empty group selects all products, like the product export, and a broken one selects none and logs a warning.
+
 ### Feature flags can belong to a major version
 
 Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatically when `V6_8_0_0=1` is set. An explicit setting for the individual flag still takes precedence, so `JSON_LD_DATA=0` keeps that feature off. Standalone major flags are recognized by their version-shaped names; the `major` field is only for sub-features and must name a parent version flag. Flags without a parent omit `major` from their metadata and the feature-flag API response. `FEATURE_ALL` now activates every registered feature for any truthy value; use a version flag to test only that major's changes.
@@ -335,6 +339,14 @@ Shopware now requires `symfony/mcp-bundle` 0.14.1, still on `mcp/sdk` 0.8. The e
 
 One behaviour changes for extensions: a `%` in MCP metadata, for example a tool description or schema such as "discount in %", is now kept as written. Before, the bundle read it as a container parameter placeholder, which either broke the container build ("non-existent parameter") or changed the text. If your extension worked around that by writing `%%`, remove the workaround, or the description now shows `%%`.
 
+### MCP endpoints are rate-limited with a sliding window
+
+`mcp_admin_api` and `mcp_store_api` in `shopware.api.rate_limiter` now use the `sliding_window` policy: 300 requests per minute per OAuth token on `/api/_mcp`, and 120 per minute per sales-channel context and per IP on `/store-api/_mcp`. Before, they used `time_backoff`, which accepts only one request per interval once the first limit is reached and keeps that state for an hour. A busy MCP client therefore got HTTP 429 on almost every call, including the handshake of a new session.
+
+If you override these limits in your configuration, set `policy`, `limit` and `interval` for the new policy. The `reset` and `limits` keys only apply to `time_backoff`.
+
+The additional 10-minute limits of the old configuration (1000 and 600 requests) are gone, so the sustained maximum is now 300 and 120 requests per minute.
+
 ### Every Store API route publishes an extension event
 
 All Store API routes in core now publish an extension event, so you can extend a route with a subscriber instead of decorating its abstract route class. Each route has a `<Route>Extension` in the `Extension` namespace of its domain that carries the route's input parameters, for example `Shopware\Core\Content\Product\Extension\ProductListingRouteExtension`:
@@ -412,7 +424,17 @@ GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_I
 
 An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the app declares in the `<permissions>` of its manifest, because the tool's script runs with the app's integration role. Apps without a `<permissions>` block skipped this check, although they have no privileges at all. They are now checked like every other app, so such an app fails to install or update with the message naming the missing permission. Add the permissions to the manifest, or remove the required privileges from the tool.
 
+### `AssertValuesTrait` deprecated in favour of `ArrayValues`
+
+The test helper trait `\Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait` is deprecated and will be removed in 6.8. Its `assertValues()` method now triggers a deprecation, and throws when the `v6.8.0.0` flag is active. Extension tests that use the trait should call `\Shopware\Core\Test\Assert\ArrayValues::assertValues($expected, $actual)` instead; the comparison is unchanged.
+
 ## API
+
+### Parents without an available variant are not found
+
+`/store-api/product/{productId}` now responds with HTTP 404, like for an inactive product, when the requested product is a parent and none of its variants can be shown: all variants are inactive or not visible in the sales channel, or they are out-of-stock closeouts while `core.listing.hideCloseoutProductsWhenOutOfStock` is active. Previously the parent was returned as a product without a buyable variant, so the storefront rendered a detail page that could not be ordered from.
+
+For the same reason, `/store-api/product/{productId}/cross-selling` no longer returns such a parent in a cross-selling with manually assigned products.
 
 ### Generated document number in the V2 creation response
 
@@ -509,6 +531,19 @@ Shopware.Component.override('sw-cms-list', {
 
 Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
 
+### `$tc` stays available until 6.9 and reports its usages
+
+The removal of `$tc()` was moved from 6.8 to 6.9, so extensions using it keep working with 6.8. `$tc()`, the root instance `$tc()`, and `Shopware.Snippet.tc()` are deprecated in favor of `$t()` and `Shopware.Snippet.t()`.
+
+In development builds, the Administration now logs a deprecation once per component and snippet key that is translated with `$tc()`, naming the component and the replacement call. The deprecations use `Shopware.Feature.triggerDeprecationOrThrow()` with the `V6_9_0_0` major flag.
+
+Calls in the vue-i18n 8 argument order `$t(key, plural, namedParameters)` lost their named parameters since the vue-i18n 10 update. They are now converted to `$t(key, namedParameters, plural)` and reported with a deprecation warning. The conversion will be removed in 6.9.
+
+The ESLint rule `sw-core-rules/no-tc-translation` in the Administration extension tooling reports and autofixes both patterns in JavaScript, TypeScript, Vue templates, and bound attributes of Twig templates. `{{ }}` interpolations in `.html.twig` templates are not checked and have to be migrated manually. The locale argument of `$tc(key, plural, locale)` becomes the `locale` option of `$t(key, plural, { locale })`. Calls whose named parameters are no object literal or contain spread or computed keys, e.g. `$t(key, 1, params)` or `$t(key, 1, { ...params })`, are reported without an autofix. Like the other deprecation rules of the extension tooling, it follows `internalApiSeverity`:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```
 ### Category and product SEO forms show the recommended meta length
 
 The meta title and meta description fields of the category and product SEO forms show how many characters they contain against the recommended length, and highlight the hint when the recommendation is exceeded.

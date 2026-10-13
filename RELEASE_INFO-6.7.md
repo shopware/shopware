@@ -683,6 +683,12 @@ The deliverability card of digital products has a new "Allow multiple units per 
 
 ## Storefront
 
+### Essential characteristics label custom fields with their snippet
+
+Essential characteristics of a product now label a custom field with its `customFields.<name>` snippet, which Shopware creates in every snippet set when the custom field is created. Editing that snippet in Settings > Snippets, or overriding it in a theme's snippet files, changes the label shown in the cart, the off-canvas cart and the checkout. Before, only the label from the custom field's configuration was used and changes to the snippet had no effect.
+
+The label of the custom field's configuration is still used when the snippet is missing or empty, for example in a snippet set that was added after the custom field. Shops that changed the label in Settings > Custom fields without updating the snippet now see the snippet value, which still holds the label from the time the custom field was created. Update the snippet to the new label in this case.
+
 ### Improved extensibility of buy widget form
 
 Extensibility of the `buy-widget-form.html.twig` template has been improved for extension developers. It is now possible to extend `data-add-to-cart-options` and `data-quantity-selector-options` objects via the respective twig variables `addToCartOptions` and `quantitySelectorOptions`. Additionally, the following new blocks have been added to the quantity selector input group:

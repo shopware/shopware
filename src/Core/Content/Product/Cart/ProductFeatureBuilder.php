@@ -25,6 +25,7 @@ use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[Package('inventory')]
 class ProductFeatureBuilder
@@ -32,6 +33,8 @@ class ProductFeatureBuilder
     private const CUSTOM_FIELD_KEY_PREFIX = 'custom-field-';
 
     private const ENTITY_LABEL_KEY_PREFIX = 'custom-field-entity-';
+
+    private const CUSTOM_FIELD_SNIPPET_PREFIX = 'customFields.';
 
     /**
      * @internal
@@ -41,7 +44,8 @@ class ProductFeatureBuilder
     public function __construct(
         private readonly EntityRepository $customFieldRepository,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
-        private readonly DefinitionInstanceRegistry $definitionRegistry
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -616,14 +620,24 @@ class ProductFeatureBuilder
     }
 
     /**
-     * Custom field labels are not translated by the DAL, they are stored inside the field's config,
-     * indexed by locale code. As a label is not required for every language, the language chain of
-     * the context is walked, so a label inherits from the parent language and finally from the
-     * system language, matching how the DAL resolves translated fields. Without a label for any of
-     * them, the technical name is used, the same way a product attribute feature is labelled.
+     * Every custom field owns a `customFields.<name>` snippet in each snippet set, which merchants
+     * and themes maintain like any other storefront text, so that snippet labels the feature. The
+     * translator echoes the key when no snippet set defines it, in which case the label falls back
+     * to the field's config. Those labels are not translated by the DAL, they are stored indexed by
+     * locale code. As a label is not required for every language, the language chain of the context
+     * is walked, so a label inherits from the parent language and finally from the system language,
+     * matching how the DAL resolves translated fields. Without a label for any of them, the technical
+     * name is used, the same way a product attribute feature is labelled.
      */
     private function getCustomFieldLabel(CustomFieldEntity $customField, SalesChannelContext $context): string
     {
+        $snippetKey = self::CUSTOM_FIELD_SNIPPET_PREFIX . $customField->getName();
+        $snippet = $this->translator->trans($snippetKey);
+
+        if ($snippet !== '' && $snippet !== $snippetKey) {
+            return $snippet;
+        }
+
         $labels = $customField->getConfig()['label'] ?? null;
 
         return $this->getTranslatedLabel(\is_array($labels) ? $labels : [], $context) ?? $customField->getName();

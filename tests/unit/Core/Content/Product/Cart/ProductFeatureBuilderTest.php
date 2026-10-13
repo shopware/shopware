@@ -42,6 +42,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\Generator;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
@@ -77,6 +78,8 @@ class ProductFeatureBuilderTest extends TestCase
 
     private Stub&DefinitionInstanceRegistry $definitionRegistry;
 
+    private Stub&TranslatorInterface $translator;
+
     private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
@@ -84,12 +87,15 @@ class ProductFeatureBuilderTest extends TestCase
         $this->customFieldRepository = static::createStub(EntityRepository::class);
         $this->languageLocaleProvider = static::createStub(LanguageLocaleCodeProvider::class);
         $this->definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $this->translator = static::createStub(TranslatorInterface::class);
+        $this->translator->method('trans')->willReturnArgument(0);
         $this->salesChannelContext = Generator::generateSalesChannelContext();
 
         $this->productFeatureBuilder = new ProductFeatureBuilder(
             $this->customFieldRepository,
             $this->languageLocaleProvider,
-            $this->definitionRegistry
+            $this->definitionRegistry,
+            $this->translator,
         );
     }
 
@@ -226,6 +232,34 @@ class ProductFeatureBuilderTest extends TestCase
                 'type' => 'customField',
             ],
         ], $features);
+    }
+
+    public function testCustomFieldLabelPrefersTheSnippetOfTheCustomField(): void
+    {
+        $this->useSnippets(['customFields.custom_material' => 'Holzart']);
+
+        $features = $this->buildCustomFieldFeatures([
+            'en-GB' => 'Material',
+            'de-DE' => 'Werkstoff',
+        ]);
+
+        static::assertSame('Holzart', $features[0]['label']);
+    }
+
+    /**
+     * @param array<string, string> $snippets
+     */
+    #[DataProvider('unusableSnippetProvider')]
+    public function testCustomFieldLabelFallsBackToTheConfigLabelWithoutAUsableSnippet(array $snippets): void
+    {
+        $this->useSnippets($snippets);
+
+        $features = $this->buildCustomFieldFeatures([
+            'en-GB' => 'Material',
+            'de-DE' => 'Werkstoff',
+        ]);
+
+        static::assertSame('Werkstoff', $features[0]['label']);
     }
 
     /**
@@ -416,6 +450,33 @@ class ProductFeatureBuilderTest extends TestCase
         yield 'no label at all' => [[]];
         yield 'no label for any language of the chain' => [['fr-FR' => 'Matériau']];
         yield 'empty system language label' => [['en-GB' => '']];
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string>}>
+     */
+    public static function unusableSnippetProvider(): iterable
+    {
+        yield 'no snippet for the custom field' => [['customFields.custom_other' => 'Sonstiges']];
+        yield 'empty snippet for the custom field' => [['customFields.custom_material' => '']];
+    }
+
+    /**
+     * The translator echoes the key of every snippet that is not defined, as the real translator does.
+     *
+     * @param array<string, string> $snippets
+     */
+    private function useSnippets(array $snippets): void
+    {
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $id): string => $snippets[$id] ?? $id);
+
+        $this->productFeatureBuilder = new ProductFeatureBuilder(
+            $this->customFieldRepository,
+            $this->languageLocaleProvider,
+            $this->definitionRegistry,
+            $translator,
+        );
     }
 
     /**

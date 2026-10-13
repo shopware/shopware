@@ -835,6 +835,64 @@ class AppManagerTest extends TestCase
         ], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
     }
 
+    public function testActivateRollsBackEveryHandlerWhenOneFails(): void
+    {
+        $app = AppFixture::createAppEntity(id: 'test-app', active: false);
+        $appRepository = AppFixture::createAppRepository($app);
+        $failure = new \RuntimeException('handler failed');
+        $calls = [];
+
+        $first = $this->createMock(AbstractLifecycleHandler::class);
+        $first->expects($this->once())->method('activate')
+            ->willReturnCallback(static function () use (&$calls): void { $calls[] = 'first::activate'; });
+        $first->expects($this->once())->method('deactivate')
+            ->willReturnCallback(static function () use (&$calls): void { $calls[] = 'first::deactivate'; });
+
+        $failing = $this->createMock(AbstractLifecycleHandler::class);
+        $failing->expects($this->once())->method('activate')
+            ->willReturnCallback(static function () use (&$calls, $failure): void {
+                $calls[] = 'failing::activate';
+                throw $failure;
+            });
+        $failing->expects($this->once())->method('deactivate')
+            ->willReturnCallback(static function () use (&$calls): void { $calls[] = 'failing::deactivate'; });
+
+        $notReached = $this->createMock(AbstractLifecycleHandler::class);
+        $notReached->expects($this->never())->method('activate');
+        $notReached->expects($this->once())->method('deactivate')
+            ->willReturnCallback(static function () use (&$calls): void { $calls[] = 'notReached::deactivate'; });
+
+        $this->activeAppsLoader->expects($this->once())->method('reset');
+        $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('removeAssets');
+        $this->configReader->expects($this->never())->method('read');
+
+        $caught = null;
+
+        try {
+            $this->createAppManager($appRepository, persisters: [$first, $failing, $notReached])
+                ->activate($app, Context::createDefaultContext());
+        } catch (\RuntimeException $exception) {
+            $caught = $exception;
+        }
+
+        static::assertSame($failure, $caught);
+        static::assertSame(['first::activate', 'failing::activate', 'first::deactivate', 'failing::deactivate', 'notReached::deactivate'], $calls);
+        static::assertFalse($app->isActive());
+        static::assertSame([
+            ['id' => 'test-app', 'active' => true],
+            ['id' => 'test-app', 'active' => false],
+        ], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppDeactivatedEvent::class));
+    }
+
     public function testDeactivateDoesNothingIfAppIsAlreadyInactive(): void
     {
         $app = AppFixture::createAppEntity(id: 'test-app', active: false);

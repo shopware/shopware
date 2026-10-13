@@ -33,6 +33,9 @@ return [
         // Expected to be appended when a new default admin user privilege is added; existing entries are never removed
         preg_quote('Value of constant Shopware\Core\Framework\Api\Context\AdminApiSource::DEFAULT_USER_PRIVILEGES', '/'),
 
+        // Expected to be appended when a new internal route default is added; existing entries are never removed
+        preg_quote('Value of constant Shopware\Core\PlatformRequest::ATTRIBUTE_INTERNAL_ROUTE_PARAMS', '/'),
+
         // swagger-php 6.4 is required for OpenAPI 3.2 generation. The reported
         // BC changes are in the third-party OpenApi\Analysis API. Extensions
         // that only define OpenAPI annotations/attributes continue to work; code
@@ -79,6 +82,11 @@ return [
         preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Cart\Rule\LineItemCreationDateRule#$lineItemCreationDate changed from string|null to string|array|null', '/'),
         preg_quote('REMOVED: Property Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule#$isNet was removed', '/'),
         preg_quote('CHANGED: The return type of Shopware\Core\Framework\Rule\Rule#getConfig() changed from Shopware\Core\Framework\Rule\RuleConfig|null to Shopware\Core\Framework\Rule\RuleConfig', '/'),
+
+        // Rule::getConfig() already permits null. These deprecated implementations keep returning
+        // RuleConfig in 6.7 and only return null when their removal flag v6.8.0.0 is active.
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Cart\Rule\LineItemStockRule#getConfig() changed from Shopware\Core\Framework\Rule\RuleConfig to ', '/') . '(?:the non-covariant )?' . preg_quote('Shopware\Core\Framework\Rule\RuleConfig|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Cart\Rule\LineItemProductStatesRule#getConfig() changed from Shopware\Core\Framework\Rule\RuleConfig to ', '/') . '(?:the non-covariant )?' . preg_quote('Shopware\Core\Framework\Rule\RuleConfig|null', '/'),
 
         // DefinitionValidator is @final; optional parameter added with default [], existing callers are unaffected
         preg_quote('ADDED: Parameter toleratedNonStandardForeignKeys was added to Method validate() of class Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator', '/'),

@@ -115,7 +115,8 @@ class EventTelemetryFlowTest extends TestCase
                 && ($listener[0] ?? null) instanceof TelemetryFlushListener
         );
 
-        static::assertNotEmpty(
+        static::assertNotCount(
+            0,
             $matchingListeners,
             \sprintf(
                 'TelemetryFlushListener must be subscribed to "%s" so push transports get a chance to flush '

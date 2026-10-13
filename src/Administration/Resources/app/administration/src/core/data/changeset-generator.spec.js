@@ -4,6 +4,8 @@
 
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
+import Entity from 'src/core/data/entity.data';
+import EntityCollection from 'src/core/data/entity-collection.data';
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 
 const changesetGenerator = new ChangesetGenerator();
@@ -356,6 +358,138 @@ describe('src/core/data/changeset-generator.data.js', () => {
 
             expect(changes.optionalNote).toBeNull();
             expect(changes.plainName).toBeNull();
+        });
+    });
+
+    describe('to-many associations which were not loaded', () => {
+        const parentId = 'parent-id';
+
+        function createCollection(entities = []) {
+            return new EntityCollection('/missing-association-child', 'missing_association_child', null, null, entities);
+        }
+
+        function createChild(id) {
+            return new Entity(id, 'missing_association_child', { id, name: 'Child' });
+        }
+
+        beforeAll(() => {
+            const toMany = {
+                oneToMany: {
+                    type: 'association',
+                    relation: 'one_to_many',
+                    entity: 'missing_association_child',
+                    flags: { cascade_delete: true },
+                    primary: 'id',
+                    referenceField: 'parentId',
+                },
+                manyToMany: {
+                    type: 'association',
+                    relation: 'many_to_many',
+                    entity: 'missing_association_child',
+                    mapping: 'missing_association_parent_child',
+                    local: 'parentId',
+                    reference: 'childId',
+                    flags: {},
+                },
+            };
+
+            Shopware.EntityDefinition.add('missing_association_parent', {
+                entity: 'missing_association_parent',
+                properties: {
+                    id: { type: 'uuid', flags: { primary_key: true, required: true } },
+                    name: { type: 'string', flags: {} },
+                    ...toMany,
+                    oneToManyExtension: { ...toMany.oneToMany, flags: { extension: true, cascade_delete: true } },
+                    manyToManyExtension: { ...toMany.manyToMany, flags: { extension: true } },
+                },
+            });
+
+            Shopware.EntityDefinition.add('missing_association_child', {
+                entity: 'missing_association_child',
+                properties: {
+                    id: { type: 'uuid', flags: { primary_key: true, required: true } },
+                    name: { type: 'string', flags: {} },
+                    children: { ...toMany.oneToMany },
+                },
+            });
+        });
+
+        it('generates the changeset of the loaded fields', () => {
+            const parent = new Entity(parentId, 'missing_association_parent', {
+                id: parentId,
+                name: 'Ada',
+                extensions: {},
+            });
+            parent.name = 'Grace';
+
+            const { changes, deletionQueue } = changesetGenerator.generate(parent);
+
+            expect(changes).toEqual({ id: parentId, name: 'Grace' });
+            expect(deletionQueue).toEqual([]);
+        });
+
+        it('treats every entity of a collection added to an unloaded association as new', () => {
+            const parent = new Entity(parentId, 'missing_association_parent', {
+                id: parentId,
+                extensions: {},
+            });
+            parent.oneToMany = createCollection([createChild('child-1')]);
+            parent.manyToMany = createCollection([createChild('child-2')]);
+            parent.extensions.oneToManyExtension = createCollection([createChild('child-3')]);
+            parent.extensions.manyToManyExtension = createCollection([createChild('child-4')]);
+
+            const { changes, deletionQueue } = changesetGenerator.generate(parent);
+
+            expect(changes).toEqual({
+                id: parentId,
+                oneToMany: [{ id: 'child-1' }],
+                manyToMany: [{ id: 'child-2' }],
+                oneToManyExtension: [{ id: 'child-3' }],
+                manyToManyExtension: [{ id: 'child-4' }],
+            });
+            expect(deletionQueue).toEqual([]);
+        });
+
+        it('does not delete loaded associated entities when the draft collection is missing', () => {
+            const parent = new Entity(
+                parentId,
+                'missing_association_parent',
+                { id: parentId, oneToMany: null, manyToMany: null, extensions: {} },
+                {
+                    originData: {
+                        id: parentId,
+                        oneToMany: createCollection([createChild('child-1')]),
+                        manyToMany: createCollection([createChild('child-2')]),
+                        extensions: {
+                            oneToManyExtension: createCollection([createChild('child-3')]),
+                            manyToManyExtension: createCollection([createChild('child-4')]),
+                        },
+                    },
+                },
+            );
+
+            const { changes, deletionQueue } = changesetGenerator.generate(parent);
+
+            expect(changes).toBeNull();
+            expect(deletionQueue).toEqual([]);
+        });
+
+        it('generates the changeset of a nested entity whose own association was not loaded', () => {
+            const child = createChild('child-1');
+            const parent = new Entity(parentId, 'missing_association_parent', {
+                id: parentId,
+                oneToMany: createCollection([child]),
+                extensions: {},
+            });
+            child.name = 'Changed';
+
+            const { changes, deletionQueue } = changesetGenerator.generate(parent);
+
+            expect(changes).toEqual({
+                id: parentId,
+                oneToMany: [{ id: 'child-1', name: 'Changed' }],
+            });
+            expect(deletionQueue).toEqual([]);
         });
     });
 });

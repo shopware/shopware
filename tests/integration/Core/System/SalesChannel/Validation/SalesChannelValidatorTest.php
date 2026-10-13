@@ -571,14 +571,14 @@ class SalesChannelValidatorTest extends TestCase
     /**
      * @return iterable<string, array{string}>
      */
-    public static function currencyExcludedSalesChannelTypeProvider(): iterable
+    public static function nonTransactionalSalesChannelTypeProvider(): iterable
     {
         yield 'product comparison' => [Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON];
         yield 'agentic commerce' => [Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE];
     }
 
-    #[DataProvider('currencyExcludedSalesChannelTypeProvider')]
-    public function testExcludedSalesChannelTypeSucceedsWithoutDefaultCurrencyInCurrencyList(string $typeId): void
+    #[DataProvider('nonTransactionalSalesChannelTypeProvider')]
+    public function testNonTransactionalSalesChannelTypeSucceedsWithoutDefaultCurrencyInCurrencyList(string $typeId): void
     {
         $id = Uuid::randomHex();
         $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]);
@@ -591,6 +591,26 @@ class SalesChannelValidatorTest extends TestCase
             ->fetchOne('SELECT COUNT(*) FROM sales_channel_currency WHERE sales_channel_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 
         static::assertSame(0, $count);
+    }
+
+    public function testPluginSalesChannelTypeWithoutRegistrationSucceedsWithoutDefaultCurrencyInCurrencyList(): void
+    {
+        $pluginTypeId = Uuid::randomHex();
+        static::getContainer()->get('sales_channel_type.repository')->create([
+            ['id' => $pluginTypeId, 'name' => 'Plugin feed'],
+        ], Context::createDefaultContext());
+
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelWithoutCurrencies = $this->getSalesChannelData($salesChannelId, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]);
+        $salesChannelWithoutCurrencies['typeId'] = $pluginTypeId;
+        $salesChannelWithoutCurrencies['currencies'] = [];
+
+        $this->getSalesChannelRepository()->create([$salesChannelWithoutCurrencies], Context::createDefaultContext());
+
+        $currencyAssignmentCount = (int) static::getContainer()->get(Connection::class)
+            ->fetchOne('SELECT COUNT(*) FROM sales_channel_currency WHERE sales_channel_id = :id', ['id' => Uuid::fromHexToBytes($salesChannelId)]);
+
+        static::assertSame(0, $currencyAssignmentCount);
     }
 
     /**

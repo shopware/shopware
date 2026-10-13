@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Mime\Email;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('after-sales')]
@@ -22,6 +23,7 @@ class MailErrorEvent extends Event implements LogAware, ScalarValuesAware, FlowE
 
     /**
      * @param array<string, mixed> $templateData
+     * @param array<string, mixed>|null $data the mail data passed to the mail service, e.g. `subject`, `recipients` and `templateId`
      */
     public function __construct(
         private readonly Context $context,
@@ -29,7 +31,9 @@ class MailErrorEvent extends Event implements LogAware, ScalarValuesAware, FlowE
         private readonly ?\Throwable $throwable = null,
         private readonly ?string $message = null,
         private readonly ?string $template = null,
-        private readonly ?array $templateData = []
+        private readonly ?array $templateData = [],
+        private readonly ?array $data = null,
+        private readonly ?Email $mail = null,
     ) {
         $this->logLevel = $logLevel ?? Level::Debug;
     }
@@ -111,5 +115,42 @@ class MailErrorEvent extends Event implements LogAware, ScalarValuesAware, FlowE
     public function getTemplateData(): ?array
     {
         return $this->templateData;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getData(): ?array
+    {
+        return $this->data;
+    }
+
+    /**
+     * The mail as far as it was built when the error occurred, `null` if the error happened before.
+     */
+    public function getMail(): ?Email
+    {
+        return $this->mail;
+    }
+
+    public function getEventName(): ?string
+    {
+        $eventName = $this->templateData['eventName'] ?? null;
+
+        return \is_string($eventName) ? $eventName : null;
+    }
+
+    public function getTemplateId(): ?string
+    {
+        $templateId = $this->data['templateId'] ?? null;
+
+        return \is_string($templateId) ? $templateId : null;
+    }
+
+    public function getSalesChannelId(): ?string
+    {
+        $salesChannelId = $this->data['salesChannelId'] ?? null;
+
+        return \is_string($salesChannelId) ? $salesChannelId : null;
     }
 }

@@ -21,7 +21,7 @@ class Client implements ResetInterface
     private readonly string $registryUrl;
 
     /**
-     * @var list<ServiceEntry>
+     * @var array<ServiceEntry>
      */
     private ?array $services = null;
 
@@ -76,7 +76,7 @@ class Client implements ResetInterface
      * Every service of the registry's versioned list, including retired ones and ones whose status this version doesn't
      * know (status null). To act on services, use getActive() or getRetired().
      *
-     * @return list<ServiceEntry>
+     * @return array<ServiceEntry>
      */
     public function getAll(): array
     {

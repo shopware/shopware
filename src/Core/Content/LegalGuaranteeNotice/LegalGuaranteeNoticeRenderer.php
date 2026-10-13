@@ -18,6 +18,8 @@ class LegalGuaranteeNoticeRenderer
 
     private const LINK_BASE_URL = 'https://europa.eu/youreurope/';
 
+    private const GARAN_LABEL_LINK_URL = 'https://europa.eu/youreurope/citizens/consumers/shopping/commercial-guarantee-durability/index_%s.htm';
+
     /**
      * "Your Europe" guarantees page slug per locale, published by the European Commission.
      */
@@ -64,6 +66,11 @@ class LegalGuaranteeNoticeRenderer
         $locale = $this->resolveLocale($languageId);
 
         return self::LINK_BASE_URL . rawurlencode(self::LOCALE_LINK_SLUGS[$locale]);
+    }
+
+    public function garanLabelLinkForLanguage(string $languageId): string
+    {
+        return \sprintf(self::GARAN_LABEL_LINK_URL, $this->resolveLocale($languageId));
     }
 
     private function resolveLocale(string $languageId): string

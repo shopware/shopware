@@ -63,6 +63,7 @@ use Shopware\Core\Content\Flow\Indexing\FlowPayloadUpdater;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
 use Shopware\Core\Content\Flow\Rule\OrderCreatedByAdminRule;
 use Shopware\Core\Content\Flow\Rule\OrderCustomFieldRule;
+use Shopware\Core\Content\Flow\Rule\OrderDaysSincePlacedRule;
 use Shopware\Core\Content\Flow\Rule\OrderDeliveryStatusRule;
 use Shopware\Core\Content\Flow\Rule\OrderDocumentTypeRule;
 use Shopware\Core\Content\Flow\Rule\OrderDocumentTypeSentRule;
@@ -440,6 +441,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.rule.definition');
 
     $services->set(OrderTrackingCodeRule::class)
+        ->tag('shopware.rule.definition');
+
+    $services->set(OrderDaysSincePlacedRule::class)
         ->tag('shopware.rule.definition');
 
     $services->set(OrderDeliveryStatusRule::class)

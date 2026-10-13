@@ -64,6 +64,27 @@ class TaxDetectorTest extends TestCase
         static::assertFalse($detector->isCompanyTaxFree($context, $country));
     }
 
+    public function testIsCompanyTaxFreeWithEuCountryAndVatIdWithTrailingNewline(): void
+    {
+        $country = (new CountryEntity())->assign([
+            'companyTax' => new TaxFreeConfig(true),
+            'isEu' => true,
+            'vatIdPattern' => '(DE)?[0-9]{9}',
+            'checkVatIdPattern' => true,
+        ]);
+
+        $customer = (new CustomerEntity())->assign([
+            'company' => 'EU Company',
+            'vatIds' => ["DE123456789\n"],
+        ]);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+
+        $detector = new TaxDetector();
+        static::assertFalse($detector->isCompanyTaxFree($context, $country));
+    }
+
     public function testGetDecoratedThrowsDecorationPatternException(): void
     {
         $detector = new TaxDetector();

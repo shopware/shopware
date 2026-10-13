@@ -76,7 +76,7 @@ class ShippingMethodRouteTest extends TestCase
         static::assertSame(3, $response['total']);
         static::assertContains($this->ids->get('shipping'), $ids);
         static::assertContains($this->ids->get('shipping2'), $ids);
-        static::assertEmpty($response['elements'][0]['availabilityRule']);
+        static::assertNull($response['elements'][0]['availabilityRule']);
 
         $traces = $this->browser->getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
@@ -231,7 +231,8 @@ class ShippingMethodRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
 
         static::assertSame(3, $response['total']);
-        static::assertNotEmpty($response['elements'][0]['availabilityRule']);
+        static::assertIsArray($response['elements'][0]['availabilityRule']);
+        static::assertNotCount(0, $response['elements'][0]['availabilityRule']);
     }
 
     public static function httpMethodProvider(): \Generator

@@ -47,7 +47,7 @@ class LoggingServiceTest extends TestCase
         static::assertSame(TestFlowBusinessEvent::EVENT_NAME, $testRecord->message);
         static::assertSame('test', $testRecord->context['environment']);
         static::assertSame(Level::Debug, $testRecord->level);
-        static::assertEmpty($testRecord->context['additionalData']);
+        static::assertSame([], $testRecord->context['additionalData']);
     }
 
     public function testWriteMailSendLogEvents(): void
@@ -81,7 +81,7 @@ class LoggingServiceTest extends TestCase
         $testRecord = $this->getRecord($handler);
 
         static::assertSame(Level::Emergency, $testRecord->level);
-        static::assertNotEmpty($testRecord->context['additionalData']);
+        static::assertIsArray($testRecord->context['additionalData']);
         static::assertArrayHasKey('awesomekey', $testRecord->context['additionalData']);
         static::assertSame('awesomevalue', $testRecord->context['additionalData']['awesomekey']);
     }

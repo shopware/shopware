@@ -72,7 +72,7 @@ class XmlParserUtilsTest extends TestCase
 
         $result = XmlParserUtils::parseChildren($element);
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testParseChildrenAsList(): void
@@ -104,7 +104,7 @@ class XmlParserUtilsTest extends TestCase
 
         $result = XmlParserUtils::parseChildrenAsList($element);
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testParseChildrenAndTranslate(): void

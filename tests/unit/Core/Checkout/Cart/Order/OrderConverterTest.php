@@ -251,7 +251,7 @@ class OrderConverterTest extends TestCase
 
         $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), $orderConversionContext);
 
-        static::assertEmpty($result['deliveries']);
+        static::assertCount(0, $result['deliveries']);
     }
 
     public function testConvertToOrderShouldNotContainDeliveriesWithNoAddressButHaveOriginalAddressId(): void
@@ -272,7 +272,7 @@ class OrderConverterTest extends TestCase
 
         $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), $orderConversionContext);
 
-        static::assertNotEmpty($result['deliveries']);
+        static::assertNotCount(0, $result['deliveries']);
     }
 
     public function testConvertToOrderWithDeliveries(): void

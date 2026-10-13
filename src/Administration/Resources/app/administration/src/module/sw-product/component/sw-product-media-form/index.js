@@ -58,8 +58,12 @@ export default {
             return state.product;
         },
 
+        galleryItems() {
+            return this.productMedia.slice();
+        },
+
         mediaItems() {
-            const mediaItems = this.productMedia.slice();
+            const mediaItems = this.galleryItems.slice();
             const placeholderCount = this.getPlaceholderCount(this.columnCount);
 
             if (placeholderCount === 0) {
@@ -156,14 +160,14 @@ export default {
         },
 
         getPlaceholderCount(columnCount) {
-            if (this.productMedia.length + 3 < columnCount * 2) {
+            if (this.galleryItems.length + 3 < columnCount * 2) {
                 columnCount *= 2;
             }
 
             let placeholderCount = columnCount;
 
-            if (this.productMedia.length !== 0) {
-                placeholderCount = columnCount - (this.productMedia.length % columnCount);
+            if (this.galleryItems.length !== 0) {
+                placeholderCount = columnCount - (this.galleryItems.length % columnCount);
                 if (placeholderCount === columnCount) {
                     return 0;
                 }
@@ -306,8 +310,7 @@ export default {
             this.product.cover = productMedia;
             this.product.coverId = productMedia.id;
 
-            this.product.media.moveItem(productMedia.position, 0);
-            this.updateMediaItemPositions();
+            this.moveGalleryItem(productMedia, 0);
         },
 
         onDropMedia(dragData) {
@@ -335,8 +338,11 @@ export default {
                 return;
             }
 
-            this.product.media.moveItem(dragData.position, dropData.position);
+            this.moveGalleryItem(dragData, dropData.position);
+        },
 
+        moveGalleryItem(item, position) {
+            this.product.media.moveItem(item.position, position);
             this.updateMediaItemPositions();
         },
 

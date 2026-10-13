@@ -308,7 +308,7 @@ class TranslationControllerTest extends TestCase
         $response = $this->createController(translationRemover: $translationRemover)->delete('fr-FR');
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        static::assertEmpty($response->getContent());
+        static::assertSame('', $response->getContent());
     }
 
     public function testDeleteThrowsOnInvalidLocale(): void

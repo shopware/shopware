@@ -614,6 +614,28 @@ export default {
                         disabled: this.bulkEditProduct?.guaranteeConfirmed?.isInherited,
                     },
                 },
+                {
+                    name: 'guaranteeTermsMediaId',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'sw-media-field',
+                        fileAccept: 'application/pdf',
+                        defaultFolder: 'product',
+                        changeLabel: this.$t('sw-bulk-edit.product.guarantee.guaranteeTermsMedia.changeLabel'),
+                        disabled: this.bulkEditProduct?.guaranteeTermsMediaId?.isInherited,
+                    },
+                },
+                {
+                    name: 'guaranteeTermsUrl',
+                    type: 'text',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'mt-text-field',
+                        changeLabel: this.$t('sw-bulk-edit.product.guarantee.guaranteeTermsUrl.changeLabel'),
+                        placeholder: 'https://',
+                        disabled: this.bulkEditProduct?.guaranteeTermsUrl?.isInherited,
+                    },
+                },
             ];
         },
 

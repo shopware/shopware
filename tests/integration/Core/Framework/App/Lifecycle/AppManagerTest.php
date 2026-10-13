@@ -49,8 +49,8 @@ use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -74,8 +74,6 @@ class AppManagerTest extends TestCase
      */
     private EntityRepository $actionButtonRepository;
 
-    private EventDispatcherInterface $eventDispatcher;
-
     private Connection $connection;
 
     protected function setUp(): void
@@ -90,8 +88,6 @@ class AppManagerTest extends TestCase
         $source->setIsAdmin(true);
         $this->context = Context::createDefaultContext($source);
 
-        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
-
         $cache = static::getContainer()->get('cache.object');
         $item = $cache->getItem(ScriptLoader::CACHE_KEY);
         $cache->save(CacheCompressor::compress($item, []));
@@ -102,14 +98,10 @@ class AppManagerTest extends TestCase
     public function testInstall(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
-        $eventWasReceived = false;
-        $appId = null;
-        $onAppInstalled = static function (AppInstalledEvent $event) use (&$eventWasReceived, &$appId, $manifest): void {
-            $eventWasReceived = true;
-            $appId = $event->getApp()->getId();
-            static::assertSame($manifest, $event->getManifest());
-        };
-        $this->eventDispatcher->addListener(AppInstalledEvent::class, $onAppInstalled);
+        $installedEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppInstalledEvent::class, static function (AppInstalledEvent $event) use (&$installedEvent): void {
+            $installedEvent = $event;
+        });
 
         $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
@@ -117,8 +109,9 @@ class AppManagerTest extends TestCase
         static::assertArrayHasKey(AppInstalledHook::HOOK_NAME, $traces);
         static::assertSame('installed', $traces[AppInstalledHook::HOOK_NAME][0]['output'][0]);
 
-        static::assertTrue($eventWasReceived);
-        $this->eventDispatcher->removeListener(AppInstalledEvent::class, $onAppInstalled);
+        static::assertInstanceOf(AppInstalledEvent::class, $installedEvent);
+        static::assertSame($manifest, $installedEvent->getManifest());
+        $appId = $installedEvent->getApp()->getId();
         $criteria = new Criteria();
         $criteria->addAssociation('integration');
         $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
@@ -413,13 +406,10 @@ class AppManagerTest extends TestCase
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
-        $eventWasReceived = false;
-        $onAppUpdated = static function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
-            $eventWasReceived = true;
-            static::assertSame($id, $event->getApp()->getId());
-            static::assertSame($manifest, $event->getManifest());
-        };
-        $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
+        $updatedEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppUpdatedEvent::class, static function (AppUpdatedEvent $event) use (&$updatedEvent): void {
+            $updatedEvent = $event;
+        });
 
         $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
 
@@ -427,8 +417,9 @@ class AppManagerTest extends TestCase
         static::assertArrayHasKey(AppUpdatedHook::HOOK_NAME, $traces);
         static::assertSame('updated', $traces[AppUpdatedHook::HOOK_NAME][0]['output'][0]);
 
-        static::assertTrue($eventWasReceived);
-        $this->eventDispatcher->removeListener(AppUpdatedEvent::class, $onAppUpdated);
+        static::assertInstanceOf(AppUpdatedEvent::class, $updatedEvent);
+        static::assertSame($id, $updatedEvent->getApp()->getId());
+        static::assertSame($manifest, $updatedEvent->getManifest());
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
@@ -571,13 +562,10 @@ class AppManagerTest extends TestCase
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
-        $eventWasReceived = false;
-        $onAppUpdated = static function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
-            $eventWasReceived = true;
-            static::assertSame($id, $event->getApp()->getId());
-            static::assertSame($manifest, $event->getManifest());
-        };
-        $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
+        $updatedEvent = null;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppUpdatedEvent::class, static function (AppUpdatedEvent $event) use (&$updatedEvent): void {
+            $updatedEvent = $event;
+        });
 
         $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
 
@@ -585,8 +573,9 @@ class AppManagerTest extends TestCase
         static::assertArrayHasKey(AppUpdatedHook::HOOK_NAME, $traces);
         static::assertSame('updated', $traces[AppUpdatedHook::HOOK_NAME][0]['output'][0]);
 
-        static::assertTrue($eventWasReceived);
-        $this->eventDispatcher->removeListener(AppUpdatedEvent::class, $onAppUpdated);
+        static::assertInstanceOf(AppUpdatedEvent::class, $updatedEvent);
+        static::assertSame($id, $updatedEvent->getApp()->getId());
+        static::assertSame($manifest, $updatedEvent->getManifest());
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
@@ -913,10 +902,9 @@ class AppManagerTest extends TestCase
         ];
 
         $deletedAppIds = [];
-        $onAppDeleted = static function (AppDeletedEvent $event) use (&$deletedAppIds): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppDeletedEvent::class, static function (AppDeletedEvent $event) use (&$deletedAppIds): void {
             $deletedAppIds[] = $event->getAppId();
-        };
-        $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
+        });
 
         $this->appManager->uninstall($this->loadApp($app['id']), $this->context);
 
@@ -925,7 +913,6 @@ class AppManagerTest extends TestCase
         static::assertSame('deleted', $traces[AppDeletedHook::HOOK_NAME][0]['output'][0]);
 
         static::assertSame([$appId], $deletedAppIds);
-        $this->eventDispatcher->removeListener(AppDeletedEvent::class, $onAppDeleted);
         $apps = $this->appRepository->searchIds(new Criteria([$appId]), $this->context)->getIds();
         static::assertCount(0, $apps);
 

@@ -233,6 +233,81 @@ class WebhookHealthTickTest extends TestCase
         ));
     }
 
+    public function testTickCancelsAHeldRowAgedPastTheGraceWindowAndReleasesTheNextOldest(): void
+    {
+        $this->createWebhook('wh-1');
+        $this->insertHealth('wh-1', EndpointState::Degraded, cooldownUntil: new \DateTimeImmutable('-1 hour'), transientFailures: 5);
+        $this->createDelivery('evt-old', 'wh-1', WebhookEventLogDefinition::STATUS_PAUSED);
+        $this->createDelivery('evt-fresh', 'wh-1', WebhookEventLogDefinition::STATUS_PAUSED);
+        $this->ageDeliveryRow('evt-old', '-25 hours');
+        $this->ageDeliveryRow('evt-fresh', '-23 hours');
+
+        $this->service->tick();
+
+        $this->assertDeliveryDeleted('evt-old');
+        $this->assertEventLogStatus('evt-old', WebhookEventLogDefinition::STATUS_FAILED);
+        $this->assertFailureReason('evt-old', WebhookOutboxStore::CANCEL_REASON_HELD_EXPIRED);
+
+        $this->assertDeliveryStatus('evt-fresh', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+        $this->assertEventLogStatus('evt-fresh', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+    }
+
+    public function testTickReleasesASuspendedWebhooksOldestHeldRowButNeverIdlePromotesIt(): void
+    {
+        $suspendedSince = new \DateTimeImmutable('-1 day');
+        $this->createWebhook('wh-held', active: false, errorCount: 3);
+        $this->insertHealth('wh-held', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('-1 hour'), nonTransientFailures: 3, suspendedSince: $suspendedSince);
+        $this->createDelivery('evt-oldest', 'wh-held', WebhookEventLogDefinition::STATUS_PAUSED);
+        $this->createDelivery('evt-younger', 'wh-held', WebhookEventLogDefinition::STATUS_PAUSED);
+
+        $this->createWebhook('wh-idle', active: false, errorCount: 3);
+        $this->insertHealth('wh-idle', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('-1 hour'), nonTransientFailures: 3, suspendedSince: $suspendedSince);
+
+        $this->service->tick();
+
+        $this->assertDeliveryStatus('evt-oldest', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+        $this->assertEventLogStatus('evt-oldest', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+        $this->assertNextRetryAtIsNow('evt-oldest');
+        $this->assertDeliveryStatus('evt-younger', WebhookEventLogDefinition::STATUS_PAUSED);
+        static::assertSame(EndpointState::Suspended->value, $this->fetchEndpointState('wh-held'));
+        static::assertSame(0, $this->fetchDegradedCycleCount('wh-held'));
+
+        static::assertSame(EndpointState::Suspended->value, $this->fetchEndpointState('wh-idle'));
+        static::assertNotNull($this->fetchHealthTimestamp('wh-idle', 'suspended_since'));
+    }
+
+    public function testTickCancelsClaimableRowsBeyondTheOldestOnASuspendedWebhook(): void
+    {
+        $this->createWebhook('wh-1', active: false, errorCount: 3);
+        $this->insertHealth('wh-1', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('+1 hour'), nonTransientFailures: 3, suspendedSince: new \DateTimeImmutable('-1 day'));
+        $this->createDelivery('evt-oldest', 'wh-1', WebhookEventLogDefinition::STATUS_QUEUED);
+        $this->createDelivery('evt-surplus', 'wh-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+
+        $this->service->tick();
+
+        $this->assertDeliveryStatus('evt-oldest', WebhookEventLogDefinition::STATUS_QUEUED);
+
+        $this->assertDeliveryDeleted('evt-surplus');
+        $this->assertEventLogStatus('evt-surplus', WebhookEventLogDefinition::STATUS_FAILED);
+        $this->assertFailureReason('evt-surplus', WebhookOutboxStore::CANCEL_REASON_SUSPENDED);
+    }
+
+    public function testTickCancelsAllClaimableRowsWhenARunningRowExistsOnASuspendedWebhook(): void
+    {
+        $this->createWebhook('wh-1', active: false, errorCount: 3);
+        $this->insertHealth('wh-1', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('+1 hour'), nonTransientFailures: 3, suspendedSince: new \DateTimeImmutable('-1 day'));
+        $this->createDelivery('evt-running', 'wh-1', WebhookEventLogDefinition::STATUS_RUNNING);
+        $this->createDelivery('evt-claimable', 'wh-1', WebhookEventLogDefinition::STATUS_QUEUED);
+
+        $this->service->tick();
+
+        $this->assertDeliveryStatus('evt-running', WebhookEventLogDefinition::STATUS_RUNNING);
+
+        $this->assertDeliveryDeleted('evt-claimable');
+        $this->assertEventLogStatus('evt-claimable', WebhookEventLogDefinition::STATUS_FAILED);
+        $this->assertFailureReason('evt-claimable', WebhookOutboxStore::CANCEL_REASON_SUSPENDED);
+    }
+
     private function createWebhook(string $webhookKey, bool $active = true, int $errorCount = 0, ?string $appId = null): void
     {
         $this->connection->insert('webhook', [
@@ -300,6 +375,17 @@ class WebhookHealthTickTest extends TestCase
         return $entry;
     }
 
+    private function ageDeliveryRow(string $eventKey, string $modifier): void
+    {
+        $this->connection->executeStatement(
+            'UPDATE webhook_delivery SET created_at = :createdAt WHERE webhook_event_log_id = :id',
+            [
+                'createdAt' => (new \DateTimeImmutable($modifier))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'id' => $this->ids->getBytes($eventKey),
+            ]
+        );
+    }
+
     private function assertDeliveryStatus(string $eventKey, string $expectedStatus): void
     {
         $status = $this->connection->fetchOne(
@@ -318,6 +404,15 @@ class WebhookHealthTickTest extends TestCase
         static::assertSame($expectedStatus, $status);
     }
 
+    private function assertFailureReason(string $eventKey, string $expectedReason): void
+    {
+        $reason = $this->connection->fetchOne(
+            'SELECT failure_reason FROM webhook_event_log WHERE id = :id',
+            ['id' => $this->ids->getBytes($eventKey)]
+        );
+        static::assertSame($expectedReason, $reason);
+    }
+
     private function assertNextRetryAtIsNow(string $eventKey): void
     {
         $nextRetryAt = $this->connection->fetchOne(
@@ -330,6 +425,15 @@ class WebhookHealthTickTest extends TestCase
             (new \DateTimeImmutable($nextRetryAt))->getTimestamp(),
             5,
         );
+    }
+
+    private function assertDeliveryDeleted(string $eventKey): void
+    {
+        $exists = $this->connection->fetchOne(
+            'SELECT 1 FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes($eventKey)]
+        );
+        static::assertFalse($exists, 'Expected delivery row to be deleted');
     }
 
     private function assertCooldownAbout(string $webhookKey, int $secondsFromNow): void

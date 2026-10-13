@@ -5,10 +5,12 @@ namespace Shopware\Core\Framework\Plugin;
 use Composer\IO\NullIO;
 use GuzzleHttp\Client;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\App\AppUploadService;
 use Shopware\Core\Framework\App\Event\AppUploadedEvent;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Event\PluginManagementEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginUploadedEvent;
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
@@ -34,13 +36,19 @@ class PluginManagementService
         private readonly Filesystem $filesystem,
         private readonly CacheClearer $cacheClearer,
         private readonly Client $client,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ?AppUploadService $appUploadService = null,
     ) {
     }
 
     public function extractPluginZip(string $file, bool $delete = true, ?string $storeType = null): string
     {
-        if ($storeType) {
+        if ($storeType !== null) {
+            $this->eventDispatcher->dispatch(new PluginManagementEvent(
+                PluginManagementEvent::OPERATION_EXTRACT,
+                $storeType,
+                true,
+            ));
             $this->extensionExtractor->extract($file, $delete, $storeType);
             if ($storeType === self::PLUGIN) {
                 $this->cacheClearer->clearContainerCache();
@@ -50,6 +58,7 @@ class PluginManagementService
         }
 
         $type = $this->pluginZipDetector->detect($file);
+        $this->dispatchManagementEvent(PluginManagementEvent::OPERATION_EXTRACT, $type);
 
         match ($type) {
             self::PLUGIN => $this->extractPlugin($file, $delete),
@@ -59,8 +68,34 @@ class PluginManagementService
         return $type;
     }
 
-    public function uploadPlugin(UploadedFile $file, Context $context): void
-    {
+    public function uploadPlugin(
+        UploadedFile $file,
+        Context $context,
+        bool $acceptPermissions = false,
+        ?string $expectedAppName = null,
+        ?bool $updateOnly = false,
+    ): void {
+        $detectedType = $this->pluginZipDetector->detect($file->getPathname());
+        if ($detectedType === self::APP && $this->appUploadService !== null) {
+            $metadata = $this->readUploadMetadata($file->getPathname(), $detectedType);
+            $this->dispatchManagementEvent(PluginManagementEvent::OPERATION_UPLOAD, $detectedType);
+            $this->appUploadService->upload(
+                $file,
+                $context,
+                acceptPermissions: $acceptPermissions,
+                expectedAppName: $expectedAppName,
+                updateOnly: $updateOnly,
+            );
+            $this->eventDispatcher->dispatch(new AppUploadedEvent(
+                $file->getClientOriginalName(),
+                $context,
+                $metadata['name'],
+                $metadata['version']
+            ));
+
+            return;
+        }
+
         $tempFileName = tempnam(sys_get_temp_dir(), $file->getClientOriginalName());
         if (!\is_string($tempFileName)) {
             throw PluginException::cannotCreateTemporaryDirectory(sys_get_temp_dir(), $file->getClientOriginalName());
@@ -73,6 +108,8 @@ class PluginManagementService
 
         $type = $this->pluginZipDetector->detect($tempFile->getPathname());
         $metadata = $this->readUploadMetadata($tempFile->getPathname(), $type);
+        $this->dispatchManagementEvent(PluginManagementEvent::OPERATION_UPLOAD, $type);
+
         $this->extractPluginZip($tempFile->getPathname(), storeType: $type);
 
         if ($type === self::PLUGIN) {
@@ -100,6 +137,8 @@ class PluginManagementService
             throw PluginException::storeNotAvailable();
         }
 
+        $this->dispatchManagementEvent(PluginManagementEvent::OPERATION_DOWNLOAD, $location->getType());
+
         $this->extractPluginZip($tempFileName, true, $location->getType());
 
         if ($location->getType() === self::PLUGIN) {
@@ -109,6 +148,8 @@ class PluginManagementService
 
     public function deletePlugin(PluginEntity $plugin, Context $context): void
     {
+        $this->dispatchManagementEvent(PluginManagementEvent::OPERATION_DELETE, self::PLUGIN);
+
         // when `executeComposerCommands` is set to true `managedByComposer` will be true even for plugins installed via the admin
         // so we need to check the path as well and allow removal of plugins in `custom/plugins` folder
         if ($plugin->getManagedByComposer() && !$plugin->isLocatedInCustomPluginDirectory()) {
@@ -119,6 +160,11 @@ class PluginManagementService
         $this->filesystem->remove($path);
 
         $this->pluginService->refreshPlugins($context, new NullIO());
+    }
+
+    private function dispatchManagementEvent(string $operation, string $extensionType): void
+    {
+        $this->eventDispatcher->dispatch(new PluginManagementEvent($operation, $extensionType));
     }
 
     /**

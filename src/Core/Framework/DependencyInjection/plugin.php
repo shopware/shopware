@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
+use Shopware\Core\Framework\App\AppUploadService;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -158,6 +159,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheClearer::class),
             service('shopware.store_download_client'),
             service('event_dispatcher'),
+            service(AppUploadService::class),
         ]);
 
     $services->set(ExtensionExtractor::class)

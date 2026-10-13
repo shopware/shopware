@@ -47,7 +47,18 @@ class SourceResolver implements ResetInterface
     {
         foreach ($this->sources as $source) {
             if ($source->supports($manifest)) {
-                return $source->name();
+                return $source instanceof NamedSource ? $source->sourceType() : $source->name();
+            }
+        }
+
+        throw AppException::noSourceSupports();
+    }
+
+    public function uploadSourceForManifest(Manifest $manifest): UploadSource
+    {
+        foreach ($this->sources as $source) {
+            if ($source instanceof UploadSource && $source->supports($manifest)) {
+                return $source;
             }
         }
 

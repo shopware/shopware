@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Source\Local;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -65,6 +66,34 @@ class LocalTest extends TestCase
         $source = new Local('/');
 
         static::assertFalse($source->supports($manifest));
+    }
+
+    public function testCanRestoreAnAppDirectoryFromItsUploadBackup(): void
+    {
+        $projectRoot = sys_get_temp_dir() . '/local-app-source-' . bin2hex(random_bytes(5));
+        $appPath = $projectRoot . '/custom/apps/TestApp';
+        $filesystem = new Filesystem();
+        $filesystem->dumpFile($appPath . '/manifest.xml', 'old manifest');
+        $filesystem->dumpFile($appPath . '/old-file.txt', 'old file');
+        $app = new AppEntity();
+        $app->setId(Uuid::randomHex());
+        $app->setName('TestApp');
+        $app->setPath('custom/apps/TestApp');
+
+        $source = new Local($projectRoot, io: $filesystem);
+        $backupPath = $source->backup($app);
+        $filesystem->remove($appPath);
+        $filesystem->dumpFile($appPath . '/new-file.txt', 'new file');
+
+        try {
+            $source->restore($app, $backupPath);
+
+            static::assertFileExists($appPath . '/old-file.txt');
+            static::assertFileDoesNotExist($appPath . '/new-file.txt');
+            static::assertSame('old manifest', file_get_contents($appPath . '/manifest.xml'));
+        } finally {
+            $filesystem->remove([$projectRoot, $backupPath]);
+        }
     }
 
     public static function appProvider(): \Generator

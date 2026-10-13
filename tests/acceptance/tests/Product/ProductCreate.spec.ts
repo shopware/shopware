@@ -92,7 +92,10 @@ test(
             await AdminProductListing.addProductContextMenuButton.click();
             await AdminProductListing.addDigitalProductLink.click();
 
-            await ShopAdmin.expects(AdminProductCreate.page).toHaveURL(/#\/sw\/product\/create\/base\?creationType=digital/);
+            // Before 6.7.7 the product type is passed as creation state.
+            await ShopAdmin.expects(AdminProductCreate.page).toHaveURL(
+                /#\/sw\/product\/create\/base\?(creationType=digital|creationStates=is-download)/,
+            );
         });
 
         await test.step('Create the digital product and validate its file', async () => {

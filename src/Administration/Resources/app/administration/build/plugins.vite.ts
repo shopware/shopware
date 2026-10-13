@@ -171,6 +171,9 @@ const getBaseConfig = (
             },
         },
 
+        // Typed with Vite 6, which does not know the bundled dev mode
+        ...(useBundledDev ? { experimental: { bundledDev: true } as UserConfig['experimental'] } : {}),
+
         build: {
             outDir: path.resolve(extension.basePath, 'Resources/public/administration'),
             emptyOutDir: true,
@@ -229,8 +232,6 @@ const main = async () => {
             } else {
                 server = await toolchain.vite.createServer({
                     ...getBaseConfig(toolchain, extension, false, useBundledDev),
-                    // Typed with Vite 6, which does not know the bundled dev mode
-                    ...(useBundledDev ? { experimental: { bundledDev: true } as UserConfig['experimental'] } : {}),
                     base: `/_internal_ext/${extension.technicalName}/`,
                     server: {
                         host: '127.0.0.1',

@@ -89,14 +89,8 @@ export default (async ({ command }) => {
 
         logLevel: isProd ? 'warn' : 'info',
 
-        ...(toolchain.isVite8
-            ? {
-                  // Typed with Vite 6, which does not know the bundled dev mode
-                  experimental: {
-                      bundledDev: useBundledDev,
-                  } as UserConfig['experimental'],
-              }
-            : {}),
+        // Typed with Vite 6, which does not know the bundled dev mode
+        ...(useBundledDev ? { experimental: { bundledDev: true } as UserConfig['experimental'] } : {}),
 
         server: {
             open: openBrowserForWatch,

@@ -21,6 +21,23 @@ use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 #[CoversClass(McpToolsetRegistry::class)]
 class McpToolsetRegistryTest extends TestCase
 {
+    /**
+     * @return iterable<string, array{?string, string, bool}>
+     */
+    public static function reservedGroupClaimCases(): iterable
+    {
+        yield 'extension tool in the discovery group' => [McpToolsetRegistry::DISCOVERY_GROUP, 'swag-report', true];
+        yield 'meta-tool in the discovery group' => [McpToolsetRegistry::DISCOVERY_GROUP, 'shopware-tool-search', false];
+        yield 'extension tool in its own group' => ['swag', 'swag-report', false];
+        yield 'ungrouped tool' => [null, 'swag-report', false];
+    }
+
+    #[DataProvider('reservedGroupClaimCases')]
+    public function testIsReservedGroupClaim(?string $group, string $toolName, bool $expected): void
+    {
+        static::assertSame($expected, McpToolsetRegistry::isReservedGroupClaim($group, $toolName));
+    }
+
     public function testBuildsToolsetsFromExplicitToolGroups(): void
     {
         $registry = $this->buildRegistry([

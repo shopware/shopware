@@ -64,7 +64,8 @@ class CheapestPriceUpdaterTest extends TestCase
             ]
         );
 
-        static::assertNotEmpty($cheapestPriceRaw, 'Cheapest price should be stored');
+        static::assertIsString($cheapestPriceRaw, 'Cheapest price should be stored');
+        static::assertNotSame('', $cheapestPriceRaw, 'Cheapest price should be stored');
 
         $cheapestPrice = Serialization::assertUnserializedInstanceOf(CheapestPriceContainer::class, $cheapestPriceRaw);
 

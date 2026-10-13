@@ -54,7 +54,7 @@ class CriteriaValueResolverTest extends TestCase
                 static::assertSame($request, $resolvedRequest);
                 static::assertSame($definition, $resolvedDefinition);
                 static::assertSame($context, $resolvedContext);
-                static::assertEmpty($resolvedCriteria->getIncludes());
+                static::assertNull($resolvedCriteria->getIncludes());
 
                 return $criteria;
             });

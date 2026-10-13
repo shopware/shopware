@@ -55,7 +55,7 @@ class PermissionsServiceTest extends TestCase
         $this->permissionsService->grant($revision, $this->context);
 
         $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
-        static::assertNotEmpty($storedRevision);
+        static::assertNotSame('', $storedRevision);
 
         // Verify the stored data contains the expected revision
         $decodedData = json_decode($storedRevision, true);
@@ -70,7 +70,7 @@ class PermissionsServiceTest extends TestCase
             return $listener['event'] === PermissionsGrantedEvent::class;
         });
 
-        static::assertNotEmpty($permissionsGrantedEvents, 'PermissionsGrantedEvent should have been dispatched');
+        static::assertNotCount(0, $permissionsGrantedEvents, 'PermissionsGrantedEvent should have been dispatched');
 
         if ($profilerNeedsToBeDisabledAgain) {
             self::getContainer()->get('profiler')->disable();
@@ -89,7 +89,7 @@ class PermissionsServiceTest extends TestCase
 
         // Verify permissions were granted
         $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
-        static::assertNotEmpty($storedRevision);
+        static::assertNotSame('', $storedRevision);
 
         $this->permissionsService->revoke($this->context);
 
@@ -101,7 +101,7 @@ class PermissionsServiceTest extends TestCase
             return $listener['event'] === PermissionsRevokedEvent::class;
         });
 
-        static::assertNotEmpty($permissionsRevokedEvents, 'PermissionsRevokedEvent should have been dispatched');
+        static::assertNotCount(0, $permissionsRevokedEvents, 'PermissionsRevokedEvent should have been dispatched');
 
         if ($profilerNeedsToBeDisabledAgain) {
             self::getContainer()->get('profiler')->disable();

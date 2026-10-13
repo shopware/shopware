@@ -1,5 +1,4 @@
 import AddressManagerPlugin from 'src/plugin/address-manager/address-manager.plugin';
-import Feature from 'src/helper/feature.helper';
 
 /**
  * @package checkout
@@ -197,7 +196,6 @@ describe('AddressManagerPlugin test', () => {
 });
 
 function create(initialTab = 'shipping') {
-    window.Feature = Feature;
     document.body.innerHTML = `
              <button class="btn" data-address-manager="true">Open address manager</button>
              

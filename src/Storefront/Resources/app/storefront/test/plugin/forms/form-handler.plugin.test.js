@@ -1,5 +1,4 @@
 import FormHandler from 'src/plugin/forms/form-handler.plugin';
-import Feature from 'src/helper/feature.helper';
 import FormValidation from 'src/helper/form-validation.helper';
 
 describe('FormHandler Plugin', () => {
@@ -7,7 +6,6 @@ describe('FormHandler Plugin', () => {
     let formHandlerPlugin;
 
     beforeEach(async () => {
-        window.Feature = Feature;
         document.body.innerHTML = `
             <form id="testForm">
                 <div class="form-group">

@@ -1,5 +1,4 @@
 import QuantitySelectorPlugin from 'src/plugin/quantity-selector/quantity-selector.plugin';
-import Feature from 'src/helper/feature.helper';
 import OffCanvasCartPlugin from 'src/plugin/offcanvas-cart/offcanvas-cart.plugin';
 import FormAutoSubmitPlugin from 'src/plugin/forms/form-auto-submit.plugin';
 
@@ -42,7 +41,6 @@ describe('Quantity selector form submission', () => {
     }
 
     beforeEach(() => {
-        window.Feature = Feature;
         jest.useFakeTimers();
     });
 

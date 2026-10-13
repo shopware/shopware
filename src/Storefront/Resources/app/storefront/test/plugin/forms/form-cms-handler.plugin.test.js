@@ -1,5 +1,4 @@
 import FormCmsHandlerPlugin from 'src/plugin/forms/form-cms-handler.plugin';
-import Feature from 'src/helper/feature.helper';
 
 const template = `
     <div class="cms-block">
@@ -15,7 +14,6 @@ describe('Form CMS Handler tests', () => {
     let submitButtonElement = undefined;
 
     beforeEach(() => {
-        window.Feature = Feature;
         document.body.innerHTML = template;
 
         formElement = document.getElementById('test-form');

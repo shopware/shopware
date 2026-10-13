@@ -1,5 +1,4 @@
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
-import Feature from 'src/helper/feature.helper';
 import CookieConfiguration, { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
@@ -67,7 +66,6 @@ describe('CookieConfiguration plugin tests', () => {
     let mockCookiePermissionPlugin;
 
     beforeEach(() => {
-        window.Feature = Feature;
         window.router = {
             'frontend.cookie.offcanvas': 'https://shop.example.com/offcanvas',
             'frontend.cookie.groups': 'https://shop.example.com/cookie/groups',

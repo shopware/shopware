@@ -1,5 +1,4 @@
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
-import Feature from 'src/helper/feature.helper';
 
 const template = `
     <div class="cms-element-product-listing-wrapper" data-listing-pagination="true">
@@ -38,7 +37,6 @@ describe('listing-pagination.plugin', () => {
     let resumeFocusSpy;
 
     beforeEach(async () => {
-        window.Feature = Feature;
         // Import plugin class async because of feature toggles inside static options
         const { default: ListingPaginationPlugin }  = await import('src/plugin/listing/listing-pagination.plugin');
 

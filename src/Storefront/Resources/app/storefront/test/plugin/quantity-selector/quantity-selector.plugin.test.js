@@ -1,5 +1,4 @@
 import QuantitySelectorPlugin from 'src/plugin/quantity-selector/quantity-selector.plugin.js';
-import Feature from 'src/helper/feature.helper';
 import FormAutoSubmitPlugin from 'src/plugin/forms/form-auto-submit.plugin';
 
 /**
@@ -31,7 +30,6 @@ describe('QuantitySelectorPlugin tests', () => {
     let plugin;
 
     beforeEach(() => {
-        window.Feature = Feature;
         const QuantitySelectorTemplate = `
         <form action="/"
               class="line-item-quantity-container"

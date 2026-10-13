@@ -1,5 +1,4 @@
 import VariantSwitchPlugin from 'src/plugin/variant-switch/variant-switch.plugin';
-import Feature from 'src/helper/feature.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 
 describe('VariantSwitchPlugin tests', () => {
@@ -8,7 +7,6 @@ describe('VariantSwitchPlugin tests', () => {
     const spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
-        window.Feature = Feature;
         document.$emitter = new NativeEventEmitter();
 
         window.focusHandler = {

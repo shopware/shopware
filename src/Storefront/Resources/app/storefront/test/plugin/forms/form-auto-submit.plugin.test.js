@@ -1,5 +1,4 @@
 import FormAutoSubmitPlugin from 'src/plugin/forms/form-auto-submit.plugin';
-import Feature from 'src/helper/feature.helper';
 
 /**
  * @package content
@@ -26,7 +25,6 @@ describe('Form auto submit plugin', () => {
     }
 
     beforeEach(() => {
-        window.Feature = Feature;
         window.HTMLFormElement.prototype.submit = spyNativeFormSubmit;
         window.HTMLFormElement.prototype.requestSubmit = spyNativeFormRequestSubmit;
 

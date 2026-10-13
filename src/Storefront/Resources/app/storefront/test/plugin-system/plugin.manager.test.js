@@ -1,7 +1,6 @@
 import PluginManager from 'src/plugin-system/plugin.manager';
 import Plugin from 'src/plugin-system/plugin.class';
 import Iterator from 'src/helper/iterator.helper';
-import Feature from 'src/helper/feature.helper';
 
 class FooPluginClass extends Plugin {
     init() {}
@@ -58,7 +57,6 @@ class ListeningOverridePluginClass extends ListeningCorePluginClass {
  */
 describe('Plugin manager', () => {
     beforeEach(() => {
-        window.Feature = Feature;
         document.body.innerHTML = '<div data-plugin="true" class="test-class"></div><div id="test-id"></div>';
 
         jest.spyOn(console, 'error').mockImplementation();

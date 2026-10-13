@@ -1,6 +1,5 @@
 /* eslint-disable */
 import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plugin';
-import Feature from 'src/helper/feature.helper';
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
 
 let mockElement = null;
@@ -10,7 +9,6 @@ describe('FilterMultiSelect tests', () => {
     let filterMultiSelectPlugin = undefined;
 
     beforeEach(() => {
-        window.Feature = Feature;
         // create mocks
         mockElement = document.createElement('div');
         mockElement.setAttribute('aria-busy', 'true');

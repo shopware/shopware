@@ -1,6 +1,5 @@
 /* eslint-disable */
 import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugin';
-import Feature from 'src/helper/feature.helper';
 import GuestWishlistPagePlugin from 'src/plugin/wishlist/guest-wishlist-page.plugin';
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 
@@ -12,7 +11,6 @@ describe('GuestWishlistPagePlugin tests', () => {
     let spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
-        window.Feature = Feature;
         // create mocks
         window.wishlistEnabled = true;
 

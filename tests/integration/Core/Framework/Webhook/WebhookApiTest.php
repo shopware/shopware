@@ -273,6 +273,30 @@ class WebhookApiTest extends TestCase
         static::assertFalse($this->fetchSubscription($webhookId));
     }
 
+    public function testAnEmptyAclRoleListIsRejected(): void
+    {
+        $webhookId = $this->createWebhookWithAclRoles('product.written', []);
+
+        $this->assertApiErrors([[
+            'code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION',
+            'field' => 'aclRoleIds',
+            'detail' => 'aclRoleIds must not be empty. Leave it out to use all of the owner\'s roles.',
+        ]]);
+        static::assertFalse($this->fetchSubscription($webhookId));
+    }
+
+    public function testEmptyAclRoleEntriesAreRejected(): void
+    {
+        $webhookId = $this->createWebhookWithAclRoles('product.written', [$this->createAclRole(['product:read']), null, '']);
+
+        $this->assertApiErrors([[
+            'code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION',
+            'field' => 'aclRoleIds',
+            'detail' => 'aclRoleIds must not contain empty entries.',
+        ]]);
+        static::assertFalse($this->fetchSubscription($webhookId));
+    }
+
     public function testTheEventMustBeCoveredByTheAclRoles(): void
     {
         $webhookId = $this->createWebhookWithAclRoles('product.written', [$this->createAclRole(['order:read'])]);

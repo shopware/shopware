@@ -51,7 +51,8 @@ class SeoActionControllerTest extends TestCase
         static::assertIsString($content);
         $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($result['errors']);
+        static::assertIsArray($result['errors']);
+        static::assertNotCount(0, $result['errors']);
         static::assertSame(400, $response->getStatusCode());
     }
 
@@ -69,7 +70,9 @@ class SeoActionControllerTest extends TestCase
         static::assertIsString($content);
         $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($result['errors'] ?? []);
+        $errors = $result['errors'] ?? [];
+        static::assertIsArray($errors);
+        static::assertNotCount(0, $errors);
         static::assertSame(400, $response->getStatusCode());
     }
 
@@ -87,7 +90,9 @@ class SeoActionControllerTest extends TestCase
         static::assertIsString($content);
         $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($result['errors'] ?? []);
+        $errors = $result['errors'] ?? [];
+        static::assertIsArray($errors);
+        static::assertNotCount(0, $errors);
         static::assertSame(400, $response->getStatusCode());
     }
 
@@ -451,7 +456,8 @@ class SeoActionControllerTest extends TestCase
 
         // The original template-generated path is still reachable (kept as a
         // redirecting non-canonical entry so old links keep working).
-        static::assertNotEmpty(
+        static::assertNotCount(
+            0,
             array_filter(
                 $this->getSeoUrls($id, null, $salesChannelId),
                 static fn (array $url): bool => $url['attributes']['seoPathInfo'] === $initialPathInfo

@@ -105,7 +105,7 @@ class SnippetFinderTest extends TestCase
             connection: $this->getConnectionMock([])
         );
 
-        static::assertEmpty($snippetFinder->findSnippets('fr-FR'));
+        static::assertCount(0, $snippetFinder->findSnippets('fr-FR'));
     }
 
     public function testDefaultSnippetFileLoading(): void
@@ -473,7 +473,7 @@ class SnippetFinderTest extends TestCase
         );
 
         $snippets = $snippetFinder->findSnippets('es-ES');
-        static::assertEmpty($snippets);
+        static::assertCount(0, $snippets);
     }
 
     public function testGeneratedSnippetsAreLoadedFromThePrivateFilesystem(): void

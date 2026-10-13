@@ -70,7 +70,7 @@ class CartMergedSubscriberTest extends TestCase
 
         $subscriber->addCartMergedNoticeFlash($event);
 
-        static::assertEmpty($session->getFlashBag()->get('info'));
+        static::assertCount(0, $session->getFlashBag()->get('info'));
     }
 
     public function testGetSubscribedEventsReturnsAddCartMergedNoticeFlash(): void

@@ -376,6 +376,12 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## Services are reset between requests
+
+Services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application. This was opt-in with the `LONGRUNNING_ENVIRONMENT` feature flag in 6.7; the flag is removed. Extensions that relied on state surviving across requests in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole) must move that state to an explicit cache or store.
+
+Symfony's own `http_cache` service is no longer available, even if `framework.http_cache.enabled` is set in the project configuration. HTTP caching is handled by Shopware's own cache layer. Remove references to the `http_cache` service from your project.
+
 ## Removal of legacy `ConfigurationService` getters
 
 The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` have been removed.

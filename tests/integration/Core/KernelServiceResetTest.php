@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestResetCounter;
@@ -11,8 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Covers the request lifecycle contract of `Shopware\Core\Kernel` that long running
- * runtimes (FrankenPHP, RoadRunner, Swoole) rely on: Symfony resets all `kernel.reset`
- * services between two requests handled by the same kernel instance.
+ * runtimes (FrankenPHP, RoadRunner, Swoole) rely on: with `LONGRUNNING_ENVIRONMENT` Symfony resets
+ * all `kernel.reset` services between two requests handled by the same kernel instance.
  *
  * @internal
  */
@@ -21,6 +22,8 @@ class KernelServiceResetTest extends TestCase
 {
     public function testServicesAreResetBetweenTwoRequests(): void
     {
+        Feature::skipTestIfInActive('LONGRUNNING_ENVIRONMENT', $this);
+
         $kernel = KernelLifecycleManager::createKernel();
         $kernel->boot();
 
@@ -41,6 +44,26 @@ class KernelServiceResetTest extends TestCase
         }
     }
 
+    public function testServicesAreNotResetWithoutLongrunningEnvironment(): void
+    {
+        Feature::skipTestIfActive('LONGRUNNING_ENVIRONMENT', $this);
+
+        $kernel = KernelLifecycleManager::createKernel();
+        $kernel->boot();
+
+        try {
+            $counter = $kernel->getContainer()->get(TestResetCounter::class);
+            static::assertInstanceOf(TestResetCounter::class, $counter);
+
+            $kernel->handle(Request::create('/api/_info/version'));
+            $kernel->handle(Request::create('/api/_info/version'));
+
+            static::assertSame(0, $counter->resetCount);
+        } finally {
+            $kernel->shutdown();
+        }
+    }
+
     public function testHandleOnAnUnbootedKernelRegistersThePluginBundles(): void
     {
         $kernel = KernelLifecycleManager::createKernel();
@@ -55,12 +78,13 @@ class KernelServiceResetTest extends TestCase
     }
 
     /**
-     * Symfony's `http_cache` service must not exist: `Symfony\Component\HttpKernel\Kernel::handle()`
-     * would route the first request of a process through it, bypassing Shopware's own HTTP cache
-     * and skipping the service reset bookkeeping.
+     * With `LONGRUNNING_ENVIRONMENT` Symfony's `http_cache` service must not exist, regardless of the project config:
+     * `Symfony\Component\HttpKernel\Kernel::handle()` would route main requests through it, in front of Shopware's own HTTP cache.
      */
     public function testSymfonyHttpCacheIsDisabled(): void
     {
+        Feature::skipTestIfInActive('LONGRUNNING_ENVIRONMENT', $this);
+
         $container = KernelLifecycleManager::getKernel()->getContainer();
 
         static::assertFalse($container->has('http_cache'));

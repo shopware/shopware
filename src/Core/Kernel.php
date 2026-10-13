@@ -130,12 +130,18 @@ class Kernel extends HttpKernel
     }
 
     /**
-     * Boots first so that plugins are initialized before `parent::handle()` builds the container,
-     * `parent::handle()` itself keeps Symfony's service reset bookkeeping between requests.
+     * Boots first so that plugins are initialized before the container is built.
+     * With `LONGRUNNING_ENVIRONMENT` Symfony's `http_cache` service is not public, so `parent::handle()`
+     * can be used, which resets the services between requests.
      */
     public function handle(Request $request, int $type = self::MAIN_REQUEST, bool $catch = true): Response
     {
         $this->boot();
+
+        // @deprecated tag:v6.8.0 - always delegate to `parent::handle()`
+        if ($this->getContainer()->has('http_cache')) {
+            return $this->getHttpKernel()->handle($request, $type, $catch);
+        }
 
         return parent::handle($request, $type, $catch);
     }

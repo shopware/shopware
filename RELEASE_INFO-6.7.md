@@ -60,11 +60,11 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
-### Services are reset between requests in long running runtimes
+### Services can be reset between requests in long running runtimes
 
-Services tagged with `kernel.reset` are now reset between two requests handled by the same kernel instance, as in a plain Symfony application. Previously the reset never ran, so resettable services kept their state for the whole lifetime of a worker in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole). Extensions that relied on state surviving across requests in such runtimes must move that state to an explicit cache or store; in PHP-FPM setups nothing changes.
+With the new `LONGRUNNING_ENVIRONMENT` feature flag, services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application. Without the flag the reset never runs, so resettable services keep their state for the whole lifetime of a worker in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole). Enable the flag if you run Shopware in such a runtime; in PHP-FPM setups it changes nothing. Extensions that rely on state surviving across requests must move that state to an explicit cache or store.
 
-As part of this change Symfony's `http_cache` service is no longer registered (`framework.http_cache.enabled` is now `false`) — HTTP caching keeps being handled by Shopware's own cache layer, which decorates `http_kernel`. Projects that referenced the `http_cache` service or enabled it in their own configuration must remove those references.
+The flag also disables Symfony's own `http_cache` service, even if `framework.http_cache.enabled` is set in the project configuration. HTTP caching keeps being handled by Shopware's own cache layer. Projects that reference the `http_cache` service must remove those references before enabling the flag. The flag becomes the default with Shopware 6.8.
 
 ### Homepage hreflang links restored for existing `HreflangLoaderParameter` callers
 

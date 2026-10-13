@@ -25,7 +25,13 @@ describe('build/vite-plugins/vite-toolchain', () => {
 
     afterEach(() => {
         fs.rmSync(projectRoot, { recursive: true, force: true });
-        process.env.PROJECT_ROOT = originalProjectRoot;
+
+        if (originalProjectRoot === undefined) {
+            delete process.env.PROJECT_ROOT;
+        } else {
+            process.env.PROJECT_ROOT = originalProjectRoot;
+        }
+
         jest.restoreAllMocks();
     });
 
@@ -60,23 +66,6 @@ describe('build/vite-plugins/vite-toolchain', () => {
         );
     });
 
-    it.each([
-        '@vitejs/plugin-vue',
-        'vite-plugin-node-polyfills',
-        'vite-plugin-symfony',
-    ])('resolves the runtime import of vite in %s to Vite 8', (plugin) => {
-        const resolvedVite = require.resolve('vite', { paths: [path.join(vite8NodeModules, plugin)] });
-
-        expect(resolvedVite.startsWith(path.join(vite8NodeModules, 'vite') + path.sep)).toBe(true);
-    });
-
-    it('keeps Vite 6 as the vite of the Administration', () => {
-        const resolvedVite = require.resolve('vite/package.json');
-
-        expect(resolvedVite.startsWith(vite8NodeModules)).toBe(false);
-        expect((JSON.parse(fs.readFileSync(resolvedVite, 'utf8')) as { version: string }).version).toMatch(/^6\./);
-    });
-
     it('loads the Vite 8 toolchain', () => {
         // Vite 8 is published as ESM only, which Jest cannot load, so the toolchain is loaded in a separate Node process.
         // It runs from a file, because node-stdlib-browser breaks with the global `require` of `node -e`.
@@ -106,7 +95,6 @@ describe('build/vite-plugins/vite-toolchain', () => {
         expect(result.viteVersion).toMatch(/^8\./);
         expect(result.exports).toEqual({
             nodePolyfills: 'function',
-            svgLoader: 'function',
             symfonyPlugin: 'function',
             vite: 'object',
             vue: 'function',

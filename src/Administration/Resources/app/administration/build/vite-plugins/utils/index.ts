@@ -334,3 +334,16 @@ export function getDevServerHttpsConfig(env: NodeJS.ProcessEnv = process.env): {
 
     return cert && key ? { cert, key } : undefined;
 }
+
+/**
+ * @private
+ */
+export function readFeatureFlags(): Record<string, boolean> {
+    const flagsPath = path.resolve(process.env.PROJECT_ROOT as string, 'var/config_js_features.json');
+
+    if (!fs.existsSync(flagsPath)) {
+        return {};
+    }
+
+    return JSON.parse(fs.readFileSync(flagsPath, 'utf-8')) as Record<string, boolean>;
+}

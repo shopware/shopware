@@ -43,10 +43,7 @@ const host = process.env.VITE_HOST || 'localhost';
 const extensionEntries = loadExtensions();
 
 const vite8 = isVite8ToolchainActive() ? loadVite8Toolchain() : null;
-const toolchain = vite8 ?? { vite: { createServer, build, createLogger }, vue, svgLoader, symfonyPlugin };
-
-// Vite 8 renamed `rollupOptions` to `rolldownOptions`
-const bundlerOptionsKey = vite8 ? 'rolldownOptions' : 'rollupOptions';
+const toolchain = vite8 ?? { vite: { createServer, build, createLogger }, vue, symfonyPlugin };
 
 // Common configuration shared between dev and build
 const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
@@ -81,7 +78,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
             AssetPlugin(!isDev, path.resolve(extension.basePath, 'Resources/app/administration')),
             AssetPathPlugin(extension.technicalFolderName),
             AssetCssPostprocessPlugin(`/bundles/${extension.technicalFolderName}/administration/assets/`),
-            toolchain.svgLoader(),
+            svgLoader(),
             OverrideComponentRegisterPlugin({
                 root: extension.path,
                 pluginEntryFile: extension.filePath,
@@ -160,24 +157,18 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
                   },
               }),
 
-        ...(vite8
-            ? {
-                  css: {
-                      // Lightning CSS minifies the CSS since Vite 8. It fails on invalid rules, which esbuild and
-                      // browsers just drop.
-                      lightningcss: {
-                          errorRecovery: true,
-                      },
-                  },
-              }
-            : {}),
+        css: {
+            lightningcss: {
+                errorRecovery: true,
+            },
+        },
 
         build: {
             outDir: path.resolve(extension.basePath, 'Resources/public/administration'),
             emptyOutDir: true,
             manifest: true,
             sourcemap: useSourceMap,
-            [bundlerOptionsKey]: {
+            rollupOptions: {
                 input: {
                     [extension.technicalName]: extension.filePath,
                 },
@@ -320,4 +311,7 @@ const main = async () => {
     }
 };
 
-main().catch(console.error);
+main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+});

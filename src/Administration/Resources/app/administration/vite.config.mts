@@ -16,6 +16,7 @@ import {
     getMainViteServerConfig,
     isInsideDockerContainer,
     loadExtensions,
+    readFeatureFlags,
 } from './build/vite-plugins/utils';
 import TwigPlugin from './build/vite-plugins/twigjs-plugin';
 import AssetPlugin from './build/vite-plugins/asset-plugin';
@@ -42,17 +43,8 @@ if (!process.env.APP_URL) {
 
 const viteExtensionServerMapping = getMainViteServerConfig();
 
-const flagsPath = path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json');
-let featureFlags = {};
-if (fs.existsSync(flagsPath)) {
-    featureFlags = JSON.parse(fs.readFileSync(flagsPath, 'utf-8'));
-}
-
 const vite8 = isVite8ToolchainActive() ? loadVite8Toolchain() : null;
-const vitePlugins = vite8 ?? { nodePolyfills, svgLoader, vue, symfonyPlugin };
-
-// Vite 8 renamed `rollupOptions` to `rolldownOptions`
-const bundlerOptionsKey = vite8 ? 'rolldownOptions' : 'rollupOptions';
+const vitePlugins = vite8 ?? { nodePolyfills, vue, symfonyPlugin };
 
 const pageLoadingScreenPath = path.join(__dirname, '..', '..', 'shared', 'page-loading-screen');
 const pageLoadingScreen = {
@@ -166,7 +158,7 @@ export default defineConfig(({ command }) => {
                         'events',
                     ],
                 }),
-                vitePlugins.svgLoader(),
+                svgLoader(),
                 vitePlugins.vue(),
             ];
 
@@ -175,14 +167,10 @@ export default defineConfig(({ command }) => {
                 return [
                     ...sharedPlugins,
 
-                    ...(vite8
-                        ? [
-                              NodeEnvDefinePlugin(vite8.vite.transformWithOxc),
-                          ]
-                        : []),
+                    ...(useBundledDev ? [NodeEnvDefinePlugin()] : []),
 
                     AdminIndexHtmlPlugin({
-                        featureFlags: JSON.stringify(featureFlags),
+                        featureFlags: JSON.stringify(readFeatureFlags()),
                         serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
                         analyticsGatewayUrl: process.env.PRODUCT_ANALYTICS_GATEWAY_URL,
                         hideUpdateModule: [
@@ -230,17 +218,12 @@ export default defineConfig(({ command }) => {
             ],
         },
 
-        ...(vite8
-            ? {
-                  css: {
-                      // Lightning CSS minifies the CSS since Vite 8. It fails on invalid rules, which esbuild and
-                      // browsers just drop.
-                      lightningcss: {
-                          errorRecovery: true,
-                      },
-                  },
-              }
-            : {}),
+        css: {
+            // Lightning CSS minifies the CSS since Vite 8. It fails on invalid rules, which esbuild and browsers just drop.
+            lightningcss: {
+                errorRecovery: true,
+            },
+        },
 
         optimizeDeps: {
             include: [
@@ -280,7 +263,7 @@ export default defineConfig(({ command }) => {
 
         worker: {
             format: 'es',
-            [bundlerOptionsKey]: {
+            rollupOptions: {
                 output: {
                     format: 'iife',
                 },
@@ -298,8 +281,7 @@ export default defineConfig(({ command }) => {
             // generate .vite/manifest.json in outDir
             manifest: true,
             sourcemap: useSourceMap,
-            [bundlerOptionsKey]: {
-                // overwrite default .html entry, except for the bundled dev mode, which serves the index.html from the bundle
+            rollupOptions: {
                 input: {
                     administration: useBundledDev ? 'index.html' : 'src/index.ts',
                 },

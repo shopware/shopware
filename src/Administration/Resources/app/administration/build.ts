@@ -3,25 +3,24 @@
  */
 
 import { spawn } from 'child_process';
-import { build } from 'vite';
 import { startDevelopmentProcesses } from './build/vite-plugins/development-process-runner';
-import { isVite8ToolchainActive, loadVite8Toolchain } from './build/vite-plugins/vite-toolchain';
+import { getViteCommand } from './build/vite-plugins/vite-toolchain';
 import { exportViteServerMapping } from './build/vite-plugins/utils';
 
-async function runPluginsBuild(): Promise<void> {
-    // Assuming ts-node is installed as a dependency
+// Vite 8 warns about loading the CommonJS typed TypeScript of the shared build plugins, which ts-node needs.
+process.env.VITE_CONFIG_NATIVE_IGNORE_WARNING ??= 'true';
+
+async function run(command: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        const process = spawn('ts-node', ['-T', 'build/plugins.vite.ts'], {
-            stdio: 'inherit',
-        });
+        const child = spawn(command, { shell: true, stdio: 'inherit' });
 
         // When the process closes, then the listeners do not need to be removed anymore
         // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
-        process.on('close', (code) => {
+        child.on('close', (code) => {
             if (code === 0) {
                 resolve();
             } else {
-                reject(new Error(`Plugin build failed with code ${code}`));
+                reject(new Error(`"${command}" failed with code ${code}`));
             }
         });
     });
@@ -34,16 +33,11 @@ async function main() {
 
     if (mode === 'production') {
         try {
-            if (buildOnlyExtensions) {
-                // Only run plugins build
-                await runPluginsBuild();
-            } else {
-                // Run Vite build
-                const viteBuild = isVite8ToolchainActive() ? loadVite8Toolchain().vite.build : build;
-                await viteBuild();
-                // Then run plugins build
-                await runPluginsBuild();
+            if (!buildOnlyExtensions) {
+                await run(`${getViteCommand()} build`);
             }
+
+            await run('ts-node -T build/plugins.vite.ts');
         } catch (error) {
             console.error('Build failed:', error);
             process.exit(1);

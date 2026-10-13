@@ -1,98 +1,91 @@
 /**
  * @sw-package framework
  */
-import { execFileSync } from 'child_process';
-import path from 'path';
-import { VITE_8_TOOLCHAIN_PATH } from '../vite-toolchain';
+import type { ResolvedConfig, Rollup } from 'vite';
+import NodeEnvDefinePlugin from './index';
 
-type TransformResult = {
-    name: string;
-    apply: string;
-    filter: { id: { exclude: string }; code: string };
-    code: string;
-    hasMap: boolean;
+type TransformHook = {
+    filter: { id: { exclude: RegExp }; code: string };
+    handler: (code: string, id: string) => { code: string; map: Rollup.SourceMap } | null;
 };
 
-/**
- * Vite 8 is published as ESM only, which Jest cannot load. The plugin therefore runs with the real Vite 8 of the
- * toolchain in a separate Node process.
- */
-function transform(code: string, config: object, env: Record<string, string> = {}): TransformResult {
-    const script = `
-        const { createJiti } = require('jiti');
-        const jiti = createJiti(${JSON.stringify(__filename)});
+function createPlugin(config: Partial<ResolvedConfig>) {
+    const plugin = NodeEnvDefinePlugin();
+    (plugin.configResolved as (config: Partial<ResolvedConfig>) => void)(config);
 
-        (async () => {
-            const { default: NodeEnvDefinePlugin } = await jiti.import(${JSON.stringify(path.join(__dirname, 'index.ts'))});
-            const { transformWithOxc } = await import(require.resolve('vite', { paths: [${JSON.stringify(VITE_8_TOOLCHAIN_PATH)}] }));
-            const plugin = NodeEnvDefinePlugin(transformWithOxc);
-            plugin.configResolved(${JSON.stringify(config)});
-            const result = await plugin.transform.handler(${JSON.stringify(code)}, '/src/core/application.ts');
-
-            process.stdout.write(JSON.stringify({
-                name: plugin.name,
-                apply: plugin.apply,
-                filter: { id: { exclude: String(plugin.transform.filter.id.exclude) }, code: plugin.transform.filter.code },
-                code: result.code,
-                hasMap: !!result.map,
-            }));
-        })();
-    `;
-
-    const parentEnv = { ...process.env };
-    delete parentEnv.NODE_ENV;
-
-    return JSON.parse(
-        execFileSync(process.execPath, ['-e', script], {
-            cwd: path.resolve(__dirname, '../../..'),
-            env: { ...parentEnv, ...env },
-            encoding: 'utf8',
-        }),
-    ) as TransformResult;
+    return { plugin, transform: plugin.transform as unknown as TransformHook };
 }
-
-const source = `
-const isDevelopmentMode = process.env.NODE_ENV === 'development';
-function readShadowed(process) {
-    return process.env.NODE_ENV;
-}
-`;
 
 describe('build/vite-plugins/node-env-define', () => {
-    it('only runs in the dev server for source modules which use process.env.NODE_ENV', () => {
-        const result = transform(source, { mode: 'development' });
+    const originalNodeEnv = process.env.NODE_ENV;
 
-        expect(result.name).toBe('shopware-vite-plugin-node-env-define');
-        expect(result.apply).toBe('serve');
-        expect(result.filter).toEqual({ id: { exclude: '/\\/node_modules\\//' }, code: 'process.env.NODE_ENV' });
+    beforeEach(() => {
+        delete process.env.NODE_ENV;
     });
 
-    it('replaces the global process.env.NODE_ENV with the mode before the polyfills inject process', () => {
-        const result = transform(source, { mode: 'development' });
-
-        expect(result.code).toContain('const isDevelopmentMode = "development" === "development";');
-        expect(result.hasMap).toBe(true);
+    afterEach(() => {
+        process.env.NODE_ENV = originalNodeEnv;
     });
 
-    it('keeps process.env.NODE_ENV of a local process binding untouched', () => {
-        const result = transform(source, { mode: 'development' });
+    it('only runs before the other plugins in the dev server for source modules which use process.env.NODE_ENV', () => {
+        const { plugin, transform } = createPlugin({ mode: 'development' });
 
-        expect(result.code).toContain('return process.env.NODE_ENV;');
+        expect(plugin.name).toBe('shopware-vite-plugin-node-env-define');
+        expect(plugin.apply).toBe('serve');
+        expect(plugin.enforce).toBe('pre');
+        expect(transform.filter).toEqual({ id: { exclude: /\/node_modules\// }, code: 'process.env.NODE_ENV' });
+    });
+
+    it('replaces process.env.NODE_ENV with the mode and returns a sourcemap', () => {
+        const { transform } = createPlugin({ mode: 'development' });
+
+        const result = transform.handler(
+            "const isDevelopmentMode = process.env.NODE_ENV === 'development';",
+            '/src/core/application.ts',
+        );
+
+        expect(result?.code).toBe('const isDevelopmentMode = "development" === \'development\';');
+        expect(result?.map.sources).toEqual(['/src/core/application.ts']);
+        expect(result?.map.mappings).not.toBe('');
+    });
+
+    it('replaces every occurrence', () => {
+        const { transform } = createPlugin({ mode: 'development' });
+
+        const result = transform.handler(
+            'if (process.env.NODE_ENV !== "production") { log(process.env.NODE_ENV); }',
+            '/src/app/main.ts',
+        );
+
+        expect(result?.code).toBe('if ("development" !== "production") { log("development"); }');
+    });
+
+    it('prefers a configured define over the environment and the mode', () => {
+        process.env.NODE_ENV = 'production';
+        const { transform } = createPlugin({
+            mode: 'development',
+            define: { 'process.env.NODE_ENV': '"test"' },
+        });
+
+        expect(transform.handler('process.env.NODE_ENV', '/src/app/main.ts')?.code).toBe('"test"');
     });
 
     it('prefers the NODE_ENV environment variable over the mode', () => {
-        const result = transform(source, { mode: 'development' }, { NODE_ENV: 'production' });
+        process.env.NODE_ENV = 'production';
+        const { transform } = createPlugin({ mode: 'development' });
 
-        expect(result.code).toContain('const isDevelopmentMode = "production" === "development";');
+        expect(transform.handler('process.env.NODE_ENV', '/src/app/main.ts')?.code).toBe('"production"');
     });
 
-    it('prefers a configured define over the environment', () => {
-        const result = transform(
-            source,
-            { mode: 'development', define: { 'process.env.NODE_ENV': '"test"' } },
-            { NODE_ENV: 'production' },
-        );
+    it('falls back to the mode', () => {
+        const { transform } = createPlugin({ mode: 'staging' });
 
-        expect(result.code).toContain('const isDevelopmentMode = "test" === "development";');
+        expect(transform.handler('process.env.NODE_ENV', '/src/app/main.ts')?.code).toBe('"staging"');
+    });
+
+    it('keeps code without a full process.env.NODE_ENV untouched', () => {
+        const { transform } = createPlugin({ mode: 'development' });
+
+        expect(transform.handler('const value = process.env.NODE_ENVIRONMENT;', '/src/app/main.ts')).toBeNull();
     });
 });

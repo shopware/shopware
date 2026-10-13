@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 import type { Plugin } from 'vite';
-import type { Vite8Toolchain } from '../vite-toolchain';
+import MagicString from 'magic-string';
 
 /**
  * @private
@@ -11,13 +11,15 @@ import type { Vite8Toolchain } from '../vite-toolchain';
  * source modules. Vite replaces `process.env.NODE_ENV` only afterwards and skips it then, because `process` is no global
  * identifier anymore. This plugin replaces it before the polyfills are injected, like it happens in production builds.
  */
-export default function NodeEnvDefinePlugin(transformWithOxc: Vite8Toolchain['vite']['transformWithOxc']): Plugin {
+export default function NodeEnvDefinePlugin(): Plugin {
     let nodeEnv = JSON.stringify('development');
 
     return {
         name: 'shopware-vite-plugin-node-env-define',
 
         apply: 'serve',
+
+        enforce: 'pre',
 
         configResolved(config) {
             nodeEnv =
@@ -30,14 +32,18 @@ export default function NodeEnvDefinePlugin(transformWithOxc: Vite8Toolchain['vi
                 id: { exclude: /\/node_modules\// },
                 code: 'process.env.NODE_ENV',
             },
-            async handler(code, id) {
-                const result = await transformWithOxc(code, id, {
-                    lang: 'js',
-                    sourcemap: true,
-                    define: { 'process.env.NODE_ENV': nodeEnv },
-                });
+            handler(code, id) {
+                const magicString = new MagicString(code);
+                magicString.replaceAll(/\bprocess\.env\.NODE_ENV\b/g, nodeEnv);
 
-                return { code: result.code, map: result.map };
+                if (!magicString.hasChanged()) {
+                    return null;
+                }
+
+                return {
+                    code: magicString.toString(),
+                    map: magicString.generateMap({ source: id, hires: true }),
+                };
             },
         },
     };

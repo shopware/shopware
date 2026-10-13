@@ -390,6 +390,7 @@ Remote thumbnail URL generation now avoids unnecessary extension dispatching whe
 When an app adds, changes or removes MCP tools, prompts or resources, every open MCP session on the Admin API endpoint now receives `notifications/tools/list_changed` (or the prompt or resource variant) after its next request, whichever server it is connected to. Before, only sessions known to the server that processed the app change were notified, because each server kept its own list of sessions.
 
 The list of sessions is gone, together with the `Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry` and `mcp.store_api.session_registry` services and their caches `shopware.mcp.session_registry_cache` and `mcp.store_api.session_registry_cache`. If you overrode them to share the list between servers, remove the override. A shared `framework.lock` is no longer needed for MCP notifications.
+
 ### Mail sent and mail error events carry the mail context
 
 `MailSentEvent` and `MailErrorEvent` now expose the data a mail was sent with, so subscribers can tell which template, event and sales channel a mail belongs to:

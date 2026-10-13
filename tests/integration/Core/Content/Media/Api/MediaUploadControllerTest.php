@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -55,8 +56,7 @@ class MediaUploadControllerTest extends TestCase
         $this->mediaId = $this->getEmptyMedia()->getId();
         $this->thrownMediaEvent = null;
 
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             MediaUploadedEvent::class,
             function (MediaUploadedEvent $event): void {
                 $this->thrownMediaEvent = $event;
@@ -200,10 +200,9 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromBinaryUsesFileName(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MediaUploadedEvent::class, $listener);
 
         $url = \sprintf(
             '/api/_action/media/%s/upload',
@@ -296,10 +295,9 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromURL(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MediaUploadedEvent::class, $listener);
 
         $baseUrl = EnvironmentHelper::getVariable('APP_URL') . '/media/shopware-logo.png';
 
@@ -338,10 +336,9 @@ class MediaUploadControllerTest extends TestCase
 
     public function testRenameMediaFileThrowsExceptionIfFileNameIsNotPresent(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->never())->method('__invoke');
-        $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MediaUploadedEvent::class, $listener);
 
         $context = Context::createDefaultContext();
         $this->setFixtureContext($context);

@@ -51,8 +51,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\DocumentConfigLoaderFactory;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentType;
@@ -171,6 +173,7 @@ class DocumentV2ControllerTest extends TestCase
         $orderId = Uuid::randomHex();
 
         $document = new DocumentEntity();
+        $document->setDocumentNumber('1000');
 
         $rendererRegistry = new DocumentRendererRegistry([
             new StaticDocumentRenderer(DocumentFormat::HTML),
@@ -192,7 +195,6 @@ class DocumentV2ControllerTest extends TestCase
                 $orderId,
                 DocumentType::INVOICE,
                 [DocumentFormat::HTML],
-                '1000',
             ),
             Context::createDefaultContext(),
         );
@@ -202,6 +204,7 @@ class DocumentV2ControllerTest extends TestCase
             [
                 'deepLinkCode' => $document->getDeepLinkCode(),
                 'documentId' => $document->getId(),
+                'documentNumber' => '1000',
                 'formats' => [
                     DocumentFormat::HTML->value,
                 ],
@@ -1162,12 +1165,15 @@ class DocumentV2ControllerTest extends TestCase
         $connection = static::createStub(Connection::class);
         $connection->method('createQueryBuilder')->willReturn(new FakeQueryBuilder($connection, []));
 
+        $numberGenerator = static::createStub(NumberRangeValueGeneratorInterface::class);
+        $numberGenerator->method('getValue')->willReturn('1000');
+
         return new DocumentGenerator(
             new DocumentDataProviderRegistry([
                 new StaticDocumentDataProvider([DocumentType::INVOICE->value], DocumentMetaProvider::KEY),
             ]),
             $rendererRegistry,
-            new DocumentNumberGenerator(static::createStub(NumberRangeValueGeneratorInterface::class)),
+            new DocumentNumberGenerator($numberGenerator),
             new DocumentPersister(
                 $documentRepository,
                 $documentFileRepository,
@@ -1181,6 +1187,7 @@ class DocumentV2ControllerTest extends TestCase
             new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),
             $orderRepository,
             static::createStub(ScriptExecutor::class),
+            DocumentConfigLoaderFactory::create($this->createTypeRegistry(), static::createStub(SystemConfigService::class)),
         );
     }
 }

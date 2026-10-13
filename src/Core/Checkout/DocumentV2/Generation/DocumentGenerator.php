@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Generation;
 
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
@@ -48,6 +49,7 @@ readonly class DocumentGenerator
         private ReferencedDocumentResolver $referencedDocumentResolver,
         private EntityRepository $orderRepository,
         private ScriptExecutor $scriptExecutor,
+        private DocumentConfigLoader $documentConfigLoader,
     ) {
     }
 
@@ -161,6 +163,22 @@ readonly class DocumentGenerator
 
         $order = $this->loadOrder($criteria, $generationRequest->orderId, $orderVersionContext);
 
+        $this->documentConfigLoader->load(
+            $generationRequest->documentType,
+            $order->getSalesChannelId(),
+            $languageAwareContext,
+        );
+
+        if (!$preview && !($resolvedReference !== null && $this->anyProviderImplements($providers, RendersReferencedSnapshot::class))) {
+            $orderVersionId = $this->orderRepository->createVersion(
+                $generationRequest->orderId,
+                $apiContext,
+                'document',
+            );
+            $orderVersionContext = $orderVersionContext->createWithVersionId($orderVersionId);
+            $order = $this->loadOrder($criteria, $generationRequest->orderId, $orderVersionContext);
+        }
+
         $documentNumber = $generationRequest->documentNumber ?? $this->documentNumberGenerator->generate(
             $generationRequest,
             $order,
@@ -246,15 +264,7 @@ readonly class DocumentGenerator
             );
         }
 
-        $orderVersionId = $preview
-            ? Defaults::LIVE_VERSION
-            : $this->orderRepository->createVersion(
-                $generationRequest->orderId,
-                $apiContext,
-                'document',
-            );
-
-        return [$orderVersionId, $resolvedReference];
+        return [$preview ? Defaults::LIVE_VERSION : $apiContext->getVersionId(), $resolvedReference];
     }
 
     /**

@@ -91,20 +91,23 @@ class ServiceReferenceGeneratorTest extends TestCase
         static::assertStringContainsString('ValidService', $result[$expectedKey]);
     }
 
-    public function testGetGroupForServiceReturnsCorrectGroup(): void
+    public function testScriptServiceLinkUsesTheGroupOfTheService(): void
     {
-        $group = $this->generator->getGroupForService(new \ReflectionClass(_fixtures\ValidService::class));
-        static::assertSame('data_loading', $group);
+        $fqcn = _fixtures\ValidService::class;
+
+        $link = $this->generator->getLinkForClass($fqcn, [$fqcn]);
+
+        static::assertSame('./data-loading-script-services-reference#validservice', $link);
     }
 
     /**
      * @param class-string $fqcn
      */
     #[DataProvider('provideInvalidGroupFixtures')]
-    public function testGetGroupForServiceThrows(string $fqcn): void
+    public function testScriptServiceLinkThrowsOnInvalidGroup(string $fqcn): void
     {
         $this->expectExceptionObject(DocsException::incorrectGroupForScriptService($fqcn));
-        $this->generator->getGroupForService(new \ReflectionClass($fqcn));
+        $this->generator->getLinkForClass($fqcn, [$fqcn]);
     }
 
     public static function provideInvalidGroupFixtures(): \Generator

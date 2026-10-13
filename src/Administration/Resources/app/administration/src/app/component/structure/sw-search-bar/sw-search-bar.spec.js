@@ -519,6 +519,17 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(setFocusSpy).toHaveBeenCalledTimes(1);
     });
 
+    it('should close the module filter dropdown when the input is focused before search trends are loaded', async () => {
+        wrapper = await createWrapper();
+
+        await wrapper.find('.sw-search-bar__type--v2').trigger('click');
+        expect(wrapper.vm.showModuleFiltersContainer).toBe(true);
+
+        await wrapper.find('.sw-search-bar__input').trigger('focus');
+
+        expect(wrapper.vm.showModuleFiltersContainer).toBe(false);
+    });
+
     it('should close the dropdowns and blur the search input on escape', async () => {
         wrapper = await createWrapper();
 

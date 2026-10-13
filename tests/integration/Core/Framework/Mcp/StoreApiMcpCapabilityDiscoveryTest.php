@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\PlatformRequest;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('framework')]
 class StoreApiMcpCapabilityDiscoveryTest extends TestCase
 {
+    use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
     use SalesChannelApiTestBehaviour;
 

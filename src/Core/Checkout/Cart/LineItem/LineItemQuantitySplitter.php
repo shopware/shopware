@@ -50,7 +50,7 @@ class LineItemQuantitySplitter
 
         $definition = new QuantityPriceDefinition($unitPrice, $taxRules, $tmpItem->getQuantity());
 
-        if (Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('PROPORTIONAL_CART_TAXES')) {
             $taxes = new CalculatedTaxCollection();
             foreach ($lineItemPrice->getCalculatedTaxes() as $tax) {
                 $taxes->add(new CalculatedTax($tax->getTax() / $item->getQuantity() * $quantity, $tax->getTaxRate(), $tax->getPrice() / $item->getQuantity() * $quantity, $tax->getLabel()));

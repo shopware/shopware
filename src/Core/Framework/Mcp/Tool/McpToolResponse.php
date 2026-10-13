@@ -50,7 +50,7 @@ abstract class McpToolResponse
     private ?LoggerInterface $mcpLogger = null;
 
     /**
-     * @internal called by the DI container via mcp.php instanceof configurator
+     * @internal wired by McpToolResultCacheCompilerPass
      */
     public function setToolResultCache(ToolResultCacheStorage $cache, RequestStack $requestStack, LoggerInterface $logger): void
     {

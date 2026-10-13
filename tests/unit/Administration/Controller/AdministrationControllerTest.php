@@ -496,8 +496,12 @@ class AdministrationControllerTest extends TestCase
         $searchConfigId = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchOne')
-            ->willReturnOnConsecutiveCalls($searchConfigId, $deLanguageId, $enLanguageId);
+        $connection->method('fetchOne')->willReturn($searchConfigId);
+        $connection->expects($this->once())->method('fetchAllKeyValue')
+            ->willReturn(array_filter([
+                'de-DE' => $deLanguageId,
+                'en-GB' => $enLanguageId,
+            ]));
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         if ($sourceLanguage === null) {
@@ -631,6 +635,24 @@ class AdministrationControllerTest extends TestCase
 
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"de-DE":[],"en-GB":[]}', $response->getContent());
+    }
+
+    public function testSnippetsReturnsEtagAndNotModifiedForMatchingIfNoneMatch(): void
+    {
+        $controller = $this->createAdministrationController();
+
+        $response = $controller->snippets(new Request(query: ['locale' => 'de-DE']));
+        $etag = $response->headers->get('ETag');
+
+        static::assertNotNull($etag);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $request = new Request(query: ['locale' => 'de-DE']);
+        $request->headers->set('If-None-Match', $etag);
+        $cachedResponse = $controller->snippets($request);
+
+        static::assertSame(Response::HTTP_NOT_MODIFIED, $cachedResponse->getStatusCode());
+        static::assertSame('', $cachedResponse->getContent());
     }
 
     public function testGetUnauthenticatedSnippetsWithoutAuthentication(): void

@@ -50,8 +50,8 @@ You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 - `swag-dev-tools-log-stream`: limit (int, optional) — stream the most recent log lines
 
 ## Tool discovery (start here)
-- On a fresh session only the discovery tools are advertised: `shopware-toolsets-list`, `shopware-toolset-enable`, `shopware-tool-search`. No domain tool is callable until you enable its toolset — the tools listed below become available only after enabling.
-- For any task, first call `shopware-toolsets-list`, enable the matching toolset with `shopware-toolset-enable`, then refresh `tools/list` after the server sends a list-changed notification. Use `shopware-tool-search` when you know the capability but not which toolset holds it.
+- A fresh session advertises the discovery tools `shopware-toolsets-list`, `shopware-toolset-enable` and `shopware-tool-search`, plus any toolsets selected in the connect URL (`?toolsets=`). Domain tools that are not advertised yet become available once you enable their toolset.
+- If an advertised tool fits the task, call it directly. Otherwise call `shopware-toolsets-list`, enable the matching toolset with `shopware-toolset-enable`, then refresh `tools/list` after the server sends a list-changed notification. Use `shopware-tool-search` when you know the capability but not which toolset holds it.
 - Enabling a toolset lasts the whole MCP session and accumulates: enabling another toolset keeps the previously enabled ones. The allowlist and ACL permissions remain the security boundary.
 
 ## Key concepts

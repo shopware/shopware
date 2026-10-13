@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoadedHook;
@@ -108,13 +109,9 @@ class WishlistControllerTest extends TestCase
 
         $productId = $this->createProduct($salesChannelId);
 
-        $this->addEventListener(static::getContainer()->get('event_dispatcher'), StorefrontRenderEvent::class, static function (StorefrontRenderEvent $event) use ($productId): void {
-            static::assertInstanceOf(EntitySearchResult::class, $result = $event->getParameters()['searchResult']);
-            $entities = $result->getEntities();
-            static::assertCount(1, $entities);
-            $first = $entities->first();
-            static::assertInstanceOf(Entity::class, $first);
-            static::assertSame($productId, $first->get('id'));
+        $renderedParameters = [];
+        EventHookDispatcher::fromContainer(static::getContainer())->on(StorefrontRenderEvent::class, static function (StorefrontRenderEvent $event) use (&$renderedParameters): void {
+            $renderedParameters[] = $event->getParameters();
         });
 
         $browser->request('POST', '/wishlist/guest-pagelet', $this->tokenize('frontend.wishlist.guestPage.pagelet', ['productIds' => [$productId]]));
@@ -122,6 +119,13 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertSame(200, $response->getStatusCode());
+        static::assertCount(1, $renderedParameters);
+        static::assertInstanceOf(EntitySearchResult::class, $result = $renderedParameters[0]['searchResult']);
+        $entities = $result->getEntities();
+        static::assertCount(1, $entities);
+        $first = $entities->first();
+        static::assertInstanceOf(Entity::class, $first);
+        static::assertSame($productId, $first->get('id'));
     }
 
     public function testDeleteProductInWishlistPage(): void

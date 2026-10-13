@@ -747,7 +747,8 @@ export default class VueAdapter extends ViewAdapter {
         Shopware.Vue.watch(
             useSession().currentLocale,
             (currentLocale: string | null) => {
-                i18n.global.locale.value = currentLocale ?? '';
+                // Keep the last known locale until the session locale is resolved, otherwise the fallback locale is shown
+                i18n.global.locale.value = currentLocale ?? lastKnownLocale;
             },
             { immediate: true },
         );

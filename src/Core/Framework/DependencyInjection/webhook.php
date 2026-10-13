@@ -17,6 +17,8 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Webhook\Api\WebhookHealthController;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\AppEventPolicy;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\NotHookablePolicy;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
@@ -46,6 +48,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Framework\Webhook\Subscriber\AppLifecycleWebhookHealthSubscriber;
 use Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber;
 use Shopware\Core\Framework\Webhook\Subscriber\WebhookActiveFlipSubscriber;
+use Shopware\Core\Framework\Webhook\Subscriber\WebhookHealthNotificationSubscriber;
 use Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransportFactory;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
@@ -159,6 +162,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(WebhookOutboxStore::class),
             service(HealthConfig::class),
             service(SymfonyClockInterface::class),
+            service('event_dispatcher'),
             service('logger'),
         ]);
 
@@ -326,6 +330,24 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(WebhookHealthService::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(WebhookHealthNotificationSubscriber::class)
+        ->args([
+            service(Connection::class),
+            service(SymfonyClockInterface::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(WebhookHealthController::class)
+        ->public()
+        ->args([
+            service(Connection::class),
+            service(RateLimiter::class),
+            service(WebhookHealthService::class),
+            service(SymfonyClockInterface::class),
+            service(AbstractKeyValueStorage::class),
+        ])
+        ->tag('controller.service_arguments');
 
     $services->set(WebhookCleanup::class)
         ->args([

@@ -16,12 +16,14 @@ export default class LoginEvent extends EventAwareAnalyticsEvent
      * @return string
      */
     getPluginName() {
-        return 'FormValidation';
+        // the login and register forms validate through FormHandler, which only publishes
+        // `validSubmit` once the form is valid and about to be sent
+        return 'FormHandler';
     }
 
     getEvents() {
         return {
-            'beforeSubmit':  this._onFormSubmit.bind(this),
+            'validSubmit': this._onFormSubmit.bind(this),
         };
     }
 
@@ -32,7 +34,7 @@ export default class LoginEvent extends EventAwareAnalyticsEvent
 
         const target = event.target;
 
-        if (!target.classList.contains('login-form') || !event.detail.validity) {
+        if (!target.classList.contains('login-form')) {
             return;
         }
 

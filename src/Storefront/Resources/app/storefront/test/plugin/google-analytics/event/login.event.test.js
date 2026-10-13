@@ -14,10 +14,11 @@ describe('plugin/google-analytics/events/login.event', () => {
         jest.clearAllMocks();
     });
 
-    function submit(className, validity) {
+    function submit(className) {
         const target = document.createElement('form');
         target.classList.add(className);
-        event._onFormSubmit({ target, detail: { validity } });
+        // FormHandler publishes `validSubmit` on the form element once the form is valid
+        event._onFormSubmit({ target });
     }
 
     test('supports the login and the checkout register page', () => {
@@ -27,21 +28,25 @@ describe('plugin/google-analytics/events/login.event', () => {
     });
 
     test('reports a valid login form submit without an ecommerce object', () => {
-        submit('login-form', true);
+        submit('login-form');
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'login', { method: 'mail' });
     });
 
-    test('ignores an invalid submit and other forms', () => {
-        submit('login-form', false);
-        submit('register-form', true);
+    test('ignores other forms', () => {
+        submit('register-form');
 
         expect(window.gtag).not.toHaveBeenCalled();
     });
 
+    test('listens to the valid submit of the form handler', () => {
+        expect(event.getPluginName()).toBe('FormHandler');
+        expect(event.getEvents()).toHaveProperty('validSubmit');
+    });
+
     test('does nothing without consent', () => {
         event.active = false;
-        submit('login-form', true);
+        submit('login-form');
 
         expect(window.gtag).not.toHaveBeenCalled();
     });

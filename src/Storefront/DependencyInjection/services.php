@@ -73,6 +73,7 @@ use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 use Shopware\Storefront\Controller\ScriptController;
 use Shopware\Storefront\Event\CartMergedSubscriber;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
+use Shopware\Storefront\Framework\Analytics\AbstractAnalyticsLineItemPriceCalculator;
 use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPriceCalculator;
 use Shopware\Storefront\Framework\App\Template\IconTemplateLoader;
 use Shopware\Storefront\Framework\Cache\CacheCookieEventSubscriber;
@@ -392,11 +393,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(UrlEncodingTwigFilter::class)
         ->tag('twig.extension');
 
-    $services->set(AnalyticsLineItemPriceCalculator::class)
+    $services->set(AbstractAnalyticsLineItemPriceCalculator::class, AnalyticsLineItemPriceCalculator::class)
         ->args([service(CashRounding::class)]);
 
     $services->set(AnalyticsLineItemPriceExtension::class)
-        ->args([service(AnalyticsLineItemPriceCalculator::class)])
+        ->args([service(AbstractAnalyticsLineItemPriceCalculator::class)])
         ->tag('twig.extension');
 
     $services->set(IconCacheTwigFilter::class)

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Webhook\Webhook;
  * @codeCoverageIgnore
  *
  * @phpstan-type Owner array{type: OwnerType, roleIds: list<string>}
- * @phpstan-type OwnerRoleRow array{id: string, admin: bool|int|string, roleId: string|null}
+ * @phpstan-type OwnerRoleRow array{id: string, isAdmin: bool|int|string, roleId: string|null}
  *
  * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Service\WebhookLoaderTest
  */
@@ -142,7 +142,7 @@ class WebhookLoader
 
         /** @var list<OwnerRoleRow> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(u.id)) as id, u.admin as admin, LOWER(HEX(ur.acl_role_id)) as roleId
+            'SELECT LOWER(HEX(u.id)) as id, u.admin as isAdmin, LOWER(HEX(ur.acl_role_id)) as roleId
              FROM user u
              LEFT JOIN acl_user_role ur ON ur.user_id = u.id
              WHERE u.id IN (:ids)',
@@ -166,13 +166,10 @@ class WebhookLoader
 
         /** @var list<OwnerRoleRow> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(i.id)) as id, i.admin as admin, LOWER(HEX(r.acl_role_id)) as roleId
+            'SELECT LOWER(HEX(i.id)) as id, a.id IS NULL AND i.admin as isAdmin, LOWER(HEX(IF(a.id IS NULL, ir.acl_role_id, a.acl_role_id))) as roleId
              FROM integration i
-             LEFT JOIN (
-                 SELECT integration_id, acl_role_id FROM integration_role
-                 UNION
-                 SELECT integration_id, acl_role_id FROM app WHERE acl_role_id IS NOT NULL
-             ) r ON r.integration_id = i.id
+             LEFT JOIN app a ON a.integration_id = i.id AND a.acl_role_id IS NOT NULL
+             LEFT JOIN integration_role ir ON ir.integration_id = i.id AND a.id IS NULL
              WHERE i.id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($integrationIds)],
             ['ids' => ArrayParameterType::BINARY]
@@ -193,7 +190,7 @@ class WebhookLoader
             $id = $row['id'];
 
             $owners[$id] ??= [
-                'type' => (bool) $row['admin'] ? OwnerType::Admin : OwnerType::Restricted,
+                'type' => (bool) $row['isAdmin'] ? OwnerType::Admin : OwnerType::Restricted,
                 'roleIds' => [],
             ];
 

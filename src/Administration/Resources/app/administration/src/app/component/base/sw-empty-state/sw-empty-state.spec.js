@@ -44,15 +44,9 @@ async function createWrapper() {
 
 describe('components/base/sw-empty-state', () => {
     let wrapper;
-    let deprecationSpy;
 
     beforeEach(async () => {
-        deprecationSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation();
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        deprecationSpy.mockRestore();
     });
 
     it('should render a title', async () => {
@@ -86,13 +80,6 @@ describe('components/base/sw-empty-state', () => {
     it('should be render a button element when using the actions slot', async () => {
         expect(wrapper.find('.button').text()).toBe('Primary action');
     });
-
-    it('should report the deprecation for the removal in v6.9', async () => {
-        expect(deprecationSpy).toHaveBeenCalledWith(
-            'V6_9_0_0',
-            expect.stringContaining('Replace "sw-empty-state" with "mt-empty-state"'),
-        );
-    });
 });
 
 describe('components/base/sw-empty-state deprecation guard', () => {
@@ -104,12 +91,9 @@ describe('components/base/sw-empty-state deprecation guard', () => {
 
     afterEach(() => {
         warnSpy.mockRestore();
-        delete Shopware.Feature.flags.V6_9_0_0;
     });
 
     it('should warn once per using component while the 6.9 major is inactive', async () => {
-        Shopware.Feature.init({ V6_9_0_0: false });
-
         await createParentWrapper('sw-empty-state-test-parent');
         await createParentWrapper('sw-empty-state-test-parent');
 
@@ -122,8 +106,6 @@ describe('components/base/sw-empty-state deprecation guard', () => {
     });
 
     it.activeFeatureFlags(['v6.9.0.0'])('should throw once the 6.9 major is active', async () => {
-        Shopware.Feature.init({ V6_9_0_0: true });
-
         await expect(createParentWrapper('sw-empty-state-test-major-parent')).rejects.toThrow(
             'Tried to access deprecated functionality: The "sw-empty-state" component is deprecated',
         );

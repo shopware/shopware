@@ -1754,10 +1754,13 @@ $lineItem = $lineItemFactoryRegistry->create([
 
 `shopware-toolsets-list` now reports the toolsets selected in the connect URL as enabled. A tool group named `all` now belongs to the `other` toolset, because `?toolsets=all` selects every toolset. `McpToolsetRegistry::advertisedTools()` resolves `all` the same way as `advertisedToolsForNames()`.
 ### Experimental webhook endpoint health
+### Experimental webhook endpoint health API and lifecycle events
 
-With `WEBHOOKS_REWORK` enabled, transient delivery failures now move a webhook from `HEALTHY` to `DEGRADED`. Regular deliveries are held until a scheduled trial succeeds.
+With `WEBHOOKS_REWORK` enabled, endpoint failures can move each webhook from `HEALTHY` to `DEGRADED` or `SUSPENDED`. Scheduled trials recover it one state at a time; prolonged suspension ends in `DISABLED`.
 
 Operators can configure the transition threshold and trial cooldowns through `shopware.webhook.health.degraded_threshold_count` and `shopware.webhook.health.cooldown_schedule_seconds`. Existing webhook behavior is unchanged while the feature flag is disabled.
+
+Apps can inspect and reactivate their webhooks through `GET /api/app-system/webhook/state` and `POST /api/app-system/webhook/reactivate`. They can also subscribe to `webhook.health.activated`, `webhook.health.degraded`, `webhook.health.suspended`, and `webhook.health.disabled`. Admin users can inspect the health tick through `GET /api/_action/webhook/health-status` and disable a webhook through `POST /api/_action/webhook/{webhookId}/deactivate`.
 
 ## API
 

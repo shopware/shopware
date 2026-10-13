@@ -4,6 +4,10 @@ namespace Shopware\Core\Framework\Webhook;
 
 use Shopware\Core\Framework\App\AppEvents;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Event\WebhookActivatedEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookDegradedEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookDisabledEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookSuspendedEvent;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -25,6 +29,12 @@ class WebhookCacheClearer implements EventSubscriberInterface, ResetInterface
     {
         return [
             AppEvents::APP_WRITTEN_EVENT => 'clearWebhookCache',
+            // Health events are also dispatched from long-running webhook workers, whose cached subscriber list can
+            // predate webhooks other processes created; the listeners run before the webhook fan-out.
+            WebhookActivatedEvent::class => 'clearWebhookCache',
+            WebhookDegradedEvent::class => 'clearWebhookCache',
+            WebhookSuspendedEvent::class => 'clearWebhookCache',
+            WebhookDisabledEvent::class => 'clearWebhookCache',
         ];
     }
 

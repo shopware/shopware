@@ -32,8 +32,9 @@ describe('plugin/google-analytics/events/add-shipping-info-on-register.event', (
         `;
     }
 
-    function submitRegistration(validity = true, form = document.querySelector('.register-form')) {
-        event._onFormSubmit({ target: form, detail: { validity } });
+    function submitRegistration(form = document.querySelector('.register-form')) {
+        // FormHandler publishes `validSubmit` on the form element once the form is valid
+        event._onFormSubmit({ target: form });
     }
 
     function renderConfirmPage(shippingTier) {
@@ -48,6 +49,11 @@ describe('plugin/google-analytics/events/add-shipping-info-on-register.event', (
     function shippingEvents() {
         return window.gtag.mock.calls.filter(call => call[1] === 'add_shipping_info').map(call => call[2]);
     }
+
+    test('listens to the valid submit of the form handler', () => {
+        expect(event.getPluginName()).toBe('FormHandler');
+        expect(event.getEvents()).toHaveProperty('validSubmit');
+    });
 
     test('only supports the checkout register page', () => {
         expect(event.supports(null, null, 'frontend.checkout.register.page')).toBe(true);
@@ -67,11 +73,10 @@ describe('plugin/google-analytics/events/add-shipping-info-on-register.event', (
         })]);
     });
 
-    test('ignores an invalid registration, other forms and a missing consent', () => {
+    test('ignores other forms and a missing consent', () => {
         renderRegisterPage('Standard');
 
-        submitRegistration(false);
-        submitRegistration(true, document.createElement('form'));
+        submitRegistration(document.createElement('form'));
         event.active = false;
         submitRegistration();
 

@@ -34,18 +34,7 @@ The Administration and the Administration code of plugins and apps were built wi
 
 In Shopware 6.7, you can already build with Vite 8 by activating the `ADMIN_VITE_8` feature flag, for example with `ADMIN_VITE_8=1 composer watch:admin`.
 
-The most important changes at a glance:
-
-| What breaks | How to fix it |
-|---|---|
-| Building with Node.js below 20.19 or 22.12 fails. | Update Node.js to `^20.19.0 \|\| >=22.12.0`. |
-| `import.meta.glob` with extglob patterns like `!(*.spec)` matches no files in production builds, and depending on the pattern also in the watcher. | Use negated patterns: `['./**/*.ts', '!./**/*.spec.ts']`. |
-| Default imports of CommonJS dependencies return a different value. | Check default imports of CommonJS packages and use named imports or `.default` where needed. |
-| Your own `vite.config.*` logs deprecation warnings for `rollupOptions`, `esbuildOptions`, or `esbuild`. | Rename them to `rolldownOptions`, `optimizeDeps.rolldownOptions`, and `oxc`. |
-| Your own `vite.config.*` uses the object form of `manualChunks`, the legacy Sass API, or `splitVendorChunkPlugin`. | Use `codeSplitting`, remove the Sass `api` option, and remove `splitVendorChunkPlugin`. |
-| Your own Vite plugins fail to load or behave differently. | Update them to a version that supports Vite 8 and check the plugin hook changes below. |
-
-Check the Administration code of your plugin for these changes:
+Check the Administration code of your plugin or app for these changes:
 
 * `import.meta.glob` with extglob patterns like `!(*.spec)` matches no files in production builds, and depending on the pattern also in the watcher. Replace them with negated patterns:
 
@@ -59,30 +48,8 @@ Check the Administration code of your plugin for these changes:
   With the `ADMIN_VITE_8` flag in 6.7, Shopware still rewrites negated extglobs in plugins and apps and logs a warning for each one. 6.8 no longer rewrites them.
 
 * A default import of a CommonJS module resolves to `module.exports` if the importing file is an `.mjs`/`.mts` file, the nearest `package.json` sets `"type": "module"`, or the module does not set `__esModule`. Otherwise it resolves to `module.exports.default`. Check default imports of CommonJS dependencies.
-* The `browser` and `module` fields of dependencies are no longer sniffed for their format. The order of `resolve.mainFields` is always respected.
-* Passing a URL to `import.meta.hot.accept()` was removed. Pass the module ID instead.
-* Native decorators are no longer transpiled.
-* The minimum supported browsers were raised to Chrome 111, Edge 111, Firefox 114, and Safari 16.4, so newer syntax is no longer transpiled for older browsers.
 
-Plugins and apps can add their own Vite config (`vite.config.*` in `Resources/app/administration/src` or `Resources/app/meteor-app`), which is merged with the Shopware config. If your plugin does this, also check:
-
-* `build.rollupOptions`, `worker.rollupOptions`, `optimizeDeps.esbuildOptions`, and `esbuild` are deprecated. Use `build.rolldownOptions`, `worker.rolldownOptions`, `optimizeDeps.rolldownOptions`, and `oxc` instead. The `esbuild` options `banner`, `footer`, and `supported` are no longer supported.
-* `build.commonjsOptions` and `build.dynamicImportVarsOptions.warnOnError` have no effect anymore.
-* The object form of `output.manualChunks` was removed, and the function form is deprecated. Use `codeSplitting` instead.
-* `resolve.alias[].customResolver` is deprecated. Use a plugin with a `resolveId` hook and `enforce: 'pre'` instead.
-* The legacy Sass API was removed. Remove the `api` option from `css.preprocessorOptions.sass` and `css.preprocessorOptions.scss`.
-* `optimizeDeps.entries` only accepts globs.
-* `splitVendorChunkPlugin` was removed.
-* esbuild is no longer installed as a dependency of Vite. Vite plugins that call `transformWithEsbuild` need `esbuild` as their own dependency, or use `transformWithOxc` instead.
-
-If your plugin uses its own Vite plugins, also check:
-
-* Your Vite plugins have to support Vite 8.
-* The `transformIndexHtml` hook no longer supports `enforce` and `transform` on the hook object. Use `order` and `handler` instead.
-* The Rollup hooks `shouldTransformCachedModule`, `resolveImportMeta`, `renderDynamicImport`, and `resolveFileUrl` are no longer called.
-* `load` and `transform` hooks that return JavaScript for non-JavaScript files may need to return `moduleType: 'js'`.
-
-For details, see the [Vite 7](https://v7.vite.dev/guide/migration) and [Vite 8](https://vite.dev/guide/migration) migration guides.
+If your plugin or app ships its own `vite.config.*` or Vite plugins, follow the [Vite 7](https://v7.vite.dev/guide/migration) and [Vite 8](https://vite.dev/guide/migration) migration guides.
 
 # Changed Functionality
 

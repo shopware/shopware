@@ -131,7 +131,7 @@ class InstallerTest extends TestCase
         foreach ($this->supportedLanguages as $iso => $language) {
             static::assertArrayHasKey($iso, $this->preselection, \sprintf('Language "%s" does not have a preselection', $iso));
             static::assertArrayHasKey('currency', $this->preselection[$iso], \sprintf('Language "%s" does not have a currency preselection', $iso));
-            static::assertNotEmpty($this->preselection[$iso]['currency'], \sprintf('Language "%s" has an empty currency preselection', $iso));
+            static::assertNotSame('', $this->preselection[$iso]['currency'], \sprintf('Language "%s" has an empty currency preselection', $iso));
         }
     }
 }

@@ -28,7 +28,7 @@ jobs:
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     env:
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      PUPPETEER_SKIP_DOWNLOAD: "true"
       COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
     steps:
@@ -65,7 +65,7 @@ jobs:
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     env:
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      PUPPETEER_SKIP_DOWNLOAD: "true"
       COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
     steps:
@@ -156,12 +156,14 @@ jobs:
         run: npm run unit -- --silent
 
       - name: Upload coverage
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
-          files: build/artifacts/jest/cobertura-coverage.xml
+          files: src/Storefront/Resources/app/storefront/build/artifacts/jest/cobertura-coverage.xml
           flags: jest-storefront
+          disable_search: true
+          disable_file_fixes: true
 
   vitest:
     name: "Vitest Storefront Components"
@@ -195,12 +197,14 @@ jobs:
           npm run unit:components:coverage -- --coverage.reporter=cobertura --coverage.reportsDirectory=build/artifacts/vitest
 
       - name: Upload coverage
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
-          files: build/artifacts/vitest/cobertura-coverage.xml
+          files: src/Storefront/Resources/app/storefront/build/artifacts/vitest/cobertura-coverage.xml
           flags: vitest-storefront-components
+          disable_search: true
+          disable_file_fixes: true
 
   license-check:
     needs:

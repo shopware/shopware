@@ -300,7 +300,7 @@ class UnusedMediaPurger
             $ids = [$rootMediaFolderId, ...$this->getChildFolderIds($rootMediaFolderId, $folders)];
 
             $criteria->addFilter(
-                new EqualsAnyFilter('media.mediaFolder.id', $ids)
+                new EqualsAnyFilter('media.mediaFolderId', $ids)
             );
         }
 

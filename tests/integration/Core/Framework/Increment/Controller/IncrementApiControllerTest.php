@@ -292,6 +292,6 @@ class IncrementApiControllerTest extends TestCase
 
         $entries = $this->gateway->list($this->userId);
 
-        static::assertEmpty($entries);
+        static::assertCount(0, $entries);
     }
 }

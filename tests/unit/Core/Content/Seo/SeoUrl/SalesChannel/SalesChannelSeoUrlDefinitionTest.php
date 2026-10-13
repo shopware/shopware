@@ -30,7 +30,7 @@ class SalesChannelSeoUrlDefinitionTest extends TestCase
         $definition->processCriteria($criteria, $context);
 
         $filters = $criteria->getFilters();
-        static::assertNotEmpty($filters);
+        static::assertNotCount(0, $filters);
 
         // Check all expected default filters
         static::assertTrue($criteria->hasEqualsFilter('languageId'));

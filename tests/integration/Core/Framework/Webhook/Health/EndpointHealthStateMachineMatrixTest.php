@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Health;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Defaults;
@@ -31,15 +32,10 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
     private const URL = 'https://endpoint.example.com/hook';
 
     private const DEGRADED_THRESHOLD = 5;
-
     private const NON_TRANSIENT_THRESHOLD = 3;
-
     private const COOLDOWN_TIER_0 = 300;
-
     private const COOLDOWN_TIER_2 = 1200;
-
     private const COOLDOWN_TOP_TIER = 14400;
-
     private const TOP_TIER_INDEX = 5;
 
     private IdsCollection $ids;
@@ -155,6 +151,69 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
         static::assertSame($futureCooldown, $this->fetchHealthColumn('straggler', 'cooldown_until'));
     }
 
+    /**
+     * @return iterable<string, array{EndpointState, int, int, int, ?bool, ErrorClassification, int, EndpointState, int, int, int, bool, int}>
+     */
+    public static function recordFailureMatrixProvider(): iterable
+    {
+        // Seed: state, transient streak, auth streak, ladder tier, cooldown elapsed.
+        // Result: state, transient streak, auth streak, ladder tier, active, error_count.
+        yield 'HEALTHY ignores transient retries' => [EndpointState::Healthy, 4, 0, 0, null, ErrorClassification::TransientServer, 2, EndpointState::Healthy, 4, 0, 0, true, 0];
+        yield 'HEALTHY mirrors the larger streak when auth failures suspend it' => [EndpointState::Healthy, 4, 2, 0, null, ErrorClassification::NonTransientAuth, 1, EndpointState::Suspended, 4, 3, 0, false, 4];
+        yield 'HEALTHY ignores payload failures' => [EndpointState::Healthy, 0, 0, 0, null, ErrorClassification::NonTransientPayload, 1, EndpointState::Healthy, 0, 0, 0, true, 0];
+        yield 'DEGRADED counts retry results after the cooldown' => [EndpointState::Degraded, 5, 0, 0, true, ErrorClassification::TransientServer, 2, EndpointState::Degraded, 5, 0, 1, true, 5];
+        yield 'DEGRADED counts auth failures during the cooldown without advancing' => [EndpointState::Degraded, 5, 0, 0, false, ErrorClassification::NonTransientAuth, 1, EndpointState::Degraded, 5, 1, 0, true, 5];
+        yield 'DEGRADED counts auth failures and advances after the cooldown' => [EndpointState::Degraded, 5, 0, 0, true, ErrorClassification::NonTransientAuth, 1, EndpointState::Degraded, 5, 1, 1, true, 5];
+        yield 'SUSPENDED ignores transient results during the cooldown' => [EndpointState::Suspended, 5, 3, 0, false, ErrorClassification::TransientServer, 1, EndpointState::Suspended, 5, 3, 0, false, 5];
+        yield 'SUSPENDED advances after a failed transient trial' => [EndpointState::Suspended, 5, 3, 0, true, ErrorClassification::TransientServer, 1, EndpointState::Suspended, 5, 3, 1, false, 5];
+        yield 'SUSPENDED counts auth failures and advances after the cooldown' => [EndpointState::Suspended, 0, 3, 0, true, ErrorClassification::NonTransientAuth, 1, EndpointState::Suspended, 0, 4, 1, false, 4];
+        yield 'SUSPENDED advances after an endpoint-gone result without changing the streak' => [EndpointState::Suspended, 0, 3, 0, true, ErrorClassification::NonTransientEndpoint, 1, EndpointState::Suspended, 0, 3, 1, false, 3];
+        yield 'DISABLED absorbs an auth failure' => [EndpointState::Disabled, 2, 3, 0, null, ErrorClassification::NonTransientAuth, 1, EndpointState::Disabled, 2, 3, 0, false, 3];
+    }
+
+    #[DataProvider('recordFailureMatrixProvider')]
+    public function testRecordFailureTransition(
+        EndpointState $from,
+        int $seedCtf,
+        int $seedCnf,
+        int $seedCycle,
+        ?bool $cooldownElapsed,
+        ErrorClassification $classification,
+        int $attempt,
+        EndpointState $expected,
+        int $expectedCtf,
+        int $expectedCnf,
+        int $expectedCycle,
+        bool $expectedActive,
+        int $expectedErrorCount
+    ): void {
+        $this->seedWebhook(
+            'wh',
+            active: $from === EndpointState::Healthy || $from === EndpointState::Degraded,
+            errorCount: $this->mirrorErrorCount($from, $seedCtf, $seedCnf),
+        );
+        $this->seedHealth(
+            'wh',
+            $from,
+            ctf: $seedCtf,
+            cnf: $seedCnf,
+            cycle: $seedCycle,
+            cooldownUntil: $cooldownElapsed === null ? null : ($cooldownElapsed ? self::past() : self::future()),
+            suspendedSince: $from === EndpointState::Suspended ? self::past() : null,
+        );
+        $this->createDelivery('evt-trial', 'wh', WebhookEventLogDefinition::STATUS_QUEUED);
+
+        $result = $this->service->recordFailure($this->ids->get('wh'), $classification, $attempt, $this->claimRunningEntry('evt-trial'));
+
+        static::assertSame($expected, $result, 'recordFailure must return the resulting endpoint state');
+        $this->assertState('wh', $expected);
+        static::assertSame($expectedCtf, $this->fetchCtf('wh'), 'consecutive_transient_failures');
+        static::assertSame($expectedCnf, $this->fetchCnf('wh'), 'consecutive_non_transient_failures');
+        static::assertSame($expectedCycle, $this->fetchCycle('wh'), 'degraded_cycle_count');
+        static::assertSame($expectedActive, $this->fetchActive('wh'), 'BC mirror: active');
+        static::assertSame($expectedErrorCount, $this->fetchErrorCount('wh'), 'BC mirror: error_count');
+    }
+
     public function testAuthStreakSuspendsOnlyAtThreeConsecutiveFailuresWithoutASuccessInBetween(): void
     {
         $this->seedWebhook('wh', active: true, errorCount: 0);
@@ -231,6 +290,20 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
         $this->service->recordSuccess($this->ids->get('wh'));
 
         static::assertSame(0, $this->fetchErrorCount('wh'), 'a success clears a stale legacy error_count even with no health row');
+    }
+
+    public function testRecordSuccessOnADisabledWebhookChangesNothing(): void
+    {
+        $this->seedWebhook('wh', active: false, errorCount: 3);
+        $this->seedHealth('wh', EndpointState::Disabled, ctf: 2, cnf: 3);
+
+        $this->service->recordSuccess($this->ids->get('wh'));
+
+        $this->assertState('wh', EndpointState::Disabled);
+        static::assertSame(2, $this->fetchCtf('wh'));
+        static::assertSame(3, $this->fetchCnf('wh'));
+        static::assertFalse($this->fetchActive('wh'), 'DISABLED absorbs — a stray 2xx must not reactivate');
+        static::assertSame(3, $this->fetchErrorCount('wh'));
     }
 
     public function testSuspendedSinceKeepsTheOriginalTimestampAcrossAFlapAndClearsOnlyAtHealthy(): void
@@ -394,6 +467,11 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
         for ($i = 0; $i < $count; ++$i) {
             $this->service->recordFailure($this->ids->get($key), ErrorClassification::NonTransientAuth, 1, $entry);
         }
+    }
+
+    private function mirrorErrorCount(EndpointState $state, int $ctf, int $cnf): int
+    {
+        return $state === EndpointState::Healthy ? 0 : max($ctf, $cnf);
     }
 
     private static function past(): string

@@ -18,6 +18,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Gives the product boxes of the homepage and of landing pages the category path analytics reports,
  * because their breadcrumb describes no category. A category page keeps using its breadcrumb.
  *
+ * The page decides, not the route: the homepage is the page of the navigation root, which can also be
+ * reached through the navigation route of that category.
+ *
  * It only runs when analytics is active, after the analytics settings were loaded for the render, and
  * resolves all boxes of the page together, see {@see AnalyticsCategoryPathLoader}.
  *
@@ -27,8 +30,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class AnalyticsCategoryPathSubscriber implements EventSubscriberInterface
 {
     final public const EXTENSION = 'analyticsCategoryPath';
-
-    private const ROUTES = ['frontend.home.page', 'frontend.landing.page'];
 
     public function __construct(private readonly AnalyticsCategoryPathLoader $loader)
     {
@@ -49,14 +50,13 @@ class AnalyticsCategoryPathSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!\in_array($event->getRequest()->attributes->get('_route'), self::ROUTES, true)) {
-            return;
-        }
-
         $page = $parameters['page'] ?? null;
+        $navigationId = $event->getSalesChannelContext()->getSalesChannel()->getNavigationCategoryId();
+
         $cmsPage = match (true) {
-            $page instanceof NavigationPage => $page->getCmsPage(),
             $page instanceof LandingPage => $page->getLandingPage()?->getCmsPage(),
+            // a category page reports its own category through the breadcrumb
+            $page instanceof NavigationPage && $page->getNavigationId() === $navigationId => $page->getCmsPage(),
             default => null,
         };
 

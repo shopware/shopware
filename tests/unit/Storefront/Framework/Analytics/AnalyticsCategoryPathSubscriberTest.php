@@ -35,6 +35,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(AnalyticsCategoryPathSubscriber::class)]
 class AnalyticsCategoryPathSubscriberTest extends TestCase
 {
+    private const NAVIGATION_ID = 'navigation-root';
+
     public function testRunsAfterTheAnalyticsSettingsWereLoaded(): void
     {
         static::assertSame(
@@ -57,8 +59,7 @@ class AnalyticsCategoryPathSubscriberTest extends TestCase
                 'box-product' => ['Shoes'],
             ]);
 
-        $page = new NavigationPage();
-        $page->setCmsPage($this->cmsPage(
+        $page = $this->homepage($this->cmsPage(
             $this->sliderData($slider, $withoutPath),
             $this->boxData($box),
         ));
@@ -92,8 +93,7 @@ class AnalyticsCategoryPathSubscriberTest extends TestCase
         $loader = $this->createMock(AnalyticsCategoryPathLoader::class);
         $loader->expects($this->never())->method('load');
 
-        $page = new NavigationPage();
-        $page->setCmsPage($this->cmsPage($this->boxData($this->product('product-1'))));
+        $page = $this->homepage($this->cmsPage($this->boxData($this->product('product-1'))));
 
         $inactive = new SalesChannelAnalyticsEntity();
         $inactive->setActive(false);
@@ -101,6 +101,23 @@ class AnalyticsCategoryPathSubscriberTest extends TestCase
         $subscriber = new AnalyticsCategoryPathSubscriber($loader);
         $subscriber->addCategoryPaths($this->eventWithAnalytics('frontend.home.page', $page, $inactive));
         $subscriber->addCategoryPaths($this->eventWithAnalytics('frontend.home.page', $page, null));
+    }
+
+    /**
+     * The root category can also be opened through the navigation route, which renders the homepage.
+     */
+    public function testAddsThePathsToTheHomepageUnderTheNavigationRoute(): void
+    {
+        $product = $this->product('product-1');
+
+        $loader = $this->createMock(AnalyticsCategoryPathLoader::class);
+        $loader->expects($this->once())->method('load')->willReturn(['product-1' => ['Sale']]);
+
+        $page = $this->homepage($this->cmsPage($this->boxData($product)));
+
+        (new AnalyticsCategoryPathSubscriber($loader))->addCategoryPaths($this->event('frontend.navigation.page', $page));
+
+        static::assertEquals(new ArrayStruct(['Sale']), $product->getExtension(AnalyticsCategoryPathSubscriber::EXTENSION));
     }
 
     /**
@@ -112,6 +129,7 @@ class AnalyticsCategoryPathSubscriberTest extends TestCase
         $loader->expects($this->never())->method('load');
 
         $page = new NavigationPage();
+        $page->setNavigationId('some-category');
         $page->setCmsPage($this->cmsPage($this->boxData($this->product('product-1'))));
 
         (new AnalyticsCategoryPathSubscriber($loader))->addCategoryPaths($this->event('frontend.navigation.page', $page));
@@ -123,7 +141,7 @@ class AnalyticsCategoryPathSubscriberTest extends TestCase
         $loader->expects($this->never())->method('load');
 
         $subscriber = new AnalyticsCategoryPathSubscriber($loader);
-        $subscriber->addCategoryPaths($this->event('frontend.home.page', new NavigationPage()));
+        $subscriber->addCategoryPaths($this->event('frontend.home.page', $this->homepage(null)));
         $subscriber->addCategoryPaths($this->event('frontend.landing.page', new LandingPage()));
         $subscriber->addCategoryPaths($this->event('frontend.home.page', null));
     }
@@ -141,12 +159,27 @@ class AnalyticsCategoryPathSubscriberTest extends TestCase
         $request = new Request();
         $request->attributes->set('_route', $route);
 
+        $context = Generator::generateSalesChannelContext();
+        $context->getSalesChannel()->setNavigationCategoryId(self::NAVIGATION_ID);
+
         return new StorefrontRenderEvent(
             '@Storefront/storefront/page/content/index.html.twig',
             ['page' => $page, 'storefrontAnalytics' => $analytics],
             $request,
-            Generator::generateSalesChannelContext()
+            $context
         );
+    }
+
+    private function homepage(?CmsPageEntity $cmsPage): NavigationPage
+    {
+        $page = new NavigationPage();
+        $page->setNavigationId(self::NAVIGATION_ID);
+
+        if ($cmsPage !== null) {
+            $page->setCmsPage($cmsPage);
+        }
+
+        return $page;
     }
 
     private function product(string $id): SalesChannelProductEntity

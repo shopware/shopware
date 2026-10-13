@@ -512,6 +512,7 @@ class ServiceLifecycleTest extends TestCase
 
         $serviceClientFactory = $this->createMock(ServiceClientFactory::class);
         $serviceClientFactory->expects($this->never())->method('newFor');
+        $this->requirementsValidator->expects($this->never())->method('isSatisfied');
         $this->appManager->expects($this->never())->method('update');
         $this->appManager->expects($this->never())->method('uninstall');
         $this->expectInstallMachineryIsNotUsed();

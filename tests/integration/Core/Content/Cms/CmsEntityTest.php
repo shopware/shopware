@@ -88,7 +88,7 @@ class CmsEntityTest extends TestCase
         $newCount = $repository->search(new Criteria(), $context)->getEntities()->count();
         static::assertSame($initialCount + 1, $newCount);
 
-        static::assertEmpty($result->getErrors());
+        static::assertCount(0, $result->getErrors());
 
         $versionId = $repository->createVersion($fixture[0]['id'], $context, 'DRAFT');
         static::assertIsString($versionId);

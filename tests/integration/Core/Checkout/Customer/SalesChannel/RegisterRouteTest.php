@@ -36,6 +36,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -145,7 +146,7 @@ class RegisterRouteTest extends TestCase
         static::getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
 
         $ruleIds = null;
-        static::getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
             $ruleIds = $event->getSalesChannelContext()->getRuleIds();
         });
 
@@ -193,7 +194,7 @@ class RegisterRouteTest extends TestCase
         static::getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
 
         $ruleIds = null;
-        static::getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
             $ruleIds = $event->getSalesChannelContext()->getRuleIds();
         });
 
@@ -537,7 +538,7 @@ class RegisterRouteTest extends TestCase
         static::getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
 
         $ruleIds = null;
-        static::getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
             $ruleIds = $event->getSalesChannelContext()->getRuleIds();
         });
 
@@ -572,10 +573,7 @@ class RegisterRouteTest extends TestCase
         $systemConfig->set('core.loginRegistration.doubleOptInRegistration', true);
         $systemConfig->set('core.loginRegistration.confirmationUrl', '/confirm/custom/%%HASHEDEMAIL%%/%%SUBSCRIBEHASH%%');
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $this->addEventListener(
-            $dispatcher,
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerConfirmRegisterUrlEvent::class,
             static function (CustomerConfirmRegisterUrlEvent $event): void {
                 $event->setConfirmUrl($event->getConfirmUrl());
@@ -583,8 +581,7 @@ class RegisterRouteTest extends TestCase
         );
 
         $caughtEvent = null;
-        $this->addEventListener(
-            $dispatcher,
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerDoubleOptInRegistrationEvent::class,
             static function (CustomerDoubleOptInRegistrationEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;

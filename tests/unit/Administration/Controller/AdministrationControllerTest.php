@@ -496,8 +496,12 @@ class AdministrationControllerTest extends TestCase
         $searchConfigId = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchOne')
-            ->willReturnOnConsecutiveCalls($searchConfigId, $deLanguageId, $enLanguageId);
+        $connection->method('fetchOne')->willReturn($searchConfigId);
+        $connection->expects($this->once())->method('fetchAllKeyValue')
+            ->willReturn(array_filter([
+                'de-DE' => $deLanguageId,
+                'en-GB' => $enLanguageId,
+            ]));
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         if ($sourceLanguage === null) {

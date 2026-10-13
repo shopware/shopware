@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemProductTypeRule instead.
+ * @deprecated tag:v6.8.0 - Use \Shopware\Core\Checkout\Cart\Rule\LineItemProductTypeRule instead.
  */
 #[Package('fundamentals@after-sales')]
 class LineItemProductStatesRule extends Rule
@@ -24,11 +24,10 @@ class LineItemProductStatesRule extends Rule
 
     protected string $operator;
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:remove-rule - Will be removed, as product states are deprecated.
-     */
     public function match(RuleScope $scope): bool
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', LineItemProductTypeRule::class));
+
         if ($scope instanceof LineItemScope) {
             return $this->lineItemMatches($scope->getLineItem());
         }
@@ -46,11 +45,10 @@ class LineItemProductStatesRule extends Rule
         return false;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:remove-rule - Will be removed, as product states are deprecated.
-     */
     public function getConstraints(): array
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', LineItemProductTypeRule::class));
+
         return [
             'operator' => RuleConstraints::stringOperators(false),
             'productState' => RuleConstraints::choice([
@@ -60,11 +58,12 @@ class LineItemProductStatesRule extends Rule
         ];
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:remove-rule - Will be removed, as product states are deprecated.
-     */
-    public function getConfig(): RuleConfig
+    public function getConfig(): ?RuleConfig
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            return null;
+        }
+
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
             ->selectField('productState', [

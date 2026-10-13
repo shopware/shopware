@@ -62,9 +62,9 @@ test(
             await ShopCustomer.presses(StorefrontAccountLogin.shippingAddressCountryInput);
             await StorefrontAccountLogin.shippingAddressCountryInput.selectOption({ label: shippableCountry.name });
             await ShopCustomer.presses(StorefrontAccountLogin.registerButton);
+            await ShopCustomer.expects(StorefrontAccount.headline).toBeVisible();
             const customerId = (await TestDataService.getCustomerByEmail(customer.email)).id;
             TestDataService.addCreatedRecord('customer', customerId);
-            await ShopCustomer.expects(StorefrontAccount.headline).toBeVisible();
         });
     }
 );

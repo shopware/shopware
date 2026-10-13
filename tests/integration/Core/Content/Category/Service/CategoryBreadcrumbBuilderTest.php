@@ -329,6 +329,200 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
     public function testSeoCategoryInheritance(): void
     {
+        $this->createVariantProducts();
+
+        /** @var ProductEntity $mainProduct */
+        $mainProduct = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product')]), Context::createDefaultContext())->getEntities()->first();
+        $categoryMain = $this->breadcrumbBuilder->getProductSeoCategory($mainProduct, $this->salesChannelContext);
+
+        static::assertInstanceOf(CategoryEntity::class, $categoryMain);
+        static::assertSame($this->ids->get('navigation-a-2'), $categoryMain->getId());
+        static::assertSame('EN-AA', $categoryMain->getName());
+
+        /** @var ProductEntity $variant1 */
+        $variant1 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-1')]), Context::createDefaultContext())->getEntities()->first();
+        $categoryVariant1 = $this->breadcrumbBuilder->getProductSeoCategory($variant1, $this->salesChannelContext);
+
+        static::assertInstanceOf(CategoryEntity::class, $categoryVariant1);
+        static::assertSame($this->ids->get('navigation-b-2'), $categoryVariant1->getId());
+        static::assertSame('EN-BA', $categoryVariant1->getName());
+
+        /** @var ProductEntity $variant2 */
+        $variant2 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-2')]), Context::createDefaultContext())->getEntities()->first();
+        $categoryVariant2 = $this->breadcrumbBuilder->getProductSeoCategory($variant2, $this->salesChannelContext);
+
+        static::assertInstanceOf(CategoryEntity::class, $categoryVariant2);
+        static::assertSame($this->ids->get('navigation-b-1'), $categoryVariant2->getId());
+        static::assertSame('EN-B', $categoryVariant2->getName());
+
+        /** @var ProductEntity $variant3 */
+        $variant3 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-3')]), Context::createDefaultContext())->getEntities()->first();
+        $categoryVariant3 = $this->breadcrumbBuilder->getProductSeoCategory($variant3, $this->salesChannelContext);
+
+        static::assertInstanceOf(CategoryEntity::class, $categoryVariant3);
+        static::assertSame($this->ids->get('navigation-a-1'), $categoryVariant3->getId());
+        static::assertSame('EN-A', $categoryVariant3->getName());
+
+        /** @var ProductEntity $variant4 */
+        $variant4 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-4')]), Context::createDefaultContext())->getEntities()->first();
+        $categoryVariant4 = $this->breadcrumbBuilder->getProductSeoCategory($variant4, $this->salesChannelContext);
+
+        static::assertInstanceOf(CategoryEntity::class, $categoryVariant4);
+        static::assertSame($this->ids->get('navigation-a-2'), $categoryVariant4->getId());
+        static::assertSame('EN-AA', $categoryVariant4->getName());
+    }
+
+    /**
+     * The batch variant used for many product boxes at once has to pick exactly what the single
+     * product variant picks, including inheritance, main categories, assigned categories and dynamic
+     * product groups, also when the main categories are not preloaded, as for a product box.
+     */
+    public function testProductSeoCategoriesMatchTheSingleProductResolution(): void
+    {
+        $this->createVariantProducts();
+
+        $this->createTestProduct([[
+            'id' => $this->ids->get('stream-product'),
+            'productNumber' => 'stream-only',
+        ]]);
+        $this->createProductStreams();
+        // a dynamic product group category inside the navigation, so the customer may see it
+        $this->categoryRepository->update([[
+            'id' => $this->createCategoryStreams(),
+            'parentId' => $this->ids->get('navigation-a-1'),
+        ]], Context::createDefaultContext());
+        $this->updateProductStream($this->ids->get('stream-product'), $this->ids->get('stream_id_1'));
+
+        $ids = [
+            $this->ids->get('variant-product'),
+            $this->ids->get('variant-product-1'),
+            $this->ids->get('variant-product-2'),
+            $this->ids->get('variant-product-3'),
+            $this->ids->get('variant-product-4'),
+            $this->ids->get('stream-product'),
+        ];
+
+        $products = $this->salesChannelContext->getContext()->enableInheritance(
+            fn () => $this->productRepository->search(new Criteria($ids), $this->salesChannelContext->getContext())->getEntities()
+        );
+        static::assertCount(\count($ids), $products);
+
+        $batch = $this->breadcrumbBuilder->getProductSeoCategories($products, $this->salesChannelContext);
+
+        foreach ($products as $product) {
+            $single = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
+
+            static::assertSame($single?->getId(), ($batch[$product->getId()] ?? null)?->getId(), 'Product ' . $product->getProductNumber());
+        }
+
+        static::assertSame($this->ids->get('navigation-b-2'), $batch[$this->ids->get('variant-product-1')]->getId());
+        static::assertSame($this->ids->get('category_stream_id_1'), $batch[$this->ids->get('stream-product')]->getId());
+        static::assertSame([], $this->breadcrumbBuilder->getProductSeoCategories([], $this->salesChannelContext));
+    }
+
+    public function testGetProductSeoCategoryWithInactiveCategory(): void
+    {
+        // create and retrieve product and categories
+        $productData = [
+            [
+                'id' => $this->ids->get('seo-product'),
+                'categories' => [
+                    ['id' => $this->ids->get('navigation-a-1')],
+                    ['id' => $this->ids->get('navigation-a-2')],
+                ],
+            ],
+        ];
+        $this->createTestProduct($productData);
+
+        $this->updateProductStream($this->ids->get('seo-product'), $this->ids->get('stream_id_1'));
+
+        $criteria = new Criteria([$this->ids->get('seo-product')]);
+        $criteria->addAssociation('categories');
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+        // test if you get at least one category if both are active
+        $seoCategory = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
+        static::assertInstanceOf(CategoryEntity::class, $seoCategory);
+        static::assertTrue(\in_array($seoCategory->getId(), $this->ids->prefixed('navigation-a'), true));
+
+        // test if you only get the active category
+        $this->categoryRepository->update(
+            [[
+                'id' => $this->ids->get('navigation-a-2'),
+                'active' => false,
+            ]],
+            Context::createDefaultContext()
+        );
+        $seoCategory = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
+        static::assertInstanceOf(CategoryEntity::class, $seoCategory);
+        static::assertSame($this->ids->get('navigation-a-1'), $seoCategory->getId());
+    }
+
+    /**
+     * @param array<string> $ids
+     */
+    private function createSeoCriteria(array $ids): Criteria
+    {
+        $criteria = new Criteria($ids);
+        $criteria->addAssociation('mainCategories.category');
+
+        return $criteria;
+    }
+
+    private function createTestData(string $key): string
+    {
+        $data = [
+            [
+                'id' => $this->ids->create($key),
+                'translations' => [
+                    ['name' => 'EN-Entry', 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                    ['name' => 'DE-Entry', 'languageId' => $this->deLanguageId],
+                ],
+                'children' => [
+                    [
+                        'id' => $this->ids->create($key . '-a-1'),
+                        'translations' => [
+                            ['name' => 'EN-A', 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                            ['name' => 'DE-A', 'languageId' => $this->deLanguageId],
+                        ],
+                        'children' => [
+                            [
+                                'id' => $this->ids->create($key . '-a-2'),
+                                'translations' => [
+                                    ['name' => 'EN-AA', 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                                    ['name' => 'DE-AA', 'languageId' => $this->deLanguageId],
+                                ],
+                            ],
+                        ],
+                    ],
+                    [
+                        'id' => $this->ids->create($key . '-b-1'),
+                        'translations' => [
+                            ['name' => 'EN-B', 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                            ['name' => 'DE-B', 'languageId' => $this->deLanguageId],
+                        ],
+                        'children' => [
+                            [
+                                'id' => $this->ids->create($key . '-b-2'),
+                                'translations' => [
+                                    ['name' => 'EN-BA', 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                                    ['name' => 'DE-BA', 'languageId' => $this->deLanguageId],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        static::getContainer()->get('category.repository')->create($data, Context::createDefaultContext());
+
+        return $this->ids->get($key);
+    }
+
+    private function createVariantProducts(): void
+    {
         $optionIds = [
             'red' => Uuid::randomHex(),
             'green' => Uuid::randomHex(),
@@ -466,147 +660,6 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         ], false);
 
         $this->updateProductStream($this->ids->get('variant-product-3'), $this->ids->get('stream_id_1'));
-
-        /** @var ProductEntity $mainProduct */
-        $mainProduct = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product')]), Context::createDefaultContext())->getEntities()->first();
-        $categoryMain = $this->breadcrumbBuilder->getProductSeoCategory($mainProduct, $this->salesChannelContext);
-
-        static::assertInstanceOf(CategoryEntity::class, $categoryMain);
-        static::assertSame($this->ids->get('navigation-a-2'), $categoryMain->getId());
-        static::assertSame('EN-AA', $categoryMain->getName());
-
-        /** @var ProductEntity $variant1 */
-        $variant1 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-1')]), Context::createDefaultContext())->getEntities()->first();
-        $categoryVariant1 = $this->breadcrumbBuilder->getProductSeoCategory($variant1, $this->salesChannelContext);
-
-        static::assertInstanceOf(CategoryEntity::class, $categoryVariant1);
-        static::assertSame($this->ids->get('navigation-b-2'), $categoryVariant1->getId());
-        static::assertSame('EN-BA', $categoryVariant1->getName());
-
-        /** @var ProductEntity $variant2 */
-        $variant2 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-2')]), Context::createDefaultContext())->getEntities()->first();
-        $categoryVariant2 = $this->breadcrumbBuilder->getProductSeoCategory($variant2, $this->salesChannelContext);
-
-        static::assertInstanceOf(CategoryEntity::class, $categoryVariant2);
-        static::assertSame($this->ids->get('navigation-b-1'), $categoryVariant2->getId());
-        static::assertSame('EN-B', $categoryVariant2->getName());
-
-        /** @var ProductEntity $variant3 */
-        $variant3 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-3')]), Context::createDefaultContext())->getEntities()->first();
-        $categoryVariant3 = $this->breadcrumbBuilder->getProductSeoCategory($variant3, $this->salesChannelContext);
-
-        static::assertInstanceOf(CategoryEntity::class, $categoryVariant3);
-        static::assertSame($this->ids->get('navigation-a-1'), $categoryVariant3->getId());
-        static::assertSame('EN-A', $categoryVariant3->getName());
-
-        /** @var ProductEntity $variant4 */
-        $variant4 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-4')]), Context::createDefaultContext())->getEntities()->first();
-        $categoryVariant4 = $this->breadcrumbBuilder->getProductSeoCategory($variant4, $this->salesChannelContext);
-
-        static::assertInstanceOf(CategoryEntity::class, $categoryVariant4);
-        static::assertSame($this->ids->get('navigation-a-2'), $categoryVariant4->getId());
-        static::assertSame('EN-AA', $categoryVariant4->getName());
-    }
-
-    public function testGetProductSeoCategoryWithInactiveCategory(): void
-    {
-        // create and retrieve product and categories
-        $productData = [
-            [
-                'id' => $this->ids->get('seo-product'),
-                'categories' => [
-                    ['id' => $this->ids->get('navigation-a-1')],
-                    ['id' => $this->ids->get('navigation-a-2')],
-                ],
-            ],
-        ];
-        $this->createTestProduct($productData);
-
-        $this->updateProductStream($this->ids->get('seo-product'), $this->ids->get('stream_id_1'));
-
-        $criteria = new Criteria([$this->ids->get('seo-product')]);
-        $criteria->addAssociation('categories');
-        /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
-
-        // test if you get at least one category if both are active
-        $seoCategory = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
-        static::assertInstanceOf(CategoryEntity::class, $seoCategory);
-        static::assertTrue(\in_array($seoCategory->getId(), $this->ids->prefixed('navigation-a'), true));
-
-        // test if you only get the active category
-        $this->categoryRepository->update(
-            [[
-                'id' => $this->ids->get('navigation-a-2'),
-                'active' => false,
-            ]],
-            Context::createDefaultContext()
-        );
-        $seoCategory = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
-        static::assertInstanceOf(CategoryEntity::class, $seoCategory);
-        static::assertSame($this->ids->get('navigation-a-1'), $seoCategory->getId());
-    }
-
-    /**
-     * @param array<string> $ids
-     */
-    private function createSeoCriteria(array $ids): Criteria
-    {
-        $criteria = new Criteria($ids);
-        $criteria->addAssociation('mainCategories.category');
-
-        return $criteria;
-    }
-
-    private function createTestData(string $key): string
-    {
-        $data = [
-            [
-                'id' => $this->ids->create($key),
-                'translations' => [
-                    ['name' => 'EN-Entry', 'languageId' => Defaults::LANGUAGE_SYSTEM],
-                    ['name' => 'DE-Entry', 'languageId' => $this->deLanguageId],
-                ],
-                'children' => [
-                    [
-                        'id' => $this->ids->create($key . '-a-1'),
-                        'translations' => [
-                            ['name' => 'EN-A', 'languageId' => Defaults::LANGUAGE_SYSTEM],
-                            ['name' => 'DE-A', 'languageId' => $this->deLanguageId],
-                        ],
-                        'children' => [
-                            [
-                                'id' => $this->ids->create($key . '-a-2'),
-                                'translations' => [
-                                    ['name' => 'EN-AA', 'languageId' => Defaults::LANGUAGE_SYSTEM],
-                                    ['name' => 'DE-AA', 'languageId' => $this->deLanguageId],
-                                ],
-                            ],
-                        ],
-                    ],
-                    [
-                        'id' => $this->ids->create($key . '-b-1'),
-                        'translations' => [
-                            ['name' => 'EN-B', 'languageId' => Defaults::LANGUAGE_SYSTEM],
-                            ['name' => 'DE-B', 'languageId' => $this->deLanguageId],
-                        ],
-                        'children' => [
-                            [
-                                'id' => $this->ids->create($key . '-b-2'),
-                                'translations' => [
-                                    ['name' => 'EN-BA', 'languageId' => Defaults::LANGUAGE_SYSTEM],
-                                    ['name' => 'DE-BA', 'languageId' => $this->deLanguageId],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        static::getContainer()->get('category.repository')->create($data, Context::createDefaultContext());
-
-        return $this->ids->get($key);
     }
 
     /**

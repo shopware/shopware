@@ -894,7 +894,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.route_scope_whitelist');
 
     $services->set(AnalyticsCategoryPathLoader::class)
-        ->args([service(Connection::class), service('category.repository')]);
+        ->args([service(CategoryBreadcrumbBuilder::class)]);
 
     $services->set(AnalyticsCategoryPathSubscriber::class)
         ->args([service(AnalyticsCategoryPathLoader::class)])

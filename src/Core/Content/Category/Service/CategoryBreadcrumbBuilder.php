@@ -140,6 +140,86 @@ class CategoryBreadcrumbBuilder
     }
 
     /**
+     * Resolves {@see getProductSeoCategory()} for several products at once, for example for all
+     * product boxes of a page, with the same rules and a fixed number of queries, whatever the
+     * number of products: one for the main categories, one for the assigned categories and one for
+     * the categories of dynamic product groups.
+     *
+     * @param iterable<ProductEntity> $products
+     *
+     * @return array<string, CategoryEntity> keyed by product id, a product without a category is left out
+     */
+    public function getProductSeoCategories(iterable $products, SalesChannelContext $context): array
+    {
+        $categories = [];
+        $pending = [];
+
+        foreach ($products as $product) {
+            $mainCategory = $this->getMainCategoryFromProduct($product, $context);
+
+            if ($mainCategory !== null) {
+                $categories[$product->getId()] = $mainCategory;
+
+                continue;
+            }
+
+            $pending[$product->getId()] = $product;
+        }
+
+        $withCategories = array_filter($pending, static fn (ProductEntity $product) => ($product->getCategoryIds() ?? []) !== []);
+        $mainCategoryIds = $this->loadMainCategoryIds($withCategories, $context);
+
+        // the main and the assigned categories in one read, sorted like getProductSeoCategory() picks them
+        $candidateIds = array_values(array_unique(array_merge(array_values($mainCategoryIds), ...array_map(
+            static fn (ProductEntity $product) => $product->getCategoryIds() ?? [],
+            array_values($withCategories)
+        ))));
+        $candidates = $candidateIds === []
+            ? new CategoryCollection()
+            : $this->loadSortedCategories(new Criteria($candidateIds), $context);
+
+        foreach ($withCategories as $productId => $product) {
+            $productCategoryIds = $product->getCategoryIds() ?? [];
+            $mainCategory = $candidates->get($mainCategoryIds[$productId] ?? '');
+
+            // the main category only counts while it is assigned and available, as in getMainCategory()
+            $category = $mainCategory !== null && \in_array($mainCategory->getId(), $productCategoryIds, true)
+                ? $mainCategory
+                : $candidates->firstWhere(static fn (CategoryEntity $category) => \in_array($category->getId(), $productCategoryIds, true));
+
+            if ($category !== null) {
+                $categories[(string) $productId] = $category;
+            }
+
+            unset($pending[$productId]);
+        }
+
+        // a product without assigned categories can still be part of a dynamic product group
+        $inStreams = array_filter($pending, static fn (ProductEntity $product) => ($product->getStreamIds() ?? []) !== []);
+        $streamIds = array_values(array_unique(array_merge(...array_map(
+            static fn (ProductEntity $product) => $product->getStreamIds() ?? [],
+            array_values($inStreams)
+        ))));
+
+        if ($streamIds !== []) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsAnyFilter('productStreamId', $streamIds));
+            $criteria->addFilter(new EqualsFilter('productAssignmentType', CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM));
+            $streamCategories = $this->loadSortedCategories($criteria, $context);
+
+            foreach ($inStreams as $productId => $product) {
+                $category = $streamCategories->firstWhere(static fn (CategoryEntity $category) => \in_array($category->getProductStreamId(), $product->getStreamIds() ?? [], true));
+
+                if ($category !== null) {
+                    $categories[(string) $productId] = $category;
+                }
+            }
+        }
+
+        return $categories;
+    }
+
+    /**
      * @return array<string, string>|null
      */
     public function build(CategoryEntity $category, ?SalesChannelEntity $salesChannel = null, ?string $navigationCategoryId = null): ?array
@@ -195,6 +275,69 @@ class CategoryBreadcrumbBuilder
         }
 
         return $product->getMainCategories()->first()?->getCategory();
+    }
+
+    /**
+     * The main category ids of the sales channel for several products in one read. A variant without
+     * its own main category inherits the one of its parent, as the product entity does.
+     *
+     * @param array<string, ProductEntity> $products
+     *
+     * @return array<string, string> the main category id per product id
+     */
+    private function loadMainCategoryIds(array $products, SalesChannelContext $context): array
+    {
+        if ($products === []) {
+            return [];
+        }
+
+        $lookupIds = [];
+        foreach ($products as $product) {
+            $lookupIds[] = $product->getId();
+            if ($product->getParentId() !== null) {
+                $lookupIds[] = $product->getParentId();
+            }
+        }
+
+        /** @var array<string, string> $mainCategoryIds */
+        $mainCategoryIds = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(product_id)), LOWER(HEX(category_id))
+             FROM main_category
+             WHERE sales_channel_id = :salesChannelId
+               AND product_id IN (:productIds)
+               AND product_version_id = :versionId',
+            [
+                'salesChannelId' => Uuid::fromHexToBytes($context->getSalesChannelId()),
+                'productIds' => Uuid::fromHexToBytesList(array_values(array_unique($lookupIds))),
+                'versionId' => Uuid::fromHexToBytes($context->getContext()->getVersionId()),
+            ],
+            ['productIds' => ArrayParameterType::BINARY]
+        );
+
+        $result = [];
+        foreach ($products as $productId => $product) {
+            $categoryId = $mainCategoryIds[(string) $productId] ?? $mainCategoryIds[$product->getParentId() ?? ''] ?? null;
+
+            if ($categoryId !== null) {
+                $result[(string) $productId] = $categoryId;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Categories the customer may see, sorted like {@see getProductSeoCategory()} picks them.
+     */
+    private function loadSortedCategories(Criteria $criteria, SalesChannelContext $context): CategoryCollection
+    {
+        $criteria->setTitle('breadcrumb-builder::seo-categories');
+        $criteria->addFilter($this->getCategoryAvailableForCustomerFilter($context));
+        // categories hidden in the navigation must still yield a breadcrumb, but visible ones are preferred
+        $criteria->addSorting(new FieldSorting('visible', FieldSorting::DESCENDING));
+        $criteria->addSorting(new FieldSorting('level', FieldSorting::DESCENDING));
+
+        return $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
     }
 
     private function getMainCategoryFromProduct(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity

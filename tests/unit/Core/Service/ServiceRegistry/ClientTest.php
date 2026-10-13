@@ -49,10 +49,26 @@ class ClientTest extends TestCase
             ], \JSON_THROW_ON_ERROR),
         ];
 
+        yield 'missing-activate-on-install' => [
+            json_encode([
+                'services' => [
+                    ['name' => 'SomeService', 'label' => 'SomeService', 'host' => 'https://www.someservice.com', 'app-endpoint' => '/register', 'status' => 'active'],
+                ],
+            ], \JSON_THROW_ON_ERROR),
+        ];
+
+        yield 'missing-status' => [
+            json_encode([
+                'services' => [
+                    ['name' => 'SomeService', 'label' => 'SomeService', 'host' => 'https://www.someservice.com', 'app-endpoint' => '/register', 'activate-on-install' => true],
+                ],
+            ], \JSON_THROW_ON_ERROR),
+        ];
+
         yield '1-valid-1-invalid' => [
             json_encode([
                 'services' => [
-                    ['name' => 'SomeService', 'label' => 'SomeService', 'host' => 'https://www.someservice.com', 'app-endpoint' => '/register'],
+                    ['name' => 'SomeService', 'label' => 'SomeService', 'host' => 'https://www.someservice.com', 'app-endpoint' => '/register', 'activate-on-install' => true, 'status' => 'active'],
                     ['not-valid' => 1],
                 ],
             ], \JSON_THROW_ON_ERROR),
@@ -88,8 +104,8 @@ class ClientTest extends TestCase
     {
         $service = [
             'services' => [
-                ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint'],
-                ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint'],
+                ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint', 'activate-on-install' => true, 'status' => 'active'],
+                ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint', 'activate-on-install' => false, 'status' => 'retired'],
             ],
         ];
 
@@ -107,10 +123,14 @@ class ClientTest extends TestCase
         static::assertSame('My Cool Service 1', $entries[0]->description);
         static::assertSame('https://coolservice1.com', $entries[0]->host);
         static::assertSame('/app-endpoint', $entries[0]->appEndpoint);
+        static::assertTrue($entries[0]->activateOnInstall);
+        static::assertSame(ServiceStatus::ACTIVE, $entries[0]->status);
         static::assertSame('MyCoolService2', $entries[1]->name);
         static::assertSame('My Cool Service 2', $entries[1]->description);
         static::assertSame('https://coolservice2.com', $entries[1]->host);
         static::assertSame('/app-endpoint', $entries[1]->appEndpoint);
+        static::assertFalse($entries[1]->activateOnInstall);
+        static::assertSame(ServiceStatus::RETIRED, $entries[1]->status);
         static::assertSame('https://www.shopware.com/api/service/v2?page=1&limit=100', $response->getRequestUrl());
     }
 
@@ -118,8 +138,8 @@ class ClientTest extends TestCase
     {
         $service = [
             'services' => [
-                ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint'],
-                ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint'],
+                ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint', 'activate-on-install' => true, 'status' => 'active'],
+                ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint', 'activate-on-install' => true, 'status' => 'active'],
             ],
         ];
 
@@ -144,16 +164,16 @@ class ClientTest extends TestCase
     {
         $services1 = [
             'services' => [
-                ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint'],
-                ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint'],
+                ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint', 'activate-on-install' => true, 'status' => 'active'],
+                ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint', 'activate-on-install' => true, 'status' => 'active'],
             ],
         ];
 
         $services2 = [
             'services' => [
-                ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint'],
-                ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint'],
-                ['name' => 'MyCoolService3', 'host' => 'https://coolservice3.com', 'label' => 'My Cool Service 3', 'app-endpoint' => '/app-endpoint'],
+                ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint', 'activate-on-install' => true, 'status' => 'active'],
+                ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint', 'activate-on-install' => true, 'status' => 'active'],
+                ['name' => 'MyCoolService3', 'host' => 'https://coolservice3.com', 'label' => 'My Cool Service 3', 'app-endpoint' => '/app-endpoint', 'activate-on-install' => true, 'status' => 'active'],
             ],
         ];
 
@@ -197,15 +217,13 @@ class ClientTest extends TestCase
                 'Retired' => 'retired',
                 'Active' => 'active',
                 'FutureStatus' => 'deprecated',
-                'NoStatus' => null,
-                'NotAString' => 1,
             ])),
         ]);
 
         $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client);
 
         static::assertSame(
-            ['Retired' => ServiceStatus::RETIRED, 'Active' => ServiceStatus::ACTIVE, 'FutureStatus' => null, 'NoStatus' => null, 'NotAString' => null],
+            ['Retired' => ServiceStatus::RETIRED, 'Active' => ServiceStatus::ACTIVE, 'FutureStatus' => null],
             array_combine(
                 array_map(static fn (ServiceEntry $entry): string => $entry->name, $registryClient->getAll()),
                 array_map(static fn (ServiceEntry $entry): ?ServiceStatus => $entry->status, $registryClient->getAll()),
@@ -220,7 +238,6 @@ class ClientTest extends TestCase
                 'Retired' => 'retired',
                 'Active' => 'active',
                 'FutureStatus' => 'deprecated',
-                'NoStatus' => null,
             ])),
         ]);
 
@@ -360,7 +377,7 @@ class ClientTest extends TestCase
     {
         $service = [
             'services' => [
-                ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint'],
+                ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint', 'activate-on-install' => true, 'status' => 'active'],
             ],
         ];
         $servicePayload = (string) json_encode($service, \JSON_THROW_ON_ERROR);
@@ -460,17 +477,13 @@ class ClientTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $services names mapped to their status, null leaves the status out
+     * @param array<string, string> $services names mapped to their status
      */
     private function servicePage(array $services, int $pages = 1): string
     {
         $entries = [];
         foreach ($services as $name => $status) {
-            $entry = ['name' => $name, 'label' => $name, 'host' => 'https://' . $name . '.example.com', 'app-endpoint' => '/app-endpoint'];
-            if ($status !== null) {
-                $entry['status'] = $status;
-            }
-            $entries[] = $entry;
+            $entries[] = ['name' => $name, 'label' => $name, 'host' => 'https://' . $name . '.example.com', 'app-endpoint' => '/app-endpoint', 'activate-on-install' => true, 'status' => $status];
         }
 
         return json_encode(['services' => $entries, 'pagination' => ['pages' => $pages]], \JSON_THROW_ON_ERROR);

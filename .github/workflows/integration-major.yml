@@ -169,6 +169,7 @@ jobs:
         major: ${{ fromJson(needs.major-matrix.outputs.lanes) }}
     env:
       FEATURE_ALL: ${{ matrix.major }}
+      PROJECT_ROOT: ${{ github.workspace }}
 
     steps:
       - name: Setup Shopware

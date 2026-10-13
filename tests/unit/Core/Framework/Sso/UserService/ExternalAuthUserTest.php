@@ -41,6 +41,32 @@ class ExternalAuthUserTest extends TestCase
         static::assertNull($externalAuthUser->authenticatedAt);
     }
 
+    /**
+     * @return \Generator<string, array{?\DateTimeImmutable, bool}>
+     */
+    public static function authenticationAgeProvider(): \Generator
+    {
+        yield 'authenticated just now' => [new \DateTimeImmutable('2026-10-13 10:00:00'), true];
+        yield 'authenticated exactly at the limit' => [new \DateTimeImmutable('2026-10-13 09:55:00'), true];
+        yield 'authenticated a second before the limit' => [new \DateTimeImmutable('2026-10-13 09:54:59'), false];
+        yield 'identity provider reports no authentication time' => [null, true];
+    }
+
+    #[DataProvider('authenticationAgeProvider')]
+    public function testIsAuthenticatedWithinComparesTheAuthenticationTimeWithTheLimit(?\DateTimeImmutable $authenticatedAt, bool $expected): void
+    {
+        $externalAuthUser = ExternalAuthUser::create([
+            'id' => 'id_value',
+            'user_id' => 'user_id_value',
+            'user_sub' => 'user_sub_value',
+            'expiry' => new \DateTimeImmutable('2026-10-13 11:00:00'),
+            'email' => 'test@example.com',
+            'authenticated_at' => $authenticatedAt,
+        ]);
+
+        static::assertSame($expected, $externalAuthUser->isAuthenticatedWithin(300, new \DateTimeImmutable('2026-10-13 10:00:00')));
+    }
+
     public function testCreateKeepsTheAuthenticationTime(): void
     {
         $authenticatedAt = new \DateTimeImmutable('2026-10-13 10:00:00');

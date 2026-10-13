@@ -55,7 +55,7 @@ class ShopwareGrantType extends AbstractGrant
 
         // The scope repository reserves `user-verified` for the password grant. A login the identity
         // provider just performed is the SSO counterpart of re-entering the password.
-        if ($this->isVerifiedLogin($user)) {
+        if ($user->isAuthenticatedWithin(self::VERIFIED_LOGIN_MAX_AGE_SECONDS, $this->clock->now())) {
             $finalizedScopes[] = new UserVerifiedScope();
         }
 
@@ -74,19 +74,6 @@ class ShopwareGrantType extends AbstractGrant
         }
 
         return $responseType;
-    }
-
-    /**
-     * An identity provider that does not report `auth_time` cannot be told apart from a fresh login,
-     * so its sessions keep the verification they have today.
-     */
-    private function isVerifiedLogin(ExternalAuthUser $user): bool
-    {
-        if ($user->authenticatedAt === null) {
-            return true;
-        }
-
-        return $this->clock->now()->getTimestamp() - $user->authenticatedAt->getTimestamp() <= self::VERIFIED_LOGIN_MAX_AGE_SECONDS;
     }
 
     private function validateUser(ServerRequestInterface $request): ExternalAuthUser

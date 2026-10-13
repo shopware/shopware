@@ -42,6 +42,20 @@ final readonly class ExternalAuthUser implements UserEntityInterface
     }
 
     /**
+     * Whether the identity provider authenticated the user at most $seconds before $now. An identity provider
+     * that does not report the authentication time cannot be told apart from a fresh login, so its users
+     * count as authenticated.
+     */
+    public function isAuthenticatedWithin(int $seconds, \DateTimeInterface $now): bool
+    {
+        if ($this->authenticatedAt === null) {
+            return true;
+        }
+
+        return $now->getTimestamp() - $this->authenticatedAt->getTimestamp() <= $seconds;
+    }
+
+    /**
      * @param array<string, mixed> $data
      */
     public static function create(array $data): self

@@ -25,9 +25,6 @@ class BackwardCompatibleIntlExtension extends AbstractExtension
     ) {
     }
 
-    /**
-     * @phpstan-ignore shopware.deprecatedClass (framework-invoked; the extension returns no filters once v6.8.0.0 is active)
-     */
     public function getFilters(): array
     {
         if (Feature::isActive('v6.8.0.0')) {

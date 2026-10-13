@@ -18,6 +18,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Mcp\Mcp;
 use Shopware\Core\Framework\App\Mcp\Xml\McpTool;
 use Shopware\Core\Framework\App\Mcp\Xml\McpTools;
+use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -218,7 +219,7 @@ class McpToolPersisterTest extends TestCase
         $this->persister->validateRequiredPrivileges($manifest, $mcp);
     }
 
-    public function testValidateRequiredPrivilegesSkipsWhenNoManifestPermissions(): void
+    public function testValidateRequiredPrivilegesThrowsWhenTheManifestHasNoPermissions(): void
     {
         $tool = McpTool::fromArray([
             'name' => 'my-tool',
@@ -231,8 +232,26 @@ class McpToolPersisterTest extends TestCase
 
         $manifest = $this->createManifest('MyApp', null);
 
-        $this->expectNotToPerformAssertions();
+        // Without <permissions> the app has no privileges, so the tool could never read orders.
+        $this->expectExceptionObject(AppException::invalidConfiguration(
+            'MyApp',
+            new MissingPermissionError(['Tool "my-tool" requires "order:read" but it is not declared in <permissions>']),
+        ));
         $this->persister->validateRequiredPrivileges($manifest, $mcp);
+    }
+
+    public function testValidateRequiredPrivilegesAcceptsToolsWithoutRequirementsWhenTheManifestHasNoPermissions(): void
+    {
+        $tool = McpTool::fromArray([
+            'name' => 'my-tool',
+            'url' => '/api/script/my-tool',
+            'label' => ['en-GB' => 'My Tool'],
+            'description' => [],
+        ]);
+        $mcp = $this->createMcpWithTools(McpTools::fromArray(['tools' => [$tool]]));
+
+        $this->expectNotToPerformAssertions();
+        $this->persister->validateRequiredPrivileges($this->createManifest('MyApp', null), $mcp);
     }
 
     public function testValidateRequiredPrivilegesSkipsToolsWithoutRequirements(): void

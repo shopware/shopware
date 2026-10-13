@@ -4,6 +4,14 @@
         pointer-events: none;
     }
 
+    .sw-media-quickinfo-multiple__summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 0 0 20px;
+    }
+
     .sw-media-media-item > * {
         grid-row: 1 / span 2;
     }
@@ -11,6 +19,6 @@
 
 .sw-media-quickinfo-multiple .sw-media-quickinfo-multiple__second-headline {
     display: block;
-    margin: 0 0 20px;
+    margin: 0;
     color: var(--color-text-primary-default);
 }

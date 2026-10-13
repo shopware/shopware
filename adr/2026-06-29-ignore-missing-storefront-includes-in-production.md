@@ -57,6 +57,29 @@ storefront:
 
 The exact configuration name is not part of this ADR and should be finalized during implementation.
 
+### Observability
+
+Missing includes must stay observable in production instead of being silently dropped. Template resolution has a single chokepoint in `TemplateFinder::find()`, where the two missing-template branches live next to the `ignore missing` early returns. Logging from there covers both `sw_include` and `sw_extends`, since both resolve through `find()`.
+
+A `warning`-level log never reaches `prod.log`: the `main` handler is `fingers_crossed` with `action_level: error` and its `nested` target has `level: error`, so records below `error` are dropped even when the buffer flushes. Missing templates must therefore be logged at `error` level. The log must attach a `ShopwareHttpException` with a stable error code so operators can downgrade it via `shopware.logger.error_code_log_levels`; `ErrorCodeLogLevelHandler` decorates `monolog.handler.main` and sits outside `fingers_crossed`, so it can rewrite the level in both directions. Log level does not affect rendering.
+
+`sw_include` has two resolution paths with different logging semantics that the implementation must handle separately:
+
+* Static string includes resolve at compile time in `IncludeTokenParser::parse()`. The result is baked into the compiled template cache, so this yields at most one log per template per cache lifetime and no ongoing signal after warmup. Caller context is available from the parser's stream source context.
+* Dynamic expression includes resolve at runtime in `SwInclude::addGetTemplate()`, so they fire on every render and need dedup or sampling. This path currently passes no `ignore missing` to `find()`, and Twig's `IncludeNode` try/catch absorbs the error, so under the new default this path produces no signal unless one is added explicitly.
+
+No sales-channel attribution should be attached to compile-time logs: `DisableTwigCacheWarmerCompilerPass` removes the cache warmer, so first compilation happens lazily inside a real request and request context is a one-shot artifact that would mislead.
+
+The existing `ExceptionLogger::logOrThrowException()` already implements the "log always, throw when strict" pattern via `shopware.logger.enforce_throw_exception`. The proposed `storefront.twig.strict_missing_includes` should stay a dedicated flag because the existing one is broader and also covers tax providers, app gateways, and checkout gateways, but the overlap is worth noting.
+
+For SaaS visibility, a `storefront.template.missing.count` counter via `shopware.telemetry.metrics.definitions` can complement the log and avoid log parsing. It is gated behind the experimental `TELEMETRY_METRICS` flag, so it is a complement, not a replacement.
+
+### Out of scope
+
+`sw_extends` remains strict and does not gain the ignore-missing default. It resolves through the same `TemplateFinder::find()` chokepoint with a hardcoded `false`, so it is covered by the logging above without changing its failure semantics.
+
+This is deliberate: `sw_extends` defines the inheritance parent, which is structural rather than optional. Unlike `sw_include`, where dropping a missing fragment still yields a meaningful partial render, a missing parent leaves nothing coherent to fall back to, and a missing base almost always indicates a broken or incompatible theme or plugin that should fail loudly even in production. Vanilla Twig `extends` is equally always strict and has no `ignore missing` equivalent.
+
 ## Consequences
 
 Production storefronts become more resilient against broken optional template includes from extensions, apps, or themes. A missing include no longer needs to break the whole shop by default.
@@ -65,6 +88,6 @@ Extension and theme developers still receive immediate feedback in development b
 
 Projects that intentionally rely on strict production failures can opt in to the current behavior through configuration. This is important for self-hosted projects, CI-like production checks, and teams that prefer fail-fast behavior over partial storefront rendering.
 
-The production default can hide visible storefront fragments when a template is missing. Therefore the implementation should make missing includes observable, for example by logging the missing template with enough context to identify the caller and affected sales channel.
+The production default can hide visible storefront fragments when a template is missing. The implementation must keep missing includes observable per the logging and metrics decisions above, so operators and SaaS can still detect broken references.
 
 This is a behavioral change and should only become the default in the next major version. It needs release documentation and migration guidance explaining the new default and the strict production configuration option.

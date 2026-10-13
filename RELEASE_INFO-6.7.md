@@ -60,6 +60,16 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Preview three 6.8 behavior changes independently
+
+Set `MEDIA_URL_PATH_ENCODING=1` to test encoded media URL paths, `PROPORTIONAL_CART_TAXES=1` to test proportional tax calculation for percentage prices and split line items, or `DELETE_CART_AFTER_ORDER_CREATION=1` to test the earlier persisted-cart deletion during checkout. Each flag can be enabled without the other 6.8 changes. When `V6_8_0_0=1`, all three activate unless explicitly disabled. The corresponding migration guidance is in `UPGRADE-6.8.md`.
+
+### New `ProductBackInStockEvent` replaces `ProductNoLongerAvailableEvent` for products that become available
+
+The new `Shopware\Core\Content\Product\Events\ProductBackInStockEvent` is dispatched with the ids of products whose `available` flag changed from `false` to `true`, for example after a restock of a closeout product.
+
+`Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent` now only contains products whose `available` flag changed from `true` to `false`. If your subscriber reacts to both directions, for example to invalidate caches, subscribe to both events.
+
 ### Homepage hreflang links restored for existing `HreflangLoaderParameter` callers
 
 When `HreflangLoaderParameter` is constructed without the `$homepage` argument, `isHomepage()` again detects the homepage from the `frontend.home.page` route name, so homepage hreflang links are generated for these callers. This fallback is deprecated and will be removed in 6.8. If you construct `HreflangLoaderParameter` yourself, pass `$homepage` explicitly.
@@ -86,6 +96,12 @@ Deactivating a plugin now removes its asset manifest entry but retains its publi
 ### Feature flags can belong to a major version
 
 Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatically when `V6_8_0_0=1` is set. An explicit setting for the individual flag still takes precedence, so `JSON_LD_DATA=0` keeps that feature off. Standalone major flags are recognized by their version-shaped names; the `major` field is only for sub-features and must name a parent version flag. Flags without a parent omit `major` from their metadata and the feature-flag API response. `FEATURE_ALL` now activates every registered feature for any truthy value; use a version flag to test only that major's changes.
+
+### Order age rule condition
+
+The Rule Builder condition `orderDaysSincePlaced` compares the order's `orderDate` with the current date in calendar days. It supports numeric comparison operators and requires a numeric `daysPassed` value, for example `operator: <=` and `daysPassed: 30` to match orders placed within the last 30 days.
+
+Extensions can evaluate `Shopware\Core\Content\Flow\Rule\OrderDaysSincePlacedRule` in a `FlowRuleScope` or a derived scope to apply date limits to existing orders.
 
 ### Unlimited DAL searches with next-pages totals
 
@@ -539,11 +555,14 @@ Shopware.Component.override('sw-cms-list', {
 
 Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
 
-### Category SEO form shows the recommended meta length
+### Category and product SEO forms show the recommended meta length
 
-The meta title and meta description fields of the category SEO form show how many characters they contain against the recommended length of 70 and 150 characters, and highlight the hint when the recommendation is exceeded. The `n/255` counter for the stored maximum stays unchanged.
+The meta title and meta description fields of the category and product SEO forms show how many characters they contain against the recommended length, and highlight the hint when the recommendation is exceeded.
 
-Extensions can customize the hints through the new Twig blocks `sw_category_seo_form_meta_title_hint` and `sw_category_seo_form_meta_description_hint`.
+- Category: 70 characters for the meta title and 150 for the meta description. The `n/255` counter for the stored maximum stays unchanged.
+- Product: 56 characters for the meta title and 155 for the meta description, as named in their help texts. Inherited values are counted as well.
+
+Extensions can customize the hints through the new Twig blocks `sw_category_seo_form_meta_title_hint` and `sw_category_seo_form_meta_description_hint` for categories, and `sw_product_seo_form_meta_title_hint` and `sw_product_seo_form_meta_description_hint` for products.
 
 ### Admin list and card empty states use `mt-empty-state`
 
@@ -610,6 +629,12 @@ In `sw-order-line-items-grid`, the `orderLineItems` computed property still retu
 
 `sw-order-state-select-v2` renders an `mt-select` instead of `sw-single-select`. The field shows the current state as its value with a status dot, and each option shows the status dot of its target state. The dot color comes from the new optional `stateName` prop, which takes the technical name of the current state. Without `stateName`, the field shows no dots and renders the placeholder as the current state in the regular text color, so pass it to get the value and the colors. The `state-select` event and the `sw_order_state_select_v2_field` block are unchanged. Styles that targeted `sw-single-select` elements inside this component no longer apply.
 
+### Native-setup build errors point at the author's source
+
+Errors raised by the native-setup transform now carry the line and column of the offending code in the original `.vue` file and print a code frame, in Vite, Jest and the `valid-shopware-setup` ESLint rule alike. Syntax errors previously reported block-relative Babel coordinates, and marker or reserved-name errors pointed at the start of the file or block.
+
+The transform now also rejects `v-model` on a forwarded override binding inside `<sw-block extends>` content, the same way it rejects `count++` or `count = 1` there. Such a binding arrives read-only through the slot scope, so the write never took effect. Member writes such as `v-model="form.name"` remain allowed; mutate override state from a handler defined in the override setup instead.
+
 ### Import the global Shopware object with `shopware:*` modules (experimental)
 
 Administration code and extensions can now import selected APIs from the global `Shopware` object:
@@ -665,6 +690,13 @@ migrate it to `useCmsElement` by hand.
 
 The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
 
+### `mt-divider` and `mt-help-text` are registered globally
+
+`mt-divider` and `mt-help-text` from the Meteor Component Library are now registered globally and can be used in Administration templates.
+
+### `sw-order-state-select-v2` can render a regular size select
+
+`sw-order-state-select-v2` has a new `small` prop. It defaults to `true`, so existing usages keep the small select. Pass `:small="false"` to render a regular size select, for example in a form next to other fields.
 ### Result descriptions for entity selects and rule conditions
 
 `sw-entity-single-select` and `sw-entity-multi-select` accept the new props `descriptionProperty`, `descriptionFormatter` and `descriptionFormatterArgs`. They render a description below each search result: the value of `descriptionProperty`, optionally passed through the `Shopware.Filter` named in `descriptionFormatter`, with `descriptionFormatterArgs` as additional arguments. A new `breadcrumb` filter joins a breadcrumb with an optional separator, which defaults to ` / `.
@@ -782,6 +814,15 @@ If you override `buy-widget-price`, `block-price`, `price-unit` or `badges`: `is
 The nested GARAN label is now a button that shows the full label. On line items it opens a modal loaded from the new route `frontend.product.garan-label` (template `storefront/component/product/garan-label-modal.html.twig`); on the product detail page it expands the full label.
 
 If you override `component_line_item_garan_label`, `buy_widget_garan_label_preview` or `buy_widget_garan_label_full`, take over the new button and link markup.
+### The image gallery renders every spatial media type
+
+`cms-element-image-gallery.html.twig` now shows every media for which `isSpatial()` is true in the spatial viewer, and derives the slider options for spatial slides from its own items instead of `page.product.media`, so static galleries get them as well. The AR button and the QR code modal are only rendered for spatial objects.
+
+To pass different options to the viewer, override the new blocks `element_image_gallery_inner_item_spatial_canvas_viewer`, `element_image_gallery_inner_single_spatial_canvas_viewer` and `element_image_gallery_inner_zoom_modal_slider_item_zoom_container_spatial_canvas_viewer`. To build the viewer from something other than a model URL, override `SpatialBaseViewerPlugin::createQuickView()`; returning `null` leaves the canvas empty.
+
+The zoom modal no longer waits for images without a source before it opens.
+
+These additions are experimental and become stable with 6.8.0.
 
 ## App system
 

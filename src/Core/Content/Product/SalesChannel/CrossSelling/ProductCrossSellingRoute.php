@@ -252,7 +252,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $criteria->resetFields();
 
         $products = $this->productRepository->search($criteria, $context)->getEntities();
-        $products = $this->removeParentsWithoutAvailableVariant($products, $context);
+        $this->removeParentsWithoutAvailableVariant($products, $context);
 
         $ids = $criteria->getIds();
         $products->sortByIdArray($ids);
@@ -266,14 +266,14 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     /**
      * A parent without any available variant would link to a product detail page that is not found.
      */
-    private function removeParentsWithoutAvailableVariant(ProductCollection $products, SalesChannelContext $context): ProductCollection
+    private function removeParentsWithoutAvailableVariant(ProductCollection $products, SalesChannelContext $context): void
     {
         $parentIds = $products
             ->filter(static fn (ProductEntity $product): bool => $product->getParentId() === null && $product->getChildCount() > 0)
             ->getIds();
 
         if ($parentIds === []) {
-            return $products;
+            return;
         }
 
         $criteria = new Criteria();
@@ -286,9 +286,9 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $aggregation = $this->productRepository->aggregate($criteria, $context)->get('parentIds');
         $availableParentIds = $aggregation instanceof TermsResult ? $aggregation->getKeys() : [];
 
-        return $products->filter(
-            static fn (ProductEntity $product): bool => !isset($parentIds[$product->getId()]) || \in_array($product->getId(), $availableParentIds, true)
-        );
+        foreach (array_diff($parentIds, $availableParentIds) as $parentId) {
+            $products->remove($parentId);
+        }
     }
 
     /**

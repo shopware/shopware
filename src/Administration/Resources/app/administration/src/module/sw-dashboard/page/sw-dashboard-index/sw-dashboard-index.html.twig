@@ -31,6 +31,10 @@
                 class="sw-dashboard__before-content"
             />
 
+            {% block sw_dashboard_index_content_security_release %}
+            <sw-dashboard-security-release />
+            {% endblock %}
+
             {% block sw_dashboard_index_content_info_grid %}
             <div class="sw-dashboard-index__card-grid">
                 {% block sw_dashboard_index_content_info_grid_inner %}

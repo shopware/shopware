@@ -1,0 +1,40 @@
+{% block sw_dashboard_security_release %}
+<mt-banner
+    v-if="isVisible"
+    class="sw-dashboard-security-release"
+    :variant="bannerVariant"
+    :title="title"
+>
+    <div class="sw-dashboard-security-release__content">
+        <p class="sw-dashboard-security-release__message">
+            {{ message }}
+        </p>
+
+        <div class="sw-dashboard-security-release__actions">
+            <mt-button
+                v-if="canUpdate"
+                variant="primary"
+                size="small"
+                @click="openWizard"
+            >
+                {{ $t('sw-dashboard.securityRelease.updateNow') }}
+            </mt-button>
+
+            <mt-button
+                variant="secondary"
+                size="small"
+                @click="dismiss"
+            >
+                {{ $t('sw-dashboard.securityRelease.acknowledge') }}
+            </mt-button>
+
+            <mt-link
+                type="external"
+                :href="releaseUrl"
+            >
+                {{ $t('sw-dashboard.securityRelease.releaseNotes') }}
+            </mt-link>
+        </div>
+    </div>
+</mt-banner>
+{% endblock %}

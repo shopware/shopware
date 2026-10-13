@@ -7,6 +7,18 @@ import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from 'src/core/service/login.service';
 import ApiService from 'src/core/service/api.service';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export interface SecurityReleaseResponse {
+    isSecurityRelease: boolean;
+    version: string;
+    title: string;
+    date: string;
+    highestSeverity: string;
+    totalVulnerabilities: number;
+    vulnerabilities: Array<{ severity: string; summary: string; link: string }>;
+    dismissedByUser: boolean;
+}
+
 /**
  * Gateway for the API end point "update"
  * @class
@@ -31,6 +43,26 @@ export default class UpdateService extends ApiService {
                 autoUpdateEnabled?: boolean;
                 clusterSetup?: boolean;
             }>(`/_action/${this.getApiBasePath()}/check`, { headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    getSecurityRelease(): Promise<SecurityReleaseResponse | null> {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .get<SecurityReleaseResponse>(`/_action/${this.getApiBasePath()}/security-release`, { headers })
+            .then((response) => {
+                return ApiService.handleResponse(response) as SecurityReleaseResponse | null;
+            });
+    }
+
+    dismissSecurityRelease(version: string) {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .post<unknown>(`/_action/${this.getApiBasePath()}/security-release/dismiss`, { version }, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

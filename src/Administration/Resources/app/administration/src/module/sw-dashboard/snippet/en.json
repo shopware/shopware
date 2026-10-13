@@ -65,6 +65,13 @@
       "feedback": "Give feedback",
       "feedbackLink": "https://feedback.shopware.com"
     },
+    "securityRelease": {
+      "title": "Security update available: Shopware {version}",
+      "message": "This release fixes {count} vulnerabilities (highest severity: {severity}).",
+      "updateNow": "Update now",
+      "acknowledge": "I understand – do not show again",
+      "releaseNotes": "Release notes"
+    },
     "todayStats": {
       "headline": "Today's statistics",
       "orders": "Orders",

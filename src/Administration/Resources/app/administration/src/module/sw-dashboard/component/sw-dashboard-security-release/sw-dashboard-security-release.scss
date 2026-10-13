@@ -1,0 +1,17 @@
+.sw-dashboard-security-release {
+    max-width: 60rem;
+    margin: 0 auto var(--scale-size-24);
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-12);
+    }
+
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--scale-size-12);
+    }
+}

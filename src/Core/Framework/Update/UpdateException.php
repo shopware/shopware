@@ -12,6 +12,8 @@ class UpdateException extends HttpException
     public const AUTO_UPDATE_DISABLED = 'FRAMEWORK__AUTO_UPDATE_DISABLED';
     public const UPDATE_MODULE_HIDDEN = 'FRAMEWORK__UPDATE_MODULE_HIDDEN';
     public const CLUSTER_SETUP_NOT_SUPPORTED = 'FRAMEWORK__UPDATE_CLUSTER_SETUP_NOT_SUPPORTED';
+    public const MISSING_USER = 'FRAMEWORK__UPDATE_MISSING_USER';
+    public const MISSING_VERSION = 'FRAMEWORK__UPDATE_MISSING_VERSION';
 
     public static function autoUpdateDisabled(): self
     {
@@ -37,6 +39,24 @@ class UpdateException extends HttpException
             Response::HTTP_FORBIDDEN,
             self::UPDATE_MODULE_HIDDEN,
             'The update module is hidden'
+        );
+    }
+
+    public static function missingUser(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_USER,
+            'The current request does not contain a valid user'
+        );
+    }
+
+    public static function missingVersion(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_VERSION,
+            'The request is missing a valid version parameter'
         );
     }
 }

@@ -47,22 +47,19 @@ class AnalyticsLineItemPriceCalculator extends AbstractAnalyticsLineItemPriceCal
      * is already cheaper. Dividing the aggregated discount by the line item quantity therefore stays
      * correct, while dividing per composition entry would not.
      *
-     * @param iterable<mixed>|null $lineItems null for a template that includes the component without
-     *                                        a cart, which gets no prices
-     *
-     * @return array<string, AnalyticsLineItemPrice> keyed by line item id
+     * @param iterable<LineItem|OrderLineItemEntity>|null $lineItems null for a template that
+     *                                                               includes the component without
+     *                                                               a cart, which gets no prices
      */
-    public function calculate(?iterable $lineItems, SalesChannelContext $context): array
+    public function calculate(?iterable $lineItems, SalesChannelContext $context): AnalyticsLineItemPriceCollection
     {
+        $prices = new AnalyticsLineItemPriceCollection();
+
         if ($lineItems === null) {
-            return [];
+            return $prices;
         }
 
-        // the line items come from a template, so anything that is not a line item is dropped
-        $lineItems = array_values(array_filter(
-            \is_array($lineItems) ? $lineItems : iterator_to_array($lineItems, false),
-            static fn (mixed $lineItem) => $lineItem instanceof LineItem || $lineItem instanceof OrderLineItemEntity,
-        ));
+        $lineItems = array_values(\is_array($lineItems) ? $lineItems : iterator_to_array($lineItems, false));
 
         $discounts = $this->collectDiscounts($lineItems);
         $rounding = $context->getItemRounding();
@@ -94,16 +91,14 @@ class AnalyticsLineItemPriceCalculator extends AbstractAnalyticsLineItemPriceCal
         $this->allocate($lines);
         $totals = $this->roundTotals($lines, $rounding, $cash);
 
-        $prices = [];
-
         foreach ($lines as $id => $line) {
-            $prices[$id] = new AnalyticsLineItemPrice(
+            $prices->set($id, new AnalyticsLineItemPrice(
                 price: $this->round($line->discountedTotal() / $line->quantity, $rounding, $cash),
                 discount: $this->round($line->discount / $line->quantity, $rounding, $cash),
                 // The rounded unit price times the quantity can miss the paid line total by a cent,
                 // 20.00 split over three units reports 6.67, so the event value uses this instead.
                 total: $totals[$id],
-            );
+            ));
         }
 
         return $prices;

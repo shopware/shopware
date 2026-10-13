@@ -461,6 +461,25 @@ An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the ap
 
 ## API
 
+### MCP tool results carry `structuredContent` and `isError`
+
+Tool calls on `/api/_mcp` and `/store-api/_mcp` now return the result data as `structuredContent` next to the existing text block, so clients can read it without parsing JSON out of the text. Clients that negotiate a protocol revision before 2025-06-18 get no `structuredContent`, because that revision introduced it. A failed call sets `isError: true` and puts a stable code in `structuredContent.error.code`, for example `missing_privilege`, `invalid_arguments` or `tool_error`. The error envelope in the text block gains the same `code` key. Every result also carries `_meta["shopware/generatedAt"]`.
+
+The text block is unchanged, so clients that parse `{"success": ..., "data": ...}` keep working. Plugin tools that extend `McpToolResponse` get the new fields without any change. Tools can pass a stable code as the second argument of `McpToolResponse::error()`.
+
+With the `v6.8.0.0` feature flag, the first text block holds the plain data or the error message instead of the `success` envelope, followed by the summary and the metadata (`{"_meta": …}`) as blocks of their own. See `UPGRADE-6.8.md` for how to switch a client.
+
+### Large MCP tool results are linked with `resource_link` and work without a session
+
+A tool result larger than 100 KB is stored and linked instead of returned inline. The link is now a signed pointer for the caller: the integration or user on `/api/_mcp`, the sales channel and `sw-context-token` on `/store-api/_mcp`. It expires after an hour and can be read on any later request of the same caller, with or without an MCP session. Another caller gets "not found".
+
+The result keeps `_meta.resourceUri` in the text block and adds `_meta.expiresAt`. Clients on protocol 2025-06-18 or later also get the link as a `resource_link` content block. The Store API endpoint can now read these results with `resources/read`; before, its links could not be resolved. Store API clients have to send the same `sw-context-token` on the read. A Store API call without `sw-context-token` gets its result inline, because the token minted for that one request could never read it back.
+### Parents without an available variant are not found
+
+`/store-api/product/{productId}` now responds with HTTP 404, like for an inactive product, when the requested product is a parent and none of its variants can be shown: all variants are inactive or not visible in the sales channel, or they are out-of-stock closeouts while `core.listing.hideCloseoutProductsWhenOutOfStock` is active. Previously the parent was returned as a product without a buyable variant, so the storefront rendered a detail page that could not be ordered from.
+
+For the same reason, `/store-api/product/{productId}/cross-selling` no longer returns such a parent in a cross-selling with manually assigned products.
+
 ### Generated document number in the V2 creation response
 
 The `POST /api/_action/order/document-v2/create` response now includes `documentNumber`, allowing clients to compare the assigned number with a previously displayed preview.
@@ -556,6 +575,19 @@ Shopware.Component.override('sw-cms-list', {
 
 Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
 
+### `$tc` stays available until 6.9 and reports its usages
+
+The removal of `$tc()` was moved from 6.8 to 6.9, so extensions using it keep working with 6.8. `$tc()`, the root instance `$tc()`, and `Shopware.Snippet.tc()` are deprecated in favor of `$t()` and `Shopware.Snippet.t()`.
+
+In development builds, the Administration now logs a deprecation once per component and snippet key that is translated with `$tc()`, naming the component and the replacement call. The deprecations use `Shopware.Feature.triggerDeprecationOrThrow()` with the `V6_9_0_0` major flag.
+
+Calls in the vue-i18n 8 argument order `$t(key, plural, namedParameters)` lost their named parameters since the vue-i18n 10 update. They are now converted to `$t(key, namedParameters, plural)` and reported with a deprecation warning. The conversion will be removed in 6.9.
+
+The ESLint rule `sw-core-rules/no-tc-translation` in the Administration extension tooling reports and autofixes both patterns in JavaScript, TypeScript, Vue templates, and bound attributes of Twig templates. `{{ }}` interpolations in `.html.twig` templates are not checked and have to be migrated manually. The locale argument of `$tc(key, plural, locale)` becomes the `locale` option of `$t(key, plural, { locale })`. Calls whose named parameters are no object literal or contain spread or computed keys, e.g. `$t(key, 1, params)` or `$t(key, 1, { ...params })`, are reported without an autofix. Like the other deprecation rules of the extension tooling, it follows `internalApiSeverity`:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```
 ### Category and product SEO forms show the recommended meta length
 
 The meta title and meta description fields of the category and product SEO forms show how many characters they contain against the recommended length, and highlight the hint when the recommendation is exceeded.

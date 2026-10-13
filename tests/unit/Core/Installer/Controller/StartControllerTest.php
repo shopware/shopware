@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Installer\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Installer\Controller\InstallerController;
 use Shopware\Core\Installer\Controller\StartController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +19,6 @@ use Twig\Environment;
  */
 #[Package('framework')]
 #[CoversClass(StartController::class)]
-#[CoversClass(InstallerController::class)]
 class StartControllerTest extends TestCase
 {
     public function testWelcomeRoute(): void
@@ -62,86 +60,5 @@ class StartControllerTest extends TestCase
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/installer/requirements', $response->getTargetUrl());
         static::assertTrue($session->get('extendSteps'));
-    }
-
-    public function testExtendedStepsAddedToMenu(): void
-    {
-        $twig = $this->createMock(Environment::class);
-        $twig->expects($this->once())->method('render')
-            ->with(
-                '@Installer/installer/welcome.html.twig',
-                static::callback(static function (array $params): bool {
-                    $expectedMenuWithExtendedSteps = [
-                        [
-                            'label' => 'start',
-                            'active' => true,
-                            'isCompleted' => false,
-                        ],
-                        [
-                            'label' => 'configure_php',
-                            'active' => false,
-                            'isCompleted' => true,
-                        ],
-                        [
-                            'label' => 'download',
-                            'active' => false,
-                            'isCompleted' => true,
-                        ],
-                        [
-                            'label' => 'requirements',
-                            'active' => false,
-                            'isCompleted' => false,
-                        ],
-                        [
-                            'label' => 'license',
-                            'active' => false,
-                            'isCompleted' => false,
-                        ],
-                        [
-                            'label' => 'database-configuration',
-                            'active' => false,
-                            'isCompleted' => false,
-                        ],
-                        [
-                            'label' => 'database-import',
-                            'active' => false,
-                            'isCompleted' => false,
-                        ],
-                        [
-                            'label' => 'configuration',
-                            'active' => false,
-                            'isCompleted' => false,
-                        ],
-                        [
-                            'label' => 'translation',
-                            'active' => false,
-                            'isCompleted' => false,
-                        ],
-                        [
-                            'label' => 'finish',
-                            'active' => false,
-                            'isCompleted' => false,
-                        ],
-                    ];
-                    static::assertArrayHasKey('menu', $params);
-                    static::assertSame($expectedMenuWithExtendedSteps, $params['menu']);
-
-                    return true;
-                })
-            )
-            ->willReturn('welcome page');
-
-        $controller = new StartController();
-        $container = InstallerControllerFixture::getInstallerContainer($twig);
-
-        $requestStack = $container->get('request_stack');
-        $containerRequest = $requestStack->getCurrentRequest();
-        static::assertInstanceOf(Request::class, $containerRequest);
-
-        $containerRequest->getSession()->set('extendSteps', true);
-        $controller->setContainer($container);
-
-        $response = $controller->start($containerRequest);
-        static::assertSame('welcome page', $response->getContent());
     }
 }

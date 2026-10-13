@@ -93,30 +93,7 @@ export default {
         },
 
         async runPresignedReplace(fileHandle) {
-            const { fileReader } = Shopware.Utils;
-            const { fileName, extension } = fileReader.getNameAndExtensionFromFile(fileHandle);
-            const mimeType = fileHandle.type || 'application/octet-stream';
-
-            const [result, dimensions] = await Promise.all([
-                this.mediaPresignedUploadService.prepareUpload({
-                    fileName,
-                    extension,
-                    mimeType,
-                    mediaId: this.itemToReplace.id,
-                }),
-                this.mediaPresignedUploadService.getImageDimensions(fileHandle),
-            ]);
-
-            await this.mediaPresignedUploadService.uploadToPresignedUrl(result.url, fileHandle, mimeType);
-
-            await this.mediaPresignedUploadService.finalizeUpload(this.itemToReplace.id, {
-                fileName,
-                extension,
-                mimeType,
-                path: result.path,
-                width: dimensions?.width ?? null,
-                height: dimensions?.height ?? null,
-            });
+            await this.mediaPresignedUploadService.uploadFile(fileHandle, { id: this.itemToReplace.id });
         },
     },
 };

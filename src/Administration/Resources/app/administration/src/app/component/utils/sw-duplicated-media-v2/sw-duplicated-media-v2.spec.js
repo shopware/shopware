@@ -20,9 +20,22 @@ const uploadTaskMock = {
 describe('components/utils/sw-duplicated-media-v2', () => {
     let wrapper;
     let uploads = {};
+    let mediaRepository;
+    let uploadEventListener;
 
     beforeEach(async () => {
         uploads = {};
+        uploadEventListener = jest.fn();
+        mediaRepository = {
+            search: () => Promise.resolve([{ id: 'foo' }]),
+            get: jest.fn(() =>
+                Promise.resolve({
+                    id: 'foo',
+                    hasFile: true,
+                }),
+            ),
+            delete: jest.fn(() => Promise.resolve()),
+        };
         wrapper = mount(await wrapTestComponent('sw-duplicated-media-v2', { sync: true }), {
             global: {
                 provide: {
@@ -31,22 +44,10 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                         stopEventListener() {},
                     },
                     repositoryFactory: {
-                        create: () => {
-                            return {
-                                search: () => Promise.resolve([{ id: 'foo' }]),
-                                get: () =>
-                                    Promise.resolve({
-                                        id: 'foo',
-                                        hasFile: true,
-                                    }),
-                                delete: () => Promise.resolve(),
-                            };
-                        },
+                        create: () => mediaRepository,
                     },
                     mediaPresignedUploadService: {
-                        prepareUpload: jest.fn(),
-                        uploadToPresignedUrl: jest.fn(),
-                        finalizeUpload: jest.fn(),
+                        uploadFile: jest.fn(),
                     },
                     mediaService: {
                         addDefaultListener: jest.fn(),
@@ -61,6 +62,9 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                             return { fileName: `${fileName}_(2)` };
                         },
                         keepFile: jest.fn(),
+                        cancelUpload: jest.fn(),
+                        getListenerForTag: () => [uploadEventListener],
+                        _createUploadEvent: (action, uploadTag, payload) => ({ action, uploadTag, payload }),
                     },
                 },
                 stubs: {
@@ -130,5 +134,78 @@ describe('components/utils/sw-duplicated-media-v2', () => {
         await replaceButton.trigger('click');
 
         expect(wrapper.vm.mediaService.runUploads).toHaveBeenCalledWith('upload-tag-sw-media-index');
+    });
+
+    it('should upload a renamed file through a new presigned upload and report the confirmed media id', async () => {
+        Shopware.Store.get('context').app.config = { settings: { presignedUploadSupported: true } };
+        const presignedUploadService = wrapper.vm.mediaPresignedUploadService;
+        presignedUploadService.uploadFile.mockResolvedValue('confirmed-id');
+        const file = new File(['content'], 'my-demo-image.jpg', { type: 'image/jpeg' });
+
+        await wrapper.vm.renameFile({ ...uploadTaskMock, src: file });
+
+        expect(presignedUploadService.uploadFile).toHaveBeenCalledWith(file, {
+            fileName: 'my-demo-image_(2).jpg',
+            id: null,
+        });
+        expect(uploadEventListener).toHaveBeenCalledWith(
+            expect.objectContaining({
+                action: 'media-upload-finish',
+                payload: expect.objectContaining({ targetId: 'confirmed-id' }),
+            }),
+        );
+        expect(wrapper.vm.mediaService.runUploads).not.toHaveBeenCalled();
+    });
+
+    it('should skip a file without deleting anything when no placeholder media exists', async () => {
+        mediaRepository.get.mockResolvedValue(null);
+        await wrapper.setData({ failedUploadTasks: [uploadTaskMock] });
+
+        await wrapper.vm.skipCurrentFile();
+
+        expect(mediaRepository.delete).not.toHaveBeenCalled();
+        expect(wrapper.vm.mediaService.cancelUpload).toHaveBeenCalledWith(uploadTaskMock.uploadTag, uploadTaskMock);
+    });
+
+    it('should delete the empty placeholder media when a file is skipped', async () => {
+        mediaRepository.get.mockResolvedValue({ id: 'placeholder-id', hasFile: false });
+        await wrapper.setData({ failedUploadTasks: [uploadTaskMock] });
+
+        await wrapper.vm.skipCurrentFile();
+
+        expect(mediaRepository.delete).toHaveBeenCalledWith('placeholder-id', expect.anything());
+    });
+
+    it('should keep the existing file without deleting anything when no placeholder media exists', async () => {
+        mediaRepository.get.mockResolvedValue(null);
+
+        await wrapper.vm.keepFile({ ...uploadTaskMock });
+
+        expect(mediaRepository.delete).not.toHaveBeenCalled();
+        expect(wrapper.vm.mediaService.keepFile).toHaveBeenCalledWith(
+            uploadTaskMock.uploadTag,
+            expect.objectContaining({ targetId: 'foo', originalTargetId: uploadTaskMock.targetId }),
+        );
+    });
+
+    it('should delete the empty placeholder media when the existing file is kept', async () => {
+        mediaRepository.get.mockResolvedValue({ id: 'placeholder-id', hasFile: false });
+
+        await wrapper.vm.keepFile({ ...uploadTaskMock });
+
+        expect(mediaRepository.delete).toHaveBeenCalledWith('placeholder-id', expect.anything());
+    });
+
+    it('should upload a replacement under the task file name and return the confirmed media id', async () => {
+        const presignedUploadService = wrapper.vm.mediaPresignedUploadService;
+        presignedUploadService.uploadFile.mockResolvedValue('existing-id');
+
+        const confirmedMediaId = await wrapper.vm.presignedUpload(uploadTaskMock, 'existing-id');
+
+        expect(presignedUploadService.uploadFile).toHaveBeenCalledWith(uploadTaskMock.src, {
+            fileName: 'my-demo-image.jpg',
+            id: 'existing-id',
+        });
+        expect(confirmedMediaId).toBe('existing-id');
     });
 });

@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Media\Api;
 
+use Shopware\Core\Content\Media\Upload\MediaUploadParameters;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
+use Shopware\Core\Content\Media\Upload\PresignedUploadConfirmPayload;
 use Shopware\Core\Content\Media\Upload\PresignedUploadFinalizePayload;
 use Shopware\Core\Content\Media\Upload\PresignedUploadPreparePayload;
 use Shopware\Core\Framework\Context;
@@ -10,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -45,5 +48,36 @@ readonly class PresignedUploadController
         $this->presignedMediaUploadService->finalize($mediaId, $payload, $context);
 
         return new JsonResponse(['mediaId' => $mediaId]);
+    }
+
+    #[Route(path: '/api/_action/media/upload/presign', name: 'api.action.media.upload.presign', methods: ['POST'])]
+    public function requestUpload(
+        #[MapRequestPayload]
+        MediaUploadParameters $params,
+        Context $context,
+    ): JsonResponse {
+        $ticket = $this->presignedMediaUploadService->requestUpload($params, $context);
+
+        return new JsonResponse([
+            'id' => $ticket->mediaId,
+            'uploadToken' => $ticket->uploadToken,
+            'upload' => [
+                'method' => $ticket->method,
+                'url' => $ticket->url,
+                'headers' => $ticket->headers,
+                'expiresAt' => $ticket->expiresAt,
+            ],
+        ], Response::HTTP_CREATED);
+    }
+
+    #[Route(path: '/api/_action/media/upload/confirm', name: 'api.action.media.upload.confirm', methods: ['POST'])]
+    public function confirmUpload(
+        #[MapRequestPayload]
+        PresignedUploadConfirmPayload $payload,
+        Context $context,
+    ): JsonResponse {
+        return new JsonResponse([
+            'id' => $this->presignedMediaUploadService->confirmUpload($payload, $context),
+        ]);
     }
 }

@@ -13,6 +13,15 @@ interface PresignedUrlGeneratorInterface
 {
     public function generate(MediaLocationStruct $location, string $mimeType, bool $private): PresignedUrlResult;
 
+    /**
+     * The result's `path` is a staging key outside the media paths; the object becomes media only through {@see promote()}.
+     */
+    public function generateStagingUpload(string $extension, bool $private): PresignedUrlResult;
+
+    public function promote(string $stagingKey, string $path, bool $private, string $contentType, string $etag, bool $mayOverwrite): bool;
+
+    public function deleteAbandonedStagingUploads(): void;
+
     public function isEnabled(): bool;
 
     public function isSupported(): bool;

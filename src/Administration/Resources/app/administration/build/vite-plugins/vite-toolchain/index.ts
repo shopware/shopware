@@ -22,7 +22,8 @@ import type symfonyPlugin from 'vite-plugin-symfony';
  *
  * Typed with the Vite 6 types of the Administration, because TypeScript cannot resolve the ESM only types of Vite 8.
  */
-export type Vite8Toolchain = {
+export type ViteToolchain = {
+    isVite8: boolean;
     vite: typeof Vite;
     vue: typeof vue;
     nodePolyfills: typeof nodePolyfills;
@@ -40,7 +41,35 @@ export function isVite8ToolchainActive(): boolean {
 }
 
 /** @private */
-export function loadVite8Toolchain(): Vite8Toolchain {
+export async function loadViteToolchain(): Promise<ViteToolchain> {
+    if (isVite8ToolchainActive()) {
+        return loadVite8Toolchain();
+    }
+
+    // Dynamic imports keep Vite 6 out of the Vite 8 processes: the config bundlers of Vite keep them as runtime imports
+    // and ts-node compiles them to lazy requires.
+    const [
+        vite,
+        vuePlugin,
+        symfony,
+        polyfills,
+    ] = await Promise.all([
+        import('vite'),
+        import('@vitejs/plugin-vue'),
+        import('vite-plugin-symfony'),
+        import('vite-plugin-node-polyfills'),
+    ]);
+
+    return {
+        isVite8: false,
+        vite,
+        vue: vuePlugin.default,
+        symfonyPlugin: symfony.default,
+        nodePolyfills: polyfills.nodePolyfills,
+    };
+}
+
+function loadVite8Toolchain(): ViteToolchain {
     if (!fs.existsSync(path.join(VITE_8_TOOLCHAIN_PATH, 'node_modules', 'vite'))) {
         throw new Error(
             `The ${FEATURE_FLAG} feature flag is active, but the Vite 8 toolchain is not installed. Run "npm ci" in "${VITE_8_TOOLCHAIN_PATH}".`,
@@ -54,10 +83,11 @@ export function loadVite8Toolchain(): Vite8Toolchain {
 
     /* eslint-disable @typescript-eslint/no-unsafe-member-access */
     return {
-        vite: toolchainRequire('vite') as Vite8Toolchain['vite'],
-        vue: toolchainRequire('@vitejs/plugin-vue').default as Vite8Toolchain['vue'],
-        nodePolyfills: toolchainRequire('vite-plugin-node-polyfills').nodePolyfills as Vite8Toolchain['nodePolyfills'],
-        symfonyPlugin: toolchainRequire('vite-plugin-symfony').default as Vite8Toolchain['symfonyPlugin'],
+        isVite8: true,
+        vite: toolchainRequire('vite') as ViteToolchain['vite'],
+        vue: toolchainRequire('@vitejs/plugin-vue').default as ViteToolchain['vue'],
+        nodePolyfills: toolchainRequire('vite-plugin-node-polyfills').nodePolyfills as ViteToolchain['nodePolyfills'],
+        symfonyPlugin: toolchainRequire('vite-plugin-symfony').default as ViteToolchain['symfonyPlugin'],
     };
     /* eslint-enable @typescript-eslint/no-unsafe-member-access */
 }

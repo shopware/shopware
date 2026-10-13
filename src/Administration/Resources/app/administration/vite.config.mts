@@ -2,14 +2,10 @@
  * @package framework
  */
 
-import { defineConfig, loadEnv } from 'vite';
-import type { UserConfig } from 'vite';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import type { UserConfig, UserConfigFnPromise } from 'vite';
 import svgLoader from 'vite-svg-loader';
-import vue from '@vitejs/plugin-vue';
 import * as path from 'path';
 import * as fs from 'fs';
-import symfonyPlugin from 'vite-plugin-symfony';
 import colors from 'picocolors';
 import {
     getDevServerHttpsConfig,
@@ -28,23 +24,9 @@ import VirtualShopwareModulesPlugin from './build/vite-plugins/virtual-shopware-
 import NodeEnvDefinePlugin from './build/vite-plugins/node-env-define';
 import AdminIndexHtmlPlugin from './build/vite-plugins/admin-index-html';
 import ExtglobCompatPlugin from './build/vite-plugins/extglob-compat';
-import { isVite8ToolchainActive, loadVite8Toolchain } from './build/vite-plugins/vite-toolchain';
+import { loadViteToolchain } from './build/vite-plugins/vite-toolchain';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
-
-process.env = { ...process.env, ...loadEnv('', process.cwd()) };
-process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || path.join(__dirname, '/../../../../../');
-
-process.env.SERVICE_REGISTRY_URL = process.env.SERVICE_REGISTRY_URL ?? 'https://registry.services.shopware.io';
-
-if (!process.env.APP_URL) {
-    console.log(colors.yellowBright('APP_URL is not defined. Dev-Mode will not work.'));
-}
-
-const viteExtensionServerMapping = getMainViteServerConfig();
-
-const vite8 = isVite8ToolchainActive() ? loadVite8Toolchain() : null;
-const vitePlugins = vite8 ?? { nodePolyfills, vue, symfonyPlugin };
 
 const pageLoadingScreenPath = path.join(__dirname, '..', '..', 'shared', 'page-loading-screen');
 const pageLoadingScreen = {
@@ -53,8 +35,20 @@ const pageLoadingScreen = {
     markup: fs.readFileSync(path.join(pageLoadingScreenPath, 'page-loading-screen.html')),
 };
 
-// eslint-disable-next-line
-export default defineConfig(({ command }) => {
+export default (async ({ command }) => {
+    process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || path.join(__dirname, '/../../../../../');
+
+    const toolchain = await loadViteToolchain();
+
+    process.env = { ...process.env, ...toolchain.vite.loadEnv('', process.cwd()) };
+    process.env.SERVICE_REGISTRY_URL = process.env.SERVICE_REGISTRY_URL ?? 'https://registry.services.shopware.io';
+
+    if (!process.env.APP_URL) {
+        console.log(colors.yellowBright('APP_URL is not defined. Dev-Mode will not work.'));
+    }
+
+    const viteExtensionServerMapping = getMainViteServerConfig();
+
     const isProd = command === 'build';
     const isDev = !isProd;
     const base = isProd ? '/bundles/administration/administration' : undefined;
@@ -62,13 +56,13 @@ export default defineConfig(({ command }) => {
         (isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||
         (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
     const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1' && !isInsideDockerContainer();
-    const useBundledDev = !!vite8 && isDev && process.env.SHOPWARE_ADMIN_BUNDLED_DEV === '1';
+    const useBundledDev = toolchain.isVite8 && isDev && process.env.SHOPWARE_ADMIN_BUNDLED_DEV === '1';
 
     if (isProd) {
         console.log(colors.yellow('# Production mode activated 🚀'));
     }
 
-    if (vite8) {
+    if (toolchain.isVite8) {
         console.log(colors.yellow('# Vite 8 activated by the ADMIN_VITE_8 feature flag'));
     }
 
@@ -95,7 +89,7 @@ export default defineConfig(({ command }) => {
 
         logLevel: isProd ? 'warn' : 'info',
 
-        ...(vite8
+        ...(toolchain.isVite8
             ? {
                   // Typed with Vite 6, which does not know the bundled dev mode
                   experimental: {
@@ -124,7 +118,7 @@ export default defineConfig(({ command }) => {
         plugins: (() => {
             // Plugins used for both dev and prod
             const sharedPlugins = [
-                ...(vite8 ? [ExtglobCompatPlugin()] : []),
+                ...(toolchain.isVite8 ? [ExtglobCompatPlugin()] : []),
 
                 // Shopware plugins: build/vite-plugins
                 TwigPlugin(),
@@ -141,11 +135,11 @@ export default defineConfig(({ command }) => {
                 }),
 
                 // Twig.JS loads node modules, so we need to polyfill them
-                vitePlugins.nodePolyfills({
+                toolchain.nodePolyfills({
                     // In the unbundled dev mode of Vite 8, the globals are only provided via the pre-bundled
                     // dependencies. Injecting them into every source module costs a lot of time on each server start.
                     globals:
-                        vite8 && isDev && !useBundledDev
+                        toolchain.isVite8 && isDev && !useBundledDev
                             ? {
                                   Buffer: 'dev',
                                   global: 'dev',
@@ -159,7 +153,7 @@ export default defineConfig(({ command }) => {
                     ],
                 }),
                 svgLoader(),
-                vitePlugins.vue(),
+                toolchain.vue(),
             ];
 
             if (isDev) {
@@ -187,7 +181,7 @@ export default defineConfig(({ command }) => {
                 ...sharedPlugins,
 
                 // We only use the symfony integration for build, as serving the Shared Worker doesn't work
-                vitePlugins.symfonyPlugin(),
+                toolchain.symfonyPlugin(),
             ];
         })(),
 
@@ -240,7 +234,7 @@ export default defineConfig(({ command }) => {
             exclude: ['@shopware-ag/dive'],
             // This avoids full-page reload but the browser can't process more requests in parallel
             holdUntilCrawlEnd: true,
-            ...(vite8
+            ...(toolchain.isVite8
                 ? {
                       rolldownOptions: {
                           transform: {
@@ -292,4 +286,4 @@ export default defineConfig(({ command }) => {
             chunkSizeWarningLimit: 5000,
         },
     };
-});
+}) satisfies UserConfigFnPromise;

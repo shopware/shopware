@@ -10,13 +10,11 @@
  * @sw-package framework
  */
 
-import { createServer, build, defineConfig, createLogger } from 'vite';
+import type { UserConfig } from 'vite';
 import path from 'path';
 import fs from 'fs';
 import colors from 'picocolors';
-import vue from '@vitejs/plugin-vue';
 import svgLoader from 'vite-svg-loader';
-import symfonyPlugin from 'vite-plugin-symfony';
 import debug from 'debug';
 
 // Shopware imports
@@ -31,7 +29,8 @@ import VirtualShopwareModulesPlugin from './vite-plugins/virtual-shopware-module
 import { loadExtensions, getViteServerPorts, isInsideDockerContainer } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
-import { isVite8ToolchainActive, loadVite8Toolchain } from './vite-plugins/vite-toolchain';
+import { loadViteToolchain } from './vite-plugins/vite-toolchain';
+import type { ViteToolchain } from './vite-plugins/vite-toolchain';
 
 const VITE_MODE = process.env.VITE_MODE || 'development';
 const isDev = VITE_MODE === 'development';
@@ -42,11 +41,8 @@ const host = process.env.VITE_HOST || 'localhost';
 
 const extensionEntries = loadExtensions();
 
-const vite8 = isVite8ToolchainActive() ? loadVite8Toolchain() : null;
-const toolchain = vite8 ?? { vite: { createServer, build, createLogger }, vue, symfonyPlugin };
-
 // Common configuration shared between dev and build
-const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
+const getBaseConfig = (toolchain: ViteToolchain, extension: ExtensionDefinition, isProd: boolean): UserConfig => {
     const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
     const configInfoDebug = debug('vite:config');
     const useSourceMap =
@@ -64,7 +60,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
         extensionInfoDebug(msg);
     };
 
-    return defineConfig({
+    return {
         root: extension.path,
 
         logLevel: isProd ? 'warn' : 'info',
@@ -137,7 +133,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
                           'date-fns-tz',
                       ],
                       holdUntilCrawlEnd: true,
-                      ...(vite8
+                      ...(toolchain.isVite8
                           ? {
                                 rolldownOptions: {
                                     transform: {
@@ -177,11 +173,12 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
                 },
             },
         },
-    });
+    };
 };
 
 // Main function to handle both dev and build modes
 const main = async () => {
+    const toolchain = await loadViteToolchain();
     let hasFailedBuilds = false;
 
     if (isDev) {
@@ -247,7 +244,7 @@ const main = async () => {
             } else {
                 // For plugins
                 server = await toolchain.vite.createServer({
-                    ...getBaseConfig(extension, false),
+                    ...getBaseConfig(toolchain, extension, false),
                     base: `/_internal_ext/${extension.technicalName}/`,
                     server: {
                         host: '127.0.0.1',
@@ -290,7 +287,7 @@ const main = async () => {
                 } else {
                     console.log(colors.green(`# Building plugin "${extension.name}"`));
                     // For plugins
-                    await toolchain.vite.build(getBaseConfig(extension, true));
+                    await toolchain.vite.build(getBaseConfig(toolchain, extension, true));
                 }
             } catch (error) {
                 hasFailedBuilds = true;

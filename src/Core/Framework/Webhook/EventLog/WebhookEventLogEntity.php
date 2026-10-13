@@ -47,6 +47,8 @@ class WebhookEventLogEntity extends Entity
 
     protected ?int $sequence = null;
 
+    protected ?string $failureReason = null;
+
     /**
      * @internal
      */
@@ -202,6 +204,18 @@ class WebhookEventLogEntity extends Entity
     public function setSequence(?int $sequence): void
     {
         $this->sequence = $sequence;
+    }
+
+    public function getFailureReason(): ?string
+    {
+        $this->checkIfPropertyAccessIsAllowed('failureReason');
+
+        return $this->failureReason;
+    }
+
+    public function setFailureReason(?string $failureReason): void
+    {
+        $this->failureReason = $failureReason;
     }
 
     /**

@@ -422,6 +422,12 @@ An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the ap
 
 The test helper trait `\Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait` is deprecated and will be removed in 6.8. Its `assertValues()` method now triggers a deprecation, and throws when the `v6.8.0.0` flag is active. Extension tests that use the trait should call `\Shopware\Core\Test\Assert\ArrayValues::assertValues($expected, $actual)` instead; the comparison is unchanged.
 
+### Experimental webhook endpoint health
+
+With `WEBHOOKS_REWORK` enabled, transient delivery failures now move a webhook from `HEALTHY` to `DEGRADED`. Regular deliveries are held until a scheduled trial succeeds.
+
+Operators can configure the transition threshold and trial cooldowns through `shopware.webhook.health.degraded_threshold_count` and `shopware.webhook.health.cooldown_schedule_seconds`. Existing webhook behavior is unchanged while the feature flag is disabled.
+
 ## API
 
 ### Parents without an available variant are not found

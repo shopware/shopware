@@ -87,4 +87,30 @@ class RetryDelayCalculatorTest extends TestCase
         $expected = $now->modify('+5 seconds');
         static::assertEquals($expected, $result);
     }
+
+    /**
+     * @return iterable<string, array{string, int, int}>
+     */
+    public static function retryAfterProvider(): iterable
+    {
+        yield 'delta seconds override the schedule' => ['120', 1, 120];
+        yield 'HTTP date overrides the schedule' => ['Wed, 15 Apr 2026 12:02:00 GMT', 1, 120];
+        yield 'lower bound is honoured' => ['1', 1, 1];
+        yield 'upper bound is honoured' => ['14400', 1, 14400];
+        yield 'malformed value falls back to the schedule' => ['invalid', 1, 5];
+        yield 'value below the lower bound falls back to the schedule' => ['0', 1, 5];
+        yield 'value above the upper bound preserves the schedule tier' => ['14401', 3, 300];
+    }
+
+    #[DataProvider('retryAfterProvider')]
+    public function testComputeNextRetryAtHandlesRetryAfter(string $retryAfter, int $executionCount, int $expectedDelay): void
+    {
+        $now = new \DateTimeImmutable('2026-04-15 12:00:00');
+        $calculator = new RetryDelayCalculator(new MockClock($now));
+
+        static::assertEquals(
+            $now->modify(\sprintf('+%d seconds', $expectedDelay)),
+            $calculator->computeNextRetryAt($executionCount, $retryAfter)
+        );
+    }
 }

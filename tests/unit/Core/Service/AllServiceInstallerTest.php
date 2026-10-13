@@ -56,7 +56,7 @@ class AllServiceInstallerTest extends TestCase
     {
         $installer = $this->installer($this->buildAppRepository());
 
-        $this->registryClient->method('getAll')->willReturn([$this->entry(name: 'Service1'), $this->entry(name: 'Service2')]);
+        $this->registryClient->method('getActive')->willReturn([$this->entry(name: 'Service1'), $this->entry(name: 'Service2')]);
 
         $this->serviceLifecycle->expects($this->exactly(2))->method('install')->willReturn(true);
         static::assertSame(['Service1', 'Service2'], $installer->reconcile(Context::createDefaultContext()));
@@ -72,7 +72,7 @@ class AllServiceInstallerTest extends TestCase
             AppFixture::createAppEntity(name: 'OrphanedService'),
         ]));
 
-        $this->registryClient->method('getAll')->willReturn([$this->entry(name: 'Service1'), $this->entry(name: 'Service2')]);
+        $this->registryClient->method('getActive')->willReturn([$this->entry(name: 'Service1'), $this->entry(name: 'Service2')]);
 
         $this->serviceLifecycle->expects($this->once())
             ->method('install')
@@ -92,7 +92,7 @@ class AllServiceInstallerTest extends TestCase
         $installer = $this->installer($this->buildAppRepository([
             AppFixture::createAppEntity(name: 'FineUpdate'),
         ]));
-        $this->registryClient->method('getAll')->willReturn([
+        $this->registryClient->method('getActive')->willReturn([
             $this->entry(name: 'BrokenInstall'),
             $this->entry(name: 'FineInstall'),
             $this->entry(name: 'FineUpdate'),
@@ -123,7 +123,7 @@ class AllServiceInstallerTest extends TestCase
             AppFixture::createAppEntity(name: 'FineUpdate'),
         ]));
 
-        $this->registryClient->method('getAll')->willReturn([
+        $this->registryClient->method('getActive')->willReturn([
             $this->entry(name: 'BrokenUpdate'),
             $this->entry(name: 'FineUpdate'),
         ]);
@@ -155,7 +155,7 @@ class AllServiceInstallerTest extends TestCase
     {
         $installer = $this->installer($this->buildAppRepository());
 
-        $this->registryClient->method('getAll')->willReturn([
+        $this->registryClient->method('getActive')->willReturn([
             $this->entry(name: 'Service1'),
             $this->entry(name: 'Service2'),
             $this->entry(name: 'Service3'),
@@ -175,13 +175,82 @@ class AllServiceInstallerTest extends TestCase
     {
         $installer = $this->installer($this->buildAppRepository());
 
-        $this->registryClient->method('getAll')->willReturn([]);
+        $this->registryClient->method('getActive')->willReturn([]);
 
         $this->serviceLifecycle->expects($this->never())->method('install');
         static::assertSame([], $installer->reconcile(Context::createDefaultContext()));
         static::assertSame([], $this->messageBus->getMessages());
         static::assertSame([], $this->eventDispatcher->getEvents());
         static::assertSame([], $this->logs->getRecords());
+    }
+
+    public function testReconcileUninstallsInstalledServicesListedAsRetired(): void
+    {
+        $installer = $this->installer($this->buildAppRepository([
+            AppFixture::createAppEntity(name: 'RetiredService'),
+            AppFixture::createAppEntity(name: 'ActiveService'),
+        ]));
+
+        $this->registryClient->method('getActive')->willReturn([$this->entry(name: 'ActiveService')]);
+        $this->registryClient->method('getRetired')->willReturn([
+            $this->entry(name: 'RetiredService'),
+            $this->entry(name: 'NeverInstalledService'),
+        ]);
+
+        $this->serviceLifecycle->expects($this->never())->method('install');
+        $this->serviceLifecycle->expects($this->once())->method('update')->with('ActiveService');
+        $this->serviceLifecycle->expects($this->once())->method('uninstall')->with('RetiredService');
+
+        static::assertSame([], $installer->reconcile(Context::createDefaultContext()));
+        static::assertSame([], $this->logs->getRecords());
+    }
+
+    public function testReconcileContinuesWhenOneRetiredServiceFailsToUninstall(): void
+    {
+        $installer = $this->installer($this->buildAppRepository([
+            AppFixture::createAppEntity(name: 'BrokenUninstall'),
+            AppFixture::createAppEntity(name: 'FineUninstall'),
+        ]));
+
+        $this->registryClient->method('getRetired')->willReturn([
+            $this->entry(name: 'BrokenUninstall'),
+            $this->entry(name: 'FineUninstall'),
+        ]);
+
+        $exception = new \RuntimeException('Uninstall failed');
+
+        $uninstalled = [];
+        $this->serviceLifecycle->expects($this->exactly(2))->method('uninstall')
+            ->willReturnCallback(static function (string $name) use ($exception, &$uninstalled): void {
+                if ($name === 'BrokenUninstall') {
+                    throw $exception;
+                }
+
+                $uninstalled[] = $name;
+            });
+
+        $installer->reconcile(Context::createDefaultContext());
+
+        static::assertSame(['FineUninstall'], $uninstalled);
+        $records = $this->logs->getRecords();
+        static::assertCount(1, $records);
+        static::assertSame(Level::Warning, $records[0]->level);
+        static::assertSame('Cannot uninstall retired service', $records[0]->message);
+        static::assertSame(['service' => 'BrokenUninstall', 'exception' => $exception], $records[0]->context);
+    }
+
+    public function testUninstallRetiredUninstallsOnlyInstalledRetiredServices(): void
+    {
+        $installer = $this->installer($this->buildAppRepository([
+            AppFixture::createAppEntity(name: 'RetiredService'),
+            AppFixture::createAppEntity(name: 'OtherService'),
+        ]));
+
+        $this->registryClient->method('getRetired')->willReturn([$this->entry(name: 'RetiredService')]);
+
+        $this->serviceLifecycle->expects($this->once())->method('uninstall')->with('RetiredService');
+
+        $installer->uninstallRetired(Context::createDefaultContext());
     }
 
     public function testScheduleInstallDispatchesMessage(): void

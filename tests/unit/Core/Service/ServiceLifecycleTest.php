@@ -36,6 +36,7 @@ use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Shopware\Core\Service\ServiceRegistry\ServiceStatus;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -77,7 +78,7 @@ class ServiceLifecycleTest extends TestCase
     protected function setUp(): void
     {
         $this->appManager = $this->createMock(AppManager::class);
-        $this->entry = new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/service/lifecycle/choose-app');
+        $this->entry = new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/service/lifecycle/choose-app', status: ServiceStatus::ACTIVE);
         $this->appInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://example.com/service/lifecycle/app-zip/6.6.0.0', ['service_consent'], 'sha256', '6.6.0.0');
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->manifestFactory = $this->createMock(ManifestFactory::class);
@@ -500,6 +501,28 @@ class ServiceLifecycleTest extends TestCase
         $this->expectInstallMachineryIsNotUsed();
 
         $this->createLifecycle($this->buildAppRepository())->update('MyCoolService', Context::createDefaultContext());
+    }
+
+    #[DataProvider('notActiveStatusProvider')]
+    public function testUpdateDoesNothingForAServiceThatIsNotActive(?ServiceStatus $status): void
+    {
+        $this->registryClient->method('get')->willReturn(
+            new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/service/lifecycle/choose-app', status: $status)
+        );
+
+        $serviceClientFactory = $this->createMock(ServiceClientFactory::class);
+        $serviceClientFactory->expects($this->never())->method('newFor');
+        $this->appManager->expects($this->never())->method('update');
+        $this->appManager->expects($this->never())->method('uninstall');
+        $this->expectInstallMachineryIsNotUsed();
+
+        $this->createLifecycle($this->buildAppRepository(), $serviceClientFactory)->update('MyCoolService', Context::createDefaultContext());
+    }
+
+    public static function notActiveStatusProvider(): \Generator
+    {
+        yield 'retired' => [ServiceStatus::RETIRED];
+        yield 'unknown' => [null];
     }
 
     public function testUpdateDoesNotPerformUpdateIfNoNewVersionIsAvailable(): void

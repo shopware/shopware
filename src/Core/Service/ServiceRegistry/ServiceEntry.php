@@ -16,6 +16,7 @@ readonly class ServiceEntry
         public string $host,
         public string $appEndpoint,
         public bool $activateOnInstall = true,
+        public ?ServiceStatus $status = null,
     ) {
     }
 }

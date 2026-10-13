@@ -8,7 +8,7 @@ Webhooks created through the Admin API without an app (`POST /api/webhook` witho
 
 The owner is recorded from the session and cannot be set through the API. Deleting the owning user or integration also deletes its app-less webhooks: a webhook has no meaning once the owner whose privileges authorize it is gone. App webhooks go through the same check: their owner is the app's integration, so they are authorized against the app's role as before.
 
-Existing app-less webhooks have no recorded creator, so the update assigns them to the oldest admin user and they keep receiving every event they subscribe to. Audit these webhooks after updating: recreate any that should run with narrower privileges as the user or integration it belongs to. Deleting that admin user also deletes the webhooks assigned to it.
+Existing app-less webhooks have no recorded creator, so the update creates an admin integration labelled "Legacy webhooks" and assigns them to it. They keep receiving every event they subscribe to. Audit these webhooks after updating: recreate any that should run with narrower privileges as the user or integration it belongs to. Deleting the "Legacy webhooks" integration also deletes the webhooks assigned to it.
 
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 

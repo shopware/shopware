@@ -551,11 +551,10 @@
             "@admin:setup-extension-tooling --if-enabled"
         ],
         "skills:disable": [
-            "git ls-files '.agents/skills/' | grep 'SKILL\\.md$' | grep -v '\\.off$' | while read -r f; do git update-index --skip-worktree \"$f\" && mv \"$f\" \"$f.off\" && echo \"hidden: $f\"; done",
-            "grep -qxF 'SKILL.md.off' .git/info/exclude 2>/dev/null || echo 'SKILL.md.off' >> .git/info/exclude"
+            "git sparse-checkout set --no-cone '/*' '!/.agents/skills/'"
         ],
         "skills:enable": [
-            "git ls-files -v | grep '^S ' | cut -c3- | grep 'agents/skills.*SKILL\\.md$' | while read -r f; do if [ -f \"$f.off\" ]; then mv \"$f.off\" \"$f\" && git update-index --no-skip-worktree \"$f\" && echo \"shown: $f\"; fi; done"
+            "git sparse-checkout disable"
         ],
         "static-analyze": [
             "@phpstan src/"

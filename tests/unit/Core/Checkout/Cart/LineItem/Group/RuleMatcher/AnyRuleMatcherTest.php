@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\LineItemFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\LineItemFixture;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\LineItemGroupFixture;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\RulesFixture;
 

@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\LineItemFixture;
 use Shopware\Core\Test\Generator;
+use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\LineItemFixture;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\RulesFixture;
 
 /**

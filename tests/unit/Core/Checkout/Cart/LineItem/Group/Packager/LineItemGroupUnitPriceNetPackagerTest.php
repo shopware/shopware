@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupUnitPriceNe
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\LineItemFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\LineItemFixture;
 
 /**
  * @internal

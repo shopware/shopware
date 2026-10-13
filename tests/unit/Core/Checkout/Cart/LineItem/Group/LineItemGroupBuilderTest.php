@@ -34,12 +34,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\LineItemFixture;
 use Shopware\Core\Test\Stub\Rule\FalseRule;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Fakes\FakeLineItemGroupSorter;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Fakes\FakeLineItemGroupTakeAllPackager;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Fakes\FakeSequenceSupervisor;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Fakes\FakeTakeAllRuleMatcher;
+use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\LineItemFixture;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\LineItemGroupFixture;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\RulesFixture;
 

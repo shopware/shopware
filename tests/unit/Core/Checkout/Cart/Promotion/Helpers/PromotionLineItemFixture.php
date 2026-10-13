@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Test\Checkout;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Helpers;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -18,6 +18,9 @@ final class PromotionLineItemFixture
 {
     /**
      * Create a simple product line item with the provided price.
+     *
+     * The price is used as the unit price as is; the tax is only reported in the calculated taxes, not added on top.
+     * {@see \Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\LineItemFixture::createProductItem()} takes a net price and adds the tax.
      */
     public static function createProductItem(float $price, float $taxRate): LineItem
     {

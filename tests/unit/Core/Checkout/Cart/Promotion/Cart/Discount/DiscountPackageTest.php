@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\Checkout\PromotionLineItemFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Helpers\PromotionLineItemFixture;
 
 /**
  * @internal

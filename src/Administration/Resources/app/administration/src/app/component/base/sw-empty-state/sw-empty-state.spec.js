@@ -4,19 +4,34 @@
 
 import { mount } from '@vue/test-utils';
 
+const $route = {
+    meta: {
+        $module: {
+            icon: 'regular-content',
+            description: 'Foo bar',
+        },
+    },
+};
+
+async function createParentWrapper(parentName) {
+    return mount(
+        {
+            name: parentName,
+            template: '<sw-empty-state title="Oh no, nothing was found." />',
+        },
+        {
+            global: {
+                stubs: { 'sw-empty-state': await wrapTestComponent('sw-empty-state') },
+                mocks: { $route },
+            },
+        },
+    );
+}
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-empty-state'), {
         global: {
-            mocks: {
-                $route: {
-                    meta: {
-                        $module: {
-                            icon: 'regular-content',
-                            description: 'Foo bar',
-                        },
-                    },
-                },
-            },
+            mocks: { $route },
         },
         props: {
             title: 'Oh no, nothing was found.',
@@ -29,9 +44,15 @@ async function createWrapper() {
 
 describe('components/base/sw-empty-state', () => {
     let wrapper;
+    let deprecationSpy;
 
     beforeEach(async () => {
+        deprecationSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation();
         wrapper = await createWrapper();
+    });
+
+    afterEach(() => {
+        deprecationSpy.mockRestore();
     });
 
     it('should render a title', async () => {
@@ -65,32 +86,46 @@ describe('components/base/sw-empty-state', () => {
     it('should be render a button element when using the actions slot', async () => {
         expect(wrapper.find('.button').text()).toBe('Primary action');
     });
+
+    it('should report the deprecation for the removal in v6.9', async () => {
+        expect(deprecationSpy).toHaveBeenCalledWith(
+            'V6_9_0_0',
+            expect.stringContaining('Replace "sw-empty-state" with "mt-empty-state"'),
+        );
+    });
 });
 
-describe('components/base/sw-empty-state deprecation', () => {
+describe('components/base/sw-empty-state deprecation guard', () => {
     let warnSpy;
 
     beforeEach(() => {
-        warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+        warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     });
 
     afterEach(() => {
         warnSpy.mockRestore();
+        delete Shopware.Feature.flags.V6_9_0_0;
     });
 
-    it.deprecated('v6.8.0.0')('should not warn about the deprecation before v6.8', async () => {
-        await createWrapper();
+    it('should warn once per using component while the 6.9 major is inactive', async () => {
+        Shopware.Feature.init({ V6_9_0_0: false });
 
-        expect(warnSpy).not.toHaveBeenCalled();
-    });
+        await createParentWrapper('sw-empty-state-test-parent');
+        await createParentWrapper('sw-empty-state-test-parent');
 
-    it.activeFeatureFlags(['v6.8.0.0'])('should warn about the removal in v6.9 when v6.8 is active', async () => {
-        const wrapper = await createWrapper();
-
+        expect(warnSpy).toHaveBeenCalledTimes(1);
         expect(warnSpy).toHaveBeenCalledWith(
-            'Deprecation',
-            'The "sw-empty-state" component is deprecated and will be removed in v6.9.0.0. Please use "mt-empty-state" instead.',
+            '[Deprecation]',
+            'The "sw-empty-state" component is deprecated and will be removed in v6.9.0. ' +
+                'Replace "sw-empty-state" with "mt-empty-state" in component "sw-empty-state-test-parent".',
         );
-        expect(wrapper.find('.sw-empty-state__title').text()).toBe('Oh no, nothing was found.');
+    });
+
+    it.activeFeatureFlags(['v6.9.0.0'])('should throw once the 6.9 major is active', async () => {
+        Shopware.Feature.init({ V6_9_0_0: true });
+
+        await expect(createParentWrapper('sw-empty-state-test-major-parent')).rejects.toThrow(
+            'Tried to access deprecated functionality: The "sw-empty-state" component is deprecated',
+        );
     });
 });

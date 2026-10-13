@@ -82,11 +82,13 @@ export default {
     },
 
     created() {
-        if (Shopware.Feature.isActive('V6_8_0_0')) {
-            Shopware.Utils.debug.warn(
-                'Deprecation',
-                'The "sw-empty-state" component is deprecated and will be removed in v6.9.0.0. Please use "mt-empty-state" instead.',
-            );
-        }
+        // The message names the using component, so `triggerDeprecationOrThrow` reports every usage once.
+        const parentName = this.$parent?.$options?.name;
+        const usage = parentName ? ` in component "${parentName}"` : '';
+
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_9_0_0',
+            `The "sw-empty-state" component is deprecated and will be removed in v6.9.0. Replace "sw-empty-state" with "mt-empty-state"${usage}.`,
+        );
     },
 };

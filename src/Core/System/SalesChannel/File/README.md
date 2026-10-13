@@ -31,6 +31,8 @@ Templates are registered below `Resources/views/files/<file-family>/**/*.twig`. 
 - `Loader`: loads sales-channel configuration and coordinates public or preview rendering.
 - `Rendering`: activates merchant override templates and renders the resolved Twig stack.
 - `Api`: exposes Administration HTTP endpoints and assembles Administration read payloads.
+- `SalesChannel`: exposes enabled files through the Store API for headless frontends.
+- `Extension`: extension events of the Store API route.
 - Root namespace: request path validation, 404 fallback serving, cache invalidation, and exceptions.
 
 ## Discovery Flow

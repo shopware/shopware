@@ -460,7 +460,7 @@ The new `ADMIN_VITE_8` feature flag builds the Administration and the Administra
 With the flag, the watcher can serve all files, including the files of extensions, over HTTP/2. Browsers only use HTTP/2 over TLS, so put HTTPS in front of the watcher in one of these ways:
 
 * Use a TLS-terminating proxy, for example the proxy of shopware-cli: run `shopware-cli project proxy up` and open `https://admin-watch.<project>.shopware.local`.
-* Set `SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE` and `SHOPWARE_ADMIN_HTTPS_KEY_FILE` to a certificate and its key, for example files created with [mkcert](https://github.com/FiloSottile/mkcert). The paths must be readable where the watcher runs, otherwise the watcher fails with a TLS error. The watcher then serves HTTPS on port 5173.
+* Set `SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE` and `SHOPWARE_ADMIN_HTTPS_KEY_FILE` to a certificate and its key, for example files created with [mkcert](https://github.com/FiloSottile/mkcert). Relative paths are resolved from the project root. The paths must be readable where the watcher runs, otherwise the watcher fails with a TLS error. The watcher then serves HTTPS on port 5173.
 
 Without the flag, the certificate variables still enable HTTPS, but Vite 6 serves it over HTTP/1.1.
 

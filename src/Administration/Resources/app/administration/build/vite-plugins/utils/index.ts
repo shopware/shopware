@@ -333,7 +333,15 @@ export function getDevServerHttpsConfig(env: NodeJS.ProcessEnv = process.env): {
     const cert = env.SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE;
     const key = env.SHOPWARE_ADMIN_HTTPS_KEY_FILE;
 
-    return cert && key ? { cert, key } : undefined;
+    if (!cert || !key) {
+        return undefined;
+    }
+
+    // The watcher runs in the Administration directory, but the variables usually come from the .env of the project.
+    // Vite uses a path it cannot read as the PEM content itself, which only fails later with a TLS error.
+    const root = env.PROJECT_ROOT ?? process.cwd();
+
+    return { cert: path.resolve(root, cert), key: path.resolve(root, key) };
 }
 
 /**

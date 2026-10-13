@@ -21,13 +21,36 @@ describe('build/vite-plugins/utils', () => {
             expect(getDevServerHttpsConfig(env)).toBeUndefined();
         });
 
-        it('passes the configured certificate and key files to Vite', () => {
+        it('passes absolute certificate and key files unchanged to Vite', () => {
             expect(
                 getDevServerHttpsConfig({
+                    PROJECT_ROOT: '/project',
                     SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE: '/certs/cert.pem',
                     SHOPWARE_ADMIN_HTTPS_KEY_FILE: '/certs/key.pem',
                 }),
             ).toEqual({ cert: '/certs/cert.pem', key: '/certs/key.pem' });
+        });
+
+        it('resolves relative certificate and key files from the project root', () => {
+            expect(
+                getDevServerHttpsConfig({
+                    PROJECT_ROOT: '/project',
+                    SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE: 'certs/cert.pem',
+                    SHOPWARE_ADMIN_HTTPS_KEY_FILE: './certs/key.pem',
+                }),
+            ).toEqual({ cert: '/project/certs/cert.pem', key: '/project/certs/key.pem' });
+        });
+
+        it('resolves relative certificate and key files from the working directory without a project root', () => {
+            expect(
+                getDevServerHttpsConfig({
+                    SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE: 'certs/cert.pem',
+                    SHOPWARE_ADMIN_HTTPS_KEY_FILE: 'certs/key.pem',
+                }),
+            ).toEqual({
+                cert: path.join(process.cwd(), 'certs/cert.pem'),
+                key: path.join(process.cwd(), 'certs/key.pem'),
+            });
         });
 
         it('reads the files from the environment of the process by default', () => {

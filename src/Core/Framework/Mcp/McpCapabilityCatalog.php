@@ -226,7 +226,7 @@ class McpCapabilityCatalog
         }
 
         foreach ($unconfiguredToolNames as $toolName) {
-            $group = explode('-', $toolName)[0] ?: 'other';
+            $group = explode('-', $toolName)[0] ?: McpToolsetRegistry::FALLBACK_GROUP;
 
             foreach ($unconfiguredToolNames as $otherToolName) {
                 if ($otherToolName === $toolName) {

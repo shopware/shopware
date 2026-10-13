@@ -32,9 +32,15 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
 
     private const DEGRADED_THRESHOLD = 5;
 
+    private const NON_TRANSIENT_THRESHOLD = 3;
+
     private const COOLDOWN_TIER_0 = 300;
 
     private const COOLDOWN_TIER_2 = 1200;
+
+    private const COOLDOWN_TOP_TIER = 14400;
+
+    private const TOP_TIER_INDEX = 5;
 
     private IdsCollection $ids;
 
@@ -149,6 +155,75 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
         static::assertSame($futureCooldown, $this->fetchHealthColumn('straggler', 'cooldown_until'));
     }
 
+    public function testAuthStreakSuspendsOnlyAtThreeConsecutiveFailuresWithoutASuccessInBetween(): void
+    {
+        $this->seedWebhook('wh', active: true, errorCount: 0);
+        $this->createDelivery('evt-trial', 'wh', WebhookEventLogDefinition::STATUS_QUEUED);
+        $entry = $this->claimRunningEntry('evt-trial');
+
+        $this->recordAuthFailures('wh', 2, $entry);
+        $this->assertState('wh', EndpointState::Healthy);
+        static::assertSame(2, $this->fetchCnf('wh'));
+
+        $this->service->recordSuccess($this->ids->get('wh'));
+        static::assertSame(0, $this->fetchCnf('wh'), 'any 2xx resets the auth streak');
+
+        $this->recordAuthFailures('wh', 2, $entry);
+        $this->assertState('wh', EndpointState::Healthy, 'the pre-success failures no longer count');
+        static::assertSame(2, $this->fetchCnf('wh'));
+
+        $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::TransientServer, 1, $entry);
+        $this->assertState('wh', EndpointState::Healthy);
+        static::assertSame(2, $this->fetchCnf('wh'), 'a transient failure leaves the auth streak untouched');
+
+        $this->createDelivery('evt-queued', 'wh', WebhookEventLogDefinition::STATUS_QUEUED);
+        $result = $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::NonTransientAuth, 1, $entry);
+
+        static::assertSame(EndpointState::Suspended, $result, 'the third post-reset auth failure suspends');
+        static::assertSame(3, $this->fetchCnf('wh'));
+        static::assertSame(0, $this->fetchCycle('wh'), 'a direct trip enters the ladder at tier 0');
+        $this->assertHealthTimestampAbout('wh', 'suspended_since', 0);
+        $this->assertHealthTimestampAbout('wh', 'cooldown_until', self::COOLDOWN_TIER_0);
+        $this->assertDeliveryStatus('evt-queued', WebhookEventLogDefinition::STATUS_PAUSED);
+    }
+
+    public function testGoneSuspendsImmediatelyWithTierZeroCooldownAndHoldsTheBacklog(): void
+    {
+        $this->seedWebhook('wh', active: true, errorCount: 0);
+        $this->seedHealth('wh', EndpointState::Healthy);
+        $this->createDelivery('evt-queued', 'wh', WebhookEventLogDefinition::STATUS_QUEUED);
+        $this->createDelivery('evt-trial', 'wh', WebhookEventLogDefinition::STATUS_QUEUED);
+
+        $result = $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::NonTransientEndpoint, 1, $this->claimRunningEntry('evt-trial'));
+
+        static::assertSame(EndpointState::Suspended, $result);
+        static::assertSame(0, $this->fetchCnf('wh'), '410 bypasses the auth streak, leaving it untouched');
+        static::assertSame(0, $this->fetchCycle('wh'), 'a direct trip enters the ladder at tier 0');
+        $this->assertHealthTimestampAbout('wh', 'suspended_since', 0);
+        $this->assertHealthTimestampAbout('wh', 'cooldown_until', self::COOLDOWN_TIER_0);
+        $this->assertDeliveryStatus('evt-queued', WebhookEventLogDefinition::STATUS_PAUSED);
+    }
+
+    public function testTrialSuccessOnSuspendedDeEscalatesOneStateKeepingSuspendedSinceAndTheHeldBacklog(): void
+    {
+        $since = self::past();
+        $this->seedWebhook('wh', active: false, errorCount: 5);
+        $this->seedHealth('wh', EndpointState::Suspended, ctf: 5, cnf: 3, cycle: 4, cooldownUntil: self::past(), suspendedSince: $since);
+        $this->createDelivery('evt-held', 'wh', WebhookEventLogDefinition::STATUS_PAUSED);
+
+        $this->service->recordSuccess($this->ids->get('wh'));
+
+        $this->assertState('wh', EndpointState::Degraded);
+        static::assertSame(0, $this->fetchCycle('wh'));
+        static::assertSame(0, $this->fetchCtf('wh'));
+        static::assertSame(0, $this->fetchCnf('wh'));
+        $this->assertHealthTimestampAbout('wh', 'cooldown_until', self::COOLDOWN_TIER_0);
+        static::assertSame($since, $this->fetchHealthColumn('wh', 'suspended_since'), 'suspended_since survives the de-escalation');
+        $this->assertDeliveryStatus('evt-held', WebhookEventLogDefinition::STATUS_PAUSED);
+        static::assertTrue($this->fetchActive('wh'), 'DEGRADED mirrors active = 1');
+        static::assertSame(0, $this->fetchErrorCount('wh'), 'both streaks reset, so the mirrored count is 0');
+    }
+
     public function testRecordSuccessReconcilesAStaleLegacyErrorCountWithoutAHealthRow(): void
     {
         $this->seedWebhook('wh', active: true, errorCount: 7);
@@ -156,6 +231,60 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
         $this->service->recordSuccess($this->ids->get('wh'));
 
         static::assertSame(0, $this->fetchErrorCount('wh'), 'a success clears a stale legacy error_count even with no health row');
+    }
+
+    public function testSuspendedSinceKeepsTheOriginalTimestampAcrossAFlapAndClearsOnlyAtHealthy(): void
+    {
+        $original = self::past();
+        $this->seedWebhook('wh', active: false, errorCount: 3);
+        $this->seedHealth('wh', EndpointState::Suspended, cnf: 3, cooldownUntil: self::future(), suspendedSince: $original);
+
+        $this->service->recordSuccess($this->ids->get('wh'));
+        $this->assertState('wh', EndpointState::Degraded);
+        static::assertSame($original, $this->fetchHealthColumn('wh', 'suspended_since'));
+
+        $this->createDelivery('evt-trial', 'wh', WebhookEventLogDefinition::STATUS_QUEUED);
+        $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::NonTransientEndpoint, 1, $this->claimRunningEntry('evt-trial'));
+        $this->assertState('wh', EndpointState::Suspended);
+        static::assertSame($original, $this->fetchHealthColumn('wh', 'suspended_since'), 'a flap keeps the original suspension timestamp');
+
+        $this->service->recordSuccess($this->ids->get('wh'));
+        $this->service->recordSuccess($this->ids->get('wh'));
+        $this->assertState('wh', EndpointState::Healthy);
+        static::assertNull($this->fetchHealthColumn('wh', 'suspended_since'), 'only reaching HEALTHY clears the suspension clock');
+    }
+
+    public function testExhaustingTheCooldownScheduleSuspendsAtTheTopTier(): void
+    {
+        $this->seedWebhook('wh', active: true, errorCount: 5);
+        $this->seedHealth('wh', EndpointState::Degraded, ctf: 5, cycle: self::TOP_TIER_INDEX, cooldownUntil: self::past());
+        $this->createDelivery('evt-trial', 'wh', WebhookEventLogDefinition::STATUS_QUEUED);
+
+        $result = $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::TransientServer, 1, $this->claimRunningEntry('evt-trial'));
+
+        static::assertSame(EndpointState::Suspended, $result, 'the DEGRADED budget is the schedule length');
+        static::assertSame(self::TOP_TIER_INDEX, $this->fetchCycle('wh'), 'the ladder stays at the top tier');
+        $this->assertHealthTimestampAbout('wh', 'cooldown_until', self::COOLDOWN_TOP_TIER);
+        $this->assertHealthTimestampAbout('wh', 'suspended_since', 0);
+    }
+
+    public function testSuspensionFromTheAuthStreakHoldsAgainstARacingTransientResult(): void
+    {
+        $this->seedWebhook('wh', active: true, errorCount: 0);
+        $this->seedHealth('wh', EndpointState::Healthy, cnf: self::NON_TRANSIENT_THRESHOLD - 1);
+        $this->createDelivery('evt-trial', 'wh', WebhookEventLogDefinition::STATUS_QUEUED);
+        $entry = $this->claimRunningEntry('evt-trial');
+
+        $result = $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::NonTransientAuth, 1, $entry);
+        static::assertSame(EndpointState::Suspended, $result);
+
+        $result = $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::TransientServer, 1, $entry);
+
+        static::assertSame(EndpointState::Suspended, $result);
+        $this->assertState('wh', EndpointState::Suspended);
+        static::assertSame(self::NON_TRANSIENT_THRESHOLD, $this->fetchCnf('wh'));
+        static::assertSame(0, $this->fetchCycle('wh'), 'the late transient neither re-transitions nor climbs the ladder');
+        static::assertFalse($this->fetchActive('wh'));
     }
 
     public function testSuccessWinsOverAPriorTransientFailure(): void
@@ -182,6 +311,24 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
         );
     }
 
+    public function testSuspendedGateAdmitsExactlyOneNaturalTrialOnceTheCooldownElapsesWithNothingHeld(): void
+    {
+        $this->seedWebhook('wh', active: false, errorCount: 3);
+        $this->seedHealth('wh', EndpointState::Suspended, cnf: 3, cycle: 1, cooldownUntil: self::past(), suspendedSince: self::past());
+
+        static::assertSame(
+            WebhookDispatchDecision::Deliver,
+            $this->service->gateFor($this->ids->get('wh')),
+            'an elapsed cooldown with nothing held and nothing in flight must admit the natural event as the trial'
+        );
+        static::assertSame(2, $this->fetchCycle('wh'), 'admission advances the ladder one tier so its own result lands as a straggler');
+        static::assertSame(
+            WebhookDispatchDecision::Skip,
+            $this->service->gateFor($this->ids->get('wh')),
+            'exactly one Deliver — the admission re-armed the cooldown, so the rest of the burst sheds'
+        );
+    }
+
     public function testFirstTransientFailureOnAWebhookWithoutHealthRowInsertsHealthyRow(): void
     {
         $this->seedWebhook('wh', active: true, errorCount: 0);
@@ -195,9 +342,68 @@ class EndpointHealthStateMachineMatrixTest extends TestCase
         static::assertSame(0, $this->fetchErrorCount('wh'), 'HEALTHY still mirrors error_count = 0');
     }
 
+    public function testFirstAuthFailureOnAWebhookWithoutHealthRowInsertsTheStreakRow(): void
+    {
+        $this->seedWebhook('wh', active: true, errorCount: 0);
+        $this->createDelivery('evt-trial', 'wh', WebhookEventLogDefinition::STATUS_QUEUED);
+
+        $result = $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::NonTransientAuth, 1, $this->claimRunningEntry('evt-trial'));
+
+        static::assertSame(EndpointState::Healthy, $result, 'one auth failure is below the streak threshold');
+        $this->assertState('wh', EndpointState::Healthy);
+        static::assertSame(1, $this->fetchCnf('wh'), 'the first failure seeds consecutive_non_transient_failures = 1');
+        static::assertTrue($this->fetchActive('wh'));
+        static::assertSame(0, $this->fetchErrorCount('wh'));
+    }
+
+    public function testGoneFailureOnAWebhookWithoutHealthRowInsertsASuspendedRow(): void
+    {
+        $this->seedWebhook('wh', active: true, errorCount: 0);
+        $this->createDelivery('evt-trial', 'wh', WebhookEventLogDefinition::STATUS_QUEUED);
+
+        $result = $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::NonTransientEndpoint, 1, $this->claimRunningEntry('evt-trial'));
+
+        static::assertSame(EndpointState::Suspended, $result, '410 suspends even on the first contact');
+        $this->assertState('wh', EndpointState::Suspended);
+        $this->assertHealthTimestampAbout('wh', 'suspended_since', 0);
+        $this->assertHealthTimestampAbout('wh', 'cooldown_until', self::COOLDOWN_TIER_0);
+        static::assertFalse($this->fetchActive('wh'));
+    }
+
+    public function testAuthSuspensionOfOneWebhookLeavesItsEventUrlSiblingUntouched(): void
+    {
+        $this->seedWebhook('broken', active: true, errorCount: 0);
+        $this->seedWebhook('sibling', active: true, errorCount: 0);
+        $this->createDelivery('evt-trial', 'broken', WebhookEventLogDefinition::STATUS_QUEUED);
+
+        $this->recordAuthFailures('broken', self::NON_TRANSIENT_THRESHOLD, $this->claimRunningEntry('evt-trial'));
+
+        $this->assertState('broken', EndpointState::Suspended);
+        static::assertFalse($this->fetchActive('broken'));
+
+        static::assertFalse(
+            (bool) $this->connection->fetchOne('SELECT 1 FROM webhook_health WHERE webhook_id = :id', ['id' => $this->ids->getBytes('sibling')]),
+            'a sibling that never failed must not get a health row from its neighbour failing'
+        );
+        static::assertTrue($this->fetchActive('sibling'), 'the sibling stays active — no cross-webhook blast radius');
+        static::assertSame(0, $this->fetchErrorCount('sibling'));
+    }
+
+    private function recordAuthFailures(string $key, int $count, OutboxEntry $entry): void
+    {
+        for ($i = 0; $i < $count; ++$i) {
+            $this->service->recordFailure($this->ids->get($key), ErrorClassification::NonTransientAuth, 1, $entry);
+        }
+    }
+
     private static function past(): string
     {
         return (new \DateTimeImmutable('-1 hour'))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+    }
+
+    private static function future(): string
+    {
+        return (new \DateTimeImmutable('+1 hour'))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
     }
 
     private function seedWebhook(string $key, bool $active, int $errorCount): void

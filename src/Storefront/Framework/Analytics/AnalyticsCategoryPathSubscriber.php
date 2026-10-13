@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Analytics;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -89,6 +90,8 @@ class AnalyticsCategoryPathSubscriber implements EventSubscriberInterface
             $found = match (true) {
                 $data instanceof ProductSliderStruct => $data->getProducts()?->getElements() ?? [],
                 $data instanceof ProductBoxStruct => [$data->getProduct()],
+                // a listing on the homepage or a landing page has no category either
+                $data instanceof ProductListingStruct => $data->getListing()?->getEntities()->getElements() ?? [],
                 default => [],
             };
 

@@ -190,7 +190,7 @@ class WebhookLoader
             return null;
         }
 
-        return array_values(array_filter(Json::decodeToList($aclRoleIds)));
+        return Json::decodeToList($aclRoleIds);
     }
 
     /**

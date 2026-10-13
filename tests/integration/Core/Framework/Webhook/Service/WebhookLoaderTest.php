@@ -282,16 +282,6 @@ class WebhookLoaderTest extends TestCase
         static::assertSame([$roleId], $webhook->ownerRoleIds);
     }
 
-    public function testEmptyAclRoleIdsAreIgnored(): void
-    {
-        $roleId = $this->createAclRole(['product:read']);
-        $this->insertWebhook(ownerUserId: $this->adminId, aclRoleIds: [$roleId, null, '']);
-
-        $webhook = $this->loadWebhook();
-        static::assertSame([$roleId], $webhook->aclRoleIds);
-        static::assertSame([$roleId], $webhook->ownerRoleIds);
-    }
-
     public function testInactiveWebhooksAreLoadedByIds(): void
     {
         $owner = TestUser::createNewTestUser($this->connection, ['product:read']);
@@ -308,7 +298,7 @@ class WebhookLoaderTest extends TestCase
     }
 
     /**
-     * @param list<string|null>|null $aclRoleIds
+     * @param list<string>|null $aclRoleIds
      */
     private function insertWebhook(?string $ownerUserId = null, ?string $ownerIntegrationId = null, ?array $aclRoleIds = null, bool $active = true): void
     {

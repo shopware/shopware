@@ -5,6 +5,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import * as net from 'net';
+import colors from 'picocolors';
 
 function isPortFree(port: number): Promise<boolean | Error> {
     return new Promise((resolve) => {
@@ -381,4 +382,34 @@ export function createPluginDevJson(extensions: ExtensionDefinition[], useBundle
     });
 
     return pluginDevJson;
+}
+
+/**
+ * @private
+ *
+ * Runs the action for every extension and logs failures instead of stopping, so one broken
+ * extension neither stops the other extensions nor the watcher of the Administration.
+ * Returns whether the action failed for any extension.
+ */
+export async function runForEachExtension(
+    extensions: ExtensionDefinition[],
+    verb: string,
+    action: (extension: ExtensionDefinition) => Promise<void>,
+): Promise<boolean> {
+    let hasFailed = false;
+
+    for (const extension of extensions) {
+        try {
+            await action(extension);
+        } catch (error) {
+            hasFailed = true;
+            const message = error instanceof Error ? error.message : String(error);
+
+            console.error(
+                colors.red(`# Failed to ${verb} ${extension.isPlugin ? 'plugin' : 'app'} "${extension.name}": ${message}`),
+            );
+        }
+    }
+
+    return hasFailed;
 }

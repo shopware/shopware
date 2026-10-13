@@ -4,7 +4,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { createPluginDevJson, getDevServerHttpsConfig, readFeatureFlags } from './index';
+import { createPluginDevJson, getDevServerHttpsConfig, readFeatureFlags, runForEachExtension } from './index';
 import type { ExtensionDefinition } from './index';
 
 describe('build/vite-plugins/utils', () => {
@@ -138,6 +138,80 @@ describe('build/vite-plugins/utils', () => {
 
         it('only contains the metadata without extensions', () => {
             expect(createPluginDevJson([], true)).toEqual({ metadata: 'shopware' });
+        });
+    });
+
+    describe('runForEachExtension', () => {
+        const createExtension = (name: string, isPlugin: boolean): ExtensionDefinition => ({
+            name,
+            technicalName: name.toLowerCase(),
+            technicalFolderName: name.toLowerCase(),
+            basePath: `/extensions/${name}`,
+            path: `/extensions/${name}/Resources/app/administration/src`,
+            filePath: `/extensions/${name}/Resources/app/administration/src/main.ts`,
+            isPlugin,
+            isApp: !isPlugin,
+        });
+        const brokenApp = createExtension('BrokenApp', false);
+        const brokenPlugin = createExtension('BrokenPlugin', true);
+        const workingPlugin = createExtension('WorkingPlugin', true);
+        const workingApp = createExtension('WorkingApp', false);
+
+        let consoleError: jest.SpyInstance;
+
+        beforeEach(() => {
+            consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+        });
+
+        afterEach(() => {
+            consoleError.mockRestore();
+        });
+
+        it('runs the action for every extension and reports no failure', async () => {
+            const action = jest.fn(() => Promise.resolve());
+
+            await expect(runForEachExtension([workingPlugin, workingApp], 'start', action)).resolves.toBe(false);
+
+            expect(action.mock.calls).toEqual([[workingPlugin], [workingApp]]);
+            expect(consoleError).not.toHaveBeenCalled();
+        });
+
+        it('logs a failing extension and continues with the next ones', async () => {
+            const started: string[] = [];
+
+            const hasFailed = await runForEachExtension([brokenApp, brokenPlugin, workingPlugin], 'start', (extension) => {
+                if (extension.name.startsWith('Broken')) {
+                    return Promise.reject(new Error(`Cannot load the vite.config of ${extension.name}`));
+                }
+
+                started.push(extension.name);
+                return Promise.resolve();
+            });
+
+            expect(hasFailed).toBe(true);
+            expect(started).toEqual(['WorkingPlugin']);
+            expect(consoleError).toHaveBeenCalledTimes(2);
+            expect(consoleError).toHaveBeenNthCalledWith(
+                1,
+                expect.stringContaining('# Failed to start app "BrokenApp": Cannot load the vite.config of BrokenApp'),
+            );
+            expect(consoleError).toHaveBeenNthCalledWith(
+                2,
+                expect.stringContaining(
+                    '# Failed to start plugin "BrokenPlugin": Cannot load the vite.config of BrokenPlugin',
+                ),
+            );
+        });
+
+        it('logs rejections that are no errors', async () => {
+            await expect(
+                // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+                runForEachExtension([brokenPlugin], 'build', () => Promise.reject('timeout')),
+            ).resolves.toBe(true);
+
+            expect(consoleError).toHaveBeenCalledWith(
+                expect.stringContaining('# Failed to build plugin "BrokenPlugin": timeout'),
+            );
         });
     });
 });

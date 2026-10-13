@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 /**
  * This file is the entry point for the Vite build process for plugins.
  * Depending on the environment variable VITE_MODE, it will either start a dev server
@@ -26,7 +25,13 @@ import AssetCssPostprocessPlugin from './vite-plugins/asset-css-postprocess-plug
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
 import ShopwareSetupPlugin from './vite-plugins/shopware-setup';
 import VirtualShopwareModulesPlugin from './vite-plugins/virtual-shopware-modules';
-import { createPluginDevJson, loadExtensions, getViteServerPorts, isInsideDockerContainer } from './vite-plugins/utils';
+import {
+    createPluginDevJson,
+    loadExtensions,
+    getViteServerPorts,
+    isInsideDockerContainer,
+    runForEachExtension,
+} from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
 import ExtglobCompatPlugin from './vite-plugins/extglob-compat';
@@ -188,7 +193,6 @@ const getBaseConfig = (
 // Main function to handle both dev and build modes
 const main = async () => {
     const toolchain = await loadViteToolchain();
-    let hasFailedBuilds = false;
 
     if (isDev) {
         const extensionPorts = getViteServerPorts();
@@ -206,15 +210,10 @@ const main = async () => {
             JSON.stringify(createPluginDevJson(extensionEntries, useBundledDev)),
         );
 
-        // Start dev servers
-        for (let i = 0; i < extensionEntries.length; i++) {
-            const extension = extensionEntries[i];
-            const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
-
+        await runForEachExtension(extensionEntries, 'start', async (extension) => {
             let server;
 
             if (extension.isApp) {
-                // For apps
                 server = await toolchain.vite.createServer({
                     root: extension.path,
                     base: `/_internal_ext/${extension.technicalName}/`,
@@ -228,7 +227,6 @@ const main = async () => {
 
                 console.log(colors.green(`# App "${extension.name}": Injected successfully`));
             } else {
-                // For plugins
                 server = await toolchain.vite.createServer({
                     ...getBaseConfig(toolchain, extension, false, useBundledDev),
                     // Typed with Vite 6, which does not know the bundled dev mode
@@ -246,51 +244,39 @@ const main = async () => {
 
             await server.listen();
             server.printUrls();
-        }
-    } else {
-        // Build mode
-        for (const extension of extensionEntries) {
-            try {
-                if (extension.isApp) {
-                    console.log(colors.green(`# Building app "${extension.name}"`));
-                    // For apps
-                    await toolchain.vite.build({
-                        root: extension.path,
-                        base: '',
-                        build: {
-                            outDir: path.resolve(extension.basePath, 'Resources/public/meteor-app'),
-                        },
-                        plugins: [
-                            injectHtml([
-                                {
-                                    tag: 'base',
-                                    attrs: {
-                                        href: '__$ASSET_BASE_PATH$__',
-                                    },
-                                    injectTo: 'head-prepend',
-                                },
-                            ]),
-                            ...(toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : []),
-                        ],
-                    });
-                } else {
-                    console.log(colors.green(`# Building plugin "${extension.name}"`));
-                    // For plugins
-                    await toolchain.vite.build(getBaseConfig(toolchain, extension, true));
-                }
-            } catch (error) {
-                hasFailedBuilds = true;
-                console.error(
-                    colors.red(
-                        // @ts-expect-error
-                        `# Failed to build ${extension.isPlugin ? 'plugin' : 'app'} "${extension.name}": ${error?.message}`,
-                    ),
-                );
-            }
-        }
+        });
+
+        return;
     }
 
-    // Exit with code 1 if any builds failed
+    const hasFailedBuilds = await runForEachExtension(extensionEntries, 'build', async (extension) => {
+        if (extension.isApp) {
+            console.log(colors.green(`# Building app "${extension.name}"`));
+            await toolchain.vite.build({
+                root: extension.path,
+                base: '',
+                build: {
+                    outDir: path.resolve(extension.basePath, 'Resources/public/meteor-app'),
+                },
+                plugins: [
+                    injectHtml([
+                        {
+                            tag: 'base',
+                            attrs: {
+                                href: '__$ASSET_BASE_PATH$__',
+                            },
+                            injectTo: 'head-prepend',
+                        },
+                    ]),
+                    ...(toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : []),
+                ],
+            });
+        } else {
+            console.log(colors.green(`# Building plugin "${extension.name}"`));
+            await toolchain.vite.build(getBaseConfig(toolchain, extension, true));
+        }
+    });
+
     if (hasFailedBuilds) {
         console.error(colors.red('One or more builds failed. Check the logs above for details.'));
         process.exit(1);
@@ -299,5 +285,9 @@ const main = async () => {
 
 main().catch((error) => {
     console.error(error);
-    process.exit(1);
+
+    // In dev mode a non-zero exit would also stop the watcher of the Administration
+    if (!isDev) {
+        process.exit(1);
+    }
 });

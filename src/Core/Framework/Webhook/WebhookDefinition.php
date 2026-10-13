@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Webhook;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -55,6 +57,14 @@ class WebhookDefinition extends EntityDefinition
             'errorCount' => 0,
             'onlyLiveVersion' => false,
         ];
+    }
+
+    /**
+     * A clone keeps the app and owner of the original, so it would let a caller deliver an app's webhook to their own url.
+     */
+    protected function defineProtections(): EntityProtectionCollection
+    {
+        return new EntityProtectionCollection([new CloneProtection(Context::SYSTEM_SCOPE)]);
     }
 
     protected function defineFields(): FieldCollection

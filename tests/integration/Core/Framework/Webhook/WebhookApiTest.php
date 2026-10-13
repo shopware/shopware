@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -126,6 +128,21 @@ class WebhookApiTest extends TestCase
 
         $this->assertApiErrors([['code' => WebhookException::APP_WEBHOOK_NOT_MODIFIABLE]]);
         static::assertSame('https://app.example', $this->loadWebhook($webhookId)->getUrl());
+    }
+
+    public function testAppWebhookCannotBeClonedViaApi(): void
+    {
+        $webhookId = $this->createAppWebhook();
+
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/clone/webhook/' . $webhookId, [
+            'overwrites' => ['url' => 'https://attacker.example'],
+        ]);
+
+        $this->assertApiErrors([['code' => DataAbstractionLayerException::CLONE_PROTECTED]], Response::HTTP_FORBIDDEN);
+        static::assertSame(
+            ['https://app.example'],
+            static::getContainer()->get(Connection::class)->fetchFirstColumn('SELECT url FROM webhook')
+        );
     }
 
     public function testDeletingAnAppStillDeletesItsWebhooks(): void

@@ -64,8 +64,7 @@ class EntitySchemaTool extends McpToolResponse
                         default => 'association',
                     },
                     // For many-to-many the reference definition is the mapping entity, so name the
-                    // target entity here and the mapping entity separately. Links are added through
-                    // upsert and removed by deleting the mapping row, like the Admin API sync endpoint.
+                    // target entity here and the mapping entity separately.
                     'entity' => $field instanceof ManyToManyAssociationField
                         ? $field->getToManyReferenceDefinition()->getEntityName()
                         : $field->getReferenceDefinition()->getEntityName(),

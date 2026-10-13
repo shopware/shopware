@@ -112,6 +112,20 @@ class ProductAssociationRemovalScenarioTest extends McpScenarioTestCase
         static::assertSame([$this->ids->get('red')], $this->loadProduct()->getPropertyIds());
     }
 
+    public function testRemovingALinkThatDoesNotExistIsReportedAsAFailure(): void
+    {
+        // #20136: an agent must not be told that a link was removed when there was none.
+        $ids = json_encode([[
+            'productId' => $this->ids->get('p1'),
+            'categoryId' => $this->ids->get('unrelated'),
+        ]], \JSON_THROW_ON_ERROR);
+
+        $error = $this->decodeToolError(($this->entityDeleteTool)('product_category', $ids, false));
+
+        static::assertStringContainsString('none of these rows exist', $error['error']);
+        static::assertCount(2, $this->loadProduct()->getCategoryIds() ?? []);
+    }
+
     public function testExplainsCompositeKeyWhenPlainIdsArePassed(): void
     {
         $error = $this->decodeToolError(($this->entityDeleteTool)('product_category', json_encode([$this->ids->get('remove')], \JSON_THROW_ON_ERROR), false));

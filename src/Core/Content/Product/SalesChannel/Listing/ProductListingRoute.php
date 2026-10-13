@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
@@ -152,28 +153,55 @@ class ProductListingRoute extends AbstractProductListingRoute
                 continue;
             }
 
+            $isRequestedCategory = $category->getId() === $categoryId;
+
             try {
-                $streamFilters = $this->getProductStreamFilters($category, $salesChannelContext);
-            } catch (NoFilterException $exception) {
-                if ($category->getId() !== $categoryId) {
-                    throw $exception;
+                $streamCriteria = $this->loadProductStreamCriteria($category, $salesChannelContext);
+            } catch (NoFilterException|EntityNotFoundException $exception) {
+                if ($isRequestedCategory) {
+                    if (!$exception instanceof NoFilterException) {
+                        throw $exception;
+                    }
+
+                    if ($exception instanceof EmptyProductStreamException) {
+                        // An empty group selects all products, as in the product export
+                        return;
+                    }
+
+                    $this->logger->warning(
+                        'Product stream configured for category listing has no usable filters.',
+                        [
+                            'productStreamId' => $category->get('productStreamId'),
+                            'exception' => $exception,
+                        ]
+                    );
+
+                    $filters[] = new EqualsFilter('product.id', null);
+
+                    continue;
                 }
 
-                if ($exception instanceof EmptyProductStreamException) {
-                    // An empty group selects all products, as in the product export
-                    return;
-                }
-
+                // an unusable group of a subcategory must not break the listings of all categories above it
                 $this->logger->warning(
-                    'Product stream configured for category listing has no usable filters.',
+                    'Product stream of a subcategory cannot be used and is skipped in the category listing.',
                     [
+                        'categoryId' => $categoryId,
+                        'subcategoryId' => $category->getId(),
                         'productStreamId' => $category->get('productStreamId'),
                         'exception' => $exception,
                     ]
                 );
 
-                $streamFilters = [new EqualsFilter('product.id', null)];
+                continue;
             }
+
+            if ($isRequestedCategory) {
+                // only the requested category's own group decides how its listing is displayed, for example
+                // variants as single products. Groups of subcategories only add products.
+                $criteria->addState(...$streamCriteria->getStates());
+            }
+
+            $streamFilters = array_values($streamCriteria->getFilters());
 
             if ($streamFilters !== []) {
                 $filters[] = $this->groupFilters($streamFilters);
@@ -192,29 +220,23 @@ class ProductListingRoute extends AbstractProductListingRoute
     }
 
     /**
-     * @return list<Filter>
+     * Resolves the group into its own criteria, so its filters can be combined with the other sources of the listing
      */
-    private function getProductStreamFilters(PartialEntity $category, SalesChannelContext $salesChannelContext): array
+    private function loadProductStreamCriteria(PartialEntity $category, SalesChannelContext $salesChannelContext): Criteria
     {
-        if (!$this->isProductStreamCategory($category)) {
-            return [];
-        }
-
         $productStreamId = $category->get('productStreamId');
         \assert(\is_string($productStreamId));
 
+        $streamCriteria = new Criteria();
+
         $productStreamBuilder = $this->productStreamBuilder;
         if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
-            $streamCriteria = new Criteria();
             $productStreamBuilder->enrichCriteria($streamCriteria, $productStreamId, $salesChannelContext->getContext());
-
-            return array_values($streamCriteria->getFilters());
+        } else {
+            $streamCriteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $salesChannelContext->getContext()));
         }
 
-        return array_values($productStreamBuilder->buildFilters(
-            $productStreamId,
-            $salesChannelContext->getContext()
-        ));
+        return $streamCriteria;
     }
 
     private function isProductStreamCategory(PartialEntity $category): bool

@@ -62,10 +62,7 @@ class PropertyGroupCollectionTest extends TestCase
         static::assertSame(['first-a', 'first-b', 'second'], array_keys($collection->getElements()));
     }
 
-    /**
-     * Expected: [0,1,2,3,4,5,6...]
-     */
-    public function testAlphaNumericSortingNumbersOnly(): void
+    public function testSortByConfigOrdersNumericNamesNaturally(): void
     {
         $propertyGroups = $this->getPropertyGroupAlphaNumericOnlyNumbers();
         $propertyGroups->sortByConfig();
@@ -84,10 +81,7 @@ class PropertyGroupCollectionTest extends TestCase
         );
     }
 
-    /**
-     * Expected: [0 => a, 1 => a, ... 48 => a, 49 => b, 98 => c]
-     */
-    public function testAlphaNumericSortingNumbersOnlyLetters(): void
+    public function testSortByConfigOrdersLetterNamesAlphabetically(): void
     {
         $propertyGroups = $this->getPropertyGroupAlphaNumericOnlyLetters();
         $propertyGroups->sortByConfig();
@@ -107,10 +101,7 @@ class PropertyGroupCollectionTest extends TestCase
         );
     }
 
-    /**
-     * Expected: [0 => 1, 1 => 1, 2 => 1, ... 9 => 1, .... 10 => 2, 11 => 2, ...488 => 49, 489 => 49]
-     */
-    public function testPositionSorting(): void
+    public function testSortByConfigOrdersOptionsByPosition(): void
     {
         $propertyGroups = $this->getPropertyGroupPosition();
         $propertyGroups->sortByConfig();
@@ -129,10 +120,7 @@ class PropertyGroupCollectionTest extends TestCase
         );
     }
 
-    /**
-     * [0 => 0, 1 => 1, 2 => 2, ...10 => 10]
-     */
-    public function testPositionSortingMixed(): void
+    public function testSortByConfigRestoresShuffledPositions(): void
     {
         $propertyGroups = $this->getPropertyGroupPositionMixed();
         $propertyGroups->sortByConfig();
@@ -146,10 +134,7 @@ class PropertyGroupCollectionTest extends TestCase
         );
     }
 
-    /**
-     * [1a, 2aa, 3d, 3e, 3-x$e, 20aa, 44f, 55g, h6, i7, j2]
-     */
-    public function testAlphaNumericSortingMixed(): void
+    public function testSortByConfigRestoresShuffledAlphanumericNames(): void
     {
         $propertyGroups = $this->getPropertyGroupAlphaNumericMixed();
         $propertyGroups->sortByConfig();
@@ -163,7 +148,7 @@ class PropertyGroupCollectionTest extends TestCase
         );
     }
 
-    public function testAlphaNumericSortingMixedCases(): void
+    public function testSortByConfigSortsMixedCaseNamesWithTheGivenLocale(): void
     {
         $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCases();
         $propertyGroups->sortByConfig('de-DE');
@@ -177,7 +162,7 @@ class PropertyGroupCollectionTest extends TestCase
         );
     }
 
-    public function testAlphaNumericSortingMixedCasesPositionFirst(): void
+    public function testSortByConfigOrdersByPositionBeforeNameForMixedCases(): void
     {
         $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCasesPositionFirst();
         $propertyGroups->sortByConfig('de-DE');
@@ -191,7 +176,7 @@ class PropertyGroupCollectionTest extends TestCase
         );
     }
 
-    public function testPositionSortingWithAlphanumericTiebreaker(): void
+    public function testSortByConfigBreaksEqualPositionsAlphanumerically(): void
     {
         $propertyGroups = $this->getPropertyGroupPositionWithTiedPositions();
         $propertyGroups->sortByConfig('de-DE');
@@ -205,7 +190,7 @@ class PropertyGroupCollectionTest extends TestCase
         );
     }
 
-    public function testPositionSortingAllSamePositionFallsBackToAlphanumeric(): void
+    public function testSortByConfigFallsBackToAlphanumericWhenAllPositionsAreEqual(): void
     {
         $propertyGroups = $this->getPropertyGroupPositionAllSame();
         $propertyGroups->sortByConfig('de-DE');
@@ -219,7 +204,7 @@ class PropertyGroupCollectionTest extends TestCase
         );
     }
 
-    public function testPositionSortingWithEmptyNamesAndNullPositions(): void
+    public function testSortByConfigPutsEmptyNamesAndNullPositionsFirst(): void
     {
         $propertyGroups = $this->getPropertyGroupPositionWithEmptyNames();
         $propertyGroups->sortByConfig('de-DE');
@@ -233,7 +218,7 @@ class PropertyGroupCollectionTest extends TestCase
         );
     }
 
-    public function testAlphaNumericSortingWorksWithoutLocaleParameter(): void
+    public function testSortByConfigDefaultsTheLocale(): void
     {
         $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCases();
         $propertyGroups->sortByConfig();
@@ -244,7 +229,7 @@ class PropertyGroupCollectionTest extends TestCase
         static::assertCount(23, $propertyOptionsArray);
     }
 
-    public function testDeprecatedMethodSortByConfigThrowsException(): void
+    public function testSortByConfigThrowsForNullLocale(): void
     {
         $propertyGroups = $this->getPropertyGroupAlphaNumericMixedCases();
         static::expectException(FeatureException::class);

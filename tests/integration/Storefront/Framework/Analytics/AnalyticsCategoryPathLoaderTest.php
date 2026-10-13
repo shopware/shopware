@@ -3,9 +3,10 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Analytics;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -58,6 +59,11 @@ class AnalyticsCategoryPathLoaderTest extends TestCase
         ];
 
         static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        // the context has to know the tax of the new products, as the main categories are read
+        // through the sales channel product repository
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)
+            ->create($this->ids->create('token-after-products'), TestDefaults::SALES_CHANNEL);
     }
 
     public function testReportsTheDeepestAssignedCategoryPathBelowTheNavigation(): void
@@ -74,13 +80,7 @@ class AnalyticsCategoryPathLoaderTest extends TestCase
 
     public function testAVariantUsesTheCategoriesOfItsParent(): void
     {
-        $variant = new SalesChannelProductEntity();
-        $variant->setId($this->ids->get('variant'));
-        $variant->setParentId($this->ids->get('deepest'));
-
-        $paths = $this->getLoader()->load([$variant], $this->context);
-
-        static::assertSame([$this->ids->get('variant') => ['Clothing', 'Shirts']], $paths);
+        static::assertSame([$this->ids->get('variant') => ['Clothing', 'Shirts']], $this->load('variant'));
     }
 
     public function testReportsNoPathForACategoryOutsideTheNavigation(): void
@@ -92,7 +92,8 @@ class AnalyticsCategoryPathLoaderTest extends TestCase
     {
         $paths = $this->load('deepest', 'main', 'outside');
 
-        static::assertSame([
+        // keyed by product id, the order does not matter
+        static::assertEquals([
             $this->ids->get('deepest') => ['Clothing', 'Shirts'],
             $this->ids->get('main') => ['Clothing'],
         ], $paths);
@@ -104,18 +105,26 @@ class AnalyticsCategoryPathLoaderTest extends TestCase
     }
 
     /**
+     * Loads the products like a product box gets them, with their inherited category ids.
+     *
      * @return array<string, list<string>>
      */
     private function load(string ...$keys): array
     {
-        $products = [];
-        foreach ($keys as $key) {
-            $product = new SalesChannelProductEntity();
-            $product->setId($this->ids->get($key));
-            $products[] = $product;
+        $ids = array_map(fn (string $key) => $this->ids->get($key), $keys);
+
+        $context = $this->context->getContext();
+        $products = $context->enableInheritance(
+            static fn () => static::getContainer()->get('product.repository')->search(new Criteria($ids), $context)->getEntities()
+        );
+
+        $list = [];
+        foreach ($products as $product) {
+            static::assertInstanceOf(ProductEntity::class, $product);
+            $list[] = $product;
         }
 
-        return $this->getLoader()->load($products, $this->context);
+        return $this->getLoader()->load($list, $this->context);
     }
 
     private function getLoader(): AnalyticsCategoryPathLoader

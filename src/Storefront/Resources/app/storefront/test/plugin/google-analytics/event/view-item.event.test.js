@@ -1,9 +1,11 @@
 import Feature from 'src/helper/feature.helper';
 import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
+import ListAttributionHelper from 'src/plugin/google-analytics/list-attribution.helper';
 
 describe('plugin/google-analytics/events/view-item.event', () => {
     beforeEach(() => {
         window.gtag = jest.fn();
+        window.sessionStorage.clear();
         Feature.init({ JSON_LD_DATA: false });
     });
 
@@ -174,5 +176,30 @@ describe('plugin/google-analytics/events/view-item.event', () => {
         expect(window.gtag).not.toHaveBeenCalled();
         expect(consoleSpy).toHaveBeenCalled();
         consoleSpy.mockRestore();
+    });
+
+    test('reports the list on the item, where view_item defines it', () => {
+        // the listing displayed the parent, the detail page resolved to one of its variants
+        ListAttributionHelper.remember('SW10000', { item_list_id: 'category-1', item_list_name: 'Shirts' }, 'parent-id');
+
+        document.body.innerHTML = `
+            <h1 class="product-detail-name">Test Product</h1>
+            <div class="product-detail-buy" data-product-variant="Red, L" data-product-id="variant-id" data-product-parent-id="parent-id">
+                <span class="product-detail-ordernumber">SW10000.1</span>
+            </div>
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="19.99">
+        `;
+
+        new ViewItemEvent().execute();
+
+        const [, , parameters] = window.gtag.mock.calls[0];
+
+        expect(parameters).not.toHaveProperty('item_list_id');
+        expect(parameters.items[0]).toEqual(expect.objectContaining({
+            'item_id': 'SW10000.1',
+            'item_list_id': 'category-1',
+            'item_list_name': 'Shirts',
+        }));
     });
 });

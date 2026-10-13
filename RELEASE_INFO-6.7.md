@@ -473,7 +473,7 @@ ADMIN_VITE_8=1 composer build:js:admin
 
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`. This bundles the Administration code of plugins as well, but not of apps. Changes to plugin files reload the page instead of updating it through HMR.
 
-Vite 8 is installed as an own package in `src/Administration/Resources/app/administration/build/vite-8` by the `postinstall` script of the Administration, next to Vite 6. With the flag, building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
+Vite 8 is installed as an own package in `src/Administration/Resources/app/administration/build/vite-8` by the `postinstall` script of the Administration, next to Vite 6. If you install the dependencies without that script, for example with a cache that only covers the `node_modules` of the Administration, also run `npm ci` in `build/vite-8`. With the flag, building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
 
 Vite 8 does not match extglob patterns like `!(*.spec)` in `import.meta.glob`. With the flag, Shopware still rewrites negated extglobs in plugins and apps and logs a warning for each one. 6.8 no longer rewrites them, so replace them with negated patterns like `['./**/*.{j,t}s', '!./**/*.spec.{j,t}s']`. For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 

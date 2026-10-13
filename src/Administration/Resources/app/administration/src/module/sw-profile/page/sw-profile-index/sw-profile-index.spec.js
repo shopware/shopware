@@ -11,6 +11,11 @@ import useTheme, { USER_THEME_CONFIG_KEY } from 'src/app/composables/use-theme';
 import useModuleIconColors, { USER_MODULE_ICON_COLORS_CONFIG_KEY } from 'src/app/composables/use-module-icon-colors';
 import 'src/module/sw-profile/store/sw-profile.store';
 
+async function confirmVerification(wrapper) {
+    await wrapper.findComponent('sw-verify-user-modal-stub').vm.$emit('verified', { ...Shopware.Context.api });
+    await flushPromises();
+}
+
 async function createWrapper(
     privileges = [],
     isSso = { isSso: false },
@@ -403,7 +408,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         expect(updateFunction).not.toHaveBeenCalled();
     });
 
-    it('should update the user', async () => {
+    it('should update the user once the verification modal confirms', async () => {
         const updateFunction = jest.fn(() => Promise.resolve({}));
         const wrapper = await createWrapper(['user.update_profile'], { isSso: true }, updateFunction);
         await flushPromises();
@@ -411,6 +416,10 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         const saveButton = wrapper.find('.sw-profile__save-action');
         await saveButton.trigger('click');
         await flushPromises();
+
+        expect(updateFunction).not.toHaveBeenCalled();
+
+        await confirmVerification(wrapper);
 
         expect(updateFunction).toHaveBeenCalled();
     });
@@ -436,6 +445,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
             const saveButton = wrapper.find('.sw-profile__save-action');
             await saveButton.trigger('click');
             await flushPromises();
+            await confirmVerification(wrapper);
 
             expect(useTheme().theme.value).toBe('dark');
             expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
@@ -459,6 +469,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
             await wrapper.find('.sw-profile__save-action').trigger('click');
             await flushPromises();
+            await confirmVerification(wrapper);
 
             expect(useTheme().theme.value).toBe('dark');
             expect(Shopware.Service('userConfigService').upsert).toHaveBeenNthCalledWith(2, {
@@ -496,6 +507,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
             const saveButton = wrapper.find('.sw-profile__save-action');
             await saveButton.trigger('click');
             await flushPromises();
+            await confirmVerification(wrapper);
 
             expect(useModuleIconColors().enabled.value).toBe(true);
             expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({

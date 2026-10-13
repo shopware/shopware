@@ -205,12 +205,7 @@ export default {
 
             this.isConfirmDeleteModalOpen = false;
 
-            if (this.isSso) {
-                this.deleteUser({ ...Shopware.Context.api });
-
-                return;
-            }
-
+            // the verify user modal handles SSO sessions itself
             this.isConfirmingPasswordModalOpen = true;
         },
 

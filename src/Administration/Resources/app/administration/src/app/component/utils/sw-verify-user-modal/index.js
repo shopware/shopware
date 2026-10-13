@@ -46,10 +46,10 @@ export default {
                 return;
             }
 
-            // An SSO session has no Shopware password to verify. A recent login at the identity provider
-            // counts as the verification; otherwise the user is sent there again with a forced login
-            // and repeats the action after returning.
-            if (this.ssoReauthService.isRecentlyVerified()) {
+            // An SSO session has no Shopware password to verify. The backend puts the user-verified scope
+            // on the token after a fresh identity provider login; without it the user is sent there again
+            // with a forced login and repeats the action after returning.
+            if (this.ssoReauthService.isVerified()) {
                 this.$emit('verified', { ...Shopware.Context.api });
                 this.$emit('close');
 

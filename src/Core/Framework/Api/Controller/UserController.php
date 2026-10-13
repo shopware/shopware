@@ -372,10 +372,6 @@ class UserController extends AbstractController
             return;
         }
 
-        if ($this->ssoService->isSso()) {
-            return;
-        }
-
         if (!$this->hasScope($request)) {
             throw ApiException::invalidScopeAccessToken(UserVerifiedScope::IDENTIFIER);
         }

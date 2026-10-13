@@ -24,7 +24,6 @@ export default {
         'acl',
         'searchPreferencesService',
         'searchRankingService',
-        'ssoSettingsService',
         'validationApiService',
         'feature',
     ],
@@ -270,15 +269,8 @@ export default {
                 return;
             }
 
-            this.ssoSettingsService.isSso().then(async (response) => {
-                if (response.isSso) {
-                    this.saveUser();
-
-                    return;
-                }
-
-                const isValid = await this.validationApiService.validateEmailAddress(this.user.email);
-
+            // the verify user modal handles SSO sessions itself
+            this.validationApiService.validateEmailAddress(this.user.email).then((isValid) => {
                 if (isValid) {
                     const passwordCheck = this.checkPassword();
                     if (passwordCheck === null || passwordCheck === true) {

@@ -29,6 +29,10 @@ final readonly class ExternalAuthUser implements UserEntityInterface
         public ?Token $token,
         public \DateTimeInterface $expiry,
         public string $email,
+        /**
+         * when the identity provider authenticated the user for this login; not persisted, null when unknown
+         */
+        public ?\DateTimeImmutable $authenticatedAt = null,
     ) {
     }
 
@@ -51,6 +55,7 @@ final readonly class ExternalAuthUser implements UserEntityInterface
             \array_key_exists('token', $data) && \is_array($data['token']) ? Token::fromArray($data['token']) : null,
             $data['expiry'],
             $data['email'],
+            $data['authenticated_at'] ?? null,
         );
     }
 
@@ -122,6 +127,9 @@ final readonly class ExternalAuthUser implements UserEntityInterface
                 new NotBlank(null, 'is required'),
                 new Email(null, 'Needs to be a valid email address'),
             ],
+            'authenticated_at' => new Optional([
+                new Type('DateTimeImmutable', 'Needs to be a DateTimeImmutable'),
+            ]),
         ]);
     }
 }

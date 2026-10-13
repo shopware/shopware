@@ -18,7 +18,6 @@ export default {
         'loginService',
         'acl',
         'appAclService',
-        'ssoSettingsService',
     ],
 
     mixins: [Mixin.getByName('notification')],
@@ -159,23 +158,8 @@ export default {
             this.role.privileges = filteredPrivileges;
         },
 
-        async onSave() {
-            let isSso = false;
-
-            try {
-                this.isLoading = true;
-                const response = await this.ssoSettingsService.isSso();
-
-                isSso = response.isSso;
-            } finally {
-                this.isLoading = false;
-            }
-
-            if (isSso) {
-                await this.saveRole({ ...Shopware.Context.api });
-                return;
-            }
-
+        onSave() {
+            // the verify user modal handles SSO sessions itself
             this.confirmPasswordModal = true;
         },
 

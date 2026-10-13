@@ -4,13 +4,18 @@ namespace Shopware\Tests\Integration\Core\Framework\Sso;
 
 use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\UnencryptedToken;
 use League\OAuth2\Server\ResponseTypes\BearerTokenResponse;
 use Nyholm\Psr7\Response as Psr7Response;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\AccessTokenRepository;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Api\OAuth\FakeCryptKey;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
+use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\OAuth\ScopeRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
@@ -59,10 +64,28 @@ class ShopwareGrantTypeTest extends TestCase
         );
     }
 
-    public function testRespondToAccessTokenRequest(): void
+    /**
+     * @return \Generator<string, array{?\DateInterval, bool}>
+     */
+    public static function authenticationTimeProvider(): \Generator
+    {
+        yield 'identity provider login just happened' => [new \DateInterval('PT10S'), true];
+        yield 'identity provider session was reused' => [new \DateInterval('PT1H'), false];
+        yield 'identity provider does not report auth_time' => [null, true];
+    }
+
+    /**
+     * @param \DateInterval|null $authenticatedAgo how long before the code exchange the identity provider authenticated the user
+     */
+    #[DataProvider('authenticationTimeProvider')]
+    public function testRespondToAccessTokenRequest(?\DateInterval $authenticatedAgo, bool $verified): void
     {
         $email = 'test@shopware.com';
-        $idToken = (new FakeTokenGenerator())->setEmail($email)->generate(JwksIds::KEY_ID_ONE);
+        $tokenGenerator = (new FakeTokenGenerator())->setEmail($email);
+        if ($authenticatedAgo !== null) {
+            $tokenGenerator->setAuthTime((new \DateTimeImmutable())->sub($authenticatedAgo));
+        }
+        $idToken = $tokenGenerator->generate(JwksIds::KEY_ID_ONE);
 
         $fakeUserInstall = new FakeUserInstaller($this->connection);
         $fakeUserInstall->installBaseUserData(Uuid::randomHex(), $email);
@@ -113,6 +136,12 @@ class ShopwareGrantTypeTest extends TestCase
         static::assertTrue($responseBodyData['expires_in'] <= 3600 && $responseBodyData['expires_in'] > 3595);
         static::assertIsString($responseBodyData['access_token']);
         static::assertIsString($responseBodyData['refresh_token']);
+
+        $jwt = $responseBodyData['access_token'];
+        static::assertNotSame('', $jwt);
+        $accessToken = (new Parser(new JoseEncoder()))->parse($jwt);
+        static::assertInstanceOf(UnencryptedToken::class, $accessToken);
+        static::assertSame($verified, \in_array(UserVerifiedScope::IDENTIFIER, $accessToken->claims()->get('scopes', []), true));
     }
 
     private function createExternalTokenService(string $token): ExternalTokenService

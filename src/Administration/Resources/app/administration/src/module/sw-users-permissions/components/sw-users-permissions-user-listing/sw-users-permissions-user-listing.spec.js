@@ -358,7 +358,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         expect(deleteFunction).not.toHaveBeenCalled();
     });
 
-    it('should delete an SSO user without password verification', async () => {
+    it('should ask for verification before deleting a user in an SSO session too', async () => {
         const deleteFunction = jest.fn().mockResolvedValue(undefined);
         wrapper = await createWrapper(['users_and_permissions.deleter'], { isSso: true }, deleteFunction);
         const user = { id: 'different-user', firstName: 'Max', lastName: 'Mustermann' };
@@ -368,7 +368,13 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         wrapper.vm.onConfirmDelete(user);
         await flushPromises();
 
-        expect(deleteFunction).toHaveBeenCalledWith(user.id, Shopware.Context.api);
+        expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBe(true);
+        expect(deleteFunction).not.toHaveBeenCalled();
+
+        await wrapper.findComponent('sw-verify-user-modal-stub').vm.$emit('verified', { ...Shopware.Context.api });
+        await flushPromises();
+
+        expect(deleteFunction).toHaveBeenCalledWith(user.id, { ...Shopware.Context.api });
     });
 
     it('should use the correct route for the Edit context menu item', async () => {

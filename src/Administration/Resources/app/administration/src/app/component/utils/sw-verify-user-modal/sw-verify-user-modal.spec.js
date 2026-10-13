@@ -15,7 +15,7 @@ const ssoSettingsService = {
 };
 
 const ssoReauthService = {
-    isRecentlyVerified: jest.fn(() => false),
+    isVerified: jest.fn(() => false),
     start: jest.fn(() => Promise.resolve()),
 };
 
@@ -61,9 +61,9 @@ describe('src/app/component/utils/sw-verify-user-modal', () => {
         expect(wrapper.emitted('close')).toHaveLength(1);
     });
 
-    it('emits the current context for an SSO session verified at the identity provider recently', async () => {
+    it('emits the current context for an SSO session whose token carries the verified scope', async () => {
         ssoSettingsService.isSso.mockResolvedValueOnce({ isSso: true });
-        ssoReauthService.isRecentlyVerified.mockReturnValueOnce(true);
+        ssoReauthService.isVerified.mockReturnValueOnce(true);
 
         wrapper = await createWrapper();
 
@@ -75,7 +75,7 @@ describe('src/app/component/utils/sw-verify-user-modal', () => {
         expect(wrapper.emitted('close')).toHaveLength(1);
     });
 
-    it('sends an SSO session without a recent verification back to the identity provider', async () => {
+    it('sends an SSO session without the verified scope back to the identity provider', async () => {
         ssoSettingsService.isSso.mockResolvedValueOnce({ isSso: true });
 
         wrapper = await createWrapper();

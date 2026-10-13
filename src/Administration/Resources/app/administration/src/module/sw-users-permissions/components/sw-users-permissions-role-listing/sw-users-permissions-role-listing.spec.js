@@ -180,7 +180,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         expect(deleteFunction).not.toHaveBeenCalled();
     });
 
-    it('should delete role without pw confirmation', async () => {
+    it('should delete the role for an SSO session once the verification modal confirms', async () => {
         const deleteFunction = jest.fn().mockReturnValue(Promise.resolve());
         wrapper = await createWrapper(
             ['users_and_permissions.deleter', 'users_and_permissions.editor'],
@@ -205,6 +205,12 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
         const confirmButton = wrapper.find('.sw-users-permissions-role-listing__confirm-delete-button');
         await confirmButton.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBe(true);
+        expect(deleteFunction).not.toHaveBeenCalled();
+
+        await wrapper.findComponent('sw-verify-user-modal-stub').vm.$emit('verified', { ...Shopware.Context.api });
         await flushPromises();
 
         expect(deleteFunction).toHaveBeenCalled();

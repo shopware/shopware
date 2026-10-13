@@ -38,6 +38,23 @@ class ExternalAuthUserTest extends TestCase
         static::assertSame('user_sub_value', $externalAuthUser->sub);
         static::assertSame($expiry, $externalAuthUser->expiry);
         static::assertSame('test@example.com', $externalAuthUser->email);
+        static::assertNull($externalAuthUser->authenticatedAt);
+    }
+
+    public function testCreateKeepsTheAuthenticationTime(): void
+    {
+        $authenticatedAt = new \DateTimeImmutable('2026-10-13 10:00:00');
+
+        $externalAuthUser = ExternalAuthUser::create([
+            'id' => 'id_value',
+            'user_id' => 'user_id_value',
+            'user_sub' => 'user_sub_value',
+            'expiry' => new \DateTimeImmutable(),
+            'email' => 'test@example.com',
+            'authenticated_at' => $authenticatedAt,
+        ]);
+
+        static::assertSame($authenticatedAt, $externalAuthUser->authenticatedAt);
     }
 
     /**

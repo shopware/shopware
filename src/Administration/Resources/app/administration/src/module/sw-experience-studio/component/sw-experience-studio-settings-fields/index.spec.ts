@@ -443,6 +443,14 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
         });
     });
 
+    it('forwards a mapping candidate retry request from the modal', () => {
+        const $emit = jest.fn();
+
+        methods.onRetryMappingCandidates.call({ $emit });
+
+        expect($emit).toHaveBeenCalledWith('retry-mapping-candidates');
+    });
+
     it('resolves no codec for an entity-multi property matching neither stored shape', () => {
         const field = {
             key: 'products',

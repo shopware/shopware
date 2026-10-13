@@ -253,6 +253,9 @@
           "searchPlaceholder": "Search data fields",
           "noCandidates": "No dynamic data is available for this field.",
           "noSearchResults": "No data field matches your search.",
+          "loadingCandidates": "Loading dynamic data...",
+          "loadError": "Dynamic data could not be loaded.",
+          "retryAction": "Retry",
           "groups": {
             "basic": "Basic information",
             "seo": "SEO",

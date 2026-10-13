@@ -73,6 +73,18 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         });
     });
 
+    it('reports a mapping candidate load error and emits a retry request', () => {
+        const hasLoadError = computed.hasMappingCandidateLoadError.call({
+            mappingCandidateLoadError: 'catalogue unavailable',
+        });
+        const $emit = jest.fn();
+
+        methods.onRetryMappingCandidates.call({ $emit });
+
+        expect(hasLoadError).toBe(true);
+        expect($emit).toHaveBeenCalledWith('retry-mapping-candidates');
+    });
+
     it('keeps breakpoint-aware box spacing properties in the element settings', () => {
         const fields = computed.elementFields.call({
             selectedElement: {

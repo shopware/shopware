@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvide
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
@@ -224,8 +225,8 @@ final class StoredTreePreparer
 
     /**
      * One pass over the declared keys, no recursion into what a substitution produced. A value that is
-     * entirely a single unresolved `{{token}}` collapses to null; an unresolved token embedded in other text
-     * stays verbatim.
+     * entirely a single unresolved placeholder collapses to null; an unresolved placeholder embedded in other
+     * text stays verbatim. The reserved `map:` namespace stays intact for the later inline mapping pass.
      */
     private function substitute(string $input, PlaceholderValues $values): ?string
     {
@@ -233,7 +234,9 @@ final class StoredTreePreparer
             $input = str_replace('{{' . $key . '}}', (string) $value, $input);
         }
 
-        if (preg_match('/^\{\{[^{}]+\}\}$/', $input) === 1) {
+        if (preg_match('/^\{\{\s*(?<key>[^{}]+?)\s*\}\}$/', $input, $matches) === 1
+            && !str_starts_with(trim($matches['key']), InlineMappingTokenParser::TOKEN_PREFIX)
+        ) {
             return null;
         }
 

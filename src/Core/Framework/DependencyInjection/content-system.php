@@ -360,6 +360,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContextDeliveryResolver::class),
             service(RenderedTreeFactory::class),
             service(InlineMappingExpander::class),
+            service(MappingConsumers::class),
             service(ContextPathResolver::class),
         ]);
 

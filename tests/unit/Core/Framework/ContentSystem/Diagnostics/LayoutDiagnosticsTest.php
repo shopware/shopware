@@ -1063,6 +1063,25 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame('text', $report->bindingErrors()[0]->key);
     }
 
+    #[TestDox('reports an uncatalogued inline mapping token as a binding error')]
+    public function testUncataloguedInlineMappingIsReported(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'el-1')
+            ->withProperties(['text' => 'Buy {{map:product.secret}}'])
+            ->build();
+
+        $report = $this->diagnostics([
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                ->primitive('text', 'string', inlineMappable: true)
+                ->build(),
+        ])->analyze([$element], [], 'product')->report;
+
+        static::assertCount(1, $report->bindingErrors());
+        static::assertSame(ViolationCode::InvalidMapping, $report->bindingErrors()[0]->code);
+        static::assertSame('el-1', $report->bindingErrors()[0]->elementId);
+        static::assertSame('text', $report->bindingErrors()[0]->key);
+    }
+
     #[TestDox('admits a mapping the catalogue offers for the bound root source')]
     public function testCataloguedMappingIsAdmitted(): void
     {

@@ -57,7 +57,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomFieldMappingCandidateProvider::class)
         ->args([
             service('custom_field.repository'),
-            service('cache.system'),
+            service('cache.object'),
             service(CacheTagCollector::class),
         ])
         ->tag('content_system.mapping_candidate_provider');
@@ -65,7 +65,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomFieldMappingCandidateCacheInvalidator::class)
         ->args([
             service(CacheInvalidator::class),
-            service('cache.system'),
+            service('cache.object'),
         ])
         ->tag('kernel.event_subscriber');
 };

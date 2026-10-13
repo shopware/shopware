@@ -97,12 +97,15 @@
                         :is-loading-style-options="styleOptionStore.isLoading"
                         :type-load-error="elementTypeStore.loadError"
                         :style-option-load-error="styleOptionStore.loadError"
+                        :is-loading-mapping-candidates="mappingCandidateStore.isLoading"
+                        :mapping-candidate-load-error="mappingCandidateStore.loadError"
                         :allow-edit="allowSave"
                         :mapping-candidates="mappingCandidates"
                         :violations="selectedElementViolations"
                         @update-properties="onElementSettingsChange"
                         @update-style="onElementStyleChange"
                         @update-mapping="onElementMappingChange"
+                        @retry-mapping-candidates="loadMappingCandidates"
                     />
                 {% endblock %}
                 </div>

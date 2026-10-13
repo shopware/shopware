@@ -45,22 +45,32 @@ class InlineMappingExpanderTest extends TestCase
      * The flag is the gate, not the token's own presence. Expanding on the strength of a token alone would make
      * `inlineMappable` advisory.
      */
-    #[TestDox('leaves a token alone in a property that did not declare inlineMappable')]
+    #[TestDox('removes an inline mapping token from a property that did not declare inlineMappable')]
     public function testLeavesATokenInAPropertyThatDidNotOptIn(): void
     {
         $element = $this->element(['other' => StoredValue::ofString('{{map:product.name}}')]);
 
         $expanded = $this->expander()->expand([$element], $this->ambient(), 'product');
 
-        static::assertSame('{{map:product.name}}', $expanded[0]->property('other')?->asString());
+        static::assertSame('', $expanded[0]->property('other')?->asString());
     }
 
-    #[TestDox('leaves an uncatalogued token verbatim')]
-    public function testLeavesAnUncataloguedTokenVerbatim(): void
+    #[TestDox('removes an uncatalogued token from storefront output')]
+    public function testRemovesAnUncataloguedToken(): void
     {
         $element = $this->element(['text' => StoredValue::ofString('{{map:product.secret}}')]);
 
         $expanded = $this->expander()->expand([$element], $this->ambient(), 'product');
+
+        static::assertSame('', $expanded[0]->property('text')?->asString());
+    }
+
+    #[TestDox('preserves an uncatalogued token in Admin preview')]
+    public function testPreservesAnUncataloguedTokenInAdminPreview(): void
+    {
+        $element = $this->element(['text' => StoredValue::ofString('{{map:product.secret}}')]);
+
+        $expanded = $this->expander()->expand([$element], $this->ambient(), 'product', preserveUncataloguedTokens: true);
 
         static::assertSame('{{map:product.secret}}', $expanded[0]->property('text')?->asString());
     }
@@ -95,39 +105,42 @@ class InlineMappingExpanderTest extends TestCase
         static::assertSame('Currency: EUR', $expanded[0]->property('text')?->asString());
     }
 
-    #[TestDox('leaves an unknown token verbatim for a rootless section source')]
+    #[TestDox('removes an unknown token for a rootless section source')]
     public function testLeavesUnknownTokenVerbatimForRootlessSectionSource(): void
     {
         $element = $this->element(['text' => StoredValue::ofString('{{map:context:storefront.unknown}}')]);
 
         $expanded = $this->expander()->expand([$element], [], 'header');
 
-        static::assertSame('{{map:context:storefront.unknown}}', $expanded[0]->property('text')?->asString());
+        static::assertSame('', $expanded[0]->property('text')?->asString());
     }
 
-    #[TestDox('does nothing at all when the layout has no root source')]
-    public function testReturnsTheForestUntouchedWithoutARootSource(): void
+    #[TestDox('removes tokens when the layout has no root source')]
+    public function testRemovesTokensWithoutARootSource(): void
     {
         $element = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')]);
         $forest = [$element];
 
-        static::assertSame($forest, $this->expander()->expand($forest, $this->ambient(), null));
+        $expanded = $this->expander()->expand($forest, $this->ambient(), null);
+
+        static::assertSame('', $expanded[0]->property('text')?->asString());
     }
 
     /**
-     * Same rule as `Layout/Scaffolding/StoredTreePreparer`: a token is a property of the authored value at a declared
-     * key, and no property specification exists to have flagged a string buried in a container.
+     * Container strings are never interpolated, but storefront output still removes their mapping syntax.
      */
-    #[TestDox('does not reach into a list or map property, even one holding a token')]
-    public function testDoesNotExpandInsideContainerProperties(): void
+    #[TestDox('removes mapping tokens from strings nested in a list or map property')]
+    public function testRemovesTokensInsideContainerProperties(): void
     {
         $element = $this->element([
-            'text' => StoredValue::ofList([StoredValue::ofString('{{map:product.name}}')]),
+            'text' => StoredValue::ofMap([
+                'nested' => StoredValue::ofList([StoredValue::ofString('{{map:product.name}}')]),
+            ]),
         ]);
 
         $expanded = $this->expander()->expand([$element], $this->ambient(), 'product');
 
-        static::assertSame('{{map:product.name}}', $expanded[0]->property('text')?->asList()[0]->asString());
+        static::assertSame('', $expanded[0]->property('text')?->asMap()['nested']->asList()[0]->asString());
     }
 
     #[TestDox('expands tokens in slot children too')]
@@ -156,17 +169,17 @@ class InlineMappingExpanderTest extends TestCase
     }
 
     /**
-     * An unregistered component is reported as an intrinsic violation elsewhere; here it simply cannot be shown to
-     * have opted in, so nothing is expanded.
+     * An unregistered component is reported as an intrinsic violation elsewhere; its tokens are scrubbed from
+     * storefront output without attempting interpolation.
      */
-    #[TestDox('leaves a token alone on an unregistered component')]
+    #[TestDox('removes an inline mapping token on an unregistered component')]
     public function testLeavesATokenAloneOnAnUnregisteredComponent(): void
     {
         $element = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')], component: 'Sw:Unknown');
 
         $expanded = $this->expander()->expand([$element], $this->ambient(), 'product');
 
-        static::assertSame('{{map:product.name}}', $expanded[0]->property('text')?->asString());
+        static::assertSame('', $expanded[0]->property('text')?->asString());
     }
 
     /**

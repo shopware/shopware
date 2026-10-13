@@ -68,6 +68,16 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+        isLoadingMappingCandidates: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        mappingCandidateLoadError: {
+            type: String,
+            required: false,
+            default: null,
+        },
         allowEdit: {
             type: Boolean,
             required: false,
@@ -89,6 +99,7 @@ export default Shopware.Component.wrapComponentConfig({
         'update-properties',
         'update-style',
         'update-mapping',
+        'retry-mapping-candidates',
     ],
 
     data() {
@@ -108,6 +119,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         hasStyleOptionLoadError(): boolean {
             return typeof this.styleOptionLoadError === 'string' && this.styleOptionLoadError.length > 0;
+        },
+
+        hasMappingCandidateLoadError(): boolean {
+            return typeof this.mappingCandidateLoadError === 'string' && this.mappingCandidateLoadError.length > 0;
         },
 
         hasSelectedElementType(): boolean {
@@ -257,6 +272,10 @@ export default Shopware.Component.wrapComponentConfig({
             if (tabName === 'element' || tabName === 'layout') {
                 this.activeSettingsTab = tabName;
             }
+        },
+
+        onRetryMappingCandidates(): void {
+            this.$emit('retry-mapping-candidates');
         },
 
         onUpdateElementField(payload: { key: string; value: unknown }): void {

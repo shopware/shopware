@@ -106,6 +106,16 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: () => [],
         },
+        isLoadingMappingCandidates: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        mappingCandidateLoadError: {
+            type: String,
+            required: false,
+            default: null,
+        },
         /**
          * Catalogue path per mapped property key. A property absent here renders its authored value.
          */
@@ -124,6 +134,7 @@ export default Shopware.Component.wrapComponentConfig({
     emits: [
         'update-field',
         'update-mapping',
+        'retry-mapping-candidates',
     ],
 
     watch: {
@@ -307,6 +318,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         onCloseMappingModal(): void {
             this.mappingModalFieldKey = null;
+        },
+
+        onRetryMappingCandidates(): void {
+            this.$emit('retry-mapping-candidates');
         },
 
         onSelectMapping(candidate: ContentSystemMappingCandidate): void {

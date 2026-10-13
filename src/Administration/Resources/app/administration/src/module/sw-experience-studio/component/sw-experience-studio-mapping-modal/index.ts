@@ -25,6 +25,16 @@ export default Shopware.Component.wrapComponentConfig({
             type: Array as PropType<ContentSystemMappingCandidate[]>,
             required: true,
         },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        loadError: {
+            type: String,
+            required: false,
+            default: null,
+        },
         propertyTitle: {
             type: String,
             required: false,
@@ -40,6 +50,7 @@ export default Shopware.Component.wrapComponentConfig({
     emits: [
         'select',
         'close',
+        'retry',
     ],
 
     data() {
@@ -111,7 +122,9 @@ export default Shopware.Component.wrapComponentConfig({
                 return selected;
             }
 
-            const current = this.sourceGroups.find((group) => group.candidates.some((candidate) => candidate.path === this.currentPath));
+            const current = this.sourceGroups.find((group) =>
+                group.candidates.some((candidate) => candidate.path === this.currentPath),
+            );
             if (current) {
                 return current;
             }
@@ -127,7 +140,19 @@ export default Shopware.Component.wrapComponentConfig({
             return this.candidates.length > 0;
         },
 
+        hasLoadError(): boolean {
+            return typeof this.loadError === 'string' && this.loadError.length > 0;
+        },
+
         emptyStateDescription(): string {
+            if (this.isLoading) {
+                return this.$t('sw-experience-studio.detail.elementSettings.mapping.loadingCandidates');
+            }
+
+            if (this.hasLoadError) {
+                return this.$t('sw-experience-studio.detail.elementSettings.mapping.loadError');
+            }
+
             return this.hasCandidates
                 ? this.$t('sw-experience-studio.detail.elementSettings.mapping.noSearchResults')
                 : this.$t('sw-experience-studio.detail.elementSettings.mapping.noCandidates');
@@ -210,6 +235,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         onClose(): void {
             this.$emit('close');
+        },
+
+        onRetry(): void {
+            this.$emit('retry');
         },
     },
 });

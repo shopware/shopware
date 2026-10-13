@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -34,7 +35,9 @@ use Symfony\Component\HttpFoundation\Request;
  * {@see VirtualRootWrapper} element, whose placeholder values are what its loaders' `propertyReference` inputs
  * dereference against. Only the requirements a root-scoped consumer on the page reads are resolved: one no
  * consumer reads never loads, so it runs no query and contributes no cache tag. Consumption is judged over the
- * wrapper's pre-prune forest, so a partial render resolves the same set as the full render. The resulting map
+ * wrapper's pre-prune forest, so a partial render resolves the same set as the full render. A requirement is
+ * consumed by a root-scoped context consumer, a stored mapping's source path, or an inline mapping token in an
+ * opted-in string property. The resulting map
  * is handed to {@see ContextDeliveryResolver::resolve()} as the root-ambient context, which is the only route
  * by which it reaches an element. It is an explicit input on that call rather than something read off the tree,
  * so the partial prune cannot take root context with it. The same map is also filed into the forest's loader
@@ -58,6 +61,7 @@ final readonly class ElementLowering
         private ContextDeliveryResolver $deliveryResolver,
         private RenderedTreeFactory $treeFactory,
         private InlineMappingExpander $inlineMappingExpander,
+        private MappingConsumers $mappingConsumers,
         private ContextPathResolver $pathResolver,
     ) {
     }
@@ -74,7 +78,8 @@ final readonly class ElementLowering
      * @param list<DataRequirement> $pageDataRequirements the rendering specification's page-level requirements
      * @param StoredElement|null $virtualRoot the wrapper the preparation minted, or null when it did not wrap
      * @param string|null $rootSource the specification's root source, naming the mapping catalogue inline tokens
-     *                                resolve against; null means the layout has none and nothing is expanded
+     *                                resolve against; without one, storefront rendering removes valid tokens
+     * @param bool $preserveUncataloguedInlineTokens whether Admin preview keeps unresolved inline tokens visible
      *
      * @throws ContentSystemException when a required consumer's path cannot be resolved
      */
@@ -87,6 +92,7 @@ final readonly class ElementLowering
         array $pageDataRequirements,
         ?StoredElement $virtualRoot,
         ?string $rootSource = null,
+        bool $preserveUncataloguedInlineTokens = false,
     ): LoweringResult {
         if ($mode === RenderingMode::SKELETON) {
             return $this->treeFactory->create($forest, new ContextDeliveryIndex(), [], $mode);
@@ -138,7 +144,16 @@ final readonly class ElementLowering
         // either way — it reads context wiring and loader values, never an authored string — so the deliveries
         // computed from the pre-expansion forest stay valid against the expanded one: expansion changes property
         // VALUES and no element id, and the delivery index is keyed by id.
-        $forest = $this->inlineMappingExpander->expand($forest, $plainAmbient, $rootSource, $context, $request, $cacheContext, $plainLoaderValues);
+        $forest = $this->inlineMappingExpander->expand(
+            $forest,
+            $plainAmbient,
+            $rootSource,
+            $context,
+            $request,
+            $cacheContext,
+            $plainLoaderValues,
+            $preserveUncataloguedInlineTokens,
+        );
 
         return $this->treeFactory->create($forest, $deliveries, $loaderValues, $mode);
     }
@@ -204,6 +219,8 @@ final readonly class ElementLowering
 
         foreach ($elements as $element) {
             $keys[] = $element->contextDefinitions->getConsumerKeysByScope(ConsumerScope::Root);
+            $keys[] = array_values($this->mappingConsumers->mappedPaths($element));
+            $keys[] = $this->inlineMappingExpander->mappingPaths($element);
 
             foreach ($element->slots as $children) {
                 $keys[] = $this->rootConsumerKeys($children);

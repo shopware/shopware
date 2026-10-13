@@ -33,6 +33,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSyste
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
@@ -326,6 +327,27 @@ class ElementLoweringTest extends TestCase
         );
     }
 
+    #[TestDox('resolves a page-level requirement referenced by an inline mapping token')]
+    public function testFullModeResolvesARequirementConsumedByAnInlineMappingToken(): void
+    {
+        $loader = $this->loader();
+        $loader->expects($this->once())
+            ->method('load')
+            ->willReturn(ContentDataLoaderResult::cached(new StubStruct()));
+
+        $text = StoredElementBuilder::create('Sw:Content:Text', 'text-1')
+            ->withProperty('text', '{{map:product.name}}')
+            ->build();
+        $wrapper = $this->virtualRoot($text);
+
+        $this->lower(
+            $loader,
+            [$wrapper],
+            [new DataRequirement('product', 'entity', new StubLoaderConfig())],
+            $wrapper
+        );
+    }
+
     /**
      * The match must keep the dot boundary: a `productId` consumer is not reading a path into the `product`
      * requirement, so the requirement stays unconsumed and must not load. A plain prefix match would wrongly
@@ -563,6 +585,7 @@ class ElementLoweringTest extends TestCase
             ),
             new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry())),
             $this->inlineMappingExpander(),
+            new MappingConsumers(),
             new ContextPathResolver(),
         );
     }
@@ -617,6 +640,9 @@ class ElementLoweringTest extends TestCase
             'Sw:Box' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Box')->build(),
             'Sw:Product' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Product')
                 ->reference('product', StubStruct::class)
+                ->build(),
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                ->primitive('text', 'string', inlineMappable: true)
                 ->build(),
         ];
 

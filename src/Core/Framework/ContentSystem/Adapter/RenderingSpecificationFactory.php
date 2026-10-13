@@ -53,6 +53,7 @@ class RenderingSpecificationFactory
             targetElementId: $source->resolveTargetElementId('', $request, $context),
             cacheTags: [],
             rootSource: $source->rootSource(),
+            isAdminPreview: true,
         );
     }
 }

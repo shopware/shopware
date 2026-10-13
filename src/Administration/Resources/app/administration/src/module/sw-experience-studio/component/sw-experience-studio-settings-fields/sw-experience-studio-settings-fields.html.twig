@@ -481,10 +481,13 @@
     <sw-experience-studio-mapping-modal
         v-if="mappingModalField"
         :candidates="mappingModalCandidates"
+        :is-loading="isLoadingMappingCandidates"
+        :load-error="mappingCandidateLoadError"
         :property-title="mappingModalField.property.title"
         :current-path="getFieldMappingPath(mappingModalField)"
         @select="onSelectMapping"
         @close="onCloseMappingModal"
+        @retry="onRetryMappingCandidates"
     />
 </div>
 {% endblock %}

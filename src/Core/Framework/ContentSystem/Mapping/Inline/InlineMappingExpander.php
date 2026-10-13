@@ -22,13 +22,14 @@ use Symfony\Component\HttpFoundation\Request;
  * a fifth concern in the one method whose ordering is, as its own docblock puts it, load-bearing twice.
  *
  * The consequence to be aware of is that the value the mint records as DeclaredAuthored is the EXPANDED text, not
- * what the author typed. That is the right answer for a renderer — a storefront reads resolved output — and the
- * Administration never sees this forest, because it reads stored elements through the codec instead.
+ * what the author typed. Storefront rendering always removes unresolved tokens; the layout-free Administration
+ * preview opts into preserving them so authors can see stale mappings alongside diagnostics. The editing surface
+ * still reads stored elements through the codec.
  *
  * SHAPE RULE, borrowed verbatim from `Layout/Scaffolding/StoredTreePreparer::resolvePlaceholders()`: top-level
- * string properties only, containers handed on untouched even when they hold string leaves. A token is a property of
- * the authored value at a declared, `inlineMappable`-flagged key; reaching into a list or map would expand text that
- * no declaration ever offered to expand, and no property specification exists to have flagged it.
+ * string properties only for interpolation. A token is resolved only at a declared, `inlineMappable`-flagged key;
+ * containers and other unflagged properties are never interpolated. Storefront output still scrubs valid mapping
+ * tokens from their string leaves, so no unresolved mapping syntax reaches the page.
  *
  * @internal
  */
@@ -58,17 +59,46 @@ final readonly class InlineMappingExpander
         ?Request $request = null,
         ?RenderingCacheContext $cacheContext = null,
         array $loaderValues = [],
+        bool $preserveUncataloguedTokens = false,
     ): array {
-        // No root source means no catalogue, and every token would resolve to nothing and stay verbatim. Skipping
-        // outright rather than walking to the same answer keeps a context-free layout's render free of this step.
-        if ($rootSource === null) {
+        // Previews retain unknown mapping tokens so the Administration can show them alongside diagnostics.
+        // Storefront renders always erase a well-formed token that cannot be resolved, including without a catalogue.
+        if ($rootSource === null && $preserveUncataloguedTokens) {
             return $forest;
         }
 
         return array_map(
-            fn (StoredElement $element): StoredElement => $this->expandElement($element, $ambient, $rootSource, $salesChannelContext, $request, $cacheContext, $loaderValues),
+            fn (StoredElement $element): StoredElement => $this->expandElement($element, $ambient, $rootSource, $salesChannelContext, $request, $cacheContext, $loaderValues, $preserveUncataloguedTokens),
             $forest
         );
+    }
+
+    /**
+     * The root paths referenced by inline mapping tokens on this element, if its declared string properties opt in.
+     *
+     * @return list<string>
+     */
+    public function mappingPaths(StoredElement $element): array
+    {
+        $paths = [];
+
+        foreach ($element->properties() as $key => $value) {
+            if (!$value->isString()) {
+                continue;
+            }
+
+            $text = $value->asString();
+
+            if (!$this->parser->containsToken($text) || !$this->isInlineMappable($element->component, $key)) {
+                continue;
+            }
+
+            foreach ($this->parser->parse($text) as $token) {
+                $paths[] = $token->path;
+            }
+        }
+
+        return $paths;
     }
 
     /**
@@ -78,17 +108,22 @@ final readonly class InlineMappingExpander
     private function expandElement(
         StoredElement $element,
         array $ambient,
-        string $rootSource,
+        ?string $rootSource,
         ?SalesChannelContext $salesChannelContext,
         ?Request $request,
         ?RenderingCacheContext $cacheContext,
         array $loaderValues,
+        bool $preserveUncataloguedTokens,
     ): StoredElement {
         $properties = $element->properties();
         $rewritten = $properties;
 
         foreach ($properties as $key => $value) {
             if (!$value->isString()) {
+                if (!$preserveUncataloguedTokens) {
+                    $rewritten[$key] = $this->removeMappingTokens($value);
+                }
+
                 continue;
             }
 
@@ -96,24 +131,38 @@ final readonly class InlineMappingExpander
 
             // The cheap check first, because the overwhelming majority of string properties in a forest hold no
             // token and this spares them both the catalogue lookup and the regex.
-            if (!$this->parser->containsToken($text) || !$this->isInlineMappable($element->component, $key)) {
+            if (!$this->parser->containsToken($text)) {
+                continue;
+            }
+
+            if (!$this->isInlineMappable($element->component, $key)) {
+                if (!$preserveUncataloguedTokens) {
+                    $rewritten[$key] = StoredValue::ofString($this->parser->replace($text, static fn (string $path): string => ''));
+                }
+
                 continue;
             }
 
             $rewritten[$key] = StoredValue::ofString(
                 $this->parser->replace(
                     $text,
-                    fn (string $path): ?string => $this->interpolator->interpolate(
-                        $path,
-                        $ambient,
-                        $rootSource,
-                        $element->id,
-                        $element,
-                        $salesChannelContext,
-                        $request,
-                        $cacheContext,
-                        $loaderValues[$element->id] ?? []
-                    )
+                    function (string $path) use ($ambient, $rootSource, $element, $salesChannelContext, $request, $cacheContext, $loaderValues, $preserveUncataloguedTokens): ?string {
+                        if ($rootSource === null) {
+                            return $preserveUncataloguedTokens ? null : '';
+                        }
+
+                        return $this->interpolator->interpolate(
+                            $path,
+                            $ambient,
+                            $rootSource,
+                            $element->id,
+                            $element,
+                            $salesChannelContext,
+                            $request,
+                            $cacheContext,
+                            $loaderValues[$element->id] ?? []
+                        ) ?? ($preserveUncataloguedTokens ? null : '');
+                    }
                 )
             );
         }
@@ -121,7 +170,7 @@ final readonly class InlineMappingExpander
         $slots = [];
         foreach ($element->slots as $slotName => $children) {
             $slots[$slotName] = array_map(
-                fn (StoredElement $child): StoredElement => $this->expandElement($child, $ambient, $rootSource, $salesChannelContext, $request, $cacheContext, $loaderValues),
+                fn (StoredElement $child): StoredElement => $this->expandElement($child, $ambient, $rootSource, $salesChannelContext, $request, $cacheContext, $loaderValues, $preserveUncataloguedTokens),
                 $children
             );
         }
@@ -129,10 +178,32 @@ final readonly class InlineMappingExpander
         return $element->withProperties($rewritten)->withSlots($slots);
     }
 
+    private function removeMappingTokens(StoredValue $value): StoredValue
+    {
+        if ($value->isString()) {
+            $text = $value->asString();
+
+            if (!$this->parser->containsToken($text)) {
+                return $value;
+            }
+
+            return StoredValue::ofString($this->parser->replace($text, static fn (string $path): string => ''));
+        }
+
+        if ($value->isList()) {
+            return StoredValue::ofList(array_map($this->removeMappingTokens(...), $value->asList()));
+        }
+
+        if ($value->isMap()) {
+            return StoredValue::ofMap(array_map($this->removeMappingTokens(...), $value->asMap()));
+        }
+
+        return $value;
+    }
+
     /**
-     * An unregistered component or an undeclared key answers false, which leaves the token verbatim. Both mean the
-     * text cannot be shown to have opted in, and expanding on the strength of a token's own presence would make the
-     * `inlineMappable` flag advisory rather than the gate it is.
+     * An unregistered component or an undeclared key answers false. Such tokens are never interpolated; storefront
+     * rendering removes them, while preview keeps them visible for diagnosis.
      */
     private function isInlineMappable(string $component, string $propertyKey): bool
     {

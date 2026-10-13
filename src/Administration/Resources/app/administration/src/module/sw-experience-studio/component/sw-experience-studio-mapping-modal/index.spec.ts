@@ -32,6 +32,8 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
         'sw-experience-studio.mapping.category.name.description': 'The name of the category the page shows.',
         'sw-experience-studio.detail.elementSettings.mapping.groups.basic': 'Basic information',
         'sw-experience-studio.detail.elementSettings.mapping.groups.customFields': 'Custom Fields',
+        'sw-experience-studio.detail.elementSettings.mapping.loadingCandidates': 'Loading dynamic data...',
+        'sw-experience-studio.detail.elementSettings.mapping.loadError': 'Dynamic data could not be loaded.',
         'sw-experience-studio.detail.elementSettings.mapping.sources.rootEntity': 'Root entity',
         'sw-experience-studio.detail.elementSettings.mapping.sources.storefrontContext': 'Storefront context',
         'sw-experience-studio.createWizard.layoutTypes.product': 'Product',
@@ -122,11 +124,17 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
             source: { type: 'context', id: 'storefront', path: 'currency.isoCode' },
         });
         const sourceGroups = computed.sourceGroups.call({
-            matchingCandidates: [contextCandidate, rootCandidate],
+            matchingCandidates: [
+                contextCandidate,
+                rootCandidate,
+            ],
             getSourceKey: methods.getSourceKey,
         }) as Array<{ key: string; candidates: ContentSystemMappingCandidate[] }>;
 
-        expect(sourceGroups.map((group) => group.key)).toEqual(['root:product', 'context:storefront']);
+        expect(sourceGroups.map((group) => group.key)).toEqual([
+            'root:product',
+            'context:storefront',
+        ]);
         expect(sourceGroups[0].candidates).toEqual([rootCandidate]);
         expect(sourceGroups[1].candidates).toEqual([contextCandidate]);
     });
@@ -137,10 +145,18 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
             path: 'context:storefront.currency.isoCode',
             source: { type: 'context', id: 'storefront', path: 'currency.isoCode' },
         });
-        const contextGroup = { key: 'context:storefront', type: 'context', id: 'storefront', candidates: [contextCandidate] };
+        const contextGroup = {
+            key: 'context:storefront',
+            type: 'context',
+            id: 'storefront',
+            candidates: [contextCandidate],
+        };
 
         const active = computed.activeSourceGroup.call({
-            sourceGroups: [rootGroup, contextGroup],
+            sourceGroups: [
+                rootGroup,
+                contextGroup,
+            ],
             selectedSourceKey: null,
             currentPath: contextCandidate.path,
         });
@@ -201,6 +217,32 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
 
         expect(noCandidates).toBe('sw-experience-studio.detail.elementSettings.mapping.noCandidates');
         expect(noResults).toBe('sw-experience-studio.detail.elementSettings.mapping.noSearchResults');
+    });
+
+    it('shows loading and failure states instead of the empty catalogue message', () => {
+        const loading = computed.emptyStateDescription.call({
+            ...i18n,
+            isLoading: true,
+            hasLoadError: false,
+            hasCandidates: false,
+        });
+        const failed = computed.emptyStateDescription.call({
+            ...i18n,
+            isLoading: false,
+            hasLoadError: true,
+            hasCandidates: false,
+        });
+
+        expect(loading).toBe('Loading dynamic data...');
+        expect(failed).toBe('Dynamic data could not be loaded.');
+    });
+
+    it('emits a retry request after candidate loading fails', () => {
+        const $emit = jest.fn();
+
+        methods.onRetry.call({ $emit });
+
+        expect($emit).toHaveBeenCalledWith('retry');
     });
 
     it('emits the selected candidate so the caller can store its context type', () => {

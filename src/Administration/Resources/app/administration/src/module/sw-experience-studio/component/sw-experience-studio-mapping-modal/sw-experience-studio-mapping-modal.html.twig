@@ -50,7 +50,27 @@
         </aside>
 
         <section class="sw-experience-studio-mapping-modal__properties">
-            <template v-if="activeSourceGroup">
+            <mt-empty-state
+                v-if="isLoading"
+                icon="regular-hourglass"
+                :description="emptyStateDescription"
+            />
+
+            <div
+                v-else-if="hasLoadError"
+                class="sw-experience-studio-mapping-modal__load-error"
+                role="alert"
+            >
+                <p>{{ emptyStateDescription }}</p>
+                <mt-button
+                    size="small"
+                    @click="onRetry"
+                >
+                    {{ $t('sw-experience-studio.detail.elementSettings.mapping.retryAction') }}
+                </mt-button>
+            </div>
+
+            <template v-else-if="activeSourceGroup">
                 <header class="sw-experience-studio-mapping-modal__properties-header">
                     <h3>{{ getSourceLabel(activeSourceGroup.type, activeSourceGroup.id) }}</h3>
                     <p>{{ $t('sw-experience-studio.detail.elementSettings.mapping.sourceIntro') }}</p>

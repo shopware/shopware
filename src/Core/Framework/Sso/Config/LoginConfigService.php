@@ -92,7 +92,10 @@ readonly class LoginConfigService
         ];
 
         if ($addLoginPrompt) {
+            // prompt=login shows the login form again, max_age=0 makes the identity provider report the
+            // fresh authentication time in the id token (`auth_time`)
             $params['prompt'] = 'login';
+            $params['max_age'] = '0';
         }
 
         return \sprintf(

@@ -406,6 +406,10 @@ GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_I
 
 An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the app declares in the `<permissions>` of its manifest, because the tool's script runs with the app's integration role. Apps without a `<permissions>` block skipped this check, although they have no privileges at all. They are now checked like every other app, so such an app fails to install or update with the message naming the missing permission. Add the permissions to the manifest, or remove the required privileges from the tool.
 
+### SSO sessions re-authenticate at the identity provider before verified actions
+
+Administration actions that require a verified session (user and role management, access key deletion, and every extension that confirms through `sw-verify-user-modal`) now ask SSO users to sign in at the identity provider again instead of skipping the check. The SSO token exchange requests a fresh login (`prompt=login`, `max_age=0`) and puts the `user-verified` scope on the access token when the identity provider reports an authentication within the last five minutes (`auth_time`); identity providers that do not report `auth_time` keep the scope as before. The Admin API no longer exempts SSO sessions from the `user-verified` scope on these endpoints. API clients that call them with an SSO-issued token must obtain the token through a fresh identity provider login.
+
 ## API
 
 ### Generated document number in the V2 creation response

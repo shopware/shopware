@@ -334,7 +334,7 @@ class LoginConfigServiceTest extends TestCase
                 'scope' => 'scope',
                 'register_url' => 'https://register.url',
             ],
-            'expectedUrl' => 'https://another-base-url.net/authorize?client_id=anotherClientID&redirect_uri=https%3A%2F%2Fanother-redirect-url.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString&prompt=login',
+            'expectedUrl' => 'https://another-base-url.net/authorize?client_id=anotherClientID&redirect_uri=https%3A%2F%2Fanother-redirect-url.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString&prompt=login&max_age=0',
             'addLoginPrompt' => true,
         ];
     }

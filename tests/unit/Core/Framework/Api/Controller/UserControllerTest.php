@@ -10,12 +10,14 @@ use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\Api\Controller\UserController;
+use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -64,6 +66,29 @@ class UserControllerTest extends TestCase
         $context = Context::createDefaultContext(new AdminApiSource(null));
 
         $controller->logout($context);
+    }
+
+    /**
+     * An SSO session is verified by a fresh identity provider login that puts the scope on the token,
+     * so the administration client gets no exemption from the scope anymore.
+     */
+    public function testUpsertUserRejectsAnAdministrationSsoSessionWithoutTheVerifiedScope(): void
+    {
+        static::expectExceptionObject(ApiException::invalidScopeAccessToken(UserVerifiedScope::IDENTIFIER));
+
+        $ssoService = static::createStub(SsoService::class);
+        $ssoService->method('isSso')->willReturn(true);
+
+        $request = Request::create('/', Request::METHOD_POST, ['username' => 'sso-user']);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, 'administration');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES, ['write']);
+
+        $this->createController($ssoService)->upsertUser(
+            null,
+            $request,
+            Context::createDefaultContext(new AdminApiSource('test-user-id')),
+            static::createStub(ResponseFactoryInterface::class),
+        );
     }
 
     public function testUpdateMeAllowsChangingTimezone(): void

@@ -40,7 +40,7 @@ describe('src/app/init-post/sso-reauth.init.ts', () => {
         expect(push).not.toHaveBeenCalled();
     });
 
-    it('starts the verification window on an SSO login without returning anywhere', async () => {
+    it('completes an SSO login that did not come from the modal without returning anywhere', async () => {
         sessionStorage.setItem('sw-sso-session', 'true');
         await initializeSsoReauth();
 

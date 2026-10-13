@@ -39,6 +39,27 @@ class ParsedIdTokenTest extends TestCase
 
         static::assertSame('fake-subject', $result->sub);
         static::assertSame('fake@email.com', $result->email);
+        static::assertNull($result->authenticatedAt);
+    }
+
+    public function testCreateFromDataSetReadsTheAuthenticationTime(): void
+    {
+        $authTime = new \DateTimeImmutable('2026-10-13 10:00:00');
+        $token = $this->tokenGenerator->setAuthTime($authTime)->generate();
+        $parsed = (new Parser(new JoseEncoder()))->parse($token);
+        static::assertInstanceOf(Plain::class, $parsed);
+
+        $result = ParsedIdToken::createFromDataSet($parsed->claims());
+
+        static::assertNotNull($result->authenticatedAt);
+        static::assertSame($authTime->getTimestamp(), $result->authenticatedAt->getTimestamp());
+    }
+
+    public function testCreateFromDataSetIgnoresAnUnreadableAuthenticationTime(): void
+    {
+        $dataSet = new DataSet(['exp' => new \DateTimeImmutable(), 'sub' => 'sub', 'email' => 'foo@bar.baz', 'auth_time' => 'yesterday'], '');
+
+        static::assertNull(ParsedIdToken::createFromDataSet($dataSet)->authenticatedAt);
     }
 
     #[DataProvider('invalidData')]

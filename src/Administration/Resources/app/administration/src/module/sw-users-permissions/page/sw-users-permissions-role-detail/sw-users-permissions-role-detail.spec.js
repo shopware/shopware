@@ -797,7 +797,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         expect(saveFunction).not.toHaveBeenCalled();
     });
 
-    it('should save role without pw confirmation', async () => {
+    it('should save the role for an SSO session once the verification modal confirms', async () => {
         const saveFunction = jest.fn().mockReturnValue(Promise.resolve());
         wrapper = await createWrapper(
             {
@@ -815,6 +815,12 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
         const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
         await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBe(true);
+        expect(saveFunction).not.toHaveBeenCalled();
+
+        await wrapper.findComponent('sw-verify-user-modal-stub').vm.$emit('verified', { ...Shopware.Context.api });
         await flushPromises();
 
         expect(saveFunction).toHaveBeenCalled();

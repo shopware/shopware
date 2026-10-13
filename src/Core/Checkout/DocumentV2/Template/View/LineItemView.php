@@ -261,7 +261,7 @@ final readonly class LineItemView
             name: $lineItem->getLabel(),
             quantity: $quantity,
             basisQuantity: self::PRICE_BASIS_QUANTITY,
-            unitCode: UnitCode::PIECE->value,
+            unitCode: self::getUnitCode($product),
             netUnitPrice: $lineTotal / $quantity,
             lineTotal: $lineTotal,
             taxCategory: TaxCategory::fromRate($taxRate),

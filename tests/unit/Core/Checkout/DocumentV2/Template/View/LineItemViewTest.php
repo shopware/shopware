@@ -321,6 +321,30 @@ class LineItemViewTest extends TestCase
         static::assertSame(100.0, $views[0]->netUnitPrice);
     }
 
+    public function testListFromCreditItemsFallsBackToPieceWithoutProduct(): void
+    {
+        $credit = $this->createCreditLineItem('Refund', new CalculatedPrice(10.0, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $views = LineItemView::listFromCreditItems($this->createOrder(CartPrice::TAX_STATE_NET, [$credit]));
+
+        static::assertSame('H87', $views[0]->unitCode);
+    }
+
+    public function testListFromCreditItemsUsesTheUnitCodeOfALinkedProduct(): void
+    {
+        $product = new ProductEntity();
+        $product->setUniqueIdentifier(Uuid::randomHex());
+        $product->setProductNumber('SKU-1');
+        $product->setUnit($this->createUnit('KGM'));
+
+        $credit = $this->createCreditLineItem('Refund', new CalculatedPrice(10.0, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $credit->setProduct($product);
+
+        $views = LineItemView::listFromCreditItems($this->createOrder(CartPrice::TAX_STATE_NET, [$credit]));
+
+        static::assertSame('KGM', $views[0]->unitCode);
+    }
+
     public function testListFromCreditItemsSubtractsTaxPerRowForGrossOrders(): void
     {
         $credit = $this->createCreditLineItem('Refund', new CalculatedPrice(

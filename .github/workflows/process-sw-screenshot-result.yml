@@ -1,0 +1,66 @@
+name: Screenshot Result Processor
+
+# Post-run processor for the `sw-screenshot` workflow. Collapses the screenshot comments earlier runs
+# left on the same issue or pull request, so exactly one set of images stays visible.
+#
+# Screenshots age worse than text: someone scrolling a thread sees an image and assumes it reflects
+# the current code. gh aw can only append comments, so the pruning happens here instead.
+#
+# Runs in its own workflow rather than as a post-step of the agent run because collapsing needs
+# `issues: write`, and gh aw's strict mode — correctly — refuses write permissions on a job that
+# hosts an agent.
+
+on:
+  workflow_run:
+    workflows: ["Shopware Context Screenshots"]
+    types: [completed]
+
+permissions:
+  actions: read # download the triggering run's context artifact
+  contents: read # checkout the collapse script
+  issues: write # minimize this workflow's earlier comments
+
+concurrency:
+  group: process-sw-screenshot-result-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  collapse:
+    # The agent workflow triggers on labels and comments across the repo and skips the irrelevant
+    # ones, but a skipped run still fires workflow_run. Without this guard every unrelated comment
+    # would spin up a runner here.
+    if: github.event.workflow_run.conclusion != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout collapse script only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/actions/sw-screenshot/steps
+
+      - name: Download run context
+        id: download
+        continue-on-error: true
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: sw-screenshot-context
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: run-context
+
+      - name: Collapse earlier screenshot comments
+        # No artifact means the agent run never got as far as fetching its context, so there is
+        # nothing whose predecessors need collapsing.
+        if: steps.download.outcome == 'success'
+        env:
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ ! -s run-context/number.txt ]; then
+            echo "no issue number recorded — nothing to collapse"
+            exit 0
+          fi
+          ISSUE="$(cat run-context/number.txt)" \
+            bash .github/actions/sw-screenshot/steps/collapse-previous.sh

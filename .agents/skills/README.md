@@ -9,6 +9,7 @@ Portable AI capabilities packaged in the [Anthropic Agent Skills](https://agents
 | [`sw-bugfixer`](sw-bugfixer/SKILL.md) | Explicit: `/sw-bugfixer …` (Claude) or `$sw-bugfixer …` (Codex) | Diagnoses a Shopware issue or Bugfixer PR feedback, applies a focused fix when appropriate, validates narrowly, and reports the change or no-op decision. |
 | [`sw-triage`](sw-triage/SKILL.md) | Explicit: `/sw-triage …` (Claude) or `$sw-triage …` (Codex) | Triages a Shopware 6 GitHub bug issue — identifies the affected code area, checks for related fixes or duplicates, and emits a Markdown summary (disposition, severity, suggested labels, confidence, evidence). |
 | [`sw-review`](sw-review/SKILL.md) | Explicit: `/sw-review …` (Claude) or `$sw-review …` (Codex) | Reviews a Shopware 6 PR or local diff through calibrated persona lenses, dedupes findings, and emits Markdown or schema-valid JSON depending on invocation mode. |
+| [`sw-screenshot`](sw-screenshot/SKILL.md) | Explicit: `/sw-screenshot …` (Claude) or `$sw-screenshot …` (Codex) | Decides whether an issue or PR is about a visual change and, if so, reaches the described state on a running shop and photographs it — before and after the change for a PR. |
 | [`nightly-triage`](nightly-triage/SKILL.md) | "triage this nightly run", "identify all failing tests from <Actions run link>", "group the integration-major failures into issues" | Sweeps a failing multi-job PHPUnit CI run — extracts failing tests per shard, clusters them into root causes (with local Docker verification), and files per-domain issues plus a parent tracking issue, routing collateral failures to the root-cause owner. |
 | [`shopware-knowledge-capture`](shopware-knowledge-capture/SKILL.md) | "save this for later", "preserve this knowledge", "where should this information live" | Routes durable Shopware knowledge to the right home without duplicating rules or adding mechanical stubs. |
 | [`shopware-change-scope`](shopware-change-scope/SKILL.md) | "fix this bug", "apply review feedback", "should we clean this up too" | Keeps bug fixes and cleanups scoped to the root cause while catching safe nearby consistency work. |
@@ -33,7 +34,7 @@ explicit `/name` (Claude Code) or `$name` (Codex) invocation.
 
 A skill can additionally run unattended in CI via [GitHub Agentic Workflows](https://github.com/githubnext/gh-aw): a workflow source at `.github/workflows/<name>.md` plus a `runtime-import`-ed policy fragment at `.github/aw/<name>-policy.md`. When both surfaces exist, the shared rubric lives in `.github/aw/shared/<name>-policy.md` and is loaded by both surfaces — they cannot drift on the policy.
 
-Current twins: `sw-triage`, `sw-bugfixer`, and `sw-review` (see `.github/workflows/<name>.md` + `.github/aw/<name>-policy.md`).
+Current twins: `sw-triage`, `sw-bugfixer`, `sw-review`, and `sw-screenshot` (see `.github/workflows/<name>.md` + `.github/aw/<name>-policy.md`).
 
 For the gh aw setup, secrets, and registration mechanics, see [`.github/aw/README.md`](../../.github/aw/README.md).
 

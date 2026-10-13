@@ -171,9 +171,8 @@ Jest silences the `[Deprecation]` warnings through `global.allowedErrors`, becau
 sides of a flag. A test that asserts a warning spies on `console.warn`.
 
 Deprecated APIs that stay usable past the next major, like the deprecated `$tc` and the vue-i18n 8 argument
-order, report their usages without a flag. Keep these warnings actionable and quiet: log them only in
-development builds, deduplicate them per call site, and name the caller and the replacement. See
-`src/core/helper/i18n-legacy-syntax.helper.ts`.
+order, use the major of their removal, e.g. `V6_9_0_0`. Put the caller and the replacement into the message, so
+every call site is reported once and stays actionable. See `src/core/helper/i18n-legacy-syntax.helper.ts`.
 
 Pair runtime warnings with an autofixable ESLint rule where the migration is mechanical, like
 `sw-core-rules/no-tc-translation`, and enable it in the extension tooling (`extension-tooling/eslint.mjs`).

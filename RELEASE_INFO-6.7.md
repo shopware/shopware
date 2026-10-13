@@ -503,11 +503,11 @@ Together, these two changes remove the need to override the surrounding blocks, 
 
 The removal of `$tc()` was moved from 6.8 to 6.9, so extensions using it keep working with 6.8. `$tc()`, the root instance `$tc()`, and `Shopware.Snippet.tc()` are deprecated in favor of `$t()` and `Shopware.Snippet.t()`.
 
-In development builds, the Administration now logs a deprecation warning once per component and snippet key that is translated with `$tc()`, naming the component and the replacement call.
+In development builds, the Administration now logs a deprecation once per component and snippet key that is translated with `$tc()`, naming the component and the replacement call. The deprecations use `Shopware.Feature.triggerDeprecationOrThrow()` with the `V6_9_0_0` major flag.
 
 Calls in the vue-i18n 8 argument order `$t(key, plural, namedParameters)` lost their named parameters since the vue-i18n 10 update. They are now converted to `$t(key, namedParameters, plural)` and reported with a deprecation warning. The conversion will be removed in 6.9.
 
-The ESLint rule `sw-core-rules/no-tc-translation` in the Administration extension tooling reports and autofixes both patterns in JavaScript, TypeScript, Vue, and Twig templates. Calls whose named parameters are no object literal, e.g. `$t(key, 1, params)`, are reported without an autofix. Like the other deprecation rules of the extension tooling, it follows `internalApiSeverity`:
+The ESLint rule `sw-core-rules/no-tc-translation` in the Administration extension tooling reports and autofixes both patterns in JavaScript, TypeScript, Vue templates, and bound attributes of Twig templates. `{{ }}` interpolations in `.html.twig` templates are not checked and have to be migrated manually. The locale argument of `$tc(key, plural, locale)` becomes the `locale` option of `$t(key, plural, { locale })`. Calls whose named parameters are no object literal or contain spread or computed keys, e.g. `$t(key, 1, params)` or `$t(key, 1, { ...params })`, are reported without an autofix. Like the other deprecation rules of the extension tooling, it follows `internalApiSeverity`:
 
 ```bash
 bin/console administration:check-extensions -- --only=MyPlugin --fix

@@ -107,7 +107,9 @@ this.$tc('sw-product.list.messageDelete', count, { name });
 this.$t('sw-product.list.messageDelete', { name }, count);
 ```
 
-The ESLint rule `sw-core-rules/no-tc-translation` of the Administration extension tooling fixes both automatically in scripts and templates. Calls whose named parameters are no object literal, e.g. `$t(key, 1, params)`, are reported and have to be swapped manually:
+The vue-i18n 8 locale argument of `$tc(key, plural, locale)` is no option of `$t()`. Pass it as `$t(key, plural, { locale })`, or as `$t(key, namedParameters, { plural, locale })` together with named parameters.
+
+The ESLint rule `sw-core-rules/no-tc-translation` of the Administration extension tooling fixes these automatically in scripts, Vue templates, and bound attributes of Twig templates. `{{ }}` interpolations in `.html.twig` templates are not checked. Calls whose named parameters are no object literal or contain spread or computed keys, e.g. `$t(key, 1, params)` or `$t(key, 1, { ...params })`, are reported and have to be migrated manually:
 
 ```bash
 bin/console administration:check-extensions -- --only=MyPlugin --fix

@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { createI18n } from 'vue-i18n';
+import type FeatureClass from 'src/core/feature';
 import type * as LegacySyntax from './i18n-legacy-syntax.helper';
 
 // The vue-i18n 8 argument order is intentionally not covered by the vue-i18n 10 types.
@@ -27,11 +28,14 @@ describe('src/core/helper/i18n-legacy-syntax.helper', () => {
     let warnSpy: jest.SpyInstance;
     let createTranslate: typeof LegacySyntax.createTranslate;
     let createDeprecatedTc: typeof LegacySyntax.createDeprecatedTc;
+    let Feature: typeof FeatureClass;
 
     beforeEach(async () => {
-        // Fresh module per test, so the deduplicated warnings of one test do not leak into the next one.
+        // Fresh modules per test, so the deduplicated warnings of one test do not leak into the next one.
         jest.resetModules();
+        ({ default: Feature } = await import('src/core/feature'));
         ({ createTranslate, createDeprecatedTc } = await import('./i18n-legacy-syntax.helper'));
+        Feature.init({ V6_9_0_0: false });
         warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     });
 
@@ -84,6 +88,16 @@ describe('src/core/helper/i18n-legacy-syntax.helper', () => {
             expect(t('items', 2, { named: { name: 'Ada' } })).toBe('2 items for Ada');
             expect(warnSpy).not.toHaveBeenCalled();
         });
+
+        it('throws for the vue-i18n 8 argument order once the 6.9 major flag is active', () => {
+            Feature.init({ V6_9_0_0: true });
+            const t = createTranslate(createGlobalT());
+
+            expect(t('items', { name: 'Ada' }, 2)).toBe('2 items for Ada');
+            expect(() => t('items', 2, { name: 'Ada' })).toThrow(
+                "Tried to access deprecated functionality: $t('items', plural, namedParameters) uses the vue-i18n 8 argument order.",
+            );
+        });
     });
 
     describe('createDeprecatedTc', () => {
@@ -123,6 +137,15 @@ describe('src/core/helper/i18n-legacy-syntax.helper', () => {
             expect(warnSpy).toHaveBeenCalledWith(
                 '[Deprecation]',
                 expect.stringContaining("Use Shopware.Snippet.t('items', namedParameters, plural) instead."),
+            );
+        });
+
+        it('throws once the 6.9 major flag is active', () => {
+            Feature.init({ V6_9_0_0: true });
+            const tc = createDeprecatedTc(createGlobalT(), '$tc', '$t');
+
+            expect(() => tc.call(component, 'greeting', { name: 'Ada' })).toThrow(
+                "Tried to access deprecated functionality: $tc() is deprecated and will be removed in v6.9.0. Replace $tc('greeting') with $t('greeting')",
             );
         });
 

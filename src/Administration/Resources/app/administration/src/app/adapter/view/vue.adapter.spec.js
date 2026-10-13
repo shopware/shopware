@@ -9,6 +9,7 @@ import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import ViewAdapter from 'src/core/adapter/view.adapter';
 import Bottle from 'bottlejs';
 import ApplicationBootstrapper from 'src/core/application';
+import Feature from 'src/core/feature';
 import LocaleFactory from 'src/core/factory/locale.factory';
 import DirectiveFactory from 'src/core/factory/directive.factory';
 import FilterFactory from 'src/core/factory/filter.factory';
@@ -816,7 +817,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         it('should use the translation wrappers for components, the root instance and Shopware.Snippet', () => {
-            const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+            const deprecationSpy = jest.spyOn(Feature, 'triggerDeprecationOrThrow').mockImplementation(() => {});
             vueAdapter.i18n.global.mergeLocaleMessage(vueAdapter.i18n.global.locale.value, {
                 'sw-vue-adapter-test': {
                     items: 'no items | one item for {name} | {count} items for {name}',
@@ -834,12 +835,12 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             expect(Shopware.Snippet.t(key, 3, { name: 'Ada' })).toBe('3 items for Ada');
             expect(Shopware.Snippet.tc(key, { name: 'Ada' }, 2)).toBe('2 items for Ada');
             /* eslint-enable sw-core-rules/no-tc-translation */
-            expect(warnSpy).toHaveBeenCalledWith(
-                '[Deprecation]',
+            expect(deprecationSpy).toHaveBeenCalledWith(
+                'V6_9_0_0',
                 expect.stringContaining(`Replace Shopware.Snippet.tc('${key}') with Shopware.Snippet.t('${key}').`),
             );
 
-            warnSpy.mockRestore();
+            deprecationSpy.mockRestore();
         });
 
         it('should scope legacy block helpers by component instance', () => {

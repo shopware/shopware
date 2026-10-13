@@ -66,6 +66,10 @@ tester.run('no-tc-translation', rule, {
             name: 'non-literal arguments in an ambiguous order are allowed',
             code: `this.$t('some.key', params, count);`,
         },
+        {
+            name: 'spread options after a non-literal plural count are allowed',
+            code: `this.$t('some.key', count, { ...options });`,
+        },
     ],
     invalid: [
         {
@@ -152,6 +156,54 @@ tester.run('no-tc-translation', rule, {
             output: `this.$t('some.key', {\n    name: item.name,\n}, items.length);`,
             errors: [{ messageId: 'legacyArgumentOrder' }, { messageId: 'noTc' }],
         },
+        {
+            name: 'legacy argument order with spread named parameters is reported without autofix',
+            code: `this.$t('some.key', 2, { ...params });`,
+            output: null,
+            errors: [{ messageId: 'legacyArgumentOrderManual' }],
+        },
+        {
+            name: 'legacy argument order with a computed key is reported without autofix',
+            code: `this.$t('some.key', 2, { [key]: value });`,
+            output: null,
+            errors: [{ messageId: 'legacyArgumentOrderManual' }],
+        },
+        {
+            name: 'spread next to translate options is reported without autofix',
+            code: `this.$t('some.key', 2, { ...params, locale: 'de-DE' });`,
+            output: null,
+            errors: [{ messageId: 'legacyArgumentOrderManual' }],
+        },
+        {
+            name: 'spread next to a named parameter is swapped',
+            code: `this.$t('some.key', 2, { ...params, name });`,
+            output: `this.$t('some.key', { ...params, name }, 2);`,
+            errors: [{ messageId: 'legacyArgumentOrder' }],
+        },
+        {
+            name: 'locale of $tc() becomes a translate option',
+            code: `this.$tc('some.key', 2, 'de-DE');`,
+            output: `this.$t('some.key', 2, { locale: 'de-DE' });`,
+            errors: [{ messageId: 'legacyTcLocale' }, { messageId: 'noTc' }],
+        },
+        {
+            name: 'template literal locale of Shopware.Snippet.tc() becomes a translate option',
+            code: 'Shopware.Snippet.tc(\'some.key\', count, `${language}-${region}`);',
+            output: 'Shopware.Snippet.t(\'some.key\', count, { locale: `${language}-${region}` });',
+            errors: [{ messageId: 'legacyTcLocale' }, { messageId: 'noTc' }],
+        },
+        {
+            name: 'locale and named parameters of $tc() become named parameters and translate options',
+            code: `this.$tc('some.key', count, 'de-DE', { name });`,
+            output: `this.$t('some.key', { name }, { plural: count, locale: 'de-DE' });`,
+            errors: [{ messageId: 'legacyTcLocaleNamed' }, { messageId: 'noTc' }],
+        },
+        {
+            name: 'locale of $tc() from a variable is reported without autofix',
+            code: `this.$tc('some.key', 2, locale);`,
+            output: `this.$t('some.key', 2, locale);`,
+            errors: [{ messageId: 'legacyArgumentOrderManual' }, { messageId: 'noTc' }],
+        },
     ],
 });
 
@@ -185,32 +237,14 @@ templateTester.run('no-tc-translation (template)', rule, {
 });
 
 templateTester.run('no-tc-translation (twig template)', rule, {
-    valid: [
-        {
-            name: '$t() in a twig mustache is allowed',
-            filename: 'sw-foo.html.twig',
-            code: `<template>{% block sw_foo %}<div>{{ $t('some.key') }}</div>{% endblock %}</template>`,
-        },
-        {
-            name: '$tc outside of a twig mustache is ignored',
-            filename: 'sw-foo.html.twig',
-            code: `<template><p>Use $tc('key') no longer</p></template>`,
-        },
-    ],
+    valid: [],
     invalid: [
         {
-            name: '$tc() in a twig mustache should be $t()',
+            name: '$tc() in a bound attribute of a twig template should be $t()',
             filename: 'sw-foo.html.twig',
-            code: `<template>{% block sw_foo %}<div>{{ $tc('some.key') }} - {{ $tc('other.key', 2) }}</div>{% endblock %}</template>`,
-            output: `<template>{% block sw_foo %}<div>{{ $t('some.key') }} - {{ $t('other.key', 2) }}</div>{% endblock %}</template>`,
-            errors: [{ messageId: 'noTc', column: 37 }, { messageId: 'noTc', column: 61 }],
-        },
-        {
-            name: '$tc() in a multi-line twig mustache and a bound attribute should be $t()',
-            filename: 'sw-foo.html.twig',
-            code: `<template>\n<mt-button :label="$tc('a')">\n    {{\n        $root.$tc('b')\n    }}\n</mt-button>\n</template>`,
-            output: `<template>\n<mt-button :label="$t('a')">\n    {{\n        $root.$t('b')\n    }}\n</mt-button>\n</template>`,
-            errors: [{ messageId: 'noTc', line: 2 }, { messageId: 'noTc', line: 4 }],
+            code: `<template>{% block sw_foo %}<mt-button :label="$tc('some.key', count, { name })" />{% endblock %}</template>`,
+            output: `<template>{% block sw_foo %}<mt-button :label="$t('some.key', { name }, count)" />{% endblock %}</template>`,
+            errors: [{ messageId: 'noTc' }, { messageId: 'legacyArgumentOrder' }],
         },
     ],
 });

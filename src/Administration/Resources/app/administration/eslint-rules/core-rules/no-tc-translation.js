@@ -4,7 +4,7 @@
 
 // eslint-plugin-vue 10 ships as ESM under dist/ (utils sit on the module's
 // `default` export); older layouts exported them directly from lib/.
-// eslint-disable-next-line import/no-extraneous-dependencies
+ 
 const utilsModule = require('eslint-plugin-vue/dist/utils');
 const utils = utilsModule.default ?? utilsModule;
 
@@ -68,9 +68,21 @@ function getTranslateCallee(callee) {
     return null;
 }
 
+function isPluralCandidate(node) {
+    return !NON_PLURAL_ARGUMENT_TYPES.has(node.type) && !(node.type === 'Literal' && typeof node.value !== 'number');
+}
+
+function isNumberLiteral(node) {
+    return node.type === 'Literal' && typeof node.value === 'number';
+}
+
+function isStringLiteral(node) {
+    return (node.type === 'Literal' && typeof node.value === 'string') || node.type === 'TemplateLiteral';
+}
+
 /**
  * Returns `legacyArgumentOrder` for an autofixable vue-i18n 8 argument order, `legacyArgumentOrderManual` when the named
- * parameters are no object literal and could also be vue-i18n 10 options, or null.
+ * parameters are no object literal or contain spread or computed keys and could also be vue-i18n 10 options, or null.
  */
 function getLegacyArgumentOrder(args) {
     if (args.length !== 3) {
@@ -78,19 +90,20 @@ function getLegacyArgumentOrder(args) {
     }
 
     const [, plural, named] = args;
-    if (NON_PLURAL_ARGUMENT_TYPES.has(plural.type) || (plural.type === 'Literal' && typeof plural.value !== 'number')) {
+    if (!isPluralCandidate(plural)) {
         return null;
     }
 
     if (named.type !== 'ObjectExpression') {
-        const isPluralLiteral = plural.type === 'Literal' && typeof plural.value === 'number';
-
-        return isPluralLiteral && !NON_NAMED_ARGUMENT_TYPES.has(named.type) ? 'legacyArgumentOrderManual' : null;
+        return isNumberLiteral(plural) && !NON_NAMED_ARGUMENT_TYPES.has(named.type) ? 'legacyArgumentOrderManual' : null;
     }
 
+    let hasUnknownKey = false;
     const hasNamedParameter = named.properties.some((property) => {
         if (property.type !== 'Property' || property.computed) {
-            return true;
+            hasUnknownKey = true;
+
+            return false;
         }
 
         const keyName = property.key.type === 'Identifier' ? property.key.name : String(property.key.value);
@@ -98,22 +111,31 @@ function getLegacyArgumentOrder(args) {
         return !TRANSLATE_OPTION_KEYS.has(keyName);
     });
 
-    return hasNamedParameter ? 'legacyArgumentOrder' : null;
+    if (hasNamedParameter) {
+        return 'legacyArgumentOrder';
+    }
+
+    return hasUnknownKey && isNumberLiteral(plural) ? 'legacyArgumentOrderManual' : null;
 }
 
-// Shopware's vue-eslint-parser patch keeps `{{ }}` in `.twig` templates as opaque text, so mustache calls are only
-// visible as VText and have to be matched textually.
-const TWIG_MUSTACHE_PATTERN = /{{([\s\S]*?)}}/g;
-const TWIG_TC_CALL_PATTERN = /(?<![\w$])\$tc(?=\s*\()/g;
-
-function* findTcInTwigText(text) {
-    for (const mustache of text.matchAll(TWIG_MUSTACHE_PATTERN)) {
-        const expressionStart = mustache.index + 2;
-
-        for (const call of mustache[1].matchAll(TWIG_TC_CALL_PATTERN)) {
-            yield expressionStart + call.index;
-        }
+/**
+ * vue-i18n 8 accepted a locale in `$tc(key, choice, locale)` and `$tc(key, choice, locale, named)`. `$t` reads a string
+ * after the plural count as default message and ignores a fourth argument, so the locale has to become an option.
+ */
+function getLegacyTcLocale(args) {
+    if (args.some((arg) => arg.type === 'SpreadElement')) {
+        return null;
     }
+
+    if (args.length === 4) {
+        return 'legacyTcLocaleNamed';
+    }
+
+    if (args.length === 3 && isPluralCandidate(args[1]) && isStringLiteral(args[2])) {
+        return 'legacyTcLocale';
+    }
+
+    return null;
 }
 
 module.exports = {
@@ -130,14 +152,79 @@ module.exports = {
             noTc: 'Use {{replacement}}() instead of {{name}}(). {{name}} is deprecated — {{replacement}} handles pluralization natively.',
             legacyArgumentOrder: 'Pass the named parameters before the plural count: {{name}}(key, named, plural). ' +
                 'The vue-i18n 8 order {{name}}(key, plural, named) is deprecated.',
-            legacyArgumentOrderManual: 'The third argument of {{name}}(key, plural, …) is no object literal. ' +
+            legacyArgumentOrderManual: 'The third argument of {{name}}(key, plural, …) could be named parameters. ' +
                 'If it holds named parameters, pass them before the plural count: {{name}}(key, named, plural). ' +
+                'If it holds a locale, pass it as option: {{name}}(key, plural, { locale }). ' +
                 'The vue-i18n 8 order {{name}}(key, plural, named) is deprecated.',
+            legacyTcLocale: 'Pass the locale as option: {{name}}(key, plural, { locale }). ' +
+                '{{name}}() reads a string after the plural count as default message.',
+            legacyTcLocaleNamed: 'Pass the locale and the plural count as options: {{name}}(key, named, { plural, locale }). ' +
+                '{{name}}() ignores a fourth argument.',
         },
     },
 
     create(context) {
         const sourceCode = context.sourceCode ?? context.getSourceCode();
+
+        function checkArguments(node, callee) {
+            const args = node.arguments;
+            const data = { name: callee.replacement };
+            const legacyTcLocale = callee.name !== callee.replacement ? getLegacyTcLocale(args) : null;
+
+            if (legacyTcLocale === 'legacyTcLocaleNamed') {
+                const [, plural, locale, named] = args;
+                const text = `${sourceCode.getText(named)}, { plural: ${sourceCode.getText(plural)}, locale: ${sourceCode.getText(locale)} }`;
+
+                context.report({
+                    node,
+                    messageId: legacyTcLocale,
+                    data,
+                    fix(fixer) {
+                        return fixer.replaceTextRange([plural.range[0], named.range[1]], text);
+                    },
+                });
+
+                return;
+            }
+
+            if (legacyTcLocale === 'legacyTcLocale') {
+                const locale = args[2];
+
+                context.report({
+                    node,
+                    messageId: legacyTcLocale,
+                    data,
+                    fix(fixer) {
+                        return fixer.replaceText(locale, `{ locale: ${sourceCode.getText(locale)} }`);
+                    },
+                });
+
+                return;
+            }
+
+            const legacyArgumentOrder = getLegacyArgumentOrder(args);
+            if (legacyArgumentOrder === 'legacyArgumentOrderManual') {
+                context.report({
+                    node,
+                    messageId: legacyArgumentOrder,
+                    data,
+                });
+            } else if (legacyArgumentOrder) {
+                const [, plural, named] = args;
+
+                context.report({
+                    node,
+                    messageId: legacyArgumentOrder,
+                    data,
+                    fix(fixer) {
+                        return [
+                            fixer.replaceText(plural, sourceCode.getText(named)),
+                            fixer.replaceText(named, sourceCode.getText(plural)),
+                        ];
+                    },
+                });
+            }
+        }
 
         function checkCallExpression(node) {
             const callee = getTranslateCallee(node.callee);
@@ -156,49 +243,7 @@ module.exports = {
                 });
             }
 
-            const legacyArgumentOrder = getLegacyArgumentOrder(node.arguments);
-            if (legacyArgumentOrder === 'legacyArgumentOrderManual') {
-                context.report({
-                    node,
-                    messageId: legacyArgumentOrder,
-                    data: { name: callee.replacement },
-                });
-            } else if (legacyArgumentOrder) {
-                const [, plural, named] = node.arguments;
-
-                context.report({
-                    node,
-                    messageId: legacyArgumentOrder,
-                    data: { name: callee.replacement },
-                    fix(fixer) {
-                        return [
-                            fixer.replaceText(plural, sourceCode.getText(named)),
-                            fixer.replaceText(named, sourceCode.getText(plural)),
-                        ];
-                    },
-                });
-            }
-        }
-
-        function checkTwigText(node) {
-            const text = sourceCode.getText(node);
-
-            for (const offset of findTcInTwigText(text)) {
-                const start = node.range[0] + offset;
-                const range = [start, start + '$tc'.length];
-
-                context.report({
-                    loc: {
-                        start: sourceCode.getLocFromIndex(range[0]),
-                        end: sourceCode.getLocFromIndex(range[1]),
-                    },
-                    messageId: 'noTc',
-                    data: { name: '$tc', replacement: '$t' },
-                    fix(fixer) {
-                        return fixer.replaceTextRange(range, '$t');
-                    },
-                });
-            }
+            checkArguments(node, callee);
         }
 
         const scriptVisitors = {
@@ -206,13 +251,7 @@ module.exports = {
         };
 
         if (sourceCode.parserServices?.defineTemplateBodyVisitor) {
-            const templateVisitors = { CallExpression: checkCallExpression };
-
-            if (context.filename.endsWith('.twig')) {
-                templateVisitors.VText = checkTwigText;
-            }
-
-            return utils.defineTemplateBodyVisitor(context, templateVisitors, scriptVisitors);
+            return utils.defineTemplateBodyVisitor(context, { CallExpression: checkCallExpression }, scriptVisitors);
         }
 
         return scriptVisitors;

@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import { warn } from 'src/core/service/utils/debug.utils';
+import Feature from 'src/core/feature';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TranslateFunction = (...args: any[]) => string;
@@ -24,20 +24,13 @@ const TRANSLATE_OPTION_KEYS = new Set([
     'part',
 ]);
 
-const reportedDeprecations = new Set<string>();
-
 function inComponent(componentName: string | undefined): string {
     return componentName ? ` in component "${componentName}"` : '';
 }
 
-function reportDeprecationOnce(id: string, message: string): void {
-    // `warn` is silent in production anyway, returning early keeps the set from growing there.
-    if (process.env.NODE_ENV === 'production' || reportedDeprecations.has(id)) {
-        return;
-    }
-
-    reportedDeprecations.add(id);
-    warn('Deprecation', message);
+// The messages contain the API, component and snippet key, so `triggerDeprecationOrThrow` reports every call site once.
+function reportDeprecation(message: string): void {
+    Feature.triggerDeprecationOrThrow('V6_9_0_0', message);
 }
 
 function isLegacyPluralCall(args: unknown[]): boolean {
@@ -66,8 +59,7 @@ function normalizeLegacyArguments(instance: ComponentInstance, args: unknown[], 
 
     const componentName = instance?.$options?.name;
     const key = String(args[0]);
-    reportDeprecationOnce(
-        `legacy-order:${apiName}:${componentName ?? ''}:${key}`,
+    reportDeprecation(
         `${apiName}('${key}', plural, namedParameters) uses the vue-i18n 8 argument order${inComponent(componentName)}. ` +
             `Use ${apiName}('${key}', namedParameters, plural) instead. ` +
             'Support for the old order will be removed in v6.9.0. ' +
@@ -96,8 +88,7 @@ export function createDeprecatedTc<T extends TranslateFunction>(t: T, apiName: s
         const componentName = this?.$options?.name;
         const key = String(args[0]);
 
-        reportDeprecationOnce(
-            `tc:${apiName}:${componentName ?? ''}:${key}`,
+        reportDeprecation(
             `${apiName}() is deprecated and will be removed in v6.9.0. ` +
                 `Replace ${apiName}('${key}') with ${replacement}('${key}')${inComponent(componentName)}. ` +
                 'The ESLint rule "sw-core-rules/no-tc-translation" fixes this automatically.',

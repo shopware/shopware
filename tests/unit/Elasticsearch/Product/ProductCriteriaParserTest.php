@@ -269,7 +269,6 @@ class ProductCriteriaParserTest extends TestCase
         static::assertArrayHasKey('bool', $queryArray);
         static::assertArrayHasKey('must_not', $queryArray['bool']);
         static::assertIsArray($queryArray['bool']['must_not']);
-        static::assertNotEmpty($queryArray['bool']['must_not'][0]);
         static::assertSame([
             'exists' => [
                 'field' => 'categoryTree',

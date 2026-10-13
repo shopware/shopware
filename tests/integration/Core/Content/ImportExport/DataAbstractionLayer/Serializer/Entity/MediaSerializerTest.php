@@ -292,7 +292,7 @@ class MediaSerializerTest extends TestCase
 
         $actual = $mediaSerializer->deserialize($config, $mediaDefinition, []);
         // should not contain url
-        static::assertEmpty($actual);
+        static::assertCount(0, $actual);
     }
 
     public function testFailedDownload(): void

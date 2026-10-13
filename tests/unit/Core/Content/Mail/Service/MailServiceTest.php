@@ -171,6 +171,7 @@ class MailServiceTest extends TestCase
             'contentPlain' => 'Content plain',
             'contentHtml' => 'Content html',
             'salesChannelId' => $salesChannelId,
+            'templateId' => 'template-id',
         ];
 
         $email = (new Email())->subject('Your order 10001')
@@ -201,10 +202,15 @@ class MailServiceTest extends TestCase
         $this->createMailService(
             templateRenderer: $templateRenderer,
             eventDispatcher: $eventDispatcher
-        )->send($data, Context::createDefaultContext(), ['order' => ['orderNumber' => '10001']]);
+        )->send($data, Context::createDefaultContext(), ['order' => ['orderNumber' => '10001'], 'eventName' => 'checkout.order.placed']);
 
         static::assertInstanceOf(MailSentEvent::class, $mailSentEvent);
         static::assertSame('Your order 10001', $mailSentEvent->getSubject());
+        static::assertSame('template-id', $mailSentEvent->getTemplateId());
+        static::assertSame($salesChannelId, $mailSentEvent->getSalesChannelId());
+        static::assertSame('checkout.order.placed', $mailSentEvent->getEventName());
+        static::assertSame(['orderNumber' => '10001'], $mailSentEvent->getTemplateData()['order']);
+        static::assertSame($email, $mailSentEvent->getMessage());
     }
 
     public function testSendMailWithRenderingError(): void
@@ -424,7 +430,10 @@ class MailServiceTest extends TestCase
         static::assertNotNull($mailErrorEvent->getMessage());
         static::assertSame('Could not send mail with error message: Mail sending failed', $mailErrorEvent->getMessage());
         static::assertSame('Content html', $mailErrorEvent->getTemplate());
-        static::assertEmpty($mailErrorEvent->getTemplateData());
+        static::assertSame([], $mailErrorEvent->getTemplateData());
+        static::assertNotNull($mailErrorEvent->getData());
+        static::assertSame('Content html', $mailErrorEvent->getData()['contentHtml']);
+        static::assertInstanceOf(Email::class, $mailErrorEvent->getMail());
     }
 
     public function testMailInTestModeHasNoEmptyHeaders(): void
@@ -495,7 +504,7 @@ class MailServiceTest extends TestCase
         // check that no header is empty (e.g., Amazon SES doesn't like that)
         foreach ($headers->all() as $header) {
             static::assertInstanceOf(HeaderInterface::class, $header);
-            static::assertNotEmpty($header->getBodyAsString(), 'mail header ' . $header->getName() . ' should not be empty');
+            static::assertNotSame('', $header->getBodyAsString(), 'mail header ' . $header->getName() . ' should not be empty');
         }
     }
 

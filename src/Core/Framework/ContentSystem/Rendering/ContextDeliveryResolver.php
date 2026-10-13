@@ -232,6 +232,21 @@ final readonly class ContextDeliveryResolver
 
                 continue;
             }
+
+            if ($mappingSource !== null) {
+                // A mapping can outlive the candidate that admitted it. Recheck the live catalogue before
+                // reading from the ambient entity, since scalar leaves bypass the normal API-aware encoder.
+                // Loading it also lets providers attach their cache tags to this render, including layouts
+                // whose only mapping is a whole-field root mapping.
+                $candidate = $rootSource === null || $this->mappingSources === null
+                    ? null
+                    : ($this->mappingSources->forRootSource($rootSource)[$mappingSource->displayName()] ?? null);
+
+                if ($candidate === null || !$candidate->source->isSameAs($mappingSource)) {
+                    continue;
+                }
+            }
+
             $contextPath = $mappingSource === null
                 ? (string) $consumerKey
                 : $mappingSource->displayName();

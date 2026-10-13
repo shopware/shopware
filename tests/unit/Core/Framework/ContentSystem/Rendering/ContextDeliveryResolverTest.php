@@ -13,10 +13,12 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Br
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentPropertyProjection;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryIndex;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor;
@@ -595,6 +597,18 @@ class ContextDeliveryResolverTest extends TestCase
         static::assertSame([], $index->all()['child-1']->context);
     }
 
+    #[TestDox('does not deliver a stored mapping after its source leaves the live candidate catalogue')]
+    public function testRevokedRootCandidateProducesNoMappingDelivery(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Content:Text', 'child-1')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.customFields.material'))
+            ->build();
+
+        $index = $this->resolve($child, new StubPathStruct(customFields: ['material' => 'Leather']), [], candidatePaths: []);
+
+        static::assertSame([], $index->all()['child-1']->context);
+    }
+
     /**
      * The path resolved to nothing, so there is nothing to reshape. Getting here at all would hand `project()`
      * a null it is documented never to receive.
@@ -702,14 +716,35 @@ class ContextDeliveryResolverTest extends TestCase
 
     /**
      * @param list<AbstractContentPropertyProjection> $projections
+     * @param list<string> $candidatePaths
      */
-    private function resolverWith(array $projections): ContextDeliveryResolver
+    private function resolverWith(array $projections, array $candidatePaths = [
+        'product.cover',
+        'product.customFields.material',
+        'product.child',
+    ]): ContextDeliveryResolver
     {
+        $candidates = [];
+        foreach ($candidatePaths as $path) {
+            $candidate = new MappingCandidate(
+                path: $path,
+                label: 'a label',
+                description: 'a description',
+                group: 'basic',
+                valueType: 'string',
+            );
+            $candidates[$candidate->source->displayName()] = $candidate;
+        }
+
+        $mappingSources = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $mappingSources->method('forRootSource')->willReturn($candidates);
+
         return new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
             new ContentSystemPropertyProjectionRegistry($projections),
-            new MappingTypeCompatibility()
+            new MappingTypeCompatibility(),
+            $mappingSources,
         );
     }
 
@@ -718,14 +753,19 @@ class ContextDeliveryResolverTest extends TestCase
      * against a single ambient `product`.
      *
      * @param list<AbstractContentPropertyProjection> $projections
+     * @param list<string> $candidatePaths
      */
-    private function resolve(StoredElement $child, Struct $ambient, array $projections): ContextDeliveryIndex
+    private function resolve(StoredElement $child, Struct $ambient, array $projections, array $candidatePaths = [
+        'product.cover',
+        'product.customFields.material',
+        'product.child',
+    ]): ContextDeliveryIndex
     {
         $root = StoredElementBuilder::create('Sw:Section', 'root-1')
             ->withSlot('main', [$child])
             ->build();
 
-        return $this->resolverWith($projections)->resolve([$root], [], ['product' => $ambient]);
+        return $this->resolverWith($projections, $candidatePaths)->resolve([$root], [], ['product' => $ambient], rootSource: 'product');
     }
 
     private function mappedChild(?string $projection): StoredElement

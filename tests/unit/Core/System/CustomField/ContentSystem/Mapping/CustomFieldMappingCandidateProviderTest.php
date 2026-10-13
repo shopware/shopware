@@ -81,6 +81,23 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         static::assertSame([], $provider->provide('header'));
     }
 
+    public function testCollectsTheCustomFieldCacheTagWhenTheCatalogueIsAlreadyCached(): void
+    {
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector->expects($this->exactly(2))
+            ->method('addTag')
+            ->with('custom_field');
+
+        $provider = new CustomFieldMappingCandidateProvider(
+            new StaticEntityRepository([new CustomFieldCollection([$this->customField('material', CustomFieldTypes::TEXT)])]),
+            new TagAwareAdapter(new ArrayAdapter()),
+            $cacheTagCollector,
+        );
+
+        $provider->provide('product');
+        $provider->provide('product');
+    }
+
     /**
      * @param array<string, mixed> $config
      */

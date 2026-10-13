@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
+use Shopware\Core\Checkout\Cart\Order\OrderRestorer;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
@@ -28,6 +29,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTr
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefundPosition\OrderTransactionCaptureRefundPositionDefinition;
 use Shopware\Core\Checkout\Order\Api\OrderActionController;
+use Shopware\Core\Checkout\Order\Listener\OrderRestorationListener;
 use Shopware\Core\Checkout\Order\Listener\OrderStateChangeEventListener;
 use Shopware\Core\Checkout\Order\OrderAddressService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -41,6 +43,7 @@ use Shopware\Core\Checkout\Order\Telemetry\OrderMetricsSubscriber;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -137,6 +140,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('rule.repository'),
         ]);
 
+    $services->set(OrderRestorer::class)
+        ->args([
+            service(OrderConverter::class),
+            service(CartService::class),
+        ]);
+
     $services->set(OrderTransactionStateHandler::class)
         ->args([
             service(StateMachineRegistry::class),
@@ -182,6 +191,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AccountService::class),
             service(GuestAuthenticator::class),
             service(ClockInterface::class),
+            service(ExtensionDispatcher::class),
             param('shopware.order.deep_link.expire_days'),
         ]);
 
@@ -191,6 +201,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(OrderService::class),
             service('order.repository'),
             service(SystemConfigService::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(SetPaymentOrderRoute::class)
@@ -200,10 +211,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('order.repository'),
             service(OrderConverter::class),
             service(CartRuleLoader::class),
-            service(CartService::class),
+            service(OrderRestorer::class),
             service('event_dispatcher'),
             service(InitialStateIdLoader::class),
             service(CheckoutGatewayRoute::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     // events
@@ -215,6 +227,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(BusinessEventCollector::class),
             service('state_machine_state.repository'),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(OrderRestorationListener::class)
+        ->args([
+            service(OrderRoute::class),
+            service(OrderRestorer::class),
         ])
         ->tag('kernel.event_subscriber');
 

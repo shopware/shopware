@@ -15,6 +15,7 @@ Prefer the existing Shopware extension point over a new abstraction.
 - Where code legitimately touches the local filesystem, inject and use the Symfony `Filesystem` component instead of raw PHP functions like `mkdir`, `file_put_contents`, `copy`, `unlink`, or `rmdir`. It throws `IOException` instead of warnings plus `false` returns, handles recursive operations, and keeps the dependency mockable.
 - Services must be unit-testable without external systems; test infrastructure adapters with integration tests.
 - Mark infrastructure adapters `@internal` by default.
+- Mark every new compiler pass with its own class-level `@internal` PHPDoc annotation, including abstract passes and subclasses inheriting `Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface`.
 - Mark supported/public concrete classes as `@final` when they are not intended for extension.
 - Use a real `final class` for simple value objects/structs that do not need extension, decoration, or mocking; use `@final` for supported services where tests or framework mechanics may still need to subclass/mock them.
 - Do not add `@final` to classes already marked `@internal`; the internal marker is enough for implementation details.
@@ -59,7 +60,8 @@ Prefer the existing Shopware extension point over a new abstraction.
 ## Detailed Guidelines
 
 - Read `coding-guidelines/core/internal.md` and `coding-guidelines/core/final-and-internal.md` when marking PHP API surface as internal, final, or supported for extension.
-- Read `coding-guidelines/core/extendability.md` and `coding-guidelines/core/decorator-pattern.md` when adding or changing extension points.
+- When creating or migrating Store API routes, follow `coding-guidelines/core/extendability.md`: new routes use extension events, not abstract route classes; existing public contracts remain subject to backward compatibility.
+- Read `coding-guidelines/core/extendability.md` when adding or changing extension points; read `coding-guidelines/core/decorator-pattern.md` when working on a supported service decorator contract.
 - Read `coding-guidelines/core/database-migations.md` when adding or changing migrations.
 - Read `coding-guidelines/core/feature-flags.md` when adding feature-flagged behavior, deprecations, or BC branches.
 - Read `coding-guidelines/core/6.5-new-php-language-features.md` when reaching for a newer language feature, named arguments included.

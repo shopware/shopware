@@ -134,7 +134,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                     active: true,
                     allowDisable: true,
                     updatedAt: null,
-                    storeLicense: { variant: 'rent', expired: false },
+                    storeLicense: { variant: 'rent', expired: false, expirationDate: null },
                 },
                 {
                     name: 'Free',

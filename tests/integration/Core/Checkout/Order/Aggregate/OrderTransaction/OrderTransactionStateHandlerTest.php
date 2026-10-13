@@ -79,6 +79,18 @@ class OrderTransactionStateHandlerTest extends TestCase
         static::assertSame(OrderTransactionStates::STATE_PAID, $this->retrieveTransaction());
     }
 
+    public function testProcessUnconfirmedAndProcessAndPay(): void
+    {
+        $this->orderTransactionStateHelper->processUnconfirmed($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_UNCONFIRMED, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->process($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_IN_PROGRESS, $this->retrieveTransaction());
+
+        $this->orderTransactionStateHelper->paid($this->transactionId, $this->context);
+        static::assertSame(OrderTransactionStates::STATE_PAID, $this->retrieveTransaction());
+    }
+
     public function testProcessAndPay(): void
     {
         $this->orderTransactionStateHelper->process($this->transactionId, $this->context);

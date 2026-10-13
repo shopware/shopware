@@ -404,6 +404,21 @@ export default {
             this.isExpanded = false;
         },
 
+        toggleDropdown({ setFocusClass, removeFocusClass }) {
+            if (this.disabled) {
+                return;
+            }
+
+            if (this.isExpanded) {
+                this.closeDropdown();
+
+                return;
+            }
+
+            this.openDropdown({ setFocusClass, removeFocusClass });
+            this.$refs.searchInput.focus();
+        },
+
         closeDropdownOnClickOutside(event) {
             // when user uses tab key
             if (event.type === 'keydown' && this.removeInputFocusClass) {

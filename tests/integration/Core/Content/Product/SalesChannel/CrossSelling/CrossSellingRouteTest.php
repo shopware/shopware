@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\CrossSelling;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
@@ -17,6 +18,7 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingR
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
@@ -24,16 +26,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -420,6 +425,99 @@ class CrossSellingRouteTest extends TestCase
         static::assertCount(2, $element->getCrossSelling()->getAssignedProducts());
     }
 
+    /**
+     * @param list<array{active: bool, closeout: bool, stock: int}> $variants
+     */
+    #[DataProvider('assignedParentProvider')]
+    public function testLoadForProductWithProductCrossSellingAssignedParent(array $variants, bool $hideCloseoutProducts, bool $expectParent): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', $hideCloseoutProducts);
+
+        $ids = new IdsCollection();
+        $salesChannelId = TestDefaults::SALES_CHANNEL;
+
+        $parent = (new ProductBuilder($ids, 'parent'))
+            ->price(10)
+            ->visibility($salesChannelId);
+
+        foreach ($variants as $index => $variant) {
+            $parent->variant(
+                (new ProductBuilder($ids, 'variant-' . $index))
+                    ->price(10)
+                    ->active($variant['active'])
+                    ->closeout($variant['closeout'])
+                    ->stock($variant['stock'])
+                    ->build()
+            );
+        }
+
+        $main = (new ProductBuilder($ids, 'main'))->price(10)->visibility($salesChannelId)->build();
+        $main['crossSellings'] = [[
+            'name' => 'Test Cross Selling',
+            'active' => true,
+            'type' => ProductCrossSellingDefinition::TYPE_PRODUCT_LIST,
+            'assignedProducts' => [
+                ['productId' => $ids->get('parent'), 'position' => 1],
+                ['productId' => $ids->get('simple'), 'position' => 2],
+            ],
+        ]];
+
+        $this->productRepository->create([
+            $parent->build(),
+            (new ProductBuilder($ids, 'simple'))->price(10)->visibility($salesChannelId)->build(),
+        ], Context::createDefaultContext());
+        $this->productRepository->create([$main], Context::createDefaultContext());
+
+        // variants inherit the visibilities of the parent, which requires a context that considers inheritance
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), $salesChannelId);
+
+        $result = $this->route->load($ids->get('main'), new Request(), $context, new Criteria())->getResult();
+
+        $element = $result->first();
+        static::assertNotNull($element);
+
+        $expected = $expectParent ? [$ids->get('parent'), $ids->get('simple')] : [$ids->get('simple')];
+        static::assertSame($expected, array_values($element->getProducts()->getIds()));
+        static::assertSame(\count($expected), $element->getTotal());
+    }
+
+    /**
+     * @return iterable<string, array{list<array{active: bool, closeout: bool, stock: int}>, bool, bool}>
+     */
+    public static function assignedParentProvider(): iterable
+    {
+        yield 'all variants inactive' => [
+            [['active' => false, 'closeout' => false, 'stock' => 10], ['active' => false, 'closeout' => false, 'stock' => 10]],
+            false,
+            false,
+        ];
+
+        yield 'one variant active' => [
+            [['active' => false, 'closeout' => false, 'stock' => 10], ['active' => true, 'closeout' => false, 'stock' => 10]],
+            false,
+            true,
+        ];
+
+        yield 'all variants out-of-stock closeouts with hidden closeouts' => [
+            [['active' => true, 'closeout' => true, 'stock' => 0], ['active' => true, 'closeout' => true, 'stock' => 0]],
+            true,
+            false,
+        ];
+
+        yield 'all variants out-of-stock closeouts with visible closeouts' => [
+            [['active' => true, 'closeout' => true, 'stock' => 0], ['active' => true, 'closeout' => true, 'stock' => 0]],
+            false,
+            true,
+        ];
+
+        yield 'one closeout variant in stock with hidden closeouts' => [
+            [['active' => true, 'closeout' => true, 'stock' => 0], ['active' => true, 'closeout' => true, 'stock' => 5]],
+            true,
+            true,
+        ];
+    }
+
     public function testLoadForProductWithProductCrossSellingAssignedProductsOutOfStock(): void
     {
         // enable hideCloseoutProductsWhenOutOfStock filter
@@ -661,6 +759,7 @@ class CrossSellingRouteTest extends TestCase
             static::createStub(AbstractProductCloseoutFilterFactory::class),
             static::createStub(CacheTagCollector::class),
             static::getContainer()->get(Connection::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $productId = Uuid::randomHex();

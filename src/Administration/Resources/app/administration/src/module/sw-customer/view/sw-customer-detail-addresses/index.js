@@ -15,7 +15,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'customFieldDataProviderService'],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -49,6 +49,7 @@ export default {
             return this.repositoryFactory.create('customer');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
@@ -147,10 +148,7 @@ export default {
                 return;
             }
 
-            const customFieldSetCriteria = new Criteria(1, 25);
-            customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'));
-
-            this.customFieldSetRepository.search(customFieldSetCriteria).then((customFieldSets) => {
+            this.customFieldDataProviderService.getCustomFieldSets('customer_address').then((customFieldSets) => {
                 this.customerAddressCustomFieldSets = customFieldSets;
             });
 

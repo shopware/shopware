@@ -49,7 +49,7 @@ Planning reference for contributors and PMs. For the public docs see [developer.
 | ACL on tools | **Partial** | Most tools ACL-gated; `entity-schema` and resources explicitly no ACL | M | V1 |
 | **Structured MCP observability** (telemetry on every tool call) | **Partial** | `mcp` Monolog channel exists; no OpenTelemetry spans or metrics emission yet. Needed for adoption data and tool census | M | **V1 (GA blocker)** |
 | Feature flag `MCP_SERVER` lifecycle | **Partial** | Good for POC; needs lifecycle decision (default on, compile-time removal path) | S | V1 |
-| New integrations start with empty allowlist (enforcement) | **Open** | Current default is `NULL` (unrestricted); product direction says new integrations start with no tools selected | S | V1 |
+| New integrations start with empty allowlist (enforcement) | **Done** | `NULL` now denies every capability. Only administrator users bypass the allowlist; integrations never do | S | — |
 | **Per-user MCP allowlist** (bearer token + Copilot intersection) | **Done** | Per-user allowlist on `user`; bearer JWT re-enabled; Copilot intersection via `sw-app-user-id`. See [gaps-user-allowlist.md](gaps-user-allowlist.md) | M | — |
 | ACL on read-only resources | **Open** | Resources are reference data today; only if security review demands it | M | Later |
 | Optional discovery metadata | **Open** | Not needed if Admin allowlist + docs are sufficient | M | Later |
@@ -164,7 +164,6 @@ Shopware uses **Streamable HTTP** at `/api/_mcp` via `symfony/mcp-bundle`. Sessi
 **Still open**
 
 - **Structured MCP observability** — only `mcp` Monolog channel today. No OpenTelemetry spans, no metrics emission on tool calls. Needed to prove adoption, detect zero-use tools, and judge quality.
-- **Per-integration allowlist — new integrations default empty** — current default is `NULL` (unrestricted). Product direction says new integrations start with no tools selected; enforcement not yet in place.
 - **`shopware/*` org move for samples** — `McpHelloWorld` and `SwagMcpAdminUsers` are in-repo on this branch; need move + polish + canonical docs links.
 - Optional ACL on resources (if security review demands it).
 - Optional discovery metadata (deferred; revisit only if allowlist + docs prove insufficient).

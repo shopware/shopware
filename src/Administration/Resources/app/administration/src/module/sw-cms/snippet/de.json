@@ -11,7 +11,7 @@
       "deleteDisabledProductToolTip": "Das Layout ist noch mindestens einem Produkt zugewiesen.",
       "deleteDisabledLandingPageToolTip": "Das Layout ist noch mindestens einer Landingpage zugewiesen.",
       "disabledAddingBlocksToolTip": "Blöcke können nur in der System-Standardsprache hinzugefügt werden.",
-      "privacyNotice": "Ich habe die <a href=\"%privacyUrl%\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\">AGB</a> gelesen und bin mit ihnen einverstanden."
+      "privacyNotice": "Ich habe die <a href=\"%privacyUrl%\">Datenschutzhinweise</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\">AGB</a> gelesen und bin mit ihnen einverstanden."
     },
     "inherit": {
       "tooltip": "Dieses Feld existiert nicht im Basis-Layout und kann nicht vererbt werden.",
@@ -375,7 +375,7 @@
             "descriptionTextUseFilterByProperties": "Eigenschaften, die auf nicht filterbar eingestellt sind, werden hier nicht angezeigt. Du kannst dies im <a href=\"#/sw/property/index\" target=\"_blank\">Eigenschaftsmodul</a> ändern.",
             "gridHeaderStatus": "Status",
             "gridHeaderName": "Name",
-            "gridEmptyStateLabel": "Keine Eigenschaften gefunden.",
+            "gridEmptyStateLabel": "Keine Eigenschaften gefunden",
             "gridEmptyStateHint": "Versuche es mit einem anderen Suchbegriff"
           }
         }

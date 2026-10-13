@@ -33,6 +33,7 @@
       "placeholderSymbol": "Symbol eingeben ...",
       "placeholderFactor": "Faktor eingeben ...",
       "notificationErrorMessage": "Fehler beim Speichern der Währung.",
+      "notificationIsoCodeAlreadyExists": "Der ISO-Code \"{isoCode}\" wird bereits verwendet.",
       "titleRoundingCard": "Preisrundung",
       "titleCountryRoundingCard": "Länder",
       "searchbarPlaceholder": "Suche Land ...",

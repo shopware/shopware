@@ -87,7 +87,7 @@ class RegisterControllerTest extends TestCase
 
         $config = static::getContainer()->get(SystemConfigService::class);
 
-        $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
+        $systemConfigServiceMock = static::createStub(SystemConfigService::class);
 
         $systemConfigServiceMock
             ->method('get')
@@ -349,7 +349,7 @@ class RegisterControllerTest extends TestCase
         static::assertInstanceOf(Session::class, $session);
         $success = $session->getFlashBag()->get('success');
 
-        static::assertNotEmpty($success);
+        static::assertNotCount(0, $success);
         static::assertSame($container->get('translator')->trans('account.optInRegistrationAlert'), $success[0]);
 
         static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $event);
@@ -393,7 +393,7 @@ class RegisterControllerTest extends TestCase
         static::assertInstanceOf(Session::class, $session);
         $success = $session->getFlashBag()->get('success');
 
-        static::assertNotEmpty($success);
+        static::assertNotCount(0, $success);
         static::assertSame($container->get('translator')->trans('account.optInRegistrationAlert'), $success[0]);
 
         static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $event);
@@ -715,7 +715,7 @@ class RegisterControllerTest extends TestCase
             $container->get(CheckoutRegisterPageLoader::class),
             $systemConfigService,
             $customerRepository,
-            $this->createMock(CustomerGroupRegistrationPageLoader::class),
+            static::createStub(CustomerGroupRegistrationPageLoader::class),
             $container->get('sales_channel_domain.repository'),
             $container->get(HeaderPageletLoader::class),
             $container->get(FooterPageletLoader::class),

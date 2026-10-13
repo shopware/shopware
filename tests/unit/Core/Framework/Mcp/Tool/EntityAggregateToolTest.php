@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
@@ -12,6 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\AvgResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
@@ -345,12 +348,66 @@ class EntityAggregateToolTest extends TestCase
         static::assertStringContainsString('order_customer:read', $data['error']);
     }
 
+    #[TestDox('A rejected aggregation is answered with the parser pointer and detail instead of escaping to the SDK\'s generic error')]
+    public function testAnAggregationTheEntityCannotExpressIsAnsweredWithTheParserDetail(): void
+    {
+        $context = Context::createDefaultContext();
+        $result = new EntitySearchResult('order', 0, new EntityCollection(), new AggregationResultCollection(), new Criteria(), $context);
+
+        $exception = new SearchRequestException();
+        $exception->add(
+            new InvalidAggregationQueryException('The aggregation should contain a "field".'),
+            '/aggregations/0/avg/field'
+        );
+
+        [$tool] = $this->createTool($context, $result, $exception);
+        $output = ($tool)('order', '[{"type":"avg","name":"c"}]');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('/aggregations/0/avg/field', $data['error']);
+        static::assertStringContainsString('The aggregation should contain a "field".', $data['error']);
+    }
+
+    public function testAnUnknownAggregationTypeIsAnsweredRatherThanPropagated(): void
+    {
+        $context = Context::createDefaultContext();
+        $result = new EntitySearchResult('order', 0, new EntityCollection(), new AggregationResultCollection(), new Criteria(), $context);
+
+        [$tool] = $this->createTool(
+            $context,
+            $result,
+            new InvalidAggregationQueryException('The aggregation type "nonsense" used as key does not exist.')
+        );
+        $output = ($tool)('order', '[{"type":"nonsense","name":"c","field":"id"}]');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertSame('The aggregation type "nonsense" used as key does not exist.', $data['error']);
+    }
+
+    #[TestDox('Only criteria-parsing exceptions are answered; any other throwable is a bug and still propagates')]
+    public function testAnUnexpectedThrowableStillPropagates(): void
+    {
+        $context = Context::createDefaultContext();
+        $result = new EntitySearchResult('order', 0, new EntityCollection(), new AggregationResultCollection(), new Criteria(), $context);
+
+        [$tool] = $this->createTool($context, $result, new \RuntimeException('bug, not bad input'));
+
+        $this->expectExceptionObject(new \RuntimeException('bug, not bad input'));
+
+        ($tool)('order', '[{"type":"count","name":"c","field":"id"}]');
+    }
+
     /**
      * @param EntitySearchResult<*> $result
+     * @param \Throwable|null $criteriaError thrown by the stubbed RequestCriteriaBuilder when set
      *
      * @return array{EntityAggregateTool, EntityRepository<*>}
      */
-    private function createTool(Context $context, EntitySearchResult $result): array
+    private function createTool(Context $context, EntitySearchResult $result, ?\Throwable $criteriaError = null): array
     {
         $definition = static::createStub(EntityDefinition::class);
 
@@ -363,7 +420,11 @@ class EntityAggregateToolTest extends TestCase
         $registry->method('getRepository')->willReturn($repository);
 
         $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
-        $criteriaBuilder->method('fromArray')->willReturn(new Criteria());
+        if ($criteriaError !== null) {
+            $criteriaBuilder->method('fromArray')->willThrowException($criteriaError);
+        } else {
+            $criteriaBuilder->method('fromArray')->willReturn(new Criteria());
+        }
 
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);

@@ -142,3 +142,11 @@
         min-width: 100%;
     }
 }
+
+.sw-bulk-edit-product-base__guarantee {
+    .sw-bulk-edit-change-field-guaranteeMonths {
+        .mt-field--checkbox__content {
+            padding-top: var(--scale-size-32);
+        }
+    }
+}

@@ -235,7 +235,7 @@ class AppLifecycleIteratorTest extends TestCase
             Context::createCLIContext()
         );
 
-        static::assertNotEmpty($fails);
+        static::assertNotCount(0, $fails);
         static::assertCount(1, $fails);
     }
 }

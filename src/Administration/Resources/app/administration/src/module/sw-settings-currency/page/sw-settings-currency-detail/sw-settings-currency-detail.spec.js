@@ -5,6 +5,20 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
+    const currencyRepository = {
+        create: () => {
+            return {
+                name: '',
+                isoCode: '',
+                shortName: '',
+                symbol: '',
+                factor: 1,
+                decimalPrecision: 1,
+            };
+        },
+        save: jest.fn(),
+    };
+
     return mount(
         await wrapTestComponent('sw-settings-currency-detail', {
             sync: true,
@@ -14,18 +28,7 @@ async function createWrapper(privileges = []) {
                 renderStubDefaultSlot: true,
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            create: () => {
-                                return {
-                                    name: '',
-                                    isoCode: '',
-                                    shortName: '',
-                                    symbol: '',
-                                    factor: 1,
-                                    decimalPrecision: 1,
-                                };
-                            },
-                        }),
+                        create: () => currencyRepository,
                     },
                     acl: {
                         can: (identifier) => {
@@ -94,5 +97,36 @@ describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
         const saveButton = wrapper.find('.sw-settings-currency-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
+    });
+
+    it('shows a localized error for a duplicate ISO code', async () => {
+        const wrapper = await createWrapper([
+            'currencies.editor',
+        ]);
+        const error = {
+            response: {
+                data: {
+                    errors: [
+                        {
+                            code: 'SYSTEM__CURRENCY_ISO_CODE_NOT_UNIQUE',
+                            meta: {
+                                parameters: {
+                                    isoCode: 'EUR',
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
+        };
+
+        wrapper.vm.currencyRepository.save.mockRejectedValue(error);
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.onSave();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-settings-currency.detail.notificationIsoCodeAlreadyExists',
+        });
     });
 });

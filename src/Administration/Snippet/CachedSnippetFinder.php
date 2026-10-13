@@ -3,12 +3,13 @@
 namespace Shopware\Administration\Snippet;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\Files\FilesystemAdministrationSnippets;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 #[Package('discovery')]
 class CachedSnippetFinder implements SnippetFinderInterface
 {
-    public const CACHE_TAG = 'admin-snippet';
+    public const CACHE_TAG = FilesystemAdministrationSnippets::CACHE_TAG;
 
     /**
      * @internal

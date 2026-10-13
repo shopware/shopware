@@ -98,6 +98,31 @@ class AuthMiddlewareTest extends TestCase
         static::assertSame(['example.local:443:93.184.216.34'], $historyCollector->getHistory()[0]['options']['curl'][\CURLOPT_RESOLVE] ?? null);
     }
 
+    public function testSignsForwardedRequestWhenFollowingRedirect(): void
+    {
+        $this->appendNewResponse(new Response(301, ['Location' => 'https://example.local/moved']));
+        $this->appendNewResponse(new Response(200));
+
+        $client = static::getContainer()->get('shopware.app_system.guzzle');
+        $client->post(new Uri('https://example.local'), [
+            AuthMiddleware::APP_REQUEST_TYPE => [AuthMiddleware::APP_SECRET => 'secret'],
+            'body' => 'test',
+        ]);
+
+        static::assertSame(2, $this->getRequestCount());
+
+        // Without the strict redirect policy Guzzle would downgrade this to a bodyless GET,
+        // which makes the signer skip the signature and the app receive an unsigned request.
+        $forwarded = $this->getPastRequest(1);
+        static::assertSame('https://example.local/moved', (string) $forwarded->getUri());
+        static::assertSame('POST', $forwarded->getMethod());
+        static::assertSame('test', $forwarded->getBody()->getContents());
+        static::assertSame(
+            hash_hmac('sha256', 'test', 'secret'),
+            $forwarded->getHeaderLine(RequestSigner::SHOPWARE_SHOP_SIGNATURE)
+        );
+    }
+
     public function testMissingRequiredResponseHeader(): void
     {
         $this->appendNewResponse(new Response(200));

@@ -21,8 +21,9 @@
     "mcp": {
       "cardTitle": "MCP Allowlist",
       "modalTitle": "MCP Allowlist",
-      "infoText": "Restrict which MCP capabilities this integration may use. When \"All capabilities\" is enabled, every registered tool, resource, and prompt is accessible. Disable it to configure access per type. Note: tools also require the matching entity permissions from the assigned role.",
-      "adminBanner": "This integration has administrator privileges. All MCP capabilities are accessible by default. You can restrict access to specific tools, resources, or prompts here for additional security.",
+      "infoText": "Select which MCP capabilities this integration may use. Anything that is not selected is blocked. Note: tools also require the matching entity permissions from the assigned role.",
+      "adminBanner": "This user is an administrator. All MCP capabilities are accessible regardless of the selection below.",
+      "noSelectionBanner": "No capabilities are selected, so nothing is reachable over MCP right now. Select the tools, resources and prompts that are needed.",
       "allCapabilitiesLabel": "All capabilities",
       "allTypeLabel": "All",
       "toolsSection": "Tools",

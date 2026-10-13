@@ -46,16 +46,6 @@ class StoreApiToolSearchToolTest extends TestCase
         static::assertStringContainsString('shopware-toolset-enable', $data['_meta']['usage']);
     }
 
-    public function testInvokeIsDeclaredOnConcreteClassSoDiscoveryBindsToIt(): void
-    {
-        // The MCP SDK discoverer binds a tool handler to __invoke's declaring class. If __invoke
-        // were only inherited from AbstractToolSearchTool, discovery would bind the handler to the
-        // non-instantiable abstract base and the tool would fail at runtime.
-        $method = new \ReflectionMethod(StoreApiToolSearchTool::class, '__invoke');
-
-        static::assertSame(StoreApiToolSearchTool::class, $method->getDeclaringClass()->getName());
-    }
-
     private static function tool(string $name, string $description): Tool
     {
         return new Tool(

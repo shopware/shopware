@@ -50,7 +50,7 @@
         <mt-empty-state
             v-if="!extensionListPaginated.length && !filterByActiveState"
             class="sw-extension-my-extensions-listing__empty-state"
-            :centered="true"
+            centered
             icon="regular-plug"
             :headline="emptyStateHeadline"
             :description="emptyStateDescription"
@@ -97,7 +97,7 @@
                 <mt-empty-state
                     v-if="!extensionListPaginated.length && filterByActiveState"
                     class="sw-extension-my-extensions-listing__empty-state"
-                    :centered="true"
+                    centered
                     icon="regular-plug"
                     :headline="noActivePluginsHeadline"
                     description=""

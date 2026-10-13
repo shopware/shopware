@@ -18,8 +18,10 @@
     :title="$t('sw-property.detail.cardTitle')"
 >
     <mt-empty-state
+        centered
         :icon="$route.meta.$module.icon"
-        :headline="$t('sw-property.detail.optionEmptyStateSubline')"
+        :headline="$t('sw-property.detail.messageOptionsEmpty')"
+        :description="$t('sw-property.detail.optionEmptyStateSubline')"
     />
 </mt-card>
 {% endblock %}

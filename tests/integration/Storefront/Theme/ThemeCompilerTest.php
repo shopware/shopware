@@ -27,6 +27,7 @@ use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -92,7 +93,7 @@ class ThemeCompilerTest extends TestCase
             static::getContainer()->get(ThemeFilesystemResolver::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             static::getContainer()->get(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             $this->themePathBuilder,
             static::getContainer()->get(ScssPhpCompiler::class),
         );
@@ -147,7 +148,7 @@ class ThemeCompilerTest extends TestCase
 
     public function testDBException(): void
     {
-        $configService = $this->getConfigurationServiceDbException(
+        $configurationService = $this->getConfigurationServiceDbException(
             [
                 new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
             ]
@@ -161,7 +162,7 @@ class ThemeCompilerTest extends TestCase
 
         $event = new ThemeCompilerEnrichScssVariablesEvent([], TestDefaults::SALES_CHANNEL, Context::createDefaultContext());
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configurationService, $storefrontPluginRegistry);
         $exception = null;
         try {
             $subscriber->enrichExtensionVars($event);
@@ -170,7 +171,7 @@ class ThemeCompilerTest extends TestCase
         }
         // No variables should be added when a DB exception occurs
         static::assertNull($exception, 'No exception should be thrown, found: ' . $exception);
-        static::assertEmpty($event->getVariables());
+        static::assertCount(0, $event->getVariables());
     }
 
     /**
@@ -188,7 +189,7 @@ class ThemeCompilerTest extends TestCase
             mkdir($testFolder);
         }
 
-        $resolver = $this->createMock(ThemeFileResolver::class);
+        $resolver = static::createStub(ThemeFileResolver::class);
         $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection(), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
 
         $config = new StorefrontPluginConfiguration('test');
@@ -205,10 +206,10 @@ class ThemeCompilerTest extends TestCase
             $resolver,
             true,
             static::getContainer()->get('event_dispatcher'),
-            $this->createMock(ThemeFilesystemResolver::class),
+            static::createStub(ThemeFilesystemResolver::class),
             [],
-            $this->createMock(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(CacheInvalidator::class),
+            static::createStub(LoggerInterface::class),
             $this->themePathBuilder,
             static::getContainer()->get(ScssPhpCompiler::class),
         );
@@ -238,7 +239,7 @@ class ThemeCompilerTest extends TestCase
 
     public function testOutputsPluginCss(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/noThemeCustomCss');
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/SwagNoThemeCustomCss');
 
         $testScss = <<<PHP_EOL
 .test-selector-plugin {
@@ -271,7 +272,7 @@ PHP_EOL;
 }
 PHP_EOL;
 
-        $configService = $this->getConfigurationService(
+        $configurationService = $this->getConfigurationService(
             [
                 new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
             ]
@@ -283,19 +284,15 @@ PHP_EOL;
             ]
         );
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configurationService, $storefrontPluginRegistry);
 
-        $this->eventDispatcher->addSubscriber($subscriber);
+        EventHookDispatcher::fromContainer(static::getContainer())->subscribe($subscriber);
 
         $sysConfService = static::getContainer()->get(SystemConfigService::class);
         $sysConfService->set('SimplePlugin.config.simplePluginBackgroundcolor', '#fff');
         $sysConfService->set('SwagNoThemeCustomCss.config.noThemeCustomCssBackGroundcolor', '#aaa');
 
-        try {
-            $actual = $this->compileThemeAndGetCss($testScss, new StorefrontPluginConfiguration('test'));
-        } finally {
-            $this->eventDispatcher->removeSubscriber($subscriber);
-        }
+        $actual = $this->compileThemeAndGetCss($testScss, new StorefrontPluginConfiguration('test'));
 
         static::assertSame($expectedCssOutputNoAutoPrefix, trim($actual));
     }
@@ -412,20 +409,16 @@ PHP_EOL;
         $listener = static function (ThemeCompilerConcatenatedStylesEvent $event) use ($scss): void {
             $event->setConcatenatedStyles($scss);
         };
-        $this->eventDispatcher->addListener(ThemeCompilerConcatenatedStylesEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(ThemeCompilerConcatenatedStylesEvent::class, $listener);
 
-        try {
-            $this->themeCompiler->compileTheme(
-                $this->mockSalesChannelId,
-                'themeId',
-                $config,
-                new StorefrontPluginConfigurationCollection(),
-                false,
-                Context::createDefaultContext()
-            );
-        } finally {
-            $this->eventDispatcher->removeListener(ThemeCompilerConcatenatedStylesEvent::class, $listener);
-        }
+        $this->themeCompiler->compileTheme(
+            $this->mockSalesChannelId,
+            'themeId',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
 
         $themePrefix = $this->themePathBuilder->assemblePath($this->mockSalesChannelId, 'themeId');
 
@@ -467,7 +460,7 @@ PHP_EOL;
      */
     private function getStorefrontPluginRegistry(array $plugins): StorefrontPluginRegistry
     {
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel
             ->method('getBundles')
             ->willReturn($plugins);

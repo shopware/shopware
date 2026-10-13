@@ -12,13 +12,13 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
-use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -151,7 +151,7 @@ class SendMailActionTest extends TestCase
         }
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             static::getContainer()->get('document.repository')
@@ -211,7 +211,7 @@ class SendMailActionTest extends TestCase
                 $admins = static::getContainer()->get(Connection::class)->fetchAllAssociative(
                     'SELECT `first_name`, `last_name`, `email` FROM `user` WHERE `admin` = 1'
                 );
-                static::assertNotEmpty($admins, 'Expected at least one admin user to exist');
+                static::assertNotCount(0, $admins, 'Expected at least one admin user to exist');
 
                 $expectedRecipients = [];
                 foreach ($admins as $admin) {
@@ -295,7 +295,7 @@ class SendMailActionTest extends TestCase
             ]
         );
 
-        static::assertNotEmpty($mailTemplateId);
+        static::assertNotSame('', $mailTemplateId);
 
         $config = [
             'mailTemplateId' => $mailTemplateId,
@@ -357,7 +357,7 @@ class SendMailActionTest extends TestCase
             ]
         );
 
-        static::assertNotEmpty($mailTemplateId);
+        static::assertNotSame('', $mailTemplateId);
 
         $config = [
             'mailTemplateId' => $mailTemplateId,
@@ -431,7 +431,7 @@ class SendMailActionTest extends TestCase
             ]
         );
 
-        static::assertNotEmpty($mailTemplateId);
+        static::assertNotSame('', $mailTemplateId);
 
         $config = [
             'mailTemplateId' => $mailTemplateId,
@@ -723,7 +723,7 @@ class SendMailActionTest extends TestCase
         $sequencesConfig = $this->createFlowSequencesConfig($mailTemplateId, $documentTypes);
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             $this->documentRepository
@@ -761,7 +761,7 @@ class SendMailActionTest extends TestCase
 
             foreach ($config['documentTypeIds'] as $sequenzDocumentTypeId) {
                 $documentInfos = $this->getMatchingDocument($sequenzDocumentTypeId, $documentTypes);
-                static::assertNotEmpty($documentInfos);
+                static::assertNotCount(0, $documentInfos);
 
                 static::assertArrayHasKey('filename', $documentInfos);
                 $found = $this->isDocumentPartOfAttachments($attachments, $documentInfos['filename']);
@@ -798,7 +798,7 @@ class SendMailActionTest extends TestCase
         $flow = $flowFactory->create($event);
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             $this->documentRepository
@@ -900,7 +900,7 @@ class SendMailActionTest extends TestCase
         );
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             $this->documentRepository
@@ -1170,7 +1170,8 @@ class SendMailActionTest extends TestCase
     private function getMailTemplateId(string $technicalName): ?string
     {
         $mailTemplateTypeId = $this->getMailTemplateTypeId($technicalName);
-        static::assertNotEmpty($mailTemplateTypeId);
+        static::assertIsString($mailTemplateTypeId);
+        static::assertNotSame('', $mailTemplateTypeId);
 
         $result = $this->connection->fetchOne(
             'SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :mailTemplateTypeId',

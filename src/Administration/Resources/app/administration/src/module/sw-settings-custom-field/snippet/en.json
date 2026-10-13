@@ -17,7 +17,7 @@
         "buttonAdd": "Add new set",
         "columnName": "Label",
         "messageDeleteSuccess": "The set \"{name}\" has been deleted.",
-        "messageEmpty": "No custom fields yet.",
+        "messageEmpty": "No custom fields yet",
         "helpTextGlobalSet": "This set is global and cannot be edited."
       },
       "detail": {
@@ -29,7 +29,7 @@
         "placeholderName": "Enter a name...",
         "labelCheckboxTranslated": "Manage labels in all administration languages",
         "messageSaveSuccess": "The set \"{name}\" has been saved.",
-        "messageCustomFieldsEmpty": "No custom fields yet.",
+        "messageCustomFieldsEmpty": "No custom fields yet",
         "addCustomField": "New custom field",
         "labelEntities": "Assign to",
         "placeholderEntities": "Select modules...",

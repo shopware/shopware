@@ -102,13 +102,8 @@ final readonly class WebhookClient
     /**
      * @param array<string, mixed> $options
      */
-    /**
-     * @param array<string, mixed> $options
-     */
     private function sendAsync(RequestInterface $request, array $options): PromiseInterface
     {
-        $options['allow_redirects'] = ['max' => 5, 'strict' => true];
-
         return $this->guzzle->sendAsync($request, $options);
     }
 

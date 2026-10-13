@@ -26,7 +26,11 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
 
     public function store(array $tags): void
     {
-        $this->redis->sAdd(self::KEY, ...$tags);
+        if ($tags === []) {
+            return;
+        }
+
+        $this->redis->sAdd(self::KEY, ...array_values($tags));
     }
 
     public function loadAndDelete(): array

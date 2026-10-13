@@ -110,6 +110,11 @@ export default class ChangesetGenerator {
 
             switch (field.relation) {
                 case 'one_to_many': {
+                    // a missing draft collection is not a request to remove all associated entities
+                    if (!draftValue) {
+                        return;
+                    }
+
                     const associationChanges = this.handleOneToMany(field, draftValue, originValue, deletionQueue);
                     if (associationChanges.length > 0) {
                         changes[fieldName] = associationChanges;
@@ -117,6 +122,10 @@ export default class ChangesetGenerator {
                     break;
                 }
                 case 'many_to_many': {
+                    if (!draftValue) {
+                        return;
+                    }
+
                     const associationChanges = this.handleManyToMany(draftValue, originValue, deletionQueue, field, entity);
                     if (associationChanges.length > 0) {
                         changes[fieldName] = associationChanges;
@@ -161,7 +170,8 @@ export default class ChangesetGenerator {
      */
     handleManyToMany(draft, origin, deletionQueue, field, entity) {
         const changes = [];
-        const originIds = origin.getIds();
+        // an association which was not loaded has no origin, so every draft entity is new
+        const originIds = origin?.getIds() ?? [];
 
         draft.forEach((nested) => {
             if (!originIds.includes(nested.id)) {
@@ -198,7 +208,7 @@ export default class ChangesetGenerator {
      */
     handleOneToMany(field, draft, origin, deletionQueue) {
         const changes = [];
-        const originIds = origin.getIds();
+        const originIds = origin?.getIds() ?? [];
 
         // check for new and updated items
         draft.forEach((entity) => {

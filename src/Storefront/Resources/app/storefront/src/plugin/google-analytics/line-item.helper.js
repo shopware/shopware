@@ -43,6 +43,8 @@ export default class LineItemHelper
                 quantity: itemEl.getAttribute('data-quantity'),
                 price: itemEl.getAttribute('data-price'),
                 discount: itemEl.getAttribute('data-discount'),
+                // the codes of the promotions that discounted the item, empty when none did
+                coupon: itemEl.getAttribute('data-coupon'),
                 item_brand: itemEl.getAttribute('data-brand'),
                 item_variant: itemEl.getAttribute('data-variant'),
             };

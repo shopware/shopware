@@ -16,6 +16,7 @@ describe('plugin/google-analytics/line-item.helper', () => {
                         data-quantity="2"
                         data-price="99.99"
                         data-discount="10.00"
+                        data-coupon="SUMMER"
                         data-brand="Test Brand"
                         data-variant="Red, L">
                     </span>
@@ -31,6 +32,7 @@ describe('plugin/google-analytics/line-item.helper', () => {
                 quantity: '2',
                 price: '99.99',
                 discount: '10.00',
+                coupon: 'SUMMER',
                 item_brand: 'Test Brand',
                 item_variant: 'Red, L',
             });

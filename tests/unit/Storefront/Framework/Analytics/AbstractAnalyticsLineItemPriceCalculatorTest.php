@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Framework\Analytics\AbstractAnalyticsLineItemPriceCalculator;
+use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemCouponResolver;
 use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPrice;
 use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPriceCalculator;
 use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPriceCollection;
@@ -42,7 +43,7 @@ class AbstractAnalyticsLineItemPriceCalculatorTest extends TestCase
             }
         };
 
-        $function = (new AnalyticsLineItemPriceExtension($decorator))->getFunctions()[0];
+        $function = (new AnalyticsLineItemPriceExtension($decorator, new AnalyticsLineItemCouponResolver()))->getFunctions()[0];
         $callable = $function->getCallable();
         static::assertIsCallable($callable);
 

@@ -74,6 +74,7 @@ use Shopware\Storefront\Controller\ScriptController;
 use Shopware\Storefront\Event\CartMergedSubscriber;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Analytics\AbstractAnalyticsLineItemPriceCalculator;
+use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemCouponResolver;
 use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPriceCalculator;
 use Shopware\Storefront\Framework\App\Template\IconTemplateLoader;
 use Shopware\Storefront\Framework\Cache\CacheCookieEventSubscriber;
@@ -396,8 +397,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(AbstractAnalyticsLineItemPriceCalculator::class, AnalyticsLineItemPriceCalculator::class)
         ->args([service(CashRounding::class)]);
 
+    $services->set(AnalyticsLineItemCouponResolver::class);
+
     $services->set(AnalyticsLineItemPriceExtension::class)
-        ->args([service(AbstractAnalyticsLineItemPriceCalculator::class)])
+        ->args([service(AbstractAnalyticsLineItemPriceCalculator::class), service(AnalyticsLineItemCouponResolver::class)])
         ->tag('twig.extension');
 
     $services->set(IconCacheTwigFilter::class)

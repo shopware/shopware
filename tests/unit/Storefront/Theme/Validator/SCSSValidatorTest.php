@@ -338,6 +338,34 @@ class SCSSValidatorTest extends TestCase
             ],
             '#ffffff00',
         ];
+        yield 'hsl with trailing newline is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => "hsl(120, 50%, 50%)\n",
+            ],
+            '#ffffff00',
+        ];
+        yield 'hsla with trailing newline is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => "hsla(120, 50%, 50%, 0.8)\n",
+            ],
+            '#ffffff00',
+        ];
+        yield 'rgb with trailing newline is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => "rgb(0, 0, 0)\n",
+            ],
+            '#ffffff00',
+        ];
+        yield 'rgba with trailing newline is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => "rgba(0, 0, 0, 0.5)\n",
+            ],
+            '#ffffff00',
+        ];
         yield 'fontFamily incorrect and sanitized' => [
             [
                 'type' => 'fontFamily',

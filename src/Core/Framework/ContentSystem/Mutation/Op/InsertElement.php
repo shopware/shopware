@@ -79,7 +79,7 @@ final class InsertElement extends AbstractLayoutMutation
         }
 
         if ($specification->type() !== $this->type) {
-            throw ContentSystemException::bindingTypeMismatch($bindingSpecificationId, $specification->type(), $this->type);
+            throw ContentSystemException::bindingTypeMismatch($bindingSpecificationId, $specification->type(), $this->type, null);
         }
 
         // The explicit path scaffolds with the default underneath too, so a key the explicit specification leaves

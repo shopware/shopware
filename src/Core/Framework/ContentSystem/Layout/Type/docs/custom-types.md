@@ -60,7 +60,7 @@ slots:
 
 **`meta`** (required): `label`, `description` are required. `icon`, `category`, `copilot` are optional.
 
-**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (string only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`, `mappable`, `resolvedBy` (reference properties only — the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)).
+**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (string only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`, `mappable`, `resolvedBy` (reference properties only — the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)). A property shown as a `radio-panel` whose type is not `string` declares its values in `enum`; without one, a click on one of its options throws an error in the Administration and emits no value.
 
 The default-specification synthesizer runs on every type file, whether or not it declares a `bindings:` key, so a misused `resolvedBy` — for example on a primitive property — fails app install and `manifest:validate` outright.
 
@@ -87,7 +87,7 @@ You do not declare which candidates fit, either. The introspection payload deriv
 
 What a mappable property can be mapped TO is not yours to declare either, and you should not shape a property around the entity data you hope to see in it. The offer set comes from the mapping catalogue of whichever root source the layout is bound to, and the write gate admits a path only when the value it yields satisfies your declared type. Where the data exists but is shaped wrong — the gallery declares `MediaCollection`, and a product's `media` is a collection of image ASSIGNMENT records rather than of images — the catalogue entry carries a **projection** that reshapes it, and advertises the type your property ends up holding. So you declare the type your template needs and nothing else: bridging to it is the catalogue's problem, and an author never sees that it happened. See [Mapping/Projection](../../../Mapping/Projection/AbstractContentPropertyProjection.php) if you are the one writing the bridge.
 
-**`slots`** (optional): Each slot has a `name`. Optional: `maxElements` (cap on child count), `allowList` (restrict allowed child component types), `description`.
+**`slots`** (optional): Each slot has a `name`. Optional: `maxElements` (cap on child count), `allowList` (restrict allowed child component types), `description`. A slot name PHP casts to an integer, such as `12`, is unusable: a stored element rejects an integer slot key (`invalidMapKey`), so no child can be stored under it.
 
 **`bindings`** (optional): Inline binding specifications for this type. See [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md).
 

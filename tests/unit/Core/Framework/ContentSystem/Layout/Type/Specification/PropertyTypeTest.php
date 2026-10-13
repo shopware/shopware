@@ -8,6 +8,8 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
 
@@ -63,6 +65,7 @@ class PropertyTypeTest extends TestCase
         yield 'false for a float under integer' => ['integer', 4.2, false];
         yield 'true for an integer under number' => ['number', 42, true];
         yield 'true for a float under number' => ['number', 4.2, true];
+        yield 'false for a string under number' => ['number', '3.5', false];
         yield 'true for a bool under boolean' => ['boolean', true, true];
         yield 'false for an array under a primitive' => ['string', ['a'], false];
 
@@ -75,6 +78,71 @@ class PropertyTypeTest extends TestCase
         yield 'true for anything under a bare object' => ['object', ['whatever' => 1], true];
         yield 'true for anything under an FQCN' => ['Shopware\Core\Content\Product\ProductEntity', 42, true];
         yield 'true for anything under a union carrying a non-primitive' => [['string', 'object'], 42, true];
+    }
+
+    #[TestDox('reports the nested member declarations of an object declaration through its schema')]
+    public function testToSchemaReportsTheNestedMemberDeclarations(): void
+    {
+        $type = new PropertyType('object', false, null, null, [
+            'url' => new PropertySpecification('url', new PropertyType('string', false, null, null), true, 'Url', 'Link target.', null),
+        ]);
+
+        static::assertSame([
+            'url' => [
+                'type' => 'string',
+                'contextTypes' => ['single'],
+                'translatable' => false,
+                'enum' => null,
+                'default' => null,
+                'properties' => null,
+                'required' => true,
+                'mappable' => false,
+                'inlineMappable' => false,
+                'title' => 'Url',
+                'description' => 'Link target.',
+                'adminUI' => null,
+                'defaultMapping' => null,
+            ],
+        ], $type->toSchema()['properties']);
+    }
+
+    #[TestDox('reports the declared type, enum and default through its schema, with null where no nested members are declared')]
+    public function testToSchemaReportsEveryDeclaredMember(): void
+    {
+        $type = new PropertyType('string', false, ['auto-fit', 'fixed'], 'auto-fit');
+
+        static::assertSame([
+            'type' => 'string',
+            'contextTypes' => ['single'],
+            'translatable' => false,
+            'enum' => ['auto-fit', 'fixed'],
+            'default' => 'auto-fit',
+            'properties' => null,
+        ], $type->toSchema());
+    }
+
+    /**
+     * @param string|list<string> $declaredType
+     */
+    #[DataProvider('primitiveTypeProvider')]
+    #[TestDox('tells a lone primitive declaration from any other declared type: $_dataName')]
+    public function testIsPrimitiveTellsALonePrimitiveFromAnyOtherDeclaredType(string|array $declaredType, bool $expected): void
+    {
+        static::assertSame($expected, (new PropertyType($declaredType, false, null, null))->isPrimitive());
+    }
+
+    /**
+     * @return iterable<string, array{string|list<string>, bool}>
+     */
+    public static function primitiveTypeProvider(): iterable
+    {
+        yield 'lone primitive' => ['string', true];
+
+        yield 'bare object' => ['object', false];
+
+        yield 'FQCN' => [SalesChannelProductEntity::class, false];
+
+        yield 'union of one primitive' => [['string'], false];
     }
 
     /**

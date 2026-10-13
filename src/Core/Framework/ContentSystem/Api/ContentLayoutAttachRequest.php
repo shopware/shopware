@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Envelope DTO for the persisted attach-element mutation action: splices a supplied element subtree into a stored
@@ -19,7 +18,6 @@ final class ContentLayoutAttachRequest
      * @param array<string, mixed> $element
      */
     public function __construct(
-        #[Assert\Type('array')]
         public readonly array $element,
         public readonly ?string $expectedVersion,
         public readonly ?string $parentElementId = null,

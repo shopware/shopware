@@ -12,7 +12,7 @@
 - `MutationPipeline` - `@internal`, `@final` annotation. The stateless runner over an already-decoded tree: apply, diagnose, mirror onto `created()`, re-diagnose only when the wiring changed the tree, assemble. Never persists. Instance-identity gate: [docs/runners.md](docs/runners.md).
 - `ContextConsumerMirror` - `@internal`, `@final` annotation. Mirrors onto the created elements the `acceptsContext` consumers their own resolutions prove, and nothing else. Match rules and the four skips: [docs/consumer-mirroring.md](docs/consumer-mirroring.md).
 - `PersistedLayoutMutator` - `@internal`, `@final` annotation. Commits one mutation to a stored `content_layout` under a named lock and an optimistic `updatedAt` token; runs no mirroring. Codes and interim limitations: [docs/runners.md](docs/runners.md).
-- `Op/` - The nine operations, all extending `AbstractLayoutMutation`: `InsertElement`, `RemoveElement`, `MoveElement`, `ReplaceElement`, `DuplicateElement`, `WrapElements`, `UnwrapElement`, `AttachElement`, `BindElement`. Per-op contracts: [docs/operations.md](docs/operations.md).
+- `Op/` - The operations, all extending `AbstractLayoutMutation`: `InsertElement`, `RemoveElement`, `MoveElement`, `ReplaceElement`, `DuplicateElement`, `WrapElements`, `UnwrapElement`, `AttachElement`, `AttachElements`, `BindElement`. Per-op contracts: [docs/operations.md](docs/operations.md).
 
 ## Constraints
 

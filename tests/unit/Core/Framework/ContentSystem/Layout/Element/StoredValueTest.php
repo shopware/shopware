@@ -121,6 +121,7 @@ class StoredValueTest extends TestCase
         yield 'empty array' => [[]];
         yield 'flat list' => [['a', 'b']];
         yield 'flat map' => [['x' => 1, 'y' => 2]];
+        yield 'a sparse integer-keyed array' => [[1 => 'a', 3 => 'b']];
         yield 'map nested in a list' => [[['x' => 1], ['x' => 2]]];
         yield 'list nested in a map' => [['items' => ['a', 'b'], 'count' => 2]];
         yield 'mixed depth' => [['a' => ['b' => [1, ['c' => null]]]]];
@@ -177,6 +178,11 @@ class StoredValueTest extends TestCase
         yield 'maps with different keys' => [
             StoredValue::ofMap(['x' => StoredValue::ofInt(1)]),
             StoredValue::ofMap(['y' => StoredValue::ofInt(1)]),
+            false,
+        ];
+        yield 'a map and its strict superset' => [
+            StoredValue::ofMap(['x' => StoredValue::ofInt(1)]),
+            StoredValue::ofMap(['x' => StoredValue::ofInt(1), 'y' => StoredValue::ofInt(2)]),
             false,
         ];
         yield 'empty list and empty map' => [StoredValue::ofList([]), StoredValue::ofMap([]), false];

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers;
 
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -11,9 +11,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Package('checkout')]
-trait LineItemGroupTestFixtureBehaviour
+final class LineItemGroupFixture
 {
-    private function buildGroup(string $packagerKey, float $value, string $sorterKey, RuleCollection $rules): LineItemGroupDefinition
+    public static function buildGroup(string $packagerKey, float $value, string $sorterKey, RuleCollection $rules): LineItemGroupDefinition
     {
         $group = new LineItemGroupDefinition(
             Uuid::randomBytes(),

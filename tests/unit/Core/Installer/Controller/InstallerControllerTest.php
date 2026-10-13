@@ -6,14 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Controller\InstallerController;
-use Shopware\Core\Kernel;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Twig\Environment;
 
 /**
@@ -96,7 +90,7 @@ class InstallerControllerTest extends TestCase
                 return $this->renderInstaller('@Installer/installer/welcome.html.twig');
             }
         };
-        $container = $this->getInstallerContainer($twig);
+        $container = InstallerControllerFixture::getInstallerContainer($twig);
 
         $requestStack = $container->get('request_stack');
         $containerRequest = $requestStack->getCurrentRequest();
@@ -107,24 +101,5 @@ class InstallerControllerTest extends TestCase
 
         $response = $controller->welcome();
         static::assertSame('welcome page', $response->getContent());
-    }
-
-    private function getInstallerContainer(Environment $twig): ContainerInterface
-    {
-        $container = new ContainerBuilder();
-        $container->set('twig', $twig);
-        $requestStack = new RequestStack();
-        $session = new Session(new MockArraySessionStorage());
-        $request = new Request([], [], ['_route' => 'installer.start']);
-        $request->setSession($session);
-        $requestStack->push($request);
-        $container->set('request_stack', $requestStack);
-        $container->setParameter('shopware.installer.supportedLanguages', [
-            'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
-            'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
-        ]);
-        $container->setParameter('kernel.shopware_version', Kernel::SHOPWARE_FALLBACK_VERSION);
-
-        return $container;
     }
 }

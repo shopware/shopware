@@ -21,17 +21,15 @@ use Twig\Environment;
 #[CoversClass(StartController::class)]
 class StartControllerTest extends TestCase
 {
-    use InstallerControllerTestTrait;
-
     public function testWelcomeRoute(): void
     {
         $twig = $this->createMock(Environment::class);
         $twig->expects($this->once())->method('render')
-            ->with('@Installer/installer/welcome.html.twig', $this->getDefaultViewParams())
+            ->with('@Installer/installer/welcome.html.twig', InstallerControllerFixture::getDefaultViewParams())
             ->willReturn('languages');
 
         $controller = new StartController();
-        $controller->setContainer($this->getInstallerContainer($twig));
+        $controller->setContainer(InstallerControllerFixture::getInstallerContainer($twig));
 
         $session = new Session(new MockArraySessionStorage());
         $request = Request::create('/installer');
@@ -52,7 +50,7 @@ class StartControllerTest extends TestCase
             ->willReturn('/installer/requirements');
 
         $controller = new StartController();
-        $controller->setContainer($this->getInstallerContainer($twig, ['router' => $router]));
+        $controller->setContainer(InstallerControllerFixture::getInstallerContainer($twig, ['router' => $router]));
 
         $session = new Session(new MockArraySessionStorage());
         $request = Request::create('/installer?ext_steps=1');

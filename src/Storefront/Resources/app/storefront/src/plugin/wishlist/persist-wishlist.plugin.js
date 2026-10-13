@@ -12,8 +12,8 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         if (!window.Feature.isActive('v6.8.0.0')) {
             this.httpClient = new HttpClient();
+            this.httpClient.setErrorHandlingInternal(true);
         }
-        this.httpClient.setErrorHandlingInternal(true);
     }
 
     load() {

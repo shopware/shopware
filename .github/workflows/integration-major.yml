@@ -157,6 +157,43 @@ jobs:
           path: build/artifacts/jest/administration.junit.xml
           if-no-files-found: error
 
+  jest-storefront-major:
+    name: "Jest Storefront (${{ matrix.major }})"
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')
+    needs:
+      - major-matrix
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        major: ${{ fromJson(needs.major-matrix.outputs.lanes) }}
+    env:
+      FEATURE_ALL: ${{ matrix.major }}
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          mysql-version: skip
+          npm-version: 11.8.0
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          install-storefront: true
+
+      - name: Run Jest Storefront with major features
+        working-directory: src/Storefront/Resources/app/storefront
+        # Coverage stays in the normal lane: removed helpers are intentionally untested here.
+        run: npm run unit -- --silent --coverage=false
+
+      - name: Upload Jest results
+        # Keep the report when tests fail so the failed major lane can be diagnosed.
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: jest-storefront-major-${{ matrix.major }}-results
+          path: build/artifacts/jest/storefront.junit.xml
+          if-no-files-found: error
+
   # single required/monitorable status for the whole major matrix
   integration-major-check:
     # Skip cleanly on unlabeled PRs so they don't get a confusing status; otherwise aggregate the matrix result.
@@ -164,6 +201,7 @@ jobs:
     needs:
       - phpunit-major
       - jest-admin-major
+      - jest-storefront-major
     runs-on: Ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed
@@ -179,6 +217,6 @@ jobs:
               || github.event_name == 'pull_request'
               && !contains(github.event.pull_request.labels.*.name, 'major-js')
               && !contains(github.event.pull_request.labels.*.name, 'major-tests')
-              && 'jest-admin-major'
+              && 'jest-admin-major,jest-storefront-major'
               || ''
             }}

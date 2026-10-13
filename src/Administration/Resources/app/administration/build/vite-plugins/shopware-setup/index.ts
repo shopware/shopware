@@ -74,40 +74,59 @@ type TransformFailure = {
  *
  * Use it instead of `instanceof ShopwareSetupTransformError`: the lazily required transform module may
  * throw from another realm, where `instanceof` fails. `loc` and `frame` are `null` for any other error.
+ * `stack` holds the throw-site frames of a `ShopwareSetupInternalError` only, since an analyzer bug is
+ * fixed where it was thrown; for any other error it is `''`.
  *
  * @example
- * const { message, loc, frame } = readTransformDiagnostic(error); // loc: { file, line, column } | null
+ * const { message, loc, frame, stack } = readTransformDiagnostic(error); // loc: { file, line, column } | null
  */
 function readTransformDiagnostic(error: unknown): {
     message: string;
     loc: ShopwareSetupTransformError['loc'];
     frame: string | null;
+    stack: string;
 } {
-    const { message, loc, frame } = (error ?? {}) as { message?: unknown } & Partial<
-        Pick<ShopwareSetupTransformError, 'loc' | 'frame'>
+    const { message, loc, frame, name, stack } = (error ?? {}) as { message?: unknown; stack?: unknown } & Partial<
+        Pick<ShopwareSetupTransformError, 'loc' | 'frame' | 'name'>
     >;
+    const isInternalError = name === 'ShopwareSetupInternalError' && typeof stack === 'string';
 
     return {
         message: typeof message === 'string' ? message : String(error),
         loc: loc ?? null,
         frame: frame ?? null,
+        stack: isInternalError ? stackFrames(stack) : '',
     };
+}
+
+/**
+ * The `at ...` lines of an error stack, without its `name: message` header - the shape Vite's overlay
+ * expects in `stack`.
+ *
+ * @example
+ * stackFrames('Error: boom\n    at run (file.ts:1:1)'); // '    at run (file.ts:1:1)'
+ */
+function stackFrames(stack: string): string {
+    return stack
+        .split('\n')
+        .filter((line) => /^\s*at /.test(line))
+        .join('\n');
 }
 
 /**
  * Renders a transform diagnostic as `file:line:column`, its message and code frame, for the terminal and
  * the error overlay alike. Line and column are Vite's (1-based, 0-based), so a save reports the position
- * Vite prints when a page load hits the same error.
+ * Vite prints when a page load hits the same error. Only an analyzer bug adds its throw-site frames.
  */
 function formatTransformError(error: unknown, fileName: string): TransformFailure {
-    const { message, loc, frame } = readTransformDiagnostic(error);
+    const { message, loc, frame, stack } = readTransformDiagnostic(error);
     const position = loc ? `:${loc.line}:${loc.column}` : '';
 
     return {
-        log: `[shopware-setup] ${fileName}${position}\n${message}${frame ? `\n${frame}` : ''}`,
+        log: `[shopware-setup] ${fileName}${position}\n${message}${frame ? `\n${frame}` : ''}${stack ? `\n${stack}` : ''}`,
         overlay: {
             message,
-            stack: '',
+            stack,
             id: fileName,
             loc: loc ?? undefined,
             frame: frame ?? undefined,

@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { ShopwareSetupInternalError } from '../../../vue-setup-transform';
 import { createPlugin, createVueFile, type HotUpdateOptions, spyOnTransform } from './helpers';
 
 describe('build/vite-plugins/shopware-setup hot updates', () => {
@@ -146,6 +147,33 @@ swDefinePublic({});
         expect(context.environment.hot.send).toHaveBeenCalledWith({
             type: 'error',
             err: { message: 'Transform unavailable', stack: '', id: file },
+        });
+
+        transformSpy.mockRestore();
+    });
+
+    it('reports an analyzer bug with its throw site in the terminal and the overlay', async () => {
+        const plugin = createPlugin();
+        const file = '/example/sw-my-component.vue';
+        const context = createHotUpdateContext([]);
+        const error = new ShopwareSetupInternalError('Overlapping Shopware setup source edits.', 0);
+        error.loc = { file, line: 1, column: 0 };
+        error.frame = '1  |  <template />';
+        const throwSite = (error.stack ?? '').slice(`${error.name}: ${error.message}\n`.length);
+        const transformSpy = spyOnTransform().mockImplementation(() => {
+            throw error;
+        });
+
+        await plugin.hotUpdate.call(context, createHotUpdateOptions(file));
+
+        // Unlike an author error, the fix for an analyzer bug goes where it was thrown.
+        expect(throwSite).toMatch(/^\s+at .*hot-update\.spec\.ts/);
+        expect(context.environment.logger.error).toHaveBeenCalledWith(
+            `[shopware-setup] ${file}:1:0\n${error.message}\n${error.frame}\n${throwSite}`,
+        );
+        expect(context.environment.hot.send).toHaveBeenCalledWith({
+            type: 'error',
+            err: { message: error.message, stack: throwSite, id: file, loc: error.loc, frame: error.frame },
         });
 
         transformSpy.mockRestore();

@@ -421,6 +421,7 @@ With the `v6.8.0.0` feature flag, the first text block holds the plain data or t
 A tool result larger than 100 KB is stored and linked instead of returned inline. The link is now a signed pointer for the caller: the integration or user on `/api/_mcp`, the sales channel and `sw-context-token` on `/store-api/_mcp`. It expires after an hour and can be read on any later request of the same caller, with or without an MCP session. Another caller gets "not found".
 
 The result keeps `_meta.resourceUri` in the text block and adds `_meta.expiresAt`. Clients on protocol 2025-06-18 or later also get the link as a `resource_link` content block. The Store API endpoint can now read these results with `resources/read`; before, its links could not be resolved. Store API clients have to send the same `sw-context-token` on the read. A Store API call without `sw-context-token` gets its result inline, because the token minted for that one request could never read it back.
+
 ### Parents without an available variant are not found
 
 `/store-api/product/{productId}` now responds with HTTP 404, like for an inactive product, when the requested product is a parent and none of its variants can be shown: all variants are inactive or not visible in the sales channel, or they are out-of-stock closeouts while `core.listing.hideCloseoutProductsWhenOutOfStock` is active. Previously the parent was returned as a product without a buyable variant, so the storefront rendered a detail page that could not be ordered from.

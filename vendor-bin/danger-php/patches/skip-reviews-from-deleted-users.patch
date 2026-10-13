@@ -1,0 +1,23 @@
+diff --git a/src/Platform/Github/Github.php b/src/Platform/Github/Github.php
+index 7a28ee8..149968e 100644
+--- a/src/Platform/Github/Github.php
++++ b/src/Platform/Github/Github.php
+@@ -121,9 +121,16 @@ class Github extends AbstractPlatform
+     {
+         $requestedReviewers = array_map(static fn (array $reviewer): string => $reviewer['login'], $this->raw['requested_reviewers']);
+ 
+-        /** @var list<array{user: array{login: string}}> $reviewersRequest */
++        /** @var list<array{user: array{login: string}|null}> $reviewersRequest */
+         $reviewersRequest = $this->client->pullRequest()->reviews()->all($owner, $repository, (int) $id);
+-        $reviewers = array_map(static fn (array $reviewer): string => $reviewer['user']['login'], $reviewersRequest);
++
++        $reviewers = [];
++        foreach ($reviewersRequest as $review) {
++            // a review from a deleted GitHub account comes back without a user
++            if ($review['user'] !== null) {
++                $reviewers[] = $review['user']['login'];
++            }
++        }
+ 
+         return array_values(array_unique(array_merge($requestedReviewers, $reviewers)));
+     }

@@ -1,11 +1,20 @@
 {
     "require-dev": {
+        "cweagans/composer-patches": "^1.7",
         "shyim/danger-php": "^0.3.13"
     },
     "config": {
         "allow-plugins": {
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "cweagans/composer-patches": true
         },
         "sort-packages": true
+    },
+    "extra": {
+        "patches": {
+            "shyim/danger-php": {
+                "Skip reviews from deleted GitHub accounts (shyim/danger-php#911)": "patches/skip-reviews-from-deleted-users.patch"
+            }
+        }
     }
 }

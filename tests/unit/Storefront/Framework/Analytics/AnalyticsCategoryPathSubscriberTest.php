@@ -12,10 +12,14 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
@@ -101,6 +105,31 @@ class AnalyticsCategoryPathSubscriberTest extends TestCase
         $subscriber = new AnalyticsCategoryPathSubscriber($loader);
         $subscriber->addCategoryPaths($this->eventWithAnalytics('frontend.home.page', $page, $inactive));
         $subscriber->addCategoryPaths($this->eventWithAnalytics('frontend.home.page', $page, null));
+    }
+
+    /**
+     * A homepage can show its products through a listing element instead of sliders.
+     */
+    public function testAddsThePathsToAListingOnTheHomepage(): void
+    {
+        $product = $this->product('listed-product');
+
+        $loader = $this->createMock(AnalyticsCategoryPathLoader::class);
+        $loader->expects($this->once())->method('load')->willReturn(['listed-product' => ['Guitars']]);
+
+        $listing = new ProductListingStruct();
+        $listing->setListing(new EntitySearchResult(
+            $product->getApiAlias(),
+            1,
+            new ProductCollection([$product]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        ));
+
+        (new AnalyticsCategoryPathSubscriber($loader))->addCategoryPaths($this->event('frontend.home.page', $this->homepage($this->cmsPage($listing))));
+
+        static::assertEquals(new ArrayStruct(['Guitars']), $product->getExtension(AnalyticsCategoryPathSubscriber::EXTENSION));
     }
 
     /**

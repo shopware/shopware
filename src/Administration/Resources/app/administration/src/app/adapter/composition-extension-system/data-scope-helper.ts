@@ -1,15 +1,15 @@
 import type { ComponentInternalInstance } from '@vue/runtime-core';
 import type { Reactive, Ref, ShallowUnwrapRef, ToRefs } from 'vue';
-import { customRef, proxyRefs, reactive, toRef } from 'vue';
+import { customRef, proxyRefs } from 'vue';
 
 /**
  * @sw-package framework
  * @private
  *
- * Keeps script-setup override-local state available to component templates and block slots.
+ * Keeps script-setup state available to component templates and block slots.
  *
- * The composition extension system stores override-file-owned `__swOverride` data outside Vue's public instance
- * internals, then exposes a proxy-compatible data scope for consumers such as `sw-block`.
+ * The composition extension system stores the data scope outside Vue's public instance internals, then exposes it
+ * proxy-compatible for consumers such as `sw-block`.
  *
  * @example
  * const dataScope = createDataScope(reactiveSetupState);
@@ -17,32 +17,6 @@ import { customRef, proxyRefs, reactive, toRef } from 'vue';
  *
  * if (instance) setDataScopeForInstance(instance, dataScope);
  */
-
-/**
- * @private
- *
- * Names the non-enumerable setup-state property that stores override-file-owned local data.
- *
- * Use this key for generated override return values so multiple override files can contribute isolated fields.
- *
- * @example
- * const __swSetupNamespace = Symbol('sw-thing.override');   // module root, one per override file
- * return { __swOverride: { [__swSetupNamespace]: { message: 'Hello' } } };
- */
-export const OVERRIDE_LOCAL_STATE_KEY = '__swOverride' as const;
-
-/**
- * @private
- *
- * Stores override-local data by override-file namespace.
- *
- * Each top-level key belongs to one override source file, which lets multiple files from the same plugin merge their
- * local state without replacing each other.
- *
- * @example
- * const state: OverrideLocalState = { 'plugin/first-override.ts': { headline: 'Draft' } };
- */
-export type OverrideLocalState = Record<PropertyKey, Record<string, unknown>>;
 
 /**
  * Represents the proxy-compatible scope exposed to `sw-block` slot data.
@@ -57,29 +31,12 @@ type ScriptSetupDataScope = ShallowUnwrapRef<ToRefs<Reactive<object>>>;
 /**
  * @private
  *
- * Describes the `createExtendableSetup(...)` return value after the override-local state ref is attached.
- *
- * The `__swOverride` ref is intentionally non-enumerable so extension helpers can access it without exposing it as
- * ordinary public setup state.
+ * Describes the `createExtendableSetup(...)` return value: one ref per setup-state key.
  *
  * @example
  * const state: ExtendableSetupState<{ headline: string }> = createDataScope(reactiveSetupState);
  */
-export type ExtendableSetupState<TState extends object> = ToRefs<Reactive<TState>> & {
-    readonly [OVERRIDE_LOCAL_STATE_KEY]: Ref<Reactive<OverrideLocalState>>;
-};
-
-/**
- * Marks reactive setup state that already carries the hidden override-local state object.
- *
- * Use this shape at the data-scope boundary where `toRef(...)` needs the concrete `__swOverride` property.
- *
- * @example
- * createOverrideLocalStateRef(reactiveSetupState as ReactiveSetupStateWithOverrideLocalState<State>);
- */
-type ReactiveSetupStateWithOverrideLocalState<TState extends object> = Reactive<TState> & {
-    [OVERRIDE_LOCAL_STATE_KEY]: Reactive<OverrideLocalState>;
-};
+export type ExtendableSetupState<TState extends object> = ToRefs<Reactive<TState>>;
 
 const scriptSetupDataScopeByInstance = new WeakMap<ComponentInternalInstance, ScriptSetupDataScope>();
 
@@ -96,94 +53,6 @@ const scriptSetupDataScopeByInstance = new WeakMap<ComponentInternalInstance, Sc
 export function getScriptSetupDataScope(instance: ComponentInternalInstance): ScriptSetupDataScope | null {
     return scriptSetupDataScopeByInstance.get(instance) ?? null;
 }
-
-/**
- * @private
- *
- * Creates the reactive container for override-file-owned local fields.
- *
- * Use this once per extendable setup result before registered override files are applied.
- *
- * @example
- * const overrideLocalState = createOverrideLocalState();
- */
-export const createOverrideLocalState = (): Reactive<OverrideLocalState> => {
-    return reactive({}) as Reactive<OverrideLocalState>;
-};
-
-/**
- * @private
- *
- * Attaches override-local state to setup state without making it enumerable.
- *
- * Use this before creating the data scope so templates can resolve `__swOverride` while normal state iteration stays
- * unchanged.
- *
- * @example
- * exposeOverrideLocalState(setupState, overrideLocalState);
- */
-export const exposeOverrideLocalState = (target: object, overrideState: Reactive<OverrideLocalState>): void => {
-    Object.defineProperty(target, OVERRIDE_LOCAL_STATE_KEY, {
-        value: overrideState,
-        enumerable: false,
-    });
-};
-
-/**
- * Creates the ref used by Vue setup state for the hidden override-local state object.
- *
- * Use this only while building an `ExtendableSetupState`; callers should normally use `createDataScope(...)`.
- *
- * @example
- * const overrideRef = createOverrideLocalStateRef(reactiveSetupState);
- */
-const createOverrideLocalStateRef = <TState extends object>(
-    state: ReactiveSetupStateWithOverrideLocalState<TState>,
-): Ref<Reactive<OverrideLocalState>> => {
-    return toRef(state, OVERRIDE_LOCAL_STATE_KEY);
-};
-
-/**
- * @private
- *
- * Reads the hidden override-local state from reactive setup state.
- *
- * Use this when an override returns a `__swOverride` payload that should be merged into the existing namespace.
- *
- * @example
- * mergeOverrideState(getOverrideLocalState(reactiveSetupState), overrideResult.__swOverride);
- */
-export const getOverrideLocalState = (state: object): OverrideLocalState => {
-    return (state as Record<typeof OVERRIDE_LOCAL_STATE_KEY, OverrideLocalState>)[OVERRIDE_LOCAL_STATE_KEY];
-};
-
-/**
- * @private
- *
- * Narrows arbitrary override result keys to the override-local state key.
- *
- * Use this in override result loops before applying normal ref/computed/reactive merge behavior.
- *
- * @example
- * if (isOverrideLocalStateKey(key)) mergeOverrideState(target, value);
- */
-export const isOverrideLocalStateKey = (key: string): key is typeof OVERRIDE_LOCAL_STATE_KEY => {
-    return key === OVERRIDE_LOCAL_STATE_KEY;
-};
-
-/**
- * @private
- *
- * Merges override-file namespaces into the existing reactive state.
- *
- * Use this instead of assignment so later overrides add their file namespace without dropping earlier override fields.
- *
- * @example
- * mergeOverrideState(targetState, { 'plugin/second-override.ts': { message: 'Added' } });
- */
-export const mergeOverrideState = (targetState: OverrideLocalState, overrideState: OverrideLocalState): void => {
-    Object.assign(targetState, overrideState);
-};
 
 /**
  * Creates one writable ref for a property of the reactive setup state, without reading the property.
@@ -210,7 +79,7 @@ const createPropertyRef = (source: Record<string, unknown>, key: string): Ref<un
  *
  * Converts reactive setup state into the return shape expected from `createExtendableSetup(...)`.
  *
- * Use this after all setup state was made reactive so Vue ref unwrapping and the hidden `__swOverride` ref stay in sync.
+ * Use this after all setup state was made reactive, so every ref reads through to the current value of its key.
  *
  * @example
  * const dataScope = createDataScope(reactiveSetupState);
@@ -227,12 +96,6 @@ export const createDataScope = <TState extends object>(
         (state as Record<string, unknown>)[key] = createPropertyRef(source, key);
     }
 
-    Object.defineProperty(state, OVERRIDE_LOCAL_STATE_KEY, {
-        value: createOverrideLocalStateRef(reactiveSetupState as ReactiveSetupStateWithOverrideLocalState<TState>),
-        enumerable: false,
-        configurable: true,
-    });
-
     return state;
 };
 
@@ -241,7 +104,7 @@ export const createDataScope = <TState extends object>(
  *
  * Associates a component instance with its proxy-compatible script-setup data scope.
  *
- * Use this once the extendable setup state is ready so block slot data can resolve override-local fields later.
+ * Use this once the extendable setup state is ready so block slots can read it later.
  *
  * @example
  * setDataScopeForInstance(getCurrentInstance(), dataScope);

@@ -28,6 +28,7 @@ import {
     onErrorCaptured,
 } from 'vue';
 import type { Ref, ComputedRef, WatchOptions } from 'vue';
+import type { BlockScope } from './composition-extension-system/block-scope';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 
 // ─── Local types ────────────────────────────────────────────────────────────
@@ -77,6 +78,7 @@ export type OverrideFn<COMPONENT_NAME extends keyof ComponentPublicApiMapping & 
     previousState: ComponentState<COMPONENT_NAME>,
     props: ComponentState<COMPONENT_NAME>,
     context?: unknown,
+    blockScope?: BlockScope,
 ) => ComponentState<COMPONENT_NAME>;
 
 // ─── Lifecycle hook registry ─────────────────────────────────────────────────

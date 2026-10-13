@@ -12,36 +12,15 @@
  */
 
 import { NodeTypes, parse as parseTemplate, type TemplateChildNode } from '@vue/compiler-dom';
-import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import {
     type ElementNode,
-    collectTemplateReferences,
     getStaticSwBlockExtends,
     getStaticSwBlockName,
     isSwBlockExtends,
     isSwBlockName,
 } from './template-references';
-import {
-    assertNoWritesToForwardedBindings,
-    assertOverrideTemplateTopLevel,
-    assertSwBlockAttributes,
-    findOpeningTagAttributeEnd,
-    findOpeningTagNameEnd,
-} from './sw-block-bindings';
-
-/**
- * One `<sw-block extends>` whose content reads override-local bindings, and which therefore needs a
- * generated slot scope.
- *
- * `publicNames` are declared override bindings, which keep their own name in the scope; `privateNames`
- * are everything else the content reads, which the lowerer files under the override namespace.
- */
-type OverrideSlotScope = {
-    at: number;
-    publicNames: string[];
-    privateNames: string[];
-};
+import { assertOverrideTemplateTopLevel, assertSwBlockAttributes, findOpeningTagNameEnd } from './sw-block-bindings';
 
 /**
  * Where a template needs generated additions, plus the private setup bindings an override must return.
@@ -55,8 +34,6 @@ type TemplateAnalysis = {
     // Absolute offsets on override `<sw-block extends>` opening tags where the generated component name
     // is inserted. Base blocks receive their component name folded into the data-scope insertion instead.
     componentNameInsertions: number[];
-    slotScopes: OverrideSlotScope[];
-    privateBindings: Set<string>;
     // Static names of the base `<sw-block name="...">` blocks this component owns. Emitted so a later
     // branch can build a block-ownership registry (block name <-> owning component) and reject, at
     // compile time, overrides that extend a block whose owner cannot provide the override-local scope.
@@ -76,8 +53,6 @@ function emptyTemplateAnalysis(): TemplateAnalysis {
     return {
         dataScopeInsertions: [],
         componentNameInsertions: [],
-        slotScopes: [],
-        privateBindings: new Set<string>(),
         ownedBlockNames: [],
         extendedBlockNames: [],
     };
@@ -104,7 +79,7 @@ function forEachTemplateElement(nodes: TemplateChildNode[], visit: (element: Ele
 /**
  * Locates the slot scopes an override template needs, and the private bindings they forward.
  */
-function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSetupScriptAnalysis): TemplateAnalysis {
+function analyzeOverrideTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
     if (!block.template) {
         return emptyTemplateAnalysis();
     }
@@ -116,11 +91,8 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
     // An override template may only carry <sw-block extends> blocks at its top level.
     assertOverrideTemplateTopLevel(ast.children, templateOffset);
 
-    const slotScopes: OverrideSlotScope[] = [];
     const componentNameInsertions: number[] = [];
-    const privateBindings = new Set<string>();
     const extendedBlockNames: string[] = [];
-    const overrideLocalNames = new Set<string>(analysis.overrideEntries);
 
     forEachTemplateElement(ast.children, (element) => {
         if (element.tag === 'sw-block') {
@@ -135,62 +107,12 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
             }
 
             componentNameInsertions.push(templateOffset + findOpeningTagNameEnd(template.content, element.loc.start.offset));
-
-            const { references, writeTargets } = collectTemplateReferences(element.children, new Set());
-
-            // Forwarded bindings are read-only in the slot; reject template writes to them.
-            assertNoWritesToForwardedBindings(
-                writeTargets,
-                new Set([...analysis.runtimeBindingNames, ...analysis.runtimeInputAliasNames]),
-                templateOffset,
-            );
-
-            const publicNames: string[] = [];
-            const privateNames: string[] = [];
-
-            analysis.runtimeBindings.forEach((binding) => {
-                if (!references.has(binding.name)) {
-                    return;
-                }
-
-                // Public override bindings keep their own name in the slot scope; only private
-                // ones need the deterministic override namespace.
-                if (overrideLocalNames.has(binding.name)) {
-                    publicNames.push(binding.name);
-                    return;
-                }
-
-                privateBindings.add(binding.name);
-                privateNames.push(binding.name);
-            });
-
-            // Runtime input aliases (useSwPreviousState/useSwProps/useSwContext) are never public
-            // override bindings, but the override template can still reference them, so forward them
-            // through the private namespace like any other referenced setup local.
-            analysis.runtimeInputAliasNames.forEach((name) => {
-                if (!references.has(name) || privateBindings.has(name)) {
-                    return;
-                }
-
-                privateBindings.add(name);
-                privateNames.push(name);
-            });
-
-            if (publicNames.length > 0 || privateNames.length > 0) {
-                slotScopes.push({
-                    at: template.contentStart + findOpeningTagAttributeEnd(template.content, element.loc.start.offset),
-                    publicNames,
-                    privateNames,
-                });
-            }
         }
     });
 
     return {
         dataScopeInsertions: [],
         componentNameInsertions,
-        slotScopes,
-        privateBindings,
         ownedBlockNames: [],
         extendedBlockNames,
     };
@@ -231,8 +153,6 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
     return {
         dataScopeInsertions,
         componentNameInsertions: [],
-        slotScopes: [],
-        privateBindings: new Set<string>(),
         ownedBlockNames,
         extendedBlockNames: [],
     };
@@ -241,10 +161,4 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
 /**
  * @private
  */
-export {
-    type OverrideSlotScope,
-    type TemplateAnalysis,
-    analyzeBaseTemplate,
-    analyzeOverrideTemplate,
-    emptyTemplateAnalysis,
-};
+export { type TemplateAnalysis, analyzeBaseTemplate, analyzeOverrideTemplate, emptyTemplateAnalysis };

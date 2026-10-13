@@ -5,9 +5,15 @@
  * an already-executed native <script setup> body.
  */
 
-import { defineComponent, ref, computed, onBeforeMount } from 'vue';
+import { defineComponent, ref, computed, onBeforeMount, type Ref } from 'vue';
 import { mount } from '@vue/test-utils';
-import { attachOverrides, overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
+import {
+    attachOverrides,
+    getScriptSetupDataScope,
+    overrideComponentSetup,
+    renderInBlockScope,
+    _overridesMap,
+} from 'src/app/adapter/composition-extension-system';
 
 describe('src/app/adapter/composition-extension-system attachOverrides', () => {
     beforeEach(() => {
@@ -191,28 +197,33 @@ describe('src/app/adapter/composition-extension-system attachOverrides', () => {
         expect(observed).toBe(1);
     });
 
-    it('override-local state reaches the data scope', async () => {
-        let scope: Record<string, unknown> | undefined;
+    it('hydrates the bindings of a grouped result per base instance', async () => {
+        let runs = 0;
+        const { msg } = overrideComponentSetup()('extendableLocal', () => {
+            runs += 1;
+
+            return { override: {}, local: { msg: ref(`local ${runs}`) } };
+        });
 
         const base = defineComponent({
             template: '<div>{{ count }}</div>',
             setup() {
                 const count = ref(1);
-                scope = attachOverrides({
-                    name: 'extendableLocal',
-                    public: { count },
-                }) as unknown as Record<string, unknown>;
+                attachOverrides({ name: 'extendableLocal', public: { count } });
                 return { count };
             },
         });
 
-        mount(base);
-        overrideComponentSetup()('extendableLocal', () => {
-            return { __swOverride: { 'plugin/a': { msg: 'local' } } } as never;
-        });
+        const first = mount(base);
+        const second = mount(base);
         await flushPromises();
 
-        expect((scope!.__swOverride as { value: unknown }).value).toEqual({ 'plugin/a': { msg: 'local' } });
+        // What `<sw-block>` does for override content: read the binding while the block of one instance renders.
+        const readMsg = (wrapper: ReturnType<typeof mount>) =>
+            renderInBlockScope(getScriptSetupDataScope(wrapper.vm.$)!, () => [(msg as Ref<string>).value] as never);
+
+        expect(readMsg(first)).toEqual(['local 1']);
+        expect(readMsg(second)).toEqual(['local 2']);
     });
 
     it('un-renamed shape: a computed replacement does NOT reach a template binding the raw author computed', async () => {

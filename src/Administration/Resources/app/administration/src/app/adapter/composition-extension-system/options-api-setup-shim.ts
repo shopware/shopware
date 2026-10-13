@@ -15,14 +15,7 @@ import { computed, customRef, getCurrentInstance, isReadonly, isRef, unref } fro
 import type { ComponentInternalInstance, SetupContext } from '@vue/runtime-core';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import { _overridesMap } from './index';
-import {
-    createOverrideLocalState,
-    exposeOverrideLocalState,
-    getOverrideLocalState,
-    isOverrideLocalStateKey,
-    mergeOverrideState,
-} from './data-scope-helper';
-import type { OverrideLocalState } from './data-scope-helper';
+import { getBlockScope } from './block-scope';
 
 type AnyRecord = Record<string, unknown>;
 type SetupResult = AnyRecord | undefined;
@@ -61,13 +54,6 @@ export function attachSetupOverrideShim(componentName: string, config: Component
         }
 
         const bag: AnyRecord = originalResult ?? {};
-
-        // Override-file-local bindings (`__swOverride`) are nested one level down, where Vue's setupState
-        // unwrapping no longer reaches. A reactive container unwraps refs on access at any depth, and
-        // lets several override files merge their namespaces instead of replacing each other - the same
-        // shape createExtendableSetup() gives migrated components. Non-enumerable, so the per-override
-        // previousState snapshot (`{ ...bag }`) never picks it up.
-        exposeOverrideLocalState(bag, createOverrideLocalState());
 
         const instance = getCurrentInstance();
 
@@ -133,7 +119,7 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                     get: (_target, key) => {
                         // Vue probes objects with `__v_isRef`, `__v_raw` & co and with symbol keys.
                         // Answering those with an accessor would make the proxy itself look like a ref.
-                        if (typeof key !== 'string' || key.startsWith('__v_') || isOverrideLocalStateKey(key)) {
+                        if (typeof key !== 'string' || key.startsWith('__v_')) {
                             return undefined;
                         }
 
@@ -220,6 +206,9 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                 expose: () => {},
             } as SetupContext;
 
+            // `sw-block` receives the instance proxy as the data scope of a Twig component.
+            const blockScope = getBlockScope(instance.proxy!);
+
             // Vue activates the component's effect scope around lifecycle hooks, so watchers and
             // computeds the overrides create here are disposed on unmount without further handling.
             _overridesMap[componentName].forEach((override) => {
@@ -227,18 +216,13 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                 // everything earlier overrides installed, so override N sees N-1 - but not its own
                 // result, which is only written after the call. That keeps the read from looping.
                 const previousState = createPreviousState({ ...bag });
-                const result = override(previousState as never, instance.props as never, context) as AnyRecord;
+                const result = override(previousState as never, instance.props as never, context, blockScope) as AnyRecord;
 
                 if (result === undefined) {
                     return;
                 }
 
                 Object.keys(result).forEach((key) => {
-                    if (isOverrideLocalStateKey(key)) {
-                        mergeOverrideState(getOverrideLocalState(bag), result[key] as OverrideLocalState);
-                        return;
-                    }
-
                     bag[key] = routeBaseWrites(key, result[key]);
                     // Vue memoises which bucket a key resolved from on first access. Anything that read the
                     // key earlier - an immediate watcher, a preceding created hook - pinned it to `data`,

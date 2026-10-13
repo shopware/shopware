@@ -8,8 +8,9 @@
  * The generated block stays a plain `<script setup>` whose body registers the override callback: the
  * hidden component mounts once at boot (sw-admin renders all registered override components in a
  * hidden container), which runs the registration and renders the template so `<sw-block extends>`
- * content is picked up. User code is preserved inside the callback and only declared replacements
- * plus template-used private locals are returned, namespaced per file.
+ * content is picked up. User code is preserved inside the callback, which returns the declared
+ * replacements and the locals the template reads. The registration call returns one binding per name,
+ * which the template is compiled against.
  *
  * The callback body is not re-indented - the transform does not beautify its output.
  */
@@ -17,61 +18,50 @@
 import { fromSource, generated, type SourceChunk } from '../source-edits/chunks';
 import type { SourceEdit } from '../source-edits/apply-source-edits';
 import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
-import type { OverrideSlotScope, TemplateAnalysis } from '../template-analyzer';
+import type { TemplateAnalysis } from '../template-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import { escapeSingleQuoted } from './shared';
-import { OVERRIDE_NAMESPACE_BINDING } from '../script-analyzer/macros';
 import { transformRanges } from '../source-edits/transform-ranges';
 
 /**
- * Builds the override callback payload from declared replacements and template-used private aliases.
+ * Lists the override locals its template can reach: every runtime binding that is not a declared
+ * replacement, plus the runtime input aliases.
  */
-function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis, overridePrivateBindings: Set<string>): string {
-    const privateBindings = Array.from(overridePrivateBindings);
-
-    if (analysis.overrideEntries.length === 0 && privateBindings.length === 0) {
-        return 'return {};';
+function getOverrideLocalNames(block: ShopwareSetupBlock, analysis: OverrideSetupScriptAnalysis): string[] {
+    if (!block.template) {
+        return [];
     }
 
-    const lines = ['return {', ...analysis.overrideEntries.map((property) => `    ${property},`)];
+    const overrideEntries = new Set(analysis.overrideEntries);
+    const bindingNames = analysis.runtimeBindings.map((binding) => binding.name);
 
-    if (privateBindings.length > 0) {
-        lines.push(
-            '    __swOverride: {',
-            `        [${OVERRIDE_NAMESPACE_BINDING}]: {`,
-            ...privateBindings.map((localName) => `            ${localName},`),
-            '        },',
-            '    },',
-        );
-    }
-
-    lines.push('};');
-
-    return lines.join('\n');
+    return Array.from(new Set([...bindingNames, ...analysis.runtimeInputAliasNames])).filter(
+        (name) => !overrideEntries.has(name),
+    );
 }
 
 /**
- * The generated `#default` slot scope that carries override-local bindings into `<sw-block extends>`
- * content.
- *
- * Declared override bindings destructure under their own name; everything else the content reads goes
- * through the module's namespace symbol, emitted as a **computed** key so the pattern destructures by
- * that Symbol rather than by a literal name. Authoring `#default` on `<sw-block>` is rejected, so there
- * is never a user pattern to merge with.
+ * Builds the callback's return value: `override` replaces base state, `local` only feeds the template.
  */
-function toSlotScopeEdit(scope: OverrideSlotScope): SourceEdit {
-    const mappings = [
-        ...(scope.privateNames.length > 0
-            ? [`__swOverride: { [${OVERRIDE_NAMESPACE_BINDING}]: { ${scope.privateNames.join(', ')} } }`]
-            : []),
-        ...scope.publicNames,
-    ];
+function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis, localNames: string[]): string {
+    const group = (names: string[]) => (names.length > 0 ? `{ ${names.join(', ')} }` : '{}');
 
-    return {
-        start: scope.at,
-        end: scope.at,
-        replacement: ` #default="{ ${mappings.join(', ')} }"`,
-    };
+    return [
+        'return {',
+        `    override: ${group(analysis.overrideEntries)},`,
+        `    local: ${group(localNames)},`,
+        '};',
+    ].join('\n');
+}
+
+/**
+ * Builds the destructuring that receives the bindings the template is compiled against, one per name
+ * the callback returns. Empty for an override without a template, which reads none.
+ */
+function buildBindingsDeclaration(block: ShopwareSetupBlock, analysis: OverrideSetupScriptAnalysis, localNames: string[]) {
+    const names = block.template ? [...localNames, ...analysis.overrideEntries] : [];
+
+    return names.length > 0 ? `const { ${names.join(', ')} } = ` : '';
 }
 
 /**
@@ -92,8 +82,8 @@ function toComponentNameEdit(at: number, componentName: string): SourceEdit {
  * Lowers override mode into a hidden override component consumed by
  * registerOverrideComponent.
  *
- * Emits the script content, one slot scope per `<sw-block extends>` that forwards bindings, and a
- * generated `<template>` when the override has none - the hidden component only registers its callback
+ * Emits the script content, the component name on every `<sw-block extends>`, and a generated
+ * `<template>` when the override has none - the hidden component only registers its callback
  * once it mounts, and Vue warns about a component with neither template nor render function.
  */
 function buildOverrideScript(
@@ -115,6 +105,7 @@ function buildOverrideScript(
         ...analysis.markerStatements,
     ]);
     const chunks: SourceChunk[] = [generated('\n')];
+    const localNames = getOverrideLocalNames(block, analysis);
 
     analysis.imports.forEach((importBlock) => {
         chunks.push(fromSource(block, importBlock));
@@ -130,23 +121,8 @@ function buildOverrideScript(
         generated(`const useSwProps = () => ${propsName};\n`),
         generated(`const useSwContext = () => ${contextName};\n\n`),
         ...callbackBody,
-        generated(`\n\n${buildOverrideReturn(analysis, templateAnalysis.privateBindings)}`),
+        generated(`\n\n${buildOverrideReturn(analysis, localNames)}`),
     ];
-
-    // Only needed when this override actually forwards private locals into a <sw-block extends> scope;
-    // an override that only replaces public bindings has nothing to file under the namespace.
-    //
-    // Declared at module root, NOT inside the callback: the callback runs once per base-component
-    // instance, so a symbol created there would be a different value every time and the state lookup
-    // would never match. Module scope evaluates once, giving one stable symbol per override file - and it
-    // stays template-visible, so the generated computed key resolves.
-    if (templateAnalysis.privateBindings.size > 0) {
-        chunks.push(
-            generated(
-                `const ${OVERRIDE_NAMESPACE_BINDING} = Symbol('${escapeSingleQuoted(block.componentName)}.override');\n\n`,
-            ),
-        );
-    }
 
     analysis.typeDeclarations.forEach((typeDeclaration) => {
         chunks.push(fromSource(block, typeDeclaration));
@@ -159,7 +135,7 @@ function buildOverrideScript(
 
     chunks.push(
         generated(
-            `Shopware.Component.overrideComponentSetup()('${escapeSingleQuoted(block.componentName)}', (${previousStateName}, ${propsName}, ${contextName}) => {`,
+            `${buildBindingsDeclaration(block, analysis, localNames)}Shopware.Component.overrideComponentSetup()('${escapeSingleQuoted(block.componentName)}', (${previousStateName}, ${propsName}, ${contextName}) => {`,
         ),
         generated('\n'),
         ...body,
@@ -175,7 +151,6 @@ function buildOverrideScript(
     return [
         ...buildNativeExtensionTargetsEdits(block, templateAnalysis, placeholderTemplate),
         ...templateAnalysis.componentNameInsertions.map((at) => toComponentNameEdit(at, block.componentName)),
-        ...templateAnalysis.slotScopes.map(toSlotScopeEdit),
         {
             start: block.contentStart,
             end: block.contentEnd,

@@ -24,10 +24,6 @@ describe('build/vue-setup-transform setup markers', () => {
             'if (true) { swDefinePublic({ count }); }',
             'A base Shopware setup component must declare its extension surface.',
         ],
-        [
-            'const __swOverride = {}; swDefinePublic({ __swOverride });',
-            '"__swOverride" is reserved for Shopware override-private state and cannot be exposed with swDefinePublic().',
-        ],
     ])('rejects invalid swDefinePublic usage: %s', (publicMarker, expectedMessage) => {
         const source = stripIndent`
             <script setup>
@@ -185,10 +181,6 @@ describe('build/vue-setup-transform setup markers', () => {
             'swDefineOverride() must be called exactly once at the top level',
         ],
         ['swDefineOverride({ count, count });', 'Duplicate override Shopware setup binding key "count".'],
-        [
-            'const __swOverride = {}; swDefineOverride({ __swOverride });',
-            '"__swOverride" is reserved for Shopware override-private state and cannot be exposed with swDefineOverride().',
-        ],
     ])('rejects invalid swDefineOverride usage: %s', (overrideMarker, expectedMessage) => {
         const source = stripIndent`
             <script setup>

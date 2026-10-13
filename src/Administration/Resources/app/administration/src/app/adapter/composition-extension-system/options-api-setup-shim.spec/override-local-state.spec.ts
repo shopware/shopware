@@ -7,10 +7,47 @@ import { computed, ref } from 'vue';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import swBlock from 'src/app/component/structure/sw-block-override/sw-block/index';
 import { attachSetupOverrideShim } from '../options-api-setup-shim';
-import { _overridesMap } from '../index';
+import { _overridesMap, overrideComponentSetup } from '../index';
 
 // What the shim hands to an override: every base-state key served as a ref-like accessor.
 type PreviousState = Record<string, { value: unknown }>;
+
+/**
+ * What the Vite transform makes of an override SFC: the hidden component exposes the bindings
+ * `overrideComponentSetup()` returned, and its `<sw-block extends>` content reads them.
+ */
+function createOverrideComponent(bindings: Record<string, unknown>, blockContent: string) {
+    return {
+        components: {
+            'sw-block': swBlock,
+            'margin-hint': {
+                props: { margin: { type: Number, required: true } },
+                template: '<span class="margin">{{ margin + 1 }}</span>',
+            },
+        },
+        setup: () => bindings,
+        template: `
+            <sw-block extends="sw-shim-local-block" sw-internal-component-name="sw-shim-local">
+                <sw-block-parent />
+                ${blockContent}
+            </sw-block>`,
+    };
+}
+
+function createBaseConfig(): ComponentConfig {
+    const config = {
+        components: { 'sw-block': swBlock },
+        props: { price: { type: Number, required: true } },
+        template: `
+            <sw-block name="sw-shim-local-block" sw-internal-component-name="sw-shim-local" :data="$dataScope">
+                <span class="price">{{ price }}</span>
+            </sw-block>`,
+    } as unknown as ComponentConfig;
+
+    attachSetupOverrideShim('sw-shim-local', config);
+
+    return config;
+}
 
 describe('src/app/adapter/composition-extension-system/options-api-setup-shim - override-local state', () => {
     beforeEach(() => {
@@ -19,80 +56,47 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim - 
         });
     });
 
-    it('serves override-local state unwrapped through the data scope of a block', async () => {
-        // What the Vite override transform emits for a binding only the override template uses: filed
-        // under `__swOverride` by file namespace, and destructured from the `<sw-block>` slot scope.
-        const namespace = Symbol('sw-shim-local.override');
+    it('serves each Twig instance its own override-local value inside its block', async () => {
+        const { margin } = overrideComponentSetup()('sw-shim-local', (previousState) => ({
+            override: {},
+            local: { margin: computed(() => Number((previousState as PreviousState).price.value) / 10) },
+        }));
 
-        _overridesMap['sw-shim-local'] = [
-            (previousState: PreviousState) => ({
-                __swOverride: {
-                    [namespace]: { margin: computed(() => Number(previousState.price.value) / 10) },
-                },
-            }),
-        ] as never;
-
-        const config = {
-            components: {
-                'sw-block': swBlock,
-                'margin-hint': {
-                    props: { margin: { type: Number, required: true } },
-                    template: '<span>{{ margin + 1 }}</span>',
-                },
-            },
-            template: `
-                <sw-block name="sw-shim-local-block" sw-internal-component-name="sw-shim-local" :data="$dataScope">
-                    <template #default="{ __swOverride: { [namespace]: { margin } } }">
-                        <margin-hint :margin="margin" />
-                    </template>
-                </sw-block>`,
-            data() {
-                return { price: 100, namespace };
-            },
-        } as unknown as ComponentConfig;
-
-        attachSetupOverrideShim('sw-shim-local', config);
-
-        const wrapper = mount(config as never);
+        const hidden = mount(createOverrideComponent({ margin }, '<margin-hint :margin="margin" />'));
+        const config = createBaseConfig();
+        const first = mount(config as never, { props: { price: 100 } as never });
+        const second = mount(config as never, { props: { price: 200 } as never });
         await flushPromises();
 
-        // setupState only unwraps top-level refs. Without the reactive container the child would
-        // receive the ComputedRef itself and render "NaN"; interpolation would hide that because
-        // toDisplayString() unwraps.
-        expect(wrapper.text()).toBe('11');
+        // Props receive the unwrapped value: the binding acts as the computed while the block renders.
+        expect(first.find('.margin').text()).toBe('11');
+        expect(second.find('.margin').text()).toBe('21');
+
+        hidden.unmount();
     });
 
-    it('merges the override-local state of several override files and hides it from previousState', async () => {
-        const first = Symbol('first.override');
-        const second = Symbol('second.override');
-        let seenByLaterOverride: unknown = 'not read';
+    it('keeps the locals of two override files apart even when they share a name', async () => {
+        const firstFile = overrideComponentSetup()('sw-shim-local', () => ({
+            override: {},
+            local: { label: ref('first file') },
+        }));
+        const secondFile = overrideComponentSetup()('sw-shim-local', () => ({
+            override: {},
+            local: { label: ref('second file') },
+        }));
 
-        _overridesMap['sw-shim-local-merge'] = [
-            () => ({ __swOverride: { [first]: { a: ref(1) } } }),
-            (previousState: PreviousState) => {
-                seenByLaterOverride = previousState.__swOverride;
-
-                return { __swOverride: { [second]: { b: ref(2) } } };
-            },
-        ] as never;
-
-        const config = {
-            template: '<p />',
-        } as unknown as ComponentConfig;
-
-        attachSetupOverrideShim('sw-shim-local-merge', config);
-
-        const wrapper = mount(config as never);
+        const hiddenFirst = mount(
+            createOverrideComponent({ label: firstFile.label }, '<span class="label">{{ label }}</span>'),
+        );
+        const hiddenSecond = mount(
+            createOverrideComponent({ label: secondFile.label }, '<span class="label">{{ label }}</span>'),
+        );
+        const wrapper = mount(createBaseConfig() as never, { props: { price: 100 } as never });
         await flushPromises();
 
-        // `$dataScope` falls back to the instance proxy for Twig components, so this is what the block
-        // slot scope reads. Assigning instead of merging would drop the first file's namespace and make
-        // its generated slot scope destructure from undefined.
-        const localState = (wrapper.vm as unknown as Record<string, Record<symbol, Record<string, unknown>>>).__swOverride;
-        expect(localState[first].a).toBe(1);
-        expect(localState[second].b).toBe(2);
+        expect(wrapper.findAll('.label').map((label) => label.text())).toEqual(['first file', 'second file']);
 
-        // Override-local state is template plumbing, not base state; migrated components hide it too.
-        expect(seenByLaterOverride).toBeUndefined();
+        hiddenFirst.unmount();
+        hiddenSecond.unmount();
     });
 });

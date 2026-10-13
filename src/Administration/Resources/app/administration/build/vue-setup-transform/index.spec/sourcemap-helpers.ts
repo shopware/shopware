@@ -190,8 +190,8 @@ export function expectUnmapped(result: TransformResult, generatedNeedle: string,
  * Asserts that an entire generated token stays unmapped for both source-map lookup biases.
  *
  * Use this for bridge code inserted next to user-authored code, such as
- * `(__shopwareSetupBindings.props)`, `:data="$dataScope"`, or generated `__swOverride`
- * aliases. The helper checks the start, middle, and end of the token with both
+ * `(__shopwareSetupBindings.props)`, `:data="$dataScope"`, or the binding groups an override returns.
+ * The helper checks the start, middle, and end of the token with both
  * `GREATEST_LOWER_BOUND` and `LEAST_UPPER_BOUND`.
  *
  * Expected result: every lookup returns `{ source: null, line: null, column: null }`, proving

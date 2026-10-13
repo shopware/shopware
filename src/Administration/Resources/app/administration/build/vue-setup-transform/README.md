@@ -53,16 +53,16 @@ developers working on the transform itself.
   generated script root so hoisted macros can still resolve the names.
 - **Source edit** — a range of the SFC plus the chunks that replace it. **Lowering produces every one of
   them**, including the ones outside the script block (an override's generated `<template>`, a base
-  `<sw-block>`'s `:data="$dataScope"`, an override block's `#default` slot scope). Both analyses report
+  `<sw-block>`'s `:data="$dataScope"`, an override block's `sw-internal-component-name`). Both analyses report
   positions and names; no generated syntax is decided outside `lower/`.
 - **Marker statements / rename targets** — locations the analyzer reports, never edits. Override lowering
   strips imports, type declarations and markers from the body it moves into the callback; base lowering
   strips only the markers and rewrites every rename target to its author alias, because its body never
   moves. Which ranges are removed, and what a rename is replaced with, belongs to the lowerer.
-- **Override-private namespace** — the module-root `Symbol()` (bound to `__swSetupNamespace`) used as a
-  **computed** key under the reserved `__swOverride` slot-scope channel, through which an override's
-  non-public bindings reach its `<sw-block extends>` template content. Emitted only when the override
-  actually forwards locals. Uniqueness comes from the symbol, so the binding name can be fixed.
+- **Override bindings** — what `overrideComponentSetup()` returns and the override destructures at the
+  script root: one proxy per binding the callback declares, which the override template is compiled
+  against. The callback returns its values as `{ override, local }`; each base instance stores them in its
+  own block scope, keyed by proxy, so a binding reads the value of the instance whose block is rendering.
 - **Chunks** — the source IR: `generated` (compiler-owned text) and `original` (a slice of the author's
   SFC, kept addressable for sourcemaps). There is no re-indent or trim wrapper: the transform does not
   beautify its output, so copied lines keep their original columns.

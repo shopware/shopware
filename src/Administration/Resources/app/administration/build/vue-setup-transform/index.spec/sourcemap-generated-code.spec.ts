@@ -89,7 +89,7 @@ describe('build/vue-setup-transform sourcemap generated code', () => {
         expectGeneratedTokenUnmapped(result, `sw-internal-component-name='template-data-scope'`);
     });
 
-    it('does not map generated override default slot scopes to user-authored template source', () => {
+    it('does not map the generated binding groups of an override to user-authored source', () => {
         expect.hasAssertions();
 
         const source = stripIndent`
@@ -111,9 +111,8 @@ describe('build/vue-setup-transform sourcemap generated code', () => {
 
         const result = transformOrFail(source, 'template-slot-merge.override.vue');
 
-        // The whole #default scope is transform-generated, so its tokens must stay unmapped.
-        expect(result.code).toContain('__swOverride');
-        expectGeneratedTokenUnmapped(result, '__swOverride');
+        expect(result.code).toContain('local: { info }');
+        expectGeneratedTokenUnmapped(result, 'local: { info }');
     });
 
     it('does not map the generated no-template override registration template', () => {

@@ -13,19 +13,15 @@ import { syncRef } from '@vueuse/core';
 import type { ComponentInternalInstance, SetupContext, PublicProps } from '@vue/runtime-core';
 import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from '../options-composition-shim';
 import type { OverrideFn } from '../options-composition-shim';
-import {
-    createDataScope,
-    createOverrideLocalState,
-    exposeOverrideLocalState,
-    getOverrideLocalState,
-    isOverrideLocalStateKey,
-    mergeOverrideState,
-    setDataScopeForInstance,
-} from './data-scope-helper';
-import type { ExtendableSetupState, OverrideLocalState } from './data-scope-helper';
+import { createDataScope, getScriptSetupDataScope, setDataScopeForInstance } from './data-scope-helper';
+import type { ExtendableSetupState } from './data-scope-helper';
+import { attachBlockScope, createOverrideBindings, hydrateOverrideBindings } from './block-scope';
+import type { BlockScope } from './block-scope';
 
 /** @private */
 export { getScriptSetupDataScope } from './data-scope-helper';
+/** @private */
+export { renderInBlockScope } from './block-scope';
 
 /**
  * @private
@@ -199,22 +195,10 @@ type PreviousStateForOverride<TPublicState extends object, TPrivateState extends
 };
 
 /**
- * Lists setup-state keys that should be visible to override callbacks.
- *
- * Use this before building the previous-state snapshot so hidden override-local fields stay internal.
- *
- * @example
- * const keys = getOverrideVisibleStateKeys(setupState);
- */
-const getOverrideVisibleStateKeys = (state: object): string[] => {
-    return Object.keys(state).filter((key) => !isOverrideLocalStateKey(key));
-};
-
-/**
  * Builds the previous-state snapshot passed to one override callback.
  *
- * This filters setup state to only include the public setup result at the top level, adds private setup values under
- * `_private`, and leaves hidden override-local fields out of the callback payload.
+ * This filters setup state to only include the public setup result at the top level, and adds private setup values
+ * under `_private`.
  *
  * @example
  * const previousState = createPreviousStateForOverride(setupState, publicSetupState);
@@ -226,7 +210,7 @@ const createPreviousStateForOverride = <TPublicState extends object, TPrivateSta
     const setupStateAsRecord = setupState as Record<string, unknown>;
     const publicStateKeys = Object.keys(publicState);
 
-    return getOverrideVisibleStateKeys(setupState).reduce<PreviousStateForOverride<TPublicState, TPrivateState>>(
+    return Object.keys(setupState).reduce<PreviousStateForOverride<TPublicState, TPrivateState>>(
         (previousState, key) => {
             if (publicStateKeys.includes(key)) {
                 (previousState as Record<string, unknown>)[key] = setupStateAsRecord[key];
@@ -303,8 +287,7 @@ export function createExtendableSetup<
         ...publicSetupState,
         ...privateSetupState,
     };
-    const overrideLocalState = createOverrideLocalState();
-    exposeOverrideLocalState(setupState, overrideLocalState);
+    const blockScope: BlockScope = new WeakMap();
 
     // Check if any prop value was returned from the original setup
     Object.keys(options.props).forEach((key) => {
@@ -378,7 +361,7 @@ export function createExtendableSetup<
             // Apply the override with a destructured copy of the wrapped state to prevent calling himself
             let overrideResult: ReturnType<typeof override>;
             try {
-                overrideResult = override({ ...previousStateForOverride }, options.props, componentContext);
+                overrideResult = override({ ...previousStateForOverride }, options.props, componentContext, blockScope);
             } catch (e) {
                 // Mark as applied to prevent infinite retry loops when subsequent overrides are added,
                 // then re-throw so Vue's error handling (onErrorCaptured / app.config.errorHandler) takes over.
@@ -388,11 +371,6 @@ export function createExtendableSetup<
 
             // Process each property in the override result
             Object.keys(overrideResult).forEach((key) => {
-                if (isOverrideLocalStateKey(key)) {
-                    mergeOverrideState(getOverrideLocalState(reactiveSetupState), overrideResult[key] as OverrideLocalState);
-                    return;
-                }
-
                 // Skip if the key is a prop, as props should not be overridden
                 if (Object.keys(options.props).includes(key)) {
                     console.error(
@@ -479,6 +457,7 @@ export function createExtendableSetup<
 
     if (instance) {
         setDataScopeForInstance(instance, state);
+        attachBlockScope(getScriptSetupDataScope(instance)!, blockScope);
     }
 
     return state;
@@ -496,12 +475,53 @@ type ExtractedProps<T> = Omit<
 >;
 
 /**
+ * The return shape of a generated override callback: `override` replaces base state, `local` is only
+ * read by the override's own template.
+ */
+type GroupedOverrideResult = {
+    override: Record<string, unknown>;
+    local: Record<string, unknown>;
+};
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+    typeof value === 'object' &&
+    value !== null &&
+    !isRef(value) &&
+    !isReactive(value) &&
+    Object.getPrototypeOf(value) === Object.prototype;
+
+/**
+ * Tells a grouped result apart from a flat one, which maps base keys straight to replacements.
+ *
+ * Unambiguous because a flat replacement is never a plain object: it is a ref, computed, reactive
+ * object or function.
+ */
+const isGroupedOverrideResult = (result: unknown): result is GroupedOverrideResult => {
+    if (!isPlainObject(result)) {
+        return false;
+    }
+
+    const keys = Object.keys(result);
+
+    return keys.length > 0 && keys.every((key) => (key === 'override' || key === 'local') && isPlainObject(result[key]));
+};
+
+/**
  * @private
  *
- * Registers a setup override callback for one extendable component.
+ * Registers a setup override callback for one extendable component, and returns the bindings its
+ * template reads.
  *
- * Generated override SFCs call this during their hidden component setup so the base component can
- * apply replacement bindings when its own extendable setup wrapper runs.
+ * Generated override SFCs call this during their hidden component setup and destructure every binding
+ * their callback declares. The callback runs once per base instance; each run stores its `override` and
+ * `local` values in that instance's block scope, so a binding reads the value of the instance whose
+ * block is rendering.
+ *
+ * @example
+ * const { suffix } = Shopware.Component.overrideComponentSetup()('sw-example', () => {
+ *     const suffix = ref('!');
+ *     return { override: {}, local: { suffix } };
+ * });
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function overrideComponentSetup<TOriginalComponent>() {
@@ -511,15 +531,32 @@ export function overrideComponentSetup<TOriginalComponent>() {
             previousState: ComponentPublicApiMapping[TComponentName],
             props: ExtractedProps<TOriginalComponent>,
             context: SetupContext,
-        ) => ReturnType<OverrideFn>,
-    ): void {
+        ) => ReturnType<OverrideFn> | GroupedOverrideResult,
+    ): Record<string, any> {
         // Initialize the overrides array for this component if it doesn't exist
         if (!_overridesMap[componentName]) {
             _overridesMap[componentName] = reactive([]);
         }
 
-        // Cast required: typed generics → internal OverrideFn (parameter types are contravariant)
-        _overridesMap[componentName].push(override as unknown as OverrideFn);
+        const bindings = createOverrideBindings();
+
+        const registeredOverride: OverrideFn = (previousState, props, context, blockScope) => {
+            const result = override(previousState as never, props as never, context as SetupContext);
+
+            if (!isGroupedOverrideResult(result)) {
+                return result;
+            }
+
+            if (blockScope) {
+                hydrateOverrideBindings(blockScope, bindings, { ...result.local, ...result.override });
+            }
+
+            return result.override;
+        };
+
+        _overridesMap[componentName].push(registeredOverride);
+
+        return bindings;
     };
 }
 

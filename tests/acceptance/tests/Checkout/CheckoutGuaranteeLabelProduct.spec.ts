@@ -165,7 +165,9 @@ const testLegalGuaranteeNotice = (showTosCheckbox: boolean) =>
                 await ShopCustomer.goesTo(StorefrontAccountOrder.url());
                 const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber, product.productNumber);
                 await ShopCustomer.presses(orderLocators.orderDetailButton);
-                await ShopCustomer.expects(orderLocators.lineItemGaranLabel).toHaveText(expectedGuaranteeDuration);
+                await ShopCustomer.expects(orderLocators.lineItemGaranLabel.locator('tspan')).toHaveText(
+                    expectedGuaranteeDuration,
+                );
             });
         },
     );

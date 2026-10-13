@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -22,15 +21,10 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
-use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
-use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
-use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
@@ -149,8 +143,7 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             $calculator,
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class),
-            static::createStub(GaranLabelResolver::class),
+            static::createStub(Connection::class)
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -219,8 +212,7 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             $calculator,
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class),
-            static::createStub(GaranLabelResolver::class),
+            static::createStub(Connection::class)
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -268,8 +260,7 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class),
-            static::createStub(GaranLabelResolver::class),
+            static::createStub(Connection::class)
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -310,8 +301,7 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class),
-            static::createStub(GaranLabelResolver::class),
+            static::createStub(Connection::class)
         );
 
         $originalCart = new Cart('test');
@@ -366,8 +356,7 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class),
-            static::createStub(GaranLabelResolver::class),
+            static::createStub(Connection::class)
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -418,8 +407,7 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class),
-            static::createStub(GaranLabelResolver::class),
+            static::createStub(Connection::class)
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -447,70 +435,5 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame(0.5, $refPriceDef->getPurchaseUnit());
         static::assertSame(1.0, $refPriceDef->getReferenceUnit());
         static::assertSame('kg', $refPriceDef->getUnitName());
-    }
-
-    /**
-     * @return \Generator<string, array{array<string, mixed>, bool, array<string, int|string>|null}>
-     */
-    public static function garanLabelProvider(): \Generator
-    {
-        $placedWith = ['guaranteeMonths' => 42, 'brand' => 'ACME', 'modelIdentifier' => 'ACME-36'];
-        $current = ['guaranteeMonths' => 36, 'brand' => 'ACME', 'modelIdentifier' => 'ACME-36'];
-
-        yield 'a cart stores the current label' => [[], false, $current];
-        yield 'a cart replaces a label stored earlier with the current one' => [['garanLabel' => $placedWith], false, $current];
-        yield 'an edited order keeps the label it was placed with' => [['garanLabel' => $placedWith], true, $placedWith];
-        yield 'an edited order keeps having no label' => [['garanLabel' => null], true, null];
-        yield 'a product added to an edited order gets the current label' => [[], true, $current];
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     * @param array<string, int|string>|null $expected
-     */
-    #[DataProvider('garanLabelProvider')]
-    public function testStoresTheGaranLabelInThePayload(array $payload, bool $isExistingOrder, ?array $expected): void
-    {
-        $cart = new Cart('test');
-        $lineItem = (new LineItem('A', 'product', 'A'))->setPayload($payload);
-
-        $cart->setLineItems(new LineItemCollection([$lineItem]));
-
-        $manufacturer = new ProductManufacturerEntity();
-        $manufacturer->setTranslated(['name' => 'ACME']);
-
-        $product = (new SalesChannelProductEntity())->assign([
-            'id' => 'A',
-            'calculatedPrice' => new EmptyPrice(),
-            'calculatedPrices' => new PriceCollection(),
-            'calculatedMaxPurchase' => 1,
-            'productNumber' => 'A',
-            'stock' => 1,
-            'type' => ProductDefinition::TYPE_PHYSICAL,
-            'guaranteeConfirmed' => true,
-            'guaranteeMonths' => 36,
-            'manufacturerNumber' => 'ACME-36',
-            'manufacturer' => $manufacturer,
-        ]);
-
-        $processor = new ProductCartProcessor(
-            static::createStub(ProductGateway::class),
-            static::createStub(QuantityPriceCalculator::class),
-            static::createStub(ProductFeatureBuilder::class),
-            static::createStub(ProductPriceCalculator::class),
-            static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class),
-            new GaranLabelResolver(new GaranLabelDurationFormatter(), static::createStub(GaranLabelRenderer::class)),
-        );
-
-        $data = new CartDataCollection();
-        $data->set('product-A', $product);
-
-        $behavior = new CartBehavior([CheckoutPermissions::SKIP_PRODUCT_RECALCULATION => $isExistingOrder]);
-
-        $processor->collect($data, $cart, static::createStub(SalesChannelContext::class), $behavior);
-
-        static::assertArrayHasKey('garanLabel', $lineItem->getPayload());
-        static::assertSame($expected, $lineItem->getPayload()['garanLabel']);
     }
 }

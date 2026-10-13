@@ -20,7 +20,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\CheckoutPermissions;
-use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
@@ -76,8 +75,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         private readonly ProductFeatureBuilder $featureBuilder,
         private readonly AbstractProductPriceCalculator $priceCalculator,
         private readonly EntityCacheKeyGenerator $generator,
-        private readonly Connection $connection,
-        private readonly GaranLabelResolver $garanLabelResolver,
+        private readonly Connection $connection
     ) {
     }
 
@@ -392,12 +390,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $purchasePrices = $purchasePricesCollection->getCurrencyPrice(Defaults::CURRENCY);
         }
 
-        // an edited order keeps the GARAN label it was placed with
-        $garanLabel = $behavior->hasPermission(CheckoutPermissions::SKIP_PRODUCT_RECALCULATION)
-            && \array_key_exists('garanLabel', $lineItem->getPayload())
-                ? $lineItem->getPayload()['garanLabel']
-                : $this->garanLabelResolver->resolveSnapshot($product);
-
         $payload = [
             'isCloseout' => $product->getIsCloseout(),
             'customFields' => $product->getTranslation('customFields'),
@@ -417,7 +409,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'streamIds' => $product->getStreamIds(),
             'parentId' => $product->getParentId(),
             'stock' => $product->getStock(),
-            'garanLabel' => $garanLabel,
         ];
 
         $lineItem->replacePayload($payload, ['purchasePrices' => true]);

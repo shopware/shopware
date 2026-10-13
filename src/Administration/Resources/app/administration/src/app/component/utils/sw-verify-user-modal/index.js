@@ -12,7 +12,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: ['loginService'],
+    inject: [
+        'loginService',
+        'ssoSettingsService',
+        'ssoReauthService',
+    ],
 
     emits: ['verified', 'close'],
 
@@ -21,6 +25,8 @@ export default {
     data() {
         return {
             confirmPassword: '',
+            // null until the SSO lookup resolved; the password prompt renders only for non-SSO sessions
+            isSso: null,
         };
     },
 
@@ -29,7 +35,36 @@ export default {
     },
 
     methods: {
-        createdComponent() {},
+        async createdComponent() {
+            try {
+                this.isSso = (await this.ssoSettingsService.isSso()).isSso === true;
+            } catch {
+                this.isSso = false;
+            }
+
+            if (!this.isSso) {
+                return;
+            }
+
+            // An SSO session has no Shopware password to verify. A recent login at the identity provider
+            // counts as the verification; otherwise the user is sent there again with a forced login
+            // and repeats the action after returning.
+            if (this.ssoReauthService.isRecentlyVerified()) {
+                this.$emit('verified', { ...Shopware.Context.api });
+                this.$emit('close');
+
+                return;
+            }
+
+            try {
+                await this.ssoReauthService.start(this.$router?.currentRoute?.value?.fullPath ?? '/');
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('global.sw-verify-user-modal.ssoReauthStartError'),
+                });
+                this.$emit('close');
+            }
+        },
 
         onSubmitConfirmPassword() {
             return this.loginService

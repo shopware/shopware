@@ -21,6 +21,7 @@ import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postproces
 import ShopwareSetupPlugin from './build/vite-plugins/shopware-setup';
 import VirtualShopwareModulesPlugin from './build/vite-plugins/virtual-shopware-modules';
 import NodeEnvDefinePlugin from './build/vite-plugins/node-env-define';
+import ExtglobCompatPlugin from './build/vite-plugins/extglob-compat';
 import { isVite8ToolchainActive, loadVite8Toolchain } from './build/vite-plugins/vite-toolchain';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
@@ -125,6 +126,8 @@ export default defineConfig(({ command }) => {
         plugins: (() => {
             // Plugins used for both dev and prod
             const sharedPlugins = [
+                ...(vite8 ? [ExtglobCompatPlugin()] : []),
+
                 // Shopware plugins: build/vite-plugins
                 TwigPlugin(),
                 AssetPlugin(isProd, __dirname, extensions),

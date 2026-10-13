@@ -25,7 +25,6 @@ export default function initializeSsoReauth(): Promise<void> {
             return;
         }
 
-        // @ts-expect-error
         const router = Shopware.Application.view?.router as null | Router;
         void router?.push(returnRoute);
 

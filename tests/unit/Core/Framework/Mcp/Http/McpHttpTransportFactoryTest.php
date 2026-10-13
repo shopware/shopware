@@ -74,6 +74,7 @@ class McpHttpTransportFactoryTest extends TestCase
         $body = (string) $response->getContent();
         static::assertSame(2, substr_count($body, 'event: message'), 'each JSON-RPC message must be its own SSE event');
         static::assertStringContainsString('data: {"jsonrpc":"2.0","method":"notifications\/tools\/list_changed"}', $body);
+        static::assertStringContainsString('data: {"jsonrpc":"2.0","id":2,"result":{}}', $body, 'an empty object must stay an object');
     }
 
     public function testCreateResponsePassesThroughAnEventStreamVerbatim(): void

@@ -11,8 +11,6 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexingMessage;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndexingMessage;
-use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
@@ -1028,10 +1026,6 @@ class ProductListingRouteTest extends TestCase
         ]);
 
         $this->setVisibilities($products);
-
-        if ($productStreamId !== null) {
-            $this->indexProductStreamMapping($productStreamId);
-        }
     }
 
     /**
@@ -1296,13 +1290,6 @@ class ProductListingRouteTest extends TestCase
     {
         static::getContainer()->get(CategoryIndexer::class)->handle(
             new CategoryIndexingMessage($categoryIds, null, Context::createDefaultContext())
-        );
-    }
-
-    private function indexProductStreamMapping(string $streamId): void
-    {
-        static::getContainer()->get(ProductStreamUpdater::class)->handle(
-            new ProductStreamMappingIndexingMessage($streamId, null, Context::createDefaultContext())
         );
     }
 

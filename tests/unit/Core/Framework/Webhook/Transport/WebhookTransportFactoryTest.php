@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Transport;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Health\WebhookHealthTick;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransport;
@@ -72,6 +73,7 @@ class WebhookTransportFactoryTest extends TestCase
 
                 return $this->createStub(MySQLWebhookReceiver::class);
             },
+            static::createStub(WebhookHealthTick::class),
         );
 
         static::assertSame(0, $calls->async, 'Async transport must not be resolved at construction time.');
@@ -92,6 +94,7 @@ class WebhookTransportFactoryTest extends TestCase
             static::createStub(WebhookOutboxStore::class),
             fn (): TransportInterface => $asyncTransport,
             fn (): MySQLWebhookReceiver => $receiver,
+            static::createStub(WebhookHealthTick::class),
         );
     }
 }

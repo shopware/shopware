@@ -6,6 +6,8 @@
         {# The account edit-order page inherits this block from the confirm page without a cart, and a #}
         {# theme may include the component the same way, so the line items can be missing entirely. #}
         {% set gaPrices = sw_analytics_line_item_prices(lineItems|default(null), context) %}
+        {# the promotion codes per product, which view_cart reports on the items #}
+        {% set gaCoupons = sw_analytics_line_item_coupons(lineItems|default(null)) %}
 
         <div class="d-none hidden-line-items-information"
              data-currency="{{ context.currency.translated.shortName }}"
@@ -35,6 +37,7 @@
                               data-price="{{ gaPrice }}"
                               data-discount="{{ gaItem.discount ?: '' }}"
                               data-total="{{ gaItem.total }}"
+                              data-coupon="{{ (gaCoupons[lineItem.id] ?? [])|join(',') }}"
                               data-brand="{{ lineItem.payload.manufacturerName|default('') }}"
                               data-variant="{{ variant }}"
                               {{ categoryAttributes|raw }}

@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
+use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemCouponResolver;
 use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPrice;
 use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPriceCalculator;
 use Shopware\Storefront\Framework\Twig\Extension\AnalyticsLineItemPriceExtension;
@@ -26,14 +27,14 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->extension = new AnalyticsLineItemPriceExtension(new AnalyticsLineItemPriceCalculator(new CashRounding()));
+        $this->extension = new AnalyticsLineItemPriceExtension(new AnalyticsLineItemPriceCalculator(new CashRounding()), new AnalyticsLineItemCouponResolver());
     }
 
     public function testRegistersTheTwigFunction(): void
     {
         $names = array_map(static fn ($function) => $function->getName(), $this->extension->getFunctions());
 
-        static::assertSame(['sw_analytics_line_item_prices'], $names);
+        static::assertSame(['sw_analytics_line_item_prices', 'sw_analytics_line_item_coupons'], $names);
     }
 
     /**
@@ -59,5 +60,18 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
 
         static::assertCount(0, $this->extension->getPrices(null, $context));
         static::assertCount(0, $this->extension->getPrices('not line items', $context));
+    }
+
+    public function testResolvesTheCouponsOfTheLineItemsOnly(): void
+    {
+        $product = new LineItem('product-1', LineItem::PRODUCT_LINE_ITEM_TYPE, 'product-1', 1);
+        $product->setGood(true);
+
+        $promotion = new LineItem('promotion-1', LineItem::PROMOTION_LINE_ITEM_TYPE);
+        $promotion->setPayloadValue('code', 'SUMMER');
+        $promotion->setPayloadValue('composition', [['id' => 'product-1', 'quantity' => 1, 'discount' => 1.0]]);
+
+        static::assertSame(['product-1' => ['SUMMER']], $this->extension->getCoupons(['not a line item', $product, $promotion]));
+        static::assertSame([], $this->extension->getCoupons('not line items'));
     }
 }

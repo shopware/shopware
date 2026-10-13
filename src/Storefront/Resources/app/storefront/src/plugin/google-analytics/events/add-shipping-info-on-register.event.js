@@ -25,12 +25,14 @@ export default class AddShippingInfoOnRegisterEvent extends EventAwareAnalyticsE
      * @return string
      */
     getPluginName() {
-        return 'FormValidation';
+        // the login and register forms validate through FormHandler, which only publishes
+        // `validSubmit` once the form is valid and about to be sent
+        return 'FormHandler';
     }
 
     getEvents() {
         return {
-            'beforeSubmit': this._onFormSubmit.bind(this),
+            'validSubmit': this._onFormSubmit.bind(this),
         };
     }
 
@@ -39,7 +41,7 @@ export default class AddShippingInfoOnRegisterEvent extends EventAwareAnalyticsE
             return;
         }
 
-        if (!event.target.classList.contains('register-form') || !event.detail.validity) {
+        if (!event.target.classList.contains('register-form')) {
             return;
         }
 

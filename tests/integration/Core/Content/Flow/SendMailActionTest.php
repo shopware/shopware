@@ -212,7 +212,7 @@ class SendMailActionTest extends TestCase
                 $admins = static::getContainer()->get(Connection::class)->fetchAllAssociative(
                     'SELECT `first_name`, `last_name`, `email` FROM `user` WHERE `admin` = 1'
                 );
-                static::assertNotEmpty($admins, 'Expected at least one admin user to exist');
+                static::assertNotCount(0, $admins, 'Expected at least one admin user to exist');
 
                 $expectedRecipients = [];
                 foreach ($admins as $admin) {
@@ -296,7 +296,7 @@ class SendMailActionTest extends TestCase
             ]
         );
 
-        static::assertNotEmpty($mailTemplateId);
+        static::assertNotSame('', $mailTemplateId);
 
         $config = [
             'mailTemplateId' => $mailTemplateId,
@@ -358,7 +358,7 @@ class SendMailActionTest extends TestCase
             ]
         );
 
-        static::assertNotEmpty($mailTemplateId);
+        static::assertNotSame('', $mailTemplateId);
 
         $config = [
             'mailTemplateId' => $mailTemplateId,
@@ -432,7 +432,7 @@ class SendMailActionTest extends TestCase
             ]
         );
 
-        static::assertNotEmpty($mailTemplateId);
+        static::assertNotSame('', $mailTemplateId);
 
         $config = [
             'mailTemplateId' => $mailTemplateId,
@@ -762,7 +762,7 @@ class SendMailActionTest extends TestCase
 
             foreach ($config['documentTypeIds'] as $sequenzDocumentTypeId) {
                 $documentInfos = $this->getMatchingDocument($sequenzDocumentTypeId, $documentTypes);
-                static::assertNotEmpty($documentInfos);
+                static::assertNotCount(0, $documentInfos);
 
                 static::assertArrayHasKey('filename', $documentInfos);
                 $found = $this->isDocumentPartOfAttachments($attachments, $documentInfos['filename']);
@@ -1171,7 +1171,8 @@ class SendMailActionTest extends TestCase
     private function getMailTemplateId(string $technicalName): ?string
     {
         $mailTemplateTypeId = $this->getMailTemplateTypeId($technicalName);
-        static::assertNotEmpty($mailTemplateTypeId);
+        static::assertIsString($mailTemplateTypeId);
+        static::assertNotSame('', $mailTemplateTypeId);
 
         $result = $this->connection->fetchOne(
             'SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :mailTemplateTypeId',

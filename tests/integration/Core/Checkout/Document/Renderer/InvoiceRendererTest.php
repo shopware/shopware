@@ -330,7 +330,7 @@ class InvoiceRendererTest extends TestCase
             },
             static function (string $orderId, array $errors): void {
                 static::assertNotNull(self::$callback);
-                static::assertNotEmpty($errors);
+                static::assertNotCount(0, $errors);
                 static::assertArrayHasKey($orderId, $errors);
 
                 $error = $errors[$orderId];
@@ -604,7 +604,7 @@ class InvoiceRendererTest extends TestCase
                 $rendered = $rendered->getContent();
 
                 static::assertNotNull($customer);
-                static::assertEmpty($customer->getVatIds());
+                static::assertCount(0, $customer->getVatIds() ?? []);
 
                 static::assertStringNotContainsString('VAT Reg.No:', $rendered);
             },
@@ -877,7 +877,7 @@ class InvoiceRendererTest extends TestCase
         );
 
         $data = $rendered->getSuccess();
-        static::assertNotEmpty($data);
+        static::assertNotCount(0, $data);
 
         if ($shouldDisplay) {
             static::assertStringContainsString('Intra-community delivery (EU)', $data[$orderId]->getContent());

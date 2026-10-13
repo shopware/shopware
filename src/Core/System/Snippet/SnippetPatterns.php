@@ -48,7 +48,7 @@ final class SnippetPatterns
     public const CORE_SNIPPET_FILE_PATTERN =
         '/^(?P<domain>.+?)\.' .                 // domain (e.g. messages, storefront, swag-cms-extensions etc.)
         self::LOCALE_PATTERN .                  // locale (e.g. en-GB, de, zh-Hant-TW)
-        '(?:\.(?P<isBase>base))?\.json$/D';      // optional "base" suffix and .json file extension
+        '(?:\.(?P<isBase>base))?\.json$/D';     // optional "base" suffix and .json file extension
 
     public const ADMIN_SNIPPET_FILE_PATTERN = '/^' . self::LOCALE_PATTERN . '\.json$/D';
 

@@ -620,21 +620,17 @@ class ProductFeatureBuilder
     }
 
     /**
-     * Every custom field owns a `customFields.<name>` snippet in each snippet set, which merchants
-     * and themes maintain like any other storefront text, so that snippet labels the feature. The
-     * translator echoes the key when no snippet set defines it, in which case the label falls back
-     * to the field's config. Those labels are not translated by the DAL, they are stored indexed by
-     * locale code. As a label is not required for every language, the language chain of the context
-     * is walked, so a label inherits from the parent language and finally from the system language,
-     * matching how the DAL resolves translated fields. Without a label for any of them, the technical
-     * name is used, the same way a product attribute feature is labelled.
+     * The context locale is passed explicitly, as only Storefront requests set the translator locale.
+     * A snippet equal to its key or to the field name is unset: the translator echoes the key, and the
+     * snippet is seeded with the field name when the field was created without a label for that language.
+     * Config labels are walked along the language chain, as the DAL resolves translated fields.
      */
     private function getCustomFieldLabel(CustomFieldEntity $customField, SalesChannelContext $context): string
     {
         $snippetKey = self::CUSTOM_FIELD_SNIPPET_PREFIX . $customField->getName();
-        $snippet = $this->translator->trans($snippetKey);
+        $snippet = $this->translator->trans($snippetKey, [], null, $context->getLanguageInfo()->localeCode);
 
-        if ($snippet !== '' && $snippet !== $snippetKey) {
+        if ($snippet !== '' && $snippet !== $snippetKey && $snippet !== $customField->getName()) {
             return $snippet;
         }
 

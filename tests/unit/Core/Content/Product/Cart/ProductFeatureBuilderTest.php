@@ -39,6 +39,7 @@ use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\Generator;
@@ -58,6 +59,8 @@ class ProductFeatureBuilderTest extends TestCase
     private const LANGUAGE_CHAIN = [self::LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM];
 
     private const CHILD_LANGUAGE_CHAIN = [self::CHILD_LANGUAGE_ID, self::LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM];
+
+    private const LOCALE_CODE = 'de-DE';
 
     private const CURRENCY_ID = 'currency-id-123';
 
@@ -236,7 +239,7 @@ class ProductFeatureBuilderTest extends TestCase
 
     public function testCustomFieldLabelPrefersTheSnippetOfTheCustomField(): void
     {
-        $this->useSnippets(['customFields.custom_material' => 'Holzart']);
+        $this->useSnippets([self::LOCALE_CODE => ['customFields.custom_material' => 'Holzart']]);
 
         $features = $this->buildCustomFieldFeatures([
             'en-GB' => 'Material',
@@ -247,12 +250,31 @@ class ProductFeatureBuilderTest extends TestCase
     }
 
     /**
+     * Only Storefront requests set the translator locale, so the snippet has to be read in the
+     * locale of the context for Store API and Admin API requests to label the feature correctly.
+     */
+    public function testCustomFieldLabelReadsTheSnippetInTheLocaleOfTheContext(): void
+    {
+        $this->useSnippets([
+            'en-GB' => ['customFields.custom_material' => 'Fabric'],
+            self::LOCALE_CODE => ['customFields.custom_material' => 'Stoff'],
+        ]);
+
+        $features = $this->buildCustomFieldFeatures([
+            'en-GB' => 'Material',
+            'de-DE' => 'Werkstoff',
+        ]);
+
+        static::assertSame('Stoff', $features[0]['label']);
+    }
+
+    /**
      * @param array<string, string> $snippets
      */
     #[DataProvider('unusableSnippetProvider')]
     public function testCustomFieldLabelFallsBackToTheConfigLabelWithoutAUsableSnippet(array $snippets): void
     {
-        $this->useSnippets($snippets);
+        $this->useSnippets([self::LOCALE_CODE => $snippets]);
 
         $features = $this->buildCustomFieldFeatures([
             'en-GB' => 'Material',
@@ -459,17 +481,21 @@ class ProductFeatureBuilderTest extends TestCase
     {
         yield 'no snippet for the custom field' => [['customFields.custom_other' => 'Sonstiges']];
         yield 'empty snippet for the custom field' => [['customFields.custom_material' => '']];
+        yield 'snippet is the technical name' => [['customFields.custom_material' => 'custom_material']];
     }
 
     /**
-     * The translator echoes the key of every snippet that is not defined, as the real translator does.
+     * The translator echoes the key of every snippet that is not defined in the requested locale,
+     * as the real translator does.
      *
-     * @param array<string, string> $snippets
+     * @param array<string, array<string, string>> $snippetsByLocale
      */
-    private function useSnippets(array $snippets): void
+    private function useSnippets(array $snippetsByLocale): void
     {
         $translator = static::createStub(TranslatorInterface::class);
-        $translator->method('trans')->willReturnCallback(static fn (string $id): string => $snippets[$id] ?? $id);
+        $translator->method('trans')->willReturnCallback(
+            static fn (string $id, array $parameters, ?string $domain, ?string $locale): string => $snippetsByLocale[$locale ?? ''][$id] ?? $id
+        );
 
         $this->productFeatureBuilder = new ProductFeatureBuilder(
             $this->customFieldRepository,
@@ -546,6 +572,7 @@ class ProductFeatureBuilderTest extends TestCase
                 languageIdChain: $languageIdChain,
                 currencyFactor: $currencyFactor,
             ),
+            languageInfo: new LanguageInfo('Deutsch', self::LOCALE_CODE),
         );
     }
 

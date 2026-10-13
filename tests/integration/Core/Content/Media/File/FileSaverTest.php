@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
@@ -318,7 +319,7 @@ SVG;
         $this->getPublicFilesystem()->writeStream($pathName, $resource);
 
         static::assertIsString($png->getFileName());
-        static::assertNotEmpty($png->getFileName());
+        static::assertNotSame('', $png->getFileName());
 
         try {
             $this->fileSaver->persistFileToMedia(
@@ -341,8 +342,6 @@ SVG;
 
     public function testPersistFileToMediaThrowsExceptionOnDuplicateFileName(): void
     {
-        $this->expectExceptionObject(MediaException::duplicatedMediaFileName('pngFileWithExtension', 'png'));
-
         $context = Context::createDefaultContext();
 
         $this->setFixtureContext($context);
@@ -356,6 +355,8 @@ SVG;
         $fileSize = filesize($tempFile);
         static::assertIsInt($fileSize);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
+
+        $this->expectExceptionObject(MediaException::duplicatedMediaFileName('pngFileWithExtension', 'png'));
 
         try {
             $this->mediaRepository->create(
@@ -745,7 +746,7 @@ SVG;
         $this->setFixtureContext($context);
 
         $collection = new MediaCollection([$png]);
-        $searchResult = new EntitySearchResult('temp', 1, $collection, null, new Criteria(), $context);
+        $searchResult = new EntitySearchResult('media', 1, $collection, null, new Criteria(), $context);
 
         $repositoryMock = $this->createMock(EntityRepository::class);
         $repositoryMock->expects($this->exactly(2))
@@ -774,12 +775,15 @@ SVG;
         $mediaPath = $png->getPath();
         $this->getPublicFilesystem()->write($mediaPath, 'test file');
 
-        $fileSaverWithFailingRepository->renameMedia($png->getId(), 'new file name', $context);
-        $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->getEntities()->get($png->getId());
+        try {
+            $fileSaverWithFailingRepository->renameMedia($png->getId(), 'new file name', $context);
+        } finally {
+            $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->getEntities()->get($png->getId());
 
-        static::assertInstanceOf(MediaEntity::class, $updatedMedia);
-        static::assertSame($png->getFileName(), $updatedMedia->getFileName());
-        static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
+            static::assertInstanceOf(MediaEntity::class, $updatedMedia);
+            static::assertSame($png->getFileName(), $updatedMedia->getFileName());
+            static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
+        }
     }
 
     public function testMaliciousFileExtension(): void
@@ -822,14 +826,12 @@ SVG;
 
     public function testWhitelistEvent(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $eventDidRun = false;
         $listenerClosure = static function () use (&$eventDidRun): void {
             $eventDidRun = true;
         };
 
-        $this->addEventListener($dispatcher, MediaFileExtensionWhitelistEvent::class, $listenerClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MediaFileExtensionWhitelistEvent::class, $listenerClosure);
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
         static::assertIsString($tempFile);
@@ -864,8 +866,6 @@ SVG;
                 unlink($tempFile);
             }
         }
-
-        $dispatcher->removeListener(MediaFileExtensionWhitelistEvent::class, $listenerClosure);
 
         static::assertTrue($eventDidRun, 'The media_whitelist.before_filter event did not run');
     }

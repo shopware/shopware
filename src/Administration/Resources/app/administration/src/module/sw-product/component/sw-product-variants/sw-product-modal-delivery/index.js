@@ -9,16 +9,9 @@ import './sw-product-modal-delivery.scss';
 export default {
     template,
 
-    inject: [
-        'feature',
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['feature', 'repositoryFactory', 'acl'],
 
-    emits: [
-        'modal-close',
-        'configuration-close',
-    ],
+    emits: ['modal-close', 'configuration-close'],
 
     props: {
         product: {
@@ -100,6 +93,13 @@ export default {
                 product.variantListingConfig.mainVariantId = null;
                 product.variantListingConfig.displayParent = null;
                 product.variantListingConfig.configuratorGroupConfig = configuratorGroupConfig;
+            }
+
+            if (product && product.listingMode === 'single') {
+                product.variantListingConfig.displayParent = product.variantListingConfig.displayParent === true;
+                product.variantListingConfig.configuratorGroupConfig?.forEach((group) => {
+                    group.expressionForListings = false;
+                });
             }
 
             delete product.listingMode;

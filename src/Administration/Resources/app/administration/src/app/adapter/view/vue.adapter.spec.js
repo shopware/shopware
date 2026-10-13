@@ -72,16 +72,10 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             });
         }
 
-        Shopware.Store.get('system').locales = [
-            'en-GB',
-            'de-DE',
-        ];
+        Shopware.Store.get('system').locales = ['en-GB', 'de-DE'];
 
         Shopware.Store.get('session').setAdminLocaleState({
-            locales: [
-                'en-GB',
-                'de-DE',
-            ],
+            locales: ['en-GB', 'de-DE'],
             locale: 'en-GB',
             languageId: '12345678',
         });
@@ -123,6 +117,31 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         Shopware.Store.get('session').currentLocale = 'en-GB';
 
         expect(vueAdapter.setLocaleFromUser).toHaveBeenCalled();
+    });
+
+    it('initLocales should use the last known locale while the session locale is not resolved yet', async () => {
+        application = createApplication().addFactory('locale', () => {
+            return LocaleFactory;
+        });
+
+        vueAdapter = new VueAdapter(application);
+        vueAdapter.setLocaleFromUser = jest.fn();
+
+        Shopware.Store.get('session').currentLocale = null;
+        const getLastKnownLocaleSpy = jest.spyOn(LocaleFactory, 'getLastKnownLocale').mockReturnValue('de-DE');
+
+        try {
+            const i18n = vueAdapter.initLocales();
+
+            expect(i18n.global.locale.value).toBe('de-DE');
+
+            // let the async setAdminLocale call settle before resetting the shared state
+            await flushPromises();
+        } finally {
+            getLastKnownLocaleSpy.mockRestore();
+            localStorage.removeItem('sw-admin-locale');
+            Shopware.Store.get('session').currentLocale = 'en-GB';
+        }
     });
 
     it('setLocaleFromUser should not set the user when user does not exist', async () => {
@@ -190,9 +209,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                     title: 'testComponent',
                 };
             },
-            mixins: [
-                Shopware.Mixin.getByName('foo1'),
-            ],
+            mixins: [Shopware.Mixin.getByName('foo1')],
             methods: {
                 bar() {
                     return 'bar';
@@ -228,9 +245,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                     title: 'testComponent',
                 };
             },
-            mixins: [
-                Shopware.Mixin.getByName('foo2'),
-            ],
+            mixins: [Shopware.Mixin.getByName('foo2')],
             methods: {
                 bar() {
                     return 'bar';
@@ -280,9 +295,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                     title: 'testComponent3',
                 };
             },
-            mixins: [
-                'foo3',
-            ],
+            mixins: ['foo3'],
             methods: {
                 bar() {},
             },
@@ -314,9 +327,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                     title: 'testComponent4',
                 };
             },
-            mixins: [
-                'foo4',
-            ],
+            mixins: ['foo4'],
             methods: {
                 bar() {},
             },
@@ -365,9 +376,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                     sortBy: 'date',
                 };
             },
-            mixins: [
-                'foo-with-data',
-            ],
+            mixins: ['foo-with-data'],
             methods: {
                 bar() {},
                 fooBar() {
@@ -424,9 +433,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                     title: 'testComponent',
                 };
             },
-            mixins: [
-                'swFoo',
-            ],
+            mixins: ['swFoo'],
             methods: {
                 bar() {},
             },
@@ -434,9 +441,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
         Shopware.Component.extend('sw-test-component-extended', 'extendable-component', {
             template: '{% block foo %}<div>bbbbb</div>{% endblock %}',
-            mixins: [
-                'swBar',
-            ],
+            mixins: ['swBar'],
             data() {
                 return {
                     title: 'testComponentExtended',
@@ -491,10 +496,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         Shopware.Component.override('base-component', {
-            mixins: [
-                'second-mixin',
-                'first-mixin',
-            ],
+            mixins: ['second-mixin', 'first-mixin'],
         });
 
         Shopware.Component.markComponentAsSync('base-component');
@@ -582,10 +584,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         Shopware.Component.extend(componentName, baseComponentName, {
             template: '<div></div>',
             name: componentName,
-            mixins: [
-                firstMixinName,
-                secondMixinName,
-            ],
+            mixins: [firstMixinName, secondMixinName],
             beforeRouteEnter(to, from, next) {
                 guardOrder.enter.push('component');
                 next((vm) => enterCallbacks.push(`component:${vm.id}`));
@@ -954,10 +953,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             const expectedLocale = 'de-DE';
 
             Shopware.Store.get('session').setAdminLocaleState({
-                locales: [
-                    'en-GB',
-                    'de-DE',
-                ],
+                locales: ['en-GB', 'de-DE'],
                 locale: expectedLocale,
                 languageId: '12345678',
             });

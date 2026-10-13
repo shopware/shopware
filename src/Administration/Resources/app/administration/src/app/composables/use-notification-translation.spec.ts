@@ -67,10 +67,7 @@ describe('src/app/composables/use-notification-translation', () => {
                 'em',
                 'br',
             ],
-            ALLOWED_ATTR: [
-                'href',
-                'target',
-            ],
+            ALLOWED_ATTR: ['href', 'target'],
         });
     });
 });

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Sso;
 
+use Shopware\Core\Framework\Api\OAuth\AuthCodeRepository;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfig;
@@ -16,6 +17,7 @@ class SsoService
     public function __construct(
         private readonly LoginConfigService $loginConfigService,
         private readonly RefreshTokenRepository $refreshTokenRepository,
+        private readonly AuthCodeRepository $authCodeRepository,
     ) {
     }
 
@@ -27,5 +29,6 @@ class SsoService
     public function revokeUserTokens(string $userId): void
     {
         $this->refreshTokenRepository->revokeRefreshTokensForUser($userId);
+        $this->authCodeRepository->revokeAuthCodesForUser($userId);
     }
 }

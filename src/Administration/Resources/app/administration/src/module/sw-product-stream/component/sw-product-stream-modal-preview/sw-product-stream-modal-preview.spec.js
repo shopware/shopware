@@ -388,10 +388,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
             'cheapestPrice',
             'releaseDate',
         ];
-        const validDirections = [
-            'ASC',
-            'DESC',
-        ];
+        const validDirections = ['ASC', 'DESC'];
 
         sortings.forEach((sorting) => {
             expect(allowedFields).toContain(sorting.field);
@@ -414,10 +411,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
             'cheapestPrice',
             'releaseDate',
         ];
-        const validDirections = [
-            'ASC',
-            'DESC',
-        ];
+        const validDirections = ['ASC', 'DESC'];
 
         sortings.forEach((sorting) => {
             expect(allowedFields).toContain(sorting.field);

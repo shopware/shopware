@@ -142,6 +142,7 @@ class AdministrationControllerTest extends TestCase
                     'serviceRegistryUrl' => $this->serviceRegistryUrl,
                     'refreshTokenTtl' => 7 * 86400 * 1000,
                     'productStreamIndexingEnabled' => true,
+                    'hideUpdateModule' => true,
                     'analyticsGatewayUrl' => $this->analyticsGatewayUrl,
                 ]
             );
@@ -495,8 +496,12 @@ class AdministrationControllerTest extends TestCase
         $searchConfigId = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchOne')
-            ->willReturnOnConsecutiveCalls($searchConfigId, $deLanguageId, $enLanguageId);
+        $connection->method('fetchOne')->willReturn($searchConfigId);
+        $connection->expects($this->once())->method('fetchAllKeyValue')
+            ->willReturn(array_filter([
+                'de-DE' => $deLanguageId,
+                'en-GB' => $enLanguageId,
+            ]));
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         if ($sourceLanguage === null) {
@@ -564,14 +569,24 @@ class AdministrationControllerTest extends TestCase
         $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $entityDefinition = new TestEntityDefinition();
         $entityDefinition->compile($definitionRegistry);
-        $definitionRegistry->expects($this->once())->method('getByEntityName')->willReturn($entityDefinition);
+        $definitionRegistry->expects($this->exactly(2))->method('getByEntityName')->willReturn($entityDefinition);
 
-        $controller = $this->createAdministrationController(definitionRegistry: $definitionRegistry);
+        $controller = $this->createAdministrationController(
+            htmlSanitizer: new HtmlSanitizer(cacheEnabled: false),
+            definitionRegistry: $definitionRegistry
+        );
+
         $response = $controller->sanitizeHtml(new Request([], ['html' => '<p>test</p>', 'field' => 'test_entity.id']), $this->context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"preview":"test"}', $response->getContent());
+
+        $response = $controller->sanitizeHtml(new Request([], ['html' => 'I <3 Kisses', 'field' => 'test_entity.id']), $this->context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertNotFalse($response->getContent());
+        static::assertJsonStringEqualsJsonString('{"preview":"I <3 Kisses"}', $response->getContent());
     }
 
     public function testSanitizeHtmlReturnsRawHTMLWhenHTMLIsAllowedAndFlagIsNotSanitized(): void
@@ -620,6 +635,24 @@ class AdministrationControllerTest extends TestCase
 
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"de-DE":[],"en-GB":[]}', $response->getContent());
+    }
+
+    public function testSnippetsReturnsEtagAndNotModifiedForMatchingIfNoneMatch(): void
+    {
+        $controller = $this->createAdministrationController();
+
+        $response = $controller->snippets(new Request(query: ['locale' => 'de-DE']));
+        $etag = $response->headers->get('ETag');
+
+        static::assertNotNull($etag);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $request = new Request(query: ['locale' => 'de-DE']);
+        $request->headers->set('If-None-Match', $etag);
+        $cachedResponse = $controller->snippets($request);
+
+        static::assertSame(Response::HTTP_NOT_MODIFIED, $cachedResponse->getStatusCode());
+        static::assertSame('', $cachedResponse->getContent());
     }
 
     public function testGetUnauthenticatedSnippetsWithoutAuthentication(): void

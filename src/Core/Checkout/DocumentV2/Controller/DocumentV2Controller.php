@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Controller;
 
-use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentArchiveGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
@@ -110,6 +110,7 @@ final class DocumentV2Controller extends AbstractController
         return new JsonResponse([
             'deepLinkCode' => $document->getDeepLinkCode(),
             'documentId' => $document->getId(),
+            'documentNumber' => $document->getDocumentNumber(),
             'formats' => $generationRequest->requestedFormats,
         ]);
     }

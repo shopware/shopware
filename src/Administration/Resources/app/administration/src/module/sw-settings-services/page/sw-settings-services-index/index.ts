@@ -56,11 +56,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        ...mapState(useShopwareServicesStore, [
-            'config',
-            'currentRevision',
-            'consentGiven',
-        ]),
+        ...mapState(useShopwareServicesStore, ['config', 'currentRevision', 'consentGiven']),
         servicesWithAccountRequirement(): ServiceWithShopwareAccountRequirement[] {
             return getServicesWithShopwareAccountRequirement(this.services);
         },

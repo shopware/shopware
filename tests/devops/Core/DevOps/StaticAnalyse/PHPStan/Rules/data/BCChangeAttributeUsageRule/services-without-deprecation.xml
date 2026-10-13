@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<container>
+    <services>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\ClassMovedAttributeUsage" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\ClassMovedAttributeUsage"/>
+        <service id="Shopware\Tests\Legacy\UnregisteredClass" alias="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\ClassMovedAttributeUsage"/>
+    </services>
+</container>

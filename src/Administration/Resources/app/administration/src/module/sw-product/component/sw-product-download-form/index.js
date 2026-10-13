@@ -23,9 +23,7 @@ export default {
 
     emits: ['media-open'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         disabled: {

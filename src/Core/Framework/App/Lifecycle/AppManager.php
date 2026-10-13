@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 use Composer\Semver\VersionParser;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -44,7 +45,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
@@ -250,7 +250,14 @@ class AppManager
         // manually set active flag to true, so we don't need to re-fetch the app from DB
         $app->setActive(true);
         $activateContext = new AppActivationContext($app, $context);
-        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->activate($activateContext));
+
+        try {
+            $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->activate($activateContext));
+        } catch (\Throwable $e) {
+            $this->switchOff($app, $context);
+
+            throw $e;
+        }
 
         $this->activeAppsLoader->reset();
 
@@ -271,13 +278,7 @@ class AppManager
         $this->eventDispatcher->dispatch($event);
         $this->scriptExecutor->execute(new AppDeactivatedHook($event));
 
-        $this->appRepository->update([['id' => $app->getId(), 'active' => false]], $context);
-        $app->setActive(false);
-        $deactivateContext = new AppActivationContext($app, $context);
-        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->deactivate($deactivateContext));
-
-        // reset only after new state is in the DB
-        $this->activeAppsLoader->reset();
+        $this->switchOff($app, $context);
     }
 
     private function recoverInstallation(
@@ -767,6 +768,17 @@ class AppManager
         foreach ($this->lifecycleHandlers as $handler) {
             $callback($handler);
         }
+    }
+
+    private function switchOff(AppEntity $app, Context $context): void
+    {
+        $this->appRepository->update([['id' => $app->getId(), 'active' => false]], $context);
+        $app->setActive(false);
+        $deactivateContext = new AppActivationContext($app, $context);
+        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->deactivate($deactivateContext));
+
+        // reset only after new state is in the DB
+        $this->activeAppsLoader->reset();
     }
 
     private function ensureMeetsRequirements(Manifest $manifest): void

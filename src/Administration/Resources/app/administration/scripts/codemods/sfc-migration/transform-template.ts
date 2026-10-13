@@ -96,10 +96,7 @@ function transformTemplate(twig: string): TemplateResult {
     const warnings = assertSingleRoot(rooted.template, normalized.template);
 
     return {
-        template: [
-            ...warnings.map(templateTodo),
-            normalized.template,
-        ].join('\n'),
+        template: [...warnings.map(templateTodo), normalized.template].join('\n'),
         blockers: normalized.blockers,
         warnings,
         sfcComments: rooted.sfcComments,

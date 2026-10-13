@@ -238,9 +238,7 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         const { wrapper } = await createWrapper(true);
 
         expect(wrapper.emitted('config-loaded')).toEqual([
-            [
-                { useDefault: true, ssoProviders: [], url: 'https://sso.test' },
-            ],
+            [{ useDefault: true, ssoProviders: [], url: 'https://sso.test' }],
         ]);
     });
 

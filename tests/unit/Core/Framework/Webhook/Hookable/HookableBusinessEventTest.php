@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\CollectionBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\EntityBusinessEvent;
+use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\HiddenEntityBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\NestedEntityBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ScalarBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\StructuredArrayObjectBusinessEvent;
@@ -71,6 +72,20 @@ class HookableBusinessEventTest extends TestCase
             [new StructuredArrayObjectBusinessEvent()],
             [new UnstructuredObjectBusinessEvent()],
         ];
+    }
+
+    public function testHiddenFromWebhookEntityDoesNotRequirePrivilege(): void
+    {
+        $tax = new TaxEntity();
+        $tax->setId('tax-id');
+
+        $event = HookableBusinessEvent::fromBusinessEvent(
+            new HiddenEntityBusinessEvent($tax),
+            static::createStub(BusinessEventEncoder::class)
+        );
+
+        // the entity is hidden from webhooks, so its read privilege is not enforced either
+        static::assertTrue($event->isAllowed(Uuid::randomHex(), new AclPrivilegeCollection([])));
     }
 
     #[DataProvider('getEventsWithPermissions')]

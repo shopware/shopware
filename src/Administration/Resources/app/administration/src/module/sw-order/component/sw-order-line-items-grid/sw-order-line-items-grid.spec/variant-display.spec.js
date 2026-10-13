@@ -168,9 +168,7 @@ describe('module/sw-order/component/sw-order-line-items-grid/variant-display', (
     });
 
     it('shows only the label for a product item without variant options', async () => {
-        const wrapper = await createWrapper([
-            createProductItem({ payload: { productNumber: 'product number' } }),
-        ]);
+        const wrapper = await createWrapper([createProductItem({ payload: { productNumber: 'product number' } })]);
         const label = wrapper.find('.sw-data-grid__row--0').find('.sw-data-grid__cell--label');
 
         expect(label.find('.sw-order-line-items-grid__item-label').text()).toBe('Product item');

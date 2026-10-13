@@ -45,9 +45,7 @@ function buildProduct() {
     return {
         crossSellings: [
             {
-                assignedProducts: [
-                    'bar',
-                ],
+                assignedProducts: ['bar'],
             },
         ],
     };
@@ -88,9 +86,7 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         await wrapper.setData({ product: customProduct });
         await flushPromises();
 
-        expect(customProduct.crossSellings[0].assignedProducts).toStrictEqual([
-            'bar',
-        ]);
+        expect(customProduct.crossSellings[0].assignedProducts).toStrictEqual(['bar']);
     });
 
     it('should show inherited state when product is a variant', async () => {
@@ -177,6 +173,28 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         const emptyState = wrapper.find('.sw-product-detail-cross-selling__empty-state');
         expect(emptyState.text()).toContain('sw-product.crossselling.notInheritedEmptyStateDescription');
         expect(emptyState.find('.mt-empty-state__link').exists()).toBe(false);
+    });
+
+    it('should only allow toggling the inherit switch when the inheritance is removed', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: 'parentProductId',
+            crossSellings: [],
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = {
+            id: 'parentProductId',
+        };
+
+        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const switchInput = () => wrapper.find('.sw-product-detail-cross-selling__inherit-switch input');
+        expect(switchInput().attributes('disabled')).toBeDefined();
+
+        wrapper.vm.isInherited = false;
+        await wrapper.vm.$nextTick();
+
+        expect(switchInput().attributes('disabled')).toBeUndefined();
     });
 
     it('should keep the deprecated assetFilter for template overrides', async () => {

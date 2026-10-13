@@ -22,11 +22,7 @@ export default {
 
     emits: ['get-list'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification'), Mixin.getByName('salutation')],
 
     created() {
         this.ssoSettingsService.isSso().then((response) => {

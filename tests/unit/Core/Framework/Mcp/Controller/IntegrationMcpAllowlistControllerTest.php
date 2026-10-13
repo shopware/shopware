@@ -11,8 +11,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\IntegrationMcpAllowlistController;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -193,6 +195,36 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
 
         $controller = new IntegrationMcpAllowlistController($repository);
         $request = $this->makeRequest(['allowlist' => ['tools' => null, 'resources' => [true, false], 'prompts' => null]]);
+
+        $response = $controller->save($integrationId, $request, Context::createDefaultContext());
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
+    public function testRouteRequiresBothTheActionAndTheEntityPrivilege(): void
+    {
+        // Mirrors UserMcpAllowlistController. AclWriteValidator already enforced integration:update
+        // on the write; naming it on the route turns a DAL exception into a plain 403.
+        $route = (new AttributeRouteControllerLoader())->load(IntegrationMcpAllowlistController::class)->get('api.action.integration.mcp-allowlist');
+
+        static::assertNotNull($route);
+        static::assertSame(['api_action_integration_mcp-allowlist', 'integration:update'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
+    }
+
+    public function testObjectShapedPerTypeValueIsRejected(): void
+    {
+        $integrationId = Uuid::randomHex();
+        $integration = new IntegrationEntity();
+        $integration->setId($integrationId);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturn($this->makeSearchResult([$integration]));
+        $repository->expects($this->never())->method('update');
+
+        $controller = new IntegrationMcpAllowlistController($repository);
+        // A JSON object here would be stored but read back as an empty selection, so reject it
+        // instead of silently persisting something that grants nothing.
+        $request = $this->makeRequest(['allowlist' => ['tools' => ['x' => 'shopware-entity-delete']]]);
 
         $response = $controller->save($integrationId, $request, Context::createDefaultContext());
 

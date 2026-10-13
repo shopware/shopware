@@ -25,6 +25,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistListRequestHandler;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
+use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
+use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
+use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
@@ -201,7 +204,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
 
         $toolsetRegistry = $this->createMock(McpToolsetRegistry::class);
         $toolsetRegistry->expects($this->exactly(2))
-            ->method('advertisedTools')
+            ->method('advertisedToolsForNames')
             ->with(['entity'])
             ->willReturn([
                 'shopware-entity-search',
@@ -240,6 +243,46 @@ class McpAllowlistListRequestHandlerTest extends TestCase
         static::assertNull($secondResult->nextCursor);
     }
 
+    public function testToolsListIncludesToolsetToolsRequestedInTheConnectUrl(): void
+    {
+        $names = $this->allToolNames($this->connectUrlHandler('/api/_mcp?toolsets=entity'));
+
+        static::assertContains('shopware-entity-search', $names);
+        static::assertNotContains('shopware-order-state', $names);
+    }
+
+    public function testConnectUrlToolsetsAllAdvertisesEveryToolset(): void
+    {
+        $names = $this->allToolNames($this->connectUrlHandler('/api/_mcp?toolsets=all'));
+
+        static::assertContains('shopware-entity-search', $names);
+        static::assertContains('shopware-order-state', $names);
+    }
+
+    public function testConnectUrlToolsetsStayBoundedByTheAllowlist(): void
+    {
+        $handler = $this->connectUrlHandler('/api/_mcp?toolsets=all', allowlistTools: $this->metaTools());
+
+        static::assertNotContains('shopware-entity-search', $this->allToolNames($handler));
+    }
+
+    public function testConnectUrlToolsetsAreUnionedWithSessionEnabledOnes(): void
+    {
+        $toolsetSessionStorage = static::createStub(McpToolsetSessionStorage::class);
+        $toolsetSessionStorage->method('enabledToolsets')->willReturn(['order']);
+
+        $handler = $this->connectUrlHandler(
+            '/api/_mcp?toolsets=entity',
+            sessionId: 'session-id',
+            toolsetSessionStorage: $toolsetSessionStorage,
+        );
+
+        $names = $this->allToolNames($handler);
+
+        static::assertContains('shopware-entity-search', $names);
+        static::assertContains('shopware-order-state', $names);
+    }
+
     public function testToolsListKeepsAllowlistAsBoundaryForEnabledToolsetTools(): void
     {
         $registry = new Registry();
@@ -249,7 +292,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
 
         $toolsetRegistry = $this->createMock(McpToolsetRegistry::class);
         $toolsetRegistry->expects($this->once())
-            ->method('advertisedTools')
+            ->method('advertisedToolsForNames')
             ->with(['order'])
             ->willReturn(['shopware-order-state']);
 
@@ -290,7 +333,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
 
         $toolsetRegistry = $this->createMock(McpToolsetRegistry::class);
         $toolsetRegistry->expects($this->exactly(2))
-            ->method('advertisedTools')
+            ->method('advertisedToolsForNames')
             ->with([])
             ->willReturn([]);
 
@@ -491,6 +534,80 @@ class McpAllowlistListRequestHandlerTest extends TestCase
     }
 
     /**
+     * @return list<string>
+     */
+    private function allToolNames(McpAllowlistListRequestHandler $handler): array
+    {
+        $names = [];
+        $cursor = null;
+
+        do {
+            $page = $this->handleToolsList($handler, $cursor);
+            foreach ($page->tools as $tool) {
+                $names[] = $tool->name;
+            }
+            $cursor = $page->nextCursor;
+        } while ($cursor !== null);
+
+        return $names;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function metaTools(): array
+    {
+        return ['shopware-tool-search', McpToolsetRegistry::LIST_TOOLSETS_TOOL, McpToolsetRegistry::ENABLE_TOOLSET_TOOL];
+    }
+
+    /**
+     * @param list<string>|null $allowlistTools null = unrestricted
+     */
+    private function connectUrlHandler(
+        string $uri,
+        ?array $allowlistTools = null,
+        ?string $sessionId = null,
+        ?McpToolsetSessionStorage $toolsetSessionStorage = null,
+    ): McpAllowlistListRequestHandler {
+        $registry = new Registry();
+        foreach ([...$this->metaTools(), 'shopware-entity-search', 'shopware-order-state'] as $toolName) {
+            $registry->registerTool($this->tool($toolName), static fn (): string => '');
+        }
+
+        $privilegeProvider = static::createStub(AppMcpPrivilegeProvider::class);
+        $privilegeProvider->method('getAppToolPrivileges')->willReturn([]);
+        $privilegeProvider->method('getAppToolGroups')->willReturn([]);
+
+        $toolsetRegistry = new McpToolsetRegistry(new McpCapabilityCatalog(
+            $registry,
+            $privilegeProvider,
+            toolGroups: [
+                'shopware-tool-search' => McpToolsetRegistry::DISCOVERY_GROUP,
+                McpToolsetRegistry::LIST_TOOLSETS_TOOL => McpToolsetRegistry::DISCOVERY_GROUP,
+                McpToolsetRegistry::ENABLE_TOOLSET_TOOL => McpToolsetRegistry::DISCOVERY_GROUP,
+                'shopware-entity-search' => 'entity',
+                'shopware-order-state' => 'order',
+            ],
+        ));
+
+        $requestStack = new RequestStack();
+        $requestStack->push(HttpFoundationRequest::create(
+            $uri,
+            'POST',
+            server: $sessionId !== null ? ['HTTP_MCP_SESSION_ID' => $sessionId] : [],
+        ));
+
+        return $this->createHandler(
+            $registry,
+            new McpAllowlist(tools: $allowlistTools, resources: [], prompts: []),
+            advertisedTools: $this->metaTools(),
+            toolsetRegistry: $toolsetRegistry,
+            toolsetSessionStorage: $toolsetSessionStorage ?? static::createStub(McpToolsetSessionStorage::class),
+            requestStack: $requestStack,
+        );
+    }
+
+    /**
      * @param list<string> $advertisedTools
      */
     private function createHandler(
@@ -504,7 +621,16 @@ class McpAllowlistListRequestHandlerTest extends TestCase
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forCurrentRequest')->willReturn($allowlist);
 
-        return new McpAllowlistListRequestHandler($registry, $allowlistProvider, 2, $advertisedTools, $toolsetRegistry, $toolsetSessionStorage, $requestStack);
+        return new McpAllowlistListRequestHandler(
+            $registry,
+            $allowlistProvider,
+            2,
+            $advertisedTools,
+            $toolsetRegistry,
+            $toolsetSessionStorage,
+            $requestStack,
+            $requestStack !== null ? new McpRequestedToolsetResolver($requestStack) : null,
+        );
     }
 
     private function handleToolsList(McpAllowlistListRequestHandler $handler, ?string $cursor): ListToolsResult

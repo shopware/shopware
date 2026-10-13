@@ -33,6 +33,9 @@ return [
         // Expected to be appended when a new default admin user privilege is added; existing entries are never removed
         preg_quote('Value of constant Shopware\Core\Framework\Api\Context\AdminApiSource::DEFAULT_USER_PRIVILEGES', '/'),
 
+        // Expected to be appended when a new internal route default is added; existing entries are never removed
+        preg_quote('Value of constant Shopware\Core\PlatformRequest::ATTRIBUTE_INTERNAL_ROUTE_PARAMS', '/'),
+
         // swagger-php 6.4 is required for OpenAPI 3.2 generation. The reported
         // BC changes are in the third-party OpenApi\Analysis API. Extensions
         // that only define OpenAPI annotations/attributes continue to work; code
@@ -62,6 +65,7 @@ return [
 
         // Optional parameter added with default null; existing callers are unaffected
         preg_quote('ADDED: Parameter introducedIn was added to Method triggerDeprecationOrThrow() of class Shopware\Core\Framework\Feature', '/'),
+        preg_quote('ADDED: Parameter silentUntil was added to Method triggerDeprecationOrThrow() of class Shopware\Core\Framework\Feature', '/'),
 
         // Optional parameter added with default null; callers are unaffected and decorations go through
         // AbstractCartLoadRoute::load(), which keeps its signature until the change announced for 6.8.
@@ -78,6 +82,11 @@ return [
         preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Cart\Rule\LineItemCreationDateRule#$lineItemCreationDate changed from string|null to string|array|null', '/'),
         preg_quote('REMOVED: Property Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule#$isNet was removed', '/'),
         preg_quote('CHANGED: The return type of Shopware\Core\Framework\Rule\Rule#getConfig() changed from Shopware\Core\Framework\Rule\RuleConfig|null to Shopware\Core\Framework\Rule\RuleConfig', '/'),
+
+        // Rule::getConfig() already permits null. These deprecated implementations keep returning
+        // RuleConfig in 6.7 and only return null when their removal flag v6.8.0.0 is active.
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Cart\Rule\LineItemStockRule#getConfig() changed from Shopware\Core\Framework\Rule\RuleConfig to ', '/') . '(?:the non-covariant )?' . preg_quote('Shopware\Core\Framework\Rule\RuleConfig|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Cart\Rule\LineItemProductStatesRule#getConfig() changed from Shopware\Core\Framework\Rule\RuleConfig to ', '/') . '(?:the non-covariant )?' . preg_quote('Shopware\Core\Framework\Rule\RuleConfig|null', '/'),
 
         // DefinitionValidator is @final; optional parameter added with default [], existing callers are unaffected
         preg_quote('ADDED: Parameter toleratedNonStandardForeignKeys was added to Method validate() of class Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator', '/'),
@@ -110,6 +119,10 @@ return [
         preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationOnlyCompanyRegistration() changed from bool', '/'),
         preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationSeoMetaDescription() changed from string', '/'),
 
+        // ProductEntity::$guaranteeConfirmed is null for a variant that inherits it, like every other inherited product flag.
+        preg_quote('CHANGED: Type of property Shopware\Core\Content\Product\ProductEntity#$guaranteeConfirmed changed from bool to bool|null', '/'),
+        preg_quote('CHANGED: Property Shopware\Core\Content\Product\ProductEntity#$guaranteeConfirmed changed default value from false to NULL', '/'),
+
         // parent method has no type. not really a break
         preg_quote('CHANGED: The return type of Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand#configure() changed from void to ', '/'),
 
@@ -121,5 +134,12 @@ return [
         // that used it have published versions using the new webhooks instead
         preg_quote('REMOVED: Constant Shopware\Core\Service\ServiceException::SERVICE_MISSING_APP_SECRET_INFO was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Service\ServiceException::missingAppSecretInfo() was removed', '/'),
+
+        // Not sure why an external library is complained about
+        preg_quote('CHANGED: The return type of Twig\Extension\AbstractExtension#getNodeVisitors() changed from no type to array', '/'),
+
+        // Not released yet, so safe to be removed again
+        preg_quote('REMOVED: Class Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Extension\DocumentRouteExtension has been deleted', '/'),
     ],
 ];

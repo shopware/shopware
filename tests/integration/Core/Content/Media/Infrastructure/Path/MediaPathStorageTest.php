@@ -98,7 +98,7 @@ class MediaPathStorageTest extends TestCase
         $statement = $this->createMock(Statement::class);
         $statement->expects($this->never())->method('executeStatement');
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('prepare')->willReturn($statement);
 
         $storage = new SqlMediaPathStorage(static::getContainer()->get(Connection::class));

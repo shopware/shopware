@@ -15,9 +15,7 @@ export default {
 
     inject: ['acl'],
 
-    mixins: [
-        Mixin.getByName('sw-settings-list'),
-    ],
+    mixins: [Mixin.getByName('sw-settings-list')],
 
     data() {
         return {

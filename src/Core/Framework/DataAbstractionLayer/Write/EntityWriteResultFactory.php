@@ -62,7 +62,7 @@ class EntityWriteResultFactory
     }
 
     /**
-     * @param array<string, array<string, mixed>> $rawData
+     * @param array<array<string, mixed>> $rawData
      *
      * @return array<string, array<string>>
      */
@@ -534,7 +534,7 @@ class EntityWriteResultFactory
     }
 
     /**
-     * @param array<array<string, string>> $rawData
+     * @param array<array<string, string|null>> $rawData
      *
      * @return list<string>
      */
@@ -553,7 +553,9 @@ class EntityWriteResultFactory
         $primaryKeys = [];
         foreach ($rawData as $row) {
             if (\array_key_exists($fkField->getPropertyName(), $row)) {
-                $primaryKeys[] = $row[$fkField->getPropertyName()];
+                if ($row[$fkField->getPropertyName()] !== null) {
+                    $primaryKeys[] = $row[$fkField->getPropertyName()];
+                }
 
                 continue;
             }
@@ -568,7 +570,7 @@ class EntityWriteResultFactory
     }
 
     /**
-     * @param array<string, string> $rawData
+     * @param array<string, string|null> $rawData
      */
     private function fetchForeignKey(EntityDefinition $definition, array $rawData, FkField $fkField): ?string
     {

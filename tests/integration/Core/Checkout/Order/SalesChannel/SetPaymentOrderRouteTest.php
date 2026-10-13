@@ -87,7 +87,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
@@ -185,6 +185,36 @@ class SetPaymentOrderRouteTest extends TestCase
         static::assertSame($lastTransaction->getId(), $result->getEntityId());
         static::assertSame('cancelled', $result->getFromPlace()->getTechnicalName());
         static::assertSame('open', $result->getToPlace()->getTechnicalName());
+    }
+
+    public function testSetPaymentMethodOwnOrderWithSamePaymentMethodChangedAmount(): void
+    {
+        $orderId = $this->ids->get('order-1');
+        $this->setOrderAmount($orderId, 20.0);
+
+        $this->sendValidRequest($orderId, $this->getAvailablePaymentMethodId());
+
+        $transactions = $this->getTransactions($orderId);
+        static::assertCount(2, $transactions);
+        $firstTransaction = $transactions->first();
+        static::assertNotNull($firstTransaction);
+        $lastTransaction = $transactions->last();
+        static::assertNotNull($lastTransaction);
+        static::assertNotSame($firstTransaction->getId(), $lastTransaction->getId());
+
+        static::assertNotNull($firstTransaction->getStateMachineState());
+        static::assertNotNull($lastTransaction->getStateMachineState());
+        static::assertSame('cancelled', $firstTransaction->getStateMachineState()->getTechnicalName());
+        static::assertSame('open', $lastTransaction->getStateMachineState()->getTechnicalName());
+
+        static::assertNotNull($this->paymentMethodChangedCriteriaEventResult);
+        static::assertNotNull($this->paymentMethodChangedEventResult);
+        static::assertSame($lastTransaction->getId(), $this->paymentMethodChangedEventResult->getOrderTransaction()->getId());
+        $result = $this->transactionStateEventResult;
+        static::assertNotNull($result);
+        static::assertSame($firstTransaction->getId(), $result->getEntityId());
+        static::assertSame('open', $result->getFromPlace()->getTechnicalName());
+        static::assertSame('cancelled', $result->getToPlace()->getTechnicalName());
     }
 
     public function testSetPaymentMethodOwnOrderWithSamePaymentMethodInNotMostRecentTransaction(): void
@@ -481,6 +511,14 @@ class SetPaymentOrderRouteTest extends TestCase
         static::getContainer()->get('order_transaction.repository')->update([[
             'id' => $transactionId,
             'stateId' => $this->getStateMachineState(OrderTransactionStates::STATE_MACHINE, $state),
+        ]], Context::createDefaultContext());
+    }
+
+    private function setOrderAmount(string $orderId, float $amount): void
+    {
+        static::getContainer()->get('order.repository')->update([[
+            'id' => $orderId,
+            'price' => new CartPrice($amount, $amount, $amount, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
         ]], Context::createDefaultContext());
     }
 }

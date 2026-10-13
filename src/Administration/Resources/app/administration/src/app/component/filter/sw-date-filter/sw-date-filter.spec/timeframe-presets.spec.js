@@ -70,52 +70,47 @@ describe('src/app/component/filter/sw-date-filter - timeframe presets', () => {
         },
     };
 
-    Object.entries(cases).forEach(
-        ([
-            key,
-            timeCase,
-        ]) => {
-            it(`should filter correctly for timeframe ${key}`, async () => {
-                const expected = [
+    Object.entries(cases).forEach(([key, timeCase]) => {
+        it(`should filter correctly for timeframe ${key}`, async () => {
+            const expected = [
+                [
+                    'releaseDate',
                     [
-                        'releaseDate',
-                        [
-                            {
-                                field: 'releaseDate',
-                                parameters: {
-                                    gte: timeCase.expectedFrom,
-                                    lte: timeCase.expectedTo,
-                                },
-                                type: 'range',
-                            },
-                        ],
                         {
-                            from: timeCase.expectedFrom,
-                            timeframe: timeCase.timeframe,
-                            to: timeCase.expectedTo,
+                            field: 'releaseDate',
+                            parameters: {
+                                gte: timeCase.expectedFrom,
+                                lte: timeCase.expectedTo,
+                            },
+                            type: 'range',
                         },
                     ],
-                ];
-
-                const wrapper = await createWrapper();
-
-                await wrapper.setProps({
-                    filter: {
-                        property: 'releaseDate',
-                        name: 'releaseDate',
-                        label: 'Release Date',
-                        dateType: 'date',
-                        showTimeframe: true,
+                    {
+                        from: timeCase.expectedFrom,
+                        timeframe: timeCase.timeframe,
+                        to: timeCase.expectedTo,
                     },
-                });
+                ],
+            ];
 
-                const timeframe = wrapper.find('.sw-date-filter__timeframe');
-                expect(timeframe.exists()).toBe(true);
+            const wrapper = await createWrapper();
 
-                wrapper.vm.onTimeframeSelect(timeCase.timeframe);
-
-                expect(wrapper.emitted()['filter-update']).toEqual(expected);
+            await wrapper.setProps({
+                filter: {
+                    property: 'releaseDate',
+                    name: 'releaseDate',
+                    label: 'Release Date',
+                    dateType: 'date',
+                    showTimeframe: true,
+                },
             });
-        },
-    );
+
+            const timeframe = wrapper.find('.sw-date-filter__timeframe');
+            expect(timeframe.exists()).toBe(true);
+
+            wrapper.vm.onTimeframeSelect(timeCase.timeframe);
+
+            expect(wrapper.emitted()['filter-update']).toEqual(expected);
+        });
+    });
 });

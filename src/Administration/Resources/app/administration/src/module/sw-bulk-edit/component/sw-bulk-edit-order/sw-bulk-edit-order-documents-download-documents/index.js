@@ -15,9 +15,7 @@ export default {
         documentV2Service: {},
     },
 
-    mixins: [
-        Shopware.Mixin.getByName('notification'),
-    ],
+    mixins: [Shopware.Mixin.getByName('notification')],
 
     computed: {
         documentTypeRepository() {

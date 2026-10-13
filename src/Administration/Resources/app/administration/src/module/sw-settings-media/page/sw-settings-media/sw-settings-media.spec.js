@@ -51,25 +51,31 @@ async function createWrapper() {
                 },
                 provide: {
                     systemConfigApiService: {
-                        getConfig: () => {
+                        getSchema: () => {
                             return Promise.resolve([
                                 {
-                                    title: {
-                                        'en-GB': '3D Files',
-                                    },
+                                    title: null,
                                     name: null,
-                                    elements: [
+                                    cards: [
                                         {
-                                            name: 'core.media.defaultEnableAugmentedReality',
-                                            type: 'bool',
-                                            config: {
-                                                label: {
-                                                    'en-GB': 'enableAugmentedRealityDefault',
-                                                },
-                                                helpText: {
-                                                    'en-GB': 'enableAugmentedRealityDefault.helptext',
-                                                },
+                                            title: {
+                                                'en-GB': '3D Files',
                                             },
+                                            name: null,
+                                            elements: [
+                                                {
+                                                    name: 'core.media.defaultEnableAugmentedReality',
+                                                    type: 'bool',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'enableAugmentedRealityDefault',
+                                                        },
+                                                        helpText: {
+                                                            'en-GB': 'enableAugmentedRealityDefault.helptext',
+                                                        },
+                                                    },
+                                                },
+                                            ],
                                         },
                                     ],
                                 },

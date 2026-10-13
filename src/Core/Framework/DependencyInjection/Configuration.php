@@ -206,6 +206,22 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->scalarNode('access_token_ttl')->defaultValue('PT10M')->end()
             ->scalarNode('refresh_token_ttl')->defaultValue('P1W')->end()
+            ->scalarNode('auth_code_ttl')->defaultValue('PT5M')->end()
+            ->arrayNode('oauth_clients')
+                ->info('Public OAuth clients allowed to use the authorization code grant with PKCE, keyed by client id.')
+                ->normalizeKeys(false)
+                ->useAttributeAsKey('client_id')
+                ->arrayPrototype()
+                    ->children()
+                        ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
+                        ->arrayNode('redirect_uris')
+                            ->isRequired()
+                            ->requiresAtLeastOneElement()
+                            ->scalarPrototype()->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
             ->scalarNode('max_limit')->end()
             ->arrayNode('static_token')
                 ->children()
@@ -268,6 +284,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('enabled')->end()
+                ->booleanNode('hide_module')->end()
             ->end();
 
         return $rootNode;
@@ -371,6 +388,8 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
                     ->validate()->always()->then(static fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
                 ->end()
+                ->floatNode('url_upload_timeout')->defaultValue(0.0)->min(0)->end()
+                ->floatNode('external_link_timeout')->defaultValue(0.0)->min(0)->end()
                 ->arrayNode('presigned_upload')
                     ->addDefaultsIfNotSet()
                     ->children()
@@ -642,7 +661,12 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('name')->end()
                         ->booleanNode('default')->defaultFalse()->end()
-                        ->booleanNode('major')->defaultFalse()->end()
+                        ->stringNode('major')->cannotBeEmpty()
+                            ->validate()
+                                ->ifTrue(static fn (string $major): bool => !\preg_match('/^v\d+\.\d+\.0\.0$/', $major))
+                                ->thenInvalid('The parent major must be a canonical version flag such as "v6.8.0.0".')
+                            ->end()
+                        ->end()
                         ->booleanNode('toggleable')->defaultFalse()->end()
                         ->scalarNode('description')->end()
                     ->end()
@@ -662,6 +686,18 @@ class Configuration implements ConfigurationInterface
 
                         return $flags;
                     })
+                    ->end()
+                ->validate()
+                    ->ifTrue(static function (array $flags): bool {
+                        foreach ($flags as $name => $flag) {
+                            if (isset($flag['major']) && Feature::isMajorVersionFlag((string) $name)) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    })
+                    ->thenInvalid('A major version flag cannot declare a parent major.')
                     ->end()
             ->end();
 
@@ -1295,7 +1331,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
-            ->arrayPrototype()->scalarPrototype()->end()
+            ->arrayPrototype()->variablePrototype()->end()
             ->end()
             ->validate()
             ->ifFalse(
@@ -1342,6 +1378,15 @@ class Configuration implements ConfigurationInterface
                                             ->integerNode('s_maxage')->min(0)->defaultNull()->end()
                                             ->integerNode('stale_while_revalidate')->min(0)->defaultNull()->end()
                                             ->integerNode('stale_if_error')->min(0)->defaultNull()->end()
+                                        ->end()
+                                    ->end()
+                                    ->scalarNode('no_vary_search')
+                                        ->info('Verbatim value of the "No-Vary-Search" header, e.g. "key-order". Declares which query string differences clients may ignore when matching a stored response, both in the HTTP cache and in the prefetch/prerender cache. Never list parameters that change the rendered content (e.g. "p", "order", filter names) via "params", as the stored response would then be served for the wrong URL.')
+                                        ->defaultNull()
+                                        ->validate()
+                                            // `\z` instead of `$`, otherwise a trailing newline would pass and could smuggle a second header
+                                            ->ifTrue(static fn ($value): bool => $value !== null && (!\is_string($value) || preg_match('/^[\x20-\x7E]+\z/', $value) !== 1))
+                                            ->thenInvalid('The "no_vary_search" option must be a single line of printable ASCII, %s given.')
                                         ->end()
                                     ->end()
                                 ->end()

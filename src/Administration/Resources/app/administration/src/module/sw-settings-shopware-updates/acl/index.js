@@ -8,10 +8,7 @@ Shopware.Service('privileges')
         key: 'system',
         roles: {
             core_update: {
-                privileges: [
-                    'system:core:update',
-                    'system_config:read',
-                ],
+                privileges: ['system:core:update', 'system_config:read'],
                 dependencies: [],
             },
         },
@@ -32,11 +29,7 @@ Shopware.Service('privileges')
                 dependencies: [],
             },
             plugin_upload: {
-                privileges: [
-                    'user_config:read',
-                    'user_config:update',
-                    'user_config:create',
-                ],
+                privileges: ['user_config:read', 'user_config:update', 'user_config:create'],
                 dependencies: ['system.plugin_maintain'],
             },
         },

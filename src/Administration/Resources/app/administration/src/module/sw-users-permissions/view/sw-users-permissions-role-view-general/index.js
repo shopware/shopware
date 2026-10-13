@@ -10,11 +10,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['acl', 'repositoryFactory', 'feature'],
 
     props: {
         role: {
@@ -37,10 +33,7 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('role', [
-            'name',
-            'description',
-        ]),
+        ...mapPropertyErrors('role', ['name', 'description']),
 
         roleId() {
             if (!this.role || this.role.isNew()) {

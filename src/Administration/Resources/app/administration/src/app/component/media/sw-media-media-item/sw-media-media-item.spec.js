@@ -121,9 +121,7 @@ describe('components/media/sw-media-media-item', () => {
                 Promise.reject({
                     response: {
                         data: {
-                            errors: [
-                                error,
-                            ],
+                            errors: [error],
                         },
                     },
                 }),
@@ -157,9 +155,7 @@ describe('components/media/sw-media-media-item', () => {
                 Promise.reject({
                     response: {
                         data: {
-                            errors: [
-                                error,
-                            ],
+                            errors: [error],
                         },
                     },
                 }),

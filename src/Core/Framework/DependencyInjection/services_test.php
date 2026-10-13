@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Test\Category\Service\CountingEntityReader;
 use Shopware\Core\Content\Test\Category\Service\CountingEntitySearcher;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -43,6 +44,7 @@ use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
 use Shopware\Core\Test\Integration\App\TestAppServer;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Mailer\Mailer;
@@ -144,6 +146,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(StoreApiSessionListener::class)
         ->tag('kernel.event_subscriber');
 
+    // innermost decorator, above core (up to 1000) and plugin priorities, so nested re-dispatches still reach the hooks
+    $services->set(EventHookDispatcher::class)
+        ->decorate('event_dispatcher', null, 100000)
+        ->args([
+            service(EventHookDispatcher::class . '.inner'),
+        ]);
+
     $services->set('test.client', TestBrowser::class)
         ->share(false)
         ->public()
@@ -185,6 +194,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('shopware.app_system.guzzle', Client::class)
         ->args([
             [
+                'allow_redirects' => AuthMiddleware::ALLOW_REDIRECTS,
                 'handler' => inline_service(HandlerStack::class)
                     ->factory([HandlerStack::class, 'create'])
                     ->args([
@@ -221,6 +231,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('shopware.webhook.guzzle', Client::class)
         ->args([
             [
+                'allow_redirects' => AuthMiddleware::ALLOW_REDIRECTS,
                 'handler' => inline_service(HandlerStack::class)
                     ->factory([HandlerStack::class, 'create'])
                     ->args([

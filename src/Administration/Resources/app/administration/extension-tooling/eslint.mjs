@@ -15,25 +15,11 @@ import swPluginRules from 'eslint-plugin-plugin-rules';
 import swCoreRules from 'eslint-plugin-sw-core-rules';
 import { legacyTwigConfig, defaultTwigFiles, resolveVueParser } from './legacy-twig.mjs';
 
-const javascriptFilePatterns = [
-    '**/*.js',
-    '**/*.mjs',
-    '**/*.cjs',
-];
-const typescriptFilePatterns = [
-    '**/*.ts',
-    '**/*.tsx',
-];
+const javascriptFilePatterns = ['**/*.js', '**/*.mjs', '**/*.cjs'];
+const typescriptFilePatterns = ['**/*.ts', '**/*.tsx'];
 const vueFilePatterns = ['**/*.vue'];
-const specFilePatterns = [
-    '**/*.spec.ts',
-    '**/*.spec.tsx',
-    '**/*.spec.js',
-];
-const templateFilePatterns = [
-    ...vueFilePatterns,
-    ...defaultTwigFiles,
-];
+const specFilePatterns = ['**/*.spec.ts', '**/*.spec.tsx', '**/*.spec.js'];
+const templateFilePatterns = [...vueFilePatterns, ...defaultTwigFiles];
 /** Extensions consume the Administration through the global Shopware object, never through its sources. */
 const NO_ADMIN_INTERNALS_RULE = [
     'error',
@@ -182,11 +168,7 @@ export function shopwareAdminExtension(options = {}) {
             },
             rules: {
                 ...typedRules,
-                'vue/html-indent': [
-                    'error',
-                    4,
-                    { baseIndent: 1 },
-                ],
+                'vue/html-indent': ['error', 4, { baseIndent: 1 }],
             },
         },
         {
@@ -216,11 +198,7 @@ export function shopwareAdminExtension(options = {}) {
         },
         {
             name: 'shopware/admin-extension/runtime-contract',
-            files: scope([
-                ...javascriptFilePatterns,
-                ...typescriptFilePatterns,
-                ...vueFilePatterns,
-            ]),
+            files: scope([...javascriptFilePatterns, ...typescriptFilePatterns, ...vueFilePatterns]),
             languageOptions: {
                 ecmaVersion: 'latest',
                 sourceType: 'module',
@@ -239,10 +217,7 @@ export function shopwareAdminExtension(options = {}) {
         },
         {
             name: 'shopware/admin-extension/api-boundary',
-            files: scope([
-                ...typescriptFilePatterns,
-                ...vueFilePatterns,
-            ]),
+            files: scope([...typescriptFilePatterns, ...vueFilePatterns]),
             rules: {
                 '@typescript-eslint/no-deprecated': deprecatedApiSeverity,
             },

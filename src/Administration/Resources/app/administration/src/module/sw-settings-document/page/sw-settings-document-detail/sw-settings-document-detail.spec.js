@@ -53,10 +53,7 @@ const documentBaseConfigRepositoryMock = {
                 id: id,
                 documentTypeId: 'documentTypeId',
                 config: {
-                    fileTypes: [
-                        'pdf',
-                        'html',
-                    ],
+                    fileTypes: ['pdf', 'html'],
                 },
             });
         }
@@ -83,9 +80,7 @@ const documentBaseConfigRepositoryMock = {
             id: id,
             documentTypeId: 'documentTypeId',
             config: {
-                fileTypes: [
-                    'pdf',
-                ],
+                fileTypes: ['pdf'],
             },
         });
     },
@@ -212,9 +207,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         });
         await flushPromises();
 
-        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual([
-            'salesChannelId1',
-        ]);
+        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual(['salesChannelId1']);
     });
 
     it('should create an entity collection with document config sales channels associations', async () => {
@@ -272,9 +265,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         });
         await flushPromises();
 
-        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual([
-            'salesChannelId1',
-        ]);
+        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual(['salesChannelId1']);
 
         wrapper.vm.onChangeType({ id: 'documentTypeId2' });
 
@@ -448,6 +439,24 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(wrapper.vm.generalFormFields.map((field) => field.name)).toContain('paymentDueDate');
         expect(wrapper.find('.sw-settings-document-detail__company_card_display_company').exists()).toBe(true);
         expect(wrapper.find('.sw-settings-document-detail__company_card_display_return').exists()).toBe(true);
+    });
+
+    it('should upload the company logo right away and assign it', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        });
+        await flushPromises();
+
+        const upload = wrapper.get('.sw-settings-document-detail__company_card_media');
+        const listener = wrapper.get('.sw-settings-document-detail__company_card_media-upload-listener');
+
+        expect(upload.attributes('upload-tag')).toBe('documentConfigWithDocumentType');
+        expect(listener.attributes('upload-tag')).toBe('documentConfigWithDocumentType');
+        expect(listener.attributes('auto-upload')).toBeDefined();
+
+        wrapper.vm.onCompanyLogoUploadFinish({ targetId: 'uploadedLogoId' });
+
+        expect(wrapper.vm.documentConfig.logoId).toBe('uploadedLogoId');
     });
 
     it('should hide the moved company settings banner after closing it', async () => {
@@ -778,10 +787,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
                 displayPageCount: true,
                 displayPrices: true,
                 displayReturnAddress: false,
-                fileTypes: [
-                    'pdf',
-                    'html',
-                ],
+                fileTypes: ['pdf', 'html'],
                 itemsPerPage: 10,
                 pageOrientation: 'portrait',
                 pageSize: 'a4',
@@ -820,10 +826,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
                 displayPageCount: true,
                 displayPrices: true,
                 displayReturnAddress: false,
-                fileTypes: [
-                    'pdf',
-                    'html',
-                ],
+                fileTypes: ['pdf', 'html'],
                 itemsPerPage: 10,
                 pageOrientation: 'portrait',
                 pageSize: 'a4',

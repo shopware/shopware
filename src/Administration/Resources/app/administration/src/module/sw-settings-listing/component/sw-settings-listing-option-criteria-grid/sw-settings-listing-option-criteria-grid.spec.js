@@ -223,9 +223,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
             field: 'customFields.custom_movies_aspernatur_enim_error',
         });
 
-        expect(getProductSortingFieldsByName).toEqual([
-            '8d863f0747d84544a767ea77a239b0ec',
-        ]);
+        expect(getProductSortingFieldsByName).toEqual(['8d863f0747d84544a767ea77a239b0ec']);
     });
 
     it('should add an always-false id filter when no product custom-field-set relations exist', async () => {
@@ -261,10 +259,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
     });
 
     it('should add a customFieldSetId equalsAny filter when product custom-field-set relations exist', async () => {
-        wrapper.vm.customFieldSetIDs = [
-            'set-id-1',
-            'set-id-2',
-        ];
+        wrapper.vm.customFieldSetIDs = ['set-id-1', 'set-id-2'];
 
         const criteriaParams = wrapper.vm.customFieldCriteria.parse();
         const singleSelectCriteriaParams = wrapper.vm.customFieldCriteriaSingleSelect().parse();

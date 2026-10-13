@@ -62,13 +62,7 @@ export default {
          * @param {string} type - Either be itemRounding or totalRounding
          */
         onChangeDecimals(decimals, type) {
-            if (
-                decimals <= 2 ||
-                ![
-                    'itemRounding',
-                    'totalRounding',
-                ].includes(type)
-            ) {
+            if (decimals <= 2 || !['itemRounding', 'totalRounding'].includes(type)) {
                 return;
             }
 

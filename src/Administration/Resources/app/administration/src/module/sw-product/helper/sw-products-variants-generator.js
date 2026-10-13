@@ -199,7 +199,7 @@ export default class VariantsGenerator extends EventEmitter {
         // without changing existing configuration
         if (
             !this.product.variantListingConfig ||
-            (!this.product.variantListingConfig.displayParent &&
+            (typeof this.product.variantListingConfig.displayParent !== 'boolean' &&
                 !this.product.variantListingConfig.configuratorGroupConfig &&
                 !this.product.variantListingConfig.mainVariantId)
         ) {
@@ -256,10 +256,7 @@ export default class VariantsGenerator extends EventEmitter {
             const numbers = {};
             const numberMap = {};
 
-            for (const [
-                key,
-                variant,
-            ] of Object.entries(variationOnServer)) {
+            for (const [key, variant] of Object.entries(variationOnServer)) {
                 const hash = md5(JSON.stringify(variant.options.sort()));
                 hashed[hash] = key;
                 numberMap[hash] = variant.productNumber;

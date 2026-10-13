@@ -263,6 +263,8 @@ shopware:
                         storage:
                             policy: open
                         # a reserve failing on lock wait timeout is the contention signal itself
+                        result:
+                            allowed_values: [success, failed]
 
                 api.sync.operations.count:
                     description: 'Operations per Sync API request'
@@ -293,6 +295,8 @@ shopware:
                         indexing_behavior:
                             allowed_values: ['use-queue-indexing', 'disable-indexing', 'default']
                         # failed requests are timed too, kept out of the healthy distribution
+                        result:
+                            allowed_values: [success, failed]
 
                 flow.execution.duration:
                     # end-to-end flow engine wall time; one inbound event fans out across all matched flows, each timed separately.

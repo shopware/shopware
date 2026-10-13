@@ -16,15 +16,9 @@ const FILE_FAMILY_AGENTIC = 'agentic';
 export default {
     template,
 
-    inject: [
-        'acl',
-        'salesChannelFileApiService',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'salesChannelFileApiService', 'repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -40,11 +34,7 @@ export default {
             isLoading: false,
             page: 1,
             limit: 10,
-            paginationSteps: [
-                10,
-                25,
-                50,
-            ],
+            paginationSteps: [10, 25, 50],
         };
     },
 

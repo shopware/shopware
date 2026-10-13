@@ -95,10 +95,7 @@ const flowSequenceRepositorySyncDeletedMock = jest.fn((sequencesIds) => {
     });
 
     // eslint-disable-next-line jest/no-standalone-expect
-    expect(ids).toEqual([
-        '2',
-        '4',
-    ]);
+    expect(ids).toEqual(['2', '4']);
 });
 
 const flowSequenceRepositorySyncMock = jest.fn((sequences) => {
@@ -111,10 +108,7 @@ const flowSequenceRepositorySyncMock = jest.fn((sequences) => {
     });
 
     // eslint-disable-next-line jest/no-standalone-expect
-    expect(ids).toEqual([
-        '1',
-        '3',
-    ]);
+    expect(ids).toEqual(['1', '3']);
 });
 
 const businessEventServiceMock = {
@@ -184,9 +178,7 @@ async function createWrapper(
                                 },
                                 search: () => {
                                     if (entity === 'rule') {
-                                        return Promise.resolve([
-                                            { id: '1111', name: 'test rule' },
-                                        ]);
+                                        return Promise.resolve([{ id: '1111', name: 'test rule' }]);
                                     }
 
                                     return Promise.resolve([]);
@@ -372,6 +364,35 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         expect(wrapper.vm.flowSequenceRepository.syncDeleted).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.flowSequenceRepository.sync).toHaveBeenCalledTimes(1);
+    });
+
+    it('should refetch the flow with the page criteria when saving an existing flow', async () => {
+        global.activeAclRoles = ['flow.editor'];
+        const wrapper = await createWrapper({}, {}, ID_FLOW);
+        await flushPromises();
+
+        Shopware.Store.get('swFlow').setSequences(getSequencesCollection(sequencesFixture));
+
+        const flow = {
+            id: ID_FLOW,
+            eventName: 'checkout.customer',
+            name: 'Flow 1',
+            sequences: getSequencesCollection(sequencesFixture),
+        };
+
+        Shopware.Store.get('swFlow').setFlow({
+            ...flow,
+            getOrigin: () => flow,
+        });
+
+        const getSpy = jest.spyOn(wrapper.vm.flowRepository, 'get');
+
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(getSpy).toHaveBeenCalledWith(ID_FLOW, Shopware.Context.api, wrapper.vm.flowCriteria);
+        expect(getSpy).not.toHaveBeenCalledWith(ID_FLOW, Shopware.Context.api);
     });
 
     it('should not able to saving flow template', async () => {

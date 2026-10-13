@@ -138,16 +138,12 @@ async function createWrapper(
                     'sw-tabs': {
                         name: 'sw-tabs',
                         template: '<div class="sw-tabs"><slot /></div>',
-                        props: [
-                            'positionIdentifier',
-                        ],
+                        props: ['positionIdentifier'],
                     },
                     'sw-tabs-item': {
                         name: 'sw-tabs-item',
                         template: '<div class="sw-tabs-item"><slot /></div>',
-                        props: [
-                            'route',
-                        ],
+                        props: ['route'],
                     },
                     'router-link': true,
                     'router-view': true,
@@ -197,9 +193,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('should render the deprecated tabs when the major feature flag is inactive', async () => {
-        const wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        const wrapper = await createWrapper(['country.editor']);
 
         await wrapper.vm.$nextTick();
 
@@ -210,9 +204,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('should keep the fallback tab route contract', async () => {
-        const wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        const wrapper = await createWrapper(['country.editor']);
 
         await wrapper.vm.$nextTick();
 
@@ -230,15 +222,10 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('should render meteor tabs when the major feature flag is active', async () => {
-        const wrapper = await createWrapper(
-            [
-                'country.editor',
-            ],
-            {
-                featureActive: true,
-                routeName: 'sw.settings.country.detail.state',
-            },
-        );
+        const wrapper = await createWrapper(['country.editor'], {
+            featureActive: true,
+            routeName: 'sw.settings.country.detail.state',
+        });
 
         await wrapper.vm.$nextTick();
 
@@ -268,15 +255,10 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
 
     it('should navigate when a meteor tab item is clicked', async () => {
         const routerPush = jest.fn();
-        const wrapper = await createWrapper(
-            [
-                'country.editor',
-            ],
-            {
-                featureActive: true,
-                routerPush,
-            },
-        );
+        const wrapper = await createWrapper(['country.editor'], {
+            featureActive: true,
+            routerPush,
+        });
 
         await wrapper.vm.$nextTick();
 
@@ -291,15 +273,10 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('should use create routes for meteor tabs when the country is new', async () => {
-        const wrapper = await createWrapper(
-            [
-                'country.creator',
-            ],
-            {
-                featureActive: true,
-                routeParams: {},
-            },
-        );
+        const wrapper = await createWrapper(['country.creator'], {
+            featureActive: true,
+            routeParams: {},
+        });
 
         await wrapper.setData({
             country: {
@@ -315,9 +292,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('should be render tab', async () => {
-        const wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        const wrapper = await createWrapper(['country.editor']);
 
         await wrapper.vm.$nextTick();
         const generalTab = wrapper.find('.sw-settings-country__setting-tab');
@@ -328,9 +303,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('should be able to save the country', async () => {
-        const wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        const wrapper = await createWrapper(['country.editor']);
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-country-detail__save-action');
@@ -357,9 +330,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
                 },
             },
         });
-        const wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        const wrapper = await createWrapper(['country.editor']);
 
         wrapper.vm.countryId = 'the-id';
         await wrapper.vm.loadUserConfig();
@@ -371,9 +342,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('saves country display settings through the admin user config store', async () => {
-        const wrapper = await createWrapper([
-            'country.editor',
-        ]);
+        const wrapper = await createWrapper(['country.editor']);
         wrapper.vm.countryId = 'the-id';
         wrapper.vm.userConfig = {
             value: {

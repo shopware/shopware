@@ -8,11 +8,7 @@ import './sw-admin-menu-item.scss';
  *
  * @private
  */
-export const TOOLTIP_OPEN_TRIGGER_PROPS = [
-    'onMouseover',
-    'onFocus',
-    'aria-describedby',
-];
+export const TOOLTIP_OPEN_TRIGGER_PROPS = ['onMouseover', 'onFocus', 'aria-describedby'];
 
 /**
  * @sw-package framework
@@ -28,10 +24,7 @@ export default {
         MtCollapsibleContent,
     },
 
-    inject: [
-        'acl',
-        'feature',
-    ],
+    inject: ['acl', 'feature'],
 
     emits: [
         'menu-item-hover',
@@ -52,12 +45,7 @@ export default {
             type: Number,
             required: false,
             default: 1,
-            validator: (v) =>
-                [
-                    1,
-                    2,
-                    3,
-                ].includes(v),
+            validator: (v) => [1, 2, 3].includes(v),
         },
 
         displayIcon: {

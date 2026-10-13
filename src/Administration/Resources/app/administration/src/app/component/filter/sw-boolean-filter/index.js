@@ -12,10 +12,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    emits: [
-        'filter-update',
-        'filter-reset',
-    ],
+    emits: ['filter-update', 'filter-reset'],
 
     props: {
         filter: {
@@ -56,9 +53,7 @@ export default {
                 return;
             }
 
-            const filterCriteria = [
-                Criteria.equals(this.filter.property, newValue === 'true'),
-            ];
+            const filterCriteria = [Criteria.equals(this.filter.property, newValue === 'true')];
 
             this.$emit('filter-update', this.filter.name, filterCriteria, newValue);
         },

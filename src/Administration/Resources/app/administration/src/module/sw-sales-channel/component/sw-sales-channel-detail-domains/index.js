@@ -13,13 +13,9 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -110,10 +106,7 @@ export default {
                 this.salesChannel.currencies?.getIds?.() ??
                 (this.salesChannel.currencies ?? []).map((currency) => currency.id);
 
-            [
-                this.salesChannel.currencyId,
-                this.currentDomain?.currencyId,
-            ].forEach((currencyId) => {
+            [this.salesChannel.currencyId, this.currentDomain?.currencyId].forEach((currencyId) => {
                 if (currencyId && !currencyIds.includes(currencyId)) {
                     currencyIds.push(currencyId);
                 }

@@ -16,10 +16,7 @@ const { EntityCollection, Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     data() {
         return {

@@ -77,7 +77,7 @@ class SalesChannelDomainUtilTest extends TestCase
 
         static::assertSame('test', $result->name);
         static::assertSame(Status::OK, $result->status);
-        static::assertEmpty($this->requestStack->getMainRequest());
+        static::assertNull($this->requestStack->getMainRequest());
     }
 
     public function testRunWhileTrustingAllHosts(): void

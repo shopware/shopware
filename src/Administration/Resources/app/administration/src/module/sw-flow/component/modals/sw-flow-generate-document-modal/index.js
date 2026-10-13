@@ -12,19 +12,11 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'documentV2Service',
-    ],
+    inject: ['repositoryFactory', 'documentV2Service'],
 
-    emits: [
-        'modal-close',
-        'process-finish',
-    ],
+    emits: ['modal-close', 'process-finish'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         sequence: {

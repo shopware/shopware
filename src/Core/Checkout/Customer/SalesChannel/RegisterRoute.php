@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
+use Shopware\Core\Checkout\Customer\Extension\RegisterRouteExtension;
 use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -67,6 +69,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class RegisterRoute extends AbstractRegisterRoute
 {
     use CustomerAddressDataNormalizerTrait;
+    use CustomerVatIdNormalizerTrait;
 
     /**
      * @internal
@@ -93,6 +96,7 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly DoubleOptInService $doubleOptInService,
         private readonly CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater,
         private readonly ClockInterface $clock,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -107,6 +111,19 @@ class RegisterRoute extends AbstractRegisterRoute
         SalesChannelContext $context,
         bool $validateStorefrontUrl = true,
         ?DataValidationDefinition $additionalValidationDefinitions = null
+    ): CustomerResponse {
+        return $this->extensions->publish(
+            name: RegisterRouteExtension::NAME,
+            extension: new RegisterRouteExtension($data, $context, $validateStorefrontUrl, $additionalValidationDefinitions),
+            function: $this->_register(...),
+        );
+    }
+
+    private function _register(
+        RequestDataBag $data,
+        SalesChannelContext $context,
+        bool $validateStorefrontUrl,
+        ?DataValidationDefinition $additionalValidationDefinitions
     ): CustomerResponse {
         EmailIdnConverter::encodeDataBag($data);
 
@@ -293,7 +310,7 @@ class RegisterRoute extends AbstractRegisterRoute
             $definition->merge($additionalValidations);
         }
 
-        if ($validateStorefrontUrl) {
+        if ($validateStorefrontUrl && $this->doubleOptInService->isDoubleOptInEnabled($isGuest, $context)) {
             $definition
                 ->add('storefrontUrl', new NotBlank(), new Choice(choices: $this->getDomainUrls($context)));
         }
@@ -343,6 +360,15 @@ class RegisterRoute extends AbstractRegisterRoute
                 $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
                     countryId: $countryId
                 ));
+
+                $vatIds = $data->get('vatIds');
+                if ($vatIds instanceof DataBag) {
+                    $vatIds = $vatIds->all();
+                }
+
+                if (\is_array($vatIds) && $vatIds !== []) {
+                    $data->set('vatIds', $this->normalizeVatIds($vatIds));
+                }
             }
         }
 

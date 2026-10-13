@@ -81,12 +81,7 @@ describe('scripts/extensionTooling/check orchestration', () => {
                 return answer({
                     status: 0,
                     output: JSON.stringify({
-                        files: composes
-                            ? [
-                                  ...files,
-                                  'admin-types.d.ts',
-                              ]
-                            : files,
+                        files: composes ? [...files, 'admin-types.d.ts'] : files,
                     }),
                     // vue-tsc runs under node, which is free to print notices
                     // here — the JSON must still resolve.
@@ -136,27 +131,12 @@ describe('scripts/extensionTooling/check orchestration', () => {
     });
 
     it('bounds concurrent tool processes across extensions to --max-workers', async () => {
-        writeZeroConfigSuite('Alfa', [
-            'BundleA',
-            'BundleB',
-            'BundleC',
-        ]);
-        writeZeroConfigSuite('Bravo', [
-            'BundleA',
-            'BundleB',
-            'BundleC',
-        ]);
+        writeZeroConfigSuite('Alfa', ['BundleA', 'BundleB', 'BundleC']);
+        writeZeroConfigSuite('Bravo', ['BundleA', 'BundleB', 'BundleC']);
         writePluginsConfig(
             projectRoot,
-            [
-                'Alfa',
-                'Bravo',
-            ].flatMap((name) =>
-                [
-                    'BundleA',
-                    'BundleB',
-                    'BundleC',
-                ].map((bundle) => ({
+            ['Alfa', 'Bravo'].flatMap((name) =>
+                ['BundleA', 'BundleB', 'BundleC'].map((bundle) => ({
                     technicalName: `${name}${bundle}`,
                     basePath: `custom/plugins/${name}/src/${bundle}`,
                     administrationPath: 'Resources/app/administration/src',

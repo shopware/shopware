@@ -1338,7 +1338,7 @@ class EntityAggregatorTest extends TestCase
         if (Feature::isActive('v6.8.0.0')) {
             static::expectExceptionObject(DataAbstractionLayerException::invalidIdentifier('`taxRate`'));
         } else {
-            static::expectExceptionObject(new \InvalidArgumentException('Backtick not allowed in identifier'));
+            static::expectExceptionObject(new \InvalidArgumentException('Backtick, question mark, colon, or control character not allowed in identifier'));
         }
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }

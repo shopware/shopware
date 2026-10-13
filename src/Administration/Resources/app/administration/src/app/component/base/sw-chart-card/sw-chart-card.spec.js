@@ -47,17 +47,11 @@ async function createWrapper(additionalProps = {}, additionalOptions = {}) {
                 'mt-card': {
                     template:
                         '<div class="mt-card" :is-loading="isLoading"><slot /><slot name="title"></slot><slot name="headerRight"></slot></div>',
-                    props: [
-                        'helpText',
-                        'isLoading',
-                    ],
+                    props: ['helpText', 'isLoading'],
                 },
                 'mt-select': {
                     name: 'mt-select',
-                    props: [
-                        'modelValue',
-                        'options',
-                    ],
+                    props: ['modelValue', 'options'],
                     template: `
                         <div class="mt-select">
                             <div
@@ -116,10 +110,7 @@ describe('src/app/component/base/sw-chart-card', () => {
     it('forwards the option value to the legacy range-option slot', async () => {
         const wrapper = await createWrapper(
             {
-                availableRanges: [
-                    '30Days',
-                    '14Days',
-                ],
+                availableRanges: ['30Days', '14Days'],
             },
             {
                 slots: {

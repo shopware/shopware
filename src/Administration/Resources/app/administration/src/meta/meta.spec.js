@@ -25,12 +25,7 @@ const isTestAbleFile = (file) => {
     const fileExtension = path.extname(file);
     const filePathWithoutExtension = file.slice(0, -fileExtension.length);
 
-    if (
-        ![
-            '.js',
-            '.ts',
-        ].includes(fileExtension)
-    ) {
+    if (!['.js', '.ts'].includes(fileExtension)) {
         return false;
     }
 

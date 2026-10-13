@@ -148,14 +148,8 @@ describe('extension-component-sections.store', () => {
         });
 
         it.each([
-            [
-                'a negative',
-                -5,
-            ],
-            [
-                'a zero',
-                0,
-            ],
+            ['a negative', -5],
+            ['a zero', 0],
         ])('ignores %s priority, storing it as unset', (_label, invalidPriority) => {
             store.addSection({
                 component: 'card',

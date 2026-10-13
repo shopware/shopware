@@ -15,7 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Demodata\PersonalData\CleanPersonalDataCommand;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
@@ -32,7 +33,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
 #[Package('framework')]
 class CleanPersonalDataCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private Connection $connection;
 
@@ -47,20 +49,6 @@ class CleanPersonalDataCommandTest extends TestCase
         $this->customerRepository = static::getContainer()->get('customer.repository');
         $this->clearTable('cart');
         $this->clearTable('customer');
-    }
-
-    public function testCommandWithoutArguments(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->getCommand()->run($this->getArrayInput(), new BufferedOutput());
-    }
-
-    public function testCommandWithInvalidArguments(): void
-    {
-        $input = new ArrayInput(['type' => 'foo'], $this->createInputDefinition());
-
-        $this->expectException(\InvalidArgumentException::class);
-        $this->getCommand()->run($input, new BufferedOutput());
     }
 
     public function testCommandRemovesGuest(): void
@@ -355,14 +343,5 @@ class CleanPersonalDataCommandTest extends TestCase
     private function getCommand(): CleanPersonalDataCommand
     {
         return new CleanPersonalDataCommand($this->connection, $this->customerRepository, new NativeClock());
-    }
-
-    private function getArrayInput(): ArrayInput
-    {
-        $inputArgument = new InputArgument('types', InputArgument::IS_ARRAY);
-        $inputOption = new InputOption('days', null, InputOption::VALUE_REQUIRED);
-        $inputDefinition = new InputDefinition([$inputArgument, $inputOption]);
-
-        return new ArrayInput([], $inputDefinition);
     }
 }

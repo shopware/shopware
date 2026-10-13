@@ -66,11 +66,17 @@ class RenderStateTest extends TestCase
         $state = new RenderState();
         $state->add($this->result);
 
+        $state->require(DocumentFormat::HTML->value);
+    }
+
+    public function testRequireReturnsResultIfPresent(): void
+    {
+        $state = new RenderState();
+        $state->add($this->result);
+
         static::assertSame(
             $this->result,
             $state->require(DocumentFormat::PDF->value)
         );
-
-        $state->require(DocumentFormat::HTML->value);
     }
 }

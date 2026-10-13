@@ -12,9 +12,7 @@ export default {
 
     emits: ['loading-preview'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     computed: {
         documentNumber: {

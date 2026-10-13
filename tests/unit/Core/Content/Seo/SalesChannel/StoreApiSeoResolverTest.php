@@ -92,12 +92,12 @@ class StoreApiSeoResolverTest extends TestCase
             $response
         );
 
-        static::assertEmpty($productEntity->getSeoUrls());
+        static::assertCount(0, $productEntity->getSeoUrls() ?? []);
 
         $storeApiSeoResolver = $this->createStoreApiSeoResolver();
         $storeApiSeoResolver->addSeoInformation($event);
 
-        static::assertNotEmpty($productEntity->getSeoUrls());
+        static::assertNotCount(0, $productEntity->getSeoUrls() ?? []);
     }
 
     public function testAddSeoWithRepeatedEntity(): void
@@ -143,12 +143,12 @@ class StoreApiSeoResolverTest extends TestCase
             $response
         );
 
-        static::assertEmpty($productEntity->getSeoUrls());
+        static::assertCount(0, $productEntity->getSeoUrls() ?? []);
 
         $storeApiSeoResolver = $this->createStoreApiSeoResolver(['random', 'cross-selling-product']);
         $storeApiSeoResolver->addSeoInformation($event);
 
-        static::assertNotEmpty($productEntity->getSeoUrls());
+        static::assertNotCount(0, $productEntity->getSeoUrls() ?? []);
 
         $crossSellingProduct1 = $productEntity->getCrossSellings()?->get('cross-item-1');
 
@@ -198,12 +198,12 @@ class StoreApiSeoResolverTest extends TestCase
             $response
         );
 
-        static::assertEmpty($product->getSeoUrls());
+        static::assertCount(0, $product->getSeoUrls() ?? []);
 
         $storeApiSeoResolver = $this->createStoreApiSeoResolver();
         $storeApiSeoResolver->addSeoInformation($event);
 
-        static::assertNotEmpty($product->getSeoUrls());
+        static::assertNotCount(0, $product->getSeoUrls() ?? []);
     }
 
     public function testAddSeoInformationForSearchResultNestedInStructVars(): void
@@ -242,12 +242,12 @@ class StoreApiSeoResolverTest extends TestCase
             new ProductListResponse($searchResult)
         );
 
-        static::assertEmpty($product->getSeoUrls());
+        static::assertCount(0, $product->getSeoUrls() ?? []);
 
         $storeApiSeoResolver = $this->createStoreApiSeoResolver();
         $storeApiSeoResolver->addSeoInformation($event);
 
-        static::assertNotEmpty($product->getSeoUrls());
+        static::assertNotCount(0, $product->getSeoUrls() ?? []);
     }
 
     #[DoesNotPerformAssertions]
@@ -264,11 +264,15 @@ class StoreApiSeoResolverTest extends TestCase
         $storeApiSeoResolver->addSeoInformation($event);
     }
 
-    public function testRequestHeaderDoesNotIncludeSeoUrls(): void
+    #[DataProvider('missingSeoHeaderCases')]
+    public function testRequestHeaderDoesNotIncludeSeoUrls(?string $headerValue): void
     {
         $productEntity = $this->createProductEntity();
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, static::createStub(SalesChannelContext::class));
+        if ($headerValue !== null) {
+            $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEO_URLS, $headerValue);
+        }
 
         $event = new ResponseEvent(
             static::createStub(HttpKernelInterface::class),
@@ -288,6 +292,12 @@ class StoreApiSeoResolverTest extends TestCase
         $storeApiSeoResolver->addSeoInformation($event);
 
         static::assertNull($productEntity->getSeoUrls());
+    }
+
+    public static function missingSeoHeaderCases(): \Generator
+    {
+        yield 'header absent' => [null];
+        yield 'header empty' => [''];
     }
 
     public function testContextIsNoSalesChannelContext(): void
@@ -377,7 +387,7 @@ class StoreApiSeoResolverTest extends TestCase
 
         static::assertInstanceOf(Criteria::class, $capturedCriteria);
         static::assertSame($expectedRouteNames, $this->getRouteNameFilterValues($capturedCriteria));
-        static::assertNotEmpty($productEntity->getSeoUrls());
+        static::assertNotCount(0, $productEntity->getSeoUrls() ?? []);
     }
 
     private function createProductListResponseEvent(SalesChannelProductEntity $productEntity, SalesChannelContext $context): ResponseEvent

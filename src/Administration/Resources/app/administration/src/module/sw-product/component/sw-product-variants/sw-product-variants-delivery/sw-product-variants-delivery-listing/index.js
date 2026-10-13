@@ -44,7 +44,13 @@ export default {
         },
 
         listingMode() {
-            return this.mainVariant || this.product.variantListingConfig.displayParent === true ? 'single' : 'expanded';
+            if (this.mainVariant || this.product.variantListingConfig.displayParent === true) {
+                return 'single';
+            }
+
+            const configuratorGroupConfig = this.product.variantListingConfig.configuratorGroupConfig ?? [];
+
+            return configuratorGroupConfig.some((group) => group.expressionForListings === true) ? 'expanded' : 'single';
         },
 
         mainVariantModeOptions() {
@@ -58,6 +64,10 @@ export default {
                     name: this.$t('sw-product.variations.deliveryModal.listingLabelMainVariant'),
                 },
             ];
+        },
+
+        variantMode() {
+            return this.product.variantListingConfig.displayParent === true;
         },
 
         mainVariant() {
@@ -108,10 +118,7 @@ export default {
             }
 
             // add non sorted groups at the end of the sorted array
-            sortedGroups = [
-                ...sortedGroups,
-                ...selectedGroupsCopy,
-            ];
+            sortedGroups = [...sortedGroups, ...selectedGroupsCopy];
 
             return sortedGroups;
         },
@@ -127,10 +134,6 @@ export default {
         },
 
         updateListingMode(value) {
-            if (value === 'expanded') {
-                this.product.variantListingConfig.displayParent = true;
-            }
-
             this.product.listingMode = value;
         },
 

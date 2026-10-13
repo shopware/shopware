@@ -99,10 +99,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
             bar.vm.$emit('select-all');
             await wrapper.vm.$nextTick();
-            expect(wrapper.vm.selectedNames).toEqual([
-                'A',
-                'B',
-            ]);
+            expect(wrapper.vm.selectedNames).toEqual(['A', 'B']);
 
             bar.vm.$emit('clear');
             await wrapper.vm.$nextTick();
@@ -137,7 +134,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                     active: true,
                     allowDisable: true,
                     updatedAt: null,
-                    storeLicense: { variant: 'rent', expired: false },
+                    storeLicense: { variant: 'rent', expired: false, expirationDate: null },
                 },
                 {
                     name: 'Free',

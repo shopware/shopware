@@ -9,6 +9,7 @@ import type { NavigationGuardNext, RouteLocationNormalized, RouteLocationNormali
 // Import explicitly global types from meteor-admin-sdk
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
+import type { Deprecation } from 'src/app/plugin/deprecation.plugin';
 import type CacheService from 'src/app/service/cache.service';
 import type { LoginService } from 'src/core/service/login.service';
 import type { HttpClient } from 'src/core/factory/http-client.types';
@@ -27,6 +28,7 @@ import type EntityDefinitionFactory from 'src/core/factory/entity-definition.fac
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
 import type UserApiService from 'src/core/service/api/user.api.service';
 import type UserConfigService from 'src/core/service/api/user-config.api.service';
+import type OAuthAuthorizeApiService from 'src/core/service/api/oauth-authorize.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type ShopIdChangeService from 'src/core/service/api/shop-id-change.service';
 import type ProductTypeApiService from 'src/app/service/product-type.api.service';
@@ -283,6 +285,7 @@ declare global {
         mediaService: MediaService;
         menuService: $TSFixMe;
         numberRangeService: $TSFixMe;
+        oauthAuthorizeApiService: OAuthAuthorizeApiService;
         orderStateMachineService: OrderStateMachineApiService;
         privileges: PrivilegesService;
         productStreamConditionService: $TSFixMe;
@@ -368,6 +371,7 @@ declare global {
 
     interface FilterTypes {
         asset: (value: string) => string;
+        breadcrumb: (value: string[] | Record<string, string> | null | undefined, separator?: string) => string;
         currency: $TSFixMeFunction;
         date: (value: string, options?: Intl.DateTimeFormatOptions) => string;
         'file-size': $TSFixMeFunction;
@@ -437,7 +441,7 @@ declare global {
         shopwareExtensions: ShopwareExtensionsStore;
         swOrderDetail: SwOrderDetailStore;
         swOrder: SwOrderStore;
-        swShippingDetailStore: SwShippingDetailStore;
+        swShippingDetail: SwShippingDetailStore;
         paymentOverviewCard: PaymentOverviewCardStore;
         swProductDetail: SwProductDetailStore;
         swProfile: SwProfileStore;
@@ -581,6 +585,11 @@ declare module '@vue/runtime-core' {
     interface ComponentCustomProperties extends CustomProperties {}
 
     interface ComponentCustomOptions {
+        /**
+         * Guards every creation of the component, see `src/app/plugin/deprecation.plugin.ts`.
+         */
+        deprecated?: Deprecation;
+
         shortcuts?: {
             [key: string]:
                 | string

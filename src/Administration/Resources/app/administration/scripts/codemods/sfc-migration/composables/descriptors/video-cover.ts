@@ -10,11 +10,7 @@ const VIDEO_COVER_DESCRIPTOR: ComposableDescriptor = {
     mixinNames: ['video-cover'],
     import: { source: 'src/app/composables/use-video-cover', name: 'useVideoCover' },
     members: {
-        ...refMembers([
-            'showCoverSelectionModal',
-            'isVideoMedia',
-            'hasVideoCover',
-        ]),
+        ...refMembers(['showCoverSelectionModal', 'isVideoMedia', 'hasVideoCover']),
         ...methodMembers([
             'openCoverSelectionModal',
             'closeCoverSelectionModal',
@@ -36,10 +32,7 @@ const VIDEO_COVER_DESCRIPTOR: ComposableDescriptor = {
         'getCoverMediaId',
     ],
     // The mixin injected both for its own use; the composable resolves them itself.
-    unmappedMembers: [
-        'acl',
-        'mediaService',
-    ],
+    unmappedMembers: ['acl', 'mediaService'],
     propArgs: ['item'],
 };
 

@@ -143,9 +143,10 @@
     <mt-empty-state
         v-if="shouldDisplayEmptyState"
         class="sw-media-library__empty-state"
-        :centered="true"
+        centered
         :icon="$route.meta.$module.icon"
         :headline="$t('sw-empty-state.messageNoResultTitle')"
+        description=""
     />
     {% endblock %}
 </div>

@@ -265,22 +265,14 @@ function extractMarkerEntries(
         : [];
 
     const importedBindingNames = new Set(classified.importedBindings.map((binding) => binding.name));
-    assertStaticObjectEntries(
-        publicEntries,
-        classified.bindings.names,
-        importedBindingNames,
-        scriptOffset,
-        'swDefinePublic',
-    );
-    assertStaticObjectEntries(
-        overrideEntries,
-        classified.bindings.names,
-        importedBindingNames,
-        scriptOffset,
-        'swDefineOverride',
-    );
+    assertStaticObjectEntries(publicEntries, classified.bindings.names, importedBindingNames, 'swDefinePublic');
+    assertStaticObjectEntries(overrideEntries, classified.bindings.names, importedBindingNames, 'swDefineOverride');
 
-    return { publicEntries, overrideEntries };
+    // Only the checks above need the entry positions; lowering just reads the names.
+    return {
+        publicEntries: publicEntries.map((entry) => entry.name),
+        overrideEntries: overrideEntries.map((entry) => entry.name),
+    };
 }
 
 /** Where the compile-time marker statements sit. What to do with them is the lowerer's call. */
@@ -375,13 +367,7 @@ function analyzeShopwareSetupScript(script: string, options: AnalyzerOptions): S
     // sees the most specific error first.
     assertScriptRules(ast, classified, mode, scriptOffset);
     const { publicEntries, overrideEntries } = extractMarkerEntries(classified, scriptOffset);
-    assertReservedMacroNames(
-        [
-            ...classified.bindings.bindings,
-            ...classified.importedBindings,
-        ],
-        scriptOffset,
-    );
+    assertReservedMacroNames([...classified.bindings.bindings, ...classified.importedBindings], scriptOffset);
 
     // 4 - assemble the mode-specific analysis
     const shared = buildSharedAnalysis(script, classified);

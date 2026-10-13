@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\MacroCallNodeVisitor;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\MacroOverrideTokenParserMacro;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\SwMacroFunctionTokenParser;
@@ -35,7 +36,7 @@ use Twig\TwigFunction;
 use Twig\TwigTest;
 
 #[Package('framework')]
-#[BecomesInternal(version: 'v6.8.0')]
+#[BecomesInternal(version: 'v6.8.0')] // Class should be renamed after that, as it is no longer only about PHP syntax
 class PhpSyntaxExtension extends AbstractExtension
 {
     public function getTokenParsers(): array
@@ -48,6 +49,11 @@ class PhpSyntaxExtension extends AbstractExtension
             new SwMacroFunctionTokenParser(),
             new MacroOverrideTokenParserMacro(), /** @deprecated tag:v6.8.0 - Will be removed use `sw_macro_function` instead of macro in app scripts */
         ];
+    }
+
+    public function getNodeVisitors(): array
+    {
+        return [new MacroCallNodeVisitor()];
     }
 
     /**

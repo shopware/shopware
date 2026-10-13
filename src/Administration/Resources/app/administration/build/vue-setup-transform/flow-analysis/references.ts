@@ -29,9 +29,11 @@
 
 import { parse, parseExpression, type ParserPlugin } from '@babel/parser';
 import type { Node as BabelNode, PatternLike } from '@babel/types';
-import { ShopwareSetupTransformError } from '../utils/transform-error';
+import { getNodeRange, unwrapTransparentMacroExpression } from '../script-analyzer/utils';
+import { ShopwareSetupInternalError } from '../utils/transform-error';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
 import { childBabelNodes, isFunctionLikeNode, isTypeKey } from '../utils/ast-traversal';
+import type { SourceRange } from '../utils/source-range';
 import { isValueReadPosition } from './identifier-position';
 
 type BindingPatternResult = {
@@ -39,9 +41,7 @@ type BindingPatternResult = {
     offset: number;
 };
 
-const EXPRESSION_PLUGINS: ParserPlugin[] = [
-    'typescript',
-];
+const EXPRESSION_PLUGINS: ParserPlugin[] = ['typescript'];
 
 /**
  * Parses one template JS snippet into a Babel node.
@@ -79,7 +79,7 @@ function parseBindingPattern(source: string): BindingPatternResult {
     const statement = ast.program.body[0];
 
     if (statement.type !== 'VariableDeclaration') {
-        throw new ShopwareSetupTransformError('Unable to parse Vue binding pattern.', 0);
+        throw new ShopwareSetupInternalError('Unable to parse Vue binding pattern.', 0);
     }
 
     const declaration = statement.declarations[0];
@@ -133,15 +133,7 @@ function collectPatternReferences(
     }
 
     if (pattern.type === 'AssignmentPattern') {
-        collectBabelReferences(
-            pattern.right,
-            [
-                patternScope,
-                ...outerScopes,
-            ],
-            references,
-            pattern,
-        );
+        collectBabelReferences(pattern.right, [patternScope, ...outerScopes], references, pattern);
         collectPatternReferences(pattern.left, outerScopes, references, patternScope);
         return;
     }
@@ -159,15 +151,7 @@ function collectPatternReferences(
             }
 
             if (property.computed) {
-                collectBabelReferences(
-                    property.key,
-                    [
-                        patternScope,
-                        ...outerScopes,
-                    ],
-                    references,
-                    property,
-                );
+                collectBabelReferences(property.key, [patternScope, ...outerScopes], references, property);
             }
 
             collectPatternReferences(property.value, outerScopes, references, patternScope);
@@ -215,10 +199,7 @@ function collectBabelReferences(
 
     if (node.type === 'BlockStatement') {
         const blockScope = new Set<string>();
-        const nextScopes = [
-            blockScope,
-            ...scopes,
-        ];
+        const nextScopes = [blockScope, ...scopes];
 
         node.body.forEach((statement) => collectBabelReferences(statement, nextScopes, references, node));
         return;
@@ -251,15 +232,7 @@ function collectBabelReferences(
             collectBabelReferences(node.key, scopes, references, node);
         }
 
-        collectBabelReferences(
-            node.body,
-            [
-                functionScope,
-                ...scopes,
-            ],
-            references,
-            node,
-        );
+        collectBabelReferences(node.body, [functionScope, ...scopes], references, node);
         return;
     }
 
@@ -274,15 +247,7 @@ function collectBabelReferences(
         }
 
         collectBabelReferences(node.superClass, scopes, references, node);
-        collectBabelReferences(
-            node.body,
-            [
-                classScope,
-                ...scopes,
-            ],
-            references,
-            node,
-        );
+        collectBabelReferences(node.body, [classScope, ...scopes], references, node);
         return;
     }
 
@@ -308,15 +273,7 @@ function collectBabelReferences(
     if (node.type === 'CatchClause') {
         const catchScope = new Set<string>();
         addPatternNames(node.param, catchScope);
-        collectBabelReferences(
-            node.body,
-            [
-                catchScope,
-                ...scopes,
-            ],
-            references,
-            node,
-        );
+        collectBabelReferences(node.body, [catchScope, ...scopes], references, node);
         return;
     }
 
@@ -330,20 +287,19 @@ function collectBabelReferences(
  * write to a forwarded override binding silently no-ops. Member writes (`count.value = 1`) and nested
  * shadowing are out of scope; template-local names are filtered by the caller's scope.
  */
-function collectBabelWriteTargets(root: BabelNode | null | undefined): Set<string> {
-    const targets = new Set<string>();
+function collectBabelWriteTargets(root: BabelNode): Map<string, SourceRange> {
+    const targets = new Map<string, SourceRange>();
 
     function visit(node: BabelNode | null | undefined): void {
         if (!node || typeof node.type !== 'string') {
             return;
         }
 
-        if (node.type === 'AssignmentExpression' && node.left.type === 'Identifier') {
-            targets.add(node.left.name);
-        }
+        const written =
+            node.type === 'AssignmentExpression' ? node.left : node.type === 'UpdateExpression' ? node.argument : null;
 
-        if (node.type === 'UpdateExpression' && node.argument.type === 'Identifier') {
-            targets.add(node.argument.name);
+        if (written?.type === 'Identifier' && !targets.has(written.name)) {
+            targets.set(written.name, getNodeRange(written));
         }
 
         childBabelNodes(node).forEach(visit);
@@ -355,19 +311,30 @@ function collectBabelWriteTargets(root: BabelNode | null | undefined): Set<strin
 }
 
 /**
- * Returns the outer-scope identifiers one Vue expression writes to (assignment/update targets).
+ * Returns written identifiers and their first range in the decoded expression, including implicit v-model writes.
  *
  * @param templateScope names already bound by the surrounding template (v-for aliases, slot props);
  *   a write to one of those is template-local, so it is filtered out of the result.
  */
-function collectExpressionWriteTargets(expression: string | undefined, templateScope: Set<string>): Set<string> {
+function collectExpressionWriteTargets(
+    expression: string | undefined,
+    templateScope: Set<string>,
+    isModel = false,
+): Map<string, SourceRange> {
     if (!expression || expression.trim() === '') {
-        return new Set<string>();
+        return new Map<string, SourceRange>();
     }
 
-    const targets = collectBabelWriteTargets(parseTemplateExpression(expression));
+    const root = parseTemplateExpression(expression);
+    const targets = collectBabelWriteTargets(root);
+    // v-model implicitly assigns to its expression. TypeScript wrappers do not change its target.
+    const modelTarget = isModel ? unwrapTransparentMacroExpression(root) : null;
 
-    return new Set([...targets].filter((name) => !templateScope.has(name)));
+    if (modelTarget?.type === 'Identifier') {
+        targets.set(modelTarget.name, getNodeRange(modelTarget));
+    }
+
+    return new Map([...targets].filter(([name]) => !templateScope.has(name)));
 }
 
 /**
@@ -385,13 +352,7 @@ function collectExpressionReferences(expression: string | undefined, templateSco
         return references;
     }
 
-    collectBabelReferences(
-        parseTemplateExpression(expression),
-        [
-            new Set(templateScope),
-        ],
-        references,
-    );
+    collectBabelReferences(parseTemplateExpression(expression), [new Set(templateScope)], references);
 
     return references;
 }

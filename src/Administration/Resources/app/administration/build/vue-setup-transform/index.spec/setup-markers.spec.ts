@@ -12,26 +12,11 @@ import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpe
 
 describe('build/vue-setup-transform setup markers', () => {
     it.each([
-        [
-            'swDefinePublic({ [dynamicKey]: count });',
-            'swDefinePublic() only supports shorthand bindings such as { a, b }.',
-        ],
-        [
-            'swDefinePublic({ public: count });',
-            'swDefinePublic() only supports shorthand bindings such as { a, b }.',
-        ],
-        [
-            "swDefinePublic({ 'public': count });",
-            'swDefinePublic() only supports shorthand bindings such as { a, b }.',
-        ],
-        [
-            'swDefinePublic({ ...publicState });',
-            'Spread properties are not supported inside swDefinePublic().',
-        ],
-        [
-            'swDefinePublic(publicState);',
-            'swDefinePublic() requires exactly one object-literal argument.',
-        ],
+        ['swDefinePublic({ [dynamicKey]: count });', 'swDefinePublic() only supports shorthand bindings such as { a, b }.'],
+        ['swDefinePublic({ public: count });', 'swDefinePublic() only supports shorthand bindings such as { a, b }.'],
+        ["swDefinePublic({ 'public': count });", 'swDefinePublic() only supports shorthand bindings such as { a, b }.'],
+        ['swDefinePublic({ ...publicState });', 'Spread properties are not supported inside swDefinePublic().'],
+        ['swDefinePublic(publicState);', 'swDefinePublic() requires exactly one object-literal argument.'],
         [
             // A nested call is not rejected on its own, matching how Vue treats its own macros: it only
             // recognises them at the top level. The marker is simply missing where it counts, so the
@@ -187,31 +172,19 @@ describe('build/vue-setup-transform setup markers', () => {
             'swDefineOverride({ [dynamicKey]: count });',
             'swDefineOverride() only supports shorthand bindings such as { a, b }.',
         ],
-        [
-            'swDefineOverride({ override: count });',
-            'swDefineOverride() only supports shorthand bindings such as { a, b }.',
-        ],
+        ['swDefineOverride({ override: count });', 'swDefineOverride() only supports shorthand bindings such as { a, b }.'],
         [
             "swDefineOverride({ 'override': count });",
             'swDefineOverride() only supports shorthand bindings such as { a, b }.',
         ],
-        [
-            'swDefineOverride({ ...overrideState });',
-            'Spread properties are not supported inside swDefineOverride().',
-        ],
-        [
-            'swDefineOverride(overrideState);',
-            'swDefineOverride() requires exactly one object-literal argument.',
-        ],
+        ['swDefineOverride({ ...overrideState });', 'Spread properties are not supported inside swDefineOverride().'],
+        ['swDefineOverride(overrideState);', 'swDefineOverride() requires exactly one object-literal argument.'],
         [
             // As above: a nested call is left alone, and the required-marker rule reports the absence.
             'if (true) { swDefineOverride({ count }); }',
             'swDefineOverride() must be called exactly once at the top level',
         ],
-        [
-            'swDefineOverride({ count, count });',
-            'Duplicate override Shopware setup binding key "count".',
-        ],
+        ['swDefineOverride({ count, count });', 'Duplicate override Shopware setup binding key "count".'],
         [
             'const __swOverride = {}; swDefineOverride({ __swOverride });',
             '"__swOverride" is reserved for Shopware override-private state and cannot be exposed with swDefineOverride().',

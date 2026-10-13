@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   link_pr:
+    if: github.repository == 'shopware/shopware'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

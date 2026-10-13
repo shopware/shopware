@@ -6,23 +6,23 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
-use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
-use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -141,8 +141,6 @@ class DocumentGeneratorTest extends TestCase
 
     public function testPreviewWithIncorrectDeepLinkCode(): void
     {
-        $this->expectException(DocumentException::class);
-
         /** @var OrderEntity $order */
         $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->getEntities()->first();
 
@@ -152,9 +150,11 @@ class DocumentGeneratorTest extends TestCase
         ]);
         $documentStruct = $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, $order->getDeepLinkCode() ?? '', $this->context);
 
-        static::assertNotEmpty($documentStruct->getContent());
+        static::assertNotSame('', $documentStruct->getContent());
 
         $operation = new DocumentGenerateOperation(Uuid::randomHex());
+
+        $this->expectExceptionObject(DocumentException::generationError());
 
         $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, '', $this->context);
     }
@@ -169,7 +169,7 @@ class DocumentGeneratorTest extends TestCase
 
         $documentStruct = $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
 
-        static::assertNotEmpty($documentStruct->getContent());
+        static::assertNotSame('', $documentStruct->getContent());
     }
 
     public function testPreviewStorno(): void
@@ -218,7 +218,7 @@ class DocumentGeneratorTest extends TestCase
 
         $stornoStruct = $this->documentGenerator->preview(StornoRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
 
-        static::assertNotEmpty($stornoStruct->getContent());
+        static::assertNotSame('', $stornoStruct->getContent());
         static::assertStringContainsString('Cancellation 1000 for Invoice ' . $invoiceNumber, $stornoStruct->getContent());
         static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getContent());
 
@@ -452,8 +452,6 @@ class DocumentGeneratorTest extends TestCase
     {
         $documentId = Uuid::randomHex();
 
-        $this->expectExceptionObject(DocumentException::documentNotFound($documentId));
-
         /** @var FilesystemOperator $fileSystem */
         $fileSystem = static::getContainer()->get('shopware.filesystem.private');
 
@@ -504,6 +502,8 @@ class DocumentGeneratorTest extends TestCase
         $fileSystem->write($filePath, 'test123');
 
         static::assertTrue($fileSystem->has($filePath));
+
+        $this->expectExceptionObject(DocumentException::documentNotFound($documentId));
 
         $this->documentGenerator->readDocument($document->getId(), $this->context, 'wrong code');
     }
@@ -682,12 +682,12 @@ class DocumentGeneratorTest extends TestCase
         $operationInvoice = new DocumentGenerateOperation($this->orderId, PdfRenderer::FILE_EXTENSION, $documentConfiguration->jsonSerialize());
         $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operationInvoice], $this->context);
 
-        static::assertEmpty($result->getErrors());
-        static::assertNotEmpty($result->getSuccess()->getElements());
+        static::assertCount(0, $result->getErrors());
+        static::assertNotCount(0, $result->getSuccess()->getElements());
 
         $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operationInvoice], $this->context);
-        static::assertEmpty($result->getSuccess()->getElements());
-        static::assertNotEmpty($result->getErrors());
+        static::assertCount(0, $result->getSuccess()->getElements());
+        static::assertNotCount(0, $result->getErrors());
         static::assertArrayHasKey($this->orderId, $result->getErrors());
         static::assertSame('Document number 1001 has already been allocated.', $result->getErrors()[$this->orderId]->getMessage());
     }
@@ -724,7 +724,7 @@ class DocumentGeneratorTest extends TestCase
         );
 
         $errors = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->getErrors();
-        static::assertNotEmpty($errors);
+        static::assertNotCount(0, $errors);
         static::assertArrayHasKey($this->orderId, $errors);
         static::assertSame($errors[$this->orderId]->getMessage(), 'Document number 1002 has already been allocated.');
     }

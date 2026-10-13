@@ -225,7 +225,7 @@ class CustomFieldRule
             return [new NotBlank()];
         }
 
-        if ($renderedField['type'] === CustomFieldTypes::BOOL) {
+        if (self::isSwitchOrBoolField($renderedField)) {
             return [];
         }
 

@@ -11,10 +11,7 @@ import './sw-bulk-edit-modal.scss';
 export default {
     template,
 
-    emits: [
-        'modal-close',
-        'edit-items',
-    ],
+    emits: ['modal-close', 'edit-items'],
 
     props: {
         selection: {

@@ -29,10 +29,7 @@ describe('components/sw-sidebar-filter-panel', () => {
     it('should show the open filters shortcut in the sidebar item', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.filterSidebarItem?.tooltipShortcut).toEqual([
-            'O',
-            'F',
-        ]);
+        expect(wrapper.vm.filterSidebarItem?.tooltipShortcut).toEqual(['O', 'F']);
     });
 
     it('should open the filter panel', async () => {

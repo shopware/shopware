@@ -14,19 +14,14 @@ const mockModule = {
 
 const iframeRendererStub = {
     name: 'sw-iframe-renderer',
-    props: [
-        'src',
-    ],
+    props: ['src'],
     template: '<div class="sw-iframe-renderer-stub"><iframe ref="iframe" :src="src" /></div>',
 };
 
 const routerLinkStub = {
     props: {
         to: {
-            type: [
-                String,
-                Object,
-            ],
+            type: [String, Object],
             required: true,
         },
     },

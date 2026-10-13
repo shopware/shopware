@@ -77,10 +77,7 @@ describe('src/core/telemetry/product-analytics/consent-event-handlers.ts', () =>
         );
     });
 
-    it.each([
-        ['backend_data'],
-        ['product_analytics'],
-    ])('sends consent_status_change to amplitude', (consentName) => {
+    it.each([['backend_data'], ['product_analytics']])('sends consent_status_change to amplitude', (consentName) => {
         handle(
             new ConsentEvent('consent_status_change', {
                 name: consentName,

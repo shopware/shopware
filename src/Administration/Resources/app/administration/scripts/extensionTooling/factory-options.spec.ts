@@ -59,18 +59,10 @@ describe('extension-tooling eslint factory host options', () => {
     let variants: Record<string, BlockSummary[]>;
 
     beforeAll(() => {
-        const output = execFileSync(
-            process.execPath,
-            [
-                '--input-type=module',
-                '-e',
-                probeScript,
-            ],
-            {
-                cwd: path.resolve(__dirname, '../..'),
-                encoding: 'utf8',
-            },
-        );
+        const output = execFileSync(process.execPath, ['--input-type=module', '-e', probeScript], {
+            cwd: path.resolve(__dirname, '../..'),
+            encoding: 'utf8',
+        });
 
         variants = JSON.parse(output) as Record<string, BlockSummary[]>;
     });

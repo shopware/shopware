@@ -8,10 +8,7 @@ import './sw-category-entry-point-modal.scss';
 export default {
     template,
 
-    inject: [
-        'acl',
-        'cmsPageTypeService',
-    ],
+    inject: ['acl', 'cmsPageTypeService'],
 
     emits: ['modal-close'],
 
@@ -28,11 +25,7 @@ export default {
             salesChannelOptions: [],
             selectedSalesChannelId: '',
             showLayoutSelectionModal: false,
-            pageTypes: [
-                'page',
-                'landingpage',
-                'product_list',
-            ],
+            pageTypes: ['page', 'landingpage', 'product_list'],
             nextRoute: null,
             isDisplayingLeavePageWarning: false,
         };

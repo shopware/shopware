@@ -11,9 +11,7 @@ import './sw-sso-error-index.scss';
 export default {
     template,
 
-    inject: [
-        'loginService',
-    ],
+    inject: ['loginService'],
 
     data() {
         return {

@@ -69,10 +69,7 @@ class UserConfigControllerTest extends TestCase
     {
         $this->expectExceptionObject(new InvalidContextSourceException(AdminApiSource::class, SystemSource::class));
 
-        $response = $this->userConfigController->getConfigMe(Context::createDefaultContext(), new Request());
-
-        static::assertNotFalse($response->getContent());
-        static::assertJsonStringEqualsJsonString('{"data":[]}', $response->getContent());
+        $this->userConfigController->getConfigMe(Context::createDefaultContext(), new Request());
     }
 
     public function testGetConfigMeReturnsDataWithKeys(): void

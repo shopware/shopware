@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Asset\AssetInstallCommand;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage;
 use Shopware\Core\Framework\Adapter\Asset\FlysystemLastModifiedVersionStrategy;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AwsS3v3Factory;
@@ -12,7 +13,6 @@ use Shopware\Core\Framework\Adapter\Filesystem\Adapter\LocalFactory;
 use Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;

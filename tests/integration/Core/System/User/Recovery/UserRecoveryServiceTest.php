@@ -19,6 +19,7 @@ use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 
 /**
  * @internal
@@ -62,8 +63,7 @@ class UserRecoveryServiceTest extends TestCase
         ]);
 
         $eventDispatched = false;
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $this->addEventListener($dispatcher, UserRecoveryRequestEvent::EVENT_NAME, static function (UserRecoveryRequestEvent $event) use (&$eventDispatched): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(UserRecoveryRequestEvent::EVENT_NAME, static function (UserRecoveryRequestEvent $event) use (&$eventDispatched): void {
             $eventDispatched = true;
         });
 
@@ -193,9 +193,7 @@ class UserRecoveryServiceTest extends TestCase
     public function testReEvaluateRules(): void
     {
         $validator = new RuleValidator();
-        static::getContainer()
-            ->get('event_dispatcher')
-            ->addListener(UserRecoveryRequestEvent::EVENT_NAME, $validator);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(UserRecoveryRequestEvent::EVENT_NAME, $validator);
 
         $this->userRecoveryService->generateUserRecovery(
             self::VALID_EMAIL,

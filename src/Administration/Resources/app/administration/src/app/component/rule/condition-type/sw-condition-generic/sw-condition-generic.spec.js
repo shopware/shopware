@@ -7,6 +7,16 @@ import ruleConditionsConfig from '../_mocks/ruleConditionsConfig.json';
 
 const responses = global.repositoryFactoryMock.responses;
 
+const categories = [
+    { name: 'Jackets', breadcrumb: ['Ladies', 'Jackets'] },
+    { name: 'Jackets', breadcrumb: ['Gents', 'Jackets'] },
+    { name: 'Jackets', breadcrumb: ['Kids', 'Jackets'] },
+    { name: 'Without breadcrumb' },
+    { name: 'Empty breadcrumb', breadcrumb: [] },
+    { name: 'Empty object breadcrumb', breadcrumb: {} },
+    { name: 'Jacken', breadcrumb: ['Damen', 'Jacken'], translated: { breadcrumb: ['Damen', 'Jacken'] } },
+];
+
 responses.addResponse({
     method: 'Post',
     url: '/search/currency',
@@ -43,16 +53,33 @@ responses.addResponse({
     },
 });
 
-async function createWrapper(condition = {}) {
+responses.addResponse({
+    method: 'Post',
+    url: '/search/category',
+    status: 200,
+    response: {
+        data: categories.map((attributes, index) => ({
+            id: `category-${index}`,
+            type: 'category',
+            attributes,
+            relationships: [],
+        })),
+        meta: {
+            total: categories.length,
+        },
+    },
+});
+
+async function createWrapper(condition = {}, component = 'sw-condition-generic') {
     condition.getEntityName = () => 'rule_condition';
 
     const conditionDataProviderService = new ConditionDataProviderService();
     conditionDataProviderService.addCondition(condition.type, {
         ...condition,
-        component: 'sw-condition-generic',
+        component,
     });
 
-    return mount(await wrapTestComponent('sw-condition-generic', { sync: true }), {
+    return mount(await wrapTestComponent(component, { sync: true }), {
         attachTo: document.body,
         props: {
             condition,
@@ -85,7 +112,7 @@ async function createWrapper(condition = {}) {
                 'sw-condition-type-select': true,
                 'sw-loader': true,
                 'sw-label': true,
-                'sw-highlight-text': true,
+                'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': {
                     template: '<div class="sw-popover"><slot></slot></div>',
@@ -366,5 +393,80 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         await unitInput.trigger('change');
 
         expect(unitInput.element.value).toBe('10000');
+    });
+
+    describe.each(['sw-condition-generic', 'sw-condition-generic-line-item'])('%s entity descriptions', (component) => {
+        let wrapper;
+
+        afterEach(() => {
+            wrapper?.unmount();
+        });
+
+        it('should distinguish categories by breadcrumb and preserve selection', async () => {
+            const condition = { type: 'cartLineItemInCategory', value: { operator: '=', categoryIds: [] } };
+            wrapper = await createWrapper(condition, component);
+            await flushPromises();
+            await wrapper.get('.sw-entity-multi-select .sw-select__selection').trigger('click');
+            await flushPromises();
+
+            const results = wrapper.findAll('.sw-select-result');
+            expect(results).toHaveLength(categories.length);
+            expect(results.map((result) => result.get('.sw-select-result__result-item-description').text())).toEqual([
+                'Ladies / Jackets',
+                'Gents / Jackets',
+                'Kids / Jackets',
+                '',
+                '',
+                '',
+                'Damen / Jacken',
+            ]);
+            results.forEach((result, index) => {
+                expect(result.classes()).toContain('is--description-bottom');
+                expect(result.text()).toContain(categories[index].name);
+            });
+
+            await results[0].trigger('click');
+            await results[1].trigger('click');
+            expect([...condition.value.categoryIds]).toEqual(['category-0', 'category-1']);
+        });
+
+        it('should respect an explicit description position', async () => {
+            const ruleConfig = ruleConditionsConfig.cartLineItemInCategory;
+            Shopware.Store.get('ruleConditionsConfig').config = {
+                ...ruleConditionsConfig,
+                cartLineItemInCategory: {
+                    ...ruleConfig,
+                    fields: ruleConfig.fields.map((field) => ({
+                        ...field,
+                        config: { ...field.config, descriptionPosition: 'right' },
+                    })),
+                },
+            };
+            wrapper = await createWrapper({ type: 'cartLineItemInCategory' }, component);
+            await flushPromises();
+            await wrapper.get('.sw-entity-multi-select .sw-select__selection').trigger('click');
+            await flushPromises();
+
+            const results = wrapper.findAll('.sw-select-result');
+            expect(results).toHaveLength(categories.length);
+            results.forEach((result) => {
+                expect(result.classes()).toContain('is--description-right');
+            });
+            expect(results[0].get('.sw-select-result__result-item-description').text()).toBe('Ladies / Jackets');
+        });
+
+        it('should keep the default position for entity fields without a description', async () => {
+            wrapper = await createWrapper({ type: 'customerCustomerGroup' }, component);
+            await flushPromises();
+            await wrapper.get('.sw-entity-multi-select .sw-select__selection').trigger('click');
+            await flushPromises();
+
+            const results = wrapper.findAll('.sw-select-result');
+            expect(results).toHaveLength(2);
+            results.forEach((result) => {
+                expect(result.get('.sw-select-result__result-item-description').text()).toBe('');
+                expect(result.classes()).toContain('is--description-right');
+            });
+        });
     });
 });

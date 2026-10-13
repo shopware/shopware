@@ -382,6 +382,9 @@ Services tagged with `kernel.reset` are reset between two requests handled by th
 
 Symfony's own `http_cache` service is no longer available, even if `framework.http_cache.enabled` is set in the project configuration. HTTP caching is handled by Shopware's own cache layer. Remove references to the `http_cache` service from your project.
 
+## `ReverseProxyCompilerPass` removed
+
+`Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass` was removed without replacement. Remove any manual registration of the compiler pass, and do not rely on reverse proxy services being absent from the container when the reverse proxy is disabled.
 ## Removal of legacy `ConfigurationService` getters
 
 The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` have been removed.

@@ -37,7 +37,7 @@ class CustomAppStorerTest extends TestCase
 
         $stored = [];
         $stored = $this->customAppStorer->store($event, $stored);
-        static::assertEmpty($stored);
+        static::assertCount(0, $stored);
     }
 
     public function testStoreWithAware(): void
@@ -94,6 +94,6 @@ class CustomAppStorerTest extends TestCase
 
         $stored = [];
         $stored = $this->customAppStorer->store($event, $stored);
-        static::assertEmpty($stored);
+        static::assertCount(0, $stored);
     }
 }

@@ -816,7 +816,7 @@ class EntitySearcherTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertIsArray($result->getIds());
-        static::assertNotEmpty($result->getIds());
+        static::assertNotCount(0, $result->getIds());
 
         foreach ($result->getIds() as $resultIds) {
             static::assertIsArray($resultIds);

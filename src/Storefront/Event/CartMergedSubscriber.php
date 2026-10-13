@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -32,6 +33,10 @@ class CartMergedSubscriber implements EventSubscriberInterface
 
     public function addCartMergedNoticeFlash(CartMergedEvent $event): void
     {
+        if ($event->getPreviousCart()->getLineItems()->count() === 0) {
+            return;
+        }
+
         $mainRequest = $this->requestStack->getMainRequest();
 
         if ($mainRequest === null) {
@@ -44,7 +49,7 @@ class CartMergedSubscriber implements EventSubscriberInterface
 
         $session = $mainRequest->getSession();
 
-        if (!$session->isStarted() || !method_exists($session, 'getFlashBag')) {
+        if (!$session->isStarted() || !($session instanceof FlashBagAwareSessionInterface)) {
             return;
         }
 

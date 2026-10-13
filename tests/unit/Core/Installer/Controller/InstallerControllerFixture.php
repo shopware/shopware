@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -16,12 +17,13 @@ use Twig\Environment;
  *
  * @phpstan-import-type SupportedLanguages from \Shopware\Core\Installer\Controller\InstallerController
  */
-trait InstallerControllerTestTrait
+#[Package('checkout')]
+final class InstallerControllerFixture
 {
     /**
      * @param array<string, object> $services
      */
-    private function getInstallerContainer(Environment $twig, array $services = []): ContainerInterface
+    public static function getInstallerContainer(Environment $twig, array $services = []): ContainerInterface
     {
         $container = new ContainerBuilder();
         $container->set('twig', $twig);
@@ -31,8 +33,8 @@ trait InstallerControllerTestTrait
         $request->setSession($session);
         $requestStack->push($request);
         $container->set('request_stack', $requestStack);
-        $container->setParameter('shopware.installer.supportedLanguages', $this->getSupportedLanguages());
-        $container->setParameter('shopware.installer.configurationPreselection', $this->getSupportedPreselection());
+        $container->setParameter('shopware.installer.supportedLanguages', self::getSupportedLanguages());
+        $container->setParameter('shopware.installer.configurationPreselection', self::getSupportedPreselection());
         $container->setParameter('kernel.shopware_version', Kernel::SHOPWARE_FALLBACK_VERSION);
 
         foreach ($services as $id => $service) {
@@ -53,7 +55,7 @@ trait InstallerControllerTestTrait
      *     shopware: array{version: string}
      *   }
      */
-    private function getDefaultViewParams(): array
+    public static function getDefaultViewParams(): array
     {
         return [
             'menu' => [
@@ -98,7 +100,7 @@ trait InstallerControllerTestTrait
                     'isCompleted' => false,
                 ],
             ],
-            'supportedLanguages' => $this->getSupportedLanguages(),
+            'supportedLanguages' => self::getSupportedLanguages(),
             'shopware' => [
                 'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
             ],
@@ -108,7 +110,7 @@ trait InstallerControllerTestTrait
     /**
      * @return SupportedLanguages
      */
-    private function getSupportedLanguages(): array
+    public static function getSupportedLanguages(): array
     {
         return [
             'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
@@ -120,7 +122,7 @@ trait InstallerControllerTestTrait
     /**
      * @return array<string, array{currency: string}>
      */
-    private function getSupportedPreselection(): array
+    public static function getSupportedPreselection(): array
     {
         return [
             'de' => ['currency' => 'EUR'],

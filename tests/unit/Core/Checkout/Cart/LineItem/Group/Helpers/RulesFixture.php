@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers;
 
 use Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
@@ -16,13 +16,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Package('checkout')]
-trait RulesTestFixtureBehaviour
+final class RulesFixture
 {
     /**
      * Build a rule entity with the provided rule
      * inside the payload property.
      */
-    private function buildRuleEntity(Rule $rule): RuleEntity
+    public static function buildRuleEntity(Rule $rule): RuleEntity
     {
         $rules = new AndRule(
             [
@@ -40,7 +40,7 @@ trait RulesTestFixtureBehaviour
     /**
      * Gets a minimum price rule with the provided price value.
      */
-    private function getMinPriceRule(float $minPrice): LineItemUnitPriceRule
+    public static function getMinPriceRule(float $minPrice): LineItemUnitPriceRule
     {
         $rule = new LineItemUnitPriceRule();
         $rule->assign(['amount' => $minPrice, 'operator' => LineItemUnitPriceRule::OPERATOR_GTE]);
@@ -51,7 +51,7 @@ trait RulesTestFixtureBehaviour
     /**
      * Gets a minimum quantity rule for the provided line item Id.
      */
-    private function getMinQuantityRule(string $itemID, int $quantity): LineItemWithQuantityRule
+    public static function getMinQuantityRule(string $itemID, int $quantity): LineItemWithQuantityRule
     {
         $rule = new LineItemWithQuantityRule();
         $rule->assign(['id' => $itemID, 'quantity' => $quantity, 'operator' => LineItemWithQuantityRule::OPERATOR_GTE]);
@@ -62,7 +62,7 @@ trait RulesTestFixtureBehaviour
     /**
      * @param array<mixed> $itemIDs
      */
-    private function getProductsRule(array $itemIDs): LineItemRule
+    public static function getProductsRule(array $itemIDs): LineItemRule
     {
         $rule = new LineItemRule();
         $rule->assign(['identifiers' => $itemIDs, 'operator' => LineItemRule::OPERATOR_EQ]);
@@ -70,7 +70,7 @@ trait RulesTestFixtureBehaviour
         return $rule;
     }
 
-    private function getLineItemListPriceRule(float $price): LineItemListPriceRule
+    public static function getLineItemListPriceRule(float $price): LineItemListPriceRule
     {
         $rule = new LineItemListPriceRule();
         $rule->assign(['amount' => $price, 'operator' => LineItemListPriceRule::OPERATOR_GTE]);

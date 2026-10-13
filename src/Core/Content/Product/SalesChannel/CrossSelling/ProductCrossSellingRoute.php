@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent;
 use Shopware\Core\Content\Product\Extension\ProductCrossSellingRouteExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
@@ -22,7 +23,10 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -248,6 +252,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $criteria->resetFields();
 
         $products = $this->productRepository->search($criteria, $context)->getEntities();
+        $this->removeParentsWithoutAvailableVariant($products, $context);
 
         $ids = $criteria->getIds();
         $products->sortByIdArray($ids);
@@ -256,6 +261,34 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $element->setTotal(\count($products));
 
         return $element;
+    }
+
+    /**
+     * A parent without any available variant would link to a product detail page that is not found.
+     */
+    private function removeParentsWithoutAvailableVariant(ProductCollection $products, SalesChannelContext $context): void
+    {
+        $parentIds = $products
+            ->filter(static fn (ProductEntity $product): bool => $product->getParentId() === null && $product->getChildCount() > 0)
+            ->getIds();
+
+        if ($parentIds === []) {
+            return;
+        }
+
+        $criteria = new Criteria();
+        $criteria->setTitle('cross-selling::parents-with-available-variant');
+        $criteria->addFilter(new EqualsAnyFilter('product.parentId', array_values($parentIds)));
+        $criteria->addAggregation(new TermsAggregation('parentIds', 'product.parentId'));
+
+        $criteria = $this->handleAvailableStock($criteria, $context);
+
+        $aggregation = $this->productRepository->aggregate($criteria, $context)->get('parentIds');
+        $availableParentIds = $aggregation instanceof TermsResult ? $aggregation->getKeys() : [];
+
+        foreach (array_diff($parentIds, $availableParentIds) as $parentId) {
+            $products->remove($parentId);
+        }
     }
 
     /**

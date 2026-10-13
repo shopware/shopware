@@ -408,6 +408,12 @@ An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the ap
 
 ## API
 
+### Parents without an available variant are not found
+
+`/store-api/product/{productId}` now responds with HTTP 404, like for an inactive product, when the requested product is a parent and none of its variants can be shown: all variants are inactive or not visible in the sales channel, or they are out-of-stock closeouts while `core.listing.hideCloseoutProductsWhenOutOfStock` is active. Previously the parent was returned as a product without a buyable variant, so the storefront rendered a detail page that could not be ordered from.
+
+For the same reason, `/store-api/product/{productId}/cross-selling` no longer returns such a parent in a cross-selling with manually assigned products.
+
 ### Generated document number in the V2 creation response
 
 The `POST /api/_action/order/document-v2/create` response now includes `documentNumber`, allowing clients to compare the assigned number with a previously displayed preview.

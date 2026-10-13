@@ -199,6 +199,12 @@ class AnalyticsLineItemPriceCalculator extends AbstractAnalyticsLineItemPriceCal
     }
 
     /**
+     * Every top level line item that is no product and lowers the total is a discount, whatever its
+     * type: promotions, the discounts of App Scripts, credits, and the discount items of extensions.
+     * A discount that lists the products it was calculated from in `payload.composition`, as
+     * promotions do, is allocated to those products. Any other discount is spread over all product
+     * lines in proportion to their totals, so the reported value still matches what is paid.
+     *
      * @param list<LineItem|OrderLineItemEntity> $lineItems
      *
      * @return array<string, float> the discounted amount per cart line item id, as a positive value
@@ -206,9 +212,21 @@ class AnalyticsLineItemPriceCalculator extends AbstractAnalyticsLineItemPriceCal
     private function collectDiscounts(array $lineItems): array
     {
         $discounts = [];
+        $productTotals = [];
 
         foreach ($lineItems as $lineItem) {
-            if ($lineItem->getType() !== LineItem::PROMOTION_LINE_ITEM_TYPE) {
+            $total = $lineItem->getPrice()?->getTotalPrice() ?? 0.0;
+
+            if ($this->isGood($lineItem) && FloatComparator::greaterThan($total, 0.0)) {
+                $productTotals[$this->getCartLineItemId($lineItem)] = $total;
+            }
+        }
+
+        foreach ($lineItems as $lineItem) {
+            $charged = -($lineItem->getPrice()?->getTotalPrice() ?? 0.0);
+
+            // products, surcharges and fees are no discounts
+            if ($this->isGood($lineItem) || !FloatComparator::greaterThan($charged, 0.0)) {
                 continue;
             }
 
@@ -220,29 +238,46 @@ class AnalyticsLineItemPriceCalculator extends AbstractAnalyticsLineItemPriceCal
                 continue;
             }
 
-            $composition = [];
-            foreach ($payload['composition'] ?? [] as $entry) {
-                if (!\is_array($entry) || !\is_string($entry['id'] ?? null) || !is_numeric($entry['discount'] ?? null)) {
-                    continue;
-                }
-
-                $composition[$entry['id']] = ($composition[$entry['id']] ?? 0.0) + abs((float) $entry['discount']);
-            }
-
-            // A percentage promotion stores the unrounded share in its composition, while its line
-            // item carries the cash rounded amount the customer is charged: 10 percent of 0.05 is
-            // 0.005 in the composition and 0.01 on the line. The shares are scaled to the charged
-            // amount, so the reported value matches what was paid.
-            $composed = array_sum($composition);
-            $charged = abs($lineItem->getPrice()?->getTotalPrice() ?? $composed);
-            $factor = $composed > 0.0 ? $charged / $composed : 1.0;
-
-            foreach ($composition as $id => $discount) {
-                $discounts[$id] = ($discounts[$id] ?? 0.0) + $discount * $factor;
+            foreach ($this->shares($payload['composition'] ?? null, $productTotals) as $id => $share) {
+                $discounts[$id] = ($discounts[$id] ?? 0.0) + $charged * $share;
             }
         }
 
         return $discounts;
+    }
+
+    /**
+     * The share of a discount each product line carries, adding up to one.
+     *
+     * A percentage promotion stores the unrounded discount per product in its composition, while its
+     * line item carries the cash rounded amount the customer is charged: 10 percent of 0.05 is 0.005
+     * in the composition and 0.01 on the line. Using shares instead of the composed amounts scales
+     * them to what was charged. Without a usable composition the shares follow the line totals.
+     *
+     * @param array<string, float> $productTotals
+     *
+     * @return array<string, float>
+     */
+    private function shares(mixed $composition, array $productTotals): array
+    {
+        $composed = [];
+
+        foreach (\is_array($composition) ? $composition : [] as $entry) {
+            if (!\is_array($entry) || !\is_string($entry['id'] ?? null) || !is_numeric($entry['discount'] ?? null)) {
+                continue;
+            }
+
+            $composed[$entry['id']] = ($composed[$entry['id']] ?? 0.0) + abs((float) $entry['discount']);
+        }
+
+        $weights = FloatComparator::greaterThan(array_sum($composed), 0.0) ? $composed : $productTotals;
+        $sum = array_sum($weights);
+
+        if (!FloatComparator::greaterThan($sum, 0.0)) {
+            return [];
+        }
+
+        return array_map(static fn (float $weight) => $weight / $sum, $weights);
     }
 
     private function round(float $price, CashRoundingConfig $rounding, bool $cash): float

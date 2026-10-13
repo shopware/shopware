@@ -70,6 +70,16 @@ class AnalyticsLineItemCouponResolverTest extends TestCase
         static::assertSame([], $coupons);
     }
 
+    public function testReportsTheCodeOfADiscountOfAnExtension(): void
+    {
+        $discount = new LineItem('voucher', 'swag-voucher');
+        $discount->setGood(false);
+        $discount->setPayloadValue('code', 'GIFT-123');
+        $discount->setPayloadValue('composition', [['id' => 'product-1', 'quantity' => 1, 'discount' => 5.0]]);
+
+        static::assertSame(['product-1' => ['GIFT-123']], $this->resolver->resolve([$this->product('product-1'), $discount]));
+    }
+
     public function testResolvesOrderLineItemsThroughTheirIdentifier(): void
     {
         $product = new OrderLineItemEntity();

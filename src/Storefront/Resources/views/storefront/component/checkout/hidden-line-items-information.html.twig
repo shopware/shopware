@@ -37,7 +37,7 @@
                               data-price="{{ gaPrice }}"
                               data-discount="{{ gaItem.discount ?: '' }}"
                               data-total="{{ gaItem.total }}"
-                              data-coupon="{{ (gaCoupons[lineItem.id] ?? [])|join(',') }}"
+                              data-coupon="{{ (gaCoupons[lineItem.id] ?? [])|join(', ') }}"
                               data-brand="{{ lineItem.payload.manufacturerName|default('') }}"
                               data-variant="{{ variant }}"
                               {{ categoryAttributes|raw }}

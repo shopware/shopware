@@ -122,8 +122,10 @@
         {% block sw_category_detail_product_assignment_empty_state %}
         <template #empty-state>
             <mt-empty-state
+                centered
                 :icon="$route.meta.$module.icon"
                 :headline="$t('sw-category.base.products.productAssignmentEmptyStateDescription')"
+                description=""
             />
         </template>
         {% endblock %}

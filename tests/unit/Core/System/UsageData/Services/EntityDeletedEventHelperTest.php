@@ -85,7 +85,7 @@ class EntityDeletedEventHelperTest extends TestCase
         $eventHelper = (new EntityDeleteEventHelper($event))
             ->forEntityDefinitions([])
             ->prepare();
-        static::assertEmpty($eventHelper->getEntityIds());
+        static::assertCount(0, $eventHelper->getEntityIds());
     }
 
     public function testItFiltersFields(): void

@@ -11,7 +11,7 @@ The complete list of removed classes, entities, and Administration components is
 - The `document.renderer` and `document_type.renderer` service tags were removed. Register document types, data providers, and renderers via the `shopware.document_v2.type`, `shopware.document_v2.provider`, and `shopware.document_v2.renderer` tags instead, or use the app manifest `<documents>` block. See the [extension points guide](https://developer.shopware.com/docs/concepts/commerce/checkout-concept/document/extension-points.html).
 - The `document_type` and `document_type_translation` entities were removed including their DAL definitions and associations. Document types are code-registered strings. Read the type from `document.typeName` instead of the `documentType` association. Persisted references were backfilled into the `type_name` columns, and the `document_type_id` columns became nullable.
 
-Shared classes that survived the removal were relocated into the `Shopware\Core\Checkout\DocumentV2` namespace, keeping their class names (see the "Relocated classes" list in `UPGRADE-6.7.md`). Update your imports accordingly.
+The class aliases and deprecated service aliases of the shared document classes were removed. These classes moved into `Shopware\Core\Checkout\DocumentV2` with 6.7.16.0 (see "Shared document classes moved to `DocumentV2`" in `UPGRADE-6.7.md`). References to a previous name, for example `Shopware\Core\Checkout\Document\DocumentEntity`, no longer resolve. Use the canonical names in imports, type declarations, static references, and service IDs.
 
 Twig template overrides were not affected: v2 renders the same `@Framework/documents/*.html.twig` templates.
 
@@ -80,6 +80,10 @@ The public properties of the returned DTO are available in the document template
 
 Implement `Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer` and register it with the `shopware.document_v2.renderer` tag. One renderer produces exactly one format and receives the shared, provider-prepared `RenderInput`.
 
+## Changed API alias of `RenderedDocument`
+
+`Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument::getApiAlias()` returned `shopware_core_checkout_document_v2_struct_rendered_document` instead of `shopware_core_checkout_document_renderer_rendered_document`. Consumers that matched serialized data on the previous alias had to switch to the new one.
+
 # Administration
 
 ## Legacy document components removed
@@ -88,3 +92,25 @@ The legacy document services and components in the Administration were removed:
 
 - `DocumentApiService` (including `DocumentEvents`). Use the v2 Admin API routes (`/api/_action/order/document-v2/*`) instead.
 - The legacy document modals and their component registrations: `sw-order-document-settings-modal`, `sw-order-document-settings-invoice-modal`, `sw-order-document-settings-credit-note-modal`, `sw-order-document-settings-delivery-note-modal`, `sw-order-document-settings-storno-modal`, and `sw-order-select-document-type-modal`.
+
+## `$tc` and the vue-i18n 8 argument order removed
+
+The deprecated translation helpers `$tc()` and `Shopware.Snippet.tc()` were removed. Use `$t()` and `Shopware.Snippet.t()` instead, which handle pluralization natively.
+
+The vue-i18n 8 argument order `$t(key, plural, namedParameters)` is no longer converted. Pass the named parameters before the plural count:
+
+```js
+// Before
+this.$tc('sw-product.list.messageDelete', count, { name });
+
+// After
+this.$t('sw-product.list.messageDelete', { name }, count);
+```
+
+The vue-i18n 8 locale argument of `$tc(key, plural, locale)` is no option of `$t()`. Pass it as `$t(key, plural, { locale })`, or as `$t(key, namedParameters, { plural, locale })` together with named parameters.
+
+The ESLint rule `sw-core-rules/no-tc-translation` of the Administration extension tooling fixes these automatically in scripts, Vue templates, and bound attributes of Twig templates. `{{ }}` interpolations in `.html.twig` templates are not checked. Calls whose named parameters are no object literal or contain spread or computed keys, e.g. `$t(key, 1, params)` or `$t(key, 1, { ...params })`, are reported and have to be migrated manually:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```

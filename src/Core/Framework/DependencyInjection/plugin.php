@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
-use Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver;
 use Shopware\Core\Framework\Plugin\Command\BundleDumpCommand;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginActivateCommand;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginDeactivateCommand;
@@ -48,7 +47,6 @@ use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
-use Shopware\Core\Framework\Plugin\NullBundleConfigStyleFileResolver;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -104,13 +102,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
-    $services->set(BundleConfigStyleFileResolver::class, NullBundleConfigStyleFileResolver::class);
-
     $services->set(BundleConfigGenerator::class)
         ->args([
             service('kernel'),
             service(ActiveAppsLoader::class),
-            service(BundleConfigStyleFileResolver::class),
+            tagged_iterator('shopware.bundle_config.style_file_resolver'),
         ]);
 
     $services->set(PluginDefinition::class)
@@ -161,6 +157,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Filesystem::class),
             service(CacheClearer::class),
             service('shopware.store_download_client'),
+            service('event_dispatcher'),
         ]);
 
     $services->set(ExtensionExtractor::class)
@@ -287,6 +284,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
         ]);
 
+    // @deprecated tag:v6.8.0 Will be removed
     $services->alias(
         'Shopware\Core\Framework\Plugin\Util\AssetService',
         AssetService::class,

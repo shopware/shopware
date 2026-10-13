@@ -49,6 +49,10 @@ export default {
             return Shopware.EntityDefinition.get('rule');
         },
 
+        hasActiveSearchOrFilter() {
+            return this.activeFilterNumber > 0 || this.isValidTerm(this.term);
+        },
+
         ruleRepository() {
             return this.repositoryFactory.create('rule');
         },

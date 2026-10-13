@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -139,6 +140,41 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded['test']);
 
         static::assertEquals($definition, $decoded);
+    }
+
+    /**
+     * @param array<string, string|int> $filter
+     */
+    #[DataProvider('removedRulePayloads')]
+    public function testRemovedRulePriceFiltersRemainWritable(array $filter): void
+    {
+        $field = new PriceDefinitionField('test', 'test');
+        $decoded = $this->fieldSerializer->decode($field, json_encode([
+            'type' => PercentagePriceDefinition::TYPE,
+            'percentage' => -20,
+            'filter' => $filter,
+        ], \JSON_THROW_ON_ERROR));
+
+        static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
+        static::assertInstanceOf(UnknownConditionRule::class, $decoded->getFilter());
+
+        $encoded = iterator_to_array($this->fieldSerializer->encode(
+            $field,
+            new EntityExistence('', [], false, false, false, []),
+            new KeyValuePair('test', $decoded, true),
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue())
+        ));
+
+        static::assertSame($filter, json_decode($encoded['test'], true, flags: \JSON_THROW_ON_ERROR)['filter']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string|int>}>
+     */
+    public static function removedRulePayloads(): iterable
+    {
+        yield 'stock filter survives removal' => [['_name' => 'cartLineItemStock', 'operator' => Rule::OPERATOR_EQ, 'stock' => 5]];
+        yield 'product states filter survives removal' => [['_name' => 'cartLineItemProductStates', 'operator' => Rule::OPERATOR_EQ, 'productState' => 'is-download']];
     }
 
     public function testDecodePercentagePriceDefinitionWithMissingRuleConditionUsesNonMatchingPlaceholder(): void
@@ -333,6 +369,11 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         yield 'quantity price definition' => [
             new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19, 50), new TaxRule(7, 50)]), 3),
         ];
+
+        $withReferencePrice = new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19)]), 3);
+        $withReferencePrice->setReferencePriceDefinition(new ReferencePriceDefinition(0.5, 1.0, 'Liter'));
+
+        yield 'quantity price definition with reference price' => [$withReferencePrice];
 
         yield 'absolute price definition' => [
             new AbsolutePriceDefinition(20, $rule),

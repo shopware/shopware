@@ -8,7 +8,9 @@ use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Twig\Extension\AbstractExtension;
 use Twig\Extension\CoreExtension;
+use Twig\Extension\GlobalsInterface;
 use Twig\Loader\ArrayLoader;
 use Twig\Runtime\EscaperRuntime;
 use Twig\Source;
@@ -54,6 +56,30 @@ class TwigEnvironmentTest extends TestCase
         } finally {
             CachedEscaperRuntime::resetEscapeCache();
         }
+    }
+
+    public function testResetMakesTheNextRenderResolveTheGlobalsAgain(): void
+    {
+        $extension = new class extends AbstractExtension implements GlobalsInterface {
+            public string $value = 'first request';
+
+            public function getGlobals(): array
+            {
+                return ['requestValue' => $this->value];
+            }
+        };
+
+        $environment = new TwigEnvironment(new ArrayLoader(['test' => '{{ requestValue }}']));
+        $environment->addExtension($extension);
+
+        static::assertSame('first request', $environment->render('test'));
+
+        $extension->value = 'second request';
+        static::assertSame('first request', $environment->render('test'), 'Twig serves the globals it resolved on the first render');
+
+        $environment->reset();
+
+        static::assertSame('second request', $environment->render('test'));
     }
 
     public function testMarkupEscapeIsWorkingCorrectly(): void

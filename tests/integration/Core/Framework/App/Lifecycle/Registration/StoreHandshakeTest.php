@@ -52,7 +52,7 @@ class StoreHandshakeTest extends TestCase
 
         static::assertArrayHasKey('timestamp', $queryParams);
         static::assertIsString($queryParams['timestamp']);
-        static::assertNotEmpty($queryParams['timestamp']);
+        static::assertNotSame('', $queryParams['timestamp']);
 
         static::assertTrue($request->hasHeader('shopware-app-signature'));
         static::assertSame(
@@ -60,7 +60,7 @@ class StoreHandshakeTest extends TestCase
             $request->getHeaderLine('shopware-app-signature')
         );
 
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotSame('', $request->getHeaderLine('sw-version'));
     }
 
     public function testAppProof(): void

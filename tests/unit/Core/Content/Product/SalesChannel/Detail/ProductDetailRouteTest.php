@@ -19,12 +19,14 @@ use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\Extension\ProductDetailRouteExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Detail\Event\ResolveVariantIdEvent;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
@@ -37,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -47,6 +50,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -670,10 +674,103 @@ class ProductDetailRouteTest extends TestCase
         $this->route->load('1', new Request(), $this->context, new Criteria());
     }
 
+    public function testLoadParentWithoutAvailableVariantThrowsNotFound(): void
+    {
+        $parentId = $this->idsCollection->create('parent');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'variantListingConfig' => null,
+            'parentId' => null,
+        ]);
+
+        $parent = new SalesChannelProductEntity();
+        $parent->setId($parentId);
+        $parent->setChildCount(2);
+        $parent->internalSetEntityData('product', new FieldVisibility([]));
+
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->once())
+            ->method('searchIds')
+            ->willReturn(new IdSearchResult(0, [], new Criteria(), $this->context->getContext()));
+        $productRepository->expects($this->once())
+            ->method('search')
+            ->with(static::callback(static fn (Criteria $criteria): bool => $criteria->getIds() === [$parentId]))
+            ->willReturn(new EntitySearchResult('product', 1, new ProductCollection([$parent]), null, new Criteria(), $this->context->getContext()));
+
+        $this->expectExceptionObject(ProductException::productNotFound($parentId));
+
+        $this->buildRoute($productRepository, $connection)->load($parentId, new Request(), $this->context, new Criteria());
+    }
+
+    public function testLoadParentResolvedByEventIsNotRejected(): void
+    {
+        $parentId = $this->idsCollection->create('parent');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'variantListingConfig' => null,
+            'parentId' => null,
+        ]);
+
+        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($parentId): void {
+            $event->setResolvedVariantId($parentId);
+        });
+
+        $parent = new SalesChannelProductEntity();
+        $parent->setId($parentId);
+        $parent->setChildCount(2);
+        $parent->internalSetEntityData('product', new FieldVisibility([]));
+
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->never())->method('searchIds');
+        $productRepository->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult('product', 1, new ProductCollection([$parent]), null, new Criteria(), $this->context->getContext()));
+
+        $result = $this->buildRoute($productRepository, $connection)->load($parentId, new Request(), $this->context, new Criteria());
+
+        static::assertSame($parentId, $result->getProduct()->getId());
+    }
+
     public function testGetDecorated(): void
     {
         $this->expectException(DecorationPatternException::class);
         $this->route->getDecorated();
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $productId = Uuid::randomHex();
+        $request = new Request();
+        $criteria = new Criteria();
+        $response = new ProductDetailRouteResponse(new SalesChannelProductEntity(), null);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('product-detail-route.load.pre', function (ProductDetailRouteExtension $extension) use ($productId, $request, $criteria, $response): void {
+            static::assertSame(['productId' => $productId, 'request' => $request, 'context' => $this->context, 'criteria' => $criteria], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ProductDetailRoute(
+            static::createStub(SalesChannelRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(Connection::class),
+            static::createStub(ProductConfiguratorLoader::class),
+            static::createStub(CategoryBreadcrumbBuilder::class),
+            static::createStub(SalesChannelCmsPageLoader::class),
+            static::createStub(EntityCmsSlotConfigInheritanceBuilder::class),
+            static::createStub(SalesChannelProductDefinition::class),
+            static::createStub(AbstractProductCloseoutFilterFactory::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($productId, $request, $this->context, $criteria));
     }
 
     #[DataProvider('breadcrumbCategoryDataProvider')]
@@ -815,6 +912,7 @@ class ProductDetailRouteTest extends TestCase
             $this->productCloseoutFilterFactory,
             $this->eventDispatcher,
             static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
     }
 }

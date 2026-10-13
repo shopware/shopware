@@ -174,14 +174,9 @@ class ApiController extends AbstractController
 
         $entityDefinition = $this->getEntityDefinition($entity);
 
-        $missing = $this->validateAclPermissions($context, $entityDefinition, AclRoleDefinition::PRIVILEGE_UPDATE);
-        if ($missing) {
-            throw ApiException::missingPrivileges([$missing]);
-        }
-
-        // reject a version of another entity
-        if ($this->isEntityMismatch($versionId, $entityDefinition, $context)) {
-            throw ApiException::versionEntityMismatch($versionId, $entityDefinition->getEntityName());
+        $missing = $this->getMissingMergePrivileges($versionId, $entityDefinition, $context);
+        if ($missing !== []) {
+            throw ApiException::missingPrivileges($missing);
         }
 
         $repository = $this->definitionRegistry->getRepository($entityDefinition->getEntityName());
@@ -488,29 +483,74 @@ class ApiController extends AbstractController
     }
 
     /**
-     * A version always contains changes of the entity it was created for.
-     * If it only contains changes of other entities, it was created for another entity.
-     * A version without changes, the live version and entities without versions are no mismatch,
-     * the merge rejects them with a more specific error.
+     * The update privilege of the merged entity covers its own changes and the changes of its child entities.
+     * Changes of other entities need their own privileges.
+     *
+     * @return list<string>
      */
-    private function isEntityMismatch(string $versionId, EntityDefinition $definition, Context $context): bool
+    private function getMissingMergePrivileges(string $versionId, EntityDefinition $definition, Context $context): array
     {
-        if ($versionId === Defaults::LIVE_VERSION || !$definition->isVersionAware()) {
-            return false;
+        $missing = [];
+
+        $entityPrivilege = $this->validateAclPermissions($context, $definition, AclRoleDefinition::PRIVILEGE_UPDATE);
+        if ($entityPrivilege !== null) {
+            $missing[$entityPrivilege] = $entityPrivilege;
         }
 
+        if ($versionId === Defaults::LIVE_VERSION || !$definition->isVersionAware()) {
+            return array_values($missing);
+        }
+
+        // collect which entities the version changed and how, as the merge applies all of these changes
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('commit.versionId', $versionId));
-        $criteria->addAggregation(new TermsAggregation('entities', 'entityName'));
+        $criteria->addAggregation(new TermsAggregation('entities', 'entityName', null, null, new TermsAggregation('actions', 'action')));
 
         $entities = $this->definitionRegistry
             ->getRepository(VersionCommitDataDefinition::ENTITY_NAME)
             ->aggregate($criteria, $context)
             ->get('entities');
         \assert($entities instanceof TermsResult);
-        $entityNames = $entities->getKeys();
 
-        return $entityNames !== [] && !\in_array($definition->getEntityName(), $entityNames, true);
+        // the user needs the privilege for each change, as the merge writes them without ACL checks
+        foreach ($entities->getBuckets() as $entityBucket) {
+            $actions = $entityBucket->getResult();
+            \assert($actions instanceof TermsResult);
+
+            foreach ($actions->getKeys() as $action) {
+                $privilege = $this->getMissingMergePrivilege($context, $definition, (string) $entityBucket->getKey(), $action);
+                if ($privilege !== null) {
+                    $missing[$privilege] = $privilege;
+                }
+            }
+        }
+
+        return array_values($missing);
+    }
+
+    private function getMissingMergePrivilege(Context $context, EntityDefinition $mergedDefinition, string $entityName, string $action): ?string
+    {
+        $privilege = match ($action) {
+            'insert' => AclRoleDefinition::PRIVILEGE_CREATE,
+            'update' => AclRoleDefinition::PRIVILEGE_UPDATE,
+            'delete' => AclRoleDefinition::PRIVILEGE_DELETE,
+            default => null,
+        };
+
+        if ($privilege === null || !$this->definitionRegistry->has($entityName)) {
+            return null;
+        }
+
+        $definition = $this->definitionRegistry->getByEntityName($entityName);
+
+        // the merged entity, its translations and its child entities, e.g. order_delivery_position of order
+        for ($parent = $definition; $parent !== null; $parent = $parent->getParentDefinition()) {
+            if ($parent->getEntityName() === $mergedDefinition->getEntityName()) {
+                return null;
+            }
+        }
+
+        return $this->validateAclPermissions($context, $definition, $privilege);
     }
 
     /**

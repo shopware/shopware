@@ -21,6 +21,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\Traits\OrderFixture;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -32,6 +34,7 @@ class ApiControllerVersionTest extends TestCase
     use AdminApiTestBehaviour;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
+    use OrderFixture;
 
     public function testCreateNewVersion(): void
     {
@@ -285,7 +288,8 @@ class ApiControllerVersionTest extends TestCase
         static::assertSame('draft name', $this->fetchLiveProductName($id));
     }
 
-    public function testMergeRejectsAVersionOfAnotherEntity(): void
+    #[DataProvider('mergeThroughAnotherEntityProvider')]
+    public function testMergeRequiresPrivilegesForAllChangesOfTheVersion(bool $addCategoryToVersion): void
     {
         $id = $this->createProduct('live name');
         $versionId = $this->createVersion($id);
@@ -294,16 +298,76 @@ class ApiControllerVersionTest extends TestCase
         $browser->jsonRequest('PATCH', '/api/product/' . $id, ['name' => 'draft name'], ['HTTP_SW_VERSION_ID' => $versionId]);
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
 
+        $categoryId = Uuid::randomHex();
+        $browser->jsonRequest('POST', '/api/category', ['id' => $categoryId, 'name' => 'category']);
+        static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+
         TestUser::createNewTestUser($browser->getContainer()->get(Connection::class), ['category:read', 'category:update'])->authorizeBrowser($browser);
+
+        if ($addCategoryToVersion) {
+            $browser->jsonRequest('POST', '/api/_action/version/category/' . $categoryId, ['versionId' => $versionId]);
+            static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+        }
 
         $browser->jsonRequest('POST', '/api/_action/version/merge/category/' . $versionId);
         $response = $browser->getResponse();
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
-        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(ApiException::API_VERSION_ENTITY_MISMATCH, $content['errors'][0]['code']);
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('product:update', (string) $response->getContent());
         static::assertSame('live name', $this->fetchLiveProductName($id), 'a category privilege must not publish a product draft');
         static::assertSame(1, $this->countVersionedProducts($id, $versionId), 'a rejected merge must keep the version');
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function mergeThroughAnotherEntityProvider(): iterable
+    {
+        yield 'the version has no changes of the merged entity' => [false];
+        yield 'the version also has changes of the merged entity' => [true];
+    }
+
+    public function testMergeOfAnOrderCoversChangesOfItsChildEntities(): void
+    {
+        $context = Context::createDefaultContext();
+        $orderId = Uuid::randomHex();
+        static::getContainer()->get('order.repository')->create($this->getOrderData($orderId, $context), $context);
+
+        $productId = Uuid::randomHex();
+        static::getContainer()->get('product.repository')->create([[
+            'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'name' => 'product',
+            'active' => true,
+            'tax' => ['name' => 'test', 'taxRate' => 19],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8, 'linked' => false]],
+            'visibilities' => [['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => 30]],
+        ]], $context);
+
+        $browser = $this->getBrowser();
+        TestUser::createNewTestUser($browser->getContainer()->get(Connection::class), ['order:read', 'order:update', 'product:read'])->authorizeBrowser($browser);
+
+        $browser->jsonRequest('POST', '/api/_action/version/order/' . $orderId);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        $versionId = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['versionId'];
+        static::assertIsString($versionId);
+
+        // the recalculation writes the line items and delivery positions in system scope
+        $browser->jsonRequest('POST', '/api/_action/order/' . $orderId . '/product/' . $productId, ['quantity' => 1], ['HTTP_SW_VERSION_ID' => $versionId]);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $browser->jsonRequest('POST', '/api/_action/version/merge/order/' . $versionId);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $lineItemCount = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT COUNT(*) FROM order_line_item WHERE order_id = :id AND version_id = :version',
+            ['id' => Uuid::fromHexToBytes($orderId), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]
+        );
+        static::assertSame(2, (int) $lineItemCount, 'the added product must be merged into the live order');
     }
 
     /**

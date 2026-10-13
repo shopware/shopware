@@ -629,6 +629,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductStreamBuilder::class),
             service(CacheTagCollector::class),
             service(ExtensionDispatcher::class),
+            service('logger'),
         ]);
 
     $services->set(ProductIndexer::class)
@@ -805,6 +806,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheTagCollector::class),
             service(Connection::class),
             service(ExtensionDispatcher::class),
+            service('logger'),
         ]);
 
     $services->set(ProductReviewSaveRoute::class)

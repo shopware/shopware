@@ -1,0 +1,45 @@
+{% block sw_not_found %}
+<sw-page
+    class="sw-not-found"
+    :show-smart-bar="false"
+    :show-search-bar="false"
+>
+    <template #content>
+        {% block sw_not_found_content %}
+        <div class="sw-error-404 sw-error-404--embedded">
+            <div class="sw-error-404__content">
+                {% block sw_not_found_hero %}
+                <div class="sw-error-404__hero">
+                    <h1 class="sw-error-404__title">
+                        {{ $t('sw-not-found.statusCode') }}
+                    </h1>
+
+                    <img
+                        :src="assetFilter('administration/administration/static/img/not-found-stroke.svg')"
+                        alt=""
+                        role="presentation"
+                    >
+                </div>
+                {% endblock %}
+
+                {% block sw_not_found_description %}
+                <p class="sw-error-404__description">
+                    {{ $t('sw-not-found.description') }}
+                </p>
+                {% endblock %}
+
+                {% block sw_not_found_dashboard_button %}
+                <mt-button
+                    class="sw-not-found__dashboard-button"
+                    variant="primary"
+                    @click="goToDashboard"
+                >
+                    {{ $t('sw-not-found.buttonDashboard') }}
+                </mt-button>
+                {% endblock %}
+            </div>
+        </div>
+        {% endblock %}
+    </template>
+</sw-page>
+{% endblock %}

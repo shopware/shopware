@@ -249,7 +249,8 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
         core.map((route) => {
             if (route.root === true) {
-                route.children = moduleNormalRoutes;
+                // Keep children defined on the root route itself, e.g. the catch-all route for unknown URLs
+                route.children = [...moduleNormalRoutes, ...(route.children ?? [])];
             }
 
             return route;
@@ -321,6 +322,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
         if (typeof route.component === 'string') {
             route.component = getViewComponent(route.component);
+            route = iterateChildRoutes(route);
         }
 
         return route;

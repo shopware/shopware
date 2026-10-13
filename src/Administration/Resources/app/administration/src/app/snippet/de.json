@@ -1381,6 +1381,12 @@
       "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden."
     }
   },
+  "sw-not-found": {
+    "title": "Seite nicht gefunden",
+    "statusCode": "404",
+    "description": "Wir können die gesuchte Seite leider nicht finden. Möglicherweise wurde sie entfernt oder ist vorübergehend nicht verfügbar.",
+    "buttonDashboard": "Zurück zum Dashboard"
+  },
   "sw-property-search": {
     "placeholderSearch": "Ausprägungen durchsuchen ...",
     "selected": "{count} Ausprägung gewählt | {count} Ausprägungen gewählt",

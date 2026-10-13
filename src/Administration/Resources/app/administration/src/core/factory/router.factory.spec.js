@@ -2,6 +2,9 @@
  * @sw-package framework
  */
 
+import * as VueRouter from 'vue-router';
+import coreRoutes from 'src/app/route';
+
 const { Module, Application } = Shopware;
 
 describe('core/factory/router.factory.js', () => {
@@ -176,6 +179,69 @@ describe('core/factory/router.factory.js', () => {
             expect(favicon.getAttribute('href')).toBe(
                 '/bundles/administration/administration/static/img/favicon/modules/icon-module-orders.svg',
             );
+        });
+    });
+
+    describe('createRouterInstance', () => {
+        beforeEach(() => {
+            Application.view.getComponentForRoute = jest.fn((name) => ({
+                name,
+                template: '<div></div>',
+            }));
+        });
+
+        afterEach(() => {
+            delete Application.view.getComponentForRoute;
+        });
+
+        function createRouter() {
+            const factory = new Shopware.Classes._private.RouterFactory(
+                VueRouter,
+                undefined,
+                Application.getContainer('factory').module,
+            );
+
+            // The factory mutates the route definitions, so every router gets its own copy
+            factory.addRoutes(structuredClone(coreRoutes));
+            factory.addModuleRoutes([
+                {
+                    path: '/sw/dashboard/index',
+                    name: 'sw.dashboard.index',
+                    component: 'sw-dashboard-index',
+                },
+                {
+                    path: '/login',
+                    name: 'sw.login.index',
+                    component: 'sw-login',
+                    coreRoute: true,
+                },
+            ]);
+
+            return factory.createRouterInstance();
+        }
+
+        it('should resolve unknown URLs to the not found page inside the root route', () => {
+            const router = createRouter();
+            const route = router.resolve('/sw/does-not/exist');
+
+            expect(route.name).toBe('sw.not.found.index');
+            expect(route.matched.map((record) => record.name)).toEqual([
+                'core',
+                'sw.not.found.index',
+            ]);
+            expect(route.matched[1].components.default.name).toBe('sw-not-found');
+        });
+
+        it('should prefer existing routes over the not found page', () => {
+            const router = createRouter();
+
+            expect(router.resolve('/sw/dashboard/index').matched.map((record) => record.name)).toEqual([
+                'core',
+                'sw.dashboard.index',
+            ]);
+            expect(router.resolve('/').name).toBe('core');
+            expect(router.resolve('/login').name).toBe('sw.login.index');
+            expect(router.resolve('/error').name).toBe('error');
         });
     });
 });

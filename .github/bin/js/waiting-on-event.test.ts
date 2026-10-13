@@ -104,6 +104,7 @@ const pullRequestNode = (overrides: Record<string, unknown> = {}) => ({
     latestOpinionatedReviews: { nodes: [] },
     reviewThreads: { nodes: [] },
     timelineItems: { nodes: [] },
+    labelEvents: { nodes: [] },
     ...overrides,
 });
 

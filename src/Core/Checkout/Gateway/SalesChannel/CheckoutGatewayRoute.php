@@ -41,7 +41,12 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/checkout/gateway', name: 'store-api.checkout.gateway', methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/store-api/checkout/gateway',
+        name: 'store-api.checkout.gateway',
+        defaults: [PlatformRequest::ATTRIBUTE_ALLOW_ORDER_RESTORATION => true],
+        methods: ['GET', 'POST']
+    )]
     public function load(Request $request, Cart $cart, SalesChannelContext $context): CheckoutGatewayRouteResponse
     {
         return $this->extensions->publish(

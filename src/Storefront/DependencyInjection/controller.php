@@ -27,7 +27,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RemoveWishlistProductRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute;
-use Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute;
+use Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
@@ -45,6 +45,7 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\ProductListRoute;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRoute;
@@ -337,6 +338,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SeoUrlPlaceholderHandlerInterface::class),
             service(ProductReviewLoader::class),
             service(ProductPurchaseLimitRoute::class),
+            service(GaranLabelRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

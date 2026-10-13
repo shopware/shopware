@@ -4,7 +4,14 @@
 
     {% if garanLabel %}
         <div class="line-item-garan-label">
-            {{ garanLabel|raw }}
+            <button type="button"
+                    class="garan-label-button"
+                    aria-label="{{ 'detail.garanLabelTitle'|trans|striptags }}"
+                    aria-haspopup="dialog"
+                    data-ajax-modal="true"
+                    data-url="{{ path('frontend.product.garan-label', { productId: productId }) }}">
+                {{ garanLabel|raw }}
+            </button>
         </div>
     {% endif %}
 {% endblock %}

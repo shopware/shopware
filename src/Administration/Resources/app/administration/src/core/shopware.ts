@@ -50,6 +50,7 @@ import {
     overrideComponentSetup,
 } from 'src/app/adapter/composition-extension-system';
 import * as Vue from 'vue';
+import { registerNativeExtensionTargets } from 'src/core/factory/native-extension-targets';
 import type { DefineComponent, Ref } from 'vue';
 import CMS from '../module/sw-cms/constant/sw-cms.constant';
 import CUSTOMER from '../module/sw-customer/constant/sw-customer.constant';
@@ -59,6 +60,7 @@ import ExtensionApi from './extension-api';
 import Telemetry from './telemetry';
 import { LineItemType } from '../module/sw-order/order.types';
 import useContext from '../app/composables/use-context';
+import composables from '../app/composables';
 
 /** Initialize feature flags at the beginning */
 if (window.hasOwnProperty('_features_')) {
@@ -149,6 +151,10 @@ class ShopwareClass implements CustomShopwareProperties {
         getExposedProps: getExposedProps,
         overrideComponentSetup: overrideComponentSetup,
 
+        /**
+         * @private
+         */
+        registerNativeExtensionTargets: registerNativeExtensionTargets,
         /**
          * @private
          *
@@ -273,6 +279,11 @@ class ShopwareClass implements CustomShopwareProperties {
     };
 
     public Data = data;
+
+    /**
+     * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
+     */
+    public Composables = composables;
 
     public get Snippet() {
         // @ts-expect-error - type is currently not available

@@ -1,0 +1,35 @@
+name: External PR notify
+
+# Tells a team in Slack about a new external pull request once it carries both
+# `external-contribution` and the team's domain label. Which teams take part, and the
+# rationale, live in .github/bin/js/waiting-on-slack.ts.
+#
+# pull_request_target so a fork's pull request gets the Slack token. Nothing from the pull
+# request is checked out or run: the job reads the event payload and the base branch's script.
+
+on:
+  pull_request_target:
+    types: [labeled]
+
+permissions: {}
+
+jobs:
+  notify:
+    name: Notify the team in Slack
+    if: github.repository == 'shopware/shopware' && (github.event.label.name == 'external-contribution' || startsWith(github.event.label.name, 'domain/'))
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/bin/js
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN_PRODUCT_NOTIFICATIONS }}
+          SLACK_CHANNELS: ${{ vars.WAITING_ON_SLACK_CHANNELS }}
+        with:
+          script: |
+            const { notifyNewExternalPullRequest } = await import('${{ github.workspace }}/.github/bin/js/waiting-on-slack.ts')
+            await notifyNewExternalPullRequest({ core, context }, { token: process.env.SLACK_TOKEN }, process.env.SLACK_CHANNELS)

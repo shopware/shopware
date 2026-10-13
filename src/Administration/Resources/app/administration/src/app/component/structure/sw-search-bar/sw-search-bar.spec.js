@@ -90,7 +90,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
                     },
                 },
                 provide: {
-                    searchService: {
+                    searchService: customProviders.searchService ?? {
                         search: () => {
                             const result = {
                                 data: {
@@ -517,6 +517,17 @@ describe('src/app/component/structure/sw-search-bar', () => {
         // Interactive children keep their own click behavior.
         await wrapper.find('.sw-search-bar__type--v2').trigger('click');
         expect(setFocusSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should close the module filter dropdown when the input is focused before search trends are loaded', async () => {
+        wrapper = await createWrapper();
+
+        await wrapper.find('.sw-search-bar__type--v2').trigger('click');
+        expect(wrapper.vm.showModuleFiltersContainer).toBe(true);
+
+        await wrapper.find('.sw-search-bar__input').trigger('focus');
+
+        expect(wrapper.vm.showModuleFiltersContainer).toBe(false);
     });
 
     it('should close the dropdowns and blur the search input on escape', async () => {
@@ -1437,6 +1448,36 @@ describe('src/app/component/structure/sw-search-bar', () => {
         });
     });
 
+    it('should emit click-search-result and close the search panels when a search result is clicked', async () => {
+        const customRecentlySearchMock = {
+            get: jest.fn(() => [
+                {
+                    entity: 'product',
+                    id: 'dfe80a0ec016413e8e03fa2d85db3dea',
+                    timestamp: Date.now(),
+                },
+            ]),
+        };
+
+        wrapper = await createWrapper({}, searchTypeServiceTypes, ['product:read'], {
+            recentlySearchService: customRecentlySearchMock,
+        });
+
+        await wrapper.find('.sw-search-bar__input').trigger('focus');
+        await flushPromises();
+
+        const searchBarItem = wrapper.findComponent('.sw-search-bar-item');
+        expect(searchBarItem.exists()).toBe(true);
+        expect(wrapper.vm.showResultsSearchTrends).toBe(true);
+
+        searchBarItem.vm.$emit('click-search-result', 'product', 'productId', { foo: 'bar' });
+        await flushPromises();
+
+        expect(wrapper.emitted('click-search-result')).toEqual([['product', 'productId', { foo: 'bar' }]]);
+        expect(wrapper.vm.showResultsContainer).toBe(false);
+        expect(wrapper.vm.showResultsSearchTrends).toBe(false);
+    });
+
     it('should always show recently searches correctly', async () => {
         register('sw-dashboard', {
             title: 'sw-dashboard.general.mainMenuItemGeneral',
@@ -1656,6 +1697,50 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 }),
             ]),
         );
+    });
+
+    it('should not fail when the ES type search returns no data', async () => {
+        Shopware.Context.app.adminEsEnable = true;
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+            },
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: '',
+                },
+                esFoo: {
+                    entityName: 'esFoo',
+                    placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
+                    listingRoute: 'sw.foo.index',
+                },
+            },
+            [],
+            {
+                searchService: {
+                    elastic: jest.fn(() => Promise.resolve({})),
+                },
+            },
+        );
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+
+        await searchInput.trigger('focus');
+        await searchInput.setValue('#');
+
+        await wrapper.findAll('.sw-search-bar__types_container--v2 .sw-search-bar__type-item').at(1).trigger('click');
+
+        await searchInput.setValue('shirt');
+        await flushPromises();
+
+        await swSearchBarComponent.methods.doListSearchWithContainer.flush();
+        await flushPromises();
+
+        expect(wrapper.vm.searchService.elastic).toHaveBeenCalled();
+        expect(wrapper.vm.results).toEqual([]);
+        expect(wrapper.vm.isLoading).toBe(false);
     });
 
     it('should render the correct fallback icon when no entity icon exists', async () => {

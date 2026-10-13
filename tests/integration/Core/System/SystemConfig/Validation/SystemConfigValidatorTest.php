@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
-use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
+use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
 
 /**
@@ -30,15 +30,15 @@ class SystemConfigValidatorTest extends TestCase
     #[DataProvider('validateProvider')]
     public function testValidate(array $inputValues, array $formConfigs, bool $expectErrors): void
     {
-        $systemConfigDefinitionServiceMock = $this->createMock(SystemConfigDefinitionService::class);
+        $configurationServiceMock = $this->createMock(ConfigurationService::class);
         $validator = new SystemConfigValidator(
-            $systemConfigDefinitionServiceMock,
+            $configurationServiceMock,
             self::getContainer()->get(DataValidator::class)
         );
 
-        $systemConfigDefinitionServiceMock
+        $configurationServiceMock
             ->expects($this->once())
-            ->method('getConfiguration')
+            ->method('getSystemConfigDefinition')
             ->willReturn($formConfigs);
 
         $contextMock = Context::createDefaultContext();

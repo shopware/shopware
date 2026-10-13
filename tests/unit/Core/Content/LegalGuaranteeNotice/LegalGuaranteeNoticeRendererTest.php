@@ -62,6 +62,15 @@ class LegalGuaranteeNoticeRendererTest extends TestCase
         static::assertSame('https://europa.eu/youreurope/guarantees', $renderer->linkForLanguage('irrelevant-language-id'));
     }
 
+    #[TestWith(['fr', 'https://europa.eu/youreurope/citizens/consumers/shopping/commercial-guarantee-durability/index_fr.htm'])]
+    #[TestWith(['xx', 'https://europa.eu/youreurope/citizens/consumers/shopping/commercial-guarantee-durability/index_en.htm'])]
+    public function testGaranLabelLinkForLanguageUsesResolvedLocaleWithEnglishFallback(string $locale, string $expectedLink): void
+    {
+        $renderer = $this->createRenderer($locale);
+
+        static::assertSame($expectedLink, $renderer->garanLabelLinkForLanguage('irrelevant-language-id'));
+    }
+
     private function createRenderer(string $localePrefix): LegalGuaranteeNoticeRenderer
     {
         $twig = new Environment(new ArrayLoader([

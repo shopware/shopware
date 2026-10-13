@@ -324,17 +324,18 @@ class Kernel extends HttpKernel
             $plugins[$plugin['name']] = $plugin['version'];
         }
 
-        asort($plugins);
+        // sort by name, so the hash does not depend on the order in which the plugin loader returns the plugins
+        ksort($plugins);
 
         // The feature registry is initialized after the container cache is selected.
         /** @var list<string>|null $majorVersionFlagNames */
         static $majorVersionFlagNames = null;
         if ($majorVersionFlagNames === null) {
-            /** @var array{shopware: array{feature: array{flags: list<array{name: string, major: bool}>}}} $config */
+            /** @var array{shopware: array{feature: array{flags: list<array{name: string}>}}} $config */
             $config = Yaml::parseFile(__DIR__ . '/Framework/Resources/config/packages/feature.yaml');
             $majorVersionFlagNames = [];
             foreach ($config['shopware']['feature']['flags'] as $flag) {
-                if (!$flag['major'] || \preg_match('/^v\d+(?:\.\d+){1,3}$/i', $flag['name']) !== 1) {
+                if (!Feature::isMajorVersionFlag($flag['name'])) {
                     continue;
                 }
 

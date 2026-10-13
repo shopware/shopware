@@ -71,6 +71,7 @@ class TwigComponentRenderEventListener
     {
         $path = str_starts_with($path, 'components/') ? substr($path, \strlen('components/')) : $path;
         $path = str_ends_with($path, '.html.twig') ? substr($path, 0, -\strlen('.html.twig')) : $path;
+        $path = str_ends_with($path, '/index') ? substr($path, 0, -\strlen('/index')) : $path;
 
         return str_replace('/', ':', $path);
     }

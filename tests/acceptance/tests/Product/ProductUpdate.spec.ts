@@ -14,9 +14,12 @@ test(
         SaveProduct,
     }) => {
         const { id: uniqueId } = IdProvider.getIdPair();
+        const initialDescription = `Description of ${uniqueId}`;
         const category = await TestDataService.createCategory();
         // The product starts without assignments so that both of them are made through the administration.
         const product = await TestDataService.createBasicProduct({
+            // The Meteor text editor only edits markup it supports, a plain text description locks it.
+            description: `<p>${initialDescription}</p>`,
             stock: 10,
             categories: [],
             visibilities: [],
@@ -30,7 +33,11 @@ test(
         await ShopAdmin.goesTo(AdminProductDetail.url(product.id));
 
         await test.step('Update description, price and stock', async () => {
-            await ShopAdmin.fillsIn(AdminProductDetail.descriptionEditor, updatedDescription);
+            // The editor sets its content once the product is loaded, which would overwrite earlier input.
+            await ShopAdmin.expects(AdminProductDetail.descriptionEditor).toHaveText(initialDescription);
+            // Filled directly: the Meteor text editor has no visible focus indicator, which fails the a11y check of fillsIn.
+            await AdminProductDetail.descriptionEditor.fill(updatedDescription);
+            await ShopAdmin.expects(AdminProductDetail.descriptionEditor).toHaveText(updatedDescription);
             await ShopAdmin.fillsIn(AdminProductDetail.priceGrossInput, updatedGrossPrice);
             await ShopAdmin.fillsIn(AdminProductDetail.stockInput, updatedStock);
         });

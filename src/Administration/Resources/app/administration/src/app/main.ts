@@ -16,6 +16,7 @@ import MenuService from 'src/app/service/menu.service';
 import PrivilegesService from 'src/app/service/privileges.service';
 import AclService from 'src/app/service/acl.service';
 import LoginService from 'src/core/service/login.service';
+import SsoReauthService from 'src/core/service/sso-reauth.service';
 import EntityMappingService from 'src/core/service/entity-mapping.service';
 import JsonApiParser from 'src/core/service/jsonapi-parser.service';
 import ValidationService from 'src/core/service/validation.service';
@@ -235,6 +236,10 @@ Application.addServiceProvider('feature', () => {
     })
     .addServiceProvider('userActivityService', () => {
         return new UserActivityService();
+    })
+    .addServiceProvider('ssoReauthService', (container: $TSFixMe) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
+        return new SsoReauthService(container.loginService);
     })
     .addServiceProvider('fileValidationService', () => {
         return FileValidationService();

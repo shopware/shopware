@@ -14,12 +14,21 @@ const ssoSettingsService = {
     isSso: jest.fn(() => Promise.resolve({ isSso: false })),
 };
 
+const ssoReauthService = {
+    isRecentlyVerified: jest.fn(() => false),
+    start: jest.fn(() => Promise.resolve()),
+};
+
 async function createWrapper() {
     const wrapper = mount(await wrapTestComponent('sw-verify-user-modal', { sync: true }), {
         global: {
             provide: {
                 loginService,
                 ssoSettingsService,
+                ssoReauthService,
+            },
+            mocks: {
+                $router: { currentRoute: { value: { fullPath: '/sw/settings/language-pack' } } },
             },
         },
     });
@@ -52,16 +61,40 @@ describe('src/app/component/utils/sw-verify-user-modal', () => {
         expect(wrapper.emitted('close')).toHaveLength(1);
     });
 
-    it('skips the password prompt and emits the current context for an SSO session', async () => {
+    it('emits the current context for an SSO session verified at the identity provider recently', async () => {
         ssoSettingsService.isSso.mockResolvedValueOnce({ isSso: true });
+        ssoReauthService.isRecentlyVerified.mockReturnValueOnce(true);
 
         wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-modal').exists()).toBe(false);
         expect(loginService.verifyUserToken).not.toHaveBeenCalled();
+        expect(ssoReauthService.start).not.toHaveBeenCalled();
         expect(wrapper.emitted('verified')).toHaveLength(1);
         expect(wrapper.emitted('verified')[0][0]).toEqual({ ...Shopware.Context.api });
         expect(wrapper.emitted('close')).toHaveLength(1);
+    });
+
+    it('sends an SSO session without a recent verification back to the identity provider', async () => {
+        ssoSettingsService.isSso.mockResolvedValueOnce({ isSso: true });
+
+        wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-modal').exists()).toBe(false);
+        expect(ssoReauthService.start).toHaveBeenCalledWith('/sw/settings/language-pack');
+        expect(wrapper.emitted('verified')).toBeUndefined();
+        expect(wrapper.emitted('close')).toBeUndefined();
+    });
+
+    it('closes with an error when the re-authentication cannot be started', async () => {
+        ssoSettingsService.isSso.mockResolvedValueOnce({ isSso: true });
+        ssoReauthService.start.mockRejectedValueOnce(new Error('not configured'));
+
+        wrapper = await createWrapper();
+
+        expect(wrapper.emitted('verified')).toBeUndefined();
+        expect(wrapper.emitted('close')).toHaveLength(1);
+        expect(wrapper.vm.createNotificationError).toBeDefined();
     });
 
     it('falls back to the password prompt when the SSO lookup fails', async () => {

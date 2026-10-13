@@ -10,7 +10,8 @@ End-to-end evals for the `.agents/skills/sw-review` PR-review skill. Built on
 
 ```
 tests/
-├── eval.yaml   # 10 task definitions
+├── eval.yaml   # persona and guide task definitions
+├── routing/    # deterministic classify.sh cases (run.sh)
 ├── _lib.sh     # shared check/emit helpers (mounted into every workspace)
 └── persona/<persona>/{catch,ignore}/{input.json, diff.patch, grader.sh}
 ```
@@ -22,6 +23,17 @@ tests/
 - `jq`
 - `claude` CLI on `$PATH` with an authenticated session
 
+## Routing tests (no LLM, run on every change)
+
+```bash
+bash tests/routing/run.sh
+```
+
+Each case under `tests/routing/<case>/` holds a real PR diff plus `expected.json`
+(signals that must be present, signals that must be absent, the exact guide
+set). These run in seconds and prove that `scripts/classify.sh` routes the same
+way every time.
+
 ## Running
 
 From this directory:
@@ -31,7 +43,7 @@ From this directory:
 skillgrade --provider=local --agent=claude --trials=1
 
 # A single task (cheapest sanity check).
-skillgrade --provider=local --agent=claude --eval=persona-open-source-catch --trials=1
+skillgrade --provider=local --agent=claude --eval=persona-maintainer-catch --trials=1
 
 # Variance — same task five times, reports pass@k and pass^k.
 skillgrade --provider=local --agent=claude --smoke

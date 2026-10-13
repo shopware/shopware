@@ -1,0 +1,58 @@
+---
+guide: migrations
+title: Will this migration run safely on every shop, and run again after a failure?
+personas: [architecture]
+rules:
+  - { id: MIG-001, since: 2026-10-09, source: "coding-guidelines/core/database-migations.md#2-migrations-must-be-able-to-be-executed-more-than-once", fixture: "tests/guide/migrations/catch" }
+  - { id: MIG-002, since: 2026-10-09, source: "coding-guidelines/core/database-migations.md#the-migration-class", fixture: "tests/guide/migrations/catch" }
+  - { id: MIG-003, since: 2026-10-09, source: "coding-guidelines/core/database-migations.md#1-never-change-an-executed-migration", fixture: "" }
+  - { id: MIG-004, since: 2026-10-09, source: "coding-guidelines/core/database-migations.md#6-performance--duration", fixture: "" }
+  - { id: MIG-005, since: 2026-10-09, source: "coding-guidelines/core/database-migations.md#6-performance--duration", fixture: "" }
+  - { id: MIG-006, since: 2026-10-09, source: "coding-guidelines/core/database-migations.md#5-dont-hurt-customized-data", fixture: "" }
+  - { id: MIG-007, since: 2026-10-09, source: ".agents/skills/shopware-admin-js/SKILL.md#code", fixture: "" }
+  - { id: MIG-008, since: 2026-10-09, source: "coding-guidelines/core/feature-flags.md#major-ci", fixture: "" }
+  - { id: MIG-009, since: 2026-10-09, source: ".agents/skills/shopware-php-code/SKILL.md#migrations", fixture: "" }
+  - { id: MIG-010, since: 2026-10-09, source: "coding-guidelines/core/database-migations.md#8-migration-tests", fixture: "tests/guide/migrations/ignore" }
+---
+
+## Why this guide exists
+
+A migration runs once, unattended, on thousands of shops with data and timeouts we never see. When it fails halfway, the operator re-runs the update; when it breaks the schema the old release still reads, the shop fails during a blue-green deployment. Review comments on migrations repeat the same few points (about 40 comments between April and October 2026), so this guide lists them once.
+
+## Check
+
+- **MIG-001** Look for `ALTER TABLE`, `CREATE INDEX`, `INSERT` or `CREATE TABLE` without an existence check (`TableHelper::columnExists`/`indexExists`, `addColumn()`, `IF NOT EXISTS`, insert only missing rows). A migration that timed out halfway then fails on every re-run, and the update is stuck until someone fixes the database by hand. Rule: [Migrations must be able to be executed more than once](../../../../coding-guidelines/core/database-migations.md#2-migrations-must-be-able-to-be-executed-more-than-once). Example: a migration added a column to product streams without an existence check, another re-implemented the check by hand instead of using `TableHelper`, and a third did not return early when the column already existed.
+- **MIG-002** Look for a drop, rename, type narrowing, `NOT NULL` without a default or a dropped default in `update()`, also inside an `if` block or built with `sprintf`. During a blue-green deployment the old release still reads and writes the column and fails with SQL errors. Move it to `updateDestructive()` of the current major's migration. Rule: [The migration class](../../../../coding-guidelines/core/database-migations.md#the-migration-class), [Backward compatibility](../../../../coding-guidelines/core/database-migations.md#backward-compatibility). Example: a breaking change to a line item rule condition ran in `update()`; dropping the old maintenance IP whitelist column was placed in the 6.8 namespace instead of `updateDestructive()` of 6.7, which would have delayed it to 6.9.
+- **MIG-003** Look for a diff to an existing migration file. Shops that already ran it never get the change, so their schema differs from a fresh install. Whether the migration was part of a public release decides: released means a new migration, unreleased (for example a next-major migration) may still be edited. Rule: [Never change an executed migration](../../../../coding-guidelines/core/database-migations.md#1-never-change-an-executed-migration). Example: a released 6.6 migration for the variant listing config was edited, so shops that had already run it never got the fix; editing an unreleased 6.8 migration that registers the payment method indexer was fine.
+- **MIG-004** Look for derived data (hashes, keywords, listing values) recomputed in SQL across a whole table. Large shops hit the update timeout. Register the responsible indexer with `registerIndexer()`, or use a post-update indexer for a one-time backfill. Rule: [Performance / Duration](../../../../coding-guidelines/core/database-migations.md#6-performance--duration); the indexer advice itself: guideline paragraph pending. Example: a migration rehashed the display group of every row in the product table instead of letting `product.indexer` do it; a description teaser backfill used a permanent indexer that would rerun on every index refresh instead of a post-update indexer.
+- **MIG-005** Look for data migrations that load or update a large table in one statement or without a deterministic `ORDER BY` between batches. The 10-second budget is exceeded, and unordered batches skip or repeat rows. Process about 1,000 rows per batch and keep a cursor. Rule: [Performance / Duration](../../../../coding-guidelines/core/database-migations.md#6-performance--duration); batching: guideline paragraph pending. Example: the batches of a product type migration had no `ORDER BY`; a backfill of the customer id in the sales channel API context ran unbatched over data that lives only for a day.
+- **MIG-006** Look for updates to mail templates, flows, CMS pages or config values without an `updated_at IS NULL` style guard. Merchants lose their own edits without notice. Rule: [Don't hurt customized data](../../../../coding-guidelines/core/database-migations.md#5-dont-hurt-customized-data). Example: a migration added a mail action to an existing merchant flow for failed payments; another rewrote the product comparison template breadcrumb, which shops may already have edited.
+- **MIG-007** Look for new ACL privileges without a migration for existing roles, or a privilege migration that writes `acl_role` directly instead of `addAdditionalPrivileges()`. Existing users lose access, or roles a merchant restricted gain rights. Rule: [Admin JS Code](../../shopware-admin-js/SKILL.md#code), [Don't hurt customized data](../../../../coding-guidelines/core/database-migations.md#5-dont-hurt-customized-data). Example: a migration that restored integration privileges skipped the guards of `addAdditionalPrivileges()`; a new product privilege was granted to new roles only, so existing users lost access.
+- **MIG-008** Look for a migration gated by `Feature::isActive()`, or placed in the next major's namespace although it must run on the current line. Migrations are selected by the installed version, never by a flag, so the change runs too early, too late or never, and cannot be undone when the flag is switched off. Migrate only data and schema; keep the behaviour behind the major flag. Rule: [Major CI](../../../../coding-guidelines/core/feature-flags.md#major-ci). Example: a migration that adds default currencies to sales channels sat in the `V6_8` folder, so 6.7 shops never ran it. The migration loader also stopped pulling in next-major migrations when all major flags are on, so only the installed version selects migrations.
+- **MIG-009** Look at the timestamp in the class name and `getCreationTimestamp()`. A placeholder or rounded value (`1780000000`) sorts the migration before or after the wrong steps. Use the exact creation time. Rule: [PHP code, Migrations](../../shopware-php-code/SKILL.md#migrations). Example: the webhook health migration used the placeholder timestamp `1780000000`, which sorts it among the wrong steps.
+- **MIG-010** Look at the migration test: it should call `update()` twice to prove MIG-001, and it should not exist for an empty `updateDestructive()`. Rule: [Migration Tests](../../../../coding-guidelines/core/database-migations.md#8-migration-tests). Example: the test of an SEO URL index migration executed the migration again and again across test methods.
+
+## Do not flag
+
+### CI covers
+
+- PHPStan `NoDropStatementInUpdateRule`: `DROP TABLE`, `DROP COLUMN`, `DROP FOREIGN KEY` literals and `drop*IfExists()` calls written as top-level statements of `update()`. It misses drops inside `if` blocks or loops, SQL built with `sprintf`, and renames (`CHANGE`, `RENAME COLUMN`); report those under MIG-002.
+- PHPStan `AddColumnRule` (raw `ADD COLUMN` instead of `addColumn()`), `NoAfterStatementRule` (`ALTER TABLE ... AFTER`), `NonStandardFkGuardRule` (raw DDL on tables with known foreign key drift outside `executeDdlStatement()`).
+- Danger `MissingMigrationTests`: a new migration file without a test under `tests/migration/`.
+
+### Legitimate patterns
+
+- Edits to a migration of the next major that has not been released (MIG-003).
+- An empty `updateDestructive()`, and drops in `updateDestructive()`.
+- Native time reads in migrations; PHPStan exempts migrations from the clock rules on purpose.
+- An optional field made required across DB, DAL definition and Store API, `ApiAware` or association changes, and config or flag defaults: the bc-data-and-config guide owns the DAL definition, API-visible data shape and config contracts.
+
+## Severity
+
+- `blocking`: a destructive step in `update()` of a migration that ships in a minor, or an edited released migration. Shops fail during deployment, or their schema silently differs from a fresh install.
+- `major`: a migration that cannot run twice, overwrites merchant data, recomputes a whole table, or is gated by a flag. The update gets stuck or merchants lose data.
+- `minor`: a placeholder timestamp, or a test that runs `update()` only once.
+
+## Retired
+
+(none yet)

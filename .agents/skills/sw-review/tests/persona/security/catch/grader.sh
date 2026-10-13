@@ -10,7 +10,7 @@ load_output
 check_schema_persona
 
 check "persona-attribution"   '.persona == "security"'
-check "has-finding"           '(.findings // []) | length >= 1'
+require "has-finding"           '(.findings // []) | length >= 1'
 check "security-category"     '[(.findings // [])[] | select(.category == "security")] | length >= 1'
 check "blocking-severity"     '[(.findings // [])[] | select(.severity == "blocking")] | length >= 1'
 

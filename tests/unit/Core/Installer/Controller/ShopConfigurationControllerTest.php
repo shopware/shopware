@@ -283,6 +283,7 @@ class ShopConfigurationControllerTest extends TestCase
         $this->setEnvVars(['HTTP_HOST' => 'localhost', 'SCRIPT_NAME' => '/index.php']);
         $this->connection->method('fetchOne')->willReturn(Uuid::randomHex());
         $this->translator->method('trans')->willReturnCallback(static fn (string $key): string => $key);
+        $this->twig->expects($this->never())->method('render');
         $this->envConfigWriter->expects($this->once())->method('writeConfig');
         $this->shopConfigService->expects($this->once())->method('updateShop');
         $this->adminConfigService->expects($this->once())->method('createAdmin');

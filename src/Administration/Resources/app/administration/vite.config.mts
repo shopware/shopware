@@ -118,8 +118,6 @@ export default (async ({ command }) => {
         plugins: (() => {
             // Plugins used for both dev and prod
             const sharedPlugins = [
-                ...(toolchain.isVite8 ? [ExtglobCompatPlugin()] : []),
-
                 // Shopware plugins: build/vite-plugins
                 TwigPlugin(),
                 AssetPlugin(isProd, __dirname, extensions),
@@ -154,6 +152,7 @@ export default (async ({ command }) => {
                 }),
                 svgLoader(),
                 toolchain.vue(),
+                ...(toolchain.isVite8 ? [ExtglobCompatPlugin()] : []),
             ];
 
             if (isDev) {

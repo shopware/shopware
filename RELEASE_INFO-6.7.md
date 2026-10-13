@@ -475,6 +475,8 @@ To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite
 
 Vite 8 is installed as an own package in `src/Administration/Resources/app/administration/build/vite-8` by the `postinstall` script of the Administration, next to Vite 6. With the flag, building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
 
+Vite 8 does not match extglob patterns like `!(*.spec)` in `import.meta.glob`. With the flag, Shopware still rewrites negated extglobs in plugins and apps and logs a warning for each one. 6.8 no longer rewrites them, so replace them with negated patterns like `['./**/*.{j,t}s', '!./**/*.spec.{j,t}s']`.
+
 See the "Administration build updated to Vite 8" section in `UPGRADE-6.8.md` for the changes extension developers should check.
 
 ### [Internal] Native `<sw-block>` names are isolated per component

@@ -29,6 +29,7 @@ import VirtualShopwareModulesPlugin from './vite-plugins/virtual-shopware-module
 import { loadExtensions, getViteServerPorts, isInsideDockerContainer } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
+import ExtglobCompatPlugin from './vite-plugins/extglob-compat';
 import { loadViteToolchain } from './vite-plugins/vite-toolchain';
 import type { ViteToolchain } from './vite-plugins/vite-toolchain';
 
@@ -95,6 +96,7 @@ const getBaseConfig = (toolchain: ViteToolchain, extension: ExtensionDefinition,
                     },
                 },
             }),
+            ...(toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : []),
             ExternalsPlugin(),
 
             // Prod plugins
@@ -238,6 +240,7 @@ const main = async () => {
                         port: extensionPorts[extension.technicalName],
                         cors: true,
                     },
+                    plugins: toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : [],
                 });
 
                 console.log(colors.green(`# App "${extension.name}": Injected successfully`));
@@ -282,6 +285,7 @@ const main = async () => {
                                     injectTo: 'head-prepend',
                                 },
                             ]),
+                            ...(toolchain.isVite8 ? [ExtglobCompatPlugin({ warnOnRewrite: true })] : []),
                         ],
                     });
                 } else {

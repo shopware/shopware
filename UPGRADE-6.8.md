@@ -39,7 +39,7 @@ The most important changes at a glance:
 | What breaks | How to fix it |
 |---|---|
 | Building with Node.js below 20.19 or 22.12 fails. | Update Node.js to `^20.19.0 \|\| >=22.12.0`. |
-| `import.meta.glob` with extglob patterns like `!(*.spec)` silently matches no files. | Use negated patterns: `['./**/*.ts', '!./**/*.spec.ts']`. |
+| `import.meta.glob` with extglob patterns like `!(*.spec)` matches no files in production builds, and depending on the pattern also in the watcher. | Use negated patterns: `['./**/*.ts', '!./**/*.spec.ts']`. |
 | Default imports of CommonJS dependencies return a different value. | Check default imports of CommonJS packages and use named imports or `.default` where needed. |
 | Your own `vite.config.*` logs deprecation warnings for `rollupOptions`, `esbuildOptions`, or `esbuild`. | Rename them to `rolldownOptions`, `optimizeDeps.rolldownOptions`, and `oxc`. |
 | Your own `vite.config.*` uses the object form of `manualChunks`, the legacy Sass API, or `splitVendorChunkPlugin`. | Use `codeSplitting`, remove the Sass `api` option, and remove `splitVendorChunkPlugin`. |
@@ -47,7 +47,7 @@ The most important changes at a glance:
 
 Check the Administration code of your plugin for these changes:
 
-* Extglob patterns in `import.meta.glob` no longer match anything. Replace them with negated patterns:
+* `import.meta.glob` with extglob patterns like `!(*.spec)` matches no files in production builds, and depending on the pattern also in the watcher. Replace them with negated patterns:
 
   ```js
   // Before
@@ -55,6 +55,8 @@ Check the Administration code of your plugin for these changes:
   // After
   import.meta.glob(['./**/*.{j,t}s', '!./**/*.spec.{j,t}s'], { eager: true });
   ```
+
+  With the `ADMIN_VITE_8` flag in 6.7, Shopware still rewrites negated extglobs in plugins and apps and logs a warning for each one. 6.8 no longer rewrites them.
 
 * A default import of a CommonJS module resolves to `module.exports` if the importing file is an `.mjs`/`.mts` file, the nearest `package.json` sets `"type": "module"`, or the module does not set `__esModule`. Otherwise it resolves to `module.exports.default`. Check default imports of CommonJS dependencies.
 * The `browser` and `module` fields of dependencies are no longer sniffed for their format. The order of `resolve.mainFields` is always respected.

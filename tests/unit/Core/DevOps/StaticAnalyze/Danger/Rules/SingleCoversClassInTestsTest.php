@@ -21,12 +21,12 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
 #[CoversClass(SingleCoversClassInTests::class)]
 class SingleCoversClassInTestsTest extends TestCase
 {
-    #[TestDox('Fails only for new test files covering more than one class')]
+    #[TestDox('Fails for test files that end up covering more than one class, unless untouched legacy attributes')]
     #[DataProvider('coversProvider')]
-    public function testDetection(string $fileName, string $status, string $content, bool $expectFailure): void
+    public function testDetection(string $fileName, string $status, string $content, bool $expectFailure, string $patch = ''): void
     {
         $context = new Context(new StubPlatform(new StubPullRequest([
-            new StubFile($fileName, $status, $content),
+            new StubFile($fileName, $status, $content, $patch),
         ])));
 
         (new SingleCoversClassInTests())($context);
@@ -65,11 +65,47 @@ class SingleCoversClassInTestsTest extends TestCase
             self::testClass(''),
             false,
         ];
-        yield 'modified test covering two classes passes, only new files are gated' => [
+        yield 'modified test adding a second covered class fails' => [
+            'tests/unit/Core/Checkout/CartTest.php',
+            File::STATUS_MODIFIED,
+            self::testClass("#[CoversClass(Cart::class)]\n#[CoversClass(Order::class)]"),
+            true,
+            "@@ -5,6 +5,7 @@\n #[CoversClass(Cart::class)]\n+#[CoversClass(Order::class)]\n class SomeTest extends TestCase\n",
+        ];
+        yield 'modified test adding a covered class to a grouped attribute fails' => [
+            'tests/unit/Core/Checkout/CartTest.php',
+            File::STATUS_MODIFIED,
+            self::testClass('#[CoversClass(Cart::class), CoversClass(Order::class)]'),
+            true,
+            "@@ -5,6 +5,6 @@\n-#[CoversClass(Cart::class)]\n+#[CoversClass(Cart::class), CoversClass(Order::class)]\n class SomeTest extends TestCase\n",
+        ];
+        yield 'modified legacy test covering two classes passes when the diff leaves the attributes alone' => [
             'tests/unit/Core/Checkout/CartAndOrderTest.php',
             File::STATUS_MODIFIED,
             self::testClass("#[CoversClass(Cart::class)]\n#[CoversClass(Order::class)]"),
             false,
+            "@@ -9,3 +9,4 @@\n class SomeTest extends TestCase\n {\n+    // a new test method\n }\n",
+        ];
+        yield 'modified legacy test reformatting an existing covered class passes' => [
+            'tests/unit/Core/Checkout/CartAndOrderTest.php',
+            File::STATUS_MODIFIED,
+            self::testClass("#[CoversClass(Cart::class)]\n#[CoversClass(Order::class)]"),
+            false,
+            "@@ -5,6 +5,6 @@\n-#[CoversClass(\\Shopware\\Core\\Checkout\\Cart::class)]\n+#[CoversClass(Cart::class)]\n #[CoversClass(Order::class)]\n",
+        ];
+        yield 'modified test replacing its covered class passes' => [
+            'tests/unit/Core/Checkout/CartTest.php',
+            File::STATUS_MODIFIED,
+            self::testClass('#[CoversClass(Order::class)]'),
+            false,
+            "@@ -5,6 +5,6 @@\n-#[CoversClass(Cart::class)]\n+#[CoversClass(Order::class)]\n class SomeTest extends TestCase\n",
+        ];
+        yield 'removed test is not inspected' => [
+            'tests/unit/Core/Checkout/CartAndOrderTest.php',
+            File::STATUS_REMOVED,
+            '',
+            false,
+            "@@ -1,9 +0,0 @@\n-#[CoversClass(Cart::class)]\n-#[CoversClass(Order::class)]\n",
         ];
         yield 'CoversClass strings inside the test body do not count' => [
             'tests/unit/Core/DevOps/SomeDangerRuleTest.php',

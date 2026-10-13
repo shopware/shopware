@@ -1,5 +1,4 @@
 import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
-import ListAttributionHelper from 'src/plugin/google-analytics/list-attribution.helper';
 import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 
 export default class ViewItemListEvent extends EventAwareAnalyticsEvent
@@ -42,7 +41,6 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
             return;
         }
 
-        const listing = document.querySelector('.cms-element-product-listing-wrapper');
         const items = this.getListItems();
         if (items.length === 0) {
             return;
@@ -54,23 +52,20 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
         this.pushEvent('view_item_list', {
             'currency': ProductPageHelper.getCurrency(),
             'value': value,
-            ...ListAttributionHelper.getListFromElement(listing),
             'items': items,
         });
     }
 
     getListItems() {
-        // Scoped to the listing: a page can also render sliders and cross selling, whose products
-        // belong to their own lists and must not be reported as part of this one.
-        const listing = document.querySelector('.cms-element-product-listing-wrapper');
-        const productBoxes = listing?.querySelectorAll('.product-box') ?? [];
+        const productBoxes = document.querySelectorAll('.product-box');
         const lineItems = [];
+
+        if (!productBoxes) {
+            return lineItems;
+        }
 
         // Get category from breadcrumbs (same for all items on this page)
         const categories = ProductPageHelper.getCategories();
-
-        // a paginated listing renders one page of a longer list, so the index counts across pages
-        const listStart = ListAttributionHelper.getListStart(listing);
 
         productBoxes.forEach(item => {
             if (!item.dataset.productInformation) {
@@ -93,7 +88,6 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
                 item_brand: productData.brand,
                 item_variant: productData.variant,
                 price: productData.price,
-                index: listStart + lineItems.length,
                 ...categories,
             });
         });

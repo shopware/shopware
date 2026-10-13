@@ -119,14 +119,29 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
         }
 
         const prefix = `lineItems[${productId}][payload]`;
-        const brand = ProductPageHelper.getProductCardData(productId, formElement).brand;
+        const cardData = ProductPageHelper.getProductCardData(productId, formElement);
+        const brand = cardData.brand;
 
         if (brand && !formData.has(`${prefix}[manufacturerName]`)) {
             formData.set(`${prefix}[manufacturerName]`, brand);
         }
 
         const hasCategories = [...formData.keys()].some(key => key.startsWith(`${prefix}[categoryNames]`));
-        if (hasCategories || window.activeRoute === 'frontend.detail.page') {
+        if (hasCategories) {
+            return;
+        }
+
+        // a box on the homepage or a landing page carries the path of its product, as the page has none
+        const cardCategories = (cardData.categoryNames ?? []).slice(0, 5);
+        if (cardCategories.length > 0) {
+            cardCategories.forEach((name, index) => {
+                formData.set(`${prefix}[categoryNames][${index}]`, name);
+            });
+
+            return;
+        }
+
+        if (window.activeRoute === 'frontend.detail.page') {
             return;
         }
 

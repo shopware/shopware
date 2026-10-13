@@ -413,6 +413,23 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
             expect([...formData.keys()].some(key => key.includes('[categoryNames]'))).toBe(false);
         });
 
+        test('sends the category path a box on the homepage carries, and reports it', () => {
+            window.activeRoute = 'frontend.home.page';
+            document.body.innerHTML = `
+                <div class="product-box" data-product-information='{"id":"product-123","name":"Boot","brand":"Acme","price":10,"sku":"SW1","categories":["Damen","Schuhe"]}'>
+                    <form class="buy-form"></form>
+                </div>
+            `;
+
+            const formData = submit(formFor());
+
+            expect(formData.get('lineItems[product-123][payload][categoryNames][0]')).toBe('Damen');
+            expect(formData.get('lineItems[product-123][payload][categoryNames][1]')).toBe('Schuhe');
+            expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
+                items: [expect.objectContaining({ item_category: 'Damen', item_category2: 'Schuhe' })],
+            }));
+        });
+
         test('sends no category for a cross selling card on a product detail page', () => {
             // the breadcrumb of a product detail page belongs to the product of the page
             window.activeRoute = 'frontend.detail.page';

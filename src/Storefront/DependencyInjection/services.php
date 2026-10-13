@@ -73,9 +73,14 @@ use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 use Shopware\Storefront\Controller\ScriptController;
 use Shopware\Storefront\Event\CartMergedSubscriber;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
+<<<<<<< HEAD
 use Shopware\Storefront\Framework\Analytics\AbstractAnalyticsLineItemPriceCalculator;
 use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemCouponResolver;
 use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPriceCalculator;
+=======
+use Shopware\Storefront\Framework\Analytics\AnalyticsCategoryPathLoader;
+use Shopware\Storefront\Framework\Analytics\AnalyticsCategoryPathSubscriber;
+>>>>>>> origin/fix/storefront/ga4-wishlist-categories
 use Shopware\Storefront\Framework\App\Template\IconTemplateLoader;
 use Shopware\Storefront\Framework\Cache\CacheCookieEventSubscriber;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator;
@@ -904,4 +909,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(StorybookRouteScopeAllowList::class)
         ->tag('shopware.route_scope_whitelist');
+
+    $services->set(AnalyticsCategoryPathLoader::class)
+        ->args([service(Connection::class), service('category.repository')]);
+
+    $services->set(AnalyticsCategoryPathSubscriber::class)
+        ->args([service(AnalyticsCategoryPathLoader::class)])
+        ->tag('kernel.event_subscriber');
 };

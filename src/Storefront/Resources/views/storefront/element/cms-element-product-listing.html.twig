@@ -30,9 +30,7 @@
             boxLayout: element.translated.config.boxLayout.value,
             displayMode: element.translated.config.displayMode.value,
             listingColumns: listingColumns,
-            ariaLiveUpdates: true,
-            listId: searchResult.currentFilters.navigationId ?: slot.id,
-            listName: page.category.translated.name|default(null)
+            ariaLiveUpdates: true
         } %}
     {% endblock %}
 {% endblock %}

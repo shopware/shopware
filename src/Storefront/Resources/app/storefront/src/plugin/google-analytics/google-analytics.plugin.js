@@ -14,7 +14,6 @@ import PurchaseEvent from 'src/plugin/google-analytics/events/purchase.event';
 import RemoveFromCartEvent from 'src/plugin/google-analytics/events/remove-from-cart.event';
 import RemoveFromWishlistEvent from 'src/plugin/google-analytics/events/remove-from-wishlist.event';
 import SearchAjaxEvent from 'src/plugin/google-analytics/events/search-ajax.event';
-import SelectItemEvent from 'src/plugin/google-analytics/events/select-item.event';
 import SignUpEvent from 'src/plugin/google-analytics/events/sign-up.event';
 import ViewCartEvent from 'src/plugin/google-analytics/events/view-cart.event';
 import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
@@ -45,15 +44,6 @@ export default class GoogleAnalyticsPlugin extends Plugin
     }
 
     startGoogleAnalytics() {
-        // Saving the cookie preferences again with analytics or ads enabled runs this once more. The
-        // events of the first start still listen, so registering a second set would report every
-        // interaction twice; they are only switched back on, in case consent was revoked meanwhile.
-        if (this.events) {
-            this.enableEvents();
-
-            return;
-        }
-
         const gtmScript = document.createElement('script');
         gtmScript.src = window.gtagURL;
         document.head.append(gtmScript);
@@ -117,7 +107,6 @@ export default class GoogleAnalyticsPlugin extends Plugin
         this.registerEvent(PurchaseEvent);
         this.registerEvent(RemoveFromCartEvent);
         this.registerEvent(SearchAjaxEvent);
-        this.registerEvent(SelectItemEvent);
         this.registerEvent(SignUpEvent);
         this.registerEvent(ViewItemEvent);
         this.registerEvent(ViewItemListEvent);
@@ -175,14 +164,8 @@ export default class GoogleAnalyticsPlugin extends Plugin
     }
 
     disableEvents() {
-        this.events?.forEach(event => {
+        this.events.forEach(event => {
             event.disable();
-        });
-    }
-
-    enableEvents() {
-        this.events?.forEach(event => {
-            event.enable();
         });
     }
 

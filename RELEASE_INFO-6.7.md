@@ -676,7 +676,7 @@ What to adjust:
 
 The events also report more accurate data: `item_variant`, the promotion `coupon`, graduated prices in `add_to_cart`, brand and category for products added from a product box, and `add_shipping_info` / `add_payment_info` once per selected method instead of on every page load. Discounts and other line items that are not products are no longer reported as items.
 
-`add_to_wishlist` and `remove_from_wishlist` now report the category path of the product instead of the page breadcrumb. Outside the product's own detail page the path is requested on click from the new storefront route `frontend.analytics.product-categories` (`GET /widgets/analytics/product-categories?productId=`), which uses the Store API breadcrumb route and is HTTP cached. The route answers `404` for a sales channel without analytics. `BreadcrumbException::categoryNotFoundForProduct()` now returns the new `CategoryNotFoundForProductException`, a `BreadcrumbException` that can be caught directly instead of comparing the error code.
+Product boxes on the homepage and on landing pages, where the breadcrumb describes no category, now carry the category path of their product in `data-product-information` as `categories`, so `add_to_cart` and the following cart and checkout events report it too. It is the main category of the sales channel, else the deepest assigned category in its navigation. All boxes of a page are resolved together with four queries, only when analytics is active. Category pages keep reporting their breadcrumb. `add_to_wishlist` and `remove_from_wishlist` now report the category path of the product instead of the page breadcrumb. Outside the product's own detail page the path is requested on click from the new storefront route `frontend.analytics.product-categories` (`GET /widgets/analytics/product-categories?productId=`), which uses the Store API breadcrumb route and is HTTP cached. The route answers `404` for a sales channel without analytics. `BreadcrumbException::categoryNotFoundForProduct()` now returns the new `CategoryNotFoundForProductException`, a `BreadcrumbException` that can be caught directly instead of comparing the error code.
 The events also report more accurate data: `item_variant`, the promotion `coupon`, graduated prices in `add_to_cart`, brand and category for products added from a product box, and `add_shipping_info` / `add_payment_info` once per selected method instead of on every page load. A new customer reports `add_shipping_info` when submitting the checkout registration, where the shipping address is entered, with the preselected shipping method. Discounts and other line items that are not products are no longer reported as items.
 ### Improved extensibility of buy widget form
 
@@ -741,19 +741,6 @@ Promotion discounts are separate line items, so the reported item prices did not
 Items also report the codes of the promotions that discounted them as the item level `coupon`, comma separated, from the new `data-coupon` attribute of the hidden line item. Google Analytics only defines the coupon on the items for `view_cart`, so the cart reports it there, while the checkout events keep the event level `coupon`.
 
 Themes that override the block `component_hidden_line_item_information` and read `data-price` or `gaPrice` now get the discounted unit price. The new `data-total` attribute carries the discounted line total, which the event value is summed from. The allocation is exposed through the new Twig function `sw_analytics_line_item_prices(lineItems, context)`. It returns an `AnalyticsLineItemPriceCollection` keyed by line item id, so the template reads a price with `gaPrices.get(lineItem.id)`. Extensions can change the allocation by decorating the service `Shopware\Storefront\Framework\Analytics\AbstractAnalyticsLineItemPriceCalculator`, for example for a promotion type that stores no composition.
-
-### Google Analytics reports `select_item` and the list a product was presented in
-
-Following a product link in a listing, search result, slider, cross selling tab, or the wishlist now reports `select_item`. `view_item_list` and `select_item` report the list as `item_list_id` and `item_list_name` and the position as `index`, and `view_item` repeats the list the product was selected from. `view_item_list` now only reports the products of the product listing, and saving the cookie preferences again no longer registers every event twice.
-
-The list identifiers are a contract that Google Tag Manager triggers can rely on:
-
-* A category listing reports the category id, or the CMS slot id without a category, and the category name.
-* Search results report `search` and `Search results`.
-* The wishlist reports `wishlist` and `Wishlist`.
-* A cross selling tab reports the id and the name of the cross selling group.
-
-Themes can set them on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or with `data-list-id` and `data-list-name` on any element containing product boxes. These attributes are only rendered for a sales channel with active analytics, and themes should use the same condition, `storefrontAnalytics and storefrontAnalytics.isActive()`.
 
 ### Storefront session handling moved to Core
 

@@ -97,6 +97,8 @@ export default class ProductPageHelper {
                 brand: info.brand,
                 variant: info.variant,
                 value: info.price,
+                // only set for a product shown outside a category, such as on the homepage
+                categoryNames: Array.isArray(info.categories) ? info.categories : [],
             };
         } catch {
             return {};
@@ -119,6 +121,12 @@ export default class ProductPageHelper {
      * @returns {Promise<Object>}
      */
     static async resolveCategories(productId, element = null) {
+        // a box on the homepage or a landing page already carries the path, so nothing is requested
+        const cardCategories = ProductPageHelper.getProductCardData(productId, element).categoryNames ?? [];
+        if (cardCategories.length > 0) {
+            return ProductPageHelper.mapCategories(cardCategories);
+        }
+
         const url = window.router?.['frontend.analytics.product-categories'];
         const isPageProduct = window.activeRoute === 'frontend.detail.page'
             && !ProductPageHelper.getProductCard(productId, element);
@@ -315,6 +323,12 @@ export default class ProductPageHelper {
      * @returns {Object}
      */
     static getCategoriesFor(productId, element = null) {
+        // a product box outside a category carries the path of its product, the page has none
+        const cardCategories = ProductPageHelper.getProductCardData(productId, element).categoryNames ?? [];
+        if (cardCategories.length > 0) {
+            return ProductPageHelper.mapCategories(cardCategories);
+        }
+
         if (window.activeRoute === 'frontend.detail.page' && ProductPageHelper.getProductCard(productId, element)) {
             return {};
         }

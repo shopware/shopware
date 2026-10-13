@@ -103,8 +103,4 @@ export default class AnalyticsEvent
     disable() {
         this.active = false;
     }
-
-    enable() {
-        this.active = true;
-    }
 }

@@ -15,7 +15,7 @@ function getFieldTypes() {
     };
 }
 
-async function createWrapper(privileges = [], set = { _isNew: true }) {
+async function createWrapper(privileges = [], set = { _isNew: true }, mocks = {}) {
     return mount(
         await wrapTestComponent('sw-custom-field-set-detail-base', {
             sync: true,
@@ -38,6 +38,7 @@ async function createWrapper(privileges = [], set = { _isNew: true }) {
                             },
                         },
                     },
+                    ...mocks,
                 },
                 provide: {
                     acl: {
@@ -51,6 +52,7 @@ async function createWrapper(privileges = [], set = { _isNew: true }) {
                     },
                     customFieldDataProviderService: {
                         getTypes: () => getFieldTypes(),
+                        getEntityNames: () => ['product'],
                     },
                 },
                 stubs: {
@@ -90,6 +92,31 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-set-deta
 
         // short aliases (en, de) leak into vue-i18n messages but must not become editable tabs
         expect(wrapper.vm.locales).toEqual(['en-GB', 'de-DE']);
+    });
+
+    it('translates the relation search labels into every loaded locale', async () => {
+        const wrapper = await createWrapper(
+            ['custom_field.editor'],
+            {
+                _isNew: true,
+                relations: Object.assign([], {
+                    entity: 'custom_field_set_relation',
+                    source: '/custom-field-set/1/relations',
+                }),
+            },
+            {
+                $te: () => true,
+                $t: (key, plural, options) => `${key} ${plural} ${options?.locale}`,
+            },
+        );
+        await flushPromises();
+
+        expect(wrapper.vm.relationEntityNames[0].searchField).toEqual({
+            'en-GB': 'global.entities.product 2 en-GB',
+            'de-DE': 'global.entities.product 2 de-DE',
+            en: 'global.entities.product 2 en',
+            de: 'global.entities.product 2 de',
+        });
     });
 
     it('cannot edit fields', async () => {

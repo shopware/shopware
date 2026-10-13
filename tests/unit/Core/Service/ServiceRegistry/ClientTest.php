@@ -10,6 +10,7 @@ use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
 use Shopware\Core\Service\ServiceRegistry\SaveConsentRequest;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Shopware\Core\Service\ServiceRegistry\ServiceStatus;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -68,7 +69,7 @@ class ClientTest extends TestCase
         $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client);
 
         static::assertSame([], $registryClient->getAll());
-        static::assertSame('https://www.shopware.com/api/service/?page=1&limit=10', $response->getRequestUrl());
+        static::assertSame('https://www.shopware.com/api/service/v2?page=1&limit=100', $response->getRequestUrl());
     }
 
     public function testFailRequestReturnsEmptyListOfServices(): void
@@ -80,7 +81,7 @@ class ClientTest extends TestCase
         $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client);
 
         static::assertSame([], $registryClient->getAll());
-        static::assertSame('https://www.shopware.com/api/service/?page=1&limit=10', $response->getRequestUrl());
+        static::assertSame('https://www.shopware.com/api/service/v2?page=1&limit=100', $response->getRequestUrl());
     }
 
     public function testSuccessfulRequestReturnsListOfServices(): void
@@ -110,7 +111,7 @@ class ClientTest extends TestCase
         static::assertSame('My Cool Service 2', $entries[1]->description);
         static::assertSame('https://coolservice2.com', $entries[1]->host);
         static::assertSame('/app-endpoint', $entries[1]->appEndpoint);
-        static::assertSame('https://www.shopware.com/api/service/?page=1&limit=10', $response->getRequestUrl());
+        static::assertSame('https://www.shopware.com/api/service/v2?page=1&limit=100', $response->getRequestUrl());
     }
 
     public function testServicesAreFetchedAndCached(): void
@@ -174,35 +175,71 @@ class ClientTest extends TestCase
 
     public function testPaginationWorks(): void
     {
-        $servicesPage1 = [
-            'services' => [['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint']],
-            'pagination' => ['page' => 1, 'pages' => 2, 'total' => 2, 'limit' => 10],
-        ];
-
-        $servicesPage2 = [
-            'services' => [['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint']],
-            'pagination' => ['page' => 2, 'pages' => 2, 'total' => 2, 'limit' => 10],
-        ];
-
         $client = new MockHttpClient([
-            $response1 = new MockResponse((string) json_encode($servicesPage1, \JSON_THROW_ON_ERROR)),
-            $response2 = new MockResponse((string) json_encode($servicesPage2, \JSON_THROW_ON_ERROR)),
+            $response1 = new MockResponse($this->servicePage(['MyCoolService1' => 'active'], pages: 2)),
+            $response2 = new MockResponse($this->servicePage(['MyCoolService2' => 'active'], pages: 2)),
         ]);
 
         $registryClient = new ServiceRegistryClient('https://www.shopware.com/', 'https://example.com', $client);
-        $entries = $registryClient->getAll();
 
-        static::assertCount(2, $entries);
-        static::assertSame('MyCoolService1', $entries[0]->name);
-        static::assertSame('My Cool Service 1', $entries[0]->description);
-        static::assertSame('https://coolservice1.com', $entries[0]->host);
-        static::assertSame('/app-endpoint', $entries[0]->appEndpoint);
-        static::assertSame('MyCoolService2', $entries[1]->name);
-        static::assertSame('My Cool Service 2', $entries[1]->description);
-        static::assertSame('https://coolservice2.com', $entries[1]->host);
-        static::assertSame('/app-endpoint', $entries[1]->appEndpoint);
-        static::assertSame('https://www.shopware.com/api/service/?page=1&limit=10', $response1->getRequestUrl());
-        static::assertSame('https://www.shopware.com/api/service/?page=2&limit=10', $response2->getRequestUrl());
+        static::assertSame(
+            ['MyCoolService1', 'MyCoolService2'],
+            array_map(static fn (ServiceEntry $entry): string => $entry->name, $registryClient->getAll())
+        );
+        static::assertSame('https://www.shopware.com/api/service/v2?page=1&limit=100', $response1->getRequestUrl());
+        static::assertSame('https://www.shopware.com/api/service/v2?page=2&limit=100', $response2->getRequestUrl());
+    }
+
+    public function testStatusIsParsedAndAnUnknownOneIsNull(): void
+    {
+        $client = new MockHttpClient([
+            new MockResponse($this->servicePage([
+                'Retired' => 'retired',
+                'Active' => 'active',
+                'FutureStatus' => 'deprecated',
+                'NoStatus' => null,
+                'NotAString' => 1,
+            ])),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client);
+
+        static::assertSame(
+            ['Retired' => ServiceStatus::RETIRED, 'Active' => ServiceStatus::ACTIVE, 'FutureStatus' => null, 'NoStatus' => null, 'NotAString' => null],
+            array_combine(
+                array_map(static fn (ServiceEntry $entry): string => $entry->name, $registryClient->getAll()),
+                array_map(static fn (ServiceEntry $entry): ?ServiceStatus => $entry->status, $registryClient->getAll()),
+            )
+        );
+    }
+
+    public function testActiveAndRetiredLeaveOutEveryOtherStatus(): void
+    {
+        $client = new MockHttpClient([
+            new MockResponse($this->servicePage([
+                'Retired' => 'retired',
+                'Active' => 'active',
+                'FutureStatus' => 'deprecated',
+                'NoStatus' => null,
+            ])),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client);
+
+        static::assertSame(['Active'], array_map(static fn (ServiceEntry $entry): string => $entry->name, $registryClient->getActive()));
+        static::assertSame(['Retired'], array_map(static fn (ServiceEntry $entry): string => $entry->name, $registryClient->getRetired()));
+        static::assertSame(1, $client->getRequestsCount());
+    }
+
+    public function testGetAllReturnsNothingWhenTheRegistryHasNoVersionedList(): void
+    {
+        $client = new MockHttpClient([
+            new MockResponse('', ['http_code' => Response::HTTP_METHOD_NOT_ALLOWED]),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client);
+
+        static::assertSame([], $registryClient->getAll());
     }
 
     public function testNetworkExceptionReturnsEmptyListOfServices(): void
@@ -327,7 +364,7 @@ class ClientTest extends TestCase
             ],
         ];
         $servicePayload = (string) json_encode($service, \JSON_THROW_ON_ERROR);
-        $expectedUrl = 'https://www.shopware.com/api/service/?page=1&limit=10';
+        $expectedUrl = 'https://www.shopware.com/api/service/v2?page=1&limit=100';
         $clientWithSlash = new MockHttpClient([$responseWithSlash = new MockResponse($servicePayload)]);
         $registryClientWithSlash = new ServiceRegistryClient('https://www.shopware.com/', 'https://example.com', $clientWithSlash);
         $entriesWithSlash = $registryClientWithSlash->getAll();
@@ -420,5 +457,22 @@ class ClientTest extends TestCase
         $requestOptions = $response->getRequestOptions();
         static::assertArrayHasKey('headers', $requestOptions);
         static::assertContains('Referer: https://example.com', $requestOptions['headers']);
+    }
+
+    /**
+     * @param array<string, mixed> $services names mapped to their status, null leaves the status out
+     */
+    private function servicePage(array $services, int $pages = 1): string
+    {
+        $entries = [];
+        foreach ($services as $name => $status) {
+            $entry = ['name' => $name, 'label' => $name, 'host' => 'https://' . $name . '.example.com', 'app-endpoint' => '/app-endpoint'];
+            if ($status !== null) {
+                $entry['status'] = $status;
+            }
+            $entries[] = $entry;
+        }
+
+        return json_encode(['services' => $entries, 'pagination' => ['pages' => $pages]], \JSON_THROW_ON_ERROR);
     }
 }

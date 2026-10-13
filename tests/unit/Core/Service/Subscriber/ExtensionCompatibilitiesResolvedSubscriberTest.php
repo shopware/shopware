@@ -53,7 +53,7 @@ class ExtensionCompatibilitiesResolvedSubscriberTest extends TestCase
         ];
 
         $this->serviceRegistryClient->expects($this->once())
-            ->method('getAll')
+            ->method('getActive')
             ->willReturn([
                 new ServiceEntry('TestApp', 'TestApp', 'https://www.testapp.com', '/'),
             ]);
@@ -93,7 +93,7 @@ class ExtensionCompatibilitiesResolvedSubscriberTest extends TestCase
         ];
 
         $this->serviceRegistryClient->expects($this->once())
-            ->method('getAll')
+            ->method('getActive')
             ->willReturn([]);
 
         $subscriber = new ExtensionCompatibilitiesResolvedSubscriber(

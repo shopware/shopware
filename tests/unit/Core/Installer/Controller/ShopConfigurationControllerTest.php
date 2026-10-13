@@ -271,6 +271,30 @@ class ShopConfigurationControllerTest extends TestCase
         static::assertSame($expectedAdmin, $session->get('ADMIN_USER'));
     }
 
+    public function testPostConfigurationRouteDoesNotKeepALocaleWithATrailingNewline(): void
+    {
+        $request = new Request();
+        $session = new Session(new MockArraySessionStorage());
+        $request->setMethod('POST');
+        $session->set(DatabaseConnectionInformation::class, new DatabaseConnectionInformation());
+        $request->setSession($session);
+        $request->attributes->set('_locale', 'de');
+        $request->request->set('config_shop_language', 'de-DE');
+        $request->request->set('selected_languages', ["en-US\n"]);
+        $this->setEnvVars(['HTTP_HOST' => 'localhost', 'SCRIPT_NAME' => '/index.php']);
+        $this->connection->method('fetchOne')->willReturn(Uuid::randomHex());
+        $this->translator->method('trans')->willReturnCallback(static fn (string $key): string => $key);
+        $this->envConfigWriter->expects($this->once())->method('writeConfig');
+        $this->shopConfigService->expects($this->once())->method('updateShop');
+        $this->adminConfigService->expects($this->once())->method('createAdmin');
+        $this->router->expects($this->once())->method('generate')->willReturn('/installer/translation');
+
+        $this->controller->shopConfiguration($request);
+
+        // the newline keeps the value from being a full locale, and it is no known language short code either
+        static::assertSame([null], $session->get('SELECTED_LANGUAGES'));
+    }
+
     public function testPostConfigurationRouteOnError(): void
     {
         $request = new Request();

@@ -40,6 +40,27 @@
                 } %}
             {% endblock %}
         {% endblock %}
+
+        {% block page_checkout_address_hidden_line_items_information %}
+            {% sw_include '@Storefront/storefront/component/checkout/hidden-line-items-information.html.twig' with {
+                cart: page.cart,
+                lineItems: page.cart.lineItems
+            } %}
+
+            {# the preselected shipping method, which a new customer confirms with the registration; #}
+            {# only for a cart with physical products, the same condition the confirm page uses #}
+            {% if storefrontAnalytics and storefrontAnalytics.isActive() %}
+                {% if feature('v6.8.0.0') %}
+                    {% set hasPhysicalItem = page.cart.lineItems.hasLineItemWithProductType(constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_PHYSICAL')) %}
+                {% else %}
+                    {% set hasPhysicalItem = page.cart.lineItems.hasLineItemWithState(constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL')) %}
+                {% endif %}
+
+                {% if hasPhysicalItem and context.shippingMethod %}
+                    <div class="d-none" data-analytics-shipping-tier="{{ context.shippingMethod.translated.name }}"></div>
+                {% endif %}
+            {% endif %}
+        {% endblock %}
     {% endblock %}
 {% endblock %}
 

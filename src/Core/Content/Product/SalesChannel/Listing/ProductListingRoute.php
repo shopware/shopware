@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -19,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
@@ -45,6 +45,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly ExtensionDispatcher $extensions,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -133,8 +134,16 @@ class ProductListingRoute extends AbstractProductListingRoute
                 }
             } catch (EmptyProductStreamException) {
                 // An empty group selects all products, as in the product export
-            } catch (NoFilterException) {
-                $criteria->addFilter(new EqualsAnyFilter('product.id', []));
+            } catch (NoFilterException $exception) {
+                $this->logger->warning(
+                    'Product stream configured for category listing has no usable filters.',
+                    [
+                        'productStreamId' => $productStreamId,
+                        'exception' => $exception,
+                    ]
+                );
+
+                $criteria->addFilter(new EqualsFilter('product.id', null));
             }
 
             return;

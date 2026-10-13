@@ -46,24 +46,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
     #[TestDox('A missing line item collection reports no prices instead of raising a TypeError')]
     public function testReturnsNoPricesWithoutLineItems(): void
     {
-        static::assertSame([], $this->calculator->calculate(null, $this->context()));
-    }
-
-    /**
-     * The line items come from a template, so the calculator does not trust their types.
-     */
-    public function testIgnoresEntriesThatAreNoLineItems(): void
-    {
-        $lineItems = [
-            'not a line item',
-            ['id' => 'product-2'],
-            new \stdClass(),
-            $this->product('product-1', 10.0, 1),
-        ];
-
-        $prices = $this->calculator->calculate($lineItems, $this->context());
-
-        static::assertEquals(['product-1' => new AnalyticsLineItemPrice(10.0, 0.0, 10.0)], $prices);
+        static::assertSame([], $this->calculate(null, $this->context()));
     }
 
     public function testCannotBeDecoratedFurtherDown(): void
@@ -79,7 +62,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             $this->product('product-1', 10.0, 3),
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context());
+        $prices = $this->calculate($lineItems, $this->context());
 
         static::assertEquals(['product-1' => new AnalyticsLineItemPrice(10.0, 0.0, 30.0)], $prices);
     }
@@ -92,7 +75,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             $this->promotion([['id' => 'product-1', 'quantity' => 3, 'discount' => 6.0]]),
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context());
+        $prices = $this->calculate($lineItems, $this->context());
 
         static::assertEquals(new AnalyticsLineItemPrice(8.0, 2.0, 24.0), $prices['product-1']);
         static::assertEquals(new AnalyticsLineItemPrice(20.0, 0.0, 20.0), $prices['product-2']);
@@ -106,7 +89,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             $this->promotion([['id' => 'product-1', 'quantity' => 2, 'discount' => 6.0]]),
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context());
+        $prices = $this->calculate($lineItems, $this->context());
 
         static::assertEquals(new AnalyticsLineItemPrice(5.0, 5.0, 10.0), $prices['product-1']);
     }
@@ -122,7 +105,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             $this->promotion([['id' => 'product-1', 'quantity' => 2, 'discount' => 10.0]]),
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context());
+        $prices = $this->calculate($lineItems, $this->context());
 
         static::assertEquals(new AnalyticsLineItemPrice(7.5, 2.5, 30.0), $prices['product-1']);
     }
@@ -134,7 +117,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             $this->promotion([['id' => 'product-1', 'quantity' => 1, 'discount' => 25.0]]),
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context());
+        $prices = $this->calculate($lineItems, $this->context());
 
         static::assertEquals(new AnalyticsLineItemPrice(0.0, 10.0, 0.0), $prices['product-1']);
     }
@@ -149,7 +132,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             $promotion,
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context());
+        $prices = $this->calculate($lineItems, $this->context());
 
         static::assertEquals(new AnalyticsLineItemPrice(10.0, 0.0, 10.0), $prices['product-1']);
     }
@@ -161,7 +144,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             $this->promotion([['id' => 'product-1', 'quantity' => 1, 'discount' => 2.0]]),
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context());
+        $prices = $this->calculate($lineItems, $this->context());
 
         static::assertSame(['product-1'], array_keys($prices));
     }
@@ -173,7 +156,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             $this->promotion([['id' => 'product-1', 'quantity' => 3, 'discount' => 10.0]]),
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context());
+        $prices = $this->calculate($lineItems, $this->context());
 
         // 20.00 / 3 = 6.666…, rounded to the two decimals the currency uses; 6.67 * 3 would report
         // 20.01, so the paid line total is carried separately for the event value
@@ -201,7 +184,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             $this->product('product-1', 0.03, 1),
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context(new CashRoundingConfig(2, 0.05, $roundForNet), $taxState));
+        $prices = $this->calculate($lineItems, $this->context(new CashRoundingConfig(2, 0.05, $roundForNet), $taxState));
 
         static::assertEquals(new AnalyticsLineItemPrice($expected, 0.0, $expected), $prices['product-1']);
     }
@@ -219,7 +202,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             ], 10.0),
         ]);
 
-        $totals = array_column($this->calculator->calculate($lineItems, $this->context(new CashRoundingConfig(2, 0.05, false), CartPrice::TAX_STATE_NET)), 'total');
+        $totals = array_column($this->calculate($lineItems, $this->context(new CashRoundingConfig(2, 0.05, false), CartPrice::TAX_STATE_NET)), 'total');
 
         // rounded per cent, not per 0.05: two lines of 6.67 and one of 6.66
         static::assertEqualsWithDelta(20.0, array_sum($totals), 0.0001);
@@ -233,7 +216,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             $this->promotion([['id' => 'product-1', 'quantity' => 3, 'discount' => 10.0]]),
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context(new CashRoundingConfig(0, 1.0, true)));
+        $prices = $this->calculate($lineItems, $this->context(new CashRoundingConfig(0, 1.0, true)));
 
         static::assertEquals(new AnalyticsLineItemPrice(7.0, 3.0, 20.0), $prices['product-1']);
     }
@@ -250,7 +233,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             $this->orderPromotion('order-line-item-2', [['id' => 'product-1', 'quantity' => 2, 'discount' => 4.0]]),
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context());
+        $prices = $this->calculate($lineItems, $this->context());
 
         static::assertEquals(['order-line-item-1' => new AnalyticsLineItemPrice(8.0, 2.0, 16.0)], $prices);
     }
@@ -260,7 +243,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
         $lineItem = new LineItem('product-1', LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);
         $lineItem->setGood(true);
 
-        $prices = $this->calculator->calculate(new LineItemCollection([$lineItem]), $this->context());
+        $prices = $this->calculate(new LineItemCollection([$lineItem]), $this->context());
 
         static::assertSame([], $prices);
     }
@@ -278,7 +261,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             $promotion,
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context());
+        $prices = $this->calculate($lineItems, $this->context());
 
         static::assertEquals(new AnalyticsLineItemPrice(8.0, 2.0, 8.0), $prices['product-1']);
     }
@@ -297,7 +280,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             $this->promotion([['id' => 'product-1', 'quantity' => 1, 'discount' => 5.0]]),
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context());
+        $prices = $this->calculate($lineItems, $this->context());
 
         static::assertEquals(new AnalyticsLineItemPrice(0.0, 10.0, 0.0), $prices['product-1']);
         static::assertEquals(new AnalyticsLineItemPrice(98.0, 2.0, 98.0), $prices['product-2']);
@@ -322,7 +305,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             ]),
         ]);
 
-        $totals = array_column($this->calculator->calculate($lineItems, $this->context()), 'total');
+        $totals = array_column($this->calculate($lineItems, $this->context()), 'total');
         sort($totals);
 
         static::assertSame([6.66, 6.67, 6.67], $totals);
@@ -340,7 +323,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             $this->promotion([['id' => 'product-1', 'quantity' => 1, 'discount' => 0.005]], charged: 0.01),
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context());
+        $prices = $this->calculate($lineItems, $this->context());
 
         static::assertEquals(new AnalyticsLineItemPrice(0.04, 0.01, 0.04), $prices['product-1']);
     }
@@ -360,7 +343,7 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             ]),
         ]);
 
-        $prices = $this->calculator->calculate($lineItems, $this->context(new CashRoundingConfig(2, 0.05, true)));
+        $prices = $this->calculate($lineItems, $this->context(new CashRoundingConfig(2, 0.05, true)));
 
         static::assertSame(0.0, $prices['product-1']->total);
         static::assertSame(0.05, $prices['product-2']->total);
@@ -385,9 +368,19 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
             ]),
         ]);
 
-        $totals = array_column($this->calculator->calculate($lineItems, $this->context(new CashRoundingConfig(4, 0.01, true))), 'total');
+        $totals = array_column($this->calculate($lineItems, $this->context(new CashRoundingConfig(4, 0.01, true))), 'total');
 
         static::assertEqualsWithDelta(29.0, array_sum($totals), 0.00001);
+    }
+
+    /**
+     * @param iterable<LineItem|OrderLineItemEntity>|null $lineItems
+     *
+     * @return array<string, AnalyticsLineItemPrice>
+     */
+    private function calculate(?iterable $lineItems, SalesChannelContext $context): array
+    {
+        return $this->calculator->calculate($lineItems, $context)->getElements();
     }
 
     private function context(?CashRoundingConfig $itemRounding = null, string $taxState = CartPrice::TAX_STATE_GROSS): SalesChannelContext

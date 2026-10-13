@@ -11,6 +11,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Framework\Analytics\AbstractAnalyticsLineItemPriceCalculator;
 use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPrice;
 use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPriceCalculator;
+use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPriceCollection;
 use Shopware\Storefront\Framework\Twig\Extension\AnalyticsLineItemPriceExtension;
 
 /**
@@ -32,10 +33,12 @@ class AbstractAnalyticsLineItemPriceCalculatorTest extends TestCase
                 return $this->decorated;
             }
 
-            public function calculate(?iterable $lineItems, SalesChannelContext $context): array
+            public function calculate(?iterable $lineItems, SalesChannelContext $context): AnalyticsLineItemPriceCollection
             {
-                return $this->decorated->calculate($lineItems, $context)
-                    + ['extension-line' => new AnalyticsLineItemPrice(1.0, 0.0, 1.0)];
+                $prices = $this->decorated->calculate($lineItems, $context);
+                $prices->set('extension-line', new AnalyticsLineItemPrice(1.0, 0.0, 1.0));
+
+                return $prices;
             }
         };
 
@@ -45,7 +48,8 @@ class AbstractAnalyticsLineItemPriceCalculatorTest extends TestCase
 
         $prices = $callable([], Generator::generateSalesChannelContext());
 
-        static::assertEquals(['extension-line' => new AnalyticsLineItemPrice(1.0, 0.0, 1.0)], $prices);
+        static::assertInstanceOf(AnalyticsLineItemPriceCollection::class, $prices);
+        static::assertEquals(['extension-line' => new AnalyticsLineItemPrice(1.0, 0.0, 1.0)], $prices->getElements());
         static::assertInstanceOf(AnalyticsLineItemPriceCalculator::class, $decorator->getDecorated());
     }
 }

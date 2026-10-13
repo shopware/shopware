@@ -19,12 +19,9 @@ abstract class AbstractAnalyticsLineItemPriceCalculator
     abstract public function getDecorated(): AbstractAnalyticsLineItemPriceCalculator;
 
     /**
-     * @param iterable<mixed>|null $lineItems the top level line items of a cart or an order,
-     *                                        including the discount line items. Entries that are
-     *                                        no {@see LineItem} or {@see OrderLineItemEntity} are
-     *                                        ignored, as the value comes from a template.
-     *
-     * @return array<string, AnalyticsLineItemPrice> keyed by line item id
+     * @param iterable<LineItem|OrderLineItemEntity>|null $lineItems the top level line items of a
+     *                                                               cart or an order, including the
+     *                                                               discount line items
      */
-    abstract public function calculate(?iterable $lineItems, SalesChannelContext $context): array;
+    abstract public function calculate(?iterable $lineItems, SalesChannelContext $context): AnalyticsLineItemPriceCollection;
 }

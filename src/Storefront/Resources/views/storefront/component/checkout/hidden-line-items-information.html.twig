@@ -5,7 +5,7 @@
         {# Analytics reports the unit price after the discount, so the promotion line items have to be allocated back to the products. #}
         {# The account edit-order page inherits this block from the confirm page without a cart, and a #}
         {# theme may include the component the same way, so the line items can be missing entirely. #}
-        {% set gaPrices = lineItems ? sw_analytics_line_item_prices(lineItems, context) : {} %}
+        {% set gaPrices = sw_analytics_line_item_prices(lineItems|default(null), context) %}
 
         <div class="d-none hidden-line-items-information"
              data-currency="{{ context.currency.translated.shortName }}"
@@ -14,7 +14,7 @@
         >
             {% for lineItem in lineItems %}
                 {% if lineItem.good %}
-                    {% set gaItem = gaPrices[lineItem.id] is defined ? gaPrices[lineItem.id] : { price: lineItem.price.unitPrice, discount: 0, total: lineItem.price.totalPrice } %}
+                    {% set gaItem = gaPrices.get(lineItem.id) ?? { price: lineItem.price.unitPrice, discount: 0, total: lineItem.price.totalPrice } %}
                     {# kept for themes that override the block below and read it, now the unit price after the discount #}
                     {% set gaPrice = gaItem.price %}
 

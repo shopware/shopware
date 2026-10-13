@@ -79,6 +79,7 @@ use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader;
 use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileRenderer;
 use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileStoreApiMcpSubscriber;
 use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileTemplateOverrideLoader;
+use Shopware\Core\System\SalesChannel\File\SalesChannel\SalesChannelFileRoute;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileCacheInvalidator;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileNotFoundSubscriber;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver;
@@ -214,6 +215,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextRequestRestorer::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(SalesChannelFileRoute::class)
+        ->public()
+        ->args([
+            service(SalesChannelFileLoader::class),
+            service(SalesChannelFileRequestPathResolver::class),
+            service(ExtensionDispatcher::class),
+        ]);
 
     $services->set(SalesChannelFileController::class)
         ->public()

@@ -1,0 +1,69 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "/sales-channel-file/{fileName}": {
+            "get": {
+                "tags": [
+                    "Sitemap & Routes"
+                ],
+                "summary": "Fetch a sales channel file",
+                "description": "Returns the rendered content of a sales channel file that is enabled for the current sales channel, for example `llms.txt`, `AGENTS.md` or `.well-known/ai-catalog.json`. Headless frontends can serve the response under the same public path.",
+                "operationId": "readSalesChannelFile",
+                "parameters": [
+                    {
+                        "name": "fileName",
+                        "in": "path",
+                        "description": "Public path of the file, for example `llms.txt` or `.well-known/ai-catalog.json`.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The rendered file content, with the content type of the file.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "text/markdown": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The file name is not a valid sales channel file path."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "The file does not exist or is not enabled for the sales channel."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

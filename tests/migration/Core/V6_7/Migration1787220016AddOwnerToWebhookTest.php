@@ -47,25 +47,45 @@ class Migration1787220016AddOwnerToWebhookTest extends TestCase
         static::assertTrue(TableHelper::columnExists($this->connection, 'webhook', 'owner_integration_id'));
     }
 
-    public function testMigrationAssignsAppLessWebhooksWithoutOwnerToOldestAdmin(): void
+    public function testMigrationAssignsAppLessWebhooksWithoutOwnerToANewAdminIntegration(): void
     {
         (new Migration1787220016AddOwnerToWebhook())->update($this->connection);
 
-        $oldestAdminId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM user WHERE username = :username', ['username' => 'admin']);
-        TestUser::createNewAdminTestUser($this->connection);
         $userId = TestUser::createNewTestUser($this->connection)->getUserId();
         $ownerlessId = Uuid::randomBytes();
+        $otherOwnerlessId = Uuid::randomBytes();
         $ownedByUserId = Uuid::randomBytes();
 
         $this->insertWebhook($ownerlessId, 'ownerless', null);
+        $this->insertWebhook($otherOwnerlessId, 'other-ownerless', null);
         $this->insertWebhook($ownedByUserId, 'owned-by-user', $userId);
 
         (new Migration1787220016AddOwnerToWebhook())->update($this->connection);
 
+        $webhooks = $this->fetchWebhooks([$ownerlessId, $otherOwnerlessId, $ownedByUserId]);
+        $integrationId = $webhooks[Uuid::fromBytesToHex($ownerlessId)]['owner_integration_id'];
+        static::assertIsString($integrationId);
+
         static::assertEquals([
-            Uuid::fromBytesToHex($ownerlessId) => ['active' => 1, 'owner_user_id' => $oldestAdminId],
-            Uuid::fromBytesToHex($ownedByUserId) => ['active' => 1, 'owner_user_id' => $userId],
-        ], $this->fetchWebhooks([$ownerlessId, $ownedByUserId]));
+            Uuid::fromBytesToHex($ownerlessId) => ['active' => 1, 'owner_user_id' => null, 'owner_integration_id' => $integrationId],
+            Uuid::fromBytesToHex($otherOwnerlessId) => ['active' => 1, 'owner_user_id' => null, 'owner_integration_id' => $integrationId],
+            Uuid::fromBytesToHex($ownedByUserId) => ['active' => 1, 'owner_user_id' => $userId, 'owner_integration_id' => null],
+        ], $webhooks);
+
+        static::assertEquals(
+            ['label' => 'Legacy webhooks', 'admin' => 1],
+            $this->connection->fetchAssociative('SELECT label, admin FROM integration WHERE id = :id', ['id' => Uuid::fromHexToBytes($integrationId)])
+        );
+    }
+
+    public function testMigrationCreatesNoIntegrationWithoutOwnerlessWebhooks(): void
+    {
+        (new Migration1787220016AddOwnerToWebhook())->update($this->connection);
+        $integrations = $this->connection->fetchOne('SELECT COUNT(*) FROM integration');
+
+        (new Migration1787220016AddOwnerToWebhook())->update($this->connection);
+
+        static::assertSame($integrations, $this->connection->fetchOne('SELECT COUNT(*) FROM integration'));
     }
 
     private function insertWebhook(string $id, string $name, ?string $ownerUserId): void
@@ -89,7 +109,7 @@ class Migration1787220016AddOwnerToWebhookTest extends TestCase
     private function fetchWebhooks(array $ids): array
     {
         return $this->connection->fetchAllAssociativeIndexed(
-            'SELECT LOWER(HEX(id)), active, LOWER(HEX(owner_user_id)) AS owner_user_id FROM webhook WHERE id IN (:ids)',
+            'SELECT LOWER(HEX(id)), active, LOWER(HEX(owner_user_id)) AS owner_user_id, LOWER(HEX(owner_integration_id)) AS owner_integration_id FROM webhook WHERE id IN (:ids)',
             ['ids' => $ids],
             ['ids' => ArrayParameterType::BINARY]
         );

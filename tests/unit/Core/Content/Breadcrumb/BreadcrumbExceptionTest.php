@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Breadcrumb;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Breadcrumb\BreadcrumbException;
-use Shopware\Core\Content\Breadcrumb\Exception\CategoryNotFoundForProductException;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Log\Package;
@@ -16,7 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 #[Package('inventory')]
 #[CoversClass(BreadcrumbException::class)]
-#[CoversClass(CategoryNotFoundForProductException::class)]
 class BreadcrumbExceptionTest extends TestCase
 {
     public function testCategoryNotFoundForProductReturnsCorrectException(): void

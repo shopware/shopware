@@ -70,7 +70,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
         static::assertSame('https://app.example.com/mcp/sync', (string) $lastRequest->getUri());
         static::assertSame('application/json', $lastRequest->getHeaderLine('Content-Type'));
         static::assertSame('application/json', $lastRequest->getHeaderLine('Accept'));
-        static::assertNotEmpty($lastRequest->getHeaderLine(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
+        static::assertNotSame('', $lastRequest->getHeaderLine(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
 
         $body = json_decode($lastRequest->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('sync-orders', $body['tool']);
@@ -194,7 +194,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
 
         $lastRequest = $this->mockHandler->getLastRequest();
         static::assertNotNull($lastRequest);
-        static::assertEmpty($lastRequest->getHeaderLine(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
+        static::assertSame('', $lastRequest->getHeaderLine(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
     }
 
     public function testInternalUrlWithNoActiveRequestReturnsError(): void

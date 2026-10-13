@@ -23,6 +23,7 @@ export default class Feature {
     static init(flagConfig: { [featureName: string]: boolean }): void
     static getAll(): { [featureName: string]: boolean }
     static isActive(flagName: string): boolean
+    static triggerDeprecationOrThrow(majorFlag: string, message: string): void
 }
 ```
 
@@ -147,11 +148,35 @@ The codebase uses ESLint rules to enforce deprecation standards:
 
 This rule ensures proper handling of deprecated features and prevents inappropriate usage.
 
-### Runtime Deprecation Warnings
+### Runtime Deprecation Guards
 
-Deprecated developer-facing APIs report their usages at runtime. Keep these warnings actionable and quiet: log them only in development builds, deduplicate them per call site, and name the caller and the replacement. See `src/core/helper/i18n-legacy-syntax.helper.ts`, which reports the deprecated `$tc` and the vue-i18n 8 argument order.
+`Feature.triggerDeprecationOrThrow(majorFlag, message)` guards a deprecated API where it is consumed. While
+`majorFlag` is inactive it warns in development builds, once per message. Once the flag is active it throws:
 
-Pair runtime warnings with an autofixable ESLint rule where the migration is mechanical, like `sw-core-rules/no-tc-translation`, and enable it in the extension tooling (`extension-tooling/eslint.mjs`).
+```typescript
+Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'oldMethod() is deprecated. Use newMethod() instead.');
+```
+
+Components and props carry a `deprecated` option instead, which `src/app/plugin/deprecation.plugin.ts`
+checks in a global `beforeCreate()` hook: a deprecated component on every creation, a deprecated prop
+whenever the parent supplies it. The message names the path of components that use it. As the error is
+thrown inside a Vue hook, Vue's error handling applies: a development build aborts the mount, a
+production build logs the error and keeps rendering.
+
+A `majorFlag` that is not registered, like the typo `V6_8_0` or the minor `V6_7_5_0`, can never become
+active. It logs a console error instead of the warning. So does a `deprecated` option that is no version,
+like `true`.
+
+Jest silences the `[Deprecation]` warnings through `global.allowedErrors`, because the suite runs both
+sides of a flag. A test that asserts a warning spies on `console.warn`.
+
+Deprecated APIs that stay usable past the next major, like the deprecated `$tc` and the vue-i18n 8 argument
+order, report their usages without a flag. Keep these warnings actionable and quiet: log them only in
+development builds, deduplicate them per call site, and name the caller and the replacement. See
+`src/core/helper/i18n-legacy-syntax.helper.ts`.
+
+Pair runtime warnings with an autofixable ESLint rule where the migration is mechanical, like
+`sw-core-rules/no-tc-translation`, and enable it in the extension tooling (`extension-tooling/eslint.mjs`).
 
 ## Coding Guidelines
 

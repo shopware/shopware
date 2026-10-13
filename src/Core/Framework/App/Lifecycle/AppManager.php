@@ -250,7 +250,14 @@ class AppManager
         // manually set active flag to true, so we don't need to re-fetch the app from DB
         $app->setActive(true);
         $activateContext = new AppActivationContext($app, $context);
-        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->activate($activateContext));
+
+        try {
+            $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->activate($activateContext));
+        } catch (\Throwable $e) {
+            $this->switchOff($app, $context);
+
+            throw $e;
+        }
 
         $this->activeAppsLoader->reset();
 
@@ -271,13 +278,7 @@ class AppManager
         $this->eventDispatcher->dispatch($event);
         $this->scriptExecutor->execute(new AppDeactivatedHook($event));
 
-        $this->appRepository->update([['id' => $app->getId(), 'active' => false]], $context);
-        $app->setActive(false);
-        $deactivateContext = new AppActivationContext($app, $context);
-        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->deactivate($deactivateContext));
-
-        // reset only after new state is in the DB
-        $this->activeAppsLoader->reset();
+        $this->switchOff($app, $context);
     }
 
     private function recoverInstallation(
@@ -767,6 +768,17 @@ class AppManager
         foreach ($this->lifecycleHandlers as $handler) {
             $callback($handler);
         }
+    }
+
+    private function switchOff(AppEntity $app, Context $context): void
+    {
+        $this->appRepository->update([['id' => $app->getId(), 'active' => false]], $context);
+        $app->setActive(false);
+        $deactivateContext = new AppActivationContext($app, $context);
+        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->deactivate($deactivateContext));
+
+        // reset only after new state is in the DB
+        $this->activeAppsLoader->reset();
     }
 
     private function ensureMeetsRequirements(Manifest $manifest): void

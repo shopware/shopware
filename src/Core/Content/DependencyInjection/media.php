@@ -46,6 +46,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\FileService;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
 use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
+use Shopware\Core\Content\Media\File\GlbContentValidator;
 use Shopware\Core\Content\Media\File\SvgContentValidator;
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\File\WindowsStyleFileNameProvider;
@@ -208,6 +209,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.media.svg.allowed_attributes'),
             param('shopware.media.svg.allowed_reference_attributes'),
         ])
+        ->tag('shopware.media.file_content.validator');
+
+    $services->set(GlbContentValidator::class)
         ->tag('shopware.media.file_content.validator');
 
     $services->set(FileSaver::class)

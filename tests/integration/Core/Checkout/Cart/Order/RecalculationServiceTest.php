@@ -343,6 +343,7 @@ class RecalculationServiceTest extends TestCase
         $this->removeExtensions($convertedCart);
 
         // remove delivery information from line items
+        // the order stores the GARAN label each product was placed with, none for these products
 
         foreach ($cart->getDeliveries() as $delivery) {
             // remove address from ShippingLocation
@@ -352,10 +353,12 @@ class RecalculationServiceTest extends TestCase
             foreach ($delivery->getPositions() as $position) {
                 $position->getLineItem()->setDeliveryInformation(null);
                 $position->getLineItem()->setQuantityInformation(null);
+                $position->getLineItem()->setPayloadValue('garanLabel', null);
 
                 foreach ($position->getLineItem()->getChildren() as $lineItem) {
                     $lineItem->setDeliveryInformation(null);
                     $lineItem->setQuantityInformation(null);
+                    $lineItem->setPayloadValue('garanLabel', null);
                 }
             }
 
@@ -365,6 +368,7 @@ class RecalculationServiceTest extends TestCase
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {
             $lineItem->setDeliveryInformation(null);
             $lineItem->setQuantityInformation(null);
+            $lineItem->setPayloadValue('garanLabel', null);
         }
 
         $this->resetDataTimestamps($cart->getLineItems());

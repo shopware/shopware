@@ -153,7 +153,7 @@ class Framework extends Bundle
         // "mcp.servers.elements" parameter, so it has to run before the bundle's own McpPass reads
         // it. That one is registered with the default priority.
         $container->addCompilerPass(new McpToolDiscoveryCompilerPass(), priority: 20);
-        // Wires the tool-result cache into plugin and bundle tools; before Monolog's channel pass.
+        // Wires the tool-result cache into every MCP tool: core, plugin and bundle tools.
         $container->addCompilerPass(new McpToolResultCacheCompilerPass(), priority: 15);
         $container->addCompilerPass(new McpToolAnalysisCompilerPass());
         $container->addCompilerPass(new McpServerBuilderCompilerPass());

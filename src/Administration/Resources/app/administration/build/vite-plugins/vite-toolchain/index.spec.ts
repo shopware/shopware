@@ -63,7 +63,6 @@ describe('build/vite-plugins/vite-toolchain', () => {
     it.each([
         '@vitejs/plugin-basic-ssl',
         '@vitejs/plugin-vue',
-        'vite-plugin-html',
         'vite-plugin-node-polyfills',
         'vite-plugin-symfony',
     ])('resolves the runtime import of vite in %s to Vite 8', (plugin) => {
@@ -108,7 +107,6 @@ describe('build/vite-plugins/vite-toolchain', () => {
         expect(result.viteVersion).toMatch(/^8\./);
         expect(result.exports).toEqual({
             basicSsl: 'function',
-            createHtmlPlugin: 'function',
             nodePolyfills: 'function',
             svgLoader: 'function',
             symfonyPlugin: 'function',

@@ -4,7 +4,6 @@
 
 import { defineConfig, loadEnv } from 'vite';
 import type { UserConfig } from 'vite';
-import { createHtmlPlugin } from 'vite-plugin-html';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import svgLoader from 'vite-svg-loader';
 import vue from '@vitejs/plugin-vue';
@@ -21,6 +20,7 @@ import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postproces
 import ShopwareSetupPlugin from './build/vite-plugins/shopware-setup';
 import VirtualShopwareModulesPlugin from './build/vite-plugins/virtual-shopware-modules';
 import NodeEnvDefinePlugin from './build/vite-plugins/node-env-define';
+import AdminIndexHtmlPlugin from './build/vite-plugins/admin-index-html';
 import ExtglobCompatPlugin from './build/vite-plugins/extglob-compat';
 import { isVite8ToolchainActive, loadVite8Toolchain } from './build/vite-plugins/vite-toolchain';
 
@@ -44,7 +44,7 @@ if (fs.existsSync(flagsPath)) {
 }
 
 const vite8 = isVite8ToolchainActive() ? loadVite8Toolchain() : null;
-const vitePlugins = vite8 ?? { createHtmlPlugin, nodePolyfills, svgLoader, vue, symfonyPlugin };
+const vitePlugins = vite8 ?? { nodePolyfills, svgLoader, vue, symfonyPlugin };
 
 // Vite 8 renamed `rollupOptions` to `rolldownOptions`
 const bundlerOptionsKey = vite8 ? 'rolldownOptions' : 'rollupOptions';
@@ -181,31 +181,15 @@ export default defineConfig(({ command }) => {
                           ]
                         : []),
 
-                    // used to serve index.html and link index.vite.ts automatically
-                    vitePlugins.createHtmlPlugin({
-                        minify: false,
-                        /**
-                         * After writing entry here, you will not need to add script tags in `index.html`,
-                         * the original tags need to be deleted
-                         * @default src/main.ts
-                         */
-                        entry: 'src/index.ts',
-
-                        /**
-                         * Data that needs to be injected into the index.html ejs template
-                         */
-                        inject: {
-                            data: {
-                                featureFlags: JSON.stringify(featureFlags),
-                                serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
-                                analyticsGatewayUrl: process.env.PRODUCT_ANALYTICS_GATEWAY_URL,
-                                hideUpdateModule: [
-                                    '1',
-                                    'true',
-                                ].includes(process.env.SHOPWARE_AUTO_UPDATE_HIDE_MODULE ?? ''),
-                                pageLoadingScreen,
-                            },
-                        },
+                    AdminIndexHtmlPlugin({
+                        featureFlags: JSON.stringify(featureFlags),
+                        serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
+                        analyticsGatewayUrl: process.env.PRODUCT_ANALYTICS_GATEWAY_URL,
+                        hideUpdateModule: [
+                            '1',
+                            'true',
+                        ].includes(process.env.SHOPWARE_AUTO_UPDATE_HIDE_MODULE ?? ''),
+                        pageLoadingScreen,
                     }),
                 ];
             }

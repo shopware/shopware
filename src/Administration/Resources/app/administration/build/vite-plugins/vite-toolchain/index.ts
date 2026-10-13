@@ -9,7 +9,7 @@
  * own package in `build/vite-8` (see the `postinstall` script), because npm aliases like `"vite-8": "npm:vite@8"` in
  * the `package.json` of the Administration are not enough:
  *
- * - Plugins like `@vitejs/plugin-vue`, `vite-plugin-symfony`, `vite-plugin-html` and `vite-plugin-node-polyfills`
+ * - Plugins like `@vitejs/plugin-vue`, `vite-plugin-symfony` and `vite-plugin-node-polyfills`
  *   import `vite` at runtime. Next to an alias, Node still resolves this import to the Vite 6 of the Administration,
  *   so a Vite 8 build would run its plugins with the internals of Vite 6.
  * - The Vite 8 versions of these plugins would need aliases, too. npm hoists them to the same `node_modules` as Vite 6,
@@ -27,7 +27,6 @@ import path from 'path';
 import { createRequire } from 'module';
 import type * as Vite from 'vite';
 import type vue from '@vitejs/plugin-vue';
-import type { createHtmlPlugin } from 'vite-plugin-html';
 import type { nodePolyfills } from 'vite-plugin-node-polyfills';
 import type symfonyPlugin from 'vite-plugin-symfony';
 import type svgLoader from 'vite-svg-loader';
@@ -47,7 +46,6 @@ export type Vite8Toolchain = {
     };
     vue: typeof vue;
     basicSsl: (options: { name: string; domains: string[] }) => Vite.Plugin;
-    createHtmlPlugin: typeof createHtmlPlugin;
     nodePolyfills: typeof nodePolyfills;
     symfonyPlugin: typeof symfonyPlugin;
     svgLoader: typeof svgLoader;
@@ -90,7 +88,6 @@ export function loadVite8Toolchain(): Vite8Toolchain {
         vite: toolchainRequire('vite') as Vite8Toolchain['vite'],
         vue: toolchainRequire('@vitejs/plugin-vue').default as Vite8Toolchain['vue'],
         basicSsl: toolchainRequire('@vitejs/plugin-basic-ssl').default as Vite8Toolchain['basicSsl'],
-        createHtmlPlugin: toolchainRequire('vite-plugin-html').createHtmlPlugin as Vite8Toolchain['createHtmlPlugin'],
         nodePolyfills: toolchainRequire('vite-plugin-node-polyfills').nodePolyfills as Vite8Toolchain['nodePolyfills'],
         symfonyPlugin: toolchainRequire('vite-plugin-symfony').default as Vite8Toolchain['symfonyPlugin'],
         svgLoader: toolchainRequire('vite-svg-loader').default as Vite8Toolchain['svgLoader'],

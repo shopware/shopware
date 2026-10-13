@@ -399,9 +399,9 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     private function normalizeComponentEntryName(string $entryName): string
     {
-        $entryName = preg_replace('/\.(scss|css)$/', '', $entryName) ?? $entryName;
+        $entryName = preg_replace('/\.(scss|css)$/D', '', $entryName) ?? $entryName;
 
-        return preg_replace('~/index$~', '', $entryName) ?? $entryName;
+        return preg_replace('~/index$~D', '', $entryName) ?? $entryName;
     }
 
     /**
@@ -521,7 +521,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     private function toAssetDirectory(string $bundleName): string
     {
-        return preg_replace('/bundle$/', '', strtolower($bundleName)) ?? strtolower($bundleName);
+        return preg_replace('/bundle$/D', '', strtolower($bundleName)) ?? strtolower($bundleName);
     }
 
     /**

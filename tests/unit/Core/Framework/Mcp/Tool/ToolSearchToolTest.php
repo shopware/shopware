@@ -36,8 +36,8 @@ class ToolSearchToolTest extends TestCase
     {
         // The tool definition is embedded as JSON in the tool-call result; a parameterless tool's
         // empty properties must serialize as {} there too, or strict clients (OpenAI) reject the
-        // whole payload with `[] is not of type 'object'`. The transport normalizer never sees this
-        // location (it lives inside result.content[].text), so it is fixed at the source instead.
+        // whole payload with `[] is not of type 'object'`. The SDK `Tool` is embedded as it is and keeps
+        // the empty properties as an object.
         $tool = new ToolSearchTool($this->registry(), new ToolSearch());
 
         $json = $tool('read entity');

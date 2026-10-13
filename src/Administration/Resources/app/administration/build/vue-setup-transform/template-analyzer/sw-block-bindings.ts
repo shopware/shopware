@@ -12,7 +12,8 @@
 
 import { NodeTypes, type TemplateChildNode } from '@vue/compiler-dom';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
-import { ShopwareSetupTransformError } from '../utils/transform-error';
+import type { SourceRange } from '../utils/source-range';
+import { ShopwareSetupInternalError, ShopwareSetupTransformError } from '../utils/transform-error';
 import { type DirectiveNode, type ElementNode, getDefaultSlotDirective, isSwBlockExtends } from './template-references';
 
 function getDirectNamedSlot(node: ElementNode): ElementNode | undefined {
@@ -132,11 +133,11 @@ function assertSwBlockAttributes(node: ElementNode, mode: ShopwareSetupMode, tem
  * author at mutating the value from a method in the override setup instead.
  */
 function assertNoWritesToForwardedBindings(
-    writeTargets: Map<string, number>,
+    writeTargets: Map<string, SourceRange>,
     forwardableNames: Set<string>,
     templateOffset: number,
 ): void {
-    writeTargets.forEach((offset, name) => {
+    writeTargets.forEach((range, name) => {
         if (!forwardableNames.has(name)) {
             return;
         }
@@ -145,7 +146,7 @@ function assertNoWritesToForwardedBindings(
             `Cannot assign to "${name}" inside <sw-block extends> content: forwarded override bindings are read-only ` +
                 'there (the write targets a slot-scope local and has no effect). Mutate the value from a method defined ' +
                 'in the override setup and call that instead.',
-            templateOffset + offset,
+            { index: templateOffset + range.start, endIndex: templateOffset + range.end },
         );
     });
 }
@@ -174,12 +175,15 @@ function assertOverrideTemplateTopLevel(children: TemplateChildNode[], templateO
             return;
         }
 
+        // Text-node ranges include leading whitespace; point at the content the author must move.
+        const contentOffset = node.type === NodeTypes.TEXT ? node.loc.source.search(/\S/) : 0;
+
         throw new ShopwareSetupTransformError(
             'An override template may only contain <sw-block extends="..."> blocks at its top level. An override ' +
                 'component renders only inside the blocks it extends, so any other top-level markup would never render ' +
                 'and its setup references would resolve against the hidden override component. Move it into a ' +
                 '<sw-block extends> block.',
-            templateOffset + node.loc.start.offset,
+            templateOffset + node.loc.start.offset + contentOffset,
         );
     });
 }
@@ -212,7 +216,7 @@ function findOpeningTagAttributeEnd(template: string, elementStart: number): num
         }
     }
 
-    throw new ShopwareSetupTransformError('Unable to locate <sw-block> opening tag end.', elementStart);
+    throw new ShopwareSetupInternalError('Unable to locate <sw-block> opening tag end.', elementStart);
 }
 
 /**
@@ -228,7 +232,7 @@ function findOpeningTagNameEnd(template: string, elementStart: number): number {
         }
     }
 
-    throw new ShopwareSetupTransformError('Unable to locate <sw-block> tag name end.', elementStart);
+    throw new ShopwareSetupInternalError('Unable to locate <sw-block> tag name end.', elementStart);
 }
 
 /**

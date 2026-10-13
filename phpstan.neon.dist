@@ -133,6 +133,9 @@ parameters:
         - identifier: typePerfect.noArrayAccessOnObject
           path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
 
+        # deprecated for 6.8 and unused since its replacement ArrayValues, remove together with the trait
+        - identifier: trait.unused
+          path: src/Core/Framework/Test/Api/Serializer/AssertValuesTrait.php
         # NoReflectionInUnitTestsRule: the only state these tests can check is private to a third-party class
         - # Symfony keeps the transport's authenticators private and EsmtpTransportFactory is final; without it
           # nothing proves that the OAuth authenticator is wired

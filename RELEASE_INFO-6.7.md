@@ -60,6 +60,12 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### New `ProductBackInStockEvent` replaces `ProductNoLongerAvailableEvent` for products that become available
+
+The new `Shopware\Core\Content\Product\Events\ProductBackInStockEvent` is dispatched with the ids of products whose `available` flag changed from `false` to `true`, for example after a restock of a closeout product.
+
+`Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent` now only contains products whose `available` flag changed from `true` to `false`. If your subscriber reacts to both directions, for example to invalidate caches, subscribe to both events.
+
 ### Homepage hreflang links restored for existing `HreflangLoaderParameter` callers
 
 When `HreflangLoaderParameter` is constructed without the `$homepage` argument, `isHomepage()` again detects the homepage from the `frontend.home.page` route name, so homepage hreflang links are generated for these callers. This fallback is deprecated and will be removed in 6.8. If you construct `HreflangLoaderParameter` yourself, pass `$homepage` explicitly.
@@ -299,6 +305,12 @@ This will allow async payment methods to leave the order transaction in "unconfi
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
 
+### The MCP `discovery` tool group is reserved for the core discovery tools
+
+A fresh MCP session advertises the tools in the `discovery` group on every connection. That group is now limited to `shopware-tool-search`, `shopware-toolsets-list` and `shopware-toolset-enable`. A plugin or bundle tool that declares `#[McpToolGroup('discovery')]` is moved to the `other` toolset: it stays callable and can be enabled, but is no longer on the default surface. `bin/console debug:mcp` lists such tools, and the new PHPStan rule `shopware.mcpReservedToolGroup` reports them. To show your tools on the first `tools/list`, give them a group of their own and select it at connect time with `?toolsets=<group>`.
+
+agentic-commerce 1.3.0 and earlier put their UCP tools in `discovery`. Update to agentic-commerce 1.4.0 or later, which pins its own `ucp` toolset on `/ucp/mcp`; with an older version, UCP agents only see the discovery tools on the first `tools/list`.
+
 ### `dal:validate` checks attribute entities
 
 `bin/console dal:validate` no longer skips attribute entities. They are held to the same rules as `EntityDefinition` classes, for example that a many-to-one must not cascade deletes, and violations name them by their entity class instead of `AttributeEntityDefinition`, also when another definition's check mentions them. If your CI fails on `dal:validate`, or ignores messages that contain `AttributeEntityDefinition`, run it against your extension before updating.
@@ -385,6 +397,10 @@ Both are experimental and become stable with 6.8.0.
 ### GLB uploads with external references are rejected
 
 GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_INVALID_FILE` if it is not a valid binary glTF 2.0 container or if the `uri` of a buffer or image points to something other than an embedded `data:` URI. Self-contained models, which keep their buffers and textures in the binary chunk, are not affected and URLs in other fields such as `extras` or `asset.copyright` are still allowed.
+
+### Apps without permissions can't declare required privileges for MCP tools
+
+An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the app declares in the `<permissions>` of its manifest, because the tool's script runs with the app's integration role. Apps without a `<permissions>` block skipped this check, although they have no privileges at all. They are now checked like every other app, so such an app fails to install or update with the message naming the missing permission. Add the permissions to the manifest, or remove the required privileges from the tool.
 
 ## API
 
@@ -483,11 +499,14 @@ Shopware.Component.override('sw-cms-list', {
 
 Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
 
-### Category SEO form shows the recommended meta length
+### Category and product SEO forms show the recommended meta length
 
-The meta title and meta description fields of the category SEO form show how many characters they contain against the recommended length of 70 and 150 characters, and highlight the hint when the recommendation is exceeded. The `n/255` counter for the stored maximum stays unchanged.
+The meta title and meta description fields of the category and product SEO forms show how many characters they contain against the recommended length, and highlight the hint when the recommendation is exceeded.
 
-Extensions can customize the hints through the new Twig blocks `sw_category_seo_form_meta_title_hint` and `sw_category_seo_form_meta_description_hint`.
+- Category: 70 characters for the meta title and 150 for the meta description. The `n/255` counter for the stored maximum stays unchanged.
+- Product: 56 characters for the meta title and 155 for the meta description, as named in their help texts. Inherited values are counted as well.
+
+Extensions can customize the hints through the new Twig blocks `sw_category_seo_form_meta_title_hint` and `sw_category_seo_form_meta_description_hint` for categories, and `sw_product_seo_form_meta_title_hint` and `sw_product_seo_form_meta_description_hint` for products.
 
 ### Admin list and card empty states use `mt-empty-state`
 
@@ -553,6 +572,12 @@ In `sw-order-line-items-grid`, the `orderLineItems` computed property still retu
 ### Order state selects show a status dot
 
 `sw-order-state-select-v2` renders an `mt-select` instead of `sw-single-select`. The field shows the current state as its value with a status dot, and each option shows the status dot of its target state. The dot color comes from the new optional `stateName` prop, which takes the technical name of the current state. Without `stateName`, the field shows no dots and renders the placeholder as the current state in the regular text color, so pass it to get the value and the colors. The `state-select` event and the `sw_order_state_select_v2_field` block are unchanged. Styles that targeted `sw-single-select` elements inside this component no longer apply.
+
+### Native-setup build errors point at the author's source
+
+Errors raised by the native-setup transform now carry the line and column of the offending code in the original `.vue` file and print a code frame, in Vite, Jest and the `valid-shopware-setup` ESLint rule alike. Syntax errors previously reported block-relative Babel coordinates, and marker or reserved-name errors pointed at the start of the file or block.
+
+The transform now also rejects `v-model` on a forwarded override binding inside `<sw-block extends>` content, the same way it rejects `count++` or `count = 1` there. Such a binding arrives read-only through the slot scope, so the write never took effect. Member writes such as `v-model="form.name"` remain allowed; mutate override state from a handler defined in the override setup instead.
 
 ### Import the global Shopware object with `shopware:*` modules (experimental)
 

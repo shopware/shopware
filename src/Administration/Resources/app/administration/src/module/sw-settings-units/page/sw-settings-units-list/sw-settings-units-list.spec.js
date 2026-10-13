@@ -47,6 +47,13 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 provide: {
+                    unitUneceCodeService: {
+                        getUneceCodes: () =>
+                            Promise.resolve([
+                                { code: 'KGM', name: 'kilogram' },
+                                { code: 'XBX', name: 'box' },
+                            ]),
+                    },
                     repositoryFactory: {
                         create: () => repositoryFactoryMock,
                     },
@@ -242,8 +249,16 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
         expect(wrapper.vm.getUneceCodeLabel('KGM')).toBe('KGM - trans');
     });
 
-    it('should show only the unit code when no translated name exists', async () => {
+    it('should fall back to the English name when no translated name exists', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.getUneceCodeLabel('XBX')).toBe('XBX - box');
+    });
+
+    it('should show only the unit code when the code is unknown', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
 
         expect(wrapper.vm.getUneceCodeLabel('ZZZ')).toBe('ZZZ');
     });

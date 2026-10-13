@@ -13,7 +13,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'unitUneceCodeService'],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -24,6 +24,7 @@ export default {
             unitsCriteria: null,
             units: [],
             newUnit: null,
+            uneceCodeNames: {},
         };
     },
 
@@ -79,6 +80,7 @@ export default {
         createdComponent() {
             this.unitsCriteria = this.createUnitsCriteria();
             this.loadUnits();
+            this.loadUneceCodeNames();
         },
 
         createUnitsCriteria() {
@@ -97,6 +99,17 @@ export default {
                 this.placeholderAmount = searchResult.total;
                 this.isLoading = false;
             });
+        },
+
+        loadUneceCodeNames() {
+            this.unitUneceCodeService
+                .getUneceCodes()
+                .then((uneceCodes) => {
+                    this.uneceCodeNames = Object.fromEntries(uneceCodes.map(({ code, name }) => [code, name]));
+                })
+                .catch(() => {
+                    this.uneceCodeNames = {};
+                });
         },
 
         createNewUnit() {
@@ -175,8 +188,9 @@ export default {
 
         getUneceCodeLabel(uneceCode) {
             const snippetKey = `sw-settings-units.uneceCodes.${uneceCode}`;
+            const name = this.$te(snippetKey) ? this.$t(snippetKey) : this.uneceCodeNames[uneceCode];
 
-            return this.$te(snippetKey) ? `${uneceCode} - ${this.$t(snippetKey)}` : uneceCode;
+            return name ? `${uneceCode} - ${name}` : uneceCode;
         },
 
         onChangeLanguage() {

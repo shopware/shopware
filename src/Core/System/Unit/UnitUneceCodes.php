@@ -12,12 +12,12 @@ use Shopware\Core\Framework\Log\Package;
 class UnitUneceCodes
 {
     /**
-     * @var array<string, string>|null
+     * @var array<string|int, string>|null
      */
     private ?array $codes = null;
 
     /**
-     * @return array<string, string>
+     * @return array<string|int, string>
      */
     public function getCodes(): array
     {

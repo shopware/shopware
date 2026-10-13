@@ -206,7 +206,15 @@ describe('plugin/google-analytics/product-page.helper', () => {
                 brand: undefined,
                 variant: undefined,
                 value: 19.99,
+                categoryNames: [],
             });
+        });
+
+        test('returns the category path a box outside a category carries', () => {
+            renderCard({ id: 'product-123', name: 'Shirt', sku: 'SW10000', categories: ['Clothing', 'Shirts'] });
+
+            expect(ProductPageHelper.getProductCardData('product-123').categoryNames).toEqual(['Clothing', 'Shirts']);
+            expect(ProductPageHelper.getCategoriesFor('product-123')).toEqual({ item_category: 'Clothing', item_category2: 'Shirts' });
         });
 
         test('returns nothing without a card', () => {
@@ -267,6 +275,19 @@ describe('plugin/google-analytics/product-page.helper', () => {
             global.fetch = jest.fn(response);
 
             await expect(ProductPageHelper.resolveCategories('product-123')).resolves.toEqual({ item_category: 'Listing' });
+        });
+
+        test('uses the path a box on the homepage carries without a request', async () => {
+            window.activeRoute = 'frontend.home.page';
+            document.body.innerHTML = `
+                <div class="product-box" data-product-information='{ "id": "home-id", "categories": ["Damen", "Schuhe"] }'>
+                    <button class="product-wishlist-home-id"></button>
+                </div>
+            `;
+            global.fetch = jest.fn();
+
+            await expect(ProductPageHelper.resolveCategories('home-id')).resolves.toEqual({ item_category: 'Damen', item_category2: 'Schuhe' });
+            expect(global.fetch).not.toHaveBeenCalled();
         });
 
         test('requests the path of a product box on the product detail page', async () => {

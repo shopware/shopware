@@ -72,6 +72,8 @@ use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 use Shopware\Storefront\Controller\ScriptController;
 use Shopware\Storefront\Event\CartMergedSubscriber;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
+use Shopware\Storefront\Framework\Analytics\AnalyticsCategoryPathLoader;
+use Shopware\Storefront\Framework\Analytics\AnalyticsCategoryPathSubscriber;
 use Shopware\Storefront\Framework\App\Template\IconTemplateLoader;
 use Shopware\Storefront\Framework\Cache\CacheCookieEventSubscriber;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator;
@@ -890,4 +892,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(StorybookRouteScopeAllowList::class)
         ->tag('shopware.route_scope_whitelist');
+
+    $services->set(AnalyticsCategoryPathLoader::class)
+        ->args([service(Connection::class), service('category.repository')]);
+
+    $services->set(AnalyticsCategoryPathSubscriber::class)
+        ->args([service(AnalyticsCategoryPathLoader::class)])
+        ->tag('kernel.event_subscriber');
 };

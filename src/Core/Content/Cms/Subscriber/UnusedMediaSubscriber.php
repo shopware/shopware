@@ -31,6 +31,10 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
 
     public function removeUsedMedia(UnusedMediaSearchEvent $event): void
     {
+        if ($event->getUnusedIds() === []) {
+            return;
+        }
+
         $event->markAsUsed($this->findMediaIdsInImageGalleries($event));
         $event->markAsUsed($this->findMediaIdsInImages($event));
 

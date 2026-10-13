@@ -37,6 +37,10 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
 
     public function removeUsedMedia(UnusedMediaSearchEvent $event): void
     {
+        if ($event->getUnusedIds() === []) {
+            return;
+        }
+
         $this->findMediaIds($event);
         $this->findMediaIdsWithEntitySelect($event);
         $this->findMediaIdsWithEntityMultiSelect($event);

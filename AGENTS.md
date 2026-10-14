@@ -46,7 +46,7 @@ shopware/
 
 This repo ships Agent Skills under `.agents/skills/`, with `.claude/skills` as a symlink for Claude Code compatibility. Skills normally match their `description` against the task — best-effort and model-decided, **not guaranteed** — while skills with unattended CI twins require explicit invocation. The mandatory steps below are therefore stated here, in the always-loaded file, so they apply even when no skill is triggered.
 
-### Definition of Done — mandatory for every change
+### Definition of Done — mandatory for every significant change
 
 Before you commit or hand work back:
 - **Behaviour change ⇒ tests are required.** Admin JS/TS/Vue → follow `shopware-admin-js`; PHP → `shopware-phpunit-tests`. Twig-only template changes follow the rule below. Style-only, snippet/translation, and docs-only changes do not need tests; still add one when it is useful and follows an established pattern.
@@ -54,7 +54,7 @@ Before you commit or hand work back:
 - **Writing a PR title or description? → follow `shopware-pr-hygiene`** — the Shopware PR template is required, not a generic one.
 - **Behavioural change, feature, deprecation, or config change? → check `shopware-release-docs`** for RELEASE_INFO / UPGRADE entries. Put a blank line before and after every heading in those files; the Markdown renderer otherwise glues the heading to the previous paragraph.
 - **Touching `.github/workflows/`, `.github/actions/`, or `.github/bin/`? → follow [`.github/AGENTS.md`](.github/AGENTS.md)** — a CI job must never report success without proving the work ran.
-- **Commit with a conventional message incl. scope**, e.g. `feat(administration): …`.
+- **Asked to commit changes? Commit with a conventional message incl. scope**, e.g. `feat(administration): …`. Never commit without explicitly beeing told to do so.
 - **After review feedback or CI failures**, create a follow-up commit; do not amend or force-push unless explicitly asked.
 - **Lint every file you touched** per the File Linting table below.
 

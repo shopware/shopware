@@ -153,4 +153,134 @@ describe('plugin/google-analytics/product-page.helper', () => {
 
         expect(ProductPageHelper.getCurrency()).toBe('GBP');
     });
+
+    describe('product elements', () => {
+        const breadcrumb = `
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Clothing</span>
+                <span class="breadcrumb-title">Shirts</span>
+            </nav>
+        `;
+
+        beforeEach(() => {
+            window.activeRoute = 'frontend.navigation.page';
+        });
+
+        afterEach(() => {
+            delete window.activeRoute;
+        });
+
+        test('finds a product element by its data attribute, without the product box class', () => {
+            document.body.innerHTML = `
+                <article class="custom-teaser" data-product-information='{"id":"product-1","sku":"SW1"}'>
+                    <button class="custom-buy">Buy</button>
+                </article>
+            `;
+
+            const card = ProductPageHelper.getProductCard('product-1', document.querySelector('.custom-buy'));
+
+            expect(card).toBe(document.querySelector('.custom-teaser'));
+        });
+
+        test('finds a product element through its wishlist button', () => {
+            document.body.innerHTML = `
+                <div class="card product-box" data-product-information='{"id":"product-1"}'>
+                    <button class="product-wishlist-product-1"></button>
+                </div>
+            `;
+
+            expect(ProductPageHelper.getProductCard('product-1')).toBe(document.querySelector('.product-box'));
+        });
+
+        test('finds no product element for the buy widget of the detail page', () => {
+            document.body.innerHTML = '<form class="buy-widget"><button class="buy"></button></form>';
+
+            expect(ProductPageHelper.getProductCard('product-1', document.querySelector('.buy'))).toBeNull();
+        });
+
+        test('reads the data of a custom product element', () => {
+            document.body.innerHTML = `
+                <article class="custom-teaser" data-product-information='{"id":"product-1","sku":"SW1","name":"Shirt","brand":"Brand","price":19.99}'>
+                    <button class="custom-buy">Buy</button>
+                </article>
+            `;
+
+            expect(ProductPageHelper.getProductCardData('product-1', document.querySelector('.custom-buy'))).toEqual({
+                id: 'SW1',
+                name: 'Shirt',
+                brand: 'Brand',
+                value: 19.99,
+            });
+        });
+
+        test('uses the product element on a detail page instead of the page product', () => {
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = `
+                <meta property="product:price:amount" content="99.99">
+                <h1 class="product-detail-name">Page Product</h1>
+                <div class="card product-box" data-product-information='{"id":"product-2","sku":"SW2","name":"Cross Selling Product","price":9.99}'>
+                    <form class="buy-widget"><button class="buy"></button></form>
+                </div>
+            `;
+
+            expect(ProductPageHelper.getProductData('product-2', document.querySelector('.buy'))).toMatchObject({
+                id: 'SW2',
+                name: 'Cross Selling Product',
+                value: 9.99,
+            });
+        });
+
+        test('uses the page product for the buy widget of the detail page', () => {
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = `
+                <meta property="product:price:amount" content="99.99">
+                <h1 class="product-detail-name">Page Product</h1>
+                <form class="buy-widget"><button class="buy"></button></form>
+            `;
+
+            expect(ProductPageHelper.getProductData('product-1', document.querySelector('.buy'))).toMatchObject({
+                name: 'Page Product',
+                value: '99.99',
+            });
+        });
+
+        test('reports the breadcrumb categories for a product element on a listing', () => {
+            document.body.innerHTML = `
+                ${breadcrumb}
+                <div class="card product-box" data-product-information='{"id":"product-1"}'>
+                    <button class="buy"></button>
+                </div>
+            `;
+
+            expect(ProductPageHelper.getCategoriesFor('product-1', document.querySelector('.buy'))).toEqual({
+                item_category: 'Clothing',
+                item_category2: 'Shirts',
+            });
+        });
+
+        test('reports no categories for a product element on a detail page', () => {
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = `
+                ${breadcrumb}
+                <div class="card product-box" data-product-information='{"id":"product-2"}'>
+                    <button class="buy"></button>
+                </div>
+            `;
+
+            expect(ProductPageHelper.getCategoriesFor('product-2', document.querySelector('.buy'))).toEqual({});
+        });
+
+        test('reports the breadcrumb categories for the page product of a detail page', () => {
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = `
+                ${breadcrumb}
+                <form class="buy-widget"><button class="buy"></button></form>
+            `;
+
+            expect(ProductPageHelper.getCategoriesFor('product-1', document.querySelector('.buy'))).toEqual({
+                item_category: 'Clothing',
+                item_category2: 'Shirts',
+            });
+        });
+    });
 });

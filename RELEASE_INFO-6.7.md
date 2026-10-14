@@ -766,6 +766,10 @@ Storefront analytics now send ecommerce events in the format Google documents fo
 
 The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics, and its `data-value` attribute holds the position price instead of the total price.
 
+### Storefront analytics recognize product elements of extensions
+
+Storefront analytics now treat every element with a `data-product-information` attribute as a product element, not only elements with the `.product-box` class. Extensions that render products in their own markup are reported in `view_item_list`, `add_to_cart` and the wishlist events when the attribute holds a JSON object with at least the product `id`. The optional properties `sku`, `name`, `brand` and `price` fill the GA4 item. On a product detail page, adding a cross selling or slider product to the cart reports that product instead of the product of the page.
+
 ### Essential characteristics label custom fields with their snippet
 
 Essential characteristics of a product now label a custom field with its `customFields.<name>` snippet, which Shopware creates in every snippet set when the custom field is created. Editing that snippet in Settings > Snippets, or overriding it in a theme's snippet files, changes the label shown in the cart, the off-canvas cart and the checkout. Before, only the label from the custom field's configuration was used and changes to the snippet had no effect.

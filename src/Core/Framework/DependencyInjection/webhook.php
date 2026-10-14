@@ -49,7 +49,6 @@ use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber;
 use Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransportFactory;
-use Shopware\Core\Framework\Webhook\Validation\WebhookAclRoleIdsWriteValidator;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\Framework\Webhook\Validation\WebhookUrlWriteValidator;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
@@ -137,9 +136,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(WebhookTargetValidator::class),
         ])
-        ->tag('kernel.event_subscriber');
-
-    $services->set(WebhookAclRoleIdsWriteValidator::class)
         ->tag('kernel.event_subscriber');
 
     $services->set(WebhookOutboxStore::class)

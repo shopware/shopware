@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\Api\Acl\AclRoles;
 use Shopware\Core\Framework\Api\Acl\ApiCallerType;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -17,19 +16,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Authorization\Ownership\WriteAuthorizer;
 use Shopware\Core\Framework\Webhook\Authorization\RestrictWriteSubscriber;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriberType;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriptionRefusals;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriptionValidator;
+use Shopware\Core\Framework\Webhook\Authorization\WebhookSubscription;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
-use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Framework\Webhook\WebhookDefinition;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -43,13 +43,15 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(RestrictWriteSubscriber::class)]
 class RestrictWriteSubscriberTest extends TestCase
 {
+    private const USER_ID = 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6';
+
     private StaticDefinitionInstanceRegistry $registry;
 
     private WriteAuthorizer $authorizer;
 
     private SubscriptionValidator $validator;
 
-    private WebhookLoader $loader;
+    private WebhookLoader $webhookLoader;
 
     private AclRoleLoader $aclRoleLoader;
 
@@ -62,90 +64,118 @@ class RestrictWriteSubscriberTest extends TestCase
         );
 
         $this->authorizer = static::createStub(WriteAuthorizer::class);
+        $this->authorizer->method('getModificationViolations')->willReturn([]);
 
         $this->validator = static::createStub(SubscriptionValidator::class);
         $this->validator->method('validate')->willReturn(new SubscriptionRefusals());
 
-        $this->loader = static::createStub(WebhookLoader::class);
+        $this->webhookLoader = static::createStub(WebhookLoader::class);
+        $this->webhookLoader->method('getSubscriptions')->willReturn([]);
 
         $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
+        $this->aclRoleLoader->method('getRoles')->willReturn([self::USER_ID => new AclRoles(false, ['role'])]);
+        $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([]);
     }
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertSame([
-            PreWriteValidationEvent::class => 'restrictModification',
-            PostWriteValidationEvent::class => 'restrictSubscription',
-        ], RestrictWriteSubscriber::getSubscribedEvents());
+        static::assertSame([PreWriteValidationEvent::class => 'validate'], RestrictWriteSubscriber::getSubscribedEvents());
     }
 
-    public function testAuthorizerViolationsRejectTheWrite(): void
+    public function testModificationViolationsRejectTheWrite(): void
     {
-        $update = Uuid::randomBytes();
-        $delete = Uuid::randomBytes();
-        $violation = WebhookException::appWebhookNotModifiable(Uuid::fromBytesToHex($update));
+        $update = $this->updateWebhook(['url' => 'https://example.com']);
+        $delete = new DeleteCommand($this->webhookDefinition(), ['id' => Uuid::randomBytes()], static::createStub(EntityExistence::class));
+        $violation = WebhookException::appWebhookNotModifiable(self::id($update));
 
-        $authorizer = $this->createMock(WriteAuthorizer::class);
-        $authorizer->expects($this->once())
+        $this->authorizer = $this->createMock(WriteAuthorizer::class);
+        $this->authorizer->expects($this->once())
             ->method('getModificationViolations')
-            ->with([Uuid::fromBytesToHex($update), Uuid::fromBytesToHex($delete)])
-            ->willReturn([$violation]);
+            ->with([self::id($update), self::id($delete)])
+            ->willReturn([self::id($update) => $violation]);
 
-        $webhook = $this->registry->getByEntityName(WebhookDefinition::ENTITY_NAME);
-        $existence = static::createStub(EntityExistence::class);
-        $event = $this->createPreEvent([
-            new UpdateCommand($webhook, ['id' => $update], ['id' => $update], $existence, '/update'),
-            new DeleteCommand($webhook, ['id' => $delete], $existence),
-        ]);
-
-        (new RestrictWriteSubscriber($authorizer, $this->validator, $this->loader, $this->aclRoleLoader))->restrictModification($event);
+        $event = $this->createEvent([$update, $delete]);
+        $this->createSubscriber()->validate($event);
 
         static::assertSame([$violation], $event->getExceptions()->getExceptions());
     }
 
-    public function testOnlyWebhookUpdatesAndDeletesAreAuthorized(): void
+    public function testInsertsCascadeDeletesAndOtherEntitiesAreNotAuthorized(): void
     {
-        $authorizer = $this->createMock(WriteAuthorizer::class);
-        $authorizer->expects($this->never())->method('getModificationViolations');
+        $this->authorizer = $this->createMock(WriteAuthorizer::class);
+        $this->authorizer->expects($this->once())->method('getModificationViolations')->with([])->willReturn([]);
 
         $id = Uuid::randomBytes();
-        $webhook = $this->registry->getByEntityName(WebhookDefinition::ENTITY_NAME);
         $existence = static::createStub(EntityExistence::class);
 
-        (new RestrictWriteSubscriber($authorizer, $this->validator, $this->loader, $this->aclRoleLoader))->restrictModification($this->createPreEvent([
-            new InsertCommand($webhook, ['id' => $id], ['id' => $id], $existence, '/insert'),
-            new CascadeDeleteCommand($webhook, ['id' => $id], $existence),
+        $this->createSubscriber()->validate($this->createEvent([
+            new InsertCommand($this->webhookDefinition(), ['id' => $id], ['id' => $id], $existence, '/insert'),
+            new CascadeDeleteCommand($this->webhookDefinition(), ['id' => Uuid::randomBytes()], $existence),
             new UpdateCommand($this->registry->getByEntityName('tax'), ['id' => $id], ['id' => $id], $existence, '/update'),
         ]));
     }
 
+    public function testARejectedModificationIsNotCheckedFurther(): void
+    {
+        $update = $this->updateWebhook(['event_name' => 'product.written']);
+
+        $this->authorizer = static::createStub(WriteAuthorizer::class);
+        $this->authorizer->method('getModificationViolations')
+            ->willReturn([self::id($update) => WebhookException::webhookNotOwned(self::id($update))]);
+
+        $this->validator = $this->createMock(SubscriptionValidator::class);
+        $this->validator->expects($this->never())->method('validate');
+
+        $this->createSubscriber()->validate($this->createEvent([$update]));
+    }
+
+    public function testAnEmptyAclRoleListIsRejected(): void
+    {
+        $event = $this->createEvent([$this->insertWebhook(aclRoleIds: [])]);
+        $this->createSubscriber()->validate($event);
+
+        $this->assertAclRoleIdsViolation($event, 'aclRoleIds must not be empty. Leave it out to use all of the owner\'s roles.');
+    }
+
+    public function testEmptyAclRoleEntriesAreRejected(): void
+    {
+        $event = $this->createEvent([$this->insertWebhook(aclRoleIds: ['role', ''])]);
+        $this->createSubscriber()->validate($event);
+
+        $this->assertAclRoleIdsViolation($event, 'aclRoleIds must not contain empty entries.');
+    }
+
     public function testOnlyEventAndAclRoleChangesAreChecked(): void
     {
-        $loader = $this->createMock(WebhookLoader::class);
-        $loader->expects($this->never())->method('getWebhooksByIds');
+        $this->validator = $this->createMock(SubscriptionValidator::class);
+        $this->validator->expects($this->never())->method('validate');
 
-        $event = $this->createPostEvent([$this->updateWebhook(['url' => 'https://example.com'])]);
+        $this->createSubscriber()->validate($this->createEvent([$this->updateWebhook(['url' => 'https://example.com'])]));
+    }
 
-        (new RestrictWriteSubscriber($this->authorizer, $this->validator, $loader, $this->aclRoleLoader))->restrictSubscription($event);
+    public function testSystemWritesAreNotChecked(): void
+    {
+        $this->validator = $this->createMock(SubscriptionValidator::class);
+        $this->validator->expects($this->never())->method('validate');
+
+        $this->createSubscriber()->validate($this->createEvent([$this->insertWebhook()], Context::createDefaultContext()));
     }
 
     public function testRefusalsRejectTheWrite(): void
     {
-        $validator = static::createStub(SubscriptionValidator::class);
-        $validator->method('validate')->willReturn(new SubscriptionRefusals(
-            notHookable: ['product.written'],
-            notPermitted: ['order.written'],
-            missingPrivileges: ['customer.written' => ['customer:read']],
+        $product = $this->insertWebhook('product.written');
+        $order = $this->insertWebhook('order.written');
+        $customer = $this->insertWebhook('customer.written');
+
+        $this->validator = static::createStub(SubscriptionValidator::class);
+        $this->validator->method('validate')->willReturn(new SubscriptionRefusals(
+            notHookable: [self::id($product)],
+            notPermitted: [self::id($order)],
+            missingPrivileges: [self::id($customer) => ['customer:read']],
         ));
 
-        $insert = $this->insertWebhook();
-
-        $loader = static::createStub(WebhookLoader::class);
-        $loader->method('getWebhooksByIds')->willReturn([$this->webhook($insert)]);
-
-        $event = $this->createPostEvent([$insert]);
-
-        (new RestrictWriteSubscriber($this->authorizer, $validator, $loader, $this->aclRoleLoader))->restrictSubscription($event);
+        $event = $this->createEvent([$product, $order, $customer]);
+        $this->createSubscriber()->validate($event);
 
         $exceptions = $event->getExceptions()->getExceptions();
         static::assertCount(3, $exceptions);
@@ -154,89 +184,178 @@ class RestrictWriteSubscriberTest extends TestCase
         static::assertSame(WebhookException::webhookEventPrivilegesMissing('customer.written', ['customer:read'])->getMessage(), $exceptions[2]->getMessage());
     }
 
-    public function testPrivilegesComeFromTheWebhookRoles(): void
+    public function testAnInsertIsCheckedWithThePrivilegesOfTheCallersRoles(): void
     {
         $insert = $this->insertWebhook();
 
-        $loader = static::createStub(WebhookLoader::class);
-        $loader->method('getWebhooksByIds')->willReturn([$this->webhook($insert, roles: new AclRoles(false, ['role-a', 'role-b']))]);
-        $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
+        $this->aclRoleLoader = $this->createMock(AclRoleLoader::class);
+        $this->aclRoleLoader->expects($this->once())
+            ->method('getRoles')
+            ->with([self::USER_ID])
+            ->willReturn([self::USER_ID => new AclRoles(false, ['role-a', 'role-b'])]);
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([
             'role-a' => new AclPrivilegeCollection(['product:read', 'order:read']),
             'role-b' => new AclPrivilegeCollection(['order:read', 'customer:read']),
         ]);
 
-        $validator = $this->createMock(SubscriptionValidator::class);
-        $validator->expects($this->once())
+        $this->validator = $this->createMock(SubscriptionValidator::class);
+        $this->validator->expects($this->once())
             ->method('validate')
-            ->with(['product.written' => 'product.written'], ['product.written' => ['product:read', 'order:read', 'customer:read']], Subscriber::api(ApiCallerType::User))
+            ->with(
+                [self::id($insert) => 'product.written'],
+                [self::id($insert) => ['product:read', 'order:read', 'customer:read']],
+                Subscriber::api(ApiCallerType::User),
+            )
             ->willReturn(new SubscriptionRefusals());
 
-        (new RestrictWriteSubscriber($this->authorizer, $validator, $loader, $this->aclRoleLoader))->restrictSubscription($this->createPostEvent([$insert]));
+        $this->createSubscriber()->validate($this->createEvent([$insert]));
     }
 
-    public function testPrivilegesAreNotCheckedForAnAdminOwner(): void
+    public function testAnUnrestrictedOwnerHoldsEveryPrivilege(): void
     {
         $insert = $this->insertWebhook();
 
-        $loader = static::createStub(WebhookLoader::class);
-        $loader->method('getWebhooksByIds')->willReturn([$this->webhook($insert, roles: new AclRoles(true, []))]);
+        $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
+        $this->aclRoleLoader->method('getRoles')->willReturn([self::USER_ID => new AclRoles(true, [])]);
+        $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([]);
 
-        $validator = $this->createMock(SubscriptionValidator::class);
-        $validator->expects($this->once())
+        $this->validator = $this->createMock(SubscriptionValidator::class);
+        $this->validator->expects($this->once())
             ->method('validate')
-            ->with(['product.written' => 'product.written'], ['product.written' => null])
+            ->with([self::id($insert) => 'product.written'], [self::id($insert) => null])
             ->willReturn(new SubscriptionRefusals());
 
-        (new RestrictWriteSubscriber($this->authorizer, $validator, $loader, $this->aclRoleLoader))->restrictSubscription($this->createPostEvent([$insert]));
+        $this->createSubscriber()->validate($this->createEvent([$insert]));
     }
 
-    public function testAnAclRoleChangeIsCheckedEvenForAnAdmin(): void
+    public function testAnUpdateIsCheckedWithTheStoredOwnersRolesAndTheNewEvent(): void
     {
-        $update = $this->updateWebhook(['acl_role_ids' => json_encode(['role'], \JSON_THROW_ON_ERROR)]);
+        $update = $this->updateWebhook(['event_name' => 'order.written']);
+        $ownerId = Uuid::randomHex();
 
-        $loader = static::createStub(WebhookLoader::class);
-        $loader->method('getWebhooksByIds')->willReturn([$this->webhook($update, eventName: 'order.written')]);
-        $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
+        $this->webhookLoader = static::createStub(WebhookLoader::class);
+        $this->webhookLoader->method('getSubscriptions')->willReturn([
+            self::id($update) => new WebhookSubscription(self::id($update), SubscriberType::User, $ownerId, 'product.written', null),
+        ]);
+
+        $this->aclRoleLoader = $this->createMock(AclRoleLoader::class);
+        $this->aclRoleLoader->expects($this->once())
+            ->method('getRoles')
+            ->with([$ownerId])
+            ->willReturn([$ownerId => new AclRoles(false, ['role'])]);
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn(['role' => new AclPrivilegeCollection(['order:read'])]);
 
-        $validator = $this->createMock(SubscriptionValidator::class);
-        $validator->expects($this->once())
+        $this->validator = $this->createMock(SubscriptionValidator::class);
+        $this->validator->expects($this->once())
             ->method('validate')
-            ->with(['order.written' => 'order.written'], ['order.written' => ['order:read']], Subscriber::api(ApiCallerType::User))
+            ->with([self::id($update) => 'order.written'], [self::id($update) => ['order:read']])
             ->willReturn(new SubscriptionRefusals());
 
-        $admin = new AdminApiSource(Uuid::randomHex());
-        $admin->setIsAdmin(true);
-
-        (new RestrictWriteSubscriber($this->authorizer, $validator, $loader, $this->aclRoleLoader))->restrictSubscription($this->createPostEvent([$update], $admin));
+        $this->createSubscriber()->validate($this->createEvent([$update]));
     }
 
-    public function testAclRolesAreOnlyCheckedWhenWritten(): void
+    public function testAnUpdateOfAnAppsWebhookIsLeftToTheModificationCheck(): void
     {
-        $update = $this->updateWebhook(['event_name' => 'product.written']);
+        $update = $this->updateWebhook(['event_name' => 'order.written']);
 
-        $loader = static::createStub(WebhookLoader::class);
-        $loader->method('getWebhooksByIds')->willReturn([$this->webhook($update, aclRoleIds: ['role', 'lost-role'])]);
+        $this->webhookLoader = static::createStub(WebhookLoader::class);
+        $this->webhookLoader->method('getSubscriptions')->willReturn([
+            self::id($update) => new WebhookSubscription(self::id($update), SubscriberType::App, Uuid::randomHex(), 'product.written', null),
+        ]);
 
-        $event = $this->createPostEvent([$update]);
+        $this->validator = $this->createMock(SubscriptionValidator::class);
+        $this->validator->expects($this->once())->method('validate')->with([], [])->willReturn(new SubscriptionRefusals());
 
-        (new RestrictWriteSubscriber($this->authorizer, $this->validator, $loader, $this->aclRoleLoader))->restrictSubscription($event);
+        $this->createSubscriber()->validate($this->createEvent([$update]));
+    }
+
+    public function testAclRoleIdsLimitTheOwnersRoles(): void
+    {
+        $insert = $this->insertWebhook(aclRoleIds: ['role-a']);
+
+        $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
+        $this->aclRoleLoader->method('getRoles')->willReturn([self::USER_ID => new AclRoles(false, ['role-a', 'role-b'])]);
+        $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([
+            'role-a' => new AclPrivilegeCollection(['product:read']),
+            'role-b' => new AclPrivilegeCollection(['order:read']),
+        ]);
+
+        $this->validator = $this->createMock(SubscriptionValidator::class);
+        $this->validator->expects($this->once())
+            ->method('validate')
+            ->with([self::id($insert) => 'product.written'], [self::id($insert) => ['product:read']])
+            ->willReturn(new SubscriptionRefusals());
+
+        $this->createSubscriber()->validate($this->createEvent([$insert]));
+    }
+
+    public function testAclRolesTheOwnerDoesNotHoldAreRejected(): void
+    {
+        $event = $this->createEvent([$this->insertWebhook(aclRoleIds: ['role', 'other-role'])]);
+        $this->createSubscriber()->validate($event);
+
+        $exceptions = $event->getExceptions()->getExceptions();
+        static::assertCount(1, $exceptions);
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
+
+        $violations = $exceptions[0]->getViolations();
+        static::assertCount(1, $violations);
+        static::assertSame('/aclRoleIds', $violations->get(0)->getPropertyPath());
+        static::assertSame('Role "other-role" is not held by the webhook\'s owner.', $violations->get(0)->getMessage());
+    }
+
+    public function testAnUnrestrictedOwnerMayListAnyRole(): void
+    {
+        $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
+        $this->aclRoleLoader->method('getRoles')->willReturn([self::USER_ID => new AclRoles(true, [])]);
+        $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([]);
+
+        $event = $this->createEvent([$this->insertWebhook(aclRoleIds: ['any-role'])]);
+        $this->createSubscriber()->validate($event);
 
         static::assertSame([], $event->getExceptions()->getExceptions());
     }
 
-    private function insertWebhook(): InsertCommand
+    public function testStoredAclRolesAreOnlyRejectedWhenWritten(): void
+    {
+        $update = $this->updateWebhook(['event_name' => 'product.written']);
+
+        $this->webhookLoader = static::createStub(WebhookLoader::class);
+        $this->webhookLoader->method('getSubscriptions')->willReturn([
+            self::id($update) => new WebhookSubscription(self::id($update), SubscriberType::User, self::USER_ID, 'order.written', ['role', 'lost-role']),
+        ]);
+
+        $event = $this->createEvent([$update]);
+        $this->createSubscriber()->validate($event);
+
+        static::assertSame([], $event->getExceptions()->getExceptions());
+    }
+
+    private function createSubscriber(): RestrictWriteSubscriber
+    {
+        return new RestrictWriteSubscriber($this->authorizer, $this->validator, $this->webhookLoader, $this->aclRoleLoader);
+    }
+
+    private function webhookDefinition(): WebhookDefinition
+    {
+        $definition = $this->registry->getByEntityName(WebhookDefinition::ENTITY_NAME);
+        static::assertInstanceOf(WebhookDefinition::class, $definition);
+
+        return $definition;
+    }
+
+    /**
+     * @param list<string>|null $aclRoleIds
+     */
+    private function insertWebhook(string $eventName = 'product.written', ?array $aclRoleIds = null): InsertCommand
     {
         $id = Uuid::randomBytes();
+        $payload = ['id' => $id, 'event_name' => $eventName];
+        if ($aclRoleIds !== null) {
+            $payload['acl_role_ids'] = json_encode($aclRoleIds, \JSON_THROW_ON_ERROR);
+        }
 
-        return new InsertCommand(
-            $this->registry->getByEntityName(WebhookDefinition::ENTITY_NAME),
-            ['id' => $id, 'event_name' => 'product.written'],
-            ['id' => $id],
-            static::createStub(EntityExistence::class),
-            '/insert'
-        );
+        return new InsertCommand($this->webhookDefinition(), $payload, ['id' => $id], static::createStub(EntityExistence::class), '/insert');
     }
 
     /**
@@ -245,7 +364,7 @@ class RestrictWriteSubscriberTest extends TestCase
     private function updateWebhook(array $payload): UpdateCommand
     {
         return new UpdateCommand(
-            $this->registry->getByEntityName(WebhookDefinition::ENTITY_NAME),
+            $this->webhookDefinition(),
             $payload,
             ['id' => Uuid::randomBytes()],
             static::createStub(EntityExistence::class),
@@ -253,45 +372,30 @@ class RestrictWriteSubscriberTest extends TestCase
         );
     }
 
-    /**
-     * @param list<string>|null $aclRoleIds
-     */
-    private function webhook(
-        WriteCommand $command,
-        string $eventName = 'product.written',
-        AclRoles $roles = new AclRoles(false, ['role']),
-        ?array $aclRoleIds = null,
-    ): Webhook {
-        return new Webhook(
-            id: Uuid::fromBytesToHex($command->getPrimaryKey()['id']),
-            webhookName: 'webhook',
-            eventName: $eventName,
-            url: 'https://example.com',
-            onlyLiveVersion: false,
-            appId: null,
-            appName: null,
-            appSourceType: null,
-            appActive: false,
-            appVersion: null,
-            appSecret: null,
-            roles: $roles,
-            aclRoleIds: $aclRoleIds,
-        );
+    private static function id(WriteCommand $command): string
+    {
+        return Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
     }
 
     /**
      * @param list<WriteCommand> $commands
      */
-    private function createPreEvent(array $commands): PreWriteValidationEvent
+    private function createEvent(array $commands, ?Context $context = null): PreWriteValidationEvent
     {
-        return new PreWriteValidationEvent(WriteContext::createFromContext(new Context(new AdminApiSource(null))), $commands);
+        $context ??= new Context(new AdminApiSource(self::USER_ID));
+
+        return new PreWriteValidationEvent(WriteContext::createFromContext($context), $commands);
     }
 
-    /**
-     * @param list<WriteCommand> $commands
-     */
-    private function createPostEvent(array $commands, ContextSource $source = new AdminApiSource(null)): PostWriteValidationEvent
+    private function assertAclRoleIdsViolation(PreWriteValidationEvent $event, string $message): void
     {
-        return new PostWriteValidationEvent(WriteContext::createFromContext(new Context($source)), $commands);
+        $exceptions = $event->getExceptions()->getExceptions();
+        static::assertCount(1, $exceptions);
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
+
+        $violations = $exceptions[0]->getViolations();
+        static::assertCount(1, $violations);
+        static::assertSame('/aclRoleIds', $violations->get(0)->getPropertyPath());
+        static::assertSame($message, $violations->get(0)->getMessage());
     }
 }

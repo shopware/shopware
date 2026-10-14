@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
@@ -86,60 +85,29 @@ class WebhookLoader
      */
     public function getWebhooks(): array
     {
-        $query = $this->createWebhookQuery()->andWhere('w.active = 1');
+        $sql = <<<'SQL'
+            SELECT
+                LOWER(HEX(w.id)) as webhookId,
+                w.name as webhookName,
+                w.event_name as eventName,
+                w.url as webhookUrl,
+                w.only_live_version as onlyLiveVersion,
+                LOWER(HEX(a.id)) AS appId,
+                a.name AS appName,
+                a.active AS appActive,
+                a.source_type AS appSourceType,
+                a.version AS appVersion,
+                a.app_secret AS appSecret,
+                LOWER(HEX(w.owner_user_id)) as ownerUserId,
+                LOWER(HEX(COALESCE(a.integration_id, w.owner_integration_id))) as ownerIntegrationId,
+                w.acl_role_ids as aclRoleIds
+            FROM webhook w
+            LEFT JOIN app a ON (a.id = w.app_id)
+            WHERE w.active = 1
+              AND COALESCE(a.integration_id, w.owner_integration_id, w.owner_user_id) IS NOT NULL
+        SQL;
 
-        return $this->hydrateWebhooks($query->executeQuery()->fetchAllAssociative());
-    }
-
-    /**
-     * @param list<string> $webhookIds
-     *
-     * @return list<Webhook>
-     */
-    public function getWebhooksByIds(array $webhookIds): array
-    {
-        if ($webhookIds === []) {
-            return [];
-        }
-
-        $query = $this->createWebhookQuery()
-            ->andWhere('w.id IN (:webhookIds)')
-            ->setParameter('webhookIds', Uuid::fromHexToBytesList($webhookIds), ArrayParameterType::BINARY);
-
-        return $this->hydrateWebhooks($query->executeQuery()->fetchAllAssociative());
-    }
-
-    private function createWebhookQuery(): QueryBuilder
-    {
-        return $this->connection->createQueryBuilder()
-            ->select(
-                'LOWER(HEX(w.id)) as webhookId',
-                'w.name as webhookName',
-                'w.event_name as eventName',
-                'w.url as webhookUrl',
-                'w.only_live_version as onlyLiveVersion',
-                'LOWER(HEX(a.id)) AS appId',
-                'a.name AS appName',
-                'a.active AS appActive',
-                'a.source_type AS appSourceType',
-                'a.version AS appVersion',
-                'a.app_secret AS appSecret',
-                'LOWER(HEX(w.owner_user_id)) as ownerUserId',
-                'LOWER(HEX(COALESCE(a.integration_id, w.owner_integration_id))) as ownerIntegrationId',
-                'w.acl_role_ids as aclRoleIds',
-            )
-            ->from('webhook', 'w')
-            ->leftJoin('w', 'app', 'a', 'a.id = w.app_id')
-            ->where('COALESCE(a.integration_id, w.owner_integration_id, w.owner_user_id) IS NOT NULL');
-    }
-
-    /**
-     * @param list<array<string, mixed>> $rows
-     *
-     * @return list<Webhook>
-     */
-    private function hydrateWebhooks(array $rows): array
-    {
+        $rows = $this->connection->fetchAllAssociative($sql);
         $ownerRoles = $this->aclRoleLoader->getRoles(array_values(array_filter([
             ...array_column($rows, 'ownerUserId'),
             ...array_column($rows, 'ownerIntegrationId'),
@@ -152,10 +120,9 @@ class WebhookLoader
                 continue;
             }
 
-            $aclRoleIds = $row['aclRoleIds'] !== null ? Json::decodeToList($row['aclRoleIds']) : null;
             $roles = $ownerRoles[$ownerId];
-            if ($aclRoleIds !== null) {
-                $roles = $roles->intersect($aclRoleIds);
+            if ($row['aclRoleIds'] !== null) {
+                $roles = $roles->intersect(Json::decodeToList($row['aclRoleIds']));
             }
 
             $webhooks[] = new Webhook(
@@ -171,7 +138,6 @@ class WebhookLoader
                 $row['appVersion'],
                 $row['appSecret'],
                 roles: $roles,
-                aclRoleIds: $aclRoleIds,
             );
         }
 

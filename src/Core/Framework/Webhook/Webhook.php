@@ -17,7 +17,6 @@ final readonly class Webhook
 {
     /**
      * @param AclRoles $roles the ACL roles the webhook is authorized with, resolved live at load: the owner's roles, limited to the webhook's aclRoleIds when set; for an app webhook the owner is the app's integration
-     * @param list<string>|null $aclRoleIds the roles the webhook is limited to, null when it uses all of its owner's roles
      */
     public function __construct(
         public string $id,
@@ -32,7 +31,6 @@ final readonly class Webhook
         public ?string $appVersion,
         public ?string $appSecret,
         public AclRoles $roles,
-        public ?array $aclRoleIds = null,
     ) {
     }
 }

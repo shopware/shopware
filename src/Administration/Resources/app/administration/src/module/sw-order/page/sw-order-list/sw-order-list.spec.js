@@ -4,6 +4,7 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import { deprecations } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package checkout
@@ -644,6 +645,8 @@ describe('src/module/sw-order/page/sw-order-list', () => {
 
         expect(wrapper.vm.getDelivery(order)).toBeNull();
         expect(wrapper.vm.transaction(order)).toBeNull();
+        expect(deprecations).toHaveTriggered('sw-order-list.getDelivery() is deprecated');
+        expect(deprecations).toHaveTriggered('sw-order-list.transaction() is deprecated');
     });
 
     /**

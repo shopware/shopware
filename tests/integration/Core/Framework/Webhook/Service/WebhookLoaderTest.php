@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestIntegration;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriberType;
+use Shopware\Core\Framework\Webhook\Authorization\WebhookSubscription;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -228,13 +230,78 @@ class WebhookLoaderTest extends TestCase
         static::assertEquals(new AclRoles(false, [(string) $owner->getAclRoleId()]), $webhooks[0]->roles);
     }
 
+    public function testGetSubscriptionsOfAUserOwnedWebhook(): void
+    {
+        $owner = TestUser::createNewTestUser($this->connection, ['product:read']);
+        $roleId = $this->createAclRole(['product:read']);
+        $this->insertWebhook(ownerUserId: $owner->getUserId(), aclRoleIds: [$roleId], active: false);
+
+        static::assertEquals(
+            [$this->ids->get('wh-1') => new WebhookSubscription(
+                $this->ids->get('wh-1'),
+                SubscriberType::User,
+                $owner->getUserId(),
+                CustomerBeforeLoginEvent::EVENT_NAME,
+                [$roleId],
+            )],
+            static::getContainer()->get(WebhookLoader::class)->getSubscriptions([$this->ids->get('wh-1')])
+        );
+    }
+
+    public function testGetSubscriptionsOfAnIntegrationOwnedWebhook(): void
+    {
+        $integrationId = TestIntegration::create($this->connection, ['product:read'])->getId();
+        $this->insertWebhook(ownerIntegrationId: $integrationId);
+
+        static::assertEquals(
+            [$this->ids->get('wh-1') => new WebhookSubscription(
+                $this->ids->get('wh-1'),
+                SubscriberType::Integration,
+                $integrationId,
+                CustomerBeforeLoginEvent::EVENT_NAME,
+                null,
+            )],
+            static::getContainer()->get(WebhookLoader::class)->getSubscriptions([$this->ids->get('wh-1')])
+        );
+    }
+
+    public function testGetSubscriptionsOfAnAppWebhook(): void
+    {
+        $this->installApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
+        $appId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM app WHERE name = :name', ['name' => 'minimal']);
+        static::assertIsString($appId);
+
+        $this->insertWebhook(appId: $appId);
+
+        static::assertEquals(
+            [$this->ids->get('wh-1') => new WebhookSubscription(
+                $this->ids->get('wh-1'),
+                SubscriberType::App,
+                $appId,
+                CustomerBeforeLoginEvent::EVENT_NAME,
+                null,
+            )],
+            static::getContainer()->get(WebhookLoader::class)->getSubscriptions([$this->ids->get('wh-1')])
+        );
+
+        $this->removeApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
+    }
+
+    public function testGetSubscriptionsSkipsAWebhookWithoutAnAppOrOwner(): void
+    {
+        $this->insertWebhook();
+
+        static::assertSame([], static::getContainer()->get(WebhookLoader::class)->getSubscriptions([$this->ids->get('wh-1')]));
+    }
+
     /**
      * @param list<string>|null $aclRoleIds
      */
-    private function insertWebhook(?string $ownerUserId = null, ?string $ownerIntegrationId = null, ?array $aclRoleIds = null, bool $active = true): void
+    private function insertWebhook(?string $ownerUserId = null, ?string $ownerIntegrationId = null, ?array $aclRoleIds = null, bool $active = true, ?string $appId = null): void
     {
         $this->connection->insert('webhook', [
             'id' => $this->ids->getBytes('wh-1'),
+            'app_id' => $appId ? Uuid::fromHexToBytes($appId) : null,
             'name' => 'hook1',
             'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
             'url' => 'https://test.com',

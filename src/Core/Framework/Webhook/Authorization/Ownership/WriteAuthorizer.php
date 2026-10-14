@@ -21,7 +21,7 @@ class WriteAuthorizer
     /**
      * @param list<string> $webhookIds
      *
-     * @return list<WebhookException>
+     * @return array<string, WebhookException> keyed by webhook id
      */
     public function getModificationViolations(array $webhookIds, Context $context): array
     {
@@ -32,18 +32,22 @@ class WriteAuthorizer
         $source = $context->getSource();
         $violations = [];
 
-        foreach ($this->webhookLoader->getOwnership($webhookIds) as $ownership) {
-            if ($ownership->belongsToApp()) {
-                $violations[] = WebhookException::appWebhookNotModifiable($ownership->webhookId);
+        $subscriptions = $this->webhookLoader->getSubscriptions($webhookIds);
+
+        foreach ($webhookIds as $webhookId) {
+            $subscription = $subscriptions[$webhookId] ?? null;
+            if ($subscription?->belongsToApp()) {
+                $violations[$webhookId] = WebhookException::appWebhookNotModifiable($webhookId);
 
                 continue;
             }
 
-            if (!$source instanceof AdminApiSource || $source->isAdmin() || $ownership->isOwnedBy($source)) {
+            // a webhook without an app or owner is not loaded, so only an admin may change it
+            if (!$source instanceof AdminApiSource || $source->isAdmin() || $subscription?->isOwnedBy($source)) {
                 continue;
             }
 
-            $violations[] = WebhookException::webhookNotOwned($ownership->webhookId);
+            $violations[$webhookId] = WebhookException::webhookNotOwned($webhookId);
         }
 
         return $violations;

@@ -150,7 +150,7 @@ class OpenApiDtoSchemaParserTest extends TestCase
                 static::assertIsArray($schema);
 
                 $definitions = $parser->parse($schema);
-                static::assertNotEmpty($definitions, $schemaFile->getPathname());
+                static::assertNotSame([], $definitions, $schemaFile->getPathname());
 
                 $definitionNames = array_map(static fn (OpenApiDtoDefinition $definition): string => $definition->name, $definitions);
                 $fixtureNames = [];

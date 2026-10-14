@@ -46,6 +46,7 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -246,10 +247,9 @@ class CreditNoteRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        static::getContainer()->get('event_dispatcher')
-            ->addListener(CreditNoteOrdersEvent::class, static function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
-                $caughtEvent = $event;
-            });
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CreditNoteOrdersEvent::class, static function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
+            $caughtEvent = $event;
+        });
 
         $processedTemplate = $this->creditNoteRenderer->render(
             [$orderId => $operation],
@@ -267,7 +267,7 @@ class CreditNoteRendererTest extends TestCase
         if ($errorCallback) {
             $errorCallback($orderId, $processedTemplate->getErrors());
         } else {
-            static::assertNotEmpty($processedTemplate->getSuccess());
+            static::assertNotCount(0, $processedTemplate->getSuccess());
             static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
             $rendered = $processedTemplate->getSuccess()[$orderId];
             static::assertStringContainsString('<html lang="en-GB">', $rendered->getContent());
@@ -277,7 +277,7 @@ class CreditNoteRendererTest extends TestCase
                 $successCallback($rendered);
             }
 
-            static::assertEmpty($processedTemplate->getErrors());
+            static::assertCount(0, $processedTemplate->getErrors());
         }
     }
 
@@ -295,8 +295,8 @@ class CreditNoteRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        static::assertEmpty($processedTemplate->getSuccess());
-        static::assertNotEmpty($errors = $processedTemplate->getErrors());
+        static::assertCount(0, $processedTemplate->getSuccess());
+        static::assertNotCount(0, $errors = $processedTemplate->getErrors());
         static::assertArrayHasKey($orderId, $errors);
         static::assertInstanceOf(DocumentException::class, $errors[$orderId]);
         static::assertSame(
@@ -334,7 +334,7 @@ class CreditNoteRendererTest extends TestCase
             [],
             null,
             static function (string $orderId, array $errors): void {
-                static::assertNotEmpty($errors);
+                static::assertNotCount(0, $errors);
                 static::assertArrayHasKey($orderId, $errors);
                 static::assertInstanceOf(\Throwable::class, $errors[$orderId]);
                 static::assertSame(
@@ -383,7 +383,8 @@ class CreditNoteRendererTest extends TestCase
                 static::assertSame('credit_note_1000', $rendered->getName());
                 $config = $rendered->getConfig();
                 static::assertArrayHasKey('custom', $config);
-                static::assertNotEmpty($config['custom']['invoiceNumber']);
+                static::assertIsString($config['custom']['invoiceNumber']);
+                static::assertNotSame('', $config['custom']['invoiceNumber']);
             },
         ];
 
@@ -420,7 +421,7 @@ class CreditNoteRendererTest extends TestCase
         static::assertSame($operationCreditNote->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationCreditNote->getOrderVersionId()));
 
-        $result = $this->creditNoteRenderer->render(
+        $this->creditNoteRenderer->render(
             [$orderId => $operationCreditNote],
             $this->context,
             new DocumentRendererConfig()
@@ -543,10 +544,9 @@ class CreditNoteRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        static::getContainer()->get('event_dispatcher')
-            ->addListener(CreditNoteOrdersEvent::class, static function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
-                $caughtEvent = $event;
-            });
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CreditNoteOrdersEvent::class, static function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
+            $caughtEvent = $event;
+        });
 
         $this->creditNoteRenderer->render(
             [$orderId => $operation],

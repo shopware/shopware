@@ -40,7 +40,6 @@ use Symfony\Component\Uid\Uuid;
  */
 #[Package('framework')]
 #[CoversClass(McpServerController::class)]
-#[CoversClass(McpAllowlistFilter::class)]
 class McpServerControllerTest extends TestCase
 {
     public function testHandleReturnsResponseForValidMcpRequest(): void

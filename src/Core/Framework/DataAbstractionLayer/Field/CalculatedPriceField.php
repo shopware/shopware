@@ -30,6 +30,8 @@ class CalculatedPriceField extends JsonField
             ]),
             new JsonField('regulationPrice', 'regulationPrice', [
                 new FloatField('price', 'price'),
+                new FloatField('discount', 'discount'),
+                new FloatField('percentage', 'percentage'),
             ]),
         ];
 

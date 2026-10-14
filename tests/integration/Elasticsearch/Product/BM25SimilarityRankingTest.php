@@ -98,7 +98,7 @@ class BM25SimilarityRankingTest extends TestCase
         }
 
         $values = array_values($scores);
-        static::assertNotEmpty($values, 'No scores found for expected products');
+        static::assertNotCount(0, $values, 'No scores found for expected products');
         $max = max($values);
         $min = min($values);
         $ratio = $max > 0 ? $min / $max : 1.0;

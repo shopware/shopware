@@ -109,4 +109,24 @@ The `seoUrl` property is only available on `SalesChannelCategoryEntity`. If a te
 -   {% if category_linknewtab(item) %}target="_blank"{% endif %}
 +   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
 </a>
+## `$tc` and the vue-i18n 8 argument order removed
+
+The deprecated translation helpers `$tc()` and `Shopware.Snippet.tc()` were removed. Use `$t()` and `Shopware.Snippet.t()` instead, which handle pluralization natively.
+
+The vue-i18n 8 argument order `$t(key, plural, namedParameters)` is no longer converted. Pass the named parameters before the plural count:
+
+```js
+// Before
+this.$tc('sw-product.list.messageDelete', count, { name });
+
+// After
+this.$t('sw-product.list.messageDelete', { name }, count);
+```
+
+The vue-i18n 8 locale argument of `$tc(key, plural, locale)` is no option of `$t()`. Pass it as `$t(key, plural, { locale })`, or as `$t(key, namedParameters, { plural, locale })` together with named parameters.
+
+The ESLint rule `sw-core-rules/no-tc-translation` of the Administration extension tooling fixes these automatically in scripts, Vue templates, and bound attributes of Twig templates. `{{ }}` interpolations in `.html.twig` templates are not checked. Calls whose named parameters are no object literal or contain spread or computed keys, e.g. `$t(key, 1, params)` or `$t(key, 1, { ...params })`, are reported and have to be migrated manually:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
 ```

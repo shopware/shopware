@@ -753,6 +753,19 @@ The deliverability card of digital products has a new "Allow multiple units per 
 
 ## Storefront
 
+### Storefront analytics send GA4 ecommerce events
+
+Storefront analytics now send ecommerce events in the format Google documents for GA4. This changes the data your tracking setup receives:
+
+* With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`, and the previous ecommerce object is cleared first. Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead. With a Google tag ID, events are still sent through `gtag('event', ...)`.
+* Item properties are named `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`.
+* Numeric values such as `value`, `price` and `quantity` are numbers instead of strings.
+* The event `value` of cart, checkout and `purchase` events is the position price: all line items including promotion discounts, without shipping. Shipping and tax are still reported separately. Item prices stay the unit price before discounts. The applied promotion codes are reported as `coupon`.
+* `add_to_cart` reports the unit price and the value of the added quantity.
+* Discounts and other line items that are not products are no longer reported as items.
+
+The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics, and its `data-value` attribute holds the position price instead of the total price.
+
 ### Essential characteristics label custom fields with their snippet
 
 Essential characteristics of a product now label a custom field with its `customFields.<name>` snippet, which Shopware creates in every snippet set when the custom field is created. Editing that snippet in Settings > Snippets, or overriding it in a theme's snippet files, changes the label shown in the cart, the off-canvas cart and the checkout. Before, only the label from the custom field's configuration was used and changes to the snippet had no effect.

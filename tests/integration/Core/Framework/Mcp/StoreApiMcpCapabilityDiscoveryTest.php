@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -45,11 +46,11 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
         $sessionId = $this->initialize($browser);
 
         $result = $this->callTool($browser, $sessionId, 'shopware-tool-search', ['query' => 'context']);
-        $payload = json_decode($result['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
+        $meta = $this->toolPayload($result)['_meta'];
 
-        static::assertIsArray($payload);
-        static::assertArrayHasKey('usage', $payload['_meta'] ?? []);
-        static::assertStringContainsString('shopware-toolset-enable', $payload['_meta']['usage']);
+        static::assertArrayHasKey('usage', $meta);
+        static::assertIsString($meta['usage']);
+        static::assertStringContainsString('shopware-toolset-enable', $meta['usage']);
     }
 
     public function testStoreApiMcpToolsetEnableRevealsHiddenToolsAndSignalsListChanged(): void
@@ -59,9 +60,13 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
 
         // The store-api toolset is listed and not yet enabled.
         $toolsets = $this->callTool($browser, $sessionId, 'shopware-toolsets-list', []);
-        $listPayload = json_decode($toolsets['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
+        $listData = $this->toolPayload($toolsets)['data'];
+        static::assertIsArray($listData);
+        $listedToolsets = $listData['toolsets'] ?? null;
+        static::assertIsArray($listedToolsets);
         $storeApiToolset = null;
-        foreach ($listPayload['data']['toolsets'] ?? [] as $toolset) {
+        foreach ($listedToolsets as $toolset) {
+            static::assertIsArray($toolset);
             if ($toolset['name'] === 'store-api') {
                 $storeApiToolset = $toolset;
             }
@@ -72,8 +77,7 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
 
         // Enabling it reports listChanged.
         $enable = $this->callTool($browser, $sessionId, 'shopware-toolset-enable', ['toolset' => 'store-api']);
-        $enablePayload = json_decode($enable['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($enablePayload['_meta']['listChanged'] ?? false);
+        static::assertTrue($this->toolPayload($enable)['_meta']['listChanged'] ?? false);
 
         // After enabling, the previously hidden tool is advertised.
         $tools = $this->listTools($browser, $sessionId);
@@ -108,6 +112,16 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
             $instructions,
             'Store API server instructions must point clients at shopware-tool-search when no advertised tool matches the requested action.',
         );
+    }
+
+    public function testStoreApiToolResultsGoThroughTheResultRenderer(): void
+    {
+        $browser = $this->createSalesChannelBrowser();
+        $sessionId = $this->initialize($browser);
+
+        $result = $this->callTool($browser, $sessionId, 'shopware-toolsets-list', []);
+
+        static::assertArrayHasKey('shopware/generatedAt', $result['_meta'] ?? [], 'the Store API server must wrap its reference handler too');
     }
 
     private function initialize(KernelBrowser $browser): string
@@ -149,11 +163,11 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
     /**
      * @param array<string, mixed> $arguments
      *
-     * @return array{content: list<array{text: string}>}
+     * @return array{content: list<array{text: string}>, _meta?: array<string, mixed>}
      */
     private function callTool(KernelBrowser $browser, string $sessionId, string $name, array $arguments): array
     {
-        /** @var array{content: list<array{text: string}>} $result */
+        /** @var array{content: list<array{text: string}>, _meta?: array<string, mixed>} $result */
         $result = $this->rpc($browser, $sessionId, [
             'jsonrpc' => '2.0',
             'method' => 'tools/call',
@@ -162,6 +176,37 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
         ]);
 
         return $result;
+    }
+
+    /**
+     * The tool's data and metadata in either result format: the legacy envelope in the first text
+     * block, or, with `v6.8.0.0`, the plain data followed by a `{"_meta": …}` block.
+     *
+     * @param array{content: list<array{text: string}>, _meta?: array<string, mixed>} $result
+     *
+     * @return array{data: mixed, _meta: array<mixed>}
+     */
+    private function toolPayload(array $result): array
+    {
+        $first = json_decode($result['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertIsArray($first);
+            $meta = $first['_meta'] ?? [];
+            static::assertIsArray($meta);
+
+            return ['data' => $first['data'] ?? null, '_meta' => $meta];
+        }
+
+        $meta = [];
+        foreach (\array_slice($result['content'], 1) as $block) {
+            $decoded = json_decode($block['text'], true);
+            if (\is_array($decoded) && \is_array($decoded['_meta'] ?? null)) {
+                $meta = $decoded['_meta'];
+            }
+        }
+
+        return ['data' => $first, '_meta' => $meta];
     }
 
     /**

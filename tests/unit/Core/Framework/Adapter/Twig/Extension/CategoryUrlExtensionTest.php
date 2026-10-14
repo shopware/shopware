@@ -3,7 +3,9 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Framework\Adapter\Twig\Extension\CategoryUrlExtension;
@@ -43,5 +45,29 @@ class CategoryUrlExtensionTest extends TestCase
             'context' => Context::createDefaultContext(),
             'salesChannelContext' => $salesChannelContext,
         ], $category));
+    }
+
+    #[DataProvider('linkNewTabProvider')]
+    public function testIsLinkNewTabUsesCategorySetting(bool $linkNewTab): void
+    {
+        $category = new CategoryEntity();
+        $category->setType(CategoryDefinition::TYPE_LINK);
+        $category->setTranslated(['linkNewTab' => $linkNewTab]);
+
+        $extension = new CategoryUrlExtension(
+            new RoutingExtension(static::createStub(UrlGeneratorInterface::class)),
+            static::createStub(AbstractCategoryUrlGenerator::class)
+        );
+
+        static::assertSame($linkNewTab, $extension->isLinkNewTab($category));
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function linkNewTabProvider(): iterable
+    {
+        yield 'opens link in a new tab' => [true];
+        yield 'opens link in the same tab' => [false];
     }
 }

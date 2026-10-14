@@ -68,14 +68,19 @@ describe('components/base/sw-empty-state', () => {
 });
 
 describe('components/base/sw-empty-state deprecation guard', () => {
-    it('should report the deprecation for the removal in v6.9', async () => {
+    it('should report the deprecation while the 6.9 major is inactive', async () => {
+        // Spy on the guard instead of `console.warn`, which reports each usage site only once per test file
         const deprecationSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow');
 
         await createWrapper();
 
+        // `wrapTestComponent` appends `__wrapped` to the component name
         expect(deprecationSpy).toHaveBeenCalledWith(
             'V6_9_0_0',
-            'The "sw-empty-state" component is deprecated and will be removed in v6.9.0. Replace "sw-empty-state" with "mt-empty-state".',
+            expect.stringContaining(
+                'The component "sw-empty-state__wrapped" is deprecated and will be removed in Shopware v6.9.0.0.\n' +
+                    'Use "mt-empty-state" instead.',
+            ),
         );
 
         deprecationSpy.mockRestore();
@@ -83,7 +88,7 @@ describe('components/base/sw-empty-state deprecation guard', () => {
 
     it.activeFeatureFlags(['v6.9.0.0'])('should throw once the 6.9 major is active', async () => {
         await expect(createWrapper()).rejects.toThrow(
-            'Tried to access deprecated functionality: The "sw-empty-state" component is deprecated',
+            'Tried to access deprecated functionality: The component "sw-empty-state__wrapped" is deprecated',
         );
     });
 });

@@ -90,7 +90,7 @@ class Migration1790906511AddGaranGuaranteeTermsTest extends TestCase
             ['technicalName' => MailTemplateTypes::MAILTYPE_ORDER_CONFIRM]
         );
 
-        static::assertNotEmpty($contents);
+        static::assertNotSame([], $contents);
 
         foreach ($contents as $content) {
             static::assertIsString($content['content_html']);

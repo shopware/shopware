@@ -9,13 +9,15 @@ name: Waiting-on report
 #
 # With the repository variable WAITING_ON_PROJECT_NUMBER set, the verdicts are also mirrored
 # into that organization project, written with the ManageProjects octo-sts identity.
+# WAITING_ON_TEAM_PROJECTS (JSON, domain label → project number) adds a project per team that
+# gets the pull requests with that label.
 #
 # Teams listed in WAITING_ON_SLACK_CHANNELS get a Slack reminder about external pull requests
 # that have been waiting on us for too long; see .github/bin/js/waiting-on-slack.ts.
 #
-# A daily sweep rather than pull_request events, for two reasons: the state changes as time
-# passes and not only when something happens, and a fork pull request event carries a
-# read-only token that could not write a label later on anyway.
+# waiting-on-update.yml applies the same rules to one pull request as soon as it changes. A
+# daily sweep is still needed: the state also changes as time passes, and the Slack reminders
+# are sent from here.
 
 on:
   schedule:
@@ -56,13 +58,14 @@ jobs:
           DRY_RUN: ${{ inputs.dry-run || false }}
           PROJECT_NUMBER: ${{ vars.WAITING_ON_PROJECT_NUMBER }}
           PROJECT_TOKEN: ${{ steps.sts.outputs.token }}
+          TEAM_PROJECTS: ${{ vars.WAITING_ON_TEAM_PROJECTS }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN_PRODUCT_NOTIFICATIONS }}
           SLACK_CHANNELS: ${{ vars.WAITING_ON_SLACK_CHANNELS }}
         with:
           script: |
             const { reportWaitingOn } = await import('${{ github.workspace }}/.github/bin/js/waiting-on.ts')
             const project = process.env.PROJECT_NUMBER
-              ? { github: getOctokit(process.env.PROJECT_TOKEN), number: Number(process.env.PROJECT_NUMBER) }
+              ? { github: getOctokit(process.env.PROJECT_TOKEN), number: Number(process.env.PROJECT_NUMBER), teams: process.env.TEAM_PROJECTS }
               : undefined
             const reminders = { slack: { token: process.env.SLACK_TOKEN }, channels: process.env.SLACK_CHANNELS }
             await reportWaitingOn({ github, core, context }, { dryRun: process.env.DRY_RUN === 'true', project, reminders })

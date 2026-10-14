@@ -24,7 +24,8 @@ Two new routes are added to the existing update controller:
 * `GET /api/_action/update/security-release` returns the latest security release, or an empty response when the installed version is current, no security release exists, or the current user has already acknowledged this version.
 * `POST /api/_action/update/security-release/dismiss` stores a per-user acknowledgement so the widget is hidden for that user.
 
-Both endpoints require the existing `system:core:update` privilege and run independently of the `shopware.auto_update.hide_module` flag, because a read-only security nudge remains useful even when the merchant manages updates through Shopware CLI.
+Both endpoints are open to any authenticated Administration user and run independently of the `shopware.auto_update.hide_module` flag, because a read-only security nudge remains useful even when the merchant manages updates through Shopware CLI.
+The "Update now" action in the widget still requires the `system:core:update` privilege.
 
 ### Store acknowledgement per user in `user_config`
 
@@ -59,6 +60,6 @@ Rejected because hiding the module is a deployment choice about update mechanics
 
 ### Negative / trade-offs
 
-* The widget is only visible to users who hold the `system:core:update` privilege. Broader visibility would require a dedicated ACL privilege.
+* The widget is visible to every Administration user, but the "Update now" button is guarded by the `system:core:update` privilege.
 * Dismissing stores a row per user. The volume is negligible because security releases are infrequent.
 * The fallback keyword scan is less precise than `fixedVulnerabilities`; it is only a safety net for older changelogs.

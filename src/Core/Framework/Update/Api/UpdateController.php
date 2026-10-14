@@ -82,7 +82,7 @@ class UpdateController extends AbstractController
     #[Route(
         path: '/api/_action/update/security-release',
         name: 'api.custom.updateapi.security_release',
-        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:core:update']],
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => []],
         methods: [Request::METHOD_GET]
     )]
     public function securityRelease(Context $context): JsonResponse
@@ -114,7 +114,7 @@ class UpdateController extends AbstractController
     #[Route(
         path: '/api/_action/update/security-release/dismiss',
         name: 'api.custom.updateapi.security_release.dismiss',
-        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:core:update']],
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => []],
         methods: [Request::METHOD_POST]
     )]
     public function dismissSecurityRelease(Request $request, Context $context): Response

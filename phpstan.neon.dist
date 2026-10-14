@@ -225,5 +225,3 @@ parameters:
         -
             message: "#Offset 'source' might not exist on array{status: string, code: #"
             path: tests
-
-        - identifier: phpunit.assertEmpty

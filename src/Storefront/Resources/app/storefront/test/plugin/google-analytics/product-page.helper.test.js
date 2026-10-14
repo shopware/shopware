@@ -415,6 +415,15 @@ describe('plugin/google-analytics/product-page.helper', () => {
             });
         });
 
+        test('reports the breadcrumb categories without the element of the interaction', () => {
+            document.body.innerHTML = breadcrumb;
+
+            expect(ProductPageHelper.getCategoriesFor('product-1')).toEqual({
+                item_category: 'Clothing',
+                item_category2: 'Shirts',
+            });
+        });
+
         test('reports no categories for a product element on a detail page', () => {
             window.activeRoute = 'frontend.detail.page';
             document.body.innerHTML = `

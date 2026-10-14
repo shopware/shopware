@@ -341,7 +341,7 @@ Creating a language could return an uncaught `500` when an Elasticsearch/OpenSea
 
 Shopware now requires `symfony/mcp-bundle` 0.14.1, still on `mcp/sdk` 0.8. The extension tags and the registration described for 6.7.15.0 are unchanged.
 
-One behaviour changes for extensions: a `%` in MCP metadata, for example a tool description or schema such as "discount in %", is now kept as written. Before, the bundle read it as a container parameter placeholder, which either broke the container build ("non-existent parameter") or changed the text. If your extension worked around that by writing `%%`, remove the workaround, or the description now shows `%%`.
+One behaviour changes for plugins and bundles that register MCP tools, prompts or resources through the `shopware.mcp.*` or `shopware.store_api_mcp.*` tags: a `%` in their metadata, for example in a tool description or schema such as "5%-10%", is now kept as written. Before, the bundle read text between two `%` without whitespace in between as a container parameter placeholder, so the MCP endpoint failed with a "non-existent parameter" error, and a `%%` was shown as a single `%`. Text with a single `%`, or with whitespace between two `%` such as "between 5% and 10%", was not affected. If your plugin wrote `%%` to work around that, remove the workaround, otherwise the description now shows `%%`. App MCP capabilities are read from the app at runtime and are not affected.
 
 ### MCP endpoints are rate-limited with a sliding window
 

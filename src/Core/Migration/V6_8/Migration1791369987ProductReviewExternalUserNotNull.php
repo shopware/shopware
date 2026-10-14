@@ -20,6 +20,10 @@ class Migration1791369987ProductReviewExternalUserNotNull extends MigrationStep
 
     public function update(Connection $connection): void
     {
+    }
+
+    public function updateDestructive(Connection $connection): void
+    {
         if (!TableHelper::columnExists($connection, 'product_review', 'external_user')
             || TableHelper::getColumnOfTable($connection, 'product_review', 'external_user')->isNotNull
         ) {

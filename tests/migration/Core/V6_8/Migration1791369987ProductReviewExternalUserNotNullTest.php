@@ -59,7 +59,22 @@ class Migration1791369987ProductReviewExternalUserNotNullTest extends TestCase
         static::assertSame(1791369987, (new Migration1791369987ProductReviewExternalUserNotNull())->getCreationTimestamp());
     }
 
-    public function testUpdateFillsMissingAuthorsAndMakesTheColumnNotNull(): void
+    public function testUpdateKeepsMissingAuthorsAndTheNullableColumn(): void
+    {
+        $this->connection->executeStatement(
+            'ALTER TABLE `product_review` MODIFY COLUMN `external_user` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL'
+        );
+        $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS=0');
+
+        $guestReview = $this->insertReview(null, null);
+
+        (new Migration1791369987ProductReviewExternalUserNotNull())->update($this->connection);
+
+        static::assertNull($this->fetchExternalUser($guestReview));
+        static::assertFalse(TableHelper::getColumnOfTable($this->connection, 'product_review', 'external_user')->isNotNull);
+    }
+
+    public function testUpdateDestructiveFillsMissingAuthorsAndMakesTheColumnNotNull(): void
     {
         $this->connection->executeStatement(
             'ALTER TABLE `product_review` MODIFY COLUMN `external_user` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL'
@@ -86,8 +101,8 @@ class Migration1791369987ProductReviewExternalUserNotNullTest extends TestCase
         $namedReview = $this->insertReview('Max', $this->customerId);
 
         $migration = new Migration1791369987ProductReviewExternalUserNotNull();
-        $migration->update($this->connection);
-        $migration->update($this->connection);
+        $migration->updateDestructive($this->connection);
+        $migration->updateDestructive($this->connection);
 
         static::assertSame('Jane', $this->fetchExternalUser($customerReview));
         static::assertSame('', $this->fetchExternalUser($guestReview));

@@ -308,7 +308,7 @@ After a customer logs out, the storefront session now holds the context token th
 
 The `product_review` entity marks `externalUser` and `points` as required and only accepts `points` from 1 to 5, so creating a review through the Admin API, the Sync API or a repository without them, or with `points` outside that range, fails. Integrations and imports that create reviews have to send both fields.
 
-The columns `product_review.external_user` and `product_review.points` become `NOT NULL`. The update fills `external_user` for existing reviews without an author, with the first name of the review's customer or an empty string for reviews without a customer, and sets `points` to `0` for existing reviews without a rating. `0` points now stands for a review without a rating: the rating average ignores these reviews, and integrations, apps and headless frontends that read `points` have to treat `0` the way they treated `null` before.
+The columns `product_review.external_user` and `product_review.points` become `NOT NULL` in the destructive migration step, so code of the previous version keeps working until then. That step fills `external_user` for existing reviews without an author, with the first name of the review's customer or an empty string for reviews without a customer, and sets `points` to `0` for existing reviews without a rating. `0` points now stands for a review without a rating: the rating average ignores these reviews, and integrations, apps and headless frontends that read `points` have to treat `0` the way they treated `null` before.
 
 ## Type-based number range preview Admin API removed
 

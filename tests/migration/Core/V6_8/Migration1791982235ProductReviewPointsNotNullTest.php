@@ -51,7 +51,20 @@ class Migration1791982235ProductReviewPointsNotNullTest extends TestCase
         static::assertSame(1791982235, (new Migration1791982235ProductReviewPointsNotNull())->getCreationTimestamp());
     }
 
-    public function testUpdateSetsMissingRatingsToZeroAndMakesTheColumnNotNull(): void
+    public function testUpdateKeepsMissingRatingsAndTheNullableColumn(): void
+    {
+        $this->connection->executeStatement('ALTER TABLE `product_review` MODIFY COLUMN `points` DOUBLE NULL');
+        $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS=0');
+
+        $unratedReview = $this->insertReview(null);
+
+        (new Migration1791982235ProductReviewPointsNotNull())->update($this->connection);
+
+        static::assertNull($this->connection->fetchOne('SELECT `points` FROM `product_review` WHERE `id` = :id', ['id' => $unratedReview]));
+        static::assertFalse(TableHelper::getColumnOfTable($this->connection, 'product_review', 'points')->isNotNull);
+    }
+
+    public function testUpdateDestructiveSetsMissingRatingsToZeroAndMakesTheColumnNotNull(): void
     {
         $this->connection->executeStatement('ALTER TABLE `product_review` MODIFY COLUMN `points` DOUBLE NULL');
         $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS=0');
@@ -60,8 +73,8 @@ class Migration1791982235ProductReviewPointsNotNullTest extends TestCase
         $ratedReview = $this->insertReview(4.5);
 
         $migration = new Migration1791982235ProductReviewPointsNotNull();
-        $migration->update($this->connection);
-        $migration->update($this->connection);
+        $migration->updateDestructive($this->connection);
+        $migration->updateDestructive($this->connection);
 
         static::assertSame(0.0, $this->fetchPoints($unratedReview));
         static::assertSame(4.5, $this->fetchPoints($ratedReview));

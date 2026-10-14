@@ -20,6 +20,10 @@ class Migration1791982235ProductReviewPointsNotNull extends MigrationStep
 
     public function update(Connection $connection): void
     {
+    }
+
+    public function updateDestructive(Connection $connection): void
+    {
         if (!TableHelper::columnExists($connection, 'product_review', 'points')
             || TableHelper::getColumnOfTable($connection, 'product_review', 'points')->isNotNull
         ) {

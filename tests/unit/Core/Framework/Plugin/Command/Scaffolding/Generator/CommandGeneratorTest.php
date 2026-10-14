@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\CommandGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -78,6 +81,36 @@ class CommandGeneratorTest extends TestCase
 
         foreach ($expected as $stub) {
             static::assertTrue($stubs->has($stub));
+        }
+    }
+
+    public function testGeneratedCommandIsInvokable(): void
+    {
+        $configuration = self::getConfig([CommandGenerator::OPTION_NAME => true]);
+        $stubs = new StubCollection();
+        (new CommandGenerator())->generateStubs($configuration, $stubs);
+
+        $content = $stubs->get('src/Command/ExampleCommand.php')?->getContent();
+        static::assertNotNull($content);
+
+        $filesystem = new Filesystem();
+        $path = $filesystem->tempnam(sys_get_temp_dir(), 'shopware-command-', '.php');
+
+        try {
+            $filesystem->dumpFile($path, $content);
+            require $path;
+
+            $class = $configuration->namespace . '\\Command\\ExampleCommand';
+            static::assertTrue(class_exists($class));
+            $command = new $class();
+            static::assertInstanceOf(Command::class, $command);
+            static::assertIsCallable($command);
+
+            $tester = new CommandTester($command);
+            static::assertSame(Command::SUCCESS, $tester->execute([]));
+            static::assertSame('It works!' . \PHP_EOL, $tester->getDisplay());
+        } finally {
+            $filesystem->remove($path);
         }
     }
 

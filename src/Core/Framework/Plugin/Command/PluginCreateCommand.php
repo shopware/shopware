@@ -45,27 +45,7 @@ class PluginCreateCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this
-            ->addArgument('plugin-name', InputArgument::OPTIONAL, 'Plugin name (PascalCase)')
-            ->addArgument('plugin-namespace', InputArgument::OPTIONAL, 'Plugin namespace (PascalCase)')
-            ->addOption('static', null, null, 'Plugin will be created in the static-plugins folder')
-            ->addOption('no-scaffold', null, null, 'Create only the required plugin files, skip all optional scaffold files');
-
-        foreach ($this->generators as $generator) {
-            $option = $generator->getCommandOption();
-
-            if ($option !== null) {
-                $this->getDefinition()->addOption($option);
-            }
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    public function __invoke(InputInterface $input, OutputInterface $output): int
     {
         if (!$output instanceof ConsoleOutputInterface) {
             throw new \InvalidArgumentException('This command accepts only an instance of "ConsoleOutputInterface".');
@@ -280,6 +260,23 @@ class PluginCreateCommand extends Command
             }
 
             return self::FAILURE;
+        }
+    }
+
+    protected function configure(): void
+    {
+        $this
+            ->addArgument('plugin-name', InputArgument::OPTIONAL, 'Plugin name (PascalCase)')
+            ->addArgument('plugin-namespace', InputArgument::OPTIONAL, 'Plugin namespace (PascalCase)')
+            ->addOption('static', null, null, 'Plugin will be created in the static-plugins folder')
+            ->addOption('no-scaffold', null, null, 'Create only the required plugin files, skip all optional scaffold files');
+
+        foreach ($this->generators as $generator) {
+            $option = $generator->getCommandOption();
+
+            if ($option !== null) {
+                $this->getDefinition()->addOption($option);
+            }
         }
     }
 

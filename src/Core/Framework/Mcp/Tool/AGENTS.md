@@ -133,7 +133,7 @@ Rules:
 - `_meta` is optional, used for pagination (`total`, `page`, `limit`), context (`salesChannelId`), and write metadata (`dryRun`)
 - `error` (string) and `code` only appear when `success` is false. Use a `McpToolError` constant for `code` (`missing_privilege`, `invalid_arguments`, `not_found`, `tool_error`), so clients can match on it instead of the message
 - Responses up to 100 KB are returned inline. Responses at or above 20 KB include `_meta.responseSize` so the LLM can see the cost of the current call and learn to use tighter `includes`/`limit` next time
-- Responses larger than 100 KB are stored in `mcp_tool_result_cache` (session-scoped) and returned as a `shopware://tool-result/{uuid}` resource URI in `_meta.resourceUri`. The full content is fetched via `resources/read` (handled by `ToolResultResource`). `_meta.query` echoes the originating tool name and arguments so the LLM can disambiguate which call produced which URI. Cache rows are wiped on session DELETE by `McpSessionCleanupSubscriber`. This applies to every tool extending `McpToolResponse`, including plugin and bundle tools (`McpToolResultCacheCompilerPass` wires the cache for them). It only happens on the Admin API endpoint, because only its server registers `ToolResultResource`: Store API calls, and calls without an MCP session (CLI/test), fall back to inline delivery
+- Responses larger than 100 KB are stored in `mcp_tool_result_cache` and returned as a `shopware://tool-result/{pointer}` URI in `_meta.resourceUri`, with `_meta.expiresAt`. The renderer adds the same URI as a `resource_link` content block (protocol 2025-06-18 and later). The pointer is signed for the caller (Admin: integration and user; Store: sales channel and `sw-context-token`) and expires after an hour, so it works on a later request and without an MCP session, but only for the same caller. The full content is fetched via `resources/read` (`ToolResultResource` on the Admin API, `StoreApiToolResultResource` on the Store API). `_meta.query` echoes the originating tool name and arguments so the LLM can disambiguate which call produced which URI. Rows are wiped on session DELETE by `McpSessionCleanupSubscriber` when the call had a session. This applies to every tool extending `McpToolResponse`, including plugin and bundle tools (`McpToolResultCacheCompilerPass` wires the cache for them). `McpToolResultCacheCleanupTask` removes rows older than `shopware.mcp.tool_result_cache_ttl`. Without an authenticated caller (CLI/test), the response falls back to inline delivery
 - A PHPStan rule (`McpToolResponseRule`) enforces that all `#[McpTool]` classes extend the abstract class
 
 ### What the client receives
@@ -214,10 +214,20 @@ All entity read tools use `JsonEntityEncoder` for serialization (not the Store A
 
 ## Write tools
 - `EntityUpsertTool` (`shopware-entity-upsert`) -- create/update entities (dryRun wraps in transaction + rollback)
-- `EntityDeleteTool` (`shopware-entity-delete`) -- delete entities (dryRun shows cascade impact)
+- `EntityDeleteTool` (`shopware-entity-delete`) -- delete entities (dryRun shows cascade impact). Mapping entities with a composite primary key (`product_category`, `product_property`, ...) take objects naming every key field; this is how a many-to-many link is removed, because `shopware-entity-upsert` can only add links
 - `SystemConfigWriteTool` (`shopware-system-config-write`) -- update configuration values
 - `OrderStateTool` (`shopware-order-state`) -- change the state of an order, its transactions, and/or deliveries in one call
 - `MediaUploadTool` (`shopware-media-upload`) -- upload media from URL, optionally assign to product as cover image
+
+### Removing many-to-many links
+
+A many-to-many link (a product's categories, properties, tags, ...) is a row of a mapping entity such as `product_category`. MCP follows the Admin API sync endpoint here: `shopware-entity-upsert` adds links, and `shopware-entity-delete` on the mapping entity with composite key objects removes them (`[{"productId": "...", "categoryId": "..."}]`). `shopware-entity-schema` names the `mappingEntity` of every many-to-many association so the model can find it.
+
+Version fields of the composite key (`productVersionId`, `categoryVersionId`) are optional in the key objects and default to the live version. In a versioned context (a non-live `sw-version-id`) the tool refuses to guess and asks for them: the Admin API unlinks with the context version for the parent and the live version for the referenced side, a mapping row does not say which side is which, and a wrong guess matches no row and removes nothing without an error.
+
+We deliberately don't add a dedicated "unlink" tool for now. The planned Sync tool (#20520) removes links the same way, so one model covers delete, sync and the Admin API. A new tool would also stay invisible to existing integrations until operators add it to their allowlist. Revisit this if evaluations show that models don't find the delete path, and build such a tool on the same key handling.
+
+Don't add a "remove" flag to upsert payloads: the DAL writes every field sent on an associated record to that record.
 
 ## Merchant workflow tools (plugin)
 Higher-level workflow tools for merchant operations live in the `SwagMcpMerchantAssistant` plugin (`custom/plugins/SwagMcpMerchantAssistant`), not in core. This separation keeps core tools focused on platform primitives while allowing merchant-specific tools to evolve independently.

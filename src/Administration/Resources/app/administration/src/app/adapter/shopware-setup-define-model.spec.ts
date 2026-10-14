@@ -14,6 +14,7 @@ import { overrideComponentSetup } from 'src/app/adapter/composition-extension-sy
 import resetCompositionOverrides from 'test/_helper_/reset-composition-overrides';
 import ShopwareSetupModelFixture from './_mocks_/sw-jest-model-fixture.vue';
 import ShopwareSetupModelFixtureOverride from './_mocks_/sw-jest-model-fixture.override.vue';
+import DestructuredModelFixture from './_mocks_/sw-jest-destructured-model-fixture.vue';
 
 describe('src/app/adapter native setup defineModel', () => {
     beforeEach(resetCompositionOverrides);
@@ -107,6 +108,35 @@ describe('src/app/adapter native setup defineModel', () => {
         await flushPromises();
 
         expect(wrapper.vm.text).toBe('overridden!');
+    });
+
+    it('renders the model value and the modifiers from the destructured bindings', async () => {
+        const wrapper = mount(DestructuredModelFixture, {
+            props: {
+                note: 'hello',
+                noteModifiers: { trim: true },
+            },
+        });
+
+        await flushPromises();
+
+        expect((wrapper.get('.note').element as HTMLInputElement).value).toBe('hello');
+        expect(wrapper.get('.note-modifiers').text()).toBe('{"trim":true}');
+    });
+
+    it('applies the modifier when the destructured binding is written', async () => {
+        const wrapper = mount(DestructuredModelFixture, {
+            props: {
+                note: 'hello',
+                noteModifiers: { trim: true },
+            },
+        });
+
+        await flushPromises();
+
+        await wrapper.get('.note').setValue('  spaced  ');
+
+        expect(wrapper.emitted('update:note')).toEqual([['spaced']]);
     });
 
     it('routes writes through an override that replaces the model binding', async () => {

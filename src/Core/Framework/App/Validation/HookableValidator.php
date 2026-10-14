@@ -40,7 +40,12 @@ class HookableValidator extends AbstractManifestValidator
             $subscriptions[$webhook->getName() . ': ' . $webhook->getEvent()] = $webhook->getEvent();
         }
 
-        $refusals = $this->subscriptionValidator->validate($subscriptions, $appPrivileges, Subscriber::app($manifest), $context);
+        $refusals = $this->subscriptionValidator->validate(
+            $subscriptions,
+            array_fill_keys(array_keys($subscriptions), $appPrivileges),
+            Subscriber::app($manifest),
+            $context
+        );
 
         if ($refusals->notHookable !== []) {
             $errors->add(new NotHookableError($refusals->notHookable));

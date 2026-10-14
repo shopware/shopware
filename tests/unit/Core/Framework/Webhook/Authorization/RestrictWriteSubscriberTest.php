@@ -169,7 +169,7 @@ class RestrictWriteSubscriberTest extends TestCase
         $validator = $this->createMock(SubscriptionValidator::class);
         $validator->expects($this->once())
             ->method('validate')
-            ->with(['product.written' => 'product.written'], ['product:read', 'order:read', 'customer:read'], Subscriber::api(ApiCallerType::User))
+            ->with(['product.written' => 'product.written'], ['product.written' => ['product:read', 'order:read', 'customer:read']], Subscriber::api(ApiCallerType::User))
             ->willReturn(new SubscriptionRefusals());
 
         (new RestrictWriteSubscriber($this->authorizer, $validator, $loader, $this->aclRoleLoader))->restrictSubscription($this->createPostEvent([$insert]));
@@ -185,7 +185,7 @@ class RestrictWriteSubscriberTest extends TestCase
         $validator = $this->createMock(SubscriptionValidator::class);
         $validator->expects($this->once())
             ->method('validate')
-            ->with(['product.written' => 'product.written'], null)
+            ->with(['product.written' => 'product.written'], ['product.written' => null])
             ->willReturn(new SubscriptionRefusals());
 
         (new RestrictWriteSubscriber($this->authorizer, $validator, $loader, $this->aclRoleLoader))->restrictSubscription($this->createPostEvent([$insert]));
@@ -203,7 +203,7 @@ class RestrictWriteSubscriberTest extends TestCase
         $validator = $this->createMock(SubscriptionValidator::class);
         $validator->expects($this->once())
             ->method('validate')
-            ->with(['order.written' => 'order.written'], ['order:read'], Subscriber::api(ApiCallerType::User))
+            ->with(['order.written' => 'order.written'], ['order.written' => ['order:read']], Subscriber::api(ApiCallerType::User))
             ->willReturn(new SubscriptionRefusals());
 
         $admin = new AdminApiSource(Uuid::randomHex());

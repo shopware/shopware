@@ -72,7 +72,6 @@ use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
-use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderStateTool;
 use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearch;
@@ -368,10 +367,6 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.store_api.session_registry'),
         ])
         ->tag('kernel.event_subscriber');
-
-    $services->instanceof(McpToolResponse::class)
-        ->call('setToolResultCache', [service(ToolResultCacheStorage::class), service('request_stack'), service('logger')])
-        ->tag('monolog.logger', ['channel' => 'mcp']);
 
     // Tools
     $services->set(ToolSearchTool::class)

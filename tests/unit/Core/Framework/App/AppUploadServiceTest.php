@@ -205,6 +205,56 @@ class AppUploadServiceTest extends TestCase
         }
     }
 
+    public function testFirstInstallLifecycleFailureRemovesStoredArchive(): void
+    {
+        $source = $this->createMock(UploadSource::class);
+        $source->method('supports')->willReturn(true);
+        $source->method('storeArchive')->willReturn('/stored/TestApp');
+        $source->expects($this->once())->method('removeByManifest');
+        $lifecycle = $this->createMock(AbstractAppLifecycle::class);
+        $lifecycle->expects($this->once())->method('install')->willThrowException(new \RuntimeException('install failed'));
+
+        $this->expectExceptionObject(new \RuntimeException('install failed'));
+        $this->createService(lifecycle: $lifecycle, source: $source)->upload(
+            $this->uploadedFile(),
+            Context::createDefaultContext(),
+            'private-app'
+        );
+    }
+
+    public function testUpdateOnlyRequestWithoutExistingAppFails(): void
+    {
+        $source = $this->createMock(UploadSource::class);
+        $source->method('supports')->willReturn(true);
+        $source->expects($this->never())->method('storeArchive');
+
+        $this->expectExceptionObject(AppException::notFound('minimal'));
+        $this->createService(source: $source)->upload(
+            $this->uploadedFile(),
+            Context::createDefaultContext(),
+            'private-app',
+            updateOnly: true
+        );
+    }
+
+    public function testStoreErrorDuringAppLookupIsRethrown(): void
+    {
+        $source = $this->createMock(UploadSource::class);
+        $source->method('supports')->willReturn(true);
+        $source->expects($this->never())->method('storeArchive');
+
+        $error = StoreException::couldNotUploadExtensionCorrectly();
+        $provider = static::createStub(AbstractExtensionDataProvider::class);
+        $provider->method('getAppEntityFromTechnicalName')->willThrowException($error);
+
+        $this->expectExceptionObject($error);
+        $this->createService(source: $source, provider: $provider)->upload(
+            $this->uploadedFile(),
+            Context::createDefaultContext(),
+            'private-app'
+        );
+    }
+
     private function createService(
         ?AppExtractor $extractor = null,
         ?UploadSource $source = null,

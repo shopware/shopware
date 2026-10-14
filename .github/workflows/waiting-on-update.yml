@@ -1,0 +1,89 @@
+name: Waiting-on update
+
+# Re-applies the waiting-on rules to one pull request when something happens to it, so its
+# label and project fields do not wait for the daily waiting-on-report.yml sweep. The sweep
+# stays for what only time changes and for the Slack reminders; see
+# .github/bin/js/waiting-on-event.ts.
+#
+# Only privileged triggers, so a fork's pull request still gets a writing token and the
+# octo-sts identity: pull_request_target, issue_comment, and workflow_run for reviews, which
+# waiting-on-review-relay.yml relays. Nothing from the pull request is checked out or run.
+
+on:
+  pull_request_target:
+    types: [opened, reopened, closed, synchronize, ready_for_review, converted_to_draft, labeled, unlabeled]
+  issue_comment:
+    types: [created]
+  workflow_run:
+    workflows: [Waiting-on review relay]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      number:
+        description: Pull request number
+        required: true
+        type: number
+      dry-run:
+        description: Only report, change nothing
+        type: boolean
+        default: false
+
+permissions: {}
+
+# The newest event wins; an update that gets cancelled leaves nothing the next one does not fix.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.issue.number || inputs.number || github.event.workflow_run.id }}
+  cancel-in-progress: true
+
+jobs:
+  update:
+    name: Update the pull request's waiting-on state
+    # Our own `waiting-on/*` label writes start no runs (GITHUB_TOKEN), but a person setting one
+    # by hand would; the verdict does not depend on it, so that event is skipped.
+    if: >-
+      github.repository == 'shopware/shopware' && (
+        (github.event_name == 'pull_request_target' && !startsWith(github.event.label.name, 'waiting-on/')) ||
+        (github.event_name == 'issue_comment' && github.event.issue.pull_request && github.event.comment.user.type != 'Bot') ||
+        (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+        github.event_name == 'workflow_dispatch'
+      )
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/bin/js
+      - if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: waiting-on-review-pr
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/relay
+      - id: sts
+        if: vars.WAITING_ON_PROJECT_NUMBER != ''
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: ManageProjects
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          NUMBER_FROM_EVENT: ${{ github.event.pull_request.number || github.event.issue.number || inputs.number }}
+          RELAY_FILE: ${{ github.event_name == 'workflow_run' && format('{0}/relay/pr-number.txt', runner.temp) || '' }}
+          DRY_RUN: ${{ inputs.dry-run || false }}
+          PROJECT_NUMBER: ${{ vars.WAITING_ON_PROJECT_NUMBER }}
+          PROJECT_TOKEN: ${{ steps.sts.outputs.token }}
+          TEAM_PROJECTS: ${{ vars.WAITING_ON_TEAM_PROJECTS }}
+        with:
+          script: |
+            const { resolvePullRequestNumber, syncPullRequest } = await import('${{ github.workspace }}/.github/bin/js/waiting-on-event.ts')
+            const number = resolvePullRequestNumber(process.env.NUMBER_FROM_EVENT, process.env.RELAY_FILE || undefined)
+            const project = process.env.PROJECT_NUMBER
+              ? { github: getOctokit(process.env.PROJECT_TOKEN), number: Number(process.env.PROJECT_NUMBER), teams: process.env.TEAM_PROJECTS }
+              : undefined
+            await syncPullRequest({ github, core, context }, { number, dryRun: process.env.DRY_RUN === 'true', project })

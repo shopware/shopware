@@ -68,6 +68,55 @@ class SalesChannelAnalyticsLoaderTest extends TestCase
         static::assertNull($event->getParameters()['storefrontAnalytics']);
     }
 
+    public function testIsNotActiveWithoutAnalytics(): void
+    {
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> */
+        $repository = new StaticEntityRepository([]);
+
+        $loader = new SalesChannelAnalyticsLoader($repository);
+
+        // the static repository fails on a search it has no result for, so no query runs
+        static::assertFalse($loader->isActive(Generator::generateSalesChannelContext()));
+    }
+
+    public function testIsActiveWithActiveAnalytics(): void
+    {
+        static::assertTrue($this->createLoader(true)->isActive($this->contextWithAnalytics()));
+    }
+
+    public function testIsNotActiveWithInactiveAnalytics(): void
+    {
+        static::assertFalse($this->createLoader(false)->isActive($this->contextWithAnalytics()));
+    }
+
+    public function testIsNotActiveWhenTheAnalyticsAreNotFound(): void
+    {
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> */
+        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+
+        static::assertFalse((new SalesChannelAnalyticsLoader($repository))->isActive($this->contextWithAnalytics()));
+    }
+
+    private function createLoader(bool $active): SalesChannelAnalyticsLoader
+    {
+        $analytics = new SalesChannelAnalyticsEntity();
+        $analytics->setId(Uuid::randomHex());
+        $analytics->setActive($active);
+
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> */
+        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([$analytics])]);
+
+        return new SalesChannelAnalyticsLoader($repository);
+    }
+
+    private function contextWithAnalytics(): SalesChannelContext
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $salesChannelContext->getSalesChannel()->setAnalyticsId(Uuid::randomHex());
+
+        return $salesChannelContext;
+    }
+
     private function getEvent(SalesChannelContext $salesChannelContext): StorefrontRenderEvent
     {
         return new StorefrontRenderEvent(

@@ -1,5 +1,6 @@
 import Feature from 'src/helper/feature.helper';
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
+import ListAttributionHelper from 'src/plugin/google-analytics/list-attribution.helper';
 import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 
 export default class ViewItemEvent extends AnalyticsEvent
@@ -46,15 +47,41 @@ export default class ViewItemEvent extends AnalyticsEvent
             return;
         }
 
-        gtag('event', 'view_item', {
+        // the list the product was selected from, so both events describe one journey
+        const list = ListAttributionHelper.consume(productId, this._getProductIds());
+
+        this.pushEvent('view_item', {
             'currency': productData.currency,
             'value': productData.value,
             'items': [{
-                'id': productId,
-                'name': productName,
-                'brand': productData.brand,
+                'item_id': productId,
+                'item_name': productName,
+                'item_brand': productData.brand,
+                'item_variant': productData.variant,
+                'price': productData.value,
                 ...ProductPageHelper.getCategories(),
+                // `view_item` only defines the list on the item, unlike `select_item` and
+                // `view_item_list`, which also take it as an event parameter
+                ...list,
             }],
         });
+    }
+
+    /**
+     * The id and the parent id of the product on the detail page, so an attribution stored for the
+     * parent a listing displayed still matches the variant the detail page resolved to.
+     *
+     * @returns {string[]}
+     * @private
+     */
+    _getProductIds() {
+        // the parent id attribute is unique to the buy widget, other elements such as the remove
+        // button of the cart carry a `data-product-id` as well
+        const element = document.querySelector('[data-product-parent-id]');
+
+        return [
+            element?.getAttribute('data-product-id'),
+            element?.getAttribute('data-product-parent-id'),
+        ].filter(Boolean);
     }
 }

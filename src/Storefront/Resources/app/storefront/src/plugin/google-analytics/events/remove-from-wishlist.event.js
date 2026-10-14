@@ -40,12 +40,26 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
             return;
         }
 
+        // A handler that prevents the submit removes the product itself. The guest wishlist does so
+        // through the wishlist storage, which is reported by `_onProductRemoved`.
+        if (event.defaultPrevented) {
+            return;
+        }
+
         const productId = this._extractProductIdFromForm(form);
         if (!productId) {
             return;
         }
 
-        this._sendEvent(productId, form);
+        // The wishlist page removes a product with a plain form submit, which leaves the page before
+        // the category path of the product could be requested. The submit is held back until the
+        // event is sent, at most for a second so a slow request never blocks the removal.
+        event.preventDefault();
+
+        return Promise.race([
+            this._sendEvent(productId, form),
+            new Promise(resolve => setTimeout(resolve, 1000)),
+        ]).finally(() => form.submit());
     }
 
     _onProductRemoved(event) {
@@ -58,7 +72,7 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
             return;
         }
 
-        this._sendEvent(productId);
+        return this._sendEvent(productId);
     }
 
     /**
@@ -74,30 +88,42 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
     }
 
     /**
-     * Sends the remove_from_wishlist event
+     * Sends the remove_from_wishlist event. The product data is read before the first await, while
+     * the product element is still on the page.
      * @param {string} productId
      * @param {HTMLFormElement|null} form
      * @private
      */
-    _sendEvent(productId, form = null) {
+    async _sendEvent(productId, form = null) {
         // Try to get product data from product detail/listing page first
         let productData = ProductPageHelper.getProductData(productId, form);
-        let categories = ProductPageHelper.getCategories();
+        let categories;
 
         // Fallback to line item data (cart/checkout/finish pages)
         const lineItemData = LineItemHelper.getProductData(productId);
         if (!productData.name && lineItemData) {
             productData = lineItemData;
-            categories = lineItemData.categories || {};
+            categories = lineItemData.categories;
         }
 
-        gtag('event', 'remove_from_wishlist', {
+        if (!categories || Object.keys(categories).length === 0) {
+            categories = await ProductPageHelper.resolveCategories(productId, form);
+        }
+
+        // the shopper can revoke the tracking consent while the categories are requested
+        if (!this.active) {
+            return;
+        }
+
+        this.pushEvent('remove_from_wishlist', {
             'currency': productData.currency,
             'value': productData.value,
             'items': [{
-                'id': productData.id ?? productId,
-                'name': productData.name,
-                'brand': productData.brand,
+                'item_id': productData.id ?? productId,
+                'item_name': productData.name,
+                'item_brand': productData.brand,
+                'item_variant': productData.variant,
+                'price': productData.value,
                 ...categories,
             }],
         });

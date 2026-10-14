@@ -5,12 +5,11 @@ namespace Shopware\Core\Framework\Webhook\Service;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Authorization\Ownership\Ownership;
-use Shopware\Core\Framework\Webhook\Authorization\Ownership\OwnerType;
 use Shopware\Core\Framework\Webhook\Webhook;
 
 /**
@@ -18,46 +17,15 @@ use Shopware\Core\Framework\Webhook\Webhook;
  *
  * @codeCoverageIgnore
  *
- * @phpstan-type Owner array{type: OwnerType, roleIds: list<string>}
- * @phpstan-type OwnerRoleRow array{id: string, isAdmin: bool|int|string, roleId: string|null}
- *
  * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Service\WebhookLoaderTest
  */
 #[Package('framework')]
 class WebhookLoader
 {
-    public function __construct(private readonly Connection $connection)
-    {
-    }
-
-    /**
-     * @param list<string> $roleIds
-     *
-     * @return array<string, AclPrivilegeCollection>
-     */
-    public function getPrivilegesForRoles(array $roleIds): array
-    {
-        $roles = $this->connection->fetchAllAssociative(
-            <<<'SQL'
-                SELECT `id`, `privileges`
-                FROM `acl_role`
-                WHERE `id` IN (:aclRoleIds)
-            SQL,
-            ['aclRoleIds' => Uuid::fromHexToBytesList($roleIds)],
-            ['aclRoleIds' => ArrayParameterType::BINARY]
-        );
-
-        if (!$roles) {
-            return [];
-        }
-
-        $privileges = [];
-        foreach ($roles as $privilege) {
-            $privileges[Uuid::fromBytesToHex($privilege['id'])]
-                = new AclPrivilegeCollection(json_decode((string) $privilege['privileges'], true, 512, \JSON_THROW_ON_ERROR));
-        }
-
-        return $privileges;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly AclRoleLoader $aclRoleLoader,
+    ) {
     }
 
     /**
@@ -153,164 +121,41 @@ class WebhookLoader
      */
     private function hydrateWebhooks(array $rows): array
     {
-        $ownerRoles = $this->resolveOwnerRoles($rows);
+        $ownerRoles = $this->aclRoleLoader->getRoles(array_values(array_filter([
+            ...array_column($rows, 'ownerUserId'),
+            ...array_column($rows, 'ownerIntegrationId'),
+        ])));
 
-        return array_map(
-            static function (array $row) use ($ownerRoles): Webhook {
-                $aclRoleIds = self::decodeAclRoleIds($row['aclRoleIds']);
-                $owner = self::narrowOwner($ownerRoles[$row['webhookId']], $aclRoleIds);
-
-                return new Webhook(
-                    $row['webhookId'],
-                    $row['webhookName'],
-                    $row['eventName'],
-                    $row['webhookUrl'],
-                    (bool) $row['onlyLiveVersion'],
-                    $row['appId'],
-                    $row['appName'],
-                    $row['appSourceType'],
-                    (bool) $row['appActive'],
-                    $row['appVersion'],
-                    $row['appSecret'],
-                    ownerType: $owner['type'],
-                    ownerRoleIds: $owner['roleIds'],
-                    aclRoleIds: $aclRoleIds,
-                );
-            },
-            $rows
-        );
-    }
-
-    /**
-     * @return list<string>|null
-     */
-    private static function decodeAclRoleIds(mixed $aclRoleIds): ?array
-    {
-        if (!\is_string($aclRoleIds)) {
-            return null;
-        }
-
-        return Json::decodeToList($aclRoleIds);
-    }
-
-    /**
-     * Applies the webhook's aclRoleIds to its owner's roles.
-     *
-     * If a user holds roles A and B and the webhook lists A and C, the webhook gets A. It never gets
-     * a role its owner does not hold. An admin holds every role, so an admin's webhook gets exactly
-     * the roles it lists. Without aclRoleIds, the webhook gets all of its owner's roles.
-     *
-     * @param Owner $owner
-     * @param list<string>|null $aclRoleIds
-     *
-     * @return Owner
-     */
-    private static function narrowOwner(array $owner, ?array $aclRoleIds): array
-    {
-        if ($aclRoleIds === null) {
-            return $owner;
-        }
-
-        if ($owner['type'] === OwnerType::Admin) {
-            return ['type' => OwnerType::Restricted, 'roleIds' => $aclRoleIds];
-        }
-
-        return ['type' => OwnerType::Restricted, 'roleIds' => array_values(array_intersect($owner['roleIds'], $aclRoleIds))];
-    }
-
-    /**
-     * @param list<array<string, mixed>> $rows
-     *
-     * @return array<string, Owner> keyed by webhook id
-     */
-    private function resolveOwnerRoles(array $rows): array
-    {
-        $userIds = array_values(array_filter(array_column($rows, 'ownerUserId')));
-        $integrationIds = array_values(array_filter(array_column($rows, 'ownerIntegrationId')));
-
-        $owners = $this->groupRolesByOwner([
-            ...$this->loadUserRoleRows($userIds),
-            ...$this->loadIntegrationRoleRows($integrationIds),
-        ]);
-
-        $webhookOwnerRoles = [];
+        $webhooks = [];
         foreach ($rows as $row) {
-            $webhookOwnerRoles[$row['webhookId']] = $owners[$row['ownerIntegrationId'] ?? $row['ownerUserId']];
-        }
-
-        return $webhookOwnerRoles;
-    }
-
-    /**
-     * @param list<string> $userIds
-     *
-     * @return list<OwnerRoleRow>
-     */
-    private function loadUserRoleRows(array $userIds): array
-    {
-        if ($userIds === []) {
-            return [];
-        }
-
-        /** @var list<OwnerRoleRow> $rows */
-        $rows = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(u.id)) as id, u.admin as isAdmin, LOWER(HEX(ur.acl_role_id)) as roleId
-             FROM user u
-             LEFT JOIN acl_user_role ur ON ur.user_id = u.id
-             WHERE u.id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($userIds)],
-            ['ids' => ArrayParameterType::BINARY]
-        );
-
-        return $rows;
-    }
-
-    /**
-     * @param list<string> $integrationIds
-     *
-     * @return list<OwnerRoleRow>
-     */
-    private function loadIntegrationRoleRows(array $integrationIds): array
-    {
-        if ($integrationIds === []) {
-            return [];
-        }
-
-        /** @var list<OwnerRoleRow> $rows */
-        $rows = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(i.id)) as id, a.id IS NULL AND i.admin as isAdmin, LOWER(HEX(IF(a.id IS NULL, ir.acl_role_id, a.acl_role_id))) as roleId
-             FROM integration i
-             LEFT JOIN app a ON a.integration_id = i.id AND a.acl_role_id IS NOT NULL
-             LEFT JOIN integration_role ir ON ir.integration_id = i.id AND a.id IS NULL
-             WHERE i.id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($integrationIds)],
-            ['ids' => ArrayParameterType::BINARY]
-        );
-
-        return $rows;
-    }
-
-    /**
-     * @param list<OwnerRoleRow> $roleRows
-     *
-     * @return array<string, Owner>
-     */
-    private function groupRolesByOwner(array $roleRows): array
-    {
-        $owners = [];
-        foreach ($roleRows as $row) {
-            $id = $row['id'];
-
-            $owners[$id] ??= [
-                'type' => (bool) $row['isAdmin'] ? OwnerType::Admin : OwnerType::Restricted,
-                'roleIds' => [],
-            ];
-
-            if ($row['roleId'] !== null) {
-                $owners[$id]['roleIds'][] = $row['roleId'];
+            $ownerId = $row['ownerIntegrationId'] ?? $row['ownerUserId'];
+            if (!isset($ownerRoles[$ownerId])) {
+                continue;
             }
+
+            $aclRoleIds = $row['aclRoleIds'] !== null ? Json::decodeToList($row['aclRoleIds']) : null;
+            $roles = $ownerRoles[$ownerId];
+            if ($aclRoleIds !== null) {
+                $roles = $roles->intersect($aclRoleIds);
+            }
+
+            $webhooks[] = new Webhook(
+                $row['webhookId'],
+                $row['webhookName'],
+                $row['eventName'],
+                $row['webhookUrl'],
+                (bool) $row['onlyLiveVersion'],
+                $row['appId'],
+                $row['appName'],
+                $row['appSourceType'],
+                (bool) $row['appActive'],
+                $row['appVersion'],
+                $row['appSecret'],
+                roles: $roles,
+                aclRoleIds: $aclRoleIds,
+            );
         }
 
-        return $owners;
+        return $webhooks;
     }
 }

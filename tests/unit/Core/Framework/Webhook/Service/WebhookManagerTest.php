@@ -14,6 +14,8 @@ use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
+use Shopware\Core\Framework\Api\Acl\AclRoles;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
@@ -25,7 +27,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
-use Shopware\Core\Framework\Webhook\Authorization\Ownership\OwnerType;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\AppEventPolicy;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PrivilegePolicy;
@@ -58,6 +59,8 @@ class WebhookManagerTest extends TestCase
 {
     private WebhookLoader&MockObject $webhookLoader;
 
+    private AclRoleLoader&MockObject $aclRoleLoader;
+
     private MockHandler $clientMock;
 
     private WebhookClient $webhookClient;
@@ -71,6 +74,7 @@ class WebhookManagerTest extends TestCase
     protected function setUp(): void
     {
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
+        $this->aclRoleLoader = $this->createMock(AclRoleLoader::class);
         $this->clientMock = new MockHandler([new Response(200, [], '{}')]);
         $stack = HandlerStack::create($this->clientMock);
         $stack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
@@ -267,7 +271,8 @@ class WebhookManagerTest extends TestCase
             ->method('getWebhooks')
             ->willReturn([$inactiveWebhook], [$activeWebhook]);
 
-        $this->webhookLoader
+        $this->aclRoleLoader
+            ->expects($this->atLeastOnce())
             ->method('getPrivilegesForRoles')
             ->willReturnCallback(static function (array $roleIds): array {
                 $privileges = [];
@@ -537,13 +542,13 @@ class WebhookManagerTest extends TestCase
     private function prepareWebhook(string $eventName, bool $onlyLiveVersion = false, array $acl = ['product:read'], bool $resolvesPrivileges = true): Webhook
     {
         $webhook = $this->getWebhook($eventName, $onlyLiveVersion);
-        $roleId = $webhook->ownerRoleIds[0];
+        $roleId = $webhook->roles->roleIds[0];
 
         $this->webhookLoader->expects($this->once())
             ->method('getWebhooks')
             ->willReturn([$webhook]);
 
-        $this->webhookLoader
+        $this->aclRoleLoader
             ->expects($resolvesPrivileges ? $this->once() : $this->never())
             ->method('getPrivilegesForRoles')
             ->with([$roleId])
@@ -575,7 +580,7 @@ class WebhookManagerTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             $this->webhookOutboxStore,
-            new PolicyRegistry([new AppEventPolicy(), new PrivilegePolicy($this->webhookLoader)]),
+            new PolicyRegistry([new AppEventPolicy(), new PrivilegePolicy($this->aclRoleLoader)]),
         );
     }
 
@@ -657,8 +662,7 @@ class WebhookManagerTest extends TestCase
             $appActive,
             '0.0.0',
             'verysecret',
-            ownerType: OwnerType::Restricted,
-            ownerRoleIds: [Uuid::randomHex()],
+            roles: new AclRoles(false, [Uuid::randomHex()]),
         );
     }
 }

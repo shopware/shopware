@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Authorization\Policy;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Acl\AclRoles;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
@@ -121,6 +122,7 @@ class AppEventPolicyTest extends TestCase
             appActive: $appActive,
             appVersion: null,
             appSecret: null,
+            roles: new AclRoles(false, []),
         );
     }
 }

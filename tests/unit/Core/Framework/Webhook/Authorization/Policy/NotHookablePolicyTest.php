@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
+use Shopware\Core\Framework\Api\Acl\AclRoles;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
@@ -108,6 +109,7 @@ class NotHookablePolicyTest extends TestCase
             appActive: true,
             appVersion: null,
             appSecret: null,
+            roles: new AclRoles(false, []),
         );
     }
 }

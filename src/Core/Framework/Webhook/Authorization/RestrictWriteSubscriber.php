@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Webhook\Authorization;
 
+use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
+use Shopware\Core\Framework\Api\Acl\AclRoles;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
@@ -15,7 +17,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
-use Shopware\Core\Framework\Webhook\Authorization\Ownership\OwnerType;
 use Shopware\Core\Framework\Webhook\Authorization\Ownership\WriteAuthorizer;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriptionValidator;
@@ -37,6 +38,7 @@ class RestrictWriteSubscriber implements EventSubscriberInterface
         private readonly WriteAuthorizer $authorizer,
         private readonly SubscriptionValidator $subscriptionValidator,
         private readonly WebhookLoader $webhookLoader,
+        private readonly AclRoleLoader $aclRoleLoader,
     ) {
     }
 
@@ -92,8 +94,8 @@ class RestrictWriteSubscriber implements EventSubscriberInterface
         }
 
         $webhooks = $this->webhookLoader->getWebhooksByIds(array_keys($writes));
-        $rolePrivileges = $this->webhookLoader->getPrivilegesForRoles(array_values(array_unique(array_merge([], ...array_map(
-            static fn (Webhook $webhook): array => $webhook->ownerRoleIds,
+        $rolePrivileges = $this->aclRoleLoader->getPrivilegesForRoles(array_values(array_unique(array_merge([], ...array_map(
+            static fn (Webhook $webhook): array => $webhook->roles->roleIds,
             $webhooks
         )))));
 
@@ -101,7 +103,7 @@ class RestrictWriteSubscriber implements EventSubscriberInterface
 
         foreach ($webhooks as $webhook) {
             $command = $writes[$webhook->id];
-            $aclRoleIdsNotHeld = array_values(array_unique(array_diff($webhook->aclRoleIds ?? [], $webhook->ownerRoleIds)));
+            $aclRoleIdsNotHeld = array_values(array_unique(array_diff($webhook->aclRoleIds ?? [], $webhook->roles->roleIds)));
             if ($aclRoleIdsNotHeld !== [] && \array_key_exists('acl_role_ids', $command->getPayload())) {
                 $event->getExceptions()->add(self::aclRolesNotHeld($command, $aclRoleIdsNotHeld));
 
@@ -110,7 +112,7 @@ class RestrictWriteSubscriber implements EventSubscriberInterface
 
             $refusals = $this->subscriptionValidator->validate(
                 [$webhook->eventName => $webhook->eventName],
-                self::resolvePrivileges($webhook, $rolePrivileges),
+                self::resolvePrivileges($webhook->roles, $rolePrivileges),
                 $subscriber,
                 $context
             );
@@ -169,16 +171,16 @@ class RestrictWriteSubscriber implements EventSubscriberInterface
     /**
      * @param array<string, AclPrivilegeCollection> $rolePrivileges
      *
-     * @return list<string>|null
+     * @return list<string>|null null for unrestricted roles, which may subscribe to everything
      */
-    private static function resolvePrivileges(Webhook $webhook, array $rolePrivileges): ?array
+    private static function resolvePrivileges(AclRoles $roles, array $rolePrivileges): ?array
     {
-        if ($webhook->ownerType === OwnerType::Admin) {
+        if ($roles->unrestricted) {
             return null;
         }
 
         $privileges = [];
-        foreach ($webhook->ownerRoleIds as $roleId) {
+        foreach ($roles->roleIds as $roleId) {
             $privileges = [...$privileges, ...($rolePrivileges[$roleId] ?? new AclPrivilegeCollection([]))->getPrivileges()];
         }
 

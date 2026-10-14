@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Authorization\Policy;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Acl\AclRoles;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
@@ -90,6 +91,7 @@ class PolicyRegistryTest extends TestCase
             appActive: true,
             appVersion: null,
             appSecret: null,
+            roles: new AclRoles(false, []),
         );
     }
 }

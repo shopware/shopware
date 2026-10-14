@@ -88,7 +88,9 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
                 item_brand: productData.brand,
                 item_variant: productData.variant,
                 price: productData.price,
-                ...categories,
+                ...(Array.isArray(productData.categories) && productData.categories.length > 0
+                    ? ProductPageHelper.mapCategories(productData.categories)
+                    : categories),
             });
         });
 

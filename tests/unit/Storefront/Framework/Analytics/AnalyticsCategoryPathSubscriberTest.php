@@ -93,6 +93,48 @@ class AnalyticsCategoryPathSubscriberTest extends TestCase
         static::assertEquals(new ArrayStruct(['Sale']), $product->getExtension(AnalyticsCategoryPathSubscriber::EXTENSION));
     }
 
+    public function testEnrichesEveryInstanceOfAProductWithOneLookup(): void
+    {
+        $first = $this->product('same-product');
+        $second = $this->product('same-product');
+        $loader = $this->createMock(AnalyticsCategoryPathLoader::class);
+        $loader->expects($this->once())->method('load')
+            ->with([$second])
+            ->willReturn(['same-product' => ['Shoes']]);
+        $page = $this->homepage($this->cmsPage($this->boxData($first), $this->sliderData($second)));
+
+        (new AnalyticsCategoryPathSubscriber($loader))->addCategoryPaths($this->event('frontend.home.page', $page));
+
+        static::assertEquals(new ArrayStruct(['Shoes']), $first->getExtension(AnalyticsCategoryPathSubscriber::EXTENSION));
+        static::assertEquals(new ArrayStruct(['Shoes']), $second->getExtension(AnalyticsCategoryPathSubscriber::EXTENSION));
+    }
+
+    public function testEnrichesHomepageListingAjaxResponses(): void
+    {
+        $product = $this->product('listed-product');
+        $loader = $this->createMock(AnalyticsCategoryPathLoader::class);
+        $loader->expects($this->once())->method('load')->with([$product])
+            ->willReturn(['listed-product' => ['Shoes']]);
+        $event = $this->event('frontend.cms.navigation.page', null);
+        $event->getRequest()->attributes->set('navigationId', self::NAVIGATION_ID);
+        $event->setParameter('cmsPage', $this->cmsPage($this->sliderData($product)));
+
+        (new AnalyticsCategoryPathSubscriber($loader))->addCategoryPaths($event);
+
+        static::assertEquals(new ArrayStruct(['Shoes']), $product->getExtension(AnalyticsCategoryPathSubscriber::EXTENSION));
+    }
+
+    public function testCategoryListingAjaxResponsesKeepUsingThePageBreadcrumb(): void
+    {
+        $loader = $this->createMock(AnalyticsCategoryPathLoader::class);
+        $loader->expects($this->never())->method('load');
+        $event = $this->event('frontend.cms.navigation.page', null);
+        $event->getRequest()->attributes->set('navigationId', 'other-category');
+        $event->setParameter('cmsPage', $this->cmsPage($this->boxData($this->product('product'))));
+
+        (new AnalyticsCategoryPathSubscriber($loader))->addCategoryPaths($event);
+    }
+
     public function testLoadsNothingWithoutActiveAnalytics(): void
     {
         $loader = $this->createMock(AnalyticsCategoryPathLoader::class);

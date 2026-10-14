@@ -69,6 +69,27 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
         });
     });
 
+    test('uses each product category path before falling back to the page breadcrumb', () => {
+        document.body.innerHTML = `
+            <nav aria-label="breadcrumb"><span class="breadcrumb-title">Sale</span></nav>
+            <div class="cms-element-product-listing-wrapper">
+                <div class="product-box" data-product-information='{"sku":"SHIRT","price":20,"categories":["Clothing","Shirts"]}'></div>
+                <div class="product-box" data-product-information='{"sku":"MUG","price":5,"categories":["Home"]}'></div>
+                <div class="product-box" data-product-information='{"sku":"OTHER","price":3,"categories":[]}'></div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', expect.objectContaining({
+            items: [
+                { item_id: 'SHIRT', price: 20, item_category: 'Clothing', item_category2: 'Shirts' },
+                { item_id: 'MUG', price: 5, item_category: 'Home' },
+                { item_id: 'OTHER', price: 3, item_category: 'Sale' },
+            ],
+        }));
+    });
+
     test('does not fire event when no product items are found', () => {
         document.body.innerHTML = `
             <div class="cms-element-product-listing-wrapper">

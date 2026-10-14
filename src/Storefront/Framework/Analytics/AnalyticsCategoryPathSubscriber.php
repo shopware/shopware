@@ -62,20 +62,28 @@ class AnalyticsCategoryPathSubscriber implements EventSubscriberInterface
 
         $page = $parameters['page'] ?? null;
         $navigationId = $event->getSalesChannelContext()->getSalesChannel()->getNavigationCategoryId();
+        $request = $event->getRequest();
 
         $cmsPage = match (true) {
             $page instanceof LandingPage => $page->getLandingPage()?->getCmsPage(),
             // a category page reports its own category through the breadcrumb
             $page instanceof NavigationPage && $page->getNavigationId() === $navigationId => $page->getCmsPage(),
+            // Listing pagination and filters render the CMS page without a NavigationPage wrapper.
+            $request->attributes->get('_route') === 'frontend.cms.navigation.page'
+                && $request->attributes->get('navigationId') === $navigationId => $parameters['cmsPage'] ?? null,
             default => null,
         };
 
-        $products = $this->collectProducts($cmsPage);
+        $products = $this->collectProducts($cmsPage instanceof CmsPageEntity ? $cmsPage : null);
         if ($products === []) {
             return;
         }
 
-        $paths = $this->loader->load(array_values($products), $event->getSalesChannelContext());
+        $uniqueProducts = [];
+        foreach ($products as $product) {
+            $uniqueProducts[$product->getId()] = $product;
+        }
+        $paths = $this->loader->load(array_values($uniqueProducts), $event->getSalesChannelContext());
 
         foreach ($products as $product) {
             $names = $paths[$product->getId()] ?? [];
@@ -92,7 +100,7 @@ class AnalyticsCategoryPathSubscriber implements EventSubscriberInterface
      * data structs. A product is not walked into, and neither is any other entity, so the walk stays
      * at the few objects an element keeps in its data.
      *
-     * @return array<string, SalesChannelProductEntity>
+     * @return array<int, SalesChannelProductEntity>
      */
     private function collectProducts(?CmsPageEntity $cmsPage): array
     {
@@ -106,12 +114,13 @@ class AnalyticsCategoryPathSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, SalesChannelProductEntity> $products
+     * @param array<int, SalesChannelProductEntity> $products
      */
     private function collect(mixed $value, array &$products, int $depth): void
     {
         if ($value instanceof SalesChannelProductEntity) {
-            $products[$value->getId()] = $value;
+            // Different slots can contain distinct objects for the same product. Enrich all of them.
+            $products[spl_object_id($value)] = $value;
 
             return;
         }

@@ -238,4 +238,26 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         expect(parameters.items[0]).not.toHaveProperty('price');
         expect(parameters.items[0]).toEqual(expect.objectContaining({ item_id: 'product-123', quantity: 2 }));
     });
+
+    test('reports the unit price as value without a quantity in the form', () => {
+        document.body.innerHTML = `
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
+        `;
+
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstances.push(addToCartInstance);
+
+        const event = new AddToCartEvent();
+        event.execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
+            'value': 99.99,
+        }));
+    });
 });

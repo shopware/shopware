@@ -31,7 +31,6 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 #[Package('framework')]
 #[CoversClass(DebugMcpCommand::class)]
-#[CoversClass(McpCapabilityCatalog::class)]
 class DebugMcpCommandTest extends TestCase
 {
     /**

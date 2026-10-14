@@ -59,6 +59,7 @@ The Store API endpoint (`/store-api/_mcp`) uses the same progressive disclosure 
 - **Transport**: HTTP via Symfony MCP Bundle (`/api/_mcp`), authenticated through Shopware's Admin API OAuth stack
 - **Context**: `McpContextProvider` bridges the authenticated HTTP request into the MCP tool execution layer
 - **Tools**: Single-responsibility PHP classes with `#[McpTool]` attributes, registered via PHP service definitions (`mcp.php`)
+- **Tool results**: the wire format of a tool result is decided only in `McpToolResultRenderer`, never in a tool. See "What the client receives" in `Tool/AGENTS.md`
 - **Availability**: always enabled (no feature flag); services are present whenever `symfony/mcp-bundle` is installed
 
 ## Naming convention
@@ -76,7 +77,8 @@ All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots)
 - `Context/` -- Context bridging (`McpContextProvider`, `StoreApiMcpContextProvider`)
 - `Controller/` -- HTTP endpoints for MCP protocol (`McpServerController` admin, `StoreApiMcpServerController` store)
 - `RateLimit/` -- `McpRateLimiter` wrapper around the core `RateLimiter` (per-scope keys + throttle translation)
-- `Session/` -- Session helpers: `McpSessionIdValidator` (rejects malformed `mcp-session-id`), `McpSessionCleanupSubscriber` (wipes tool-result cache on session DELETE)
+- `Session/` -- Session helpers: `McpSessionIdValidator` (rejects malformed `mcp-session-id`), `McpSessionCleanupSubscriber` (wipes the tool results a session stored and its toolset rows on session DELETE)
+- `ScheduledTask/` -- Periodic GC: `McpToolsetSessionCleanupTask` (session-store liveness for `mcp_toolset_session`), `McpToolResultCacheCleanupTask` (age TTL for `mcp_tool_result_cache`; does not require a session store)
 - `Tool/` -- Individual MCP tool implementations
 - `Prompt/` -- System prompts for AI context
 - `Resource/` -- Static MCP resources
@@ -200,7 +202,7 @@ The two MCP endpoints are rate-limited via the core `RateLimiter` through `McpRa
 Open improvements:
 - **Per-tool rate limiting** — the current limit is per-endpoint: a cheap `tools/list` and an expensive `entity-upsert`/`entity-delete`/`media-upload`/`system-config-write` draw from the same bucket. The industry consensus for MCP servers is to bucket cheap reads (`entity-search`, `entity-schema`) high (~100-200/min) and expensive/mutating tools low (~5-30/min). This needs a per-tool key (e.g. derive the tool name from the JSON-RPC body, which `McpServerController` already parses into `ATTRIBUTE_JSONRPC_BODY`) and a route per cost class.
 - **`Retry-After` header** — `McpException::throttled()` returns HTTP 429 with the wait time in the message/parameters, but no `Retry-After` response header. Adding it (and a structured `retry_after` in the JSON-RPC error) lets well-behaved agent clients back off correctly instead of blindly retrying.
-- **`time_backoff` vs token bucket** — Shopware uses the `time_backoff` policy (escalating penalty on repeated hits), not a token bucket, so it does not give the "burst then sustained" shape the MCP guides recommend for bursty agent traffic. Acceptable as a coarse circuit breaker; revisit if agents hit the limit on legitimate fan-out.
+- **Policy.** Both routes use `sliding_window` (300 requests per minute on the Admin API, 120 on the Store API). Do not switch them back to `time_backoff`: that policy is a lockout for repeated attempts (login, password recovery). Once its first limit is used up it accepts one request per interval and never lowers the count until `reset`, so a client that sent 300 requests got HTTP 429 on almost every following call, including the handshake (#18906). `McpRateLimiterPolicyTest` runs the shipped limits through a real limiter.
 
 ### Store API / shopper-side MCP
 The current MCP server is admin-API only (`/api/_mcp`, integration key auth). There is no MCP endpoint for the Store API.
@@ -233,12 +235,13 @@ Every MCP request passes through three layers in order:
    **Scope**: resolved for every auth mode `McpAllowlistProvider::forCurrentRequest()` recognises — integration access key, user access key, bearer token from either grant, and a delegated `sw-app-user-id` request, where the integration and user allowlists are intersected. A request whose principal cannot be resolved at all is treated as having no selection, so the endpoint fails closed.
    **Exception**: the discovery meta-tools `shopware-tool-search`, `shopware-toolsets-list` and `shopware-toolset-enable` stay advertised and callable for every principal (`McpAllowlistListRequestHandler::DISCOVERY_META_TOOLS`). They surface only capability names the effective allowlist already permits, so for a principal with no selection they resolve to nothing.
    Parsing rules are pinned by `tests/unit/Core/Framework/Mcp/AllowList/`; the end-to-end behaviour per auth mode by `tests/integration/Core/Framework/Mcp/McpAllowlistEnforcementTest.php`.
-3. **ACL / Privileges** — tools call `requirePrivilege()` before touching data. Missing privileges return `{"success": false, "error": "Missing privilege: ..."}` (single canonical prefix — use `McpToolResponse::missingPrivilegesError()`, never a hand-rolled message). Entity tools that accept criteria JSON additionally validate the built `Criteria` with `AclCriteriaValidator` (same association ACL model as the Admin API), so reading, filtering, or aggregating over an association also requires the associated entity's `:read` privilege. Tools may also annotate their static requirements with `#[McpToolRequires]` so operators can configure roles correctly upfront — but this is informational only and does not replace the `requirePrivilege()` check.
+3. **ACL / Privileges** — tools call `requirePrivilege()` before touching data. Missing privileges return `{"success": false, "error": "Missing privilege: ...", "code": "missing_privilege"}` (single canonical prefix — use `McpToolResponse::missingPrivilegesError()`, never a hand-rolled message). Entity tools that accept criteria JSON additionally validate the built `Criteria` with `AclCriteriaValidator` (same association ACL model as the Admin API), so reading, filtering, or aggregating over an association also requires the associated entity's `:read` privilege. Tools may also annotate their static requirements with `#[McpToolRequires]` so operators can configure roles correctly upfront — but this is informational only and does not replace the `requirePrivilege()` check.
 
 Additional safeguards:
 - **Rate limiting**: every request passes through `McpRateLimiter` before the protocol runs. Separate per-scope buckets (`mcp_admin_api`, `mcp_store_api`); exceeding the limit returns HTTP 429 via `McpException::throttled()`. See the Rate limiting section under "Future ideas / backlog" for the keying details and open improvements.
 - **Audit logging**: tool invocations logged via `mcp` Monolog channel
 - **App HMAC**: app tool calls signed with `RequestSigner` using the app secret
+- **Signed result pointers**: `McpToolResultPointerSigner` signs the pointers in tool result links (`<id>.<expiry>.<hmac>`, bound to the principal). Reuse it for any new short-lived signed token instead of calling `hash_hmac` directly; it already has an injected clock, a constant-time compare and validated fields. Sharing it outside MCP is tracked in #21520.
 - **XML parsing**: `mcp.xml` parsed with `XmlUtils::loadFile()` to prevent XXE attacks
 - **Entity validation**: entity tools check `registry->has()` before ACL to give clear "entity not found" errors
 - **Global compile-time allowlist**: `shopware.mcp.allowed_tools` acts as an installation-wide safety switch (secondary to per-integration allowlists)

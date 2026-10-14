@@ -1361,7 +1361,7 @@ class DefinitionValidator
     private function getShortClassName(EntityDefinition $definition): string
     {
         if ($definition instanceof AttributeEntityDefinition) {
-            return lcfirst((string) preg_replace('/^.*\\\\|Entity$/', '', $definition->getEntityClass()));
+            return lcfirst((string) preg_replace('/^.*\\\\|Entity$/D', '', $definition->getEntityClass()));
         }
 
         return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass()));

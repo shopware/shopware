@@ -52,11 +52,13 @@ class SubscriptionValidator
                 continue;
             }
 
-            if ($privileges[$key] === null) {
+            // a subscription without an entry holds no privileges, so a caller's mistake refuses it instead of permitting it
+            $held = \array_key_exists($key, $privileges) ? $privileges[$key] : [];
+            if ($held === null) {
                 continue;
             }
 
-            $missing = array_values(array_diff($hookableEvents[$eventName]['privileges'], $privileges[$key]));
+            $missing = array_values(array_diff($hookableEvents[$eventName]['privileges'], $held));
             if ($missing !== []) {
                 $missingPrivileges[$key] = $missing;
             }

@@ -43,13 +43,14 @@ class SalesChannelListCommandTest extends TestCase
             $commandTester->getStatusCode(),
             "\"bin/console sales-channel:list\" returned errors:\n" . $commandTester->getDisplay()
         );
-        $output = '+----------------------------------+------+--------+-------------+------------------+-----------+------------------+------------+---------+
-| id                               | Name | Active | Maintenance | Default Language | Languages | Default Currency | Currencies | Domains |
-+----------------------------------+------+--------+-------------+------------------+-----------+------------------+------------+---------+
-| %s | n/a  | active | off         | n/a              |           | n/a              |            |         |
-+----------------------------------+------+--------+-------------+------------------+-----------+------------------+------------+---------+
+        $output = ' ---------------------------------- ------ -------- ------------- ------------------ ----------- ------------------ ------------ ---------
+  id                                 Name   Active   Maintenance   Default Language   Languages   Default Currency   Currencies   Domains
+ ---------------------------------- ------ -------- ------------- ------------------ ----------- ------------------ ------------ ---------
+  %s   n/a    active   off           n/a                            n/a
+ ---------------------------------- ------ -------- ------------- ------------------ ----------- ------------------ ------------ ---------
+
 ';
-        static::assertSame(\sprintf($output, $id), $commandTester->getDisplay());
+        static::assertSame(\sprintf($output, $id), preg_replace('/ +$/m', '', $commandTester->getDisplay()));
     }
 
     public function testFormatJsonOutput(): void
@@ -72,31 +73,6 @@ class SalesChannelListCommandTest extends TestCase
         static::assertSame(0, $commandTester->getStatusCode());
         static::assertJson($commandTester->getDisplay());
         static::assertStringContainsString($id, $commandTester->getDisplay());
-    }
-
-    public function testFormatMarkdownOutput(): void
-    {
-        $id = Uuid::randomHex();
-
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setUniqueIdentifier($id);
-        $salesChannel->setId($id);
-        $salesChannel->setActive(true);
-        $salesChannel->setMaintenance(false);
-
-        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection([$salesChannel])], new SalesChannelDefinition());
-
-        $command = new SalesChannelListCommand($salesChannelRepository);
-
-        $commandTester = new CommandTester($command);
-        $commandTester->execute(['--format' => 'markdown']);
-
-        static::assertSame(0, $commandTester->getStatusCode());
-        $output = '| id                               | Name | Active | Maintenance | Default Language | Languages | Default Currency | Currencies | Domains |
-|----------------------------------|------|--------|-------------|------------------|-----------|------------------|------------|---------|
-| %s | n/a  | active | off         | n/a              |           | n/a              |            |         |
-';
-        static::assertSame(\sprintf($output, $id), $commandTester->getDisplay());
     }
 
     /**

@@ -17,10 +17,10 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal should be used over the CLI only
@@ -114,7 +114,7 @@ class SalesChannelListCommand extends Command
             return $this->renderJson($output, $data);
         }
 
-        return $this->renderTable($output, $data, $format === self::FORMAT_MARKDOWN ? 'markdown' : 'default');
+        return $this->renderTable(new SymfonyStyle($input, $output), $format, $data);
     }
 
     /**
@@ -142,12 +142,8 @@ class SalesChannelListCommand extends Command
     /**
      * @param list<list<string|array<string, string>>> $data
      */
-    private function renderTable(OutputInterface $output, array $data, string $style): int
+    private function renderTable(SymfonyStyle $io, string $format, array $data): int
     {
-        $table = new Table($output);
-        $table->setStyle($style);
-        $table->setHeaders(self::$headers);
-
         // Normalize data
         foreach ($data as $rowKey => $row) {
             foreach ($row as $columnKey => $column) {
@@ -157,9 +153,7 @@ class SalesChannelListCommand extends Command
             }
         }
 
-        $table->addRows($data);
-
-        $table->render();
+        $this->renderFormattedTable($io, $format, self::$headers, $data);
 
         return self::SUCCESS;
     }

@@ -1248,6 +1248,7 @@ $lineItem = $lineItemFactoryRegistry->create([
 
 `sales-channel:list`, `plugin:list`, `app:list` and `user:list` accept `--format=markdown` and print their table as Markdown, for example to paste it into tickets or documentation.
 Commands using `OutputFormatTrait` can support the format via `FORMAT_MARKDOWN` and `renderFormattedTable()`.
+The default table of `sales-channel:list` now uses the same style as the other list commands; scripts that parse its boxed table output should switch to `--format=json`.
 
 ## API
 

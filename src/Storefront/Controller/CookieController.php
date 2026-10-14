@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
+use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogPayload;
+use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogRoute;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
@@ -11,6 +13,7 @@ use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -31,6 +34,7 @@ class CookieController extends StorefrontController
      */
     public function __construct(
         private readonly AbstractCookieRoute $cookieRoute,
+        private readonly CookieConsentLogRoute $cookieConsentLogRoute,
     ) {
     }
 
@@ -76,6 +80,22 @@ class CookieController extends StorefrontController
         $cookieRouteResponse = $this->cookieRoute->getCookieGroups($request, $salesChannelContext);
 
         return $this->json($cookieRouteResponse->getObject());
+    }
+
+    #[Route(
+        path: '/cookie/consent-log',
+        name: 'frontend.cookie.consent.log',
+        options: ['seo' => false],
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_POST],
+    )]
+    public function logConsent(
+        #[MapRequestPayload(acceptFormat: 'json')]
+        CookieConsentLogPayload $payload,
+        Request $request,
+        SalesChannelContext $salesChannelContext,
+    ): Response {
+        return $this->cookieConsentLogRoute->log($payload, $request, $salesChannelContext);
     }
 
     private function getCookieGroupsFromCookieRoute(Request $request, SalesChannelContext $salesChannelContext): CookieGroupCollection

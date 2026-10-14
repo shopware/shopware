@@ -14,6 +14,15 @@ The conditions now evaluate a line item by the data it carries instead of by its
 
 ## Features
 
+### Server-side cookie consent logging
+
+The built-in cookie banner can now record consent decisions on the server, as proof that consent was given. It is off by default. Enable it with `shopware.cookie_consent.log_storage`: `database` or `filesystem`, or your own storage implementing `CookieConsentLogStorageInterface`.
+
+- While logging is on, a new technically required cookie `cookie-consent-id` is set, and visitors see the banner once more.
+- Export the log with `bin/console cookie:consent:export`. Old records are deleted after `shopware.cookie_consent.retention_days` (default: 120).
+- Behind a proxy or CDN, configure `framework.trusted_proxies`, otherwise decisions can get lost because of the rate limit.
+- Headless frontends log decisions via `POST /store-api/cookie-consent-log`.
+
 ### System configuration tabs
 
 With the newly added tabs feature, plugin developers can now add another layer of organization to the already existing cards in the system configuration. This allows to group related cards into individual tabs and provide a better overview for merchants when configuring a plugin. The feature is fully optional to use and works with partial usage as well - any cards not added to a tab are automatically gathered in a "General" tab.

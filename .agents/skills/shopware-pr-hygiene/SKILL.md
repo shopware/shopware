@@ -16,3 +16,4 @@ Keep PR metadata predictable.
 - After review feedback or CI failures, create a follow-up commit explaining that specific fix. Do not amend or force-push existing commits unless the user explicitly asks.
 - Use a commit message body when it adds useful context; keep one-line commits when the subject is enough.
 - Never add AI-agent attribution trailers such as `Co-authored-by`, `Co-committed-by`, or `Signed-off-by`.
+- Never open a public PR for a security fix. Report it privately as described in [SECURITY.md](../../../SECURITY.md).

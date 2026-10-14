@@ -5,33 +5,46 @@ Please make sure to fulfil our contribution guidelines (https://developer.shopwa
 
 Do your changes need to be documented?
 Please create a second pull request at https://github.com/shopware/docs
+
+AI agents: follow .agents/skills/shopware-pr-hygiene/SKILL.md when writing this description
 -->
 
-### 1. Why is this change necessary?
+### 1. Why?
+<!--
+Please link to the relevant issues (if any) and explain the issue in one sentence.
+- closes #123
+- relates #123
+-->
+<!--
+If no issue is linked, explain why this change is needed,
+including the business context, so reviewers understand its purpose.
+-->
 
+### 2. How?
+<!--
+- How did you solve it, at a high level?
+- Why did you choose this approach over alternatives?
+-->
 
-### 2. What does this change do, exactly?
+### 3. Testing
+<!--
+1. Steps to reproduce or verify the change
+2. Expected vs. actual result
+- Environment: Shopware version, PHP version, browser (if relevant)
+- Screenshots or recordings for UI changes
+-->
 
-
-### 3. Describe each step to reproduce the issue or behaviour.
-
-
-### 4. Please link to the relevant issues (if any).
-<!-- Examples:
-- closes #123  - closes the issue #123 when the PR is merged
-- relates #123 - relates to the issue #123
-
-If the issue exists only in Jira, include a link to the Jira issue.
-- Jira issue: https://shopware.atlassian.net/browse/NEXT-123
+### 4. Additional notes
+<!--
+- Breaking changes, migrations, or follow-up work
+- Impact on performance, security, or other features
+- Anything reviewers should look at closely
 -->
 
 ### 5. Checklist
-
-- [ ] I have written tests and verified that they fail without my change
-- [ ] I have updated developer-facing release notes if this change is **relevant** for external developers:
-  - Add a short entry to `RELEASE_INFO-6.<major>.md` under “Upcoming” for informational changes, including the consequences of the change and how it affects external developers.
-  - Add an `UPGRADE` section in `UPGRADE-6.<next-major>.md` for breaking changes (what/why/impact/how to adapt).
-  - See the [Documenting a Release Process](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md) for details.
-- [ ] I have written or adjusted the documentation and agent skills according to my changes
-- [ ] This change has comments for package types, values, functions, and non-obvious lines of code
-- [ ] I have read the contribution requirements and fulfilled them
+<!-- Details for each item: CONTRIBUTING.md#pull-request-checklist -->
+- [ ] Tests added, and they fail without this change
+- [ ] Release notes updated, if relevant for external developers ([how to document a release](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md))
+- [ ] Documentation and agent skills updated
+- [ ] Non-obvious code is commented
+- [ ] I have read and followed the [contribution guidelines](https://github.com/shopware/shopware/blob/trunk/CONTRIBUTING.md#pull-request-checklist)

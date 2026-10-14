@@ -145,12 +145,21 @@ class CategoryBreadcrumbBuilder
      * number of products: one for the main categories, one for the assigned categories and one for
      * the categories of dynamic product groups.
      *
+     * A subclass that overrides {@see getProductSeoCategory()}, such as a decorator that extends this
+     * class, gets its own rules applied product by product until it overrides this method as well.
+     * Such a decorator may also not have run the constructor of this class, so the batch queries
+     * must not run for it.
+     *
      * @param iterable<ProductEntity> $products
      *
      * @return array<string, CategoryEntity> keyed by product id, a product without a category is left out
      */
     public function getProductSeoCategories(iterable $products, SalesChannelContext $context): array
     {
+        if ($this->overridesProductSeoCategory()) {
+            return $this->getProductSeoCategoriesOneByOne($products, $context);
+        }
+
         $categories = [];
         $pending = [];
 
@@ -275,6 +284,32 @@ class CategoryBreadcrumbBuilder
         }
 
         return $product->getMainCategories()->first()?->getCategory();
+    }
+
+    private function overridesProductSeoCategory(): bool
+    {
+        return static::class !== self::class
+            && (new \ReflectionMethod($this, 'getProductSeoCategory'))->getDeclaringClass()->getName() !== self::class;
+    }
+
+    /**
+     * @param iterable<ProductEntity> $products
+     *
+     * @return array<string, CategoryEntity>
+     */
+    private function getProductSeoCategoriesOneByOne(iterable $products, SalesChannelContext $context): array
+    {
+        $categories = [];
+
+        foreach ($products as $product) {
+            $category = $this->getProductSeoCategory($product, $context);
+
+            if ($category !== null) {
+                $categories[$product->getId()] = $category;
+            }
+        }
+
+        return $categories;
     }
 
     /**

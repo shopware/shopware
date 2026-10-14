@@ -12,6 +12,11 @@
     // Kept verbatim (the base adds DOM.Iterable, which would change DOM
     // collection typings across the codebase).
     "lib": ["ES2020", "DOM", "ES2023"],
+    // Only takes effect in Jest: vue-jest transpiles `.vue` scripts with this
+    // config but forces an ES5 target, which turns array destructuring into
+    // index access. Iterator-only values such as the ref returned by
+    // `const [model, modifiers] = defineModel()` then destructure to undefined.
+    "downlevelIteration": true,
     "baseUrl": "./",
     // "paths" replaces the base's wholesale by design — the admin resolves
     // vue/src from node_modules and baseUrl, not through the preset mappings.

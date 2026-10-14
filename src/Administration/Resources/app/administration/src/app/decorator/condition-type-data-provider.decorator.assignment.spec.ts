@@ -3,6 +3,7 @@
  */
 import { shallowMount } from '@vue/test-utils';
 import type { VueWrapper } from '@vue/test-utils';
+import EntityCollection from 'src/core/data/entity-collection.data';
 import { ruleConditionTypeDataProvider } from './condition-type-data-provider.decorator';
 import RuleConditionService from '../service/rule-condition.service';
 
@@ -60,38 +61,31 @@ describe('rule condition assignment restrictions', () => {
             },
         ];
 
-        wrapper = shallowMount(await wrapTestComponent('sw-advanced-selection-rule', { sync: true }), {
+        const repository = Shopware.Service('repositoryFactory').create('rule');
+        const items = new EntityCollection(
+            '/rule',
+            'rule',
+            Shopware.Context.api,
+            null,
+            rules.map((rule) => Object.assign(repository.create(Shopware.Context.api), rule)),
+            rules.length,
+        );
+
+        wrapper = shallowMount(await wrapTestComponent('sw-entity-advanced-selection-modal-grid', { sync: true }), {
             props: {
-                ruleAwareGroupKey: assignment,
-            },
-            global: {
-                provide: {
-                    ruleConditionDataProviderService: service,
-                },
-                stubs: {
-                    'sw-entity-advanced-selection-modal': {
-                        data() {
-                            return { rules };
-                        },
-                        template: `
-                            <div>
-                                <div v-for="rule in rules" :key="rule.id" :data-rule-id="rule.id">
-                                    <slot name="column-name" :item="rule" />
-                                </div>
-                            </div>
-                        `,
-                    },
+                dataSource: items,
+                repository,
+                columns: [{ property: 'name', label: 'Name' }],
+                isRecordSelectableCallback(item: { conditions: EntityCollection<'rule_condition'> }) {
+                    return { isSelectable: !service.isRuleRestricted(item.conditions, assignment) };
                 },
             },
         });
+        await flushPromises();
 
-        expect(wrapper.get('[data-rule-id="admin-only"] span').classes()).not.toContain(
-            'sw-advanced-selection-rule-disabled',
-        );
-        expect(wrapper.get('[data-rule-id="storefront-only"] span').classes()).not.toContain(
-            'sw-advanced-selection-rule-disabled',
-        );
-        expect(wrapper.get('[data-rule-id="flow-only"] span').classes()).toContain('sw-advanced-selection-rule-disabled');
-        expect(wrapper.get('[data-rule-id="mixed"] span').classes()).toContain('sw-advanced-selection-rule-disabled');
+        expect(wrapper.get('.sw-data-grid__row--0 input[type="checkbox"]').attributes('disabled')).toBeUndefined();
+        expect(wrapper.get('.sw-data-grid__row--1 input[type="checkbox"]').attributes('disabled')).toBeUndefined();
+        expect(wrapper.get('.sw-data-grid__row--2 input[type="checkbox"]').attributes('disabled')).toBe('');
+        expect(wrapper.get('.sw-data-grid__row--3 input[type="checkbox"]').attributes('disabled')).toBe('');
     });
 });

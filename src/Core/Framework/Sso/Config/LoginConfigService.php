@@ -39,6 +39,7 @@ readonly class LoginConfigService
     public function __construct(
         private array $rawConfig,
         private RouterInterface $router,
+        private bool $passwordRecoveryEnabled = true,
     ) {
     }
 
@@ -71,6 +72,7 @@ readonly class LoginConfigService
         return new TemplateData(
             $loginConfig->useDefault ?? true,
             $loginConfig ? TrustedOriginUrlGenerator::generate($this->router, 'oauth.sso.auth', ['rdm' => $random]) : null,
+            $this->passwordRecoveryEnabled,
         );
     }
 

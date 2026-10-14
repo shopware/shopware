@@ -246,35 +246,5 @@ jobs:
             ${{ needs.collect-reviewers.outputs.reviewers && join(fromJSON(needs.collect-reviewers.outputs.reviewers), ',') || '' }}
           labels: >- # Inherit original labels, except backport and milestone ones
             ${{ needs.parse-labels.outputs.labels && join(fromJSON(needs.parse-labels.outputs.labels), ',') || '' }}
+          enable-err-notification: true
           dry-run: ${{ github.event.act && true || false }}
-
-      # Base sha, never the PR head: pull_request_target runs with a token a fork must not steer.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        if: failure()
-        with:
-          ref: ${{ github.event.pull_request.base.sha }}
-          sparse-checkout: .github/bin/js
-
-      - name: Notify about failed backport
-        if: failure()
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        env:
-          TARGET_BRANCH: ${{ matrix.target-branch }}
-          MERGED_BY: ${{ github.event.pull_request.merged_by && github.event.pull_request.merged_by.login || '' }}
-          ASSIGNEES: ${{ github.event.pull_request.assignees && join(github.event.pull_request.assignees.*.login, ',') || '' }}
-          ISSUE_OWNER: ${{ needs.find-linked-issue.outputs.owner }}
-          ISSUE_REPOSITORY: ${{ needs.find-linked-issue.outputs.repository }}
-          ISSUE_NUMBER: ${{ needs.find-linked-issue.outputs.number }}
-        with:
-          github-token: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts-shopware-backport.outputs.token }}
-          script: |
-            const { notifyBackportFailure } = await import('${{ github.workspace }}/.github/bin/js/backport-failure.ts')
-            await notifyBackportFailure(github, {
-              targetBranch: process.env.TARGET_BRANCH,
-              pullRequest: { ...context.repo, number: context.payload.pull_request.number },
-              runUrl: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-              mentions: [process.env.MERGED_BY, ...process.env.ASSIGNEES.split(',')],
-              linkedIssue: process.env.ISSUE_NUMBER
-                ? { owner: process.env.ISSUE_OWNER, repo: process.env.ISSUE_REPOSITORY, number: parseInt(process.env.ISSUE_NUMBER) }
-                : undefined,
-            })

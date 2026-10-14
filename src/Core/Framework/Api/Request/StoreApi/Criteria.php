@@ -4,12 +4,12 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-16 14:37:41
+ * Last generated: 2026-10-14 15:28:02
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
 
-use Shopware\Core\Framework\Api\AbstractDto;
+use Shopware\Core\Framework\Api\Request\AbstractRequest;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-final class Criteria extends AbstractDto
+final class Criteria extends AbstractRequest
 {
     /**
      * Search result page
@@ -95,7 +95,7 @@ final class Criteria extends AbstractDto
      * Whether the total for the total number of hits should be determined for the search query. none = disabled total count, exact = calculate exact total amount (slow), next-pages = calculate only for next page (fast)
      */
     #[SerializedName('total-count-mode')]
-    public TotalCountMode $totalCountMode = TotalCountMode::NONE;
+    public TotalCountMode $totalCountMode;
 
     /**
      * @var array<string, list<string>>

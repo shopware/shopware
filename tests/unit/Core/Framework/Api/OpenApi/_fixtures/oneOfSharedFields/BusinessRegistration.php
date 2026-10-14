@@ -21,7 +21,7 @@ final class BusinessRegistration extends AbstractRequest
      * Account type
      */
     #[Assert\Choice(choices: ['business'])]
-    public string $accountType = 'business';
+    public string $accountType;
 
     /**
      * @internal

@@ -20,6 +20,24 @@ use Symfony\Component\Finder\Finder;
 #[CoversClass(OpenApiDtoSchemaParser::class)]
 class OpenApiDtoSchemaParserTest extends TestCase
 {
+    public function testRequestDependenciesPreserveOptionalPropertyPresence(): void
+    {
+        $schema = $this->loadSchema('../_fixtures_generator/requestDefaults.json');
+        $parser = new OpenApiDtoSchemaParser();
+
+        foreach ([$parser->parse($schema), $parser->parse($schema, includeComponentSchemas: false, namespace: 'App\\DTO'), $parser->parseComponents($schema, ['SharedDefaults'], 'App\\Shared')] as $definitions) {
+            foreach ($definitions as $definition) {
+                static::assertTrue($definition->preserveOptionalPropertyPresence, $definition->name);
+            }
+        }
+
+        $definitions = $parser->parseComponents($schema, ['SharedDefaults'], 'App\\Shared');
+        $count = $definitions[0]->properties[0];
+        static::assertSame('count', $count->name);
+        static::assertTrue($count->hasDefaultValue);
+        static::assertSame(10, $count->defaultValue);
+    }
+
     public function testPreservesSchemaNamesForPropertiesAndParameters(): void
     {
         $definitions = (new OpenApiDtoSchemaParser())->parse($this->loadSchema('parameterWireNames/schema.json'));

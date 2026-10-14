@@ -266,6 +266,16 @@ describe('plugin/google-analytics/product-page.helper', () => {
             expect(ProductPageHelper.getGraduatedPrice(document.querySelector('.buy-widget'), 5)).toBeUndefined();
         });
 
+        test('charges the first tier without a quantity', () => {
+            expect(ProductPageHelper.getGraduatedPrice(document.querySelector('.buy-widget'), undefined)).toBe(20);
+        });
+
+        test('returns undefined for an empty list of tiers', () => {
+            document.body.innerHTML = '<div data-product-prices="[]"><form class="buy-widget"></form></div>';
+
+            expect(ProductPageHelper.getGraduatedPrice(document.querySelector('.buy-widget'), 5)).toBeUndefined();
+        });
+
         test('returns undefined for invalid price data', () => {
             document.body.innerHTML = '<div data-product-prices="not json"><form class="buy-widget"></form></div>';
 

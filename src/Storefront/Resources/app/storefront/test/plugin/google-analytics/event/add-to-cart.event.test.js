@@ -149,6 +149,17 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
             expect(parameters.items[0].price).toBe(15);
         });
 
+        // a theme can render the hidden line items without the line item id
+        test('matches the line by the product id without a line item id', async () => {
+            const parameters = await submitFromBuyWidget(2, `
+                <div class="hidden-line-items-information">
+                    <span class="hidden-line-item" data-id="product-1" data-quantity="9"></span>
+                </div>
+            `);
+
+            expect(parameters.items[0].price).toBe(15);
+        });
+
         test('ignores a line of the same product under another line item id', async () => {
             const parameters = await submitFromBuyWidget(2, `
                 <div class="hidden-line-items-information">
@@ -417,5 +428,47 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         await flushPromises();
 
         expect(window.gtag).toHaveBeenCalledTimes(1);
+    });
+
+    test('reports no value when the price of the product is unknown', () => {
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstances.push(addToCartInstance);
+
+        const event = new AddToCartEvent();
+        event.execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+        formData.append('product-name', 'Test Product');
+        formData.append('lineItems[product-123][quantity]', '2');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        const [, , parameters] = window.gtag.mock.calls[0];
+        expect(parameters).not.toHaveProperty('value');
+        expect(parameters.items[0]).not.toHaveProperty('price');
+        expect(parameters.items[0]).toEqual(expect.objectContaining({ item_id: 'product-123', quantity: 2 }));
+    });
+
+    test('reports the unit price as value without a quantity in the form', () => {
+        document.body.innerHTML = `
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
+        `;
+
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstances.push(addToCartInstance);
+
+        const event = new AddToCartEvent();
+        event.execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
+            'value': 99.99,
+        }));
     });
 });

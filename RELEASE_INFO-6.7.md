@@ -21,6 +21,8 @@ Custom static documents must work without scripts, embedded documents, base URL 
 
 HTML files are still accepted as private media, for example for accessible HTML documents. Uploads of HTML files to public media now fail with `CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED`. HTML files that were uploaded to public media before this change are still served. Review them and delete the ones you do not need.
 
+S3 and other object storages serve a file with the content type stored at upload time, not with the type of its extension. Uploads whose content is HTML, XHTML, SVG or another XML type are therefore rejected with `CONTENT__MEDIA_INVALID_FILE` unless the file extension belongs to that type. This applies to the regular and the presigned upload flow. For example, an HTML document uploaded as `.jpg` or an SVG uploaded as `.png` is no longer accepted.
+
 If your shop needs HTML files as public media, add `html` to `shopware.filesystem.allowed_extensions` in your own configuration and serve these files from a separate domain or with a `Content-Security-Policy: sandbox` header.
 
 ### Sales channel contexts expose the default currency again

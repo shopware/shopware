@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\Api;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
@@ -160,6 +161,41 @@ class MediaUploadControllerTest extends TestCase
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertNull($media->getFileExtension());
         static::assertFalse($media->hasFile());
+    }
+
+    #[DataProvider('disguisedActiveContentProvider')]
+    public function testUploadingActiveContentWithForeignExtensionIsRejected(string $extension, string $content): void
+    {
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf('/api/_action/media/%s/upload?extension=%s', $this->mediaId, $extension),
+            [],
+            [],
+            [
+                'HTTP_CONTENT-TYPE' => 'application/octet-stream',
+                'HTTP_CONTENT-LENGTH' => \strlen($content),
+            ],
+            $content
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        $responseContent = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), $responseContent);
+        static::assertSame(MediaException::MEDIA_INVALID_FILE, json_decode($responseContent, true)['errors'][0]['code'], $responseContent);
+
+        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->getEntities()->get($this->mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertFalse($media->hasFile());
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function disguisedActiveContentProvider(): iterable
+    {
+        yield 'html as jpg' => ['jpg', self::HTML_PAYLOAD];
+        yield 'svg with script as png' => ['png', (string) file_get_contents(self::UNSAFE_SVG)];
     }
 
     public function testUploadingHtmlAsPrivateMediaIsStillAccepted(): void

@@ -74,6 +74,7 @@ class FileSaver
         );
 
         $this->extensionValidator->validate($mediaFile->getFileExtension(), $currentMedia->isPrivate(), $context, $mediaId);
+        $this->extensionValidator->validateContentType($mediaFile->getFileExtension(), $mediaFile->getMimeType());
         $this->fileContentValidationStrategy->validate($mediaFile);
 
         $this->cleanup->removeOldMediaData($currentMedia, $context);

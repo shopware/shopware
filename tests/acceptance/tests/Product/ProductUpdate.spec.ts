@@ -46,8 +46,12 @@ test(
             await ShopAdmin.fillsIn(AdminProductDetail.categoriesSearchInput, category.name);
             await AdminProductDetail.categorySearchResult(category.name).click();
             // The category tree keeps its result popover open, which would cover the Sales Channel
-            // select. Escape would cancel the whole edit, so the popover is dismissed by a neutral click.
-            await AdminProductDetail.productHeadline.click();
+            // select. Escape would cancel the whole edit, and a click can land on the popover itself
+            // when the category list is long, so it is closed with Tab like an outside click.
+            await AdminProductDetail.categoriesSearchInput.press('Tab');
+            await ShopAdmin.expects(
+                AdminProductDetail.page.locator('.sw-category-tree-field__results_popover'),
+            ).toBeHidden();
             await AdminProductDetail.saleChannelsSearchInput.click();
 
             await ShopAdmin.fillsIn(AdminProductDetail.saleChannelsSearchInput, DefaultSalesChannel.salesChannel.name);

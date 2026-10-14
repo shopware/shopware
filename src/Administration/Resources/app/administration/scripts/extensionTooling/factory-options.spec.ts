@@ -89,6 +89,22 @@ describe('extension-tooling eslint factory host options', () => {
                 'sw-deprecation-rules/no-deprecated-components',
             ),
         ).toBe('error');
+        expect(ruleSeverity(blocks, 'shopware/admin-extension/i18n-deprecations', 'sw-core-rules/no-tc-translation')).toBe(
+            'error',
+        );
+    });
+
+    it('follows the umbrella severity for the deprecated i18n syntax', () => {
+        expect(
+            ruleSeverity(variants.umbrella, 'shopware/admin-extension/i18n-deprecations', 'sw-core-rules/no-tc-translation'),
+        ).toBe('warn');
+        expect(
+            ruleSeverity(
+                variants.splitSeverities,
+                'shopware/admin-extension/i18n-deprecations',
+                'sw-core-rules/no-tc-translation',
+            ),
+        ).toBe('warn');
     });
 
     it('bakes native-setup support into every extension config by default', () => {

@@ -77,6 +77,23 @@ class WriteAuthorizerTest extends TestCase
         $this->assertViolation($this->authorize([$update], $this->userContext(Uuid::randomHex(), isAdmin: true)), WebhookException::APP_WEBHOOK_NOT_MODIFIABLE);
     }
 
+    public function testOnlyAnAdminMaySwitchAnAppsWebhookOnOrOff(): void
+    {
+        $update = $this->updateWebhook(['active' => 1]);
+        $this->storeWebhook($update, SubscriberType::App, Uuid::randomHex());
+
+        static::assertSame([], $this->authorize([$update], $this->userContext(Uuid::randomHex(), isAdmin: true)));
+        $this->assertViolation($this->authorize([$update]), WebhookException::APP_WEBHOOK_NOT_MODIFIABLE);
+    }
+
+    public function testAnAdminMayNotChangeMoreThanTheActiveFlagOfAnAppsWebhook(): void
+    {
+        $update = $this->updateWebhook(['active' => 1, 'url' => 'https://example.com']);
+        $this->storeWebhook($update, SubscriberType::App, Uuid::randomHex());
+
+        $this->assertViolation($this->authorize([$update], $this->userContext(Uuid::randomHex(), isAdmin: true)), WebhookException::APP_WEBHOOK_NOT_MODIFIABLE);
+    }
+
     public function testOnlyTheOwningUserMayModify(): void
     {
         $update = $this->updateWebhook(['url' => 'https://example.com']);

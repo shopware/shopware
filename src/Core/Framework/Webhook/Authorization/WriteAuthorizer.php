@@ -75,10 +75,15 @@ class WriteAuthorizer
         $source = $context->getSource();
         $violations = [];
 
-        foreach (array_keys(array_filter($commands, self::isModification(...))) as $webhookId) {
+        foreach (array_filter($commands, self::isModification(...)) as $webhookId => $command) {
             $subscription = $stored[$webhookId] ?? null;
             if ($subscription?->belongsToApp()) {
-                $violations[$webhookId] = WebhookException::appWebhookNotModifiable($webhookId);
+                // an admin may still switch an app's webhook on or off, e.g. after it was disabled for failing
+                $onlyActive = $command instanceof UpdateCommand
+                    && array_diff(array_keys($command->getPayload()), ['active', 'updated_at']) === [];
+                if (!$onlyActive || !$source instanceof AdminApiSource || !$source->isAdmin()) {
+                    $violations[$webhookId] = WebhookException::appWebhookNotModifiable($webhookId);
+                }
 
                 continue;
             }

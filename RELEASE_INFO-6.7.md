@@ -313,6 +313,10 @@ This will allow async payment methods to leave the order transaction in "unconfi
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
 
+### Large MCP tool results from extensions are offloaded like core results
+
+MCP tools from plugins and bundles that extend `McpToolResponse` now store results larger than 100 KB in the tool-result cache on the Admin API endpoint, like core tools already did. The response then contains `_meta.resourceUri` instead of the full data, and the model reads the data with `resources/read`. Before, these results were always returned inline. On the Store API endpoint, results stay inline until it has a tool-result resource to read them back.
+
 ### The MCP `discovery` tool group is reserved for the core discovery tools
 
 A fresh MCP session advertises the tools in the `discovery` group on every connection. That group is now limited to `shopware-tool-search`, `shopware-toolsets-list` and `shopware-toolset-enable`. A plugin or bundle tool that declares `#[McpToolGroup('discovery')]` is moved to the `other` toolset: it stays callable and can be enabled, but is no longer on the default surface. `bin/console debug:mcp` lists such tools, and the new PHPStan rule `shopware.mcpReservedToolGroup` reports them. To show your tools on the first `tools/list`, give them a group of their own and select it at connect time with `?toolsets=<group>`.
@@ -364,6 +368,12 @@ The order confirmation mail reads the GARAN label from the new `garanLabels` tem
 
 If you customized the order confirmation mail, replace `nestedItem.productId|sw_garan_label_mail(context)` with `garanLabels[nestedItem.productId] ?? null`, and `lineItem.productId|sw_garan_label_mail(context)` with `garanLabels[lineItem.productId] ?? null` in the plain text version. `garanLabels` is passed to every mail template that references it and has an `order` in its data.
 
+### Order line items keep the GARAN label they were ordered with
+
+When an order is placed, its product line items now store the GARAN label values in `payload.garanLabel`. The storefront shows the label the order was placed with. Editing an order keeps the stored values; products added while editing get their current label. Cart line items and order line items from before this change have no `garanLabel` key and show the product's current label.
+
+Headless frontends can read the stored values from the order line item's payload instead of `/store-api/product/{productId}/garan-label`.
+
 ### GARAN guarantee terms per product
 
 Product's new fields for the guarantee terms, inherited by variants: `guaranteeTermsMediaId` for a PDF and `guaranteeTermsUrl` for a web page. `guaranteeTermsUrl` only accepts `http://` and `https://` URLs; other values are rejected with the `INVALID_GARAN_GUARANTEE_TERMS_URL` violation.
@@ -397,6 +407,20 @@ Run `bin/console es:index` after deploying. Existing documents have no price unt
 
 Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
 
+### MCP list change notifications reach sessions on every server
+
+When an app adds, changes or removes MCP tools, prompts or resources, every open MCP session on the Admin API endpoint now receives `notifications/tools/list_changed` (or the prompt or resource variant) after its next request, whichever server it is connected to. Before, only sessions known to the server that processed the app change were notified, because each server kept its own list of sessions.
+
+The list of sessions is gone, together with the `Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry` and `mcp.store_api.session_registry` services and their caches `shopware.mcp.session_registry_cache` and `mcp.store_api.session_registry_cache`. If you overrode them to share the list between servers, remove the override. A shared `framework.lock` is no longer needed for MCP notifications.
+### MCP removes many-to-many links through the mapping entity
+
+`shopware-entity-delete` now accepts mapping entities such as `product_category`, so an MCP client can remove a product from a category, or a property option from a product, without deleting either side. `ids` is then a list of objects that name every key field, for example `[{"productId": "…", "categoryId": "…"}]`. `shopware-entity-schema` reports the `mappingEntity` of each many-to-many association. Deleting rows that don't exist is now reported: as an error when none of them existed, and in `_meta.notFound` when only some did.
+### Stored MCP tool results are removed after 24 hours
+
+MCP tool results larger than 100 KB are stored in `mcp_tool_result_cache` and read back by the client with `resources/read`. Until now they were only removed when the client ended its session with `DELETE /api/_mcp` or `DELETE /store-api/_mcp`, so results of clients that never sent it stayed in the database. The new hourly scheduled task `mcp_tool_result_cache.cleanup` removes results older than 24 hours.
+
+Stored results can contain customer and order data. To keep them shorter, set `shopware.mcp.tool_result_cache_ttl` (in seconds, at least 60). The cleanup only runs where scheduled tasks are consumed, see [Scheduled tasks](https://developer.shopware.com/docs/guides/hosting/infrastructure/scheduled-task.html).
+
 ### Mail sent and mail error events carry the mail context
 
 `MailSentEvent` and `MailErrorEvent` now expose the data a mail was sent with, so subscribers can tell which template, event and sales channel a mail belongs to:
@@ -413,6 +437,11 @@ Both are experimental and become stable with 6.8.0.
 ### GLB uploads with external references are rejected
 
 GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_INVALID_FILE` if it is not a valid binary glTF 2.0 container or if the `uri` of a buffer or image points to something other than an embedded `data:` URI. Self-contained models, which keep their buffers and textures in the binary chunk, are not affected and URLs in other fields such as `extras` or `asset.copyright` are still allowed.
+### `ProductCartDataContextHashEvent` for state that product cart data depends on
+
+The data context hash of the cart products only covers the sales channel context and the tax rules.
+The cart reloads product data only when this hash changes, so extensions whose product data or prices depend on other state get stale cart data.
+Listeners can add parts to this event to include additional state in the hash for every state outside the sales channel context to force a reload of product data when that state changes.
 
 ### Apps without permissions can't declare required privileges for MCP tools
 
@@ -423,6 +452,20 @@ An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the ap
 The test helper trait `\Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait` is deprecated and will be removed in 6.8. Its `assertValues()` method now triggers a deprecation, and throws when the `v6.8.0.0` flag is active. Extension tests that use the trait should call `\Shopware\Core\Test\Assert\ArrayValues::assertValues($expected, $actual)` instead; the comparison is unchanged.
 
 ## API
+
+### MCP tool results carry `structuredContent` and `isError`
+
+Tool calls on `/api/_mcp` and `/store-api/_mcp` now return the result data as `structuredContent` next to the existing text block, so clients can read it without parsing JSON out of the text. Clients that negotiate a protocol revision before 2025-06-18 get no `structuredContent`, because that revision introduced it. A failed call sets `isError: true` and puts a stable code in `structuredContent.error.code`, for example `missing_privilege`, `invalid_arguments` or `tool_error`. The error envelope in the text block gains the same `code` key. Every result also carries `_meta["shopware/generatedAt"]`.
+
+The text block is unchanged, so clients that parse `{"success": ..., "data": ...}` keep working. Plugin tools that extend `McpToolResponse` get the new fields without any change. Tools can pass a stable code as the second argument of `McpToolResponse::error()`.
+
+With the `v6.8.0.0` feature flag, the first text block holds the plain data or the error message instead of the `success` envelope, followed by the summary and the metadata (`{"_meta": …}`) as blocks of their own. See `UPGRADE-6.8.md` for how to switch a client.
+
+### Large MCP tool results are linked with `resource_link` and work without a session
+
+A tool result larger than 100 KB is stored and linked instead of returned inline. The link is now a signed pointer for the caller: the integration or user on `/api/_mcp`, the sales channel and `sw-context-token` on `/store-api/_mcp`. It expires after an hour and can be read on any later request of the same caller, with or without an MCP session. Another caller gets "not found".
+
+The result keeps `_meta.resourceUri` in the text block and adds `_meta.expiresAt`. Clients on protocol 2025-06-18 or later also get the link as a `resource_link` content block. The Store API endpoint can now read these results with `resources/read`; before, its links could not be resolved. Store API clients have to send the same `sw-context-token` on the read. A Store API call without `sw-context-token` gets its result inline, because the token minted for that one request could never read it back.
 
 ### Parents without an available variant are not found
 
@@ -453,6 +496,12 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
+### Store API schema describes line item payloads per type
+
+The Store API schema no longer restricts the line item `type` to the core values, because extensions add their own types such as `customized-products` or `subscriptionDiscount`. `payload` is an open object whose keys depend on `type`. The new `ProductLineItemPayload` and `PromotionLineItemPayload` schemas describe the payloads of `product` and `promotion` line items, and `LineItem` and `OrderLineItem` apply them through `if`/`then` conditions on `type`. Both mark every key core always writes as required, except `productType` and `composition`. An order keeps the payload of the version that placed it, so orders from older versions can lack keys added since. The cart `LineItem.payload` no longer references `ProductJsonApi`. That schema was removed, along with the JSON:API resource and relationship schemas that only it used.
+
+Show a line item whose `type` you don't know from its common fields, such as `label`, `quantity` and the price, and ignore its `payload`. If you generate types from the schema, cast `payload` to `ProductLineItemPayload` or `PromotionLineItemPayload` after checking `type`. Extensions that add a line item type can describe its payload the same way by adding an `if`/`then` entry to `allOf` of `LineItem` and `OrderLineItem` in their own Store API schema files. Keys an extension adds to a core payload go into the `properties` of `ProductLineItemPayload` or `PromotionLineItemPayload` in those files. Undeclared keys aren't part of the schema, so generated types don't contain them.
+
 ### Store API resolves the context from the storefront session on request
 
 A Store API request that sends the storefront session cookie together with `sw-access-key` and the new header `sw-context-source: session` is resolved with the context token held in that session, so a client embedded in a storefront page shares the shopper's cart and login without managing a token. Login, registration, logout and password changes made this way are written back into the session.
@@ -479,6 +528,21 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 ## Administration
 
+### Native setup components support defineModel()
+
+`defineModel()` was rejected at build time inside a Shopware `<script setup>` block, so a base component had to declare the prop and the `update:` emit of a `v-model` binding by hand. It is now supported in base components and behaves as in any Vue component — the prop, the emit, the modifiers object and `{ default }` are all Vue's own:
+
+```vue
+<script setup lang="ts">
+const modelValue = defineModel<string>();
+
+swDefinePublic({ modelValue });
+</script>
+```
+
+The binding is ordinary base state: private unless listed in `swDefinePublic({ ... })`, and a write to it still emits, from the template, from a parent holding a template ref, and through an override that replaced it.
+
+`defineModel()` stays rejected in an override component, which declares neither props nor emits. Base components can use Vue's conventional binding names, including `const title = defineModel('title')` and `[modelValue, modelModifiers] = defineModel()`.
 ### [Internal] Native `<sw-block>` names are isolated per component
 
 Native `<sw-block>` blocks are now identified by `componentName + blockName`, matching how TwigJS identifies a `{% block %}`. Previously they matched on the block name alone, so a `<sw-block extends="foo">` or a legacy Twig override of `foo` could apply to a `<sw-block name="foo">` in an unrelated component. Blocks with the same name in different components are now isolated, and a `name` / `extends` pair only resolves against each other within the same component. No action is required from core or plugin developers.
@@ -721,6 +785,16 @@ The deliverability card of digital products has a new "Allow multiple units per 
 - The method `moveGalleryItem(item, position)` moves a grid item when it is dragged or marked as cover. Override it together with `galleryItems` when your items share the position space with the product media.
 
 ## Storefront
+
+### Category Twig function removal postponed to 6.9
+
+The deprecated `category_url` and `category_linknewtab` Twig functions remain available throughout 6.8 and will be removed in 6.9.0. Extension and theme developers should migrate to `category.seoUrl` (available on `SalesChannelCategoryEntity`) and `category.shouldOpenInNewTab`. See the [migration instructions](UPGRADE-6.9.md#removed-category_url-and-category_linknewtab-twig-functions).
+
+### Essential characteristics label custom fields with their snippet
+
+Essential characteristics of a product now label a custom field with its `customFields.<name>` snippet, which Shopware creates in every snippet set when the custom field is created. Editing that snippet in Settings > Snippets, or overriding it in a theme's snippet files, changes the label shown in the cart, the off-canvas cart and the checkout. Before, only the label from the custom field's configuration was used and changes to the snippet had no effect.
+
+The snippet is read in the language of the context, so Store API carts and orders recalculated in the Administration are labelled in their own language as well. The label of the custom field's configuration is still used when the snippet is missing, empty, or holds the technical name of the custom field, which is the value Shopware writes for a snippet set whose language had no label when the custom field was created. Shops that changed the label in Settings > Custom fields without updating the snippet now see the snippet value, which still holds the label from the time the custom field was created. Update the snippet to the new label in this case.
 
 ### Improved extensibility of buy widget form
 

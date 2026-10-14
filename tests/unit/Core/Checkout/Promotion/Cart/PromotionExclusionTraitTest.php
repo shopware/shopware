@@ -147,7 +147,7 @@ class ExclusionTraitUser
     {
     }
 
-    private function isRequirementValid(LineItem $lineItem, Cart $calculated, SalesChannelContext $context): bool
+    protected function isRequirementValid(LineItem $lineItem, Cart $calculated, SalesChannelContext $context): bool
     {
         return $this->requirements[$lineItem->getId()] ?? true;
     }

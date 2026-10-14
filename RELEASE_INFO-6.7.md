@@ -781,9 +781,9 @@ Storefront analytics now report the selected options of a variant as `item_varia
 
 ### Storefront analytics request the categories of products outside a category
 
-`add_to_cart`, `add_to_wishlist` and `remove_from_wishlist` now report the categories of a product added or removed on a page whose breadcrumb does not describe it, such as the homepage, a landing page, the wishlist or a cross selling product on a product detail page. The analytics script requests the path on the click from the new route `frontend.analytics.product-categories` (`GET /widgets/analytics/product-categories?productId=<id>`). The route returns the breadcrumb of the product detail page as a list of category names, resolved by the Store API breadcrumb route, and is HTTP cached. It returns a 404 for a sales channel without active analytics, and its URL is only added to `window.router` when analytics are active.
+On a page whose breadcrumb does not describe a product, such as the homepage or the wishlist, `add_to_cart` and the wishlist events now report the categories of the product. They are requested from the new HTTP cached route `frontend.analytics.product-categories`, which returns a 404 for a sales channel without active analytics.
 
-The wishlist page holds the removal of a product back until `remove_from_wishlist` is sent, for at most one second.
+The wishlist page holds the removal of a product back for at most one second, until `remove_from_wishlist` is sent.
 
 ### Essential characteristics label custom fields with their snippet
 

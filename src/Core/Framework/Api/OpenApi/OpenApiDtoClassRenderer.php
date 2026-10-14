@@ -201,6 +201,29 @@ final class OpenApiDtoClassRenderer
             return $lines;
         }
 
+        $unionTypes = explode('|', $property->phpType);
+        if (\count($unionTypes) > 1 && \in_array(OpenApiDtoSchemaParser::PHP_TYPE_ARRAY, $unionTypes, true)) {
+            $arrayType = match (true) {
+                $property->arrayMapValueType !== null => 'array<string, ' . $property->arrayMapValueType . '>',
+                $property->arrayItemType !== null => 'list<' . $property->arrayItemType . '>',
+                default => 'array<string, mixed>',
+            };
+            $phpDocType = implode('|', array_map(
+                static fn (string $type): string => $type === OpenApiDtoSchemaParser::PHP_TYPE_ARRAY ? $arrayType : $type,
+                $unionTypes,
+            ));
+
+            $lines[] = '        /**';
+            if ($property->description !== null) {
+                $lines[] = '         * ' . $this->escapePhpDoc($property->description);
+                $lines[] = '         *';
+            }
+            $lines[] = '         * @var ' . $phpDocType;
+            $lines[] = '         */';
+
+            return $lines;
+        }
+
         if ($property->phpType === OpenApiDtoSchemaParser::PHP_TYPE_ARRAY && $property->arrayMapValueType !== null) {
             $lines[] = '        /**';
             if ($property->description !== null) {

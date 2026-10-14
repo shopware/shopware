@@ -29,6 +29,16 @@ final class Criteria extends AbstractDto
     public array $includes;
 
     /**
+     * @var array<string, string|array<string, mixed>>
+     */
+    public array $links;
+
+    /**
+     * @var string|array<string, mixed>
+     */
+    public string|array $link;
+
+    /**
      * @internal
      */
     public function __construct(

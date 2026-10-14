@@ -1,0 +1,56 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Explicit component package",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/order": {
+            "post": {
+                "operationId": "createOrder",
+                "x-dto-package": "checkout",
+                "responses": {
+                    "200": {
+                        "description": "Order created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrderEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "OrderEnvelope": {
+                "type": "object",
+                "properties": {
+                    "order": {
+                        "$ref": "#/components/schemas/Order"
+                    }
+                }
+            },
+            "Order": {
+                "x-dto-package": "framework",
+                "type": "object",
+                "properties": {
+                    "details": {
+                        "$ref": "#/components/schemas/OrderDetails"
+                    }
+                }
+            },
+            "OrderDetails": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,40 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Inherited extensions property",
+        "version": "1.0.0"
+    },
+    "paths": [],
+    "components": {
+        "schemas": {
+            "RequiredExtensions": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "extensions"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "extensions": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                }
+            },
+            "OptionalExtensions": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "extensions": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                }
+            }
+        }
+    }
+}

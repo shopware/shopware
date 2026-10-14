@@ -80,6 +80,10 @@ class AclRoleLoader
      */
     public function getPrivilegesForRoles(array $roleIds): array
     {
+        if ($roleIds === []) {
+            return [];
+        }
+
         $roles = $this->connection->fetchAllAssociative(
             <<<'SQL'
                 SELECT `id`, `privileges`

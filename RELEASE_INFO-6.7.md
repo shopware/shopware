@@ -755,30 +755,25 @@ The deliverability card of digital products has a new "Allow multiple units per 
 
 ### Storefront analytics send GA4 ecommerce events
 
-Storefront analytics now send ecommerce events in the format Google documents for GA4. This changes the data your tracking setup receives:
+Storefront analytics now send ecommerce events in the format Google documents for GA4. Tracking setups have to adapt to these changes:
 
-* With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`, and the previous ecommerce object is cleared first. Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead. With a Google tag ID, events are still sent through `gtag('event', ...)`.
-* Item properties are named `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`.
-* Numeric values such as `value`, `price` and `quantity` are numbers instead of strings.
-* The event `value` of cart, checkout and `purchase` events is the position price: all line items including promotion discounts, without shipping. Shipping and tax are still reported separately. Item prices stay the unit price before discounts. The applied promotion codes are reported as `coupon`.
-* `add_to_cart` reports the unit price and the value of the added quantity.
-* Discounts and other line items that are not products are no longer reported as items.
+* With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`. Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
+* Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings.
+* The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`. Discounts are no longer reported as items.
 
-The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics, and its `data-value` attribute holds the position price instead of the total price.
+The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics. The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
 
 ### Storefront analytics recognize product elements of extensions
 
-Storefront analytics now treat every element with a `data-product-information` attribute as a product element, not only elements with the `.product-box` class. Extensions that render products in their own markup are reported in `view_item_list`, `add_to_cart` and the wishlist events when the attribute holds a JSON object with at least the product `id`. The optional properties `sku`, `name`, `brand` and `price` fill the GA4 item. On a product detail page, adding a cross selling or slider product to the cart reports that product instead of the product of the page.
+Storefront analytics now treat every element with a `data-product-information` attribute as a product, not only the `.product-box`. Products that extensions render in their own markup are reported as well. The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
 
 ### Storefront analytics report brand and category of products added from a product box
 
-With active analytics, adding a product to the cart from a product box now posts its brand and the categories of the current breadcrumb in the line item payload, the same `manufacturerName` and `categoryNames` the buy widget of the product detail page already posts. A reorder from the order history posts those of the original order. Cart, checkout and purchase events report them as `item_brand` and `item_category`. Nothing is added for a sales channel without analytics.
+With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does. Cart, checkout and purchase events report them as `item_brand` and `item_category`.
 
 ### Storefront analytics report each checkout step once
 
-The shipping and payment method forms of the checkout confirm page reload the page on every change, which reported `add_shipping_info` and `add_payment_info` on each reload and pushed their counts above `begin_checkout`. Both events are now reported once per selected method of a checkout. A reload that keeps the method reports nothing, and selecting another method reports it. The state lives in the session storage and is cleared by `begin_checkout` and `purchase`.
-
-A new customer now reports `add_shipping_info` with the preselected shipping method when submitting the registration on the checkout register page, where the shipping address is entered. The confirm page reports it again only when the customer selects a different method.
+`add_shipping_info` and `add_payment_info` are now reported once per selected method of a checkout, instead of on every reload of the confirm page. A new customer reports `add_shipping_info` when registering in the checkout.
 
 ### Storefront analytics report item variants and graduated prices
 

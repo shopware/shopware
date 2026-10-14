@@ -71,7 +71,6 @@
       "install": "Agentic Commerce installieren",
       "dismiss": "Agentic-Commerce-Hinweis schließen",
       "storeLoginRequired": {
-        "title": "Shopware Account",
         "message": "Verbinde Deinen Shopware Account, um Agentic Commerce herunterzuladen.",
         "login": "Anmelden"
       }

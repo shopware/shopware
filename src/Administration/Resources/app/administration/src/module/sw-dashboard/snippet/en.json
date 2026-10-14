@@ -71,7 +71,6 @@
       "install": "Get Agentic Commerce",
       "dismiss": "Dismiss Agentic Commerce notice",
       "storeLoginRequired": {
-        "title": "Shopware Account",
         "message": "Connect your Shopware Account to download Agentic Commerce.",
         "login": "Login"
       }

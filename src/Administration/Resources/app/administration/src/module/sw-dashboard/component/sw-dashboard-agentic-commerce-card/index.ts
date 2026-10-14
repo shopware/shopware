@@ -183,7 +183,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         showStoreLoginRequired(): void {
             this.createNotificationError({
-                title: this.$t('sw-dashboard.agenticCommerceCard.storeLoginRequired.title'),
                 message: this.$t('sw-dashboard.agenticCommerceCard.storeLoginRequired.message'),
                 autoClose: false,
                 actions: [

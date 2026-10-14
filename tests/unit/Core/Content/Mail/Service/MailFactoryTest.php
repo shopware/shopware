@@ -61,7 +61,7 @@ class MailFactoryTest extends TestCase
         static::assertSame('null-name@example.org', $mail->getTo()[1]->getAddress());
 
         static::assertSame('Message', $mail->getHtmlBody());
-        static::assertEmpty($mail->getTextBody());
+        static::assertNull($mail->getTextBody());
 
         static::assertStringContainsString('attachment', $mail->getAttachments()[0]->asDebugString());
 

@@ -160,7 +160,7 @@ class VersionManagerTest extends TestCase
 
         static::getContainer()->get('product.repository')->merge($versionId, $context);
 
-        static::assertNotEmpty($mergeScopes);
+        static::assertNotSame([], $mergeScopes);
         // some validators depend on that to disable insert/update validation for merge requests
         static::assertNotContains(false, $mergeScopes);
     }

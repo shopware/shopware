@@ -376,6 +376,9 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## `ReverseProxyCompilerPass` removed
+
+`Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass` was removed without replacement. Remove any manual registration of the compiler pass, and do not rely on reverse proxy services being absent from the container when the reverse proxy is disabled.
 ## Removal of legacy `ConfigurationService` getters
 
 The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` have been removed.
@@ -1107,6 +1110,26 @@ Refection has significantly improved in particular since PHP 8.1, therefore the 
 ```diff
 - $fileName = ReflectionHelper->getFileName(MyClass::class);
 + $fileName = \ReflectionClass(MyClass::class)->getFileName();
+```
+
+## Removal of `\Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait`
+
+The test helper trait `AssertValuesTrait` is removed. Use the static assertion class `\Shopware\Core\Test\Assert\ArrayValues` instead, which compares the same way:
+
+```diff
+- use Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait;
++ use Shopware\Core\Test\Assert\ArrayValues;
+
+  class MyTest extends TestCase
+  {
+-     use AssertValuesTrait;
+
+      public function testSomething(): void
+      {
+-         $this->assertValues($expected, $actual);
++         ArrayValues::assertValues($expected, $actual);
+      }
+  }
 ```
 
 ## Removal of ErrorRoutes
@@ -2223,11 +2246,6 @@ The following Twig blocks have been removed:
   - `sw_theme_manager_detail_content_areas`
   - `sw_theme_manager_detail_content_sections`
   - `sw_theme_manager_detail_content_fields`
-
-## Removal of $tc function:
-
-* The `$tc` function will be completely removed
-* All translation calls should use `$t` instead
 
 ## Removed translation of import/export profile label
 

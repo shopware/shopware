@@ -43,20 +43,22 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ProductDefinition::class),
         ])
-        ->tag('shopware.seo_url.route');
+        // EntityRouteResolver treats the first registered route of an entity as its canonical route,
+        // so the core page routes must precede additional routes extensions register for the same entity
+        ->tag('shopware.seo_url.route', ['priority' => 100]);
 
     $services->set(NavigationPageSeoUrlRoute::class)
         ->args([
             service(CategoryDefinition::class),
             service(CategoryBreadcrumbBuilder::class),
         ])
-        ->tag('shopware.seo_url.route');
+        ->tag('shopware.seo_url.route', ['priority' => 100]);
 
     $services->set(LandingPageSeoUrlRoute::class)
         ->args([
             service(LandingPageDefinition::class),
         ])
-        ->tag('shopware.seo_url.route');
+        ->tag('shopware.seo_url.route', ['priority' => 100]);
 
     $services->set(SeoUrlUpdateListener::class)
         ->args([

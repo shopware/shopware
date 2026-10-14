@@ -23,8 +23,8 @@ class PluginClassGeneratorTest extends TestCase
         $generator = new PluginClassGenerator();
 
         static::assertFalse($generator->hasCommandOption());
-        static::assertEmpty($generator->getCommandOptionName());
-        static::assertEmpty($generator->getCommandOptionDescription());
+        static::assertSame('', $generator->getCommandOptionName());
+        static::assertSame('', $generator->getCommandOptionDescription());
         static::assertSame('', $generator->getCommandOptionTitle());
         static::assertSame('', $generator->getCommandOptionDescriptionLong());
     }

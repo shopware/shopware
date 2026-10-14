@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -117,5 +118,47 @@ class ToolResultCacheStorageTest extends TestCase
 
         $storage = new ToolResultCacheStorage($connection, new NativeClock());
         $storage->deleteForSession('session-abc');
+    }
+
+    public function testDeleteOlderThanRemovesRowsAtOrBeforeThresholdInBoundedBatches(): void
+    {
+        $threshold = new \DateTimeImmutable('2026-09-23 12:00:00.000');
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('executeStatement')
+            ->with(
+                static::logicalAnd(
+                    static::stringContains('created_at'),
+                    static::stringContains('<='),
+                    static::stringContains('LIMIT'),
+                ),
+                [
+                    'threshold' => '2026-09-23 12:00:00.000',
+                    'limit' => 100,
+                ],
+                [
+                    'limit' => ParameterType::INTEGER,
+                ],
+            )
+            ->willReturn(3);
+
+        $storage = new ToolResultCacheStorage($connection, new NativeClock());
+
+        static::assertSame(3, $storage->deleteOlderThan($threshold));
+    }
+
+    public function testDeleteOlderThanLoopsUntilBatchIsNotFull(): void
+    {
+        $threshold = new \DateTimeImmutable('2026-09-23 12:00:00.000');
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->exactly(3))
+            ->method('executeStatement')
+            ->willReturnOnConsecutiveCalls(100, 100, 42);
+
+        $storage = new ToolResultCacheStorage($connection, new NativeClock());
+
+        static::assertSame(242, $storage->deleteOlderThan($threshold));
     }
 }

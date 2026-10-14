@@ -593,7 +593,7 @@ The meta title and meta description fields of the category and product SEO forms
 - Product: 56 characters for the meta title and 155 for the meta description, as named in their help texts. Inherited values are counted as well.
 
 Extensions can customize the hints through the new Twig blocks `sw_category_seo_form_meta_title_hint` and `sw_category_seo_form_meta_description_hint` for categories, and `sw_product_seo_form_meta_title_hint` and `sw_product_seo_form_meta_description_hint` for products.
-Extensions can customize the hints through the new Twig blocks `sw_category_seo_form_meta_title_hint` and `sw_category_seo_form_meta_description_hint`.
+
 ### Search types can supply their own criteria and result link
 
 Extensions that add an entity to the Administration search bar can now configure how its results are loaded and linked through `searchTypeService.upsertType`, without overriding `sw-search-bar` or `sw-search-bar-item`. Before, only `product` could get custom criteria, and results of other entities could only link to the detail route of their module.

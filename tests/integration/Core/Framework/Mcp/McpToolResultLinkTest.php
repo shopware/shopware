@@ -55,8 +55,8 @@ class McpToolResultLinkTest extends TestCase
 
         $stored = json_decode($read['contents'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertTrue($stored['success']);
-        self::assertIsList($stored['data']);
-        self::assertNotSame([], $stored['data']);
+        static::assertIsList($stored['data']);
+        static::assertNotSame([], $stored['data']);
     }
 
     public function testAnotherAdminPrincipalCannotReadTheLink(): void

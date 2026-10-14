@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Authorization\Subscription;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Acl\ApiCallerType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\Policy;
@@ -40,42 +41,42 @@ class SubscriptionValidatorTest extends TestCase
         $collector = $this->createMock(HookableEventCollector::class);
         $collector->expects($this->never())->method('getHookableEventNamesWithPrivileges');
 
-        $refusals = (new SubscriptionValidator($collector, new PolicyRegistry([])))->validate([], null, Subscriber::user(), Context::createDefaultContext());
+        $refusals = (new SubscriptionValidator($collector, new PolicyRegistry([])))->validate([], null, Subscriber::api(ApiCallerType::User), Context::createDefaultContext());
 
         static::assertEquals(new SubscriptionRefusals(), $refusals);
     }
 
     public function testUnhookableEventIsRefused(): void
     {
-        $refusals = $this->validator->validate(['hook' => 'unknown.event'], [], Subscriber::user(), Context::createDefaultContext());
+        $refusals = $this->validator->validate(['hook' => 'unknown.event'], [], Subscriber::api(ApiCallerType::User), Context::createDefaultContext());
 
         static::assertEquals(new SubscriptionRefusals(notHookable: ['hook']), $refusals);
     }
 
     public function testPolicyRefusalIsReported(): void
     {
-        $refusals = $this->validator->validate(['hook' => 'order.written'], [], Subscriber::user(), Context::createDefaultContext());
+        $refusals = $this->validator->validate(['hook' => 'order.written'], [], Subscriber::api(ApiCallerType::User), Context::createDefaultContext());
 
         static::assertEquals(new SubscriptionRefusals(notPermitted: ['hook']), $refusals);
     }
 
     public function testMissingPrivilegesAreReported(): void
     {
-        $refusals = $this->validator->validate(['hook' => 'product.written'], ['order:read'], Subscriber::user(), Context::createDefaultContext());
+        $refusals = $this->validator->validate(['hook' => 'product.written'], ['order:read'], Subscriber::api(ApiCallerType::User), Context::createDefaultContext());
 
         static::assertEquals(new SubscriptionRefusals(missingPrivileges: ['hook' => ['product:read']]), $refusals);
     }
 
     public function testHeldPrivilegesArePermitted(): void
     {
-        $refusals = $this->validator->validate(['hook' => 'product.written'], ['product:read', 'order:read'], Subscriber::user(), Context::createDefaultContext());
+        $refusals = $this->validator->validate(['hook' => 'product.written'], ['product:read', 'order:read'], Subscriber::api(ApiCallerType::User), Context::createDefaultContext());
 
         static::assertEquals(new SubscriptionRefusals(), $refusals);
     }
 
     public function testNullPrivilegesHoldEverything(): void
     {
-        $refusals = $this->validator->validate(['hook' => 'product.written'], null, Subscriber::user(), Context::createDefaultContext());
+        $refusals = $this->validator->validate(['hook' => 'product.written'], null, Subscriber::api(ApiCallerType::User), Context::createDefaultContext());
 
         static::assertEquals(new SubscriptionRefusals(), $refusals);
     }

@@ -777,7 +777,7 @@ With active analytics, adding a product from a product box now posts its brand a
 
 ### Storefront analytics report item variants and graduated prices
 
-Storefront analytics now report the selected options of a variant, such as `Red, L`, as `item_variant` in product, list, wishlist, cart, checkout and purchase events. `add_to_cart` on the product detail page reports the unit price of the graduated price tier that applies to the quantity the cart holds after the add, instead of the cheapest tier. For a sales channel with active analytics, the buy widget renders the `data-product-variant` and `data-product-prices` attributes, the product box adds `variant` to its `data-product-information`, and the hidden line items render `data-variant`.
+Storefront analytics now report the selected options of a variant as `item_variant`. `add_to_cart` on the product detail page reports the graduated price of the quantity the cart holds after the add.
 
 ### Essential characteristics label custom fields with their snippet
 

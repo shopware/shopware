@@ -17,10 +17,6 @@ shopware:
         default: false
         major: true
         toggleable: false
-      - name: v6.9.0.0
-        default: false
-        major: true
-        toggleable: false
       - name: DISABLE_VUE_COMPAT
         default: true
         major: true

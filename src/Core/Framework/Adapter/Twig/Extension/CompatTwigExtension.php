@@ -28,10 +28,6 @@ class CompatTwigExtension extends AbstractExtension
             'sw_breadcrumb_full',
             'sw_breadcrumb_full_by_id',
         ],
-        'v6.9.0.0' => [
-            'category_url',
-            'category_linknewtab',
-        ],
     ];
 
     /**

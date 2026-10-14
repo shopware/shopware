@@ -9,7 +9,6 @@ use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Framework\Adapter\Twig\Extension\CategoryUrlExtension;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -23,7 +22,6 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 #[CoversClass(CategoryUrlExtension::class)]
 class CategoryUrlExtensionTest extends TestCase
 {
-    #[DisabledFeatures(['v6.9.0.0'])]
     public function testGetCategoryUrlUsesSalesChannelContextFallback(): void
     {
         $category = new CategoryEntity();

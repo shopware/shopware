@@ -29,6 +29,32 @@ use Symfony\Component\Validator\Validation;
 #[CoversClass(OpenApiDtoClassRenderer::class)]
 class OpenApiDtoClassRendererTest extends TestCase
 {
+    public function testRequestDefaultsPreserveOmissionAndExplicitValues(): void
+    {
+        $class = $this->loadRenderedClass('../_fixtures_generator/requestDefaults.json', 'CreateDefaultsRequest');
+        $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer())], [new JsonEncoder()]);
+        $dto = $serializer->denormalize(['id' => 'input'], $class->getName());
+
+        static::assertSame(['id' => 'input'], get_object_vars($dto));
+        static::assertJsonStringEqualsJsonString('{"id":"input"}', $serializer->serialize($dto, 'json'));
+        $constructor = $class->getConstructor();
+        static::assertNotNull($constructor);
+        static::assertSame(1, $constructor->getNumberOfRequiredParameters());
+
+        $data = ['id' => 'input', 'count' => 0, 'active' => false, 'comment' => null, 'source' => 'api'];
+        $dto = $serializer->denormalize($data, $class->getName());
+        static::assertEquals($data, get_object_vars($dto));
+        static::assertJsonStringEqualsJsonString(json_encode($data, \JSON_THROW_ON_ERROR), $serializer->serialize($dto, 'json'));
+    }
+
+    public function testNestedRequestDefaultsRemainUninitialized(): void
+    {
+        foreach (['CreateDefaultsRequestNested', 'SharedDefaults', 'SharedDefaultsNested'] as $name) {
+            $class = $this->loadRenderedClass('../_fixtures_generator/requestDefaults.json', $name);
+            static::assertSame([], get_object_vars($class->newInstance()));
+        }
+    }
+
     public function testGeneratedConstantsValidateWithoutDefaults(): void
     {
         $class = $this->loadRenderedClass('constants/schema.json', 'ConstValues');

@@ -86,7 +86,7 @@ final class OpenApiDtoClassRenderer
             if ($property->required) {
                 continue;
             }
-            $lines[] = $this->renderProperty($property);
+            $lines[] = $this->renderProperty($property, $definition->type === OpenApiDtoType::Request || $definition->preserveOptionalPropertyPresence);
             $lines[] = '';
         }
         $requiredProperties = array_values(array_filter($definition->properties, static fn (OpenApiDtoProperty $property): bool => $property->required));
@@ -150,7 +150,7 @@ final class OpenApiDtoClassRenderer
         return implode("\n", $lines);
     }
 
-    private function renderProperty(OpenApiDtoProperty $property): string
+    private function renderProperty(OpenApiDtoProperty $property, bool $preserveOptionalPropertyPresence = false): string
     {
         $lines = [];
         $phpDoc = $this->renderPropertyPhpDoc($property);
@@ -172,7 +172,7 @@ final class OpenApiDtoClassRenderer
             '        public %s $%s%s' . ($property->required ? ',' : ';'),
             $this->renderPhpType($property),
             $property->name,
-            $this->renderDefault($property),
+            $preserveOptionalPropertyPresence ? '' : $this->renderDefault($property),
         );
 
         return implode("\n", $property->required ? $lines : array_map(static fn (string $line): string => substr($line, 4), $lines));

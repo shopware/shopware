@@ -21,7 +21,7 @@ final class PrivateRegistration extends AbstractRequest
      * Account type
      */
     #[Assert\Choice(choices: ['private'])]
-    public string $accountType = 'private';
+    public string $accountType;
 
     /**
      * @internal

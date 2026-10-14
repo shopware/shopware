@@ -155,7 +155,15 @@ class StructEncoder implements ResetInterface
                 continue;
             }
 
-            if (!$this->isAllowed($alias, (string) $property, $fields) && !$fields->hasNested($alias, (string) $property)) {
+            // definition level protection (ApiAware) is never overridable by request supplied includes
+            if ($this->isProtected($alias, (string) $property)) {
+                unset($data[$property]);
+
+                continue;
+            }
+
+            // request level payload shaping: a nested include path (e.g. `translated.name`) keeps the parent property
+            if (!$fields->isAllowed($alias, (string) $property) && !$fields->hasNested($alias, (string) $property)) {
                 unset($data[$property]);
 
                 continue;

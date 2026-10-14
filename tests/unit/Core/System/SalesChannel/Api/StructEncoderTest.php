@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
@@ -376,6 +378,76 @@ class StructEncoderTest extends TestCase
         ];
 
         static::assertSame($expected, $encoded);
+    }
+
+    public function testProtectedAssociationIsNotExposedByNestedInclude(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+        $product->setId('1');
+        $product->setName('test');
+
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setId('line-item');
+        $product->setOrderLineItems(new OrderLineItemCollection([$lineItem]));
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(['product' => ['id', 'orderLineItems.id']]));
+
+        static::assertSame(['id' => '1', 'apiAlias' => 'product'], $encoded);
+    }
+
+    public function testProtectedScalarIsNotExposedByNestedInclude(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+        $product->setId('1');
+        $product->setPurchasePrices(new PriceCollection());
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(['product' => ['id', 'purchasePrices.foo']]));
+
+        static::assertSame(['id' => '1', 'apiAlias' => 'product'], $encoded);
+    }
+
+    public function testNestedIncludeKeepsApiAwareAssociation(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+        $product->setId('1');
+        $product->setName('test');
+        $product->setManufacturer((new ProductManufacturerEntity())->assign(['id' => '2', 'name' => 'foo']));
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(['product' => ['id', 'manufacturer.name']]));
+
+        static::assertArrayNotHasKey('name', $encoded);
+        static::assertArrayHasKey('manufacturer', $encoded);
+        static::assertIsArray($encoded['manufacturer']);
+        static::assertSame('foo', $encoded['manufacturer']['name']);
+    }
+
+    public function testNestedIncludesForTranslatedAndCustomFieldsStillWork(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+        $product->setId('1');
+        $product->setName('test');
+        $product->setDescription('description');
+        $product->setTranslated(['name' => 'translated name', 'description' => 'translated description']);
+        $product->setCustomFields(['foo' => 'visible', 'bar' => 'hidden']);
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(['product' => ['name', 'translated.name', 'customFields.foo']]));
+
+        static::assertSame('test', $encoded['name']);
+        static::assertArrayNotHasKey('description', $encoded);
+        static::assertSame(['name' => 'translated name'], $encoded['translated']);
+        static::assertSame(['foo' => 'visible'], $encoded['customFields']);
     }
 
     /**

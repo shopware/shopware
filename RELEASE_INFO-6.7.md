@@ -15,6 +15,15 @@ The Apache `.htaccess.dist` template now sends `script-src 'none'; object-src 'n
 Application-rendered HTML and bundled HTML applications retain their existing behavior.
 Ensure your deployed `.htaccess` contains the updated Shopware section; installations without the Shopware update markers must merge it manually.
 Custom static documents must work without scripts, embedded documents, base URL overrides or form submissions; images and styles remain permitted.
+### Store API no longer exposes fields that are not `ApiAware` through `includes` or `associations`
+
+A Store API request could keep a field that is not flagged `ApiAware` for the Store API in the response by listing a nested path of it in `includes`, for example `includes[salutation][]=customers.id`, and could load any association of an entity through `associations`, for example `salutation.customers` or `product_review.customer`. This exposed customer, order, and address data to unauthenticated Store API clients.
+
+Request-level `includes` no longer override the `ApiAware` protection of a field. A Store API request that names an association which is not `ApiAware` for the Store API in `associations` is now rejected with the error code `FRAMEWORK__ACCESSOR_NOT_ALLOWED`, the same as a filter or sorting on such a field. Associations that routes or extensions add server-side to a criteria are not affected. The Admin API is not affected.
+
+Responses with the error code `FRAMEWORK__ACCESSOR_NOT_ALLOWED` now use HTTP status 400 instead of 500, as they are caused by the request payload.
+
+Operators should treat the affected data as potentially exposed and may want to rotate the `deepLinkCode` of recent guest orders.
 
 ### Sales channel contexts expose the default currency again
 

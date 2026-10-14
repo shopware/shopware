@@ -11,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\QueryLimitExceededException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiCriteriaAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\InvalidCriteriaIdsException;
@@ -254,6 +256,8 @@ class RequestCriteriaBuilder
                 if (!$field instanceof AssociationField) {
                     throw FrameworkException::associationNotFound((string) $propertyName);
                 }
+
+                $this->validateAssociationIsApiAware($field, (string) $propertyName, $context);
 
                 $ref = $field->getReferenceDefinition();
                 if ($field instanceof ManyToManyAssociationField) {
@@ -541,6 +545,27 @@ class RequestCriteriaBuilder
             $criteria->addSorting(...$sorting);
         } catch (InvalidSortQueryException $ex) {
             $searchException->add($ex, $ex->getParameters()['path']);
+        }
+    }
+
+    /**
+     * Request supplied associations are loaded by the DAL without any ownership scoping, so an association that is not
+     * exposed for the request's api source must be rejected before the criteria is executed, the same way the
+     * ApiCriteriaValidator rejects filters and sortings on such fields. Associations which are added server-side after
+     * parsing (e.g. in routes or plugins) are intentionally not affected.
+     *
+     * Every field is ApiAware for the Admin API by default (see Field::__construct), so Admin API requests are only
+     * affected by explicitly restricted fields.
+     */
+    private function validateAssociationIsApiAware(AssociationField $field, string $propertyName, Context $context): void
+    {
+        if ($field->getFlag(ApiCriteriaAware::class)) {
+            return;
+        }
+
+        $flag = $field->getFlag(ApiAware::class);
+        if ($flag === null || !$flag->isSourceAllowed($context->getSource()::class)) {
+            throw DataAbstractionLayerException::accessorNotAllowedInApiScope($propertyName);
         }
     }
 

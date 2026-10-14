@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -20,12 +21,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Range;
 
 /**
  * @internal
@@ -164,6 +167,53 @@ class ProductReviewSaveRouteTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
 
         $this->assertReviewCount(1);
+    }
+
+    #[DataProvider('providePointsInRange')]
+    public function testRepositoryAcceptsPointsFromOneToFive(float $points): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $this->createReviewThroughRepository($points);
+
+        $this->assertReviewCount(1);
+    }
+
+    /**
+     * @return iterable<string, array{float}>
+     */
+    public static function providePointsInRange(): iterable
+    {
+        yield 'lowest rating' => [1.0];
+        yield 'highest rating' => [5.0];
+    }
+
+    #[DataProvider('providePointsOutOfRange')]
+    public function testRepositoryRejectsPointsOutsideOneToFive(float $points): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        try {
+            $this->createReviewThroughRepository($points);
+            static::fail('Points outside 1 to 5 have to be rejected');
+        } catch (WriteException $exception) {
+            $violation = $exception->getExceptions()[0] ?? null;
+
+            static::assertInstanceOf(WriteConstraintViolationException::class, $violation);
+            static::assertSame(Range::NOT_IN_RANGE_ERROR, $violation->getViolations()->get(0)->getCode());
+        }
+
+        $this->assertReviewCount(0);
+    }
+
+    /**
+     * @return iterable<string, array{float}>
+     */
+    public static function providePointsOutOfRange(): iterable
+    {
+        yield 'zero' => [0.0];
+        yield 'below one' => [0.5];
+        yield 'above five' => [5.5];
     }
 
     /**
@@ -363,6 +413,19 @@ class ProductReviewSaveRouteTest extends TestCase
         ];
         static::getContainer()->get('product.repository')
             ->update($update, Context::createDefaultContext());
+    }
+
+    private function createReviewThroughRepository(float $points): void
+    {
+        static::getContainer()->get('product_review.repository')->create([[
+            'productId' => $this->ids->get('product'),
+            'salesChannelId' => $this->ids->get('sales-channel'),
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'externalUser' => 'Max',
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr',
+            'points' => $points,
+        ]], Context::createDefaultContext());
     }
 
     private function getUrl(): string

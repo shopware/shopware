@@ -67,13 +67,15 @@ class ProductReviewDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         $externalUser = (new StringField('external_user', 'externalUser'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('External user name.');
-        $points = (new FloatField('points', 'points'))->addFlags(new ApiAware())->setDescription('A floating point number given to rate a product.');
+        $points = new FloatField('points', 'points');
 
-        // @deprecated tag:v6.8.0 - externalUser and points will be required unconditionally
+        // @deprecated tag:v6.8.0 - externalUser and points will be required unconditionally, points will only accept values from 1 to 5
         if (Feature::isActive('v6.8.0.0')) {
             $externalUser->addFlags(new Required());
-            $points->addFlags(new Required());
+            $points = (new FloatField('points', 'points', 1, 5))->addFlags(new Required());
         }
+
+        $points->addFlags(new ApiAware())->setDescription('A floating point number given to rate a product.');
 
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the product\'s review.'),

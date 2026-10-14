@@ -167,4 +167,21 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
         expect(event.getPluginName()).toBe('Listing');
         expect(event.getEvents()).toHaveProperty('Listing/afterRenderResponse');
     });
+
+    test('skips product elements without readable product information', () => {
+        document.body.innerHTML = `
+            <div class="cms-element-product-listing-wrapper">
+                <div class="product-box"></div>
+                <div class="product-box" data-product-information='{"broken'></div>
+                <div class="product-box" data-product-information='{ "id": "1", "name": "Shirt", "price": 20, "sku": "SW10000" }'></div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', expect.objectContaining({
+            'value': 20,
+            'items': [expect.objectContaining({ item_id: 'SW10000' })],
+        }));
+    });
 });

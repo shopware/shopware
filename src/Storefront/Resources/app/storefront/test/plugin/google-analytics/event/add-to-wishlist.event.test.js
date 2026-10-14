@@ -182,4 +182,32 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
             }],
         });
     });
+
+    // the categories request only answers after the shopper revoked the tracking consent
+    function revokeConsentDuringCategoryRequest(event) {
+        window.router = { 'frontend.analytics.product-categories': '/widgets/analytics/product-categories' };
+        global.fetch = jest.fn(() => {
+            event.disable();
+
+            return Promise.resolve({ ok: true, json: () => Promise.resolve(['Clothing']) });
+        });
+    }
+
+    function cleanUpCategoryRequest() {
+        delete window.activeRoute;
+        delete window.router;
+        delete global.fetch;
+    }
+
+    test('does not fire when the consent is revoked while the categories are requested', async () => {
+        document.body.innerHTML = '<h1 class="product-detail-name">Shirt</h1>';
+        revokeConsentDuringCategoryRequest(addToWishlistEvent);
+
+        await addToWishlistEvent._onProductAdded({ detail: { productId: 'product-1' } });
+
+        expect(global.fetch).toHaveBeenCalled();
+        expect(window.gtag).not.toHaveBeenCalled();
+
+        cleanUpCategoryRequest();
+    });
 });

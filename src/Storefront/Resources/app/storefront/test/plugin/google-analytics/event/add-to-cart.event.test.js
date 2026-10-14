@@ -149,6 +149,17 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
             expect(parameters.items[0].price).toBe(15);
         });
 
+        // a theme can render the hidden line items without the line item id
+        test('matches the line by the product id without a line item id', async () => {
+            const parameters = await submitFromBuyWidget(2, `
+                <div class="hidden-line-items-information">
+                    <span class="hidden-line-item" data-id="product-1" data-quantity="9"></span>
+                </div>
+            `);
+
+            expect(parameters.items[0].price).toBe(15);
+        });
+
         test('ignores a line of the same product under another line item id', async () => {
             const parameters = await submitFromBuyWidget(2, `
                 <div class="hidden-line-items-information">
@@ -417,5 +428,85 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         await flushPromises();
 
         expect(window.gtag).toHaveBeenCalledTimes(1);
+    });
+
+    test('reports no value when the price of the product is unknown', async () => {
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstances.push(addToCartInstance);
+
+        const event = new AddToCartEvent();
+        event.execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+        formData.append('product-name', 'Test Product');
+        formData.append('lineItems[product-123][quantity]', '2');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+        await flushPromises();
+
+        const [, , parameters] = window.gtag.mock.calls[0];
+        expect(parameters).not.toHaveProperty('value');
+        expect(parameters.items[0]).not.toHaveProperty('price');
+        expect(parameters.items[0]).toEqual(expect.objectContaining({ item_id: 'product-123', quantity: 2 }));
+    });
+
+    test('reports the unit price as value without a quantity in the form', async () => {
+        document.body.innerHTML = `
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
+        `;
+
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstances.push(addToCartInstance);
+
+        const event = new AddToCartEvent();
+        event.execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+        await flushPromises();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
+            'value': 99.99,
+        }));
+    });
+
+    test('does not fire when the consent is revoked while the categories are requested', async () => {
+        window.activeRoute = 'frontend.home.page';
+        window.router = { 'frontend.analytics.product-categories': '/widgets/analytics/product-categories' };
+        document.body.innerHTML = `
+            <div class="card product-box" data-product-information='{"id":"product-1","name":"Shirt","sku":"SW1","price":10}'>
+                <div class="form-slot"></div>
+            </div>
+        `;
+
+        const addToCartInstance = createMockPluginInstance();
+        document.querySelector('.form-slot').appendChild(addToCartInstance.el);
+        addToCartInstances.push(addToCartInstance);
+        const event = new AddToCartEvent();
+        event.execute();
+
+        global.fetch = jest.fn(() => {
+            event.disable();
+
+            return Promise.resolve({ ok: true, json: () => Promise.resolve(['Clothing']) });
+        });
+
+        const formData = new FormData();
+        formData.append('lineItems[product-1][id]', 'product-1');
+        formData.append('lineItems[product-1][quantity]', '1');
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        await flushPromises();
+
+        expect(global.fetch).toHaveBeenCalled();
+        expect(window.gtag).not.toHaveBeenCalled();
+
+        delete window.activeRoute;
+        delete window.router;
+        delete global.fetch;
     });
 });

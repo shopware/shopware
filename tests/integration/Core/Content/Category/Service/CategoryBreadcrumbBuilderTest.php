@@ -9,6 +9,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
+use Shopware\Core\Content\Category\Service\ProductSeoCategoryResolver;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -407,7 +408,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         );
         static::assertCount(\count($ids), $products);
 
-        $batch = $this->breadcrumbBuilder->getProductSeoCategories($products, $this->salesChannelContext);
+        $batch = static::getContainer()->get(ProductSeoCategoryResolver::class)->resolve($products, $this->salesChannelContext);
 
         foreach ($products as $product) {
             $single = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
@@ -417,7 +418,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
         static::assertSame($this->ids->get('navigation-b-2'), $batch[$this->ids->get('variant-product-1')]->getId());
         static::assertSame($this->ids->get('category_stream_id_1'), $batch[$this->ids->get('stream-product')]->getId());
-        static::assertSame([], $this->breadcrumbBuilder->getProductSeoCategories([], $this->salesChannelContext));
+        static::assertSame([], static::getContainer()->get(ProductSeoCategoryResolver::class)->resolve([], $this->salesChannelContext));
     }
 
     public function testGetProductSeoCategoryWithInactiveCategory(): void

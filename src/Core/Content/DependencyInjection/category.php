@@ -21,6 +21,7 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoader;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
+use Shopware\Core\Content\Category\Service\ProductSeoCategoryResolver;
 use Shopware\Core\Content\Category\Subscriber\CategorySubscriber;
 use Shopware\Core\Content\Category\Subscriber\CategoryTreeMovedSubscriber;
 use Shopware\Core\Content\Category\Tree\CategoryTreePathResolver;
@@ -146,6 +147,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.product.repository'),
             service(Connection::class),
             service(EntityRouteResolver::class),
+        ]);
+
+    $services->set(ProductSeoCategoryResolver::class)
+        ->args([
+            service('sales_channel.category.repository'),
+            service(Connection::class),
         ]);
 
     $services->set(CategoryUrlGenerator::class)

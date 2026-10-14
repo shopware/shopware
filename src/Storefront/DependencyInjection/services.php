@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
+use Shopware\Core\Content\Category\Service\ProductSeoCategoryResolver;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Content\Media\Cms\DefaultMediaResolver as CoreDefaultMediaResolver;
@@ -894,7 +895,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.route_scope_whitelist');
 
     $services->set(AnalyticsCategoryPathLoader::class)
-        ->args([service(CategoryBreadcrumbBuilder::class)]);
+        ->args([service(ProductSeoCategoryResolver::class)]);
 
     $services->set(AnalyticsCategoryPathSubscriber::class)
         ->args([service(AnalyticsCategoryPathLoader::class)])

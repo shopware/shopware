@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -97,6 +98,25 @@ class AnalyticsCategoryPathLoaderTest extends TestCase
             $this->ids->get('deepest') => ['Clothing', 'Shirts'],
             $this->ids->get('main') => ['Clothing'],
         ], $paths);
+    }
+
+    public function testExcludesCategoriesBlockedByASalesChannelSubscriber(): void
+    {
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $listener = function (SalesChannelEntityLoadedEvent $event): void {
+            foreach ($event->getEntities() as $category) {
+                if ($category->getId() === $this->ids->get('Shirts')) {
+                    $category->setActive(false);
+                }
+            }
+        };
+        $dispatcher->addListener('sales_channel.category.loaded', $listener);
+
+        try {
+            static::assertSame([$this->ids->get('deepest') => ['Clothing']], $this->load('deepest'));
+        } finally {
+            $dispatcher->removeListener('sales_channel.category.loaded', $listener);
+        }
     }
 
     public function testLoadsNothingWithoutProducts(): void

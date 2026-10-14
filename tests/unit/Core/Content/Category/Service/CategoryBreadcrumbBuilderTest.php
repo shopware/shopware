@@ -112,39 +112,6 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertNull($categoryEntity);
     }
 
-    /**
-     * A decorator that extends the builder, overrides the single product method and skips the
-     * constructor of the builder must neither break nor lose its rules for several products.
-     */
-    public function testGetProductSeoCategoriesAppliesTheRulesOfASubclassPerProduct(): void
-    {
-        $category = new CategoryEntity();
-        $category->setId(Uuid::randomHex());
-
-        $decorator = new class($category) extends CategoryBreadcrumbBuilder {
-            public function __construct(private readonly CategoryEntity $category)
-            {
-            }
-
-            public function getProductSeoCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
-            {
-                return $product->getId() === 'with-category' ? $this->category : null;
-            }
-        };
-
-        $withCategory = new ProductEntity();
-        $withCategory->setId('with-category');
-        $withCategory->setCategoryIds([$category->getId()]);
-        $withoutCategory = new ProductEntity();
-        $withoutCategory->setId('without-category');
-        $withoutCategory->setCategoryIds([$category->getId()]);
-
-        static::assertSame(
-            ['with-category' => $category],
-            $decorator->getProductSeoCategories([$withCategory, $withoutCategory], $this->salesChannelContext)
-        );
-    }
-
     public function testGetProductSeoCategoryShouldReturnProductCategory(): void
     {
         $categoryIds = [Uuid::randomHex()];

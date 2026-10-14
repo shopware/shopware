@@ -41,7 +41,7 @@ class OutputFormatTraitTest extends TestCase
                 $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_MARKDOWN]);
                 \assert(\is_string($format));
 
-                $this->renderFormattedTable(new SymfonyStyle($input, $output), $format, ['Name', 'Active'], [['Foo', 'Yes']]);
+                $this->renderFormattedTable(new SymfonyStyle($input, $output), $format, ['Name', 'Active'], [['Foo', 'Yes'], ['A | B', "Line 1\nLine 2"]]);
 
                 return self::SUCCESS;
             }
@@ -60,19 +60,22 @@ class OutputFormatTraitTest extends TestCase
     public static function formattedTableProvider(): iterable
     {
         yield 'table' => ['table', <<<'EOF'
-             ------ --------
-              Name   Active
-             ------ --------
-              Foo    Yes
-             ------ --------
+             ------- --------
+              Name    Active
+             ------- --------
+              Foo     Yes
+              A | B   Line 1
+                      Line 2
+             ------- --------
 
 
             EOF];
 
         yield 'markdown' => ['markdown', <<<'EOF'
-            | Name | Active |
-            |------|--------|
-            | Foo  | Yes    |
+            | Name   | Active           |
+            |--------|------------------|
+            | Foo    | Yes              |
+            | A \| B | Line 1<br>Line 2 |
 
 
             EOF];

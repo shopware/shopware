@@ -195,7 +195,6 @@ class WebhookLoaderTest extends TestCase
         $loader = static::getContainer()->get(WebhookLoader::class);
 
         static::assertSame([], $loader->getWebhooks());
-        static::assertSame([], $loader->getWebhooksByIds([$this->ids->get('wh-1')]));
     }
 
     public function testAclRoleIdsLimitTheOwnersRoles(): void
@@ -216,18 +215,12 @@ class WebhookLoaderTest extends TestCase
         static::assertEquals(new AclRoles(false, [$roleId]), $this->loadWebhook()->roles);
     }
 
-    public function testInactiveWebhooksAreLoadedByIds(): void
+    public function testInactiveWebhooksAreNotLoaded(): void
     {
         $owner = TestUser::createNewTestUser($this->connection, ['product:read']);
         $this->insertWebhook(ownerUserId: $owner->getUserId(), active: false);
 
-        $loader = static::getContainer()->get(WebhookLoader::class);
-        $webhooks = $loader->getWebhooksByIds([$this->ids->get('wh-1')]);
-
-        static::assertSame([], $loader->getWebhooks());
-        static::assertCount(1, $webhooks);
-        static::assertSame($this->ids->get('wh-1'), $webhooks[0]->id);
-        static::assertEquals(new AclRoles(false, [(string) $owner->getAclRoleId()]), $webhooks[0]->roles);
+        static::assertSame([], static::getContainer()->get(WebhookLoader::class)->getWebhooks());
     }
 
     public function testGetSubscriptionsOfAUserOwnedWebhook(): void

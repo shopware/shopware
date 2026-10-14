@@ -140,6 +140,17 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
             expect(parameters.items[0].price).toBe(15);
         });
 
+        // a theme can render the hidden line items without the line item id
+        test('matches the line by the product id without a line item id', () => {
+            const parameters = submitFromBuyWidget(2, `
+                <div class="hidden-line-items-information">
+                    <span class="hidden-line-item" data-id="product-1" data-quantity="9"></span>
+                </div>
+            `);
+
+            expect(parameters.items[0].price).toBe(15);
+        });
+
         test('ignores a line of the same product under another line item id', () => {
             const parameters = submitFromBuyWidget(2, `
                 <div class="hidden-line-items-information">

@@ -64,7 +64,7 @@ class Feature
      */
     public static function isMajorVersionFlag(string $name): bool
     {
-        return (bool) \preg_match('/^V\d+_\d+_0_0$/', self::normalizeName($name));
+        return (bool) \preg_match('/^V\d+_\d+_0_0$/D', self::normalizeName($name));
     }
 
     /**

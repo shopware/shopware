@@ -242,6 +242,18 @@ class LoginConfigServiceTest extends TestCase
 
         static::assertTrue($result->useDefault);
         static::assertNull($result->url);
+        static::assertTrue($result->passwordRecoveryEnabled);
+    }
+
+    public function testCreateTemplateDataWithPasswordRecoveryDisabled(): void
+    {
+        $configService = $this->createLoginConfigService([], false);
+
+        $result = $configService->createTemplateData('randomString');
+
+        static::assertTrue($result->useDefault);
+        static::assertNull($result->url);
+        static::assertFalse($result->passwordRecoveryEnabled);
     }
 
     public function testCreateTemplateDataWithValidLoginConfig(): void
@@ -342,7 +354,7 @@ class LoginConfigServiceTest extends TestCase
     /**
      * @param array<string, string|bool> $rawConfig
      */
-    public function createLoginConfigService(array $rawConfig): LoginConfigService
+    public function createLoginConfigService(array $rawConfig, bool $passwordRecoveryEnabled = true): LoginConfigService
     {
         $router = static::createStub(RouterInterface::class);
         $router->method('generate')->willReturnCallback(static function ($name, $parameter) {
@@ -350,7 +362,7 @@ class LoginConfigServiceTest extends TestCase
         });
 
         // @phpstan-ignore argument.type (The LoginConfigService parameter1 expects a specific array which we were unable to provide for testing purposes)
-        return new LoginConfigService($rawConfig, $router);
+        return new LoginConfigService($rawConfig, $router, $passwordRecoveryEnabled);
     }
 
     /**

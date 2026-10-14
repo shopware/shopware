@@ -33,6 +33,19 @@ class ConfigurationTest extends TestCase
         static::assertSame('shopware', $tree->buildTree()->getName());
     }
 
+    public function testUserRecoveryIsEnabledByDefaultAndCanBeDisabled(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['api' => []]]);
+
+        static::assertTrue($config['api']['user_recovery']['enabled']);
+
+        $config = (new Processor())->processConfiguration(new Configuration(), [[
+            'api' => ['user_recovery' => ['enabled' => false]],
+        ]]);
+
+        static::assertFalse($config['api']['user_recovery']['enabled']);
+    }
+
     public function testFeatureToggleConfigTreeNode(): void
     {
         $configuration = new Configuration();

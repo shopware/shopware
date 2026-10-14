@@ -769,7 +769,7 @@ Storefront analytics now treat every element with a `data-product-information` a
 
 ### Storefront analytics report brand and category of products added from a product box
 
-With active analytics, adding a product to the cart from a product box now posts its brand and the categories of the current breadcrumb in the line item payload, the same `manufacturerName` and `categoryNames` the buy widget of the product detail page already posts. A reorder from the order history posts those of the original order. Cart, checkout and purchase events report them as `item_brand` and `item_category`. Nothing is added for a sales channel without analytics.
+With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does. Cart, checkout and purchase events report them as `item_brand` and `item_category`.
 
 ### Essential characteristics label custom fields with their snippet
 

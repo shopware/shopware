@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemStockRule;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -37,6 +39,7 @@ class LineItemStockRuleTest extends TestCase
         static::assertSame('cartLineItemStock', (new LineItemStockRule())->getName());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRulesDoesNotMatchIfScopeNoLineItemScopeNorCartRuleScope(): void
     {
         $rule = new LineItemStockRule();
@@ -44,6 +47,7 @@ class LineItemStockRuleTest extends TestCase
         static::assertFalse($rule->match(static::createStub(RuleScope::class)));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testItThrowsUnsupportedValueExceptionIfStockIsNotSet(): void
     {
         $rule = new LineItemStockRule();
@@ -61,6 +65,7 @@ class LineItemStockRuleTest extends TestCase
         $rule->match($ruleScope);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testMatchThrowsException(): void
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -104,6 +109,7 @@ class LineItemStockRuleTest extends TestCase
     }
 
     #[DataProvider('provideLineItemTestCases')]
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testMatchWithLineItemScope(string $operator, int $lineItemStock, bool $matches): void
     {
         $ruleScope = new LineItemScope(
@@ -117,6 +123,7 @@ class LineItemStockRuleTest extends TestCase
     }
 
     #[DataProvider('provideLineItemTestCases')]
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testMatchWithCartRuleScopeWithOneItem(string $operator, int $lineItemStock, bool $matches): void
     {
         $cart = new Cart('test-token');
@@ -131,6 +138,7 @@ class LineItemStockRuleTest extends TestCase
         static::assertSame($matches, $rule->match($ruleScope));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testNoMatchWithEmptyCartRuleScope(): void
     {
         $ruleScope = new CartRuleScope(
@@ -143,6 +151,7 @@ class LineItemStockRuleTest extends TestCase
         static::assertFalse($rule->match($ruleScope));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testMatchesIfOneLineItemMatches(): void
     {
         $matchingLineItem = $this->createLineItem(5, 'matching-line-item');
@@ -171,6 +180,7 @@ class LineItemStockRuleTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testNoMatchIfNoLineItemMatches(): void
     {
         $cart = new Cart('test-token');
@@ -186,6 +196,7 @@ class LineItemStockRuleTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testMatchesIfNoDeliveryStatusIsSetAndRuleUsesNegativeOperatorIn6500(): void
     {
         $lineItem = new LineItem('test-id', LineItem::DISCOUNT_LINE_ITEM);
@@ -208,6 +219,7 @@ class LineItemStockRuleTest extends TestCase
         static::assertTrue((new LineItemStockRule(Rule::OPERATOR_EMPTY, 5))->match($cartScope));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testConstraintsIncludesOperatorAndStock(): void
     {
         $constraints = (new LineItemStockRule())->getConstraints();
@@ -230,9 +242,11 @@ class LineItemStockRuleTest extends TestCase
         ], $constraints);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testConfigUsesOperatorSetNumbers(): void
     {
         $config = (new LineItemStockRule())->getConfig();
+        static::assertNotNull($config);
         $configData = $config->getData();
 
         static::assertArrayHasKey('operatorSet', $configData);
@@ -242,9 +256,11 @@ class LineItemStockRuleTest extends TestCase
         ], $configData['operatorSet']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testConfigHasASingleIntFieldStock(): void
     {
         $config = (new LineItemStockRule())->getConfig();
+        static::assertNotNull($config);
         $configData = $config->getData();
 
         static::assertArrayHasKey('fields', $configData);
@@ -254,6 +270,29 @@ class LineItemStockRuleTest extends TestCase
             'type' => 'int',
             'config' => [],
         ], $configData['fields']['stock']);
+    }
+
+    public function testConfigIsAbsentInMajorMode(): void
+    {
+        static::assertNull((new LineItemStockRule())->getConfig());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the major feature flag.
+     */
+    public function testMatchingThrowsInMajorMode(): void
+    {
+        $this->expectException(FeatureException::class);
+        (new LineItemStockRule())->match(static::createStub(RuleScope::class));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the major feature flag.
+     */
+    public function testConstraintsThrowInMajorMode(): void
+    {
+        $this->expectException(FeatureException::class);
+        (new LineItemStockRule())->getConstraints();
     }
 
     private function createLineItem(int $stock, string $id = 'line-item-id'): LineItem

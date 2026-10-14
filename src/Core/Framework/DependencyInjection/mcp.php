@@ -19,6 +19,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\McpResourcePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistListRequestHandler;
@@ -59,6 +60,10 @@ use Shopware\Core\Framework\Mcp\Resource\LanguageListResource;
 use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
 use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Resource\ToolResultResource;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultParser;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
+use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolResultCacheCleanupTask;
+use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolResultCacheCleanupTaskHandler;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTask;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTaskHandler;
 use Shopware\Core\Framework\Mcp\Session\McpSessionCleanupSubscriber;
@@ -69,7 +74,6 @@ use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityUpsertTool;
-use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderStateTool;
 use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearch;
@@ -315,8 +319,14 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.server.store_api.registry')->nullOnInvalid(),
             service('mcp.store_api.capability_catalog')->nullOnInvalid(),
             param('mcp.servers.unassigned'),
+            param(McpToolDiscoveryCompilerPass::DEMOTED_DISCOVERY_TOOLS_PARAMETER),
         ])
         ->tag('console.command');
+
+    $services->set(McpToolResultRenderer::class)
+        ->args([service(ClockInterface::class)]);
+
+    $services->set(McpToolResultParser::class);
 
     $services->set(ToolResultCacheStorage::class)
         ->args([service(Connection::class), service(ClockInterface::class)]);
@@ -339,6 +349,23 @@ return static function (ContainerConfigurator $container): void {
         ])
         ->tag('messenger.message_handler');
 
+    $services->set(McpToolResultCacheCleanupTask::class)
+        ->tag('shopware.scheduled.task');
+
+    // The monolog.logger tag puts both logger arguments on the mcp channel: the parent's exception
+    // logger and the one the handler reports the cleanup outcome on.
+    $services->set(McpToolResultCacheCleanupTaskHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('logger'),
+            service(ToolResultCacheStorage::class),
+            service(ClockInterface::class),
+            service('logger'),
+            param('shopware.mcp.tool_result_cache_ttl'),
+        ])
+        ->tag('messenger.message_handler')
+        ->tag('monolog.logger', ['channel' => 'mcp']);
+
     $services->set(McpSessionCleanupSubscriber::class)
         ->args([
             service(ToolResultCacheStorage::class),
@@ -347,10 +374,6 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.store_api.session_registry'),
         ])
         ->tag('kernel.event_subscriber');
-
-    $services->instanceof(McpToolResponse::class)
-        ->call('setToolResultCache', [service(ToolResultCacheStorage::class), service('request_stack'), service('logger')])
-        ->tag('monolog.logger', ['channel' => 'mcp']);
 
     // Tools
     $services->set(ToolSearchTool::class)

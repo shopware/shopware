@@ -95,7 +95,7 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $dispatchedMessages = $messageBus->getMessages();
 
-        static::assertNotEmpty($dispatchedMessages);
+        static::assertNotCount(0, $dispatchedMessages);
 
         $entitySyncMessage = $dispatchedMessages[0]->getMessage();
 
@@ -145,7 +145,7 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $dispatchedMessages = $messageBus->getMessages();
 
-        static::assertNotEmpty($dispatchedMessages);
+        static::assertNotCount(0, $dispatchedMessages);
 
         $entitySyncMessage = $dispatchedMessages[0]->getMessage();
 
@@ -196,7 +196,7 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $dispatchedMessages = $messageBus->getMessages();
 
-        static::assertNotEmpty($dispatchedMessages);
+        static::assertNotCount(0, $dispatchedMessages);
 
         $entitySyncMessage = $dispatchedMessages[0]->getMessage();
 

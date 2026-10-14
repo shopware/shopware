@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -122,7 +123,18 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $cacheAttribute = CacheAttribute::fromAttributeValue($cacheAttributeValue);
 
         // Preventing applying cache headers to the routes that are marked for caching, but feature flag is disabled
-        if ($area === self::POLICY_AREA_STORE_API && !Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
+        if ($area === self::POLICY_AREA_STORE_API && !Feature::isActive('CACHE_REWORK')) {
+            // a request resolved from the storefront session changes the page's context, so the page's cache cookies follow it
+            if ($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION)) {
+                $cart = $this->cartService->getCart($context->getToken(), $context);
+
+                if (!Feature::isActive('PERFORMANCE_TWEAKS')) {
+                    $this->updateSystemState($cart, $context, $request, $response);
+                }
+
+                $this->cacheHeadersService->applyCacheHash($request, $context, $cart, $response);
+            }
+
             $this->noCache($request, $response, $area);
 
             return;
@@ -131,7 +143,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $route = $request->attributes->get('_route');
         /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12968) */
         if ($route === 'frontend.checkout.configure') {
-            if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+            if (!Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
                 $this->setCurrencyCookie($request, $response);
             }
         }
@@ -139,7 +151,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         /** @deprecated tag:v6.8.0 - states can be removed */
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
             $states = [];
         } else {
             $states = $this->updateSystemState($cart, $context, $request, $response);
@@ -176,7 +188,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $cacheHash = $cacheHashEvent?->getHash();
         // No cache when client cache hash does not match the expected one. This protects from cache poisoning
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             $clientHash = $request->headers->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE) ??
                 $request->cookies->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, '');
             $expectedHash = $cacheHash ?? '';
@@ -190,7 +202,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         /** @deprecated tag:v6.8.0 - can be removed when cache states are always empty */
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+        if (!Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             if ($this->hasInvalidationState($cacheAttribute->states ?? [], $states)) {
                 $this->noCache($request, $response, $area);
 
@@ -198,7 +210,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+        if (!Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             $response->headers->set(
                 HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER,
                 implode(',', $cacheAttribute->states ?? [])
@@ -206,7 +218,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         // old behavior
-        if (!Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
+        if (!Feature::isActive('CACHE_REWORK')) {
             if ($this->isNoStoreRoute($request)) {
                 $this->addNoStoreHeader($request, $response);
 
@@ -251,7 +263,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     private function noCache(Request $request, Response $response, string $area): void
     {
-        if (!Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
+        if (!Feature::isActive('CACHE_REWORK')) {
             if ($this->isNoStoreRoute($request)) {
                 $this->addNoStoreHeader($request, $response);
             }

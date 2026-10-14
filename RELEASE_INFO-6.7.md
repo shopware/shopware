@@ -2,6 +2,11 @@
 
 ## Critical Fixes
 
+### Theme configuration updates reach all descendants
+
+Saving a base theme now updates inherited runtime configuration and recompiles assigned descendant themes at every inheritance level.
+Child and grandchild themes no longer require a separate save after changing their base theme, and descendant-specific overrides are preserved.
+
 ### Sales channel contexts expose the default currency again
 
 `SalesChannelContext::getSalesChannel()->getCurrency()` returns the sales channel's default currency again, including when another currency is selected for the context. This restores the behavior before 6.7.15.0 for extensions that read the default currency. Use `SalesChannelContext::getCurrency()` for the currently selected currency.

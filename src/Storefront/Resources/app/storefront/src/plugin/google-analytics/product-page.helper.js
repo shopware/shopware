@@ -214,16 +214,23 @@ export default class ProductPageHelper {
      * @returns {Object}
      */
     static getCategories() {
-        const breadcrumbNodes = document.querySelectorAll('[aria-label="breadcrumb"] .breadcrumb-title');
         const categories = {};
 
-        breadcrumbNodes.forEach((node, index) => {
-            if (index < 5) {
-                const key = index === 0 ? 'item_category' : `item_category${index + 1}`;
-                categories[key] = node.textContent.trim();
-            }
+        ProductPageHelper.getCategoryNames().forEach((name, index) => {
+            const key = index === 0 ? 'item_category' : `item_category${index + 1}`;
+            categories[key] = name;
         });
 
         return categories;
+    }
+
+    /**
+     * Gets the names of the breadcrumb categories, at most 5 levels as GA4 supports
+     * @returns {string[]}
+     */
+    static getCategoryNames() {
+        const breadcrumbNodes = document.querySelectorAll('[aria-label="breadcrumb"] .breadcrumb-title');
+
+        return [...breadcrumbNodes].slice(0, 5).map(node => node.textContent.trim());
     }
 }

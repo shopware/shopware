@@ -92,6 +92,98 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         }));
     });
 
+    describe('cart payload of a product element', () => {
+        const breadcrumb = `
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Clothing</span>
+                <span class="breadcrumb-title">Shirts</span>
+            </nav>
+        `;
+
+        function submitFromProductElement(markup, formData) {
+            document.body.innerHTML = markup;
+
+            const addToCartInstance = createMockPluginInstance();
+            document.querySelector('.form-slot').appendChild(addToCartInstance.el);
+            addToCartInstances.push(addToCartInstance);
+
+            new AddToCartEvent().execute();
+            addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+            return formData;
+        }
+
+        function createFormData() {
+            const formData = new FormData();
+            formData.append('lineItems[product-1][id]', 'product-1');
+            formData.append('lineItems[product-1][quantity]', '1');
+
+            return formData;
+        }
+
+        afterEach(() => {
+            delete window.activeRoute;
+        });
+
+        test('posts the brand of the product element and the categories of the listing', () => {
+            window.activeRoute = 'frontend.navigation.page';
+
+            const formData = submitFromProductElement(`
+                ${breadcrumb}
+                <article data-product-information='{"id":"product-1","brand":"Brand"}'>
+                    <div class="form-slot"></div>
+                </article>
+            `, createFormData());
+
+            expect(formData.get('lineItems[product-1][payload][manufacturerName]')).toBe('Brand');
+            expect(formData.get('lineItems[product-1][payload][categoryNames][0]')).toBe('Clothing');
+            expect(formData.get('lineItems[product-1][payload][categoryNames][1]')).toBe('Shirts');
+        });
+
+        test('keeps a payload the form already posts', () => {
+            window.activeRoute = 'frontend.navigation.page';
+            const formData = createFormData();
+            formData.append('lineItems[product-1][payload][manufacturerName]', 'Form Brand');
+            formData.append('lineItems[product-1][payload][categoryNames][abc]', 'Form Category');
+
+            submitFromProductElement(`
+                ${breadcrumb}
+                <article data-product-information='{"id":"product-1","brand":"Brand"}'>
+                    <div class="form-slot"></div>
+                </article>
+            `, formData);
+
+            expect(formData.get('lineItems[product-1][payload][manufacturerName]')).toBe('Form Brand');
+            expect(formData.get('lineItems[product-1][payload][categoryNames][abc]')).toBe('Form Category');
+            expect(formData.has('lineItems[product-1][payload][categoryNames][0]')).toBe(false);
+        });
+
+        test('posts no categories for a product element on a product detail page', () => {
+            window.activeRoute = 'frontend.detail.page';
+
+            const formData = submitFromProductElement(`
+                ${breadcrumb}
+                <article data-product-information='{"id":"product-1","brand":"Brand"}'>
+                    <div class="form-slot"></div>
+                </article>
+            `, createFormData());
+
+            expect(formData.get('lineItems[product-1][payload][manufacturerName]')).toBe('Brand');
+            expect(formData.has('lineItems[product-1][payload][categoryNames][0]')).toBe(false);
+        });
+
+        test('posts nothing for a form outside of a product element', () => {
+            window.activeRoute = 'frontend.navigation.page';
+
+            const formData = submitFromProductElement(`
+                ${breadcrumb}
+                <div class="form-slot"></div>
+            `, createFormData());
+
+            expect([...formData.keys()].some(key => key.includes('[payload]'))).toBe(false);
+        });
+    });
+
     test('does not fire event when AddToCart plugin is not present', () => {
         // addToCartInstances is empty
         const event = new AddToCartEvent();

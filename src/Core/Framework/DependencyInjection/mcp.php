@@ -206,9 +206,11 @@ return static function (ContainerConfigurator $container): void {
     // store-api sessions and vice versa. App capabilities only reach the Admin API server, so
     // store-api lists change per session only (toolset enable) and need no shared list versions.
     $services->set('mcp.store_api.list_changed_notifier', McpListChangedNotifier::class)
-        ->arg('$sessionStore', service('mcp.server.store_api.session.store')->nullOnInvalid())
-        ->arg('$listVersions', null)
-        ->arg('$logger', service('logger'))
+        ->args([
+            service('mcp.server.store_api.session.store')->nullOnInvalid(),
+            null,
+            service('logger'),
+        ])
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set('mcp.store_api.capability_catalog', McpCapabilityCatalog::class)

@@ -540,6 +540,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('custom_field.repository'),
             service(LanguageLocaleCodeProvider::class),
             service(DefinitionInstanceRegistry::class),
+            service(Translator::class),
         ]);
 
     $services->set(TransactionProcessor::class);

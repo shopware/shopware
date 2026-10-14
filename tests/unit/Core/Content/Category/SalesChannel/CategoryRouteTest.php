@@ -15,6 +15,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\Extension\CategoryRouteExtension;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRouteResponse;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
@@ -34,6 +35,7 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -41,6 +43,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -155,6 +158,7 @@ class CategoryRouteTest extends TestCase
             ),
             new CategoryDefinition(),
             static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $categoryRoute->load(
@@ -250,9 +254,37 @@ class CategoryRouteTest extends TestCase
             new EntityCmsSlotConfigInheritanceBuilder($this->createConnectionWithParentLanguageIds(['en'])),
             new CategoryDefinition(),
             $cacheTagCollector,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $categoryRoute->load(CategoryRoute::HOME, $request, $salesChannelContext);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $navigationId = Uuid::randomHex();
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $response = static::createStub(CategoryRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('category-route.load.pre', static function (CategoryRouteExtension $extension) use ($navigationId, $request, $context, $response): void {
+            static::assertSame(['navigationId' => $navigationId, 'request' => $request, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new CategoryRoute(
+            static::createStub(SalesChannelRepository::class),
+            static::createStub(SalesChannelCmsPageLoaderInterface::class),
+            static::createStub(EntityCmsSlotConfigInheritanceBuilder::class),
+            static::createStub(CategoryDefinition::class),
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($navigationId, $request, $context));
     }
 
     private function buildCmsPage(): CmsPageEntity
@@ -357,6 +389,7 @@ class CategoryRouteTest extends TestCase
             ),
             new CategoryDefinition(),
             static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         return $categoryRoute->load(

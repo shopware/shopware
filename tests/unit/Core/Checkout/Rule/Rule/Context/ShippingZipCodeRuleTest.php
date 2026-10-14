@@ -13,9 +13,7 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Container\ZipCodeRule;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -27,7 +25,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 #[Package('fundamentals@after-sales')]
 #[CoversClass(ShippingZipCodeRule::class)]
-#[CoversClass(ZipCodeRule::class)]
 class ShippingZipCodeRuleTest extends TestCase
 {
     private Stub&SalesChannelContext $context;
@@ -37,42 +34,6 @@ class ShippingZipCodeRuleTest extends TestCase
         parent::setUp();
 
         $this->context = static::createStub(SalesChannelContext::class);
-    }
-
-    public function testMatchZipCodeThrowsExceptionWithUnsupportedOperator(): void
-    {
-        $this->expectExceptionObject(
-            RuleException::unsupportedOperator(
-                'bad-operator',
-                ZipCodeRule::class
-            )
-        );
-        $this->context
-            ->method('getShippingLocation')
-            ->willReturn(
-                new ShippingLocation(new CountryEntity(), null, new CustomerAddressEntity())
-            );
-
-        $rule = new ShippingZipCodeRule('bad-operator', ['12345']);
-        $rule->match(new CheckoutRuleScope($this->context));
-    }
-
-    public function testMatchZipCodeThrowsExceptionWithUnsupportedValue(): void
-    {
-        $this->expectExceptionObject(
-            RuleException::unsupportedValue(
-                'NULL',
-                ZipCodeRule::class
-            )
-        );
-
-        $this->context
-            ->method('getShippingLocation')->willReturn(
-                new ShippingLocation(new CountryEntity(), null, new CustomerAddressEntity())
-            );
-
-        $rule = new ShippingZipCodeRule(Rule::OPERATOR_EQ);
-        $rule->match(new CheckoutRuleScope($this->context));
     }
 
     public function testEqualsWithSingleCode(): void

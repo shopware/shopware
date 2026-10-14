@@ -9,8 +9,10 @@ use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
+use Shopware\Core\Checkout\Cart\Extension\CartItemAddRouteExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -34,7 +36,8 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LineItemFactoryRegistry $lineItemFactory,
         private readonly RateLimiter $rateLimiter,
-        private readonly CartLocker $cartLocker
+        private readonly CartLocker $cartLocker,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -48,6 +51,18 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
      */
     #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.add', methods: ['POST'])]
     public function add(Request $request, Cart $cart, SalesChannelContext $context, ?array $items): CartResponse
+    {
+        return $this->extensions->publish(
+            name: CartItemAddRouteExtension::NAME,
+            extension: new CartItemAddRouteExtension($request, $cart, $context, $items),
+            function: $this->_add(...),
+        );
+    }
+
+    /**
+     * @param array<LineItem>|null $items
+     */
+    private function _add(Request $request, Cart $cart, SalesChannelContext $context, ?array $items): CartResponse
     {
         return $this->cartLocker->locked($context, function () use ($request, $cart, $context, $items) {
             if ($items === null) {

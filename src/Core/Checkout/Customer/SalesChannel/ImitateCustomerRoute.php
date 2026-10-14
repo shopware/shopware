@@ -3,11 +3,13 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Extension\ImitateCustomerRouteExtension;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
 use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -58,7 +60,8 @@ class ImitateCustomerRoute extends AbstractImitateCustomerRoute
         private readonly AbstractLogoutRoute $logoutRoute,
         private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly DataValidator $validator
+        private readonly DataValidator $validator,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -75,14 +78,23 @@ class ImitateCustomerRoute extends AbstractImitateCustomerRoute
     )]
     public function imitateCustomerLogin(RequestDataBag $requestDataBag, SalesChannelContext $context): ContextTokenResponse
     {
-        $tokenString = $requestDataBag->getString(self::TOKEN);
+        return $this->extensions->publish(
+            name: ImitateCustomerRouteExtension::NAME,
+            extension: new ImitateCustomerRouteExtension($requestDataBag, $context),
+            function: $this->_imitateCustomerLogin(...),
+        );
+    }
+
+    private function _imitateCustomerLogin(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
+    {
+        $tokenString = $data->getString(self::TOKEN);
 
         if (!Feature::isActive('v6.8.0.0')) {
-            $this->validateRequestDataFields($requestDataBag, $context->getContext());
+            $this->validateRequestDataFields($data, $context->getContext());
 
             $token = new ImitateCustomerToken();
-            $token->customerId = $requestDataBag->getString(self::CUSTOMER_ID);
-            $token->iss = $requestDataBag->getString(self::USER_ID);
+            $token->customerId = $data->getString(self::CUSTOMER_ID);
+            $token->iss = $data->getString(self::USER_ID);
 
             Feature::silent('v6.8.0.0', fn () => $this->imitateCustomerTokenGenerator->validate($tokenString, $context->getSalesChannelId(), $token->customerId, $token->iss));
         } else {

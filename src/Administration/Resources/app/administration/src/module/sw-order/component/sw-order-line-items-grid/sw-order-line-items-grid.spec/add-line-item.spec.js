@@ -34,7 +34,9 @@ async function createWrapper() {
                         delete: jest.fn(() => Promise.resolve()),
                     }),
                 },
-                orderService: {},
+                orderService: {
+                    addProductToOrder: jest.fn(() => Promise.resolve({})),
+                },
                 feature: {
                     isActive: () => true,
                 },
@@ -131,5 +133,57 @@ describe('module/sw-order/component/sw-order-line-items-grid/add-line-item', () 
         expect(wrapper.vm.$refs.dataGrid.currentInlineEditId).toBe(firstItemId);
         expect(wrapper.find('.sw-data-grid__row--0').classes()).not.toContain('is--inline-edit');
         expect(wrapper.find('.sw-data-grid__row--1').classes()).toContain('is--inline-edit');
+    });
+
+    it('removes a new item from the selection when its inline edit is cancelled', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--selection input').setChecked(true);
+        expect(wrapper.find('.sw-data-grid__bulk').exists()).toBe(true);
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__inline-edit-cancel').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-data-grid__bulk').exists()).toBe(false);
+    });
+
+    it('keeps only the items that are still in the reloaded order selected after a new item is saved', async () => {
+        const wrapper = await createWrapper();
+        const existingItem = {
+            id: 'existing-item',
+            type: 'custom',
+            label: 'Existing item',
+            quantity: 1,
+            isNew: () => false,
+        };
+
+        await wrapper.setProps({ order: { ...wrapper.props().order, lineItems: [existingItem] } });
+
+        await wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--selection input').setChecked(true);
+        await wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--selection input').setChecked(true);
+        expect(wrapper.find('.sw-data-grid__bulk-selected-count').text()).toBe('2');
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__inline-edit-save').trigger('click');
+        await flushPromises();
+        expect(wrapper.emitted('item-edit')).toHaveLength(1);
+
+        const persistedItem = {
+            id: 'persisted-item',
+            type: 'product',
+            label: 'Persisted item',
+            quantity: 1,
+            isNew: () => false,
+        };
+        await wrapper.setProps({ order: { ...wrapper.props().order, lineItems: [persistedItem, existingItem] } });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-data-grid__bulk-selected-count').text()).toBe('1');
+        expect(wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--selection input').element.checked).toBe(true);
     });
 });

@@ -69,7 +69,31 @@ const mailTemplateMediaMock = {
     fileSize: 792866,
 };
 
+const flowSearchMock = jest.fn(() => Promise.resolve([{ eventName: 'checkout.order.placed' }]));
+
+const businessEventsMock = jest.fn(() =>
+    Promise.resolve([
+        {
+            name: 'checkout.order.placed',
+            aware: ['mailAware'],
+            data: {},
+        },
+    ]),
+);
+
 const repositoryMockFactory = (entity) => {
+    if (entity === 'flow') {
+        return {
+            search: flowSearchMock,
+        };
+    }
+
+    if (entity === 'mail_template_type') {
+        return {
+            get: (id) => Promise.resolve({ ...mailTemplateTypeMock, id }),
+        };
+    }
+
     if (entity === 'sales_channel') {
         return {
             search: () => Promise.resolve({}),
@@ -102,12 +126,13 @@ const repositoryMockFactory = (entity) => {
     }
     return {
         search: () => Promise.resolve({}),
+        searchIds: () => Promise.resolve({ total: 1, data: [mailTemplateMock.id] }),
         get: (resolve = null) => {
             if (resolve === 'mailTemplateMediaTestId') {
                 return Promise.resolve(mailTemplateMediaMock);
             }
 
-            return Promise.resolve(mailTemplateMock);
+            return Promise.resolve({ ...mailTemplateMock });
         },
         create: () => {
             return {
@@ -173,15 +198,7 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 businessEventService: {
-                    getBusinessEvents: jest.fn(() =>
-                        Promise.resolve([
-                            {
-                                name: 'checkout.order.placed',
-                                aware: ['mailAware'],
-                                data: {},
-                            },
-                        ]),
-                    ),
+                    getBusinessEvents: businessEventsMock,
                 },
             },
             mocks: {
@@ -216,6 +233,7 @@ async function createWrapper(privileges = []) {
                     template: '<textarea :disabled="disabled"></textarea>',
                 },
                 'mt-select': {
+                    props: ['modelValue'],
                     template: '<div><slot name="hint"></slot></div>',
                 },
                 'mt-banner': {
@@ -1211,5 +1229,123 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         const copyIcons = wrapper.findAll('.sw-mail-template-detail__copy_icon');
         expect(copyIcons).toHaveLength(2);
+    });
+
+    it('should preselect the trigger event of the active flow sending the mail template type', async () => {
+        const wrapper = await createWrapper(['flow:read']);
+        await flushPromises();
+
+        const triggerEventSelect = wrapper.findComponent(
+            '.sw-mail-template-detail__available-variables-sidebar-trigger-select',
+        );
+        expect(triggerEventSelect.props('modelValue')).toBe('checkout.order.placed');
+    });
+
+    it('should not preselect the trigger event without flow read permission', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const triggerEventSelect = wrapper.findComponent(
+            '.sw-mail-template-detail__available-variables-sidebar-trigger-select',
+        );
+        expect(flowSearchMock).not.toHaveBeenCalled();
+        expect(triggerEventSelect.props('modelValue')).toBeUndefined();
+    });
+
+    it.each([
+        ['no flow sends the mail template type', []],
+        [
+            'flows send it on different events',
+            [{ eventName: 'checkout.order.placed' }, { eventName: 'state_enter.order.state.open' }],
+        ],
+    ])('should not preselect the trigger event when %s', async (_, flows) => {
+        businessEventsMock.mockResolvedValueOnce([
+            { name: 'checkout.order.placed', aware: ['mailAware'], data: {} },
+            { name: 'state_enter.order.state.open', aware: ['mailAware'], data: {} },
+        ]);
+        flowSearchMock.mockResolvedValueOnce(flows);
+
+        const wrapper = await createWrapper(['flow:read']);
+        await flushPromises();
+
+        const triggerEventSelect = wrapper.findComponent(
+            '.sw-mail-template-detail__available-variables-sidebar-trigger-select',
+        );
+        expect(triggerEventSelect.props('modelValue')).toBeUndefined();
+    });
+
+    it('should not overwrite a trigger event selected by the user', async () => {
+        let resolveFlows;
+        flowSearchMock.mockReturnValueOnce(
+            new Promise((resolve) => {
+                resolveFlows = resolve;
+            }),
+        );
+        businessEventsMock.mockResolvedValueOnce([
+            { name: 'checkout.order.placed', aware: ['mailAware'], data: {} },
+            { name: 'state_enter.order.state.open', aware: ['mailAware'], data: {} },
+        ]);
+
+        const wrapper = await createWrapper(['flow:read']);
+        await flushPromises();
+
+        const triggerEventSelect = wrapper.findComponent(
+            '.sw-mail-template-detail__available-variables-sidebar-trigger-select',
+        );
+        await triggerEventSelect.vm.$emit('update:modelValue', 'state_enter.order.state.open');
+
+        resolveFlows([{ eventName: 'checkout.order.placed' }]);
+        await flushPromises();
+
+        expect(triggerEventSelect.props('modelValue')).toBe('state_enter.order.state.open');
+    });
+
+    it('should replace the preselected trigger event when the mail template type changes', async () => {
+        businessEventsMock.mockResolvedValueOnce([
+            { name: 'checkout.order.placed', aware: ['mailAware'], data: {} },
+            { name: 'state_enter.order.state.open', aware: ['mailAware'], data: {} },
+        ]);
+
+        const wrapper = await createWrapper(['flow:read', 'mail_templates.editor']);
+        await flushPromises();
+
+        const triggerEventSelect = wrapper.findComponent(
+            '.sw-mail-template-detail__available-variables-sidebar-trigger-select',
+        );
+        expect(triggerEventSelect.props('modelValue')).toBe('checkout.order.placed');
+
+        flowSearchMock.mockResolvedValueOnce([{ eventName: 'state_enter.order.state.open' }]);
+        await wrapper.findComponent('#mailTemplateTypes').vm.$emit('update:value', 'otherMailTemplateTypeId');
+        await flushPromises();
+
+        expect(triggerEventSelect.props('modelValue')).toBe('state_enter.order.state.open');
+    });
+
+    it('should ignore the preselection result of a previously selected mail template type', async () => {
+        let resolveFirstFlows;
+        flowSearchMock.mockReturnValueOnce(
+            new Promise((resolve) => {
+                resolveFirstFlows = resolve;
+            }),
+        );
+        businessEventsMock.mockResolvedValueOnce([
+            { name: 'checkout.order.placed', aware: ['mailAware'], data: {} },
+            { name: 'state_enter.order.state.open', aware: ['mailAware'], data: {} },
+        ]);
+
+        const wrapper = await createWrapper(['flow:read', 'mail_templates.editor']);
+        await flushPromises();
+
+        flowSearchMock.mockResolvedValueOnce([{ eventName: 'state_enter.order.state.open' }]);
+        await wrapper.findComponent('#mailTemplateTypes').vm.$emit('update:value', 'otherMailTemplateTypeId');
+        await flushPromises();
+
+        resolveFirstFlows([{ eventName: 'checkout.order.placed' }]);
+        await flushPromises();
+
+        const triggerEventSelect = wrapper.findComponent(
+            '.sw-mail-template-detail__available-variables-sidebar-trigger-select',
+        );
+        expect(triggerEventSelect.props('modelValue')).toBe('state_enter.order.state.open');
     });
 });

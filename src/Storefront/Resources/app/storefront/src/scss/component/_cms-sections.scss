@@ -17,6 +17,10 @@ General styling for cms sections
         @extend .container;
     }
 
+    &:has(.full-width) {
+        overflow-x: clip;
+    }
+
     .full-width {
         @include make-container();
         --#{$prefix}gutter-x: 0;

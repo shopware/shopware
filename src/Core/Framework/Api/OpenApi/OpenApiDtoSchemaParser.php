@@ -51,16 +51,26 @@ final class OpenApiDtoSchemaParser
     public function parse(array $schema, bool $includeComponentSchemas = true, ?string $namespace = null): array
     {
         $registry = $this->schemaRegistry($schema);
+        $registry = $this->inheritComponentPackages(
+            $schema,
+            $registry,
+            $includeComponentSchemas ? array_keys($registry) : [],
+        );
         $componentTypes = $this->componentRootTypes($schema);
 
         $componentDefinitions = $includeComponentSchemas
-            ? $this->parseComponentSchemas($schema, $registry, $componentTypes)
+            ? $this->parseComponentSchemas($registry, $componentTypes)
             : $this->parseReferencedComponentSchemas($schema, $registry, $componentTypes);
+
+        $operationDefinitions = [
+            ...$this->parseRequestBodies($schema, $registry),
+            ...$this->parseResponseBodies($schema, $registry),
+        ];
+        $this->assertNoComponentOperationNameCollisions($componentDefinitions, $operationDefinitions);
 
         $definitions = $this->deduplicate([
             ...$componentDefinitions,
-            ...$this->parseRequestBodies($schema, $registry),
-            ...$this->parseResponseBodies($schema, $registry),
+            ...$operationDefinitions,
         ]);
 
         return $namespace === null ? $definitions : $this->qualifyDefinitions($definitions, $namespace);
@@ -79,16 +89,20 @@ final class OpenApiDtoSchemaParser
     public function parseComponents(array $schema, array $schemaNames, string $namespace): array
     {
         $registry = $this->schemaRegistry($schema);
+        $registry = $this->inheritComponentPackages($schema, $registry, $schemaNames, includePaths: false);
         $componentTypes = $this->componentRootTypes($schema);
 
         $definitions = [];
-        foreach ($schemaNames as $name) {
+        foreach ($this->collectReferencedComponentNames($schemaNames, $registry) as $name) {
             $schemaData = $registry[$name] ?? null;
             if ($schemaData === null || $this->isInlineComponent($schemaData)) {
                 continue;
             }
 
-            $componentDefinitions = $this->extractDtoFromSchema($this->toPascalCase($name), $schemaData, $registry, $componentTypes[$name] ?? OpenApiDtoType::Nested);
+            $componentDefinitions = $this->withComponentName(
+                $this->extractDtoFromSchema($this->toPascalCase($name), $schemaData, $registry, $componentTypes[$name] ?? OpenApiDtoType::Nested),
+                $name,
+            );
             $definitions = [...$definitions, ...$this->qualifyDefinitions($componentDefinitions, $namespace)];
         }
 
@@ -114,6 +128,7 @@ final class OpenApiDtoSchemaParser
                 enumType: $definition->enumType,
                 responseStatusCode: $definition->responseStatusCode,
                 type: $definition->type,
+                componentName: $definition->componentName,
             ),
             $definitions,
         );
@@ -140,7 +155,10 @@ final class OpenApiDtoSchemaParser
 
             $definitions = [
                 ...$definitions,
-                ...$this->extractDtoFromSchema($this->toPascalCase($name), $schemaData, $registry, $componentTypes[$name] ?? OpenApiDtoType::Nested),
+                ...$this->withComponentName(
+                    $this->extractDtoFromSchema($this->toPascalCase($name), $schemaData, $registry, $componentTypes[$name] ?? OpenApiDtoType::Nested),
+                    $name,
+                ),
             ];
         }
 
@@ -158,8 +176,21 @@ final class OpenApiDtoSchemaParser
      */
     private function collectReferencedSchemaNames(array $schema, array $registry): array
     {
-        $queue = $this->extractRefNames($this->arrayAtPath($schema, ['paths']) ?? []);
+        return $this->collectReferencedComponentNames(
+            $this->extractRefNames($this->arrayAtPath($schema, ['paths']) ?? []),
+            $registry,
+        );
+    }
 
+    /**
+     * @param list<string> $rootComponentNames
+     * @param array<string, array<string, mixed>> $registry
+     *
+     * @return list<string>
+     */
+    private function collectReferencedComponentNames(array $rootComponentNames, array $registry): array
+    {
+        $queue = $rootComponentNames;
         $seen = [];
         while ($queue !== []) {
             $name = array_pop($queue);
@@ -301,30 +332,207 @@ final class OpenApiDtoSchemaParser
     /**
      * @param array<string, mixed> $schema
      * @param array<string, array<string, mixed>> $registry
+     * @param list<string> $rootComponentNames
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function inheritComponentPackages(array $schema, array $registry, array $rootComponentNames, bool $includePaths = true): array
+    {
+        /** @var array<string, string|null> $packages */
+        $packages = [];
+        /** @var array<string, true> $reachedComponents */
+        $reachedComponents = [];
+        /** @var array<string, true> $visitedComponents */
+        $visitedComponents = [];
+
+        if ($includePaths) {
+            $this->collectInheritedComponentPackages(
+                $this->arrayAtPath($schema, ['paths']) ?? [],
+                null,
+                $registry,
+                $packages,
+                $reachedComponents,
+                $visitedComponents,
+            );
+        }
+
+        foreach ($rootComponentNames as $name) {
+            if (isset($reachedComponents[$name]) || !isset($registry[$name])) {
+                continue;
+            }
+
+            $this->inheritPackageForComponent(
+                $name,
+                null,
+                $registry,
+                $packages,
+                $reachedComponents,
+                $visitedComponents,
+            );
+        }
+
+        foreach ($packages as $name => $package) {
+            if ($package === null || $this->packageFromSchema($registry[$name]) !== null) {
+                continue;
+            }
+
+            $registry[$name][OpenApiDtoGenerator::PACKAGE_EXTENSION] = $package;
+        }
+
+        return $registry;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, string|null> $packages
+     * @param array<string, true> $reachedComponents
+     * @param array<string, true> $visitedComponents
+     */
+    private function collectInheritedComponentPackages(
+        mixed $value,
+        ?string $inheritedPackage,
+        array $registry,
+        array &$packages,
+        array &$reachedComponents,
+        array &$visitedComponents,
+    ): void {
+        if (!\is_array($value)) {
+            return;
+        }
+
+        $package = $this->packageFromSchema($value) ?? $inheritedPackage;
+        $references = $value['$ref'] ?? [];
+        $references = \is_array($references) ? $references : [$references];
+
+        foreach ($references as $reference) {
+            if (!\is_string($reference) || !str_contains($reference, '/components/schemas/')) {
+                continue;
+            }
+
+            $name = $this->resolveRefName($reference);
+            if (!isset($registry[$name])) {
+                continue;
+            }
+
+            $this->inheritPackageForComponent(
+                $name,
+                $package,
+                $registry,
+                $packages,
+                $reachedComponents,
+                $visitedComponents,
+            );
+        }
+
+        foreach ($value as $key => $nestedValue) {
+            if ($key === '$ref') {
+                continue;
+            }
+
+            $this->collectInheritedComponentPackages(
+                $nestedValue,
+                $package,
+                $registry,
+                $packages,
+                $reachedComponents,
+                $visitedComponents,
+            );
+        }
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $registry
+     * @param array<string, string|null> $packages
+     * @param array<string, true> $reachedComponents
+     * @param array<string, true> $visitedComponents
+     */
+    private function inheritPackageForComponent(
+        string $name,
+        ?string $inheritedPackage,
+        array $registry,
+        array &$packages,
+        array &$reachedComponents,
+        array &$visitedComponents,
+    ): void {
+        $schema = $registry[$name];
+        $explicitPackage = $this->packageFromSchema($schema);
+        $package = $explicitPackage ?? $inheritedPackage;
+        $reachedComponents[$name] = true;
+
+        if ($explicitPackage === null && \array_key_exists($name, $packages) && $packages[$name] !== $package) {
+            throw FrameworkException::invalidArgumentException(\sprintf(
+                'Component schema "%s" inherits conflicting DTO packages "%s" and "%s". Set "%s" explicitly on the component.',
+                $name,
+                $packages[$name] ?? 'none',
+                $package ?? 'none',
+                OpenApiDtoGenerator::PACKAGE_EXTENSION,
+            ));
+        }
+
+        $packages[$name] = $package;
+        $visitKey = $name . "\0" . ($package ?? "\0");
+        if (isset($visitedComponents[$visitKey])) {
+            return;
+        }
+
+        $visitedComponents[$visitKey] = true;
+        $this->collectInheritedComponentPackages(
+            $schema,
+            $package,
+            $registry,
+            $packages,
+            $reachedComponents,
+            $visitedComponents,
+        );
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $registry
      * @param array<string, OpenApiDtoType> $componentTypes
      *
      * @return list<OpenApiDtoDefinition>
      */
-    private function parseComponentSchemas(array $schema, array $registry, array $componentTypes): array
+    private function parseComponentSchemas(array $registry, array $componentTypes): array
     {
-        $schemas = $this->arrayAtPath($schema, ['components', 'schemas']);
-        if ($schemas === null) {
-            return [];
-        }
-
         $definitions = [];
-        foreach ($schemas as $schemaName => $schemaData) {
+        foreach ($registry as $schemaName => $schemaData) {
             if (!\is_string($schemaName) || !\is_array($schemaData) || $this->isInlineComponent($schemaData)) {
                 continue;
             }
 
             $definitions = [
                 ...$definitions,
-                ...$this->extractDtoFromSchema($this->toPascalCase($schemaName), $schemaData, $registry, $componentTypes[$schemaName] ?? OpenApiDtoType::Nested),
+                ...$this->withComponentName(
+                    $this->extractDtoFromSchema($this->toPascalCase($schemaName), $schemaData, $registry, $componentTypes[$schemaName] ?? OpenApiDtoType::Nested),
+                    $schemaName,
+                ),
             ];
         }
 
         return $definitions;
+    }
+
+    /**
+     * @param list<OpenApiDtoDefinition> $definitions
+     *
+     * @return list<OpenApiDtoDefinition>
+     */
+    private function withComponentName(array $definitions, string $componentName): array
+    {
+        return array_map(
+            static fn (OpenApiDtoDefinition $definition): OpenApiDtoDefinition => new OpenApiDtoDefinition(
+                name: $definition->name,
+                properties: $definition->properties,
+                description: $definition->description,
+                package: $definition->package,
+                enumValues: $definition->enumValues,
+                enumType: $definition->enumType,
+                responseStatusCode: $definition->responseStatusCode,
+                type: $definition->type,
+                componentName: $componentName,
+            ),
+            $definitions,
+        );
     }
 
     /**
@@ -620,7 +828,9 @@ final class OpenApiDtoSchemaParser
                     $this->toPascalCase($variantName),
                     $extracted['properties'],
                     $this->stringOrNull($variant['description'] ?? null),
-                    $this->packageFromSchema($variant) ?? $this->packageFromSchema($schema),
+                    $this->packageFromSchema($variant)
+                        ?? $this->packageFromSchema($this->dereferenceSchema($variant, $registry))
+                        ?? $this->packageFromSchema($schema),
                     type: $type,
                 );
                 $definitions = [...$definitions, ...$extracted['nestedDefinitions']];
@@ -655,8 +865,16 @@ final class OpenApiDtoSchemaParser
     private function extractFromSchema(array $schema, string $parentDtoName, array $registry, OpenApiDtoType $type): array
     {
         $resolved = $this->resolveSchemaProperties($schema, $registry);
+        $resolvedSchema = $this->dereferenceSchema($schema, $registry);
 
-        return $this->extractPropertiesFromSchema($resolved['properties'], $resolved['required'], $parentDtoName, $registry, $this->packageFromSchema($schema), $type);
+        return $this->extractPropertiesFromSchema(
+            $resolved['properties'],
+            $resolved['required'],
+            $parentDtoName,
+            $registry,
+            $this->packageFromSchema($schema) ?? $this->packageFromSchema($resolvedSchema),
+            $type,
+        );
     }
 
     /**
@@ -674,6 +892,10 @@ final class OpenApiDtoSchemaParser
 
         foreach ($properties as $propertyName => $propertySchema) {
             if (!\is_string($propertyName) || !\is_array($propertySchema)) {
+                continue;
+            }
+
+            if ($propertyName === 'extensions') {
                 continue;
             }
 
@@ -800,16 +1022,24 @@ final class OpenApiDtoSchemaParser
 
         $mapped = $this->mapOpenApiTypeToPhp($additionalProperties, $registry);
         if ($mapped['phpType'] !== self::PHP_TYPE_ARRAY) {
-            return $mapped['phpType'];
+            return $this->normalizePhpDocIterableType($mapped['phpType']);
         }
 
         if ($mapped['arrayItemType'] !== null) {
-            return 'list<' . $mapped['arrayItemType'] . '>';
+            return 'list<' . $this->normalizePhpDocIterableType($mapped['arrayItemType']) . '>';
         }
 
         $nestedMapValueType = $this->arrayMapValueType($this->dereferenceSchema($additionalProperties, $registry), $registry);
 
         return $nestedMapValueType !== null ? 'array<string, ' . $nestedMapValueType . '>' : self::PHP_TYPE_MIXED;
+    }
+
+    private function normalizePhpDocIterableType(string $type): string
+    {
+        return implode('|', array_map(
+            static fn (string $unionType): string => $unionType === self::PHP_TYPE_ARRAY ? 'array<string, mixed>' : $unionType,
+            explode('|', $type),
+        ));
     }
 
     /**
@@ -1132,6 +1362,30 @@ final class OpenApiDtoSchemaParser
         }
 
         return array_values($deduplicated);
+    }
+
+    /**
+     * @param list<OpenApiDtoDefinition> $componentDefinitions
+     * @param list<OpenApiDtoDefinition> $operationDefinitions
+     */
+    private function assertNoComponentOperationNameCollisions(array $componentDefinitions, array $operationDefinitions): void
+    {
+        $componentNames = [];
+        foreach ($componentDefinitions as $definition) {
+            $componentNames[$definition->name] = true;
+        }
+
+        foreach ($operationDefinitions as $definition) {
+            if (!isset($componentNames[$definition->name])) {
+                continue;
+            }
+
+            throw FrameworkException::invalidArgumentException(\sprintf(
+                'Component schema and operation generate the same DTO name "%s". Use unique names or mark the composition-only component with "%s": true.',
+                $definition->name,
+                OpenApiDtoGenerator::INLINE_EXTENSION,
+            ));
+        }
     }
 
     /**

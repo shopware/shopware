@@ -12,6 +12,29 @@
                     },
                     "includes": {
                         "$ref": "#/components/schemas/Includes"
+                    },
+                    "links": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "oneOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "object"
+                                }
+                            ]
+                        }
+                    },
+                    "link": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
                     }
                 }
             },

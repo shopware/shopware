@@ -152,12 +152,17 @@ final class OpenApiDtoGenerator
         $placements = [];
         // map of FQCN => namespace, used to render cross-namespace `use` imports
         $externalNamespaces = [];
+        // Component names are unique within the specification and identify shared DTO ownership.
+        $externalComponentNames = [];
 
         // 1. Shared components -> their own declared namespace.
         foreach ($componentsWithNamespace as $schemaName => $namespace) {
             foreach ($this->schemaParser->parseComponents($spec, [$schemaName], namespace: $namespace) as $definition) {
                 $placements[$definition->name] ??= ['definition' => $definition, 'namespace' => $namespace];
                 $externalNamespaces[$definition->name] = $namespace;
+                if ($definition->componentName !== null) {
+                    $externalComponentNames[$definition->componentName] = true;
+                }
             }
         }
 
@@ -166,7 +171,7 @@ final class OpenApiDtoGenerator
         foreach ($this->groupTaggedOperationsByNamespace($spec) as $namespace => $paths) {
             $definitions = $this->schemaParser->parse(['paths' => $paths, 'components' => $components], includeComponentSchemas: false, namespace: $namespace);
             foreach ($definitions as $definition) {
-                if (isset($externalNamespaces[$definition->name])) {
+                if ($definition->componentName !== null && isset($externalComponentNames[$definition->componentName])) {
                     continue;
                 }
 

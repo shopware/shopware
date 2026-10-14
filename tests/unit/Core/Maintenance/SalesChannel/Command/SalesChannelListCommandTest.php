@@ -74,6 +74,31 @@ class SalesChannelListCommandTest extends TestCase
         static::assertStringContainsString($id, $commandTester->getDisplay());
     }
 
+    public function testFormatMarkdownOutput(): void
+    {
+        $id = Uuid::randomHex();
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setUniqueIdentifier($id);
+        $salesChannel->setId($id);
+        $salesChannel->setActive(true);
+        $salesChannel->setMaintenance(false);
+
+        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection([$salesChannel])], new SalesChannelDefinition());
+
+        $command = new SalesChannelListCommand($salesChannelRepository);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--format' => 'markdown']);
+
+        static::assertSame(0, $commandTester->getStatusCode());
+        $output = '| id                               | Name | Active | Maintenance | Default Language | Languages | Default Currency | Currencies | Domains |
+|----------------------------------|------|--------|-------------|------------------|-----------|------------------|------------|---------|
+| %s | n/a  | active | off         | n/a              |           | n/a              |            |         |
+';
+        static::assertSame(\sprintf($output, $id), $commandTester->getDisplay());
+    }
+
     /**
      * @deprecated tag:v6.8.0 - Remove together with `--output` option
      */

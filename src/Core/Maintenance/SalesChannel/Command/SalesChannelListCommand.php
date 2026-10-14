@@ -59,7 +59,7 @@ class SalesChannelListCommand extends Command
 
     protected function configure(): void
     {
-        $this->addFormatOption([self::FORMAT_TABLE, self::FORMAT_JSON]);
+        $this->addFormatOption([self::FORMAT_TABLE, self::FORMAT_JSON, self::FORMAT_MARKDOWN]);
         /** @deprecated tag:v6.8.0 - Use `--format` instead */
         $this->addOption(
             'output',
@@ -80,7 +80,7 @@ class SalesChannelListCommand extends Command
             $input->setOption('format', $deprecatedOutput);
         }
 
-        $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_JSON]);
+        $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_JSON, self::FORMAT_MARKDOWN]);
         if ($format === null) {
             return self::INVALID;
         }
@@ -114,7 +114,7 @@ class SalesChannelListCommand extends Command
             return $this->renderJson($output, $data);
         }
 
-        return $this->renderTable($output, $data);
+        return $this->renderTable($output, $data, $format === self::FORMAT_MARKDOWN ? 'markdown' : 'default');
     }
 
     /**
@@ -142,9 +142,10 @@ class SalesChannelListCommand extends Command
     /**
      * @param list<list<string|array<string, string>>> $data
      */
-    private function renderTable(OutputInterface $output, array $data): int
+    private function renderTable(OutputInterface $output, array $data, string $style): int
     {
         $table = new Table($output);
+        $table->setStyle($style);
         $table->setHeaders(self::$headers);
 
         // Normalize data

@@ -50,7 +50,7 @@ class PluginListCommand extends Command
      */
     protected function configure(): void
     {
-        $this->addFormatOption([self::FORMAT_TABLE, self::FORMAT_JSON]);
+        $this->addFormatOption([self::FORMAT_TABLE, self::FORMAT_JSON, self::FORMAT_MARKDOWN]);
         /** @deprecated tag:v6.8.0 - Use `--format json` instead */
         $this->addOption('json', null, InputOption::VALUE_NONE, '[DEPRECATED] Use `--format json` instead.');
         $this->addOption('filter', 'f', InputOption::VALUE_REQUIRED, 'Filter the plugin list to a given term');
@@ -72,7 +72,7 @@ class PluginListCommand extends Command
             $input->setOption('format', self::FORMAT_JSON);
         }
 
-        $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_JSON]);
+        $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_JSON, self::FORMAT_MARKDOWN]);
         if ($format === null) {
             return self::INVALID;
         }
@@ -167,7 +167,9 @@ class PluginListCommand extends Command
             ];
         }
 
-        $io->table(
+        $this->renderFormattedTable(
+            $io,
+            $format,
             ['Plugin', 'Label', 'Composer name', 'Version', 'Upgrade version', 'Author', 'Installed', 'Active', 'Upgradeable', 'Required by composer'],
             $pluginTable
         );

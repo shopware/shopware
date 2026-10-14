@@ -208,6 +208,7 @@ class AccountOrderControllerTest extends TestCase
         $orderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
         $orderData[0]['orderCustomer']['customer']['guest'] = false;
         $orderData[0]['orderNumber'] = 'order-number';
+        $orderData[0]['primaryOrderDeliveryId'] = $orderData[0]['deliveries'][0]['id'];
 
         $criteria = new Criteria();
         $criteria

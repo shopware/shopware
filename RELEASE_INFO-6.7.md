@@ -774,6 +774,12 @@ Storefront analytics now treat every element with a `data-product-information` a
 
 With active analytics, adding a product to the cart from a product box now posts its brand and the categories of the current breadcrumb in the line item payload, the same `manufacturerName` and `categoryNames` the buy widget of the product detail page already posts. A reorder from the order history posts those of the original order. Cart, checkout and purchase events report them as `item_brand` and `item_category`. Nothing is added for a sales channel without analytics.
 
+### Storefront analytics report each checkout step once
+
+The shipping and payment method forms of the checkout confirm page reload the page on every change, which reported `add_shipping_info` and `add_payment_info` on each reload and pushed their counts above `begin_checkout`. Both events are now reported once per selected method of a checkout. A reload that keeps the method reports nothing, and selecting another method reports it. The state lives in the session storage and is cleared by `begin_checkout` and `purchase`.
+
+A new customer now reports `add_shipping_info` with the preselected shipping method when submitting the registration on the checkout register page, where the shipping address is entered. The confirm page reports it again only when the customer selects a different method.
+
 ### Essential characteristics label custom fields with their snippet
 
 Essential characteristics of a product now label a custom field with its `customFields.<name>` snippet, which Shopware creates in every snippet set when the custom field is created. Editing that snippet in Settings > Snippets, or overriding it in a theme's snippet files, changes the label shown in the cart, the off-canvas cart and the checkout. Before, only the label from the custom field's configuration was used and changes to the snippet had no effect.

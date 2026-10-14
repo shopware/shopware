@@ -1383,8 +1383,7 @@
   },
   "sw-not-found": {
     "title": "Seite nicht gefunden",
-    "statusCode": "404",
-    "description": "Wir können die gesuchte Seite leider nicht finden. Möglicherweise wurde sie entfernt oder ist vorübergehend nicht verfügbar.",
+    "description": "Die gesuchte Seite konnte nicht gefunden werden. Möglicherweise wurde sie verschoben oder existiert nicht mehr.",
     "buttonDashboard": "Zurück zum Dashboard"
   },
   "sw-property-search": {

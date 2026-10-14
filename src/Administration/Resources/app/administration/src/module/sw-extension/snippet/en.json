@@ -123,12 +123,6 @@
       "store": "Store",
       "purchased": "My extensions",
       "support": "Support"
-    },
-    "sw-extension-app-module-error-page": {
-      "error": {
-        "heading": "Page not found",
-        "description": "The page you were looking for could not be found. It may have been moved or no longer exists."
-      }
     }
   },
   "sw-extension-store": {

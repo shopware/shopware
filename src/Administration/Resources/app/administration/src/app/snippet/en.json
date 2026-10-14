@@ -1383,8 +1383,7 @@
   },
   "sw-not-found": {
     "title": "Page not found",
-    "statusCode": "404",
-    "description": "We can’t seem to find the page you’re looking for. It might have been removed or is temporarily unavailable.",
+    "description": "The page you were looking for could not be found. It may have been moved or no longer exists.",
     "buttonDashboard": "Back to dashboard"
   },
   "sw-property-search": {

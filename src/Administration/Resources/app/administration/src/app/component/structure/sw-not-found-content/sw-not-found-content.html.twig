@@ -1,0 +1,22 @@
+{% block sw_not_found_content %}
+<div class="sw-not-found-content">
+    <mt-empty-state
+        centered
+        icon="regular-search"
+        :headline="$t('sw-not-found.title')"
+        :description="$t('sw-not-found.description')"
+    >
+        <template #button>
+            {% block sw_not_found_content_dashboard_button %}
+            <mt-button
+                class="sw-not-found-content__dashboard-button"
+                variant="primary"
+                @click="goToDashboard"
+            >
+                {{ $t('sw-not-found.buttonDashboard') }}
+            </mt-button>
+            {% endblock %}
+        </template>
+    </mt-empty-state>
+</div>
+{% endblock %}

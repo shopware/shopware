@@ -81,10 +81,6 @@ Shopware.Component.extend(
 );
 Shopware.Component.register('sw-extension-adding-failed', () => import('./component/sw-extension-adding-failed'));
 Shopware.Component.register('sw-extension-adding-success', () => import('./component/sw-extension-adding-success'));
-Shopware.Component.register(
-    'sw-extension-app-module-error-page',
-    () => import('./component/sw-extension-app-module-error-page'),
-);
 Shopware.Component.register('sw-extension-app-module-page', () => import('./page/sw-extension-app-module-page'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 

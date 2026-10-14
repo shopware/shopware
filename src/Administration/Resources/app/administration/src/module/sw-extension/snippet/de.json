@@ -123,12 +123,6 @@
       "store": "Store",
       "purchased": "Meine Erweiterungen",
       "support": "Support"
-    },
-    "sw-extension-app-module-error-page": {
-      "error": {
-        "heading": "Seite nicht gefunden",
-        "description": "Die gesuchte Seite konnte nicht gefunden werden. Möglicherweise wurde sie verschoben oder existiert nicht mehr."
-      }
     }
   },
   "sw-extension-store": {

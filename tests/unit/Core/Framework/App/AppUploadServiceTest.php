@@ -286,7 +286,7 @@ class AppUploadServiceTest extends TestCase
             $lifecycle,
             $provider,
             $resolver,
-            $confirmation ?? $this->createMock(AppConfirmationDeltaProvider::class),
+            $confirmation ?? static::createStub(AppConfirmationDeltaProvider::class),
             $events,
             new Filesystem(),
             sys_get_temp_dir()

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Source\FlysystemSource;
 use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,6 +27,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FlysystemSource::class)]
 class FlysystemSourceTest extends TestCase
 {

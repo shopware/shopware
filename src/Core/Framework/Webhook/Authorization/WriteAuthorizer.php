@@ -233,7 +233,7 @@ class WriteAuthorizer
             static fn (WebhookSubscription $webhook): array => $webhook->aclRoleIds ?? [],
             array_values($written)
         ));
-        $existingRoleIds = $listedRoleIds !== [] ? array_keys($this->aclRoleLoader->getPrivilegesForRoles($listedRoleIds)) : [];
+        $existingRoleIds = array_keys($this->aclRoleLoader->getPrivilegesForRoles($listedRoleIds));
 
         $webhookRoles = [];
         $violations = [];

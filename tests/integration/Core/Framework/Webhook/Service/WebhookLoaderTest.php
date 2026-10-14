@@ -6,13 +6,13 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\AclRoles;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestIntegration;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Webhook\Authorization\Ownership\OwnerType;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -80,7 +80,7 @@ class WebhookLoaderTest extends TestCase
                     false,
                     null,
                     null,
-                    ownerType: OwnerType::Admin,
+                    roles: new AclRoles(true, []),
                 ),
                 new Webhook(
                     $this->ids->get('wh-2'),
@@ -94,7 +94,7 @@ class WebhookLoaderTest extends TestCase
                     false,
                     null,
                     null,
-                    ownerType: OwnerType::Admin,
+                    roles: new AclRoles(true, []),
                 ),
             ],
             $webhooks
@@ -147,8 +147,7 @@ class WebhookLoaderTest extends TestCase
                     false,
                     '1.0.0',
                     'dont_tell',
-                    ownerType: OwnerType::Restricted,
-                    ownerRoleIds: [Uuid::fromBytesToHex($aclRoleId)],
+                    roles: new AclRoles(false, [Uuid::fromBytesToHex($aclRoleId)]),
                 ),
                 new Webhook(
                     $this->ids->get('wh-2'),
@@ -162,8 +161,7 @@ class WebhookLoaderTest extends TestCase
                     false,
                     '1.0.0',
                     'dont_tell',
-                    ownerType: OwnerType::Restricted,
-                    ownerRoleIds: [Uuid::fromBytesToHex($aclRoleId)],
+                    roles: new AclRoles(false, [Uuid::fromBytesToHex($aclRoleId)]),
                 ),
             ],
             $webhooks
@@ -172,82 +170,20 @@ class WebhookLoaderTest extends TestCase
         $this->removeApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
     }
 
-    public function testGetPrivilegesForRoles(): void
-    {
-        $aclRoleId = Uuid::randomHex();
-
-        $this->connection->insert(
-            'acl_role',
-            [
-                'id' => Uuid::fromHexToBytes($aclRoleId),
-                'name' => 'SomeApp',
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'privileges' => json_encode(['customer:read', 'customer:create', 'category:read'], \JSON_THROW_ON_ERROR),
-            ]
-        );
-
-        $webhookLoader = static::getContainer()->get(WebhookLoader::class);
-
-        $permissions = $webhookLoader->getPrivilegesForRoles([$aclRoleId]);
-
-        static::assertCount(1, $permissions);
-        static::assertArrayHasKey($aclRoleId, $permissions);
-
-        static::assertTrue($permissions[$aclRoleId]->isAllowed('customer', 'read'));
-        static::assertTrue($permissions[$aclRoleId]->isAllowed('customer', 'create'));
-        static::assertTrue($permissions[$aclRoleId]->isAllowed('category', 'read'));
-    }
-
-    public function testAnAdminUserIsAnAdminOwner(): void
-    {
-        $this->insertWebhook(ownerUserId: $this->adminId);
-
-        static::assertSame(OwnerType::Admin, $this->loadWebhook()->ownerType);
-    }
-
-    public function testANonAdminUserIsARestrictedOwnerWithItsRole(): void
+    public function testAUserOwnedWebhookHasTheUsersRoles(): void
     {
         $user = TestUser::createNewTestUser($this->connection, ['product:read']);
         $this->insertWebhook(ownerUserId: $user->getUserId());
 
-        $webhook = $this->loadWebhook();
-        static::assertSame(OwnerType::Restricted, $webhook->ownerType);
-        static::assertSame([$user->getAclRoleId()], $webhook->ownerRoleIds);
+        static::assertEquals(new AclRoles(false, [(string) $user->getAclRoleId()]), $this->loadWebhook()->roles);
     }
 
-    public function testAnAdminIntegrationIsAnAdminOwner(): void
-    {
-        $this->insertWebhook(ownerIntegrationId: TestIntegration::createAdmin($this->connection)->getId());
-
-        static::assertSame(OwnerType::Admin, $this->loadWebhook()->ownerType);
-    }
-
-    public function testANonAdminIntegrationIsARestrictedOwnerWithItsRole(): void
+    public function testAnIntegrationOwnedWebhookHasTheIntegrationsRoles(): void
     {
         $integration = TestIntegration::create($this->connection, ['product:read']);
         $this->insertWebhook(ownerIntegrationId: $integration->getId());
 
-        $webhook = $this->loadWebhook();
-        static::assertSame(OwnerType::Restricted, $webhook->ownerType);
-        static::assertSame([$integration->getAclRoleId()], $webhook->ownerRoleIds);
-    }
-
-    public function testAnAppIntegrationOnlyHasTheAppsRole(): void
-    {
-        $this->installApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
-        [$integrationId, $appRoleId] = $this->connection->fetchNumeric('SELECT integration_id, acl_role_id FROM app WHERE name = \'minimal\'') ?: [];
-
-        $broadRoleId = TestIntegration::create($this->connection, ['order:read'])->getAclRoleId();
-        $this->connection->insert('integration_role', ['integration_id' => $integrationId, 'acl_role_id' => Uuid::fromHexToBytes((string) $broadRoleId)]);
-        $this->connection->update('integration', ['admin' => 1], ['id' => $integrationId]);
-
-        $this->insertWebhook(ownerIntegrationId: Uuid::fromBytesToHex($integrationId));
-
-        $webhook = $this->loadWebhook();
-        static::assertSame(OwnerType::Restricted, $webhook->ownerType);
-        static::assertSame([Uuid::fromBytesToHex($appRoleId)], $webhook->ownerRoleIds);
-
-        $this->removeApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
+        static::assertEquals(new AclRoles(false, [(string) $integration->getAclRoleId()]), $this->loadWebhook()->roles);
     }
 
     public function testGetWebhooksSkipsWebhooksWithoutAnOwner(): void
@@ -267,9 +203,7 @@ class WebhookLoaderTest extends TestCase
         $this->assignUserRole($owner->getUserId(), $orderRoleId);
         $this->insertWebhook(ownerUserId: $owner->getUserId(), aclRoleIds: [$orderRoleId, Uuid::randomHex()]);
 
-        $webhook = $this->loadWebhook();
-        static::assertSame(OwnerType::Restricted, $webhook->ownerType);
-        static::assertSame([$orderRoleId], $webhook->ownerRoleIds);
+        static::assertEquals(new AclRoles(false, [$orderRoleId]), $this->loadWebhook()->roles);
     }
 
     public function testAclRoleIdsRestrictAnAdminOwner(): void
@@ -277,9 +211,7 @@ class WebhookLoaderTest extends TestCase
         $roleId = $this->createAclRole(['product:read']);
         $this->insertWebhook(ownerUserId: $this->adminId, aclRoleIds: [$roleId]);
 
-        $webhook = $this->loadWebhook();
-        static::assertSame(OwnerType::Restricted, $webhook->ownerType);
-        static::assertSame([$roleId], $webhook->ownerRoleIds);
+        static::assertEquals(new AclRoles(false, [$roleId]), $this->loadWebhook()->roles);
     }
 
     public function testInactiveWebhooksAreLoadedByIds(): void
@@ -293,8 +225,7 @@ class WebhookLoaderTest extends TestCase
         static::assertSame([], $loader->getWebhooks());
         static::assertCount(1, $webhooks);
         static::assertSame($this->ids->get('wh-1'), $webhooks[0]->id);
-        static::assertSame(OwnerType::Restricted, $webhooks[0]->ownerType);
-        static::assertSame([$owner->getAclRoleId()], $webhooks[0]->ownerRoleIds);
+        static::assertEquals(new AclRoles(false, [(string) $owner->getAclRoleId()]), $webhooks[0]->roles);
     }
 
     /**

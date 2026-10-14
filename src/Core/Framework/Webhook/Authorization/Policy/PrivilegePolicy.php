@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\Webhook\Authorization\Policy;
 
+use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
-use Shopware\Core\Framework\Webhook\Authorization\Ownership\OwnerType;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
 use Shopware\Core\Framework\Webhook\Hookable;
-use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -27,7 +26,7 @@ final class PrivilegePolicy implements Policy, EventSubscriberInterface, ResetIn
      */
     private array $rolePrivileges = [];
 
-    public function __construct(private readonly WebhookLoader $webhookLoader)
+    public function __construct(private readonly AclRoleLoader $aclRoleLoader)
     {
     }
 
@@ -51,10 +50,11 @@ final class PrivilegePolicy implements Policy, EventSubscriberInterface, ResetIn
 
     public function permitsDelivery(Hookable $event, Webhook $webhook): bool
     {
-        return match ($webhook->ownerType) {
-            OwnerType::Admin => true,
-            OwnerType::Restricted => $event->isAllowed($webhook->appId ?? Hookable::NO_APP_ID, $this->getOwnerPrivileges($webhook->ownerRoleIds)),
-        };
+        if ($webhook->roles->unrestricted) {
+            return true;
+        }
+
+        return $event->isAllowed($webhook->appId ?? Hookable::NO_APP_ID, $this->getPrivileges($webhook->roles->roleIds));
     }
 
     public function reset(): void
@@ -65,7 +65,7 @@ final class PrivilegePolicy implements Policy, EventSubscriberInterface, ResetIn
     /**
      * @param list<string> $roleIds
      */
-    private function getOwnerPrivileges(array $roleIds): AclPrivilegeCollection
+    private function getPrivileges(array $roleIds): AclPrivilegeCollection
     {
         $this->cacheRolePrivileges($roleIds);
 
@@ -87,7 +87,7 @@ final class PrivilegePolicy implements Policy, EventSubscriberInterface, ResetIn
             return;
         }
 
-        $privileges = $this->webhookLoader->getPrivilegesForRoles($uncachedRoleIds);
+        $privileges = $this->aclRoleLoader->getPrivilegesForRoles($uncachedRoleIds);
         foreach ($uncachedRoleIds as $roleId) {
             $this->rolePrivileges[$roleId] = $privileges[$roleId] ?? new AclPrivilegeCollection([]);
         }

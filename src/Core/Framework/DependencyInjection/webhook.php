@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
+use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
@@ -79,6 +80,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(WebhookLoader::class)
         ->args([
             service(Connection::class),
+            service(AclRoleLoader::class),
         ]);
 
     $services->set('shopware.webhook.guzzle', Client::class)
@@ -226,7 +228,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.webhook.policy');
 
     $services->set(PrivilegePolicy::class)
-        ->args([service(WebhookLoader::class)])
+        ->args([service(AclRoleLoader::class)])
         ->tag('shopware.webhook.policy')
         ->tag('kernel.event_subscriber')
         ->tag('kernel.reset', ['method' => 'reset']);
@@ -276,6 +278,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(WriteAuthorizer::class),
             service(SubscriptionValidator::class),
             service(WebhookLoader::class),
+            service(AclRoleLoader::class),
         ])
         ->tag('kernel.event_subscriber');
 

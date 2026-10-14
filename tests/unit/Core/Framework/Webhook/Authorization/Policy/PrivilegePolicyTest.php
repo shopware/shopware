@@ -4,14 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Authorization\Policy;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
+use Shopware\Core\Framework\Api\Acl\AclRoles;
 use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
-use Shopware\Core\Framework\Webhook\Authorization\Ownership\OwnerType;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PrivilegePolicy;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
 use Shopware\Core\Framework\Webhook\Hookable;
-use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Webhook;
 
 /**
@@ -31,26 +31,26 @@ class PrivilegePolicyTest extends TestCase
 
     public function testHandlesEverySubscription(): void
     {
-        $policy = new PrivilegePolicy(static::createStub(WebhookLoader::class));
+        $policy = new PrivilegePolicy(static::createStub(AclRoleLoader::class));
 
         static::assertTrue($policy->handles('product.written'));
         static::assertTrue($policy->permitsSubscription('product.written', Subscriber::user()));
     }
 
-    public function testAdminOwnersAreNotChecked(): void
+    public function testUnrestrictedRolesAreNotChecked(): void
     {
-        $loader = $this->createMock(WebhookLoader::class);
+        $loader = $this->createMock(AclRoleLoader::class);
         $loader->expects($this->never())->method('getPrivilegesForRoles');
 
         $event = $this->createMock(Hookable::class);
         $event->expects($this->never())->method('isAllowed');
 
-        static::assertTrue((new PrivilegePolicy($loader))->permitsDelivery($event, $this->webhook(appId: null, roleIds: ['role-id'], ownerType: OwnerType::Admin)));
+        static::assertTrue((new PrivilegePolicy($loader))->permitsDelivery($event, $this->webhook(appId: null, roleIds: [], unrestricted: true)));
     }
 
     public function testTheEventDecidesWithThePrivilegesOfTheOwnersRoles(): void
     {
-        $loader = static::createStub(WebhookLoader::class);
+        $loader = static::createStub(AclRoleLoader::class);
         $loader->method('getPrivilegesForRoles')->willReturn(['role-id' => new AclPrivilegeCollection(['product:read'])]);
 
         $event = $this->createMock(Hookable::class);
@@ -64,7 +64,7 @@ class PrivilegePolicyTest extends TestCase
 
     public function testAWebhookWithoutAnAppIsAlsoChecked(): void
     {
-        $loader = static::createStub(WebhookLoader::class);
+        $loader = static::createStub(AclRoleLoader::class);
         $loader->method('getPrivilegesForRoles')->willReturn([]);
 
         $event = $this->createMock(Hookable::class);
@@ -78,7 +78,7 @@ class PrivilegePolicyTest extends TestCase
 
     public function testThePrivilegesOfAllTheOwnersRolesAreMerged(): void
     {
-        $loader = static::createStub(WebhookLoader::class);
+        $loader = static::createStub(AclRoleLoader::class);
         $loader->method('getPrivilegesForRoles')->willReturn([
             'role-a' => new AclPrivilegeCollection(['product:read']),
             'role-b' => new AclPrivilegeCollection(['product:read', 'order:read']),
@@ -95,7 +95,7 @@ class PrivilegePolicyTest extends TestCase
 
     public function testAnOwnerWithoutRolesHasNoPrivileges(): void
     {
-        $loader = $this->createMock(WebhookLoader::class);
+        $loader = $this->createMock(AclRoleLoader::class);
         $loader->expects($this->never())->method('getPrivilegesForRoles');
 
         $event = $this->createMock(Hookable::class);
@@ -109,7 +109,7 @@ class PrivilegePolicyTest extends TestCase
 
     public function testRolePrivilegesAreLoadedOnceUntilReset(): void
     {
-        $loader = $this->createMock(WebhookLoader::class);
+        $loader = $this->createMock(AclRoleLoader::class);
         $loader->expects($this->exactly(2))
             ->method('getPrivilegesForRoles')
             ->with(['role-id'])
@@ -130,7 +130,7 @@ class PrivilegePolicyTest extends TestCase
     /**
      * @param list<string> $roleIds
      */
-    private function webhook(?string $appId, array $roleIds, OwnerType $ownerType = OwnerType::Restricted): Webhook
+    private function webhook(?string $appId, array $roleIds, bool $unrestricted = false): Webhook
     {
         return new Webhook(
             id: 'webhook-id',
@@ -144,8 +144,7 @@ class PrivilegePolicyTest extends TestCase
             appActive: true,
             appVersion: null,
             appSecret: null,
-            ownerType: $ownerType,
-            ownerRoleIds: $roleIds,
+            roles: new AclRoles($unrestricted, $roleIds),
         );
     }
 }

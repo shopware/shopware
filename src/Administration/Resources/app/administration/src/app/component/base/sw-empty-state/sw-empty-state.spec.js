@@ -13,21 +13,6 @@ const $route = {
     },
 };
 
-async function createParentWrapper(parentName) {
-    return mount(
-        {
-            name: parentName,
-            template: '<sw-empty-state title="Oh no, nothing was found." />',
-        },
-        {
-            global: {
-                stubs: { 'sw-empty-state': await wrapTestComponent('sw-empty-state') },
-                mocks: { $route },
-            },
-        },
-    );
-}
-
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-empty-state'), {
         global: {
@@ -83,30 +68,21 @@ describe('components/base/sw-empty-state', () => {
 });
 
 describe('components/base/sw-empty-state deprecation guard', () => {
-    let warnSpy;
+    it('should report the deprecation for the removal in v6.9', async () => {
+        const deprecationSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow');
 
-    beforeEach(() => {
-        warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    });
+        await createWrapper();
 
-    afterEach(() => {
-        warnSpy.mockRestore();
-    });
-
-    it('should warn once per using component while the 6.9 major is inactive', async () => {
-        await createParentWrapper('sw-empty-state-test-parent');
-        await createParentWrapper('sw-empty-state-test-parent');
-
-        expect(warnSpy).toHaveBeenCalledTimes(1);
-        expect(warnSpy).toHaveBeenCalledWith(
-            '[Deprecation]',
-            'The "sw-empty-state" component is deprecated and will be removed in v6.9.0. ' +
-                'Replace "sw-empty-state" with "mt-empty-state" in component "sw-empty-state-test-parent".',
+        expect(deprecationSpy).toHaveBeenCalledWith(
+            'V6_9_0_0',
+            'The "sw-empty-state" component is deprecated and will be removed in v6.9.0. Replace "sw-empty-state" with "mt-empty-state".',
         );
+
+        deprecationSpy.mockRestore();
     });
 
     it.activeFeatureFlags(['v6.9.0.0'])('should throw once the 6.9 major is active', async () => {
-        await expect(createParentWrapper('sw-empty-state-test-major-parent')).rejects.toThrow(
+        await expect(createWrapper()).rejects.toThrow(
             'Tried to access deprecated functionality: The "sw-empty-state" component is deprecated',
         );
     });

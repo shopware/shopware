@@ -481,7 +481,7 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 ### `sw-empty-state` stays available until 6.9
 
-The removal of the deprecated `sw-empty-state` component was moved from 6.8 to 6.9, so extensions using it keep working with 6.8. Development builds log a deprecation warning once per component that renders it, naming that component. Migrate to `mt-empty-state` before 6.9, see `UPGRADE-6.9.md`.
+The removal of the deprecated `sw-empty-state` component was moved from 6.8 to 6.9, so extensions using it keep working with 6.8. Development builds log a deprecation warning the first time the component is rendered. Migrate to `mt-empty-state` before 6.9, see `UPGRADE-6.9.md`.
 
 ### [Internal] Native `<sw-block>` names are isolated per component
 

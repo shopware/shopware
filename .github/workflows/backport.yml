@@ -248,12 +248,18 @@ jobs:
             ${{ needs.parse-labels.outputs.labels && join(fromJSON(needs.parse-labels.outputs.labels), ',') || '' }}
           dry-run: ${{ github.event.act && true || false }}
 
+      # Base sha, never the PR head: pull_request_target runs with a token a fork must not steer.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: failure()
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          sparse-checkout: .github/bin/js
+
       - name: Notify about failed backport
         if: failure()
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           TARGET_BRANCH: ${{ matrix.target-branch }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
           MERGED_BY: ${{ github.event.pull_request.merged_by && github.event.pull_request.merged_by.login || '' }}
           ASSIGNEES: ${{ github.event.pull_request.assignees && join(github.event.pull_request.assignees.*.login, ',') || '' }}
           ISSUE_OWNER: ${{ needs.find-linked-issue.outputs.owner }}
@@ -262,28 +268,13 @@ jobs:
         with:
           github-token: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts-shopware-backport.outputs.token }}
           script: |
-            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            const mentions = [...new Set([process.env.MERGED_BY, ...process.env.ASSIGNEES.split(',')].filter(Boolean))]
-              .map(login => `@${login}`)
-              .join(' ');
-            const body = [
-              `:x: Backport to \`${process.env.TARGET_BRANCH}\` failed, most likely due to merge conflicts. Please backport #${process.env.PR_NUMBER} manually.`,
-              `Workflow run: ${runUrl}`,
-              mentions ? `cc ${mentions}` : '',
-            ].filter(Boolean).join('\n\n');
-
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: parseInt(process.env.PR_NUMBER),
-              body,
-            });
-
-            if (process.env.ISSUE_NUMBER) {
-              await github.rest.issues.createComment({
-                owner: process.env.ISSUE_OWNER,
-                repo: process.env.ISSUE_REPOSITORY,
-                issue_number: parseInt(process.env.ISSUE_NUMBER),
-                body,
-              });
-            }
+            const { notifyBackportFailure } = await import('${{ github.workspace }}/.github/bin/js/backport-failure.ts')
+            await notifyBackportFailure(github, {
+              targetBranch: process.env.TARGET_BRANCH,
+              pullRequest: { ...context.repo, number: context.payload.pull_request.number },
+              runUrl: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              mentions: [process.env.MERGED_BY, ...process.env.ASSIGNEES.split(',')],
+              linkedIssue: process.env.ISSUE_NUMBER
+                ? { owner: process.env.ISSUE_OWNER, repo: process.env.ISSUE_REPOSITORY, number: parseInt(process.env.ISSUE_NUMBER) }
+                : undefined,
+            })

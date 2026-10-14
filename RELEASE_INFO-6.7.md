@@ -780,6 +780,10 @@ The shipping and payment method forms of the checkout confirm page reload the pa
 
 A new customer now reports `add_shipping_info` with the preselected shipping method when submitting the registration on the checkout register page, where the shipping address is entered. The confirm page reports it again only when the customer selects a different method.
 
+### Storefront analytics report item variants and graduated prices
+
+Storefront analytics now report the selected options of a variant, such as `Red, L`, as `item_variant` in product, list, wishlist, cart, checkout and purchase events. `add_to_cart` on the product detail page reports the unit price of the graduated price tier that applies to the quantity the cart holds after the add, instead of the cheapest tier. For a sales channel with active analytics, the buy widget renders the `data-product-variant` and `data-product-prices` attributes, the product box adds `variant` to its `data-product-information`, and the hidden line items render `data-variant`.
+
 ### Essential characteristics label custom fields with their snippet
 
 Essential characteristics of a product now label a custom field with its `customFields.<name>` snippet, which Shopware creates in every snippet set when the custom field is created. Editing that snippet in Settings > Snippets, or overriding it in a theme's snippet files, changes the label shown in the cart, the off-canvas cart and the checkout. Before, only the label from the custom field's configuration was used and changes to the snippet had no effect.

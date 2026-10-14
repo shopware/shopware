@@ -154,6 +154,73 @@ describe('plugin/google-analytics/product-page.helper', () => {
         expect(ProductPageHelper.getCurrency()).toBe('GBP');
     });
 
+    describe('graduated prices', () => {
+        const tiers = JSON.stringify([
+            { quantity: 10, price: 20 },
+            { quantity: 50, price: 15 },
+            { quantity: 51, price: 10 },
+        ]);
+
+        beforeEach(() => {
+            document.body.innerHTML = `
+                <div class="product-detail-buy" data-product-prices='${tiers}'>
+                    <form class="buy-widget"></form>
+                </div>
+            `;
+        });
+
+        test.each([
+            [1, 20],
+            [10, 20],
+            [11, 15],
+            [50, 15],
+            [51, 10],
+            [500, 10],
+        ])('charges the tier of quantity %i', (quantity, price) => {
+            expect(ProductPageHelper.getGraduatedPrice(document.querySelector('.buy-widget'), quantity)).toBe(price);
+        });
+
+        test('returns undefined without graduated prices', () => {
+            document.body.innerHTML = '<form class="buy-widget"></form>';
+
+            expect(ProductPageHelper.getGraduatedPrice(document.querySelector('.buy-widget'), 5)).toBeUndefined();
+        });
+
+        test('returns undefined for invalid price data', () => {
+            document.body.innerHTML = '<div data-product-prices="not json"><form class="buy-widget"></form></div>';
+
+            expect(ProductPageHelper.getGraduatedPrice(document.querySelector('.buy-widget'), 5)).toBeUndefined();
+        });
+    });
+
+    describe('variants', () => {
+        test('reads the selected options of the detail page', () => {
+            document.body.innerHTML = `
+                <h1 class="product-detail-name">Shirt</h1>
+                <div class="product-detail-buy" data-product-variant="Red, L"></div>
+            `;
+
+            expect(ProductPageHelper.getVariant()).toBe('Red, L');
+            expect(ProductPageHelper.getProductDetailData().variant).toBe('Red, L');
+        });
+
+        test('reports no variant for a product without options', () => {
+            document.body.innerHTML = '<div class="product-detail-buy" data-product-variant=""></div>';
+
+            expect(ProductPageHelper.getVariant()).toBeUndefined();
+        });
+
+        test('reads the variant of a product element', () => {
+            document.body.innerHTML = `
+                <div class="card product-box" data-product-information='{"id":"product-1","variant":"Blue, M"}'>
+                    <button class="buy"></button>
+                </div>
+            `;
+
+            expect(ProductPageHelper.getProductCardData('product-1', document.querySelector('.buy')).variant).toBe('Blue, M');
+        });
+    });
+
     describe('product elements', () => {
         const breadcrumb = `
             <nav aria-label="breadcrumb">

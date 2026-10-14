@@ -773,9 +773,7 @@ With active analytics, adding a product from a product box now posts its brand a
 
 ### Storefront analytics report each checkout step once
 
-The shipping and payment method forms of the checkout confirm page reload the page on every change, which reported `add_shipping_info` and `add_payment_info` on each reload and pushed their counts above `begin_checkout`. Both events are now reported once per selected method of a checkout. A reload that keeps the method reports nothing, and selecting another method reports it. The state lives in the session storage and is cleared by `begin_checkout` and `purchase`.
-
-A new customer now reports `add_shipping_info` with the preselected shipping method when submitting the registration on the checkout register page, where the shipping address is entered. The confirm page reports it again only when the customer selects a different method.
+`add_shipping_info` and `add_payment_info` are now reported once per selected method of a checkout, instead of on every reload of the confirm page. A new customer reports `add_shipping_info` when registering in the checkout.
 
 ### Essential characteristics label custom fields with their snippet
 

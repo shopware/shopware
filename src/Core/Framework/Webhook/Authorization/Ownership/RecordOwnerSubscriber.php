@@ -39,11 +39,10 @@ class RecordOwnerSubscriber implements EventSubscriberInterface
         $source = $event->getContext()->getSource();
         $ownerType = ApiCallerType::of($source);
         $ownerId = $ownerType?->idOf($source);
-        $column = $ownerType === ApiCallerType::Integration ? 'owner_integration_id' : 'owner_user_id';
 
         foreach ($inserts as $insert) {
-            if ($ownerId !== null) {
-                $insert->addPayload($column, Uuid::fromHexToBytes($ownerId));
+            if ($ownerType !== null && $ownerId !== null) {
+                $insert->addPayload(self::ownerColumn($ownerType), Uuid::fromHexToBytes($ownerId));
 
                 continue;
             }
@@ -53,5 +52,13 @@ class RecordOwnerSubscriber implements EventSubscriberInterface
                 $event->getExceptions()->add(WebhookException::webhookOwnerMissing());
             }
         }
+    }
+
+    private static function ownerColumn(ApiCallerType $type): string
+    {
+        return match ($type) {
+            ApiCallerType::User => 'owner_user_id',
+            ApiCallerType::Integration => 'owner_integration_id',
+        };
     }
 }

@@ -9,7 +9,7 @@ function getReferences(expression: string, templateScope: string[] = []): string
 }
 
 function getWriteTargets(expression: string, templateScope: string[] = []): string[] {
-    return Array.from(collectExpressionWriteTargets(expression, new Set(templateScope))).sort();
+    return Array.from(collectExpressionWriteTargets(expression, new Set(templateScope)).keys()).sort();
 }
 
 describe('build/vue-setup-transform/flow-analysis references', () => {

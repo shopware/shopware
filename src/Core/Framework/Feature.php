@@ -64,7 +64,7 @@ class Feature
      */
     public static function isMajorVersionFlag(string $name): bool
     {
-        return (bool) \preg_match('/^V\d+_\d+_0_0$/', self::normalizeName($name));
+        return (bool) \preg_match('/^V\d+_\d+_0_0$/D', self::normalizeName($name));
     }
 
     /**
@@ -275,6 +275,13 @@ class Feature
 
         if (\PHP_SAPI !== 'cli') {
             ScriptTraces::addDeprecationNotice($message);
+        }
+    }
+
+    public static function throwIfActive(string $majorFlag, string $message): void
+    {
+        if ((self::$registeredFeatures === [] || self::has($majorFlag)) && self::isActive($majorFlag)) {
+            throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
         }
     }
 

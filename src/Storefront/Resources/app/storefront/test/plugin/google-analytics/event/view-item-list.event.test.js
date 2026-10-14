@@ -43,8 +43,8 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
             'currency': 'EUR',
             'value': 2499.98,
             'items': [
-                { item_id: 'product-1', item_name: 'Laptop', price: 999.99, item_category: 'Electronics', item_category2: 'Computers' },
-                { item_id: 'product-2', item_name: 'Desktop', price: 1499.99, item_category: 'Electronics', item_category2: 'Computers' },
+                { item_id: 'product-1', item_name: 'Laptop', price: 999.99, index: 0, item_category: 'Electronics', item_category2: 'Computers' },
+                { item_id: 'product-2', item_name: 'Desktop', price: 1499.99, index: 1, item_category: 'Electronics', item_category2: 'Computers' },
             ],
         });
     });
@@ -62,9 +62,54 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
             'currency': 'EUR',
             'value': 49.5,
             'items': [
-                { item_id: 'custom-1', item_name: 'Teaser', price: 49.5 },
+                { item_id: 'custom-1', item_name: 'Teaser', price: 49.5, index: 0 },
             ],
         });
+    });
+
+    test('reports the list the products were presented in', () => {
+        document.body.innerHTML = `
+            <div class="cms-element-product-listing-wrapper" data-list-id="category:1" data-list-name="Shirts">
+                <div class="cms-element-product-listing">
+                    <div class="js-listing-wrapper" data-list-start="24">
+                        <div class="product-box" data-product-information='{ "id": "1", "name": "Shirt", "price": 20, "sku": "SW10000" }'></div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', expect.objectContaining({
+            'item_list_id': 'category:1',
+            'item_list_name': 'Shirts',
+            'items': [expect.objectContaining({ item_id: 'SW10000', index: 24 })],
+        }));
+    });
+
+    // a page can render a listing and a slider, whose products belong to their own list
+    test('reports only the products of the listing', () => {
+        document.body.innerHTML = `
+            <div class="cms-element-product-listing-wrapper">
+                <div class="product-box" data-product-information='{ "id": "1", "name": "Shirt", "price": 20, "sku": "SW10000" }'></div>
+            </div>
+            <div class="cms-element-product-slider">
+                <div class="product-box" data-product-information='{ "id": "2", "name": "Mug", "price": 5, "sku": "SW10001" }'></div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', expect.objectContaining({
+            'value': 20,
+            'items': [expect.objectContaining({ item_id: 'SW10000' })],
+        }));
+    });
+
+    test('finds no products on a page without a product listing', () => {
+        document.body.innerHTML = '<div class="product-box" data-product-information=\'{"sku":"SW10000"}\'></div>';
+
+        expect(new ViewItemListEvent().getListItems()).toEqual([]);
     });
 
     test('does not fire event when no product items are found', () => {

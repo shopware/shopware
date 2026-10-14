@@ -790,6 +790,21 @@ Storefront analytics now report the selected options of a variant, such as `Red,
 
 The wishlist page holds the removal of a product back until `remove_from_wishlist` is sent, for at most one second.
 
+### Storefront analytics report `select_item` and the list of a product
+
+Following a product link in a listing, the search results, a slider, a cross selling tab, the wishlist or a shopping experience element of an extension now reports `select_item`. `view_item_list` and `select_item` report the list as `item_list_id` and `item_list_name` and the position as `index`, which counts across the pages of a paginated listing. `view_item` reports the list the product was selected from on its item, also when the product was opened in another tab. The list is kept in the local storage of the browser for 30 minutes and consumed by the first view of the product. `view_item_list` now only reports the products of the product listing, and saving the cookie preferences again no longer registers every event twice.
+
+The list identifiers are a contract that Google Tag Manager triggers can rely on:
+
+* A category listing reports `category:<category id>` and the translated category name. A listing outside a category reports `cms:<slot id>`.
+* The search results report `search` and the translated `search.analyticsListName` snippet.
+* The wishlist reports `wishlist` and the translated `wishlist.analyticsListName` snippet.
+* A cross selling tab reports `cross_selling:<cross selling id>` and the translated name of the cross selling group.
+* A product slider reports `slider:<element id>` and its title.
+* Any other shopping experience element, including those of extensions, reports `cms:<element id>`.
+
+Themes and extensions can identify their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or with `data-list-id` and `data-list-name` on any element containing product elements. These attributes are only rendered for a sales channel with active analytics, and extensions should use the same condition, `storefrontAnalytics and storefrontAnalytics.isActive()`. The buy widget renders `data-product-id` and `data-product-parent-id` under the same condition.
+
 ### Essential characteristics label custom fields with their snippet
 
 Essential characteristics of a product now label a custom field with its `customFields.<name>` snippet, which Shopware creates in every snippet set when the custom field is created. Editing that snippet in Settings > Snippets, or overriding it in a theme's snippet files, changes the label shown in the cart, the off-canvas cart and the checkout. Before, only the label from the custom field's configuration was used and changes to the snippet had no effect.

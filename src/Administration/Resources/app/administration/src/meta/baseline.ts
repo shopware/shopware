@@ -126,7 +126,6 @@ const missingTests = [
     'src/app/route/index.js',
     'src/app/service/feature.service.ts',
     'src/app/service/language-auto-fetching.service.js',
-    'src/app/service/license-violations.service.js',
     'src/app/service/locale-to-language.service.js',
     'src/app/service/search-type.service.js',
     'src/app/service/shortcut.service.js',

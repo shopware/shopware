@@ -15,6 +15,7 @@ describe('src/module/sw-settings-rule/index.js', () => {
             'sw-settings-rule-add-assignment-modal',
             'sw-settings-rule-add-assignment-listing',
             'sw-settings-rule-category-tree',
+            'sw-settings-rule-duplicate-hint',
             'sw-settings-rule-list',
             'sw-settings-rule-detail',
             'sw-settings-rule-detail-base',

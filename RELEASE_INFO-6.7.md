@@ -313,6 +313,11 @@ This will allow async payment methods to leave the order transaction in "unconfi
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
 
+### Rules with identical conditions are detected
+
+Rules now store a checksum of their conditions in the new read-only field `configHash`. Rules with the same checksum have identical conditions. Condition order, the key order inside condition values and the order of list values such as ids are ignored. Name, description, priority and assignments are not part of the comparison. Rules without actual conditions, e.g. only empty containers, have no checksum.
+
+The field is kept up to date by the `rule.indexer` and is available in the Admin API, for example to find the rules with identical conditions via a `terms` aggregation on `configHash`. Existing rules are indexed after the update.
 ### The MCP `discovery` tool group is reserved for the core discovery tools
 
 A fresh MCP session advertises the tools in the `discovery` group on every connection. That group is now limited to `shopware-tool-search`, `shopware-toolsets-list` and `shopware-toolset-enable`. A plugin or bundle tool that declares `#[McpToolGroup('discovery')]` is moved to the `other` toolset: it stays callable and can be enabled, but is no longer on the default surface. `bin/console debug:mcp` lists such tools, and the new PHPStan rule `shopware.mcpReservedToolGroup` reports them. To show your tools on the first `tools/list`, give them a group of their own and select it at connect time with `?toolsets=<group>`.
@@ -479,6 +484,9 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 ## Administration
 
+### Rule Builder shows rules with identical conditions
+
+The rule detail page shows an info banner listing the other rules with identical conditions. The rule list has a new "Potential duplicates" filter. Duplicates may be intended, so they are only shown as a hint.
 ### [Internal] Native `<sw-block>` names are isolated per component
 
 Native `<sw-block>` blocks are now identified by `componentName + blockName`, matching how TwigJS identifies a `{% block %}`. Previously they matched on the block name alone, so a `<sw-block extends="foo">` or a legacy Twig override of `foo` could apply to a `<sw-block name="foo">` in an unrelated component. Blocks with the same name in different components are now isolated, and a `name` / `extends` pair only resolves against each other within the same component. No action is required from core or plugin developers.

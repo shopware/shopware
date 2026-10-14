@@ -220,6 +220,79 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         expect(Object.keys(listFilters)).toContain('tags');
     });
 
+    it('should offer a default filter for rules with potential duplicates', async () => {
+        const { wrapper } = await createWrapper();
+
+        expect(wrapper.vm.defaultFilters).toContain('duplicates');
+        expect(wrapper.vm.listFilters.duplicates).toEqual(
+            expect.objectContaining({
+                property: 'configHash',
+                type: 'existence-filter',
+                optionHasCriteria: 'sw-settings-rule.filter.duplicateFilter.textHasCriteria',
+                optionNoCriteria: 'sw-settings-rule.filter.duplicateFilter.textNoCriteria',
+            }),
+        );
+    });
+
+    it('should not look up duplicates without the duplicates filter', async () => {
+        const { wrapper } = await createWrapper();
+        const search = jest.spyOn(wrapper.vm.ruleRepository, 'search');
+        const criteria = new Criteria(1, 25);
+        criteria.addFilter(Criteria.equals('name', 'foo'));
+
+        await wrapper.vm.resolveDuplicateFilter(criteria);
+
+        expect(search).not.toHaveBeenCalled();
+        expect(criteria.filters).toEqual([Criteria.equals('name', 'foo')]);
+    });
+
+    it.each([
+        {
+            name: 'narrows "has duplicates" to the hashes used by more than one rule',
+            filter: Criteria.not('AND', [Criteria.equals('configHash', null)]),
+            buckets: [
+                { key: 'shared', count: 2 },
+                { key: 'unique', count: 1 },
+            ],
+            expected: [Criteria.equalsAny('configHash', ['shared'])],
+        },
+        {
+            name: 'matches no rule for "has duplicates" when no hash is shared',
+            filter: Criteria.not('AND', [Criteria.equals('configHash', null)]),
+            buckets: [{ key: 'unique', count: 1 }],
+            expected: [Criteria.equals('id', null)],
+        },
+        {
+            name: 'excludes the shared hashes for "has no duplicates"',
+            filter: Criteria.equals('configHash', null),
+            buckets: [{ key: 'shared', count: 3 }],
+            expected: [
+                Criteria.multi('OR', [
+                    Criteria.equals('configHash', null),
+                    Criteria.not('AND', [Criteria.equalsAny('configHash', ['shared'])]),
+                ]),
+            ],
+        },
+        {
+            name: 'drops "has no duplicates" when no hash is shared',
+            filter: Criteria.equals('configHash', null),
+            buckets: [],
+            expected: [],
+        },
+    ])('should resolve the duplicates filter: $name', async ({ filter, buckets, expected }) => {
+        const { wrapper } = await createWrapper();
+        const search = jest
+            .spyOn(wrapper.vm.ruleRepository, 'search')
+            .mockResolvedValue({ aggregations: { configHashes: { buckets } } });
+        const criteria = new Criteria(1, 25);
+        criteria.addFilter(filter);
+
+        await wrapper.vm.resolveDuplicateFilter(criteria);
+
+        expect(criteria.filters).toEqual(expected);
+        expect(search.mock.calls[0][0].aggregations).toEqual([Criteria.terms('configHashes', 'configHash')]);
+    });
+
     it('should return filters from filter registry', async () => {
         const { wrapper } = await createWrapper();
         await flushPromises();
@@ -284,6 +357,19 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         await flushPromises();
         wrapper.vm.ruleRepository.search = jest.fn();
         wrapper.vm.ruleRepository.search.mockRejectedValueOnce(false);
+
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        expect(wrapper.vm.ruleRepository.search).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should set loading state to false when looking up duplicates fails', async () => {
+        const { wrapper } = await createWrapper();
+        await flushPromises();
+        wrapper.vm.filterCriteria = [Criteria.not('AND', [Criteria.equals('configHash', null)])];
+        wrapper.vm.ruleRepository.search = jest.fn().mockRejectedValueOnce(new Error('aggregation failed'));
 
         await wrapper.vm.getList();
         await flushPromises();

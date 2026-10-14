@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderE
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidEntityUuidException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidRangeFilterParamException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
@@ -1209,6 +1210,21 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::INVALID_SYNC_OPERATION_EXCEPTION,
             $message
+        );
+    }
+
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
+    public static function invalidPriceFieldType(string $type): self|InvalidPriceFieldTypeException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new InvalidPriceFieldTypeException($type);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'FRAMEWORK__INVALID_PRICE_FIELD_TYPE',
+            'The price field does not contain a valid "type" value. Received {{ type }}',
+            ['type' => $type]
         );
     }
 

@@ -133,7 +133,7 @@ class McpListChangedNotifierTest extends TestCase
     {
         $sessionId = $this->session();
 
-        (new McpListChangedNotifier($this->store))->syncSession($sessionId);
+        (new McpListChangedNotifier($this->store, null))->syncSession($sessionId);
 
         static::assertArrayNotHasKey('shopware_list_versions', $this->sessionData($sessionId));
     }
@@ -180,8 +180,8 @@ class McpListChangedNotifierTest extends TestCase
         $store = $this->createMock(SessionStoreInterface::class);
         $store->expects($this->never())->method('write');
 
-        (new McpListChangedNotifier($store))->notifySession(Uuid::v4()->toRfc4122(), McpListChangedNotificationSet::none());
-        (new McpListChangedNotifier(null))->notifySession(Uuid::v4()->toRfc4122(), new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
+        (new McpListChangedNotifier($store, null))->notifySession(Uuid::v4()->toRfc4122(), McpListChangedNotificationSet::none());
+        (new McpListChangedNotifier(null, null))->notifySession(Uuid::v4()->toRfc4122(), new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
     }
 
     private function notifier(): McpListChangedNotifier

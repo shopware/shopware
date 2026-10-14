@@ -207,6 +207,7 @@ return static function (ContainerConfigurator $container): void {
     // store-api lists change per session only (toolset enable) and need no shared list versions.
     $services->set('mcp.store_api.list_changed_notifier', McpListChangedNotifier::class)
         ->arg('$sessionStore', service('mcp.server.store_api.session.store')->nullOnInvalid())
+        ->arg('$listVersions', null)
         ->arg('$logger', service('logger'))
         ->tag('monolog.logger', ['channel' => 'mcp']);
 

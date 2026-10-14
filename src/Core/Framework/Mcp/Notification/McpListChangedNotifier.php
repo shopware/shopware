@@ -42,11 +42,13 @@ class McpListChangedNotifier
     private const SESSION_SEEN_VERSIONS = 'shopware_list_versions';
 
     /**
-     * @param McpListVersions|null $listVersions null for a server whose lists only change per session
+     * @param McpListVersions|null $listVersions shared list versions for installation-wide changes. Null for a server
+     *                                           whose lists only change per session, such as the Store API one:
+     *                                           notify() and syncSession() then do nothing, notifySession() still works
      */
     public function __construct(
         private readonly ?SessionStoreInterface $sessionStore,
-        private readonly ?McpListVersions $listVersions = null,
+        private readonly ?McpListVersions $listVersions,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {
     }

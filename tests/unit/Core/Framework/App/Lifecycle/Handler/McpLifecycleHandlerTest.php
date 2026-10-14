@@ -181,7 +181,7 @@ class McpLifecycleHandlerTest extends TestCase
             }
         };
 
-        $notifier = new class(null) extends McpListChangedNotifier {
+        $notifier = new class(null, null) extends McpListChangedNotifier {
             public ?McpListChangedNotificationSet $notifications = null;
 
             public function notify(McpListChangedNotificationSet $notifications): void

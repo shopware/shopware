@@ -249,9 +249,9 @@ EOF;
         $this->getWriter()->insert($this->registerDefinition(VersionCommitDataDefinition::class), [$data], $context);
 
         $entityId = $this->connection->fetchOne('SELECT entity_id FROM version_commit_data WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
-        static::assertNotEmpty($entityId);
+        static::assertIsString($entityId);
 
-        $entityId = json_decode((string) $entityId, true, 512, \JSON_THROW_ON_ERROR);
+        $entityId = json_decode($entityId, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(
             $data['entityId'],

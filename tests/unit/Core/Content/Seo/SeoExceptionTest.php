@@ -73,4 +73,67 @@ class SeoExceptionTest extends TestCase
         static::assertSame('Could not find sales channel with id "not-found-sales-channel-id"', $exception->getMessage());
         static::assertSame($salesChannelId, $exception->getParameters()['value']);
     }
+
+    public function testAppSeoUrlPathInvalid(): void
+    {
+        $exception = SeoException::appSeoUrlPathInvalid('imprint', 'legal#notice');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SeoException::APP_SEO_URL_PATH_INVALID, $exception->getErrorCode());
+        static::assertSame('The path "legal#notice" of the SEO URL "imprint" contains characters that are not allowed in URLs.', $exception->getMessage());
+        static::assertSame(['path' => 'legal#notice', 'seoUrlName' => 'imprint'], $exception->getParameters());
+    }
+
+    public function testAppSeoUrlPathAlreadyRegistered(): void
+    {
+        $exception = SeoException::appSeoUrlPathAlreadyRegistered('imprint', 'legal-notice', 'SwagLegalApp');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SeoException::APP_SEO_URL_PATH_ALREADY_REGISTERED, $exception->getErrorCode());
+        static::assertSame('The path "legal-notice" of the SEO URL "imprint" is already registered by app "SwagLegalApp".', $exception->getMessage());
+        static::assertSame(['path' => 'legal-notice', 'seoUrlName' => 'imprint', 'owningApp' => 'SwagLegalApp'], $exception->getParameters());
+    }
+
+    public function testAppSeoUrlPathInUse(): void
+    {
+        $exception = SeoException::appSeoUrlPathInUse('login', 'account/login');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SeoException::APP_SEO_URL_PATH_IN_USE, $exception->getErrorCode());
+        static::assertSame('The path "account/login" of the SEO URL "login" is already used by a storefront route or another SEO URL.', $exception->getMessage());
+        static::assertSame(['path' => 'account/login', 'seoUrlName' => 'login'], $exception->getParameters());
+    }
+
+    public function testAppSeoUrlHookAlreadyRegistered(): void
+    {
+        $exception = SeoException::appSeoUrlHookAlreadyRegistered('imprint', 'legal-page', 'SwagLegalApp');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SeoException::APP_SEO_URL_HOOK_ALREADY_REGISTERED, $exception->getErrorCode());
+        static::assertSame('The hook "legal-page" of the SEO URL "imprint" is already used by app "SwagLegalApp".', $exception->getMessage());
+        static::assertSame(['hook' => 'legal-page', 'seoUrlName' => 'imprint', 'owningApp' => 'SwagLegalApp'], $exception->getParameters());
+    }
+
+    public function testAppEntitySeoUrlEntityUnsupported(): void
+    {
+        $exception = SeoException::appEntitySeoUrlEntityUnsupported('product-category', 'product_category');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SeoException::APP_ENTITY_SEO_URL_ENTITY_UNSUPPORTED, $exception->getErrorCode());
+        static::assertSame('The entity "product_category" of the SEO URL "product-category" cannot have SEO URLs.', $exception->getMessage());
+        static::assertSame(['entityName' => 'product_category', 'seoUrlName' => 'product-category'], $exception->getParameters());
+    }
+
+    public function testAppEntitySeoUrlNotPermitted(): void
+    {
+        $exception = SeoException::appEntitySeoUrlNotPermitted('product-teaser', 'product', ['product:read', 'product_manufacturer:read']);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SeoException::APP_ENTITY_SEO_URL_NOT_PERMITTED, $exception->getErrorCode());
+        static::assertSame('The SEO URL "product-teaser" needs the permissions product:read, product_manufacturer:read for the entity "product".', $exception->getMessage());
+        static::assertSame(
+            ['seoUrlName' => 'product-teaser', 'privileges' => 'product:read, product_manufacturer:read', 'entityName' => 'product'],
+            $exception->getParameters()
+        );
+    }
 }

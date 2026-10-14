@@ -70,7 +70,7 @@ class NoHtmlValidatorTest extends TestCase
 
     public function testItRejectsAnUnexpectedConstraintType(): void
     {
-        $validator = $this->createValidator($this->createMock(ExecutionContextInterface::class));
+        $validator = $this->createValidator(static::createStub(ExecutionContextInterface::class));
 
         $this->expectException(UnexpectedTypeException::class);
 

@@ -5,11 +5,11 @@
 >
     {% block sw_order_detail_header %}
     <template #smart-bar-header>
+        {% block sw_order_detail_header_title %}
         <div
             v-if="orderIdentifier"
             class="sw-order-detail__header"
         >
-            {% block sw_order_detail_header_title %}
             <h2>
                 {{ $t('sw-order.detail.textHeadline') }} {{ orderIdentifier }}
             </h2>
@@ -21,8 +21,8 @@
             >
                 {{ $t('sw-order.detail.labelManualOrder') }}
             </mt-badge>
+            {% endblock %}
         </div>
-        {% endblock %}
         {% endblock %}
 
         {% block sw_order_detail_header_title_new %}

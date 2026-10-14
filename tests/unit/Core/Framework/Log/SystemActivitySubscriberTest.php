@@ -10,7 +10,15 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Event\AppActivatedEvent;
+use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\App\Event\AppDeletedEvent;
+use Shopware\Core\Framework\App\Event\AppInstalledEvent;
+use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Event\AppUploadedEvent;
+use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -94,6 +102,77 @@ class SystemActivitySubscriberTest extends TestCase
             ], Context::createDefaultContext());
             $dispatcher->dispatch($event, $event->getName());
         }
+    }
+
+    #[DataProvider('appLifecycleProvider')]
+    public function testLogsAppLifecycleWithMetadataAndActor(string $action): void
+    {
+        $app = new AppEntity();
+        $app->setName('ExampleApp');
+        $app->setVersion('1.0.0');
+        $manifest = static::createStub(Manifest::class);
+        $metadata = static::createStub(Metadata::class);
+        $metadata->method('getVersion')->willReturn('2.0.0');
+        $manifest->method('getMetadata')->willReturn($metadata);
+        $userId = Uuid::randomHex();
+        $context = new Context(new AdminApiSource($userId));
+        $event = match ($action) {
+            'enable' => new AppActivatedEvent($app, $context),
+            'disable' => new AppDeactivatedEvent($app, $context),
+            'install' => new AppInstalledEvent($app, $manifest, $context),
+            'update' => new AppUpdatedEvent($app, $manifest, $context),
+            default => throw new \InvalidArgumentException('Unsupported app action'),
+        };
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('info')->with('app:' . $action, [
+            'appName' => 'ExampleApp',
+            'appVersion' => \in_array($action, ['install', 'update'], true) ? '2.0.0' : '1.0.0',
+            'actorType' => 'user', 'userId' => $userId, 'username' => 'admin',
+        ]);
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addSubscriber(new SystemActivitySubscriber($logger, $this->connection));
+
+        $dispatcher->dispatch($event);
+    }
+
+    public static function appLifecycleProvider(): \Generator
+    {
+        yield 'app enabled' => ['enable'];
+        yield 'app disabled' => ['disable'];
+        yield 'app installed uses manifest version' => ['install'];
+        yield 'app updated uses target manifest version' => ['update'];
+    }
+
+    #[DataProvider('appRemovalProvider')]
+    public function testLogsAppRemovalWithDatabaseMetadata(bool $exists, bool $keepUserData): void
+    {
+        $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
+        $connection->executeStatement('CREATE TABLE app (id BLOB PRIMARY KEY, name VARCHAR(255), version VARCHAR(255))');
+        $appId = Uuid::randomHex();
+        if ($exists) {
+            $connection->insert('app', ['id' => Uuid::fromHexToBytes($appId), 'name' => 'ExampleApp', 'version' => '2.0.0']);
+        }
+        $data = ['appId' => $appId];
+        if ($exists) {
+            $data['appName'] = 'ExampleApp';
+            $data['appVersion'] = '2.0.0';
+        }
+        $data['keepUserData'] = $keepUserData;
+        $data['actorType'] = 'system';
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('info')->with('app:uninstall', $data);
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addSubscriber(new SystemActivitySubscriber($logger, $connection));
+
+        $dispatcher->dispatch(new AppDeletedEvent($appId, Context::createCLIContext(), $keepUserData));
+        $connection->close();
+    }
+
+    public static function appRemovalProvider(): \Generator
+    {
+        yield 'remove app data' => [true, false];
+        yield 'retain app data' => [true, true];
+        yield 'missing app omits unavailable metadata' => [false, false];
     }
 
     public function testLogsAppUploadWithAppMetadataAndActor(): void

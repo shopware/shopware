@@ -159,6 +159,27 @@ class GaranLabelResolverTest extends TestCase
         static::assertSame($expected, $this->createResolver()->resolveDuration($product));
     }
 
+    #[DataProvider('resolveDurationProvider')]
+    public function testResolveSnapshotIsNullExactlyWhenThereIsNoLabel(ProductEntity $product, ?string $expectedDuration): void
+    {
+        static::assertSame($expectedDuration === null, $this->createResolver()->resolveSnapshot($product) === null);
+    }
+
+    public function testResolveSnapshotHoldsTheLabelValues(): void
+    {
+        $product = self::createProduct(
+            guaranteeConfirmed: true,
+            manufacturerNumber: ' ACME-123 ',
+            guaranteeMonths: 30,
+            manufacturer: self::createManufacturer(name: null, translatedName: ' ACME ')
+        );
+
+        static::assertSame(
+            ['guaranteeMonths' => 30, 'brand' => 'ACME', 'modelIdentifier' => 'ACME-123'],
+            $this->createResolver()->resolveSnapshot($product)
+        );
+    }
+
     private function createResolver(): GaranLabelResolver
     {
         $twig = static::createStub(Environment::class);

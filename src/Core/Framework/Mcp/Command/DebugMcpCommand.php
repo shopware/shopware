@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpDebugCommandComp
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Util\Json;
@@ -37,6 +38,7 @@ class DebugMcpCommand extends Command
      * @internal
      *
      * @param array<string, list<string>> $unassigned kind => service ids the bundle assigned to no server
+     * @param array<string, array<string, string>> $demotedDiscoveryTools scope => tool name => class of tools that claimed the reserved discovery group
      *
      * The builder and registry arguments are nullable via nullOnInvalid(): null when the MCP
      * bundle is absent. Once MCP is stable (v6.8.0) remove the nullable
@@ -51,6 +53,7 @@ class DebugMcpCommand extends Command
         private readonly ?RegistryInterface $storeApiRegistry = null,
         private readonly ?McpCapabilityCatalog $storeApiCatalog = null,
         private readonly array $unassigned = [],
+        private readonly array $demotedDiscoveryTools = [],
     ) {
         parent::__construct();
     }
@@ -153,6 +156,7 @@ class DebugMcpCommand extends Command
         }
 
         $this->renderUnassigned($io);
+        $this->renderDemotedDiscoveryTools($io, $requestedScopes);
 
         $io->writeln('Run <comment>debug:mcp <name></comment> to see full details for a specific capability.');
         if (\count($scopes) > 1) {
@@ -192,6 +196,38 @@ class DebugMcpCommand extends Command
 
         $io->warning(array_merge(
             ['Registered with an MCP attribute but exposed by no server, so unreachable on both endpoints:'],
+            $lines,
+        ));
+    }
+
+    /**
+     * Lists extension tools moved out of the reserved discovery group, for the requested scopes.
+     *
+     * @param list<string> $scopeIds
+     */
+    private function renderDemotedDiscoveryTools(SymfonyStyle $io, array $scopeIds): void
+    {
+        $lines = [];
+        foreach ($this->demotedDiscoveryTools as $scope => $tools) {
+            if (!\in_array($scope, $scopeIds, true)) {
+                continue;
+            }
+
+            foreach ($tools as $name => $class) {
+                $lines[] = \sprintf('%s (%s, %s)', $name, $scope, $class);
+            }
+        }
+
+        if ($lines === []) {
+            return;
+        }
+
+        $io->warning(array_merge(
+            [\sprintf(
+                'Moved from the reserved "%s" group to "%s":',
+                McpToolsetRegistry::DISCOVERY_GROUP,
+                McpToolsetRegistry::FALLBACK_GROUP,
+            )],
             $lines,
         ));
     }
@@ -340,7 +376,7 @@ class DebugMcpCommand extends Command
             ['Title' => $tool->title !== null && $tool->title !== '' ? $tool->title : '-'],
             ['Type' => 'tool'],
             ['Scope' => $scopeLabel],
-            ['Group' => $toolData['group'] ?? 'other'],
+            ['Group' => $toolData['group'] ?? McpToolsetRegistry::FALLBACK_GROUP],
         ];
         if ($deps !== []) {
             $meta[] = ['Dependencies' => implode(', ', $deps)];

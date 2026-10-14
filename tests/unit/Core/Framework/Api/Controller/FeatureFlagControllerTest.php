@@ -49,7 +49,7 @@ class FeatureFlagControllerTest extends TestCase
                 'default' => true,
                 'toggleable' => true,
                 'active' => false,
-                'major' => true,
+                'major' => 'v6.8.0.0',
                 'description' => 'This is a test feature',
             ],
             'BAR' => [
@@ -57,14 +57,12 @@ class FeatureFlagControllerTest extends TestCase
                 'default' => true,
                 'toggleable' => true,
                 'active' => false,
-                'major' => false,
                 'description' => 'This is another test feature',
             ],
             'NEWFEATURE' => [
                 'name' => 'newFeature',
                 'default' => true,
                 'toggleable' => true,
-                'major' => false,
                 'description' => 'This is new test feature',
             ],
         ];

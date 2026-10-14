@@ -44,7 +44,7 @@ class CollectionTest extends TestCase
         $collection->add('b');
 
         $collection->clear();
-        static::assertEmpty($collection->getElements());
+        static::assertCount(0, $collection->getElements());
     }
 
     public function testCount(): void
@@ -169,7 +169,7 @@ class CollectionTest extends TestCase
     public function testSlice(): void
     {
         $collection = new TestCollection();
-        static::assertEmpty($collection->slice(0)->getElements());
+        static::assertCount(0, $collection->slice(0)->getElements());
 
         $collection->add('a');
         $collection->add('b');

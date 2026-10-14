@@ -768,9 +768,12 @@ export default {
                 }
             }
 
-            console.warn(
-                `[DEPRECATED] v6.8.0 - Theme config labels & helpTexts will be removed entirely, use snippet translation for key "sw-theme.${this.inheritedSnippetPrefixes[0]}.${key}" instead.`,
-            );
+            if (fallback) {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    `Theme config labels & helpTexts are deprecated and will be removed entirely in v6.8.0.0. Please use the snippet translation for key "sw-theme.${this.inheritedSnippetPrefixes[0]}.${key}" instead.`,
+                );
+            }
 
             return fallback;
         },

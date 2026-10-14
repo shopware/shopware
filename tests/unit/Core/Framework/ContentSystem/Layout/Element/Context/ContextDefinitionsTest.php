@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
@@ -61,5 +63,36 @@ class ContextDefinitionsTest extends TestCase
             ['product' => $existingProvider, 'category' => $existingProvider],
             $result->getAllProviders()
         );
+    }
+
+    #[TestDox('returns only the consumer keys whose scope matches, preserving order')]
+    public function testGetConsumerKeysByScopeReturnsOnlyMatchingScopeKeys(): void
+    {
+        $definitions = new ContextDefinitions(
+            consumers: [
+                'configuratorSettings' => new ContextConsumer(ContextType::Single, required: false, scope: ConsumerScope::Root),
+                'headline' => new ContextConsumer(ContextType::Single, required: true),
+                'product' => new ContextConsumer(ContextType::Single, required: false, scope: ConsumerScope::Root),
+            ],
+        );
+
+        static::assertSame(
+            ['configuratorSettings', 'product'],
+            $definitions->getConsumerKeysByScope(ConsumerScope::Root)
+        );
+        static::assertSame(
+            ['headline'],
+            $definitions->getConsumerKeysByScope(ConsumerScope::Parent)
+        );
+    }
+
+    #[TestDox('returns an empty list when no consumer has the requested scope')]
+    public function testGetConsumerKeysByScopeReturnsEmptyListWhenNoneMatch(): void
+    {
+        $definitions = new ContextDefinitions(
+            consumers: ['headline' => new ContextConsumer(ContextType::Single, required: true)],
+        );
+
+        static::assertSame([], $definitions->getConsumerKeysByScope(ConsumerScope::Root));
     }
 }

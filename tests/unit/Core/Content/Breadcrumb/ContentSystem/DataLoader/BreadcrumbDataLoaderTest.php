@@ -109,33 +109,15 @@ class BreadcrumbDataLoaderTest extends TestCase
         static::assertSame('category', $this->capturedRequest->query->get('type'));
     }
 
-    #[TestDox('reads entity ID from the element property the config names')]
-    public function testLoadReadsEntityIdFromCustomProperty(): void
-    {
-        $categoryId = Uuid::randomHex();
-
-        $inputs = $this->resolve(
-            new BreadcrumbLoaderConfig(property: 'categoryId'),
-            ['categoryId' => $categoryId],
-        );
-
-        $this->loader->load(
-            $inputs,
-            self::requirement(),
-            Generator::generateSalesChannelContext(),
-            new Request(),
-        );
-
-        static::assertInstanceOf(Request::class, $this->capturedRequest);
-        static::assertSame($categoryId, $this->capturedRequest->attributes->get('id'));
-    }
-
-    #[TestDox('resolves an unset property to the declared entityId default')]
-    public function testUnsetPropertyResolvesToDeclaredEntityIdDefault(): void
+    #[TestDox('uses the literal property config value verbatim as the entity id, ignoring element properties')]
+    public function testLoadUsesLiteralPropertyValueAsEntityId(): void
     {
         $entityId = Uuid::randomHex();
 
-        $inputs = $this->resolve(new BreadcrumbLoaderConfig(), ['entityId' => $entityId]);
+        $inputs = $this->resolve(
+            new BreadcrumbLoaderConfig(property: $entityId),
+            ['categoryId' => Uuid::randomHex()],
+        );
 
         $this->loader->load(
             $inputs,
@@ -146,6 +128,22 @@ class BreadcrumbDataLoaderTest extends TestCase
 
         static::assertInstanceOf(Request::class, $this->capturedRequest);
         static::assertSame($entityId, $this->capturedRequest->attributes->get('id'));
+    }
+
+    #[TestDox('falls back to the literal entityId default when the property is unset, degrading to notFound')]
+    public function testUnsetPropertyFallsBackToLiteralEntityIdDefault(): void
+    {
+        $inputs = $this->resolve(new BreadcrumbLoaderConfig(), []);
+
+        $result = $this->loader->load(
+            $inputs,
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertNull($this->capturedRequest);
+        static::assertNull($result->data);
     }
 
     #[TestDox('sets lowercased referrerCategoryId on cloned request when the referrer input is resolved')]

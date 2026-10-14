@@ -170,7 +170,7 @@ class LayoutMutationController
      */
     private function respond(LayoutMutation $mutation, array $layout, ?string $rootSource, Context $context): JsonResponse
     {
-        $tree = new StoredTree($this->decoder->decode($layout));
+        $tree = new StoredTree($this->decoder->decode($layout), $rootSource);
         $rootContext = $this->rootSourceRegistry->resolveGated($rootSource, $context);
         $result = $this->pipeline->run($mutation, $tree, $rootContext);
 

@@ -1,0 +1,56 @@
+{# ludtwig-ignore-file #}
+{# @sw-package discovery #}
+{# @internal #}
+
+{#
+    Product detail page breadcrumb. Renders the product's category path — resolved by the breadcrumb data
+    loader into a BreadcrumbCollection — as a Bootstrap breadcrumb, marking the current (last) entry as the
+    active page.
+#}
+
+{% props
+    breadcrumb = null,
+    showHome = false,
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-breadcrumb',
+} %}
+
+{% block breadcrumb %}
+    {% set hasBreadcrumb = breadcrumb and breadcrumb|length > 0 %}
+    {% set breadcrumbDivider = 'url(data:image/svg+xml,' ~ source('@Storefront/assets/icon/solid/arrow-medium-right.svg')|url_encode ~ ')' %}
+
+    <nav {{ attributes.defaults(attributeDefaults) }} aria-label="{{ 'general.breadcrumbLabel'|trans|sw_sanitize }}" style="--bs-breadcrumb-divider: {{ breadcrumbDivider }};">
+        {% if hasBreadcrumb %}
+            {% set activeId = breadcrumb|last.categoryId %}
+
+            {% block breadcrumb_list %}
+                <ol class="sw-breadcrumb__list breadcrumb">
+                    {% if showHome %}
+                        <twig:Sw:Navigation:BreadcrumbItem
+                            :url="path('frontend.home.page')"
+                            :name="'general.homeLink'|trans"
+                        />
+                    {% endif %}
+
+                    {% for crumb in breadcrumb %}
+                        {% set isActive = crumb.categoryId is same as(activeId) %}
+                        {% set crumbUrl = seoUrl('frontend.navigation.page', { navigationId: crumb.categoryId }) %}
+
+                        <twig:Sw:Navigation:BreadcrumbItem
+                            :url="crumbUrl"
+                            :name="crumb.name"
+                            :type="crumb.type"
+                            :shouldOpenInNewTab="crumb.shouldOpenInNewTab"
+                            :isActive="isActive"
+                        />
+                    {% endfor %}
+                </ol>
+            {% endblock %}
+        {% else %}
+            <twig:Sw:Icon name="arrow-head-right" size="sm" />
+            {{ 'general.breadcrumbPlaceholder'|trans|sw_sanitize }}
+        {% endif %}
+    </nav>
+{% endblock %}

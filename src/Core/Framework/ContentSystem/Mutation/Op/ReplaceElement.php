@@ -88,7 +88,7 @@ final class ReplaceElement extends AbstractLayoutMutation
             ->withAttributedSpecifications($keptAttributedSpecifications);
 
         if ($default !== null) {
-            $replacement = $this->bindingApplicator->applyFillOnly($replacement, $default, $default->qualifiedId());
+            $replacement = $this->bindingApplicator->applyFillOnly($replacement, $default, $default->qualifiedId(), $tree->rootSource);
         }
 
         // Whole subtree, not just the replaced element: a kept descendant may re-resolve if the new type drops a provider it consumed.
@@ -197,7 +197,7 @@ final class ReplaceElement extends AbstractLayoutMutation
         $kept = [];
 
         foreach ($wiring as $key => $value) {
-            if (isset($newTypeProperties[$key]) && !$newTypeProperties[$key]->type()->isPrimitive()) {
+            if (isset($newTypeProperties[$key]) && $newTypeProperties[$key]->type()->enforceableTypes() === null) {
                 $kept[$key] = $value;
             }
         }

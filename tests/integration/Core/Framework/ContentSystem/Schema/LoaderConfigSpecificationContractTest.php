@@ -200,8 +200,6 @@ class LoaderConfigSpecificationContractTest extends TestCase
     public function testEveryPropertyReferenceKeyMatchesTheReferencedTypeRoster(): void
     {
         $expected = [
-            'breadcrumb.property' => 'string',
-            'breadcrumb.referrerCategoryProperty' => 'string',
             'cross_selling.associationOverride' => 'list<string>',
             'cross_selling.property' => 'string',
             'entity.property' => 'string',

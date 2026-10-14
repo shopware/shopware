@@ -148,20 +148,21 @@ class ProductListingRoute extends AbstractProductListingRoute
     }
 
     /**
+     * A listing shows the products of the requested category itself and those of the dynamic product groups of all
+     * its subcategories
+     *
      * @param EntityCollection<PartialEntity> $streamSubcategories
      */
-    private function extendCriteria(SalesChannelContext $salesChannelContext, Criteria $criteria, PartialEntity $category, EntityCollection $streamSubcategories): void
+    private function extendCriteria(SalesChannelContext $context, Criteria $criteria, PartialEntity $category, EntityCollection $streamSubcategories): void
     {
         $filters = [];
 
         $productStreamId = $this->getProductStreamId($category);
         if ($productStreamId === null) {
-            // categoriesRo contains every category of a product's tree, so this also matches the products assigned
-            // anywhere below the category
-            $filters[] = new EqualsFilter('product.categoriesRo.id', $category->getId());
+            $manualCategoryIds = [$category->getId()];
         } else {
             try {
-                $streamCriteria = $this->loadProductStreamCriteria($productStreamId, $salesChannelContext);
+                $streamCriteria = $this->loadProductStreamCriteria($productStreamId, $context);
             } catch (EmptyProductStreamException) {
                 // An empty group selects all products, as in the product export, so nothing below it can add more
                 return;
@@ -182,63 +183,62 @@ class ProductListingRoute extends AbstractProductListingRoute
             // only the requested category's own group decides how its listing is displayed, for example variants as
             // single products. Groups of subcategories only add products.
             $criteria->addState(...$streamCriteria->getStates());
+            $filters[] = $this->getStreamFilter($streamCriteria);
 
-            $streamFilters = array_values($streamCriteria->getFilters());
-            if ($streamFilters !== []) {
-                $filters[] = $this->groupFilters($streamFilters);
-            }
+            // a group category does not show its own manual assignments, but those of the manual categories below it
+            $manualCategoryIds = $this->loadManualChildCategoryIds(
+                [$category->getId(), ...array_values($streamSubcategories->getIds())],
+                $context
+            );
         }
 
         foreach ($streamSubcategories as $subcategory) {
-            $subcategoryStreamId = $this->getProductStreamId($subcategory);
-            if ($subcategoryStreamId === null) {
-                continue;
-            }
-
-            try {
-                $streamCriteria = $this->loadProductStreamCriteria($subcategoryStreamId, $salesChannelContext);
-            } catch (NoFilterException|EntityNotFoundException $exception) {
-                // an unusable group of a subcategory must not break the listings of all categories above it
-                $this->logger->warning(
-                    'Product stream of a subcategory cannot be used and is skipped in the category listing.',
-                    [
-                        'categoryId' => $category->getId(),
-                        'subcategoryId' => $subcategory->getId(),
-                        'productStreamId' => $subcategoryStreamId,
-                        'exception' => $exception,
-                    ]
-                );
-
-                continue;
-            }
-
-            $streamFilters = array_values($streamCriteria->getFilters());
-            if ($streamFilters !== []) {
-                $filters[] = $this->groupFilters($streamFilters);
-            }
+            $filters[] = $this->getSubcategoryStreamFilter($category, $subcategory, $context);
         }
 
-        if ($productStreamId !== null) {
-            // a group category does not show its own manual assignments, but the products of the manual categories
-            // below it. The topmost of them are enough, because categoriesRo also covers everything assigned below them.
-            $manualCategoryIds = $this->loadManualChildCategoryIds(
-                [$category->getId(), ...array_values($streamSubcategories->getIds())],
-                $salesChannelContext
-            );
-
-            if ($manualCategoryIds !== []) {
-                $filters[] = new EqualsAnyFilter('product.categoriesRo.id', $manualCategoryIds);
-            }
+        if ($manualCategoryIds !== []) {
+            // categoriesRo holds every category of a product's tree, so this also matches the products assigned
+            // anywhere below these categories
+            $filters[] = new EqualsAnyFilter('product.categoriesRo.id', $manualCategoryIds);
         }
 
-        if ($filters === []) {
-            return;
+        $filters = array_values(array_filter($filters));
+        if ($filters !== []) {
+            $criteria->addFilter(\count($filters) === 1 ? $filters[0] : new OrFilter($filters));
         }
-
-        $criteria->addFilter(\count($filters) === 1 ? $filters[0] : new OrFilter($filters));
     }
 
     /**
+     * An unusable group of a subcategory is skipped, so that it does not break the listings of all categories above it
+     */
+    private function getSubcategoryStreamFilter(PartialEntity $category, PartialEntity $subcategory, SalesChannelContext $context): ?Filter
+    {
+        $productStreamId = $this->getProductStreamId($subcategory);
+        if ($productStreamId === null) {
+            return null;
+        }
+
+        try {
+            return $this->getStreamFilter($this->loadProductStreamCriteria($productStreamId, $context));
+        } catch (NoFilterException|EntityNotFoundException $exception) {
+            $this->logger->warning(
+                'Product stream of a subcategory cannot be used and is skipped in the category listing.',
+                [
+                    'categoryId' => $category->getId(),
+                    'subcategoryId' => $subcategory->getId(),
+                    'productStreamId' => $productStreamId,
+                    'exception' => $exception,
+                ]
+            );
+
+            return null;
+        }
+    }
+
+    /**
+     * Returns the manual categories directly below the given ones. Deeper ones are not needed, because categoriesRo
+     * also covers everything assigned below them.
+     *
      * @param list<string> $parentIds
      *
      * @return list<string>
@@ -250,31 +250,41 @@ class ProductListingRoute extends AbstractProductListingRoute
         $criteria->addFields(['productAssignmentType', 'productStreamId']);
         $criteria->addFilter(new EqualsAnyFilter('parentId', $parentIds));
 
-        $ids = [];
-        foreach ($this->categoryRepository->search($criteria, $context->getContext())->getEntities() as $child) {
-            if ($this->getProductStreamId($child) === null) {
-                $ids[] = $child->getId();
-            }
-        }
+        $children = $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
 
-        return $ids;
+        return array_values($children->filter(fn (PartialEntity $child) => $this->getProductStreamId($child) === null)->getIds());
     }
 
     /**
      * Resolves the group into its own criteria, so its filters can be combined with the other sources of the listing
      */
-    private function loadProductStreamCriteria(string $productStreamId, SalesChannelContext $salesChannelContext): Criteria
+    private function loadProductStreamCriteria(string $productStreamId, SalesChannelContext $context): Criteria
     {
         $streamCriteria = new Criteria();
 
         $productStreamBuilder = $this->productStreamBuilder;
         if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
-            $productStreamBuilder->enrichCriteria($streamCriteria, $productStreamId, $salesChannelContext->getContext());
+            $productStreamBuilder->enrichCriteria($streamCriteria, $productStreamId, $context->getContext());
         } else {
-            $streamCriteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $salesChannelContext->getContext()));
+            $streamCriteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $context->getContext()));
         }
 
         return $streamCriteria;
+    }
+
+    /**
+     * Combines a group's filters into one, so that all its conditions still have to match when it is ORed with the
+     * other sources of the listing
+     */
+    private function getStreamFilter(Criteria $streamCriteria): ?Filter
+    {
+        $filters = array_values($streamCriteria->getFilters());
+
+        return match (\count($filters)) {
+            0 => null,
+            1 => $filters[0],
+            default => new AndFilter($filters),
+        };
     }
 
     /**
@@ -296,44 +306,25 @@ class ProductListingRoute extends AbstractProductListingRoute
     }
 
     /**
-     * @param list<Filter> $filters
-     */
-    private function groupFilters(array $filters): Filter
-    {
-        if (\count($filters) === 1) {
-            return $filters[0];
-        }
-
-        return new AndFilter($filters);
-    }
-
-    /**
-     * Tags the listing with the categories it depends on: the requested one and, for every subcategory with a
-     * dynamic product group, each category on the way down to it. Moving or deleting any of them invalidates it.
+     * Tags the listing with the categories it depends on: the requested one and, for every subcategory with a dynamic
+     * product group, each category on the way down to it. Moving or deleting any of them invalidates the listing.
      *
      * @param EntityCollection<PartialEntity> $streamSubcategories
      */
     private function addCacheTags(PartialEntity $category, EntityCollection $streamSubcategories): void
     {
-        $tags = [self::buildName($category->getId())];
-
-        $productStreamId = $this->getProductStreamId($category);
-        if ($productStreamId !== null) {
-            $tags[] = EntityCacheKeyGenerator::buildStreamTag($productStreamId);
-        }
+        $categoryIds = [$category->getId()];
+        $productStreamIds = [$this->getProductStreamId($category)];
 
         foreach ($streamSubcategories as $subcategory) {
-            $subcategoryStreamId = $this->getProductStreamId($subcategory);
-            if ($subcategoryStreamId === null) {
-                continue;
-            }
-
-            foreach ($this->getCategoryIdsDownTo($category->getId(), $subcategory) as $id) {
-                $tags[] = self::buildName($id);
-            }
-
-            $tags[] = EntityCacheKeyGenerator::buildStreamTag($subcategoryStreamId);
+            array_push($categoryIds, ...$this->getCategoryIdsDownTo($category->getId(), $subcategory));
+            $productStreamIds[] = $this->getProductStreamId($subcategory);
         }
+
+        $tags = [
+            ...array_map(self::buildName(...), $categoryIds),
+            ...array_map(EntityCacheKeyGenerator::buildStreamTag(...), array_filter($productStreamIds)),
+        ];
 
         $this->cacheTagCollector->addTag(...array_values(array_unique($tags)));
     }

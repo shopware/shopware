@@ -248,29 +248,16 @@ class CacheInvalidationSubscriber
 
     public function invalidateProductListingRouteByCategoryIds(CategoryIndexerEvent $event): void
     {
-        $ids = $this->getCategoryListingDependencyIds($event->getIds(), $event->getContext()->getVersionId());
-
-        if ($ids === []) {
-            return;
-        }
-
-        $this->cacheInvalidator->invalidate(array_map(ProductListingRoute::buildName(...), $ids));
+        $this->invalidateCategoryListings($event->getIds(), $event->getContext()->getVersionId());
     }
 
     public function invalidateChangedCategoryListings(EntityWrittenContainerEvent $event): void
     {
-        $ids = $event->getPrimaryKeysWithPropertyChange(
-            CategoryDefinition::ENTITY_NAME,
-            ['productAssignmentType', 'productStreamId']
+        // the category indexer skips updates that only change the product assignment, so no CategoryIndexerEvent covers them
+        $this->invalidateCategoryListings(
+            $event->getPrimaryKeysWithPropertyChange(CategoryDefinition::ENTITY_NAME, ['productAssignmentType', 'productStreamId']),
+            $event->getContext()->getVersionId()
         );
-
-        if ($ids === []) {
-            return;
-        }
-
-        $ids = $this->getCategoryListingDependencyIds($ids, $event->getContext()->getVersionId());
-
-        $this->cacheInvalidator->invalidate(array_map(ProductListingRoute::buildName(...), $ids));
     }
 
     public function invalidateIndexedLandingPages(LandingPageIndexerEvent $event): void
@@ -552,47 +539,34 @@ class CacheInvalidationSubscriber
     }
 
     /**
-     * @param list<string> $ids
+     * A category with a dynamic product group also invalidates the listings above it. They are tagged with every
+     * category on the way down to it, but the category may just have been created or moved there.
      *
-     * @return list<string>
+     * @param list<string> $categoryIds
      */
-    private function getCategoryListingDependencyIds(array $ids, string $versionId): array
+    private function invalidateCategoryListings(array $categoryIds, string $versionId): void
     {
-        if ($ids === []) {
-            return [];
+        if ($categoryIds === []) {
+            return;
         }
 
-        // Listings carry the tags of every category on the way down to a subcategory with a dynamic product group,
-        // so only such a subcategory has to reach the listings above it, e.g. when it is created or moved there.
-        $rows = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(id)) as id, path
-             FROM category
-             WHERE id IN (:ids)
-             AND version_id = :version
-             AND product_assignment_type = :productStream
-             AND product_stream_id IS NOT NULL',
+        $paths = $this->connection->fetchFirstColumn(
+            'SELECT path FROM category
+             WHERE id IN (:ids) AND version_id = :version AND path IS NOT NULL
+               AND product_assignment_type = :productStream AND product_stream_id IS NOT NULL',
             [
-                'ids' => Uuid::fromHexToBytesList($ids),
+                'ids' => Uuid::fromHexToBytesList($categoryIds),
                 'version' => Uuid::fromHexToBytes($versionId),
                 'productStream' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
             ],
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        $listingIds = $ids;
-
-        foreach ($rows as $row) {
-            if (!isset($row['path']) || !\is_string($row['path'])) {
-                continue;
-            }
-
-            array_push($listingIds, ...array_filter(explode('|', trim($row['path'], '|'))));
+        foreach ($paths as $path) {
+            array_push($categoryIds, ...array_filter(explode('|', $path)));
         }
 
-        $listingIds = array_values(array_unique($listingIds));
-        sort($listingIds);
-
-        return $listingIds;
+        $this->cacheInvalidator->invalidate(array_map(ProductListingRoute::buildName(...), $categoryIds));
     }
 
     /**

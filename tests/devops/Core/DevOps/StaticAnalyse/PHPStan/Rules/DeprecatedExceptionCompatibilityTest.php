@@ -63,7 +63,7 @@ class DeprecatedExceptionCompatibilityTest extends TestCase
         Feature::fake(['v6.8.0.0'], static function () use ($exception): void {
             static::assertNotSame('', $exception->getErrorCode());
             static::assertGreaterThanOrEqual(400, $exception->getStatusCode());
-            static::assertNotEmpty(iterator_to_array($exception->getErrors()));
+            static::assertNotSame([], iterator_to_array($exception->getErrors()));
             if ($exception instanceof UnsupportedValueException) {
                 static::assertSame('type', $exception->getType());
                 static::assertSame('class', $exception->getClass());
@@ -85,7 +85,7 @@ class DeprecatedExceptionCompatibilityTest extends TestCase
             foreach ($exceptions as $exception) {
                 static::assertNotSame('', $exception->getErrorCode());
                 static::assertGreaterThanOrEqual(400, $exception->getStatusCode());
-                static::assertNotEmpty(iterator_to_array($exception->getErrors()));
+                static::assertNotSame([], iterator_to_array($exception->getErrors()));
             }
 
             static::assertSame(10, $exceptions[3]->getWaitTime());

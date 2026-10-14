@@ -42,6 +42,11 @@
                         "description": "Name of the company.",
                         "type": "string"
                     },
+                    "displayName": {
+                        "description": "The name to render for this order customer: the contact person, or the company when there is none.",
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "title": {
                         "description": "Title name given to the customer like Dr, prof. etc.",
                         "type": "string"

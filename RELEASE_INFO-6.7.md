@@ -284,6 +284,18 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Company accounts can register without a contact person
+
+`Settings > Login & Registration` gains `showNameFieldsForCompanyAccounts` and `nameFieldsRequiredForCompanyAccounts`. They decide per sales channel whether a commercial customer has to name a contact person. Both default to on, so nothing changes until a shop turns one off.
+
+The `firstName` and `lastName` fields of `customer`, `customer_address`, `order_customer` and `order_address` carry the `AllowEmptyString` flag.
+
+`customer` and `order_customer` gain a runtime field `displayName`. It holds the person name, or the company when there is no contact person. `CustomerEntity::getDisplayName()` and `OrderCustomerEntity::getDisplayName()` return it once the entity is loaded. Read the name through it instead of joining `firstName` and `lastName`:
+
+```twig
+{{ customer.displayName }}
+{{ order.orderCustomer.displayName }}
+```
 ### Order contexts keep the order's own addresses
 
 When an address of an order no longer matches an address of its customer, for example because the customer edited it, `OrderConverter::assembleSalesChannelContext()` now uses the order's own address instead of the customer's default address. This applies to the billing address and to the shipping address of the order's delivery. Orders without a delivery still fall back to the customer's default shipping address. Recalculations, flows and payment handling of that order therefore use the tax state, tax rules, cash rounding and address rules of the address the order was placed with.

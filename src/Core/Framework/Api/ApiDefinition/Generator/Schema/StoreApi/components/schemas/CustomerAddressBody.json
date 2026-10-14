@@ -8,8 +8,6 @@
                 "description": "Added since version: 6.0.0.0",
                 "required": [
                     "countryId",
-                    "firstName",
-                    "lastName",
                     "zipcode",
                     "city",
                     "street"
@@ -27,14 +25,22 @@
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
-                    "firstName": { "type": "string" },
-                    "lastName": { "type": "string" },
+                    "firstName": {
+                        "description": "Required, unless the address belongs to a commercial account in a shop that turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. The company is required instead then.",
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "description": "Required, unless the address belongs to a commercial account in a shop that turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. The company is required instead then.",
+                        "type": "string"
+                    },
                     "zipcode": {
                         "description": "Postal code. Every country on a default installation has `postalCodeRequired` enabled. For a country without it, an empty value is accepted.",
                         "type": "string",
                         "maxLength": 50
                     },
-                    "city": { "type": "string" },
+                    "city": {
+                        "type": "string"
+                    },
                     "accountType": {
                         "description": "Type of the account the address belongs to, `private` or `business`. A `business` address requires `company`, which is only enforced while the `core.loginRegistration.showAccountTypeSelection` setting is enabled. The value is not stored on the address. During registration the billing address follows the top-level `accountType` instead, and the shipping address keeps its own.",
                         "type": "string",
@@ -44,12 +50,18 @@
                         ]
                     },
                     "company": {
-                        "description": "Company of the address. Required when `accountType` is `business`.",
+                        "description": "Company of the address. Required when `accountType` is `business`, and when a new address omits the contact person.",
                         "type": "string"
                     },
-                    "street": { "type": "string" },
-                    "department": { "type": "string" },
-                    "title": { "type": "string" },
+                    "street": {
+                        "type": "string"
+                    },
+                    "department": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
                     "phoneNumber": {
                         "description": "Phone number. Required when the `core.loginRegistration.showPhoneNumberField` and `core.loginRegistration.phoneNumberFieldRequired` settings are both enabled. Both are off by default.",
                         "type": "string"
@@ -62,12 +74,18 @@
                         "description": "Required when the `core.loginRegistration.showAdditionalAddressField2` and `core.loginRegistration.additionalAddressField2Required` settings are both enabled. Both are off by default.",
                         "type": "string"
                     },
-                    "customFields": { "type": "object" },
-                    "country": { "$ref": "#/components/schemas/Country" },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "country": {
+                        "$ref": "#/components/schemas/Country"
+                    },
                     "countryState": {
                         "$ref": "#/components/schemas/CountryState"
                     },
-                    "salutation": { "$ref": "#/components/schemas/Salutation" }
+                    "salutation": {
+                        "$ref": "#/components/schemas/Salutation"
+                    }
                 },
                 "allOf": [
                     {
@@ -94,8 +112,25 @@
                                             "business"
                                         ]
                                     },
-                                    "company": { "type": "string" }
+                                    "company": {
+                                        "type": "string"
+                                    }
                                 }
+                            }
+                        ]
+                    },
+                    {
+                        "anyOf": [
+                            {
+                                "required": [
+                                    "firstName",
+                                    "lastName"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "company"
+                                ]
                             }
                         ]
                     }

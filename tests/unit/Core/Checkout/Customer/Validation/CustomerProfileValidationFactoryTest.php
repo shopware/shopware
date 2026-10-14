@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Validation;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -24,6 +25,7 @@ use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -202,6 +204,32 @@ class CustomerProfileValidationFactoryTest extends TestCase
         static::assertEquals($expected, $actual);
     }
 
+    #[DataProvider('nameFieldProvider')]
+    public function testCreateTrimsNameFieldBeforeBlankCheck(string $field): void
+    {
+        $customerProfileValidationFactory = new CustomerProfileValidationFactory(
+            static::createStub(SystemConfigService::class),
+            $this->accountTypes,
+        );
+
+        $definition = $customerProfileValidationFactory->create($this->getSalesChannelContext());
+
+        $this->assertBlankCheckTrims($definition, $field);
+    }
+
+    #[DataProvider('nameFieldProvider')]
+    public function testUpdateTrimsNameFieldBeforeBlankCheck(string $field): void
+    {
+        $customerProfileValidationFactory = new CustomerProfileValidationFactory(
+            static::createStub(SystemConfigService::class),
+            $this->accountTypes,
+        );
+
+        $definition = $customerProfileValidationFactory->update($this->getSalesChannelContext());
+
+        $this->assertBlankCheckTrims($definition, $field);
+    }
+
     public function testNameFieldsRejectHtml(): void
     {
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
@@ -221,6 +249,26 @@ class CustomerProfileValidationFactoryTest extends TestCase
         }
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function nameFieldProvider(): iterable
+    {
+        yield 'firstName' => ['firstName'];
+        yield 'lastName' => ['lastName'];
+    }
+
+    private function assertBlankCheckTrims(DataValidationDefinition $definition, string $field): void
+    {
+        $notBlank = $definition->getProperty($field)[0] ?? null;
+        static::assertInstanceOf(NotBlank::class, $notBlank);
+
+        $validator = Validation::createValidator();
+        static::assertCount(1, $validator->validate('   ', $notBlank));
+        static::assertCount(1, $validator->validate(null, $notBlank));
+        static::assertCount(0, $validator->validate('  Ada  ', $notBlank));
+    }
+
     private function getSalesChannelContext(): SalesChannelContext
     {
         $salesChannel = new SalesChannelEntity();
@@ -236,8 +284,8 @@ class CustomerProfileValidationFactoryTest extends TestCase
     {
         $definition
             ->add('salutationId', new EntityExists(entity: SalutationDefinition::ENTITY_NAME, context: $context->getContext()))
-            ->add('firstName', new NotBlank())
-            ->add('lastName', new NotBlank())
+            ->add('firstName', new NotBlank(normalizer: 'trim'))
+            ->add('lastName', new NotBlank(normalizer: 'trim'))
             ->add('accountType', new Choice(choices: $this->accountTypes))
             ->add('title', new Length(max: CustomerDefinition::MAX_LENGTH_TITLE))
             ->add('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))

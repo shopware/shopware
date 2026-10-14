@@ -87,10 +87,6 @@
                         "application/json": {
                             "schema": {
                                 "type": "object",
-                                "required": [
-                                    "firstName",
-                                    "lastName"
-                                ],
                                 "properties": {
                                     "salutationId": {
                                         "description": "Id of the salutation for the customer account. Fetch options using `salutation` endpoint.",
@@ -101,11 +97,11 @@
                                         "type": "string"
                                     },
                                     "firstName": {
-                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
                                         "type": "string"
                                     },
                                     "birthdayDay": {
@@ -129,6 +125,10 @@
                                     {
                                         "anyOf": [
                                             {
+                                                "required": [
+                                                    "firstName",
+                                                    "lastName"
+                                                ],
                                                 "properties": {
                                                     "accountType": {
                                                         "description": "Type of the customer account. Default value is 'private'.",
@@ -736,7 +736,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CustomerAddressBody"
+                                "$ref": "#/components/schemas/CustomerAddressUpdateBody"
                             }
                         }
                     }
@@ -1148,11 +1148,11 @@
                                         "type": "string"
                                     },
                                     "firstName": {
-                                        "description": "Customer first name. Required unless a `billingAddress` is sent, whose first name is used instead. When both are sent, this value also replaces the first name of the billing address.",
+                                        "description": "Customer first name. Required unless a `billingAddress` is sent, whose first name is used instead. When both are sent, this value also replaces the first name of the billing address. Not required for a commercial account when the shop turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Customer last name. Required unless a `billingAddress` is sent, whose last name is used instead. When both are sent, this value also replaces the last name of the billing address.",
+                                        "description": "Customer last name. Required unless a `billingAddress` is sent, whose last name is used instead. When both are sent, this value also replaces the last name of the billing address. Not required for a commercial account when the shop turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
                                         "type": "string"
                                     },
                                     "acceptedDataProtection": {
@@ -1235,9 +1235,7 @@
                                             },
                                             {
                                                 "required": [
-                                                    "shippingAddress",
-                                                    "firstName",
-                                                    "lastName"
+                                                    "shippingAddress"
                                                 ],
                                                 "properties": {
                                                     "shippingAddress": {
@@ -1280,6 +1278,10 @@
                                     {
                                         "anyOf": [
                                             {
+                                                "required": [
+                                                    "firstName",
+                                                    "lastName"
+                                                ],
                                                 "properties": {
                                                     "accountType": {
                                                         "description": "Type of the customer account. Default value is 'private'.",

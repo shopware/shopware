@@ -285,5 +285,4 @@ abstract class McpToolResponse
 
         return ['tool' => $tool, 'arguments' => $arguments];
     }
-
 }

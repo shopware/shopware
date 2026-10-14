@@ -131,19 +131,6 @@ class ToolResultCacheStorage
     }
 
     /**
-     * @param array<string, mixed> $row
-     *
-     * @return array{content: string, mimeType: string}
-     */
-    private function toResult(array $row): array
-    {
-        return [
-            'content' => (string) $row['content'],
-            'mimeType' => (string) $row['mime_type'],
-        ];
-    }
-
-    /**
      * Deletes rows created at or before `$threshold`, in batches of CLEANUP_BATCH_SIZE.
      *
      * @return int Number of deleted rows
@@ -168,5 +155,18 @@ class ToolResultCacheStorage
         } while ($result >= self::CLEANUP_BATCH_SIZE);
 
         return $deleted;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return array{content: string, mimeType: string}
+     */
+    private function toResult(array $row): array
+    {
+        return [
+            'content' => (string) $row['content'],
+            'mimeType' => (string) $row['mime_type'],
+        ];
     }
 }

@@ -122,6 +122,18 @@ class WebhookApiTest extends TestCase
         static::assertSame('https://app.example', $this->loadWebhook($webhookId)->getUrl());
     }
 
+    public function testAnAdminCanSwitchAnAppWebhookBackOn(): void
+    {
+        $webhookId = $this->createAppWebhook();
+        static::getContainer()->get(Connection::class)->update('webhook', ['active' => 0], ['id' => Uuid::fromHexToBytes($webhookId)]);
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/webhook/' . $webhookId, ['active' => true]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
+        static::assertTrue($this->loadWebhook($webhookId)->isActive());
+    }
+
     public function testAppWebhookCannotBeDeletedViaApi(): void
     {
         $webhookId = $this->createAppWebhook();

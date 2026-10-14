@@ -755,55 +755,39 @@ The deliverability card of digital products has a new "Allow multiple units per 
 
 ### Storefront analytics send GA4 ecommerce events
 
-Storefront analytics now send ecommerce events in the format Google documents for GA4. This changes the data your tracking setup receives:
+Storefront analytics now send ecommerce events in the format Google documents for GA4. Tracking setups have to adapt to these changes:
 
-* With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`, and the previous ecommerce object is cleared first. Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead. With a Google tag ID, events are still sent through `gtag('event', ...)`.
-* Item properties are named `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`.
-* Numeric values such as `value`, `price` and `quantity` are numbers instead of strings.
-* The event `value` of cart, checkout and `purchase` events is the position price: all line items including promotion discounts, without shipping. Shipping and tax are still reported separately. Item prices stay the unit price before discounts. The applied promotion codes are reported as `coupon`.
-* `add_to_cart` reports the unit price and the value of the added quantity.
-* Discounts and other line items that are not products are no longer reported as items.
+* With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`. Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
+* Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings.
+* The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`. Discounts are no longer reported as items.
 
-The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics, and its `data-value` attribute holds the position price instead of the total price.
+The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics. The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
 
 ### Storefront analytics recognize product elements of extensions
 
-Storefront analytics now treat every element with a `data-product-information` attribute as a product element, not only elements with the `.product-box` class. Extensions that render products in their own markup are reported in `view_item_list`, `add_to_cart` and the wishlist events when the attribute holds a JSON object with at least the product `id`. The optional properties `sku`, `name`, `brand` and `price` fill the GA4 item. On a product detail page, adding a cross selling or slider product to the cart reports that product instead of the product of the page.
+Storefront analytics now treat every element with a `data-product-information` attribute as a product, not only the `.product-box`. Products that extensions render in their own markup are reported as well. The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
 
 ### Storefront analytics report brand and category of products added from a product box
 
-With active analytics, adding a product to the cart from a product box now posts its brand and the categories of the current breadcrumb in the line item payload, the same `manufacturerName` and `categoryNames` the buy widget of the product detail page already posts. A reorder from the order history posts those of the original order. Cart, checkout and purchase events report them as `item_brand` and `item_category`. Nothing is added for a sales channel without analytics.
+With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does. Cart, checkout and purchase events report them as `item_brand` and `item_category`.
 
 ### Storefront analytics report each checkout step once
 
-The shipping and payment method forms of the checkout confirm page reload the page on every change, which reported `add_shipping_info` and `add_payment_info` on each reload and pushed their counts above `begin_checkout`. Both events are now reported once per selected method of a checkout. A reload that keeps the method reports nothing, and selecting another method reports it. The state lives in the session storage and is cleared by `begin_checkout` and `purchase`.
-
-A new customer now reports `add_shipping_info` with the preselected shipping method when submitting the registration on the checkout register page, where the shipping address is entered. The confirm page reports it again only when the customer selects a different method.
+`add_shipping_info` and `add_payment_info` are now reported once per selected method of a checkout, instead of on every reload of the confirm page. A new customer reports `add_shipping_info` when registering in the checkout.
 
 ### Storefront analytics report item variants and graduated prices
 
-Storefront analytics now report the selected options of a variant, such as `Red, L`, as `item_variant` in product, list, wishlist, cart, checkout and purchase events. `add_to_cart` on the product detail page reports the unit price of the graduated price tier that applies to the quantity the cart holds after the add, instead of the cheapest tier. For a sales channel with active analytics, the buy widget renders the `data-product-variant` and `data-product-prices` attributes, the product box adds `variant` to its `data-product-information`, and the hidden line items render `data-variant`.
+Storefront analytics now report the selected options of a variant as `item_variant`. `add_to_cart` on the product detail page reports the graduated price of the quantity the cart holds after the add.
 
 ### Storefront analytics request the categories of products outside a category
 
-`add_to_cart`, `add_to_wishlist` and `remove_from_wishlist` now report the categories of a product added or removed on a page whose breadcrumb does not describe it, such as the homepage, a landing page, the wishlist or a cross selling product on a product detail page. The analytics script requests the path on the click from the new route `frontend.analytics.product-categories` (`GET /widgets/analytics/product-categories?productId=<id>`). The route returns the breadcrumb of the product detail page as a list of category names, resolved by the Store API breadcrumb route, and is HTTP cached. It returns a 404 for a sales channel without active analytics, and its URL is only added to `window.router` when analytics are active.
+On a page whose breadcrumb does not describe a product, such as the homepage or the wishlist, `add_to_cart` and the wishlist events now report the categories of the product. They are requested from the new HTTP cached route `frontend.analytics.product-categories`, which returns a 404 for a sales channel without active analytics.
 
-The wishlist page holds the removal of a product back until `remove_from_wishlist` is sent, for at most one second.
+The wishlist page holds the removal of a product back for at most one second, until `remove_from_wishlist` is sent.
 
 ### Storefront analytics report `select_item` and the list of a product
 
-Following a product link in a listing, the search results, a slider, a cross selling tab, the wishlist or a shopping experience element of an extension now reports `select_item`. `view_item_list` and `select_item` report the list as `item_list_id` and `item_list_name` and the position as `index`, which counts across the pages of a paginated listing. `view_item` reports the list the product was selected from on its item, also when the product was opened in another tab. The list is kept in the local storage of the browser for 30 minutes and consumed by the first view of the product. `view_item_list` now only reports the products of the product listing, and saving the cookie preferences again no longer registers every event twice.
-
-The list identifiers are a contract that Google Tag Manager triggers can rely on:
-
-* A category listing reports `category:<category id>` and the translated category name. A listing outside a category reports `cms:<slot id>`.
-* The search results report `search` and the translated `search.analyticsListName` snippet.
-* The wishlist reports `wishlist` and the translated `wishlist.analyticsListName` snippet.
-* A cross selling tab reports `cross_selling:<cross selling id>` and the translated name of the cross selling group.
-* A product slider reports `slider:<element id>` and its title.
-* Any other shopping experience element, including those of extensions, reports `cms:<element id>`.
-
-Themes and extensions can identify their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or with `data-list-id` and `data-list-name` on any element containing product elements. These attributes are only rendered for a sales channel with active analytics, and extensions should use the same condition, `storefrontAnalytics and storefrontAnalytics.isActive()`. The buy widget renders `data-product-id` and `data-product-parent-id` under the same condition.
+Storefront analytics now report `select_item`, and `view_item_list`, `select_item` and `view_item` report the list of a product as `item_list_id`, `item_list_name` and `index`. The list IDs, such as `category:<id>` or `search`, are a contract that Google Tag Manager triggers can rely on. The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#lists) lists them and shows how extensions identify their own lists.
 
 ### Essential characteristics label custom fields with their snippet
 

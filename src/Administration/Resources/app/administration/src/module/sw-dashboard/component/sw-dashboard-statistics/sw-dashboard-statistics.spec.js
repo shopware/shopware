@@ -92,6 +92,14 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
         jest.useRealTimers();
     });
 
+    it('should sort the customer column by the company after the person name', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.orderGridColumns().find((column) => column.property === 'orderCustomer.firstName').dataIndex).toBe(
+            'orderCustomer.lastName,orderCustomer.firstName,orderCustomer.company',
+        );
+    });
+
     it('should not show the stats', async () => {
         wrapper = await createWrapper();
 

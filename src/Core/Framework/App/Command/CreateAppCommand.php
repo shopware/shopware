@@ -163,7 +163,7 @@ class CreateAppCommand extends Command
                 'default' => 'MyExampleApp',
                 'validator' => self::makeRegexValidator(
                     '/^[A-Za-z]\w{3,}$/D',
-                    'The app name is too short (min 4 characters), contains invalid characters'
+                    'The app name is too short (min 4 characters) or contains invalid characters'
                 ),
                 'normaliser' => static fn (string $name): string => u($name)->replace('_', ' ')->camel()->title()->toString(),
             ],

@@ -60,6 +60,8 @@ use Shopware\Core\Framework\Mcp\Resource\LanguageListResource;
 use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
 use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Resource\ToolResultResource;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultParser;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolResultCacheCleanupTask;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolResultCacheCleanupTaskHandler;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTask;
@@ -320,6 +322,11 @@ return static function (ContainerConfigurator $container): void {
             param(McpToolDiscoveryCompilerPass::DEMOTED_DISCOVERY_TOOLS_PARAMETER),
         ])
         ->tag('console.command');
+
+    $services->set(McpToolResultRenderer::class)
+        ->args([service(ClockInterface::class)]);
+
+    $services->set(McpToolResultParser::class);
 
     $services->set(ToolResultCacheStorage::class)
         ->args([service(Connection::class), service(ClockInterface::class)]);

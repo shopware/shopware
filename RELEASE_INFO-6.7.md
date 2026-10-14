@@ -440,6 +440,14 @@ The test helper trait `\Shopware\Core\Framework\Test\Api\Serializer\AssertValues
 
 ## API
 
+### MCP tool results carry `structuredContent` and `isError`
+
+Tool calls on `/api/_mcp` and `/store-api/_mcp` now return the result data as `structuredContent` next to the existing text block, so clients can read it without parsing JSON out of the text. Clients that negotiate a protocol revision before 2025-06-18 get no `structuredContent`, because that revision introduced it. A failed call sets `isError: true` and puts a stable code in `structuredContent.error.code`, for example `missing_privilege`, `invalid_arguments` or `tool_error`. The error envelope in the text block gains the same `code` key. Every result also carries `_meta["shopware/generatedAt"]`.
+
+The text block is unchanged, so clients that parse `{"success": ..., "data": ...}` keep working. Plugin tools that extend `McpToolResponse` get the new fields without any change. Tools can pass a stable code as the second argument of `McpToolResponse::error()`.
+
+With the `v6.8.0.0` feature flag, the first text block holds the plain data or the error message instead of the `success` envelope, followed by the summary and the metadata (`{"_meta": …}`) as blocks of their own. See `UPGRADE-6.8.md` for how to switch a client.
+
 ### Parents without an available variant are not found
 
 `/store-api/product/{productId}` now responds with HTTP 404, like for an inactive product, when the requested product is a parent and none of its variants can be shown: all variants are inactive or not visible in the sales channel, or they are out-of-stock closeouts while `core.listing.hideCloseoutProductsWhenOutOfStock` is active. Previously the parent was returned as a product without a buyable variant, so the storefront rendered a detail page that could not be ordered from.

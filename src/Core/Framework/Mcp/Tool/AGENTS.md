@@ -122,19 +122,29 @@ All tools must extend the `McpToolResponse` abstract class. It provides two help
 {"success": true, "data": [...], "_meta": {"total": 42, "page": 1}}
 ```
 
-**Error**: `$this->error(string $message)`
+**Error**: `$this->error(string $message, string $code = McpToolError::TOOL_ERROR)`
 ```json
-{"success": false, "error": "Human-readable message"}
+{"success": false, "error": "Human-readable message", "code": "tool_error"}
 ```
 
 Rules:
 - `success` (bool) is always present at root
 - `data` holds the actual result (structure is tool-specific)
 - `_meta` is optional, used for pagination (`total`, `page`, `limit`), context (`salesChannelId`), and write metadata (`dryRun`)
-- `error` (string) only appears when `success` is false
+- `error` (string) and `code` only appear when `success` is false. Use a `McpToolError` constant for `code` (`missing_privilege`, `invalid_arguments`, `not_found`, `tool_error`), so clients can match on it instead of the message
 - Responses up to 100 KB are returned inline. Responses at or above 20 KB include `_meta.responseSize` so the LLM can see the cost of the current call and learn to use tighter `includes`/`limit` next time
 - Responses larger than 100 KB are stored in `mcp_tool_result_cache` (session-scoped) and returned as a `shopware://tool-result/{uuid}` resource URI in `_meta.resourceUri`. The full content is fetched via `resources/read` (handled by `ToolResultResource`). `_meta.query` echoes the originating tool name and arguments so the LLM can disambiguate which call produced which URI. Cache rows are wiped on session DELETE by `McpSessionCleanupSubscriber`. This applies to every tool extending `McpToolResponse`, including plugin and bundle tools (`McpToolResultCacheCompilerPass` wires the cache for them). It only happens on the Admin API endpoint, because only its server registers `ToolResultResource`: Store API calls, and calls without an MCP session (CLI/test), fall back to inline delivery
 - A PHPStan rule (`McpToolResponseRule`) enforces that all `#[McpTool]` classes extend the abstract class
+
+### What the client receives
+
+The envelope above is the text block. `McpToolResultReferenceHandler` wraps the SDK reference handler of both servers (`McpToolResultRendererCompilerPass`), parses the envelope into a `McpToolResult` and renders it with `McpToolResultRenderer` into a `CallToolResult`:
+- `structuredContent` holds `data`. On the handshake era it must be an object, so a list or scalar is wrapped as `{"result": ...}`. A failure becomes `{"error": {"code": ..., "message": ..., "details": ...}}` and sets `isError: true`. Clients that negotiated a protocol revision before 2025-06-18 get no `structuredContent`, because it doesn't exist there; they read the text block
+- `structuredContent` and the text copy are both sent, as the spec asks. Size is limited only by the 100 KB offload in `McpToolResponse::success()`. Moving that decision into the renderer is phase 2 of the result format ADR
+- `_meta["shopware/generatedAt"]` is always set
+- With `v6.8.0.0` active, the envelope is replaced by separate text blocks: the data as plain JSON, then the summary, then `{"_meta": …}`. A failure sends its message, then `{"details": …}` and `{"_meta": …}` when there are any. The metadata also goes into the result `_meta` with a `shopware/` prefix. Keys next to the envelope fields, such as `dryRun`, count as metadata
+
+A tool may also return a `McpToolResult` directly; it is rendered the same way. Until 6.8.0, the text block of such a result is a rebuilt envelope, which carries the data, the metadata and the error message and code, but not a summary or error details. Tools that return a `CallToolResult` themselves bypass the renderer.
 
 ## Pagination with shopware-entity-search
 

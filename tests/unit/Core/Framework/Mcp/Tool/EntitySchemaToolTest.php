@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 
 /**
@@ -122,6 +123,7 @@ class EntitySchemaToolTest extends TestCase
         static::assertFalse($result['success']);
         static::assertStringContainsString('unknown_entity', $result['error']);
         static::assertStringContainsString('shopware://entities', $result['error']);
+        static::assertSame(McpToolError::INVALID_ARGUMENTS, $result['code']);
     }
 }
 

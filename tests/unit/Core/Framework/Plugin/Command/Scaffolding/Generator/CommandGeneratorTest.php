@@ -25,10 +25,10 @@ class CommandGeneratorTest extends TestCase
         $generator = new CommandGenerator();
 
         $option = $generator->getCommandOption();
-        static::assertNotEmpty($option->getName());
-        static::assertNotEmpty($option->getDescription());
+        static::assertSame(CommandGenerator::OPTION_NAME, $option->getName());
+        static::assertNotSame('', $option->getDescription());
         static::assertSame('Custom Command', $generator->getCommandOptionTitle());
-        static::assertNotEmpty($generator->getCommandOptionDescriptionLong());
+        static::assertNotSame('', $generator->getCommandOptionDescriptionLong());
     }
 
     #[DataProvider('addScaffoldConfigProvider')]

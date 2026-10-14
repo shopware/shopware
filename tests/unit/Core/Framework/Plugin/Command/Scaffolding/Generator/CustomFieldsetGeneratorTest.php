@@ -22,10 +22,10 @@ class CustomFieldsetGeneratorTest extends TestCase
         $generator = new CustomFieldsetGenerator();
 
         $option = $generator->getCommandOption();
-        static::assertNotEmpty($option->getName());
-        static::assertNotEmpty($option->getDescription());
+        static::assertSame(CustomFieldsetGenerator::OPTION_NAME, $option->getName());
+        static::assertNotSame('', $option->getDescription());
         static::assertSame('Custom Fieldset', $generator->getCommandOptionTitle());
-        static::assertNotEmpty($generator->getCommandOptionDescriptionLong());
+        static::assertNotSame('', $generator->getCommandOptionDescriptionLong());
     }
 
     #[DataProvider('addScaffoldConfigProvider')]

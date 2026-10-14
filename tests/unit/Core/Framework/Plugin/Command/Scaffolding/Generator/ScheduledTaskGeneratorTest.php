@@ -22,10 +22,10 @@ class ScheduledTaskGeneratorTest extends TestCase
         $generator = new ScheduledTaskGenerator();
 
         $option = $generator->getCommandOption();
-        static::assertNotEmpty($option->getName());
-        static::assertNotEmpty($option->getDescription());
+        static::assertSame(ScheduledTaskGenerator::OPTION_NAME, $option->getName());
+        static::assertNotSame('', $option->getDescription());
         static::assertSame('Scheduled Task', $generator->getCommandOptionTitle());
-        static::assertNotEmpty($generator->getCommandOptionDescriptionLong());
+        static::assertNotSame('', $generator->getCommandOptionDescriptionLong());
     }
 
     #[DataProvider('addScaffoldConfigProvider')]

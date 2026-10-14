@@ -25,10 +25,10 @@ class ConfigGeneratorTest extends TestCase
         $generator = new ConfigGenerator();
 
         $option = $generator->getCommandOption();
-        static::assertNotEmpty($option->getName());
-        static::assertNotEmpty($option->getDescription());
+        static::assertSame(ConfigGenerator::OPTION_NAME, $option->getName());
+        static::assertNotSame('', $option->getDescription());
         static::assertSame('Plugin Config', $generator->getCommandOptionTitle());
-        static::assertNotEmpty($generator->getCommandOptionDescriptionLong());
+        static::assertNotSame('', $generator->getCommandOptionDescriptionLong());
     }
 
     #[DataProvider('addScaffoldConfigProvider')]

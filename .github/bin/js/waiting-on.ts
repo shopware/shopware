@@ -93,7 +93,7 @@
  * CONTRIBUTOR, which is fine for a report and not good enough to route a reminder on.
  */
 
-import { applyProjectChanges, fetchProject, planProjectChanges, summarizeProjectChanges } from './waiting-on-project.ts';
+import { applyProjectChanges, fetchProject, parseTeamProjects, planProjectChanges, summarizeProjectChanges } from './waiting-on-project.ts';
 import { parseChannels, planReminders, postSlackMessage, renderReminder, type Slack } from './waiting-on-slack.ts';
 
 export type WaitingOn = 'author' | 'shopware' | 'nobody';
@@ -368,38 +368,41 @@ export function summarizeActivity(events: TimelineEvent[], latestOpinionatedRevi
     return activity;
 }
 
+/** What the verdict is computed from; the sweep and the per-event update read the same. */
+export const PULL_REQUEST_FIELDS = `
+    id
+    number
+    title
+    url
+    createdAt
+    isDraft
+    authorAssociation
+    reviewDecision
+    mergeable
+    author { login __typename }
+    labels(first: 50) { nodes { name } }
+    approvals: reviews(states: APPROVED) { totalCount }
+    allReviews: reviews(first: 1) { totalCount }
+    latestOpinionatedReviews(first: 20) { nodes { state submittedAt } }
+    reviewThreads(last: 50) { nodes { comments(last: 3) { nodes { createdAt author { login __typename } } } } }
+    timelineItems(last: 40, itemTypes: [ISSUE_COMMENT, PULL_REQUEST_REVIEW, PULL_REQUEST_COMMIT, READY_FOR_REVIEW_EVENT, CONVERT_TO_DRAFT_EVENT]) {
+        nodes {
+            __typename
+            ... on IssueComment { createdAt author { login __typename } }
+            ... on PullRequestReview { submittedAt author { login __typename } }
+            ... on PullRequestCommit { commit { committedDate author { user { login } } } }
+            ... on ReadyForReviewEvent { createdAt actor { login __typename } }
+            ... on ConvertToDraftEvent { createdAt actor { login __typename } }
+        }
+    }
+`;
+
 const OPEN_PULL_REQUESTS_QUERY = `
     query($owner: String!, $repo: String!, $after: String) {
         repository(owner: $owner, name: $repo) {
             pullRequests(states: OPEN, first: 15, after: $after) {
                 pageInfo { hasNextPage endCursor }
-                nodes {
-                    id
-                    number
-                    title
-                    url
-                    createdAt
-                    isDraft
-                    authorAssociation
-                    reviewDecision
-                    mergeable
-                    author { login __typename }
-                    labels(first: 50) { nodes { name } }
-                    approvals: reviews(states: APPROVED) { totalCount }
-                    allReviews: reviews(first: 1) { totalCount }
-                    latestOpinionatedReviews(first: 20) { nodes { state submittedAt } }
-                    reviewThreads(last: 50) { nodes { comments(last: 3) { nodes { createdAt author { login __typename } } } } }
-                    timelineItems(last: 40, itemTypes: [ISSUE_COMMENT, PULL_REQUEST_REVIEW, PULL_REQUEST_COMMIT, READY_FOR_REVIEW_EVENT, CONVERT_TO_DRAFT_EVENT]) {
-                        nodes {
-                            __typename
-                            ... on IssueComment { createdAt author { login __typename } }
-                            ... on PullRequestReview { submittedAt author { login __typename } }
-                            ... on PullRequestCommit { commit { committedDate author { user { login } } } }
-                            ... on ReadyForReviewEvent { createdAt actor { login __typename } }
-                            ... on ConvertToDraftEvent { createdAt actor { login __typename } }
-                        }
-                    }
-                }
+                nodes { ${PULL_REQUEST_FIELDS} }
             }
         }
     }
@@ -507,11 +510,11 @@ export function factsOf(node: PullRequestNode): PullRequestFacts {
     };
 }
 
-type GraphqlClient = {
+export type GraphqlClient = {
     graphql<T>(query: string, variables: Record<string, unknown>): Promise<T>;
 };
 
-type IssuesClient = {
+export type IssuesClient = {
     rest: {
         issues: {
             addLabels(options: { owner: string; repo: string; issue_number: number; labels: string[] }): Promise<unknown>;
@@ -520,7 +523,7 @@ type IssuesClient = {
     };
 };
 
-type Core = {
+export type Core = {
     info(message: string): void;
     warning(message: string): void;
     error(message: string): void;
@@ -531,7 +534,7 @@ type Core = {
     };
 };
 
-type Context = {
+export type Context = {
     repo: { owner: string; repo: string };
 };
 
@@ -733,8 +736,12 @@ export async function applyLabelChanges(
 
 export type ReportOptions = {
     dryRun?: boolean;
-    /** The organization project to mirror the verdicts into, with a client allowed to write it. */
-    project?: { github: GraphqlClient; number: number };
+    /**
+     * The organization project to mirror the verdicts into, with a client allowed to write it.
+     * `teams` is the JSON of WAITING_ON_TEAM_PROJECTS: a project per team label, which gets
+     * the pull requests carrying that label on top of the main project, which gets all of them.
+     */
+    project?: { github: GraphqlClient; number: number; teams?: string };
     /** Where the reminders for external pull requests go; see waiting-on-slack.ts. */
     reminders?: { slack: Slack; channels: string | undefined };
 };
@@ -771,14 +778,27 @@ export async function reportWaitingOn({ github, core, context }: { github: Graph
     core.summary.addRaw(renderReport(rows));
     core.summary.addRaw(`\n${changes.length} pull request(s) ${dryRun ? 'would have had their label changed (dry run)' : 'had their label changed'}.\n`);
 
-    let failedItems: string[] = [];
+    const failedItems: string[] = [];
     if (project !== undefined) {
         const { owner, repo } = context.repo;
-        const { schema, items } = await fetchProject(project.github, owner, project.number, `${owner}/${repo}`);
-        const projectChanges = planProjectChanges(rows, items);
+        const targets = [
+            { number: project.number, rows, archive: true },
+            ...[...parseTeamProjects(project.teams)].map(([teamLabel, number]) => ({ number, rows: rows.filter((row) => row.labels.includes(teamLabel)), archive: false })),
+        ];
 
-        failedItems = dryRun ? [] : await applyProjectChanges(project.github, core, schema, projectChanges);
-        core.summary.addRaw(`\nProject ${owner}/${project.number}${dryRun ? ' (dry run, nothing written)' : ''}: ${summarizeProjectChanges(projectChanges)}.\n`);
+        for (const target of targets) {
+            // A team's project missing a field must not keep the other projects from their sync.
+            try {
+                const { schema, items } = await fetchProject(project.github, core, owner, target.number, `${owner}/${repo}`);
+                const projectChanges = planProjectChanges(target.rows, items, { archive: target.archive });
+
+                failedItems.push(...(dryRun ? [] : await applyProjectChanges(project.github, core, schema, projectChanges)));
+                core.summary.addRaw(`\nProject ${owner}/${target.number}${dryRun ? ' (dry run, nothing written)' : ''}: ${summarizeProjectChanges(projectChanges)}.\n`);
+            } catch (error) {
+                failedItems.push(`project ${target.number}`);
+                core.error(error instanceof Error ? error.message : String(error));
+            }
+        }
     }
 
     const failedReminders: string[] = [];

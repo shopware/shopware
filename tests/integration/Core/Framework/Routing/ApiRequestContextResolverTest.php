@@ -148,6 +148,50 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertInstanceOf(AdminApiSource::class, $context->getSource());
     }
 
+    public function testTheAppIntegrationIdHeaderIsLowercased(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $ids = new IdsCollection();
+
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($ids->create('integration')),
+            'access_key' => AccessKeyHelper::generateAccessKey('integration'),
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
+            'label' => 'test integration',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+        $connection->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($ids->create('acl_role')),
+            'name' => 'app',
+            'privileges' => '[]',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+        $connection->insert('app', [
+            'id' => Uuid::fromHexToBytes($ids->create('app')),
+            'name' => 'PHPUnit',
+            'path' => 'foo',
+            'active' => 1,
+            'configurable' => 0,
+            'version' => '0.0.1',
+            'integration_id' => Uuid::fromHexToBytes($ids->get('integration')),
+            'acl_role_id' => Uuid::fromHexToBytes($ids->get('acl_role')),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID, $this->createUser([], true)->getUserId());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+        $request->headers->set(PlatformRequest::HEADER_APP_INTEGRATION_ID, strtoupper($ids->get('integration')));
+
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        $source = $context->getSource();
+        static::assertInstanceOf(AdminApiSource::class, $source);
+        static::assertSame($ids->get('integration'), $source->getIntegrationId());
+    }
+
     public function testEmptyAppUserIdHeaderIsIgnoredForIntegrationAuth(): void
     {
         $connection = static::getContainer()->get(Connection::class);

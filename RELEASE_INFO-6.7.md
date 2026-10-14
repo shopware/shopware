@@ -15,6 +15,13 @@ The Apache `.htaccess.dist` template now sends `script-src 'none'; object-src 'n
 Application-rendered HTML and bundled HTML applications retain their existing behavior.
 Ensure your deployed `.htaccess` contains the updated Shopware section; installations without the Shopware update markers must merge it manually.
 Custom static documents must work without scripts, embedded documents, base URL overrides or form submissions; images and styles remain permitted.
+### HTML files are no longer accepted as public media
+
+`html` was removed from the default `shopware.filesystem.allowed_extensions`. Public media is served from the shop's own domain, so an uploaded HTML file ran its scripts in the same origin as the Administration and could read the session of an administrator who opened it.
+
+HTML files are still accepted as private media, for example for accessible HTML documents. Uploads of HTML files to public media now fail with `CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED`. HTML files that were uploaded to public media before this change are still served. Review them and delete the ones you do not need.
+
+If your shop needs HTML files as public media, add `html` to `shopware.filesystem.allowed_extensions` in your own configuration and serve these files from a separate domain or with a `Content-Security-Policy: sandbox` header.
 
 ### Sales channel contexts expose the default currency again
 

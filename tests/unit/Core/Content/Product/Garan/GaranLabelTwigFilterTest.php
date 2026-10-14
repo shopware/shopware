@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -126,6 +127,69 @@ class GaranLabelTwigFilterTest extends TestCase
         static::assertIsString($svg);
         static::assertStringContainsString('nested', $svg);
         static::assertStringContainsString('3', $svg);
+    }
+
+    public function testRenderingTheSameProductAgainDoesNotSearchAgain(): void
+    {
+        $product = $this->createProduct(guaranteeConfirmed: true);
+        $context = Context::createDefaultContext();
+
+        $filter = $this->createFilter([
+            new ProductCollection([$product]),
+            static fn () => static::fail('A product rendered before must not be searched again'),
+        ]);
+
+        static::assertSame('<svg>nested 3</svg>', $filter->renderNestedLabel($product->getId(), $context));
+        static::assertSame('<svg>nested 3</svg>', $filter->renderNestedLabel($product->getId(), $context));
+    }
+
+    public function testPreloadedProductsAreRenderedWithoutFurtherSearches(): void
+    {
+        $product = $this->createProduct(guaranteeConfirmed: true);
+        $context = Context::createDefaultContext();
+
+        $filter = $this->createFilter([
+            static function (Criteria $criteria) use ($product): ProductCollection {
+                static::assertSame([$product->getId(), 'missing-id'], $criteria->getIds());
+                static::assertTrue($criteria->hasAssociation('manufacturer'));
+
+                return new ProductCollection([$product]);
+            },
+            static fn () => static::fail('Preloaded products must not be searched again'),
+        ]);
+
+        $filter->preloadProducts([$product->getId(), 'missing-id', $product->getId()], $context);
+
+        static::assertSame('<svg>nested 3</svg>', $filter->renderNestedLabel($product->getId(), $context));
+        static::assertNull($filter->renderNestedLabel('missing-id', $context));
+    }
+
+    public function testPreloadingAloneDoesNotSearch(): void
+    {
+        $filter = $this->createFilter([
+            static fn () => static::fail('Preloaded products must only be searched once a label is rendered'),
+        ]);
+
+        $filter->preloadProducts(['product-id'], Context::createDefaultContext());
+
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testPreloadedProductsAreNotSharedBetweenContexts(): void
+    {
+        $product = $this->createProduct(guaranteeConfirmed: true);
+
+        $filter = $this->createFilter([
+            static function (Criteria $criteria) use ($product): ProductCollection {
+                static::assertSame([$product->getId()], $criteria->getIds());
+
+                return new ProductCollection([$product]);
+            },
+        ]);
+
+        $filter->preloadProducts(['other-product-id'], Context::createDefaultContext());
+
+        static::assertSame('<svg>nested 3</svg>', $filter->renderNestedLabel($product->getId(), Context::createDefaultContext()));
     }
 
     public function testRenderAsDataUriReturnsNullForNullProductId(): void

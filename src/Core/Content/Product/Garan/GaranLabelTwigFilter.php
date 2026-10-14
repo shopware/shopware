@@ -16,6 +16,16 @@ use Twig\TwigFilter;
 class GaranLabelTwigFilter extends AbstractExtension
 {
     /**
+     * @var \WeakMap<Context, array<string, ProductEntity|null>>
+     */
+    private \WeakMap $loadedProducts;
+
+    /**
+     * @var \WeakMap<Context, list<string>>
+     */
+    private \WeakMap $pendingProductIds;
+
+    /**
      * @internal
      *
      * @param EntityRepository<ProductCollection> $productRepository
@@ -26,6 +36,8 @@ class GaranLabelTwigFilter extends AbstractExtension
         private readonly GaranLabelResolver $resolver,
         private readonly GaranLabelInlineImage $inlineImage,
     ) {
+        $this->loadedProducts = new \WeakMap();
+        $this->pendingProductIds = new \WeakMap();
     }
 
     /**
@@ -145,17 +157,42 @@ class GaranLabelTwigFilter extends AbstractExtension
         ];
     }
 
+    /**
+     * @internal
+     *
+     * @param list<string> $productIds
+     */
+    public function preloadProducts(array $productIds, Context $context): void
+    {
+        $this->pendingProductIds[$context] = [...$this->pendingProductIds[$context] ?? [], ...$productIds];
+    }
+
     private function loadProduct(?string $productId, Context $context): ?ProductEntity
     {
         if ($productId === null) {
             return null;
         }
 
-        $criteria = new Criteria([$productId]);
+        $loaded = $this->loadedProducts[$context] ?? [];
+
+        if (\array_key_exists($productId, $loaded)) {
+            return $loaded[$productId];
+        }
+
+        $productIds = array_values(array_unique(array_diff([...$this->pendingProductIds[$context] ?? [], $productId], array_keys($loaded))));
+        unset($this->pendingProductIds[$context]);
+
+        $criteria = new Criteria($productIds);
         $criteria->addAssociation('manufacturer');
 
-        $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
+        $products = $this->productRepository->search($criteria, $context)->getEntities();
 
-        return $product instanceof ProductEntity ? $product : null;
+        foreach ($productIds as $id) {
+            $loaded[$id] = $products->get($id);
+        }
+
+        $this->loadedProducts[$context] = $loaded;
+
+        return $loaded[$productId];
     }
 }

@@ -30,6 +30,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
+use Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
@@ -428,6 +429,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ShopIdProvider::class),
             service(ActiveAppsLoader::class),
             service(ThemeRuntimeConfigService::class),
+            service(GaranLabelTwigFilter::class),
         ])
         ->tag('kernel.event_subscriber');
 

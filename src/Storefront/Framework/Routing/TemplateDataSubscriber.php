@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -12,6 +15,14 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
+use Shopware\Storefront\Page\Account\Order\AccountEditOrderPage;
+use Shopware\Storefront\Page\Account\Order\AccountOrderPage;
+use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
+use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage;
+use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage;
+use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPage;
+use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPage;
+use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPage;
 use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -27,6 +38,7 @@ class TemplateDataSubscriber implements EventSubscriberInterface
         private readonly ShopIdProvider $shopIdProvider,
         private readonly ActiveAppsLoader $activeAppsLoader,
         private readonly ThemeRuntimeConfigService $runtimeConfigService,
+        private readonly GaranLabelTwigFilter $garanLabelTwigFilter,
     ) {
     }
 
@@ -37,6 +49,7 @@ class TemplateDataSubscriber implements EventSubscriberInterface
                 ['addHreflang'],
                 ['addShopIdParameter'],
                 ['addIconSetConfig'],
+                ['preloadGaranLabelProducts'],
             ],
         ];
     }
@@ -105,5 +118,32 @@ class TemplateDataSubscriber implements EventSubscriberInterface
         }
 
         $event->setParameter('themeIconConfig', $runtimeConfig->iconSets);
+    }
+
+    public function preloadGaranLabelProducts(StorefrontRenderEvent $event): void
+    {
+        $page = $event->getParameter('page');
+
+        $lineItems = match (true) {
+            $page instanceof CheckoutCartPage, $page instanceof CheckoutConfirmPage, $page instanceof OffcanvasCartPage, $page instanceof CheckoutRegisterPage => $page->getCart()->getLineItems()->getFlat(),
+            $page instanceof CheckoutFinishPage, $page instanceof AccountEditOrderPage => $page->getOrder()->getLineItems() ?? [],
+            $page instanceof AccountOrderPage => array_merge([], ...array_values($page->getOrders()->getEntities()->map(static fn (OrderEntity $order) => $order->getLineItems()?->getElements() ?? []))),
+            $page instanceof AccountOverviewPage => $page->getNewestOrder()?->getLineItems() ?? [],
+            default => [],
+        };
+
+        $productIds = [];
+
+        foreach ($lineItems as $lineItem) {
+            $productId = $lineItem->getReferencedId();
+
+            if ($lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE && $productId !== null) {
+                $productIds[] = $productId;
+            }
+        }
+
+        if ($productIds !== []) {
+            $this->garanLabelTwigFilter->preloadProducts($productIds, $event->getContext());
+        }
     }
 }

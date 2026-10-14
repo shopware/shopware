@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook\Authorization\Ownership;
 
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Acl\ApiCallerType;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -37,9 +37,9 @@ class RecordOwnerSubscriber implements EventSubscriberInterface
         }
 
         $source = $event->getContext()->getSource();
-        $integrationId = $source instanceof AdminApiSource ? $source->getIntegrationId() : null;
-        $ownerId = $source instanceof AdminApiSource ? Ownership::ownerIdOf($source) : null;
-        $column = $integrationId !== null ? 'owner_integration_id' : 'owner_user_id';
+        $ownerType = ApiCallerType::of($source);
+        $ownerId = $ownerType?->idOf($source);
+        $column = $ownerType === ApiCallerType::Integration ? 'owner_integration_id' : 'owner_user_id';
 
         foreach ($inserts as $insert) {
             if ($ownerId !== null) {

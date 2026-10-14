@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook\Authorization\Ownership;
 
+use Shopware\Core\Framework\Api\Acl\ApiCallerType;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Log\Package;
 
@@ -23,16 +24,8 @@ class Ownership
         return $this->appId !== null;
     }
 
-    /**
-     * An integration always acts as itself, never as the user it names in the `sw-app-user-id` header.
-     */
-    public static function ownerIdOf(AdminApiSource $source): ?string
-    {
-        return $source->getIntegrationId() ?? $source->getUserId();
-    }
-
     public function isOwnedBy(AdminApiSource $source): bool
     {
-        return $this->ownerId !== null && $this->ownerId === self::ownerIdOf($source);
+        return $this->ownerId !== null && $this->ownerId === ApiCallerType::of($source)->idOf($source);
     }
 }

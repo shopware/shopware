@@ -7,8 +7,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
-use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexingMessage;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
@@ -160,9 +158,6 @@ class CacheInvalidationSubscriberTest extends TestCase
                 ],
             ]],
         ]], $context);
-        static::getContainer()->get(CategoryIndexer::class)->handle(
-            new CategoryIndexingMessage(array_values($this->ids->getList(['root', 'parent', 'manual', 'group'])), null, $context)
-        );
 
         $invalidatedTags = [];
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);

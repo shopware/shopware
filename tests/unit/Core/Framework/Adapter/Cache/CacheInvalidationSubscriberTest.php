@@ -160,27 +160,14 @@ class CacheInvalidationSubscriberTest extends TestCase
 
         $subscriber = $this->createSubscriber();
 
+        // the child shows a dynamic product group, so the listings above it are invalidated as well
         $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                [
-                    'id' => $childId,
-                    'path' => '|' . $grandParentId . '|' . $parentId . '|',
-                ],
-            ]);
+            ->method('fetchFirstColumn')
+            ->willReturn(['|' . $grandParentId . '|' . $parentId . '|']);
 
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
-            ->with(static::callback(function (array $tags) use ($grandParentId, $parentId, $childId): bool {
-                sort($tags);
-
-                $expected = array_map(ProductListingRoute::buildName(...), [$grandParentId, $parentId, $childId]);
-                sort($expected);
-
-                static::assertSame($expected, $tags);
-
-                return true;
-            }));
+            ->with(array_map(ProductListingRoute::buildName(...), [$childId, $grandParentId, $parentId]));
 
         $subscriber->invalidateProductListingRouteByCategoryIds(
             new CategoryIndexerEvent([$childId], Context::createDefaultContext())
@@ -191,54 +178,31 @@ class CacheInvalidationSubscriberTest extends TestCase
     {
         $parentId = Uuid::randomHex();
         $categoryId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
 
         $subscriber = $this->createSubscriber();
 
-        $event = new EntityWrittenContainerEvent(
-            $context,
-            new NestedEventCollection([
-                new EntityWrittenEvent(
-                    CategoryDefinition::ENTITY_NAME,
-                    [
-                        new EntityWriteResult(
-                            $categoryId,
-                            [
-                                'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
-                            ],
-                            CategoryDefinition::ENTITY_NAME,
-                            EntityWriteResult::OPERATION_UPDATE,
-                        ),
-                    ],
-                    $context,
-                ),
-            ]),
-            [],
-        );
-
         $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                [
-                    'id' => $categoryId,
-                    'path' => '|' . $parentId . '|',
-                ],
-            ]);
+            ->method('fetchFirstColumn')
+            ->willReturn(['|' . $parentId . '|']);
 
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
-            ->with(static::callback(function (array $tags) use ($parentId, $categoryId): bool {
-                sort($tags);
+            ->with(array_map(ProductListingRoute::buildName(...), [$categoryId, $parentId]));
 
-                $expected = array_map(ProductListingRoute::buildName(...), [$parentId, $categoryId]);
-                sort($expected);
+        $subscriber->invalidateChangedCategoryListings(
+            $this->createCategoryWrittenEvent($categoryId, ['productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM])
+        );
+    }
 
-                static::assertSame($expected, $tags);
+    public function testInvalidateChangedCategoryListingsIgnoresOtherChanges(): void
+    {
+        $subscriber = $this->createSubscriber();
 
-                return true;
-            }));
+        // the listener runs on every write, so writes that keep the product assignment must not even query
+        $this->connection->expects($this->never())->method('fetchFirstColumn');
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
 
-        $subscriber->invalidateChangedCategoryListings($event);
+        $subscriber->invalidateChangedCategoryListings($this->createCategoryWrittenEvent(Uuid::randomHex(), ['active' => false]));
     }
 
     public function testInvalidateNavigationRouteWithSalesChannelSettings(): void
@@ -888,6 +852,26 @@ class CacheInvalidationSubscriberTest extends TestCase
                         ),
                     ],
                     Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function createCategoryWrittenEvent(string $categoryId, array $payload): EntityWrittenContainerEvent
+    {
+        $context = Context::createDefaultContext();
+
+        return new EntityWrittenContainerEvent(
+            $context,
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    CategoryDefinition::ENTITY_NAME,
+                    [new EntityWriteResult($categoryId, $payload, CategoryDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE)],
+                    $context,
                 ),
             ]),
             [],

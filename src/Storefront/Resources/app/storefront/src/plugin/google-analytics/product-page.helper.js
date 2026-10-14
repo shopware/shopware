@@ -1,4 +1,5 @@
 import Feature from 'src/helper/feature.helper';
+import ProductCategoryHelper from 'src/plugin/google-analytics/product-category.helper';
 
 /**
  * Helper for extracting product data from DOM on product pages (detail, listing, wishlist)
@@ -292,7 +293,12 @@ export default class ProductPageHelper {
                 return {};
             }
 
-            return ProductPageHelper.mapCategories(await response.json());
+            const resolved = ProductPageHelper.mapCategories(await response.json());
+
+            // the line item of the product carries no categories, so the cart and checkout read them from here
+            ProductCategoryHelper.remember(productId, resolved);
+
+            return resolved;
         } catch {
             return {};
         }

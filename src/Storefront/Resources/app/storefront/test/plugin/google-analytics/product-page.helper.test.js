@@ -1,5 +1,6 @@
 import Feature from 'src/helper/feature.helper';
 import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
+import ProductCategoryHelper from 'src/plugin/google-analytics/product-category.helper';
 
 describe('plugin/google-analytics/product-page.helper', () => {
     beforeEach(() => {
@@ -190,6 +191,15 @@ describe('plugin/google-analytics/product-page.helper', () => {
             await expect(ProductPageHelper.resolveCategories('product-1', document.querySelector('.buy')))
                 .resolves.toEqual({ item_category: 'Clothing', item_category2: 'Shirts' });
             expect(global.fetch).toHaveBeenCalledWith(`${url}?productId=product-1`, expect.anything());
+        });
+
+        test('keeps the requested path for the cart and checkout events', async () => {
+            window.activeRoute = 'frontend.home.page';
+            window.localStorage.clear();
+
+            await ProductPageHelper.resolveCategories('product-1');
+
+            expect(ProductCategoryHelper.get('product-1')).toEqual({ item_category: 'Clothing', item_category2: 'Shirts' });
         });
 
         test('requests the path of a product element on a detail page', async () => {

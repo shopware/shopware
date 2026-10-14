@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook\Authorization\Subscription;
 
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Acl\ApiCallerType;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 
@@ -30,35 +30,11 @@ final class Subscriber
     }
 
     /**
-     * An admin user creating a webhook through the Admin API.
+     * A user or integration creating a webhook through the Admin API.
      */
-    public static function admin(): self
+    public static function api(ApiCallerType $caller): self
     {
-        return new self(SubscriberType::Admin, null);
-    }
-
-    /**
-     * A non-admin user creating a webhook through the Admin API.
-     */
-    public static function user(): self
-    {
-        return new self(SubscriberType::User, null);
-    }
-
-    /**
-     * An integration creating a webhook through the Admin API.
-     */
-    public static function integration(): self
-    {
-        return new self(SubscriberType::Integration, null);
-    }
-
-    /**
-     * An app's integration creating a webhook through the Admin API.
-     */
-    public static function appIntegration(): self
-    {
-        return new self(SubscriberType::AppIntegration, null);
+        return new self(SubscriberType::of($caller), null);
     }
 
     /**
@@ -67,17 +43,5 @@ final class Subscriber
     public static function none(): self
     {
         return new self(SubscriberType::None, null);
-    }
-
-    /**
-     * Whoever creates a webhook through the Admin API: an admin, an integration or a non-admin user.
-     */
-    public static function fromSource(AdminApiSource $source): self
-    {
-        return match (true) {
-            $source->isAdmin() => self::admin(),
-            $source->getIntegrationId() !== null => self::integration(),
-            default => self::user(),
-        };
     }
 }

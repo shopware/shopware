@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\Api\Acl\AclRoles;
+use Shopware\Core\Framework\Api\Acl\ApiCallerType;
 use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
@@ -34,7 +35,7 @@ class PrivilegePolicyTest extends TestCase
         $policy = new PrivilegePolicy(static::createStub(AclRoleLoader::class));
 
         static::assertTrue($policy->handles('product.written'));
-        static::assertTrue($policy->permitsSubscription('product.written', Subscriber::user()));
+        static::assertTrue($policy->permitsSubscription('product.written', Subscriber::api(ApiCallerType::User)));
     }
 
     public function testUnrestrictedRolesAreNotChecked(): void

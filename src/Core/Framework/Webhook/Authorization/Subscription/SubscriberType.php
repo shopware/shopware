@@ -14,10 +14,8 @@ use Shopware\Core\Framework\Log\Package;
 enum SubscriberType
 {
     case App;
-    case Admin;
     case User;
     case Integration;
-    case AppIntegration;
     case None;
 
     public static function of(ApiCallerType $caller): self

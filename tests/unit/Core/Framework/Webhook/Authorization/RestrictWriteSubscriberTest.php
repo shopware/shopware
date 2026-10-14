@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\Api\Acl\AclRoles;
+use Shopware\Core\Framework\Api\Acl\ApiCallerType;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Context;
@@ -168,7 +169,7 @@ class RestrictWriteSubscriberTest extends TestCase
         $validator = $this->createMock(SubscriptionValidator::class);
         $validator->expects($this->once())
             ->method('validate')
-            ->with(['product.written' => 'product.written'], ['product:read', 'order:read', 'customer:read'], Subscriber::user())
+            ->with(['product.written' => 'product.written'], ['product:read', 'order:read', 'customer:read'], Subscriber::api(ApiCallerType::User))
             ->willReturn(new SubscriptionRefusals());
 
         (new RestrictWriteSubscriber($this->authorizer, $validator, $loader, $this->aclRoleLoader))->restrictSubscription($this->createPostEvent([$insert]));
@@ -202,7 +203,7 @@ class RestrictWriteSubscriberTest extends TestCase
         $validator = $this->createMock(SubscriptionValidator::class);
         $validator->expects($this->once())
             ->method('validate')
-            ->with(['order.written' => 'order.written'], ['order:read'], Subscriber::admin())
+            ->with(['order.written' => 'order.written'], ['order:read'], Subscriber::api(ApiCallerType::User))
             ->willReturn(new SubscriptionRefusals());
 
         $admin = new AdminApiSource(Uuid::randomHex());

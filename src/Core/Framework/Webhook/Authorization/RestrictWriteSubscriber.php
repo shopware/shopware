@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Webhook\Authorization;
 
 use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\Api\Acl\AclRoles;
+use Shopware\Core\Framework\Api\Acl\ApiCallerType;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
@@ -99,7 +100,7 @@ class RestrictWriteSubscriber implements EventSubscriberInterface
             $webhooks
         )))));
 
-        $subscriber = Subscriber::fromSource($source);
+        $subscriber = Subscriber::api(ApiCallerType::of($source));
 
         foreach ($webhooks as $webhook) {
             $command = $writes[$webhook->id];

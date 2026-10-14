@@ -217,7 +217,7 @@ jobs:
     strategy:
       matrix:
         target-branch: ${{ fromJSON(needs.parse-labels.outputs.target-branches) }}
-      fail-fast: true
+      fail-fast: false
     steps:
       - uses: shopware/octo-sts-action@main
         id: sts-shopware-backport
@@ -247,3 +247,43 @@ jobs:
           labels: >- # Inherit original labels, except backport and milestone ones
             ${{ needs.parse-labels.outputs.labels && join(fromJSON(needs.parse-labels.outputs.labels), ',') || '' }}
           dry-run: ${{ github.event.act && true || false }}
+
+      - name: Notify about failed backport
+        if: failure()
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          TARGET_BRANCH: ${{ matrix.target-branch }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          MERGED_BY: ${{ github.event.pull_request.merged_by && github.event.pull_request.merged_by.login || '' }}
+          ASSIGNEES: ${{ github.event.pull_request.assignees && join(github.event.pull_request.assignees.*.login, ',') || '' }}
+          ISSUE_OWNER: ${{ needs.find-linked-issue.outputs.owner }}
+          ISSUE_REPOSITORY: ${{ needs.find-linked-issue.outputs.repository }}
+          ISSUE_NUMBER: ${{ needs.find-linked-issue.outputs.number }}
+        with:
+          github-token: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts-shopware-backport.outputs.token }}
+          script: |
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const mentions = [...new Set([process.env.MERGED_BY, ...process.env.ASSIGNEES.split(',')].filter(Boolean))]
+              .map(login => `@${login}`)
+              .join(' ');
+            const body = [
+              `:x: Backport to \`${process.env.TARGET_BRANCH}\` failed, most likely due to merge conflicts. Please backport #${process.env.PR_NUMBER} manually.`,
+              `Workflow run: ${runUrl}`,
+              mentions ? `cc ${mentions}` : '',
+            ].filter(Boolean).join('\n\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt(process.env.PR_NUMBER),
+              body,
+            });
+
+            if (process.env.ISSUE_NUMBER) {
+              await github.rest.issues.createComment({
+                owner: process.env.ISSUE_OWNER,
+                repo: process.env.ISSUE_REPOSITORY,
+                issue_number: parseInt(process.env.ISSUE_NUMBER),
+                body,
+              });
+            }

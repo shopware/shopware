@@ -765,7 +765,7 @@ The `.hidden-line-items-information` element is only rendered for a sales channe
 
 ### Storefront analytics recognize product elements of extensions
 
-Storefront analytics now treat every element with a `data-product-information` attribute as a product element, not only elements with the `.product-box` class. Extensions that render products in their own markup are reported in `view_item_list`, `add_to_cart` and the wishlist events when the attribute holds a JSON object with at least the product `id`. The optional properties `sku`, `name`, `brand` and `price` fill the GA4 item. On a product detail page, adding a cross selling or slider product to the cart reports that product instead of the product of the page.
+Storefront analytics now treat every element with a `data-product-information` attribute as a product, not only the `.product-box`. Products that extensions render in their own markup are reported as well. The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html#products) describes the expected attribute.
 
 ### Essential characteristics label custom fields with their snippet
 

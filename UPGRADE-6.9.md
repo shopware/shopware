@@ -92,3 +92,41 @@ The legacy document services and components in the Administration were removed:
 
 - `DocumentApiService` (including `DocumentEvents`). Use the v2 Admin API routes (`/api/_action/order/document-v2/*`) instead.
 - The legacy document modals and their component registrations: `sw-order-document-settings-modal`, `sw-order-document-settings-invoice-modal`, `sw-order-document-settings-credit-note-modal`, `sw-order-document-settings-delivery-note-modal`, `sw-order-document-settings-storno-modal`, and `sw-order-select-document-type-modal`.
+
+# Storefront
+
+## Removed `category_url` and `category_linknewtab` Twig functions
+
+The `category_url` and `category_linknewtab` Twig functions have been removed.
+Use `category.seoUrl` instead of `category_url` and `category.shouldOpenInNewTab` instead of `category_linknewtab`.
+
+The `seoUrl` property is only available on `SalesChannelCategoryEntity`. If a template receives a plain `CategoryEntity`, update the data-loading code to load categories in the sales channel context and pass `SalesChannelCategoryEntity` instances to the template.
+
+```diff
+<a class="link"
+-   href="{{ category_url(item) }}"
++   href="{{ item.seoUrl }}"
+-   {% if category_linknewtab(item) %}target="_blank"{% endif %}
++   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
+</a>
+## `$tc` and the vue-i18n 8 argument order removed
+
+The deprecated translation helpers `$tc()` and `Shopware.Snippet.tc()` were removed. Use `$t()` and `Shopware.Snippet.t()` instead, which handle pluralization natively.
+
+The vue-i18n 8 argument order `$t(key, plural, namedParameters)` is no longer converted. Pass the named parameters before the plural count:
+
+```js
+// Before
+this.$tc('sw-product.list.messageDelete', count, { name });
+
+// After
+this.$t('sw-product.list.messageDelete', { name }, count);
+```
+
+The vue-i18n 8 locale argument of `$tc(key, plural, locale)` is no option of `$t()`. Pass it as `$t(key, plural, { locale })`, or as `$t(key, namedParameters, { plural, locale })` together with named parameters.
+
+The ESLint rule `sw-core-rules/no-tc-translation` of the Administration extension tooling fixes these automatically in scripts, Vue templates, and bound attributes of Twig templates. `{{ }}` interpolations in `.html.twig` templates are not checked. Calls whose named parameters are no object literal or contain spread or computed keys, e.g. `$t(key, 1, params)` or `$t(key, 1, { ...params })`, are reported and have to be migrated manually:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```

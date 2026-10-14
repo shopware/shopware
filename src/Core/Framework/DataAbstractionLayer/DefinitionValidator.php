@@ -126,6 +126,7 @@ class DefinitionValidator
         'consent_log',
         'mcp_tool_result_cache',
         'mcp_toolset_session',
+        'mcp_list_version',
         'webhook_delivery',
         'webhook_stream',
     ];
@@ -1361,7 +1362,7 @@ class DefinitionValidator
     private function getShortClassName(EntityDefinition $definition): string
     {
         if ($definition instanceof AttributeEntityDefinition) {
-            return lcfirst((string) preg_replace('/^.*\\\\|Entity$/', '', $definition->getEntityClass()));
+            return lcfirst((string) preg_replace('/^.*\\\\|Entity$/D', '', $definition->getEntityClass()));
         }
 
         return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass()));

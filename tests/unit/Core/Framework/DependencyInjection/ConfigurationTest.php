@@ -91,6 +91,7 @@ class ConfigurationTest extends TestCase
         yield 'incomplete version' => ['v6.8.0'];
         yield 'patch version' => ['v6.8.1.0'];
         yield 'environment variable name' => ['V6_8_0_0'];
+        yield 'trailing newline' => ["v6.8.0.0\n"];
     }
 
     #[DataProvider('invalidParentMajorDataProvider')]

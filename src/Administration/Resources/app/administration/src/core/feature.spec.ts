@@ -2,7 +2,12 @@
  * @sw-package framework
  */
 
-import Feature from 'src/core/feature';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { parse } from 'yaml';
+
+import Feature, { UNREGISTERED_UPCOMING_MAJORS } from 'src/core/feature';
+import normalizeFeatureFlag from 'test/_helper_/normalizeFeatureFlag';
 
 describe('src/core/feature', () => {
     const originalFlags = { ...Feature.flags };
@@ -36,6 +41,29 @@ describe('src/core/feature', () => {
                 '[Deprecation]',
                 'typoMethod() is deprecated.\nNote: this deprecation has a typo: "V6_8_0" is an unknown feature flag. Please fix it.',
             );
+        });
+
+        it('warns instead of the error for an upcoming major the backend does not register yet', () => {
+            const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+            const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            Feature.triggerDeprecationOrThrow('V6_9_0_0', 'upcomingMethod() is deprecated.');
+
+            expect(error).not.toHaveBeenCalled();
+            expect(warn).toHaveBeenCalledWith('[Deprecation]', 'upcomingMethod() is deprecated.');
+        });
+
+        it('lists only upcoming majors the backend does not register yet', () => {
+            const featureConfig = parse(
+                readFileSync(
+                    resolve(process.env.ADMIN_PATH!, '../../../../Core/Framework/Resources/config/packages/feature.yaml'),
+                    'utf8',
+                ),
+            ) as { shopware: { feature: { flags: Array<{ name: string }> } } };
+            const registeredFlags = featureConfig.shopware.feature.flags.map(({ name }) => normalizeFeatureFlag(name));
+
+            expect(registeredFlags).toContain('V6_8_0_0');
+            expect(UNREGISTERED_UPCOMING_MAJORS.filter((flag) => registeredFlags.includes(flag))).toEqual([]);
         });
 
         it('warns once per message while the major flag is inactive', () => {

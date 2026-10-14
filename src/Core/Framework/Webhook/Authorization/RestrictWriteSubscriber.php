@@ -112,7 +112,7 @@ class RestrictWriteSubscriber implements EventSubscriberInterface
             $aclRoleIds = Json::decodeToList($aclRoleIds);
             if ($aclRoleIds === []) {
                 $message = 'aclRoleIds must not be empty. Leave it out to use all of the owner\'s roles.';
-            } elseif (\in_array(null, $aclRoleIds, true) || \in_array('', $aclRoleIds, true)) {
+            } elseif (array_filter($aclRoleIds) !== $aclRoleIds) {
                 $message = 'aclRoleIds must not contain empty entries.';
             } else {
                 continue;

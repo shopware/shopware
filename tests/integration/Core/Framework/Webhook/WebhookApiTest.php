@@ -287,7 +287,7 @@ class WebhookApiTest extends TestCase
 
     public function testEmptyAclRoleEntriesAreRejected(): void
     {
-        $webhookId = $this->createWebhookWithAclRoles('product.written', [$this->createAclRole(['product:read']), null, '']);
+        $webhookId = $this->createWebhookWithAclRoles('product.written', [$this->createAclRole(['product:read']), null, '', '0']);
 
         $this->assertApiErrors([[
             'code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION',

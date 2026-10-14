@@ -139,7 +139,7 @@ class RestrictWriteSubscriberTest extends TestCase
 
     public function testEmptyAclRoleEntriesAreRejected(): void
     {
-        $event = $this->createEvent([$this->insertWebhook(aclRoleIds: ['role', ''])]);
+        $event = $this->createEvent([$this->insertWebhook(aclRoleIds: ['role', '', '0'])]);
         $this->createSubscriber()->validate($event);
 
         $this->assertAclRoleIdsViolation($event, 'aclRoleIds must not contain empty entries.');

@@ -217,7 +217,7 @@ class RestrictWriteSubscriber implements EventSubscriberInterface
 
     /**
      * The roles each webhook will act with: its owner's roles, limited to its aclRoleIds when set. A webhook whose
-     * written aclRoleIds lists a role its owner does not hold is rejected.
+     * written aclRoleIds lists a role that does not exist or that its owner does not hold is rejected.
      *
      * @param array<string, WriteCommand> $commands keyed by webhook id
      * @param array<string, WebhookSubscription> $written keyed by webhook id
@@ -227,6 +227,11 @@ class RestrictWriteSubscriber implements EventSubscriberInterface
     private function rejectRolesNotHeld(PreWriteValidationEvent $event, array $commands, array $written): array
     {
         $ownerRoles = $this->aclRoleLoader->getRoles(array_column($written, 'ownerId'));
+        $listedRoleIds = array_merge(...array_map(
+            static fn (WebhookSubscription $webhook): array => $webhook->aclRoleIds ?? [],
+            array_values($written)
+        ));
+        $existingRoleIds = $listedRoleIds !== [] ? array_keys($this->aclRoleLoader->getPrivilegesForRoles($listedRoleIds)) : [];
 
         $webhookRoles = [];
         foreach ($written as $webhookId => $webhook) {
@@ -239,9 +244,10 @@ class RestrictWriteSubscriber implements EventSubscriberInterface
                 $roles = $roles->intersect($webhook->aclRoleIds);
             }
 
-            $notHeld = array_values(array_unique(array_diff($webhook->aclRoleIds ?? [], $roles->roleIds)));
-            if ($notHeld !== [] && $commands[$webhookId]->hasField('acl_role_ids')) {
-                $event->getExceptions()->add(self::aclRolesNotHeld($commands[$webhookId], $notHeld));
+            $unknown = array_values(array_unique(array_diff($webhook->aclRoleIds ?? [], $existingRoleIds)));
+            $notHeld = array_values(array_unique(array_diff($webhook->aclRoleIds ?? [], $roles->roleIds, $unknown)));
+            if (($unknown !== [] || $notHeld !== []) && $commands[$webhookId]->hasField('acl_role_ids')) {
+                $event->getExceptions()->add(self::aclRolesRejected($commands[$webhookId], $unknown, $notHeld));
 
                 continue;
             }
@@ -253,23 +259,32 @@ class RestrictWriteSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param list<string> $roleIds
+     * @param list<string> $unknown
+     * @param list<string> $notHeld
      */
-    private static function aclRolesNotHeld(WriteCommand $command, array $roleIds): WriteConstraintViolationException
+    private static function aclRolesRejected(WriteCommand $command, array $unknown, array $notHeld): WriteConstraintViolationException
     {
-        return new WriteConstraintViolationException(
-            new ConstraintViolationList(array_map(
-                static fn (string $roleId): ConstraintViolation => new ConstraintViolation(
-                    \sprintf('Role "%s" is not held by the webhook\'s owner.', $roleId),
-                    'Role "{{ roleId }}" is not held by the webhook\'s owner.',
-                    ['{{ roleId }}' => $roleId],
-                    null,
-                    '/aclRoleIds',
-                    $roleId,
-                ),
-                $roleIds
-            )),
-            $command->getPath()
+        $violations = new ConstraintViolationList();
+        foreach ($unknown as $roleId) {
+            $violations->add(self::aclRoleViolation('Role "{{ roleId }}" does not exist.', $roleId));
+        }
+
+        foreach ($notHeld as $roleId) {
+            $violations->add(self::aclRoleViolation('Role "{{ roleId }}" is not held by the webhook\'s owner.', $roleId));
+        }
+
+        return new WriteConstraintViolationException($violations, $command->getPath());
+    }
+
+    private static function aclRoleViolation(string $template, string $roleId): ConstraintViolation
+    {
+        return new ConstraintViolation(
+            str_replace('{{ roleId }}', $roleId, $template),
+            $template,
+            ['{{ roleId }}' => $roleId],
+            null,
+            '/aclRoleIds',
+            $roleId,
         );
     }
 

@@ -41,22 +41,4 @@ class UpdateExceptionTest extends TestCase
         static::assertSame('FRAMEWORK__UPDATE_CLUSTER_SETUP_NOT_SUPPORTED', $exception->getErrorCode());
         static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
     }
-
-    public function testMissingUser(): void
-    {
-        $exception = UpdateException::missingUser();
-
-        static::assertSame('The current request does not contain a valid user', $exception->getMessage());
-        static::assertSame('FRAMEWORK__UPDATE_MISSING_USER', $exception->getErrorCode());
-        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-    }
-
-    public function testMissingVersion(): void
-    {
-        $exception = UpdateException::missingVersion();
-
-        static::assertSame('The request is missing a valid version parameter', $exception->getMessage());
-        static::assertSame('FRAMEWORK__UPDATE_MISSING_VERSION', $exception->getErrorCode());
-        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-    }
 }

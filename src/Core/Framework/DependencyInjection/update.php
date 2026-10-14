@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Update\Api\UpdateController;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
 use Shopware\Core\Framework\Update\Services\SecurityReleaseDetector;
-use Shopware\Core\Framework\Update\Services\SecurityReleaseDismissalService;
 use Shopware\Core\Framework\Update\Services\UpdateHtaccess;
 use Shopware\Core\Framework\Update\Subscriber\UpdateSubscriber;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -33,7 +32,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service(ExtensionLifecycleService::class),
             service(SecurityReleaseDetector::class),
-            service(SecurityReleaseDismissalService::class),
             param('kernel.shopware_version'),
             param('shopware.auto_update.enabled'),
             param('shopware.auto_update.hide_module'),
@@ -52,12 +50,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(SecurityReleaseDetector::class);
-
-    $services->set(SecurityReleaseDismissalService::class)
-        ->args([
-            service('user_config.repository'),
-            service(ClockInterface::class),
-        ]);
 
     $services->set(ExtensionCompatibility::class)
         ->args([

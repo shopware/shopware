@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Update\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
 use Shopware\Core\Framework\Update\Services\SecurityReleaseDetector;
-use Shopware\Core\Framework\Update\Services\SecurityReleaseDismissalService;
 use Shopware\Core\Framework\Update\Struct\SecurityRelease;
 use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\Framework\Update\UpdateException;
@@ -49,7 +47,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.5.1.0'
         );
 
@@ -76,7 +73,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0'
         );
 
@@ -103,7 +99,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0.0',
             shopwareUpdateEnabled: false,
         );
@@ -168,7 +163,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0'
         );
 
@@ -193,7 +187,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0'
         );
 
@@ -223,7 +216,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0'
         );
 
@@ -274,7 +266,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0'
         );
 
@@ -315,7 +306,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0.0',
             clusterSetup: true,
         );
@@ -339,7 +329,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0',
             clusterSetup: true,
         );
@@ -362,7 +351,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0',
             shopwareUpdateEnabled: false,
         );
@@ -385,7 +373,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0',
             shopwareUpdateEnabled: false,
         );
@@ -408,7 +395,6 @@ class UpdateControllerTest extends TestCase
             $systemConfig,
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0',
             shopwareUpdateEnabled: false,
         );
@@ -426,7 +412,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0',
             updateModuleHidden: true,
         );
@@ -462,11 +447,10 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0'
         );
 
-        $response = $updateController->securityRelease(Context::createDefaultContext());
+        $response = $updateController->securityRelease();
 
         static::assertSame('{}', (string) $response->getContent());
     }
@@ -489,11 +473,10 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             $detector,
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0'
         );
 
-        $response = $updateController->securityRelease(Context::createDefaultContext());
+        $response = $updateController->securityRelease();
 
         static::assertSame('{}', (string) $response->getContent());
     }
@@ -514,9 +497,6 @@ class UpdateControllerTest extends TestCase
         $detector = static::createStub(SecurityReleaseDetector::class);
         $detector->method('detect')->willReturn($securityRelease);
 
-        $dismissalService = static::createStub(SecurityReleaseDismissalService::class);
-        $dismissalService->method('isDismissedByUser')->willReturn(false);
-
         $updateController = new UpdateController(
             $apiClient,
             static::createStub(StoreClient::class),
@@ -525,66 +505,16 @@ class UpdateControllerTest extends TestCase
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             $detector,
-            $dismissalService,
             '6.1.0'
         );
 
-        $context = new Context(new AdminApiSource('user-id'));
-        $response = $updateController->securityRelease($context);
+        $response = $updateController->securityRelease();
 
         $content = (string) $response->getContent();
         static::assertJson($content);
         static::assertStringContainsString('"isSecurityRelease":true', $content);
         static::assertStringContainsString('"version":"6.2.0"', $content);
         static::assertStringContainsString('"highestSeverity":"critical"', $content);
-        static::assertStringContainsString('"dismissedByUser":false', $content);
-    }
-
-    public function testDismissSecurityReleaseStoresDismissal(): void
-    {
-        $dismissalService = $this->createMock(SecurityReleaseDismissalService::class);
-        $dismissalService->expects($this->once())->method('dismiss')->with('user-id', '6.2.0', static::anything());
-
-        $updateController = new UpdateController(
-            static::createStub(ApiClient::class),
-            static::createStub(StoreClient::class),
-            static::createStub(ExtensionCompatibility::class),
-            static::createStub(EventDispatcherInterface::class),
-            static::createStub(SystemConfigService::class),
-            static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
-            $dismissalService,
-            '6.1.0'
-        );
-
-        $request = new Request([], ['version' => '6.2.0']);
-        $context = new Context(new AdminApiSource('user-id'));
-
-        $response = $updateController->dismissSecurityRelease($request, $context);
-
-        static::assertInstanceOf(NoContentResponse::class, $response);
-    }
-
-    public function testDismissSecurityReleaseThrowsOnMissingVersion(): void
-    {
-        $updateController = new UpdateController(
-            static::createStub(ApiClient::class),
-            static::createStub(StoreClient::class),
-            static::createStub(ExtensionCompatibility::class),
-            static::createStub(EventDispatcherInterface::class),
-            static::createStub(SystemConfigService::class),
-            static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
-            '6.1.0'
-        );
-
-        $request = new Request();
-        $context = new Context(new AdminApiSource('user-id'));
-
-        $this->expectExceptionObject(UpdateException::missingVersion());
-
-        $updateController->dismissSecurityRelease($request, $context);
     }
 
     private function createController(?StoreClient $storeClient = null, ?SystemConfigService $systemConfig = null): UpdateController
@@ -597,7 +527,6 @@ class UpdateControllerTest extends TestCase
             $systemConfig ?? static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             static::createStub(SecurityReleaseDetector::class),
-            static::createStub(SecurityReleaseDismissalService::class),
             '6.1.0'
         );
     }

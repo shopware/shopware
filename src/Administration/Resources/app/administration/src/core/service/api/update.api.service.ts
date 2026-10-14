@@ -16,7 +16,6 @@ export interface SecurityReleaseResponse {
     highestSeverity: string;
     totalVulnerabilities: number;
     vulnerabilities: Array<{ severity: string; summary: string; link: string }>;
-    dismissedByUser: boolean;
 }
 
 /**
@@ -55,16 +54,6 @@ export default class UpdateService extends ApiService {
             .get<SecurityReleaseResponse>(`/_action/${this.getApiBasePath()}/security-release`, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response) as SecurityReleaseResponse | null;
-            });
-    }
-
-    dismissSecurityRelease(version: string) {
-        const headers = this.getBasicHeaders();
-
-        return this.httpClient
-            .post<unknown>(`/_action/${this.getApiBasePath()}/security-release/dismiss`, { version }, { headers })
-            .then((response) => {
-                return ApiService.handleResponse(response);
             });
     }
 

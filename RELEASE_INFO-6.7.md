@@ -606,7 +606,7 @@ The binding is ordinary base state: private unless listed in `swDefinePublic({ .
 `defineModel()` stays rejected in an override component, which declares neither props nor emits. Base components can use Vue's conventional binding names, including `const title = defineModel('title')` and `[modelValue, modelModifiers] = defineModel()`.
 ### Dashboard shows persistent security release banner
 
-The dashboard now displays a persistent banner when a new Shopware security release is available. It highlights the version, the number of fixed vulnerabilities, and the highest severity, and offers a direct link to the update wizard or the release notes. Each administration user can acknowledge the banner; the acknowledgement is stored per user, so other users still see it until they acknowledge it themselves.
+The dashboard now displays a persistent banner when a new Shopware security release is available. It highlights the version, the number of fixed vulnerabilities, and the highest severity, and offers a direct link to the update wizard or the release notes. The banner disappears automatically once the shop is updated to a version that is no longer affected.
 
 ### [Internal] Native `<sw-block>` names are isolated per component
 

@@ -29,8 +29,6 @@ class SecurityRelease extends Struct
      */
     public array $vulnerabilities = [];
 
-    public bool $dismissedByUser = false;
-
     public function __construct()
     {
         $this->date = Clock::get()->now();

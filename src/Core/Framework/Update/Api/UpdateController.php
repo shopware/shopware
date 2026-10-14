@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Update\Api;
 
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
 use Shopware\Core\Framework\Update\Services\SecurityReleaseDetector;
-use Shopware\Core\Framework\Update\Services\SecurityReleaseDismissalService;
 use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep;
 use Shopware\Core\Framework\Update\UpdateException;
 use Shopware\Core\PlatformRequest;
@@ -48,7 +46,6 @@ class UpdateController extends AbstractController
         private readonly SystemConfigService $systemConfig,
         private readonly AbstractExtensionLifecycle $extensionLifecycleService,
         private readonly SecurityReleaseDetector $securityReleaseDetector,
-        private readonly SecurityReleaseDismissalService $dismissalService,
         private readonly string $shopwareVersion,
         private readonly bool $shopwareUpdateEnabled = true,
         private readonly bool $updateModuleHidden = false,
@@ -85,7 +82,7 @@ class UpdateController extends AbstractController
         defaults: [PlatformRequest::ATTRIBUTE_ACL => []],
         methods: [Request::METHOD_GET]
     )]
-    public function securityRelease(Context $context): JsonResponse
+    public function securityRelease(): JsonResponse
     {
         $update = $this->apiClient->checkForUpdates();
 
@@ -99,39 +96,7 @@ class UpdateController extends AbstractController
             return new JsonResponse();
         }
 
-        $source = $context->getSource();
-        if ($source instanceof AdminApiSource && $source->getUserId() !== null) {
-            $securityRelease->dismissedByUser = $this->dismissalService->isDismissedByUser(
-                $source->getUserId(),
-                $securityRelease->version,
-                $context
-            );
-        }
-
         return new JsonResponse($securityRelease->jsonSerialize());
-    }
-
-    #[Route(
-        path: '/api/_action/update/security-release/dismiss',
-        name: 'api.custom.updateapi.security_release.dismiss',
-        defaults: [PlatformRequest::ATTRIBUTE_ACL => []],
-        methods: [Request::METHOD_POST]
-    )]
-    public function dismissSecurityRelease(Request $request, Context $context): Response
-    {
-        $source = $context->getSource();
-        if (!$source instanceof AdminApiSource || $source->getUserId() === null) {
-            throw UpdateException::missingUser();
-        }
-
-        $version = $request->request->get('version');
-        if (!\is_string($version) || $version === '') {
-            throw UpdateException::missingVersion();
-        }
-
-        $this->dismissalService->dismiss($source->getUserId(), $version, $context);
-
-        return new NoContentResponse();
     }
 
     #[Route(

@@ -6,14 +6,12 @@ import type { SecurityReleaseResponse } from 'src/core/service/api/update.api.se
 
 interface WrapperOptions {
     getSecurityRelease?: () => Promise<SecurityReleaseResponse | null>;
-    dismissSecurityRelease?: () => Promise<unknown>;
     canUpdate?: boolean;
     hideUpdateModule?: boolean;
 }
 
 function createWrapper({
     getSecurityRelease = () => Promise.resolve(null),
-    dismissSecurityRelease = () => Promise.resolve(),
     canUpdate = true,
     hideUpdateModule = false,
 }: WrapperOptions = {}) {
@@ -26,7 +24,6 @@ function createWrapper({
                 provide: {
                     updateService: {
                         getSecurityRelease,
-                        dismissSecurityRelease,
                     },
                     acl: {
                         can: () => canUpdate,
@@ -99,7 +96,6 @@ describe('module/sw-dashboard/component/sw-dashboard-security-release', () => {
                     highestSeverity: 'critical',
                     totalVulnerabilities: 2,
                     vulnerabilities: [],
-                    dismissedByUser: false,
                 }),
         });
         await flushPromises();
@@ -120,7 +116,6 @@ describe('module/sw-dashboard/component/sw-dashboard-security-release', () => {
                     highestSeverity: 'critical',
                     totalVulnerabilities: 1,
                     vulnerabilities: [],
-                    dismissedByUser: false,
                 }),
         });
         await flushPromises();
@@ -140,7 +135,6 @@ describe('module/sw-dashboard/component/sw-dashboard-security-release', () => {
                     highestSeverity: 'medium',
                     totalVulnerabilities: 1,
                     vulnerabilities: [],
-                    dismissedByUser: false,
                 }),
         });
         await flushPromises();
@@ -148,35 +142,5 @@ describe('module/sw-dashboard/component/sw-dashboard-security-release', () => {
         expect(
             wrapper.findAll('.mt-button').some((button) => button.text() === 'sw-dashboard.securityRelease.updateNow'),
         ).toBe(false);
-    });
-
-    it('dismisses the banner and calls the service', async () => {
-        const dismissSecurityRelease = jest.fn().mockResolvedValue(undefined);
-        const wrapper = createWrapper({
-            dismissSecurityRelease,
-            getSecurityRelease: () =>
-                Promise.resolve({
-                    isSecurityRelease: true,
-                    version: '6.7.1.0',
-                    title: 'Shopware 6.7.1.0',
-                    date: '2026-10-13T00:00:00+00:00',
-                    highestSeverity: 'medium',
-                    totalVulnerabilities: 1,
-                    vulnerabilities: [],
-                    dismissedByUser: false,
-                }),
-        });
-        await flushPromises();
-
-        const acknowledgeButton = wrapper
-            .findAll('.mt-button')
-            .find((button) => button.text() === 'sw-dashboard.securityRelease.acknowledge');
-        expect(acknowledgeButton).toBeDefined();
-
-        await acknowledgeButton!.trigger('click');
-        await flushPromises();
-
-        expect(dismissSecurityRelease).toHaveBeenCalledWith('6.7.1.0');
-        expect(wrapper.find('.mt-banner').exists()).toBe(false);
     });
 });

@@ -25,11 +25,7 @@ export default Component.wrapComponentConfig({
 
     computed: {
         isVisible(): boolean {
-            return (
-                this.securityRelease !== null &&
-                this.securityRelease.isSecurityRelease &&
-                !this.securityRelease.dismissedByUser
-            );
+            return this.securityRelease !== null && this.securityRelease.isSecurityRelease;
         },
 
         bannerVariant(): 'critical' | 'attention' {
@@ -74,19 +70,6 @@ export default Component.wrapComponentConfig({
                 this.securityRelease = null;
             } finally {
                 this.isLoading = false;
-            }
-        },
-
-        async dismiss() {
-            if (!this.securityRelease) {
-                return;
-            }
-
-            try {
-                await this.updateService.dismissSecurityRelease(this.securityRelease.version);
-                this.securityRelease.dismissedByUser = true;
-            } catch {
-                // Silently ignore: the banner stays visible if the dismiss request failed.
             }
         },
 

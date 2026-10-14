@@ -3,10 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Maintenance\SalesChannel\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelListCommand;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -51,6 +54,47 @@ class SalesChannelListCommandTest extends TestCase
 
 ';
         static::assertSame(\sprintf($output, $id), preg_replace('/ +$/m', '', $commandTester->getDisplay()));
+    }
+
+    /**
+     * @param list<string> $expectedLines
+     */
+    #[DataProvider('domainSeparatorProvider')]
+    public function testDomainsAreListedSeparately(string $format, array $expectedLines): void
+    {
+        $id = Uuid::randomHex();
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setUniqueIdentifier($id);
+        $salesChannel->setId($id);
+        $salesChannel->setActive(true);
+        $salesChannel->setMaintenance(false);
+        $salesChannel->setDomains(new SalesChannelDomainCollection(array_map(static function (string $url): SalesChannelDomainEntity {
+            $domain = new SalesChannelDomainEntity();
+            $domain->setId(Uuid::randomHex());
+            $domain->setUrl($url);
+
+            return $domain;
+        }, ['http://a.test', 'http://b.test'])));
+
+        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection([$salesChannel])], new SalesChannelDefinition());
+
+        $commandTester = new CommandTester(new SalesChannelListCommand($salesChannelRepository));
+        $commandTester->execute(['--format' => $format]);
+
+        $commandTester->assertCommandIsSuccessful();
+        foreach ($expectedLines as $expectedLine) {
+            static::assertMatchesRegularExpression($expectedLine, $commandTester->getDisplay());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string, list<string>}>
+     */
+    public static function domainSeparatorProvider(): iterable
+    {
+        yield 'table' => ['table', ['/^  [0-9a-f]{32} .* http:\/\/a\.test +$/m', '/^ +http:\/\/b\.test +$/m']];
+        yield 'markdown' => ['markdown', ['/^\| [0-9a-f]{32} \|.*\| http:\/\/a\.test<br>http:\/\/b\.test \|$/m']];
     }
 
     public function testFormatJsonOutput(): void

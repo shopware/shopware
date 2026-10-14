@@ -33,6 +33,8 @@ class AclRoleLoader
             return [];
         }
 
+        $ids = array_values(array_unique($ids));
+
         $userRows = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(u.id)) as id, u.admin as isAdmin, LOWER(HEX(ur.acl_role_id)) as roleId
              FROM user u

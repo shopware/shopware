@@ -429,6 +429,11 @@ Both are experimental and become stable with 6.8.0.
 ### GLB uploads with external references are rejected
 
 GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_INVALID_FILE` if it is not a valid binary glTF 2.0 container or if the `uri` of a buffer or image points to something other than an embedded `data:` URI. Self-contained models, which keep their buffers and textures in the binary chunk, are not affected and URLs in other fields such as `extras` or `asset.copyright` are still allowed.
+### `ProductCartDataContextHashEvent` for state that product cart data depends on
+
+The data context hash of the cart products only covers the sales channel context and the tax rules.
+The cart reloads product data only when this hash changes, so extensions whose product data or prices depend on other state get stale cart data.
+Listeners can add parts to this event to include additional state in the hash for every state outside the sales channel context to force a reload of product data when that state changes.
 
 ### Apps without permissions can't declare required privileges for MCP tools
 

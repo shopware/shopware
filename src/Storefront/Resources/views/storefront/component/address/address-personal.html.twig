@@ -156,7 +156,7 @@
     {% endblock %}
 
     {% block component_address_personal_fields_name %}
-        {% set businessType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
+        {% set ACCOUNT_TYPE_BUSINESS = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
 
         {% set showSetting = config('core.loginRegistration.showNameFieldsForCompanyAccounts') %}
         {% set requiredSetting = config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts') %}
@@ -164,8 +164,8 @@
         {% set companyNameFieldsRequired = companyNameFieldsShown and (requiredSetting is null ? true : requiredSetting) %}
 
         {% set accountTypeSelectable = config('core.loginRegistration.showAccountTypeSelection') %}
-        {% set loggedInCustomerIsCompany = context.customer is defined and context.customer and context.customer.accountType == businessType %}
-        {% set customerIsCompany = accountType|default('') == businessType or loggedInCustomerIsCompany %}
+        {% set loggedInCustomerIsCompany = context.customer is defined and context.customer and context.customer.accountType == ACCOUNT_TYPE_BUSINESS %}
+        {% set customerIsCompany = accountType|default('') == ACCOUNT_TYPE_BUSINESS or loggedInCustomerIsCompany %}
 
         {% set isSeparateShippingAddress = prefix|default('') == 'shippingAddress' %}
 

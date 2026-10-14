@@ -147,11 +147,10 @@ class SalesChannelListCommand extends Command
     private function renderTable(SymfonyStyle $io, string $format, array $data): int
     {
         // Normalize data
-        $domainSeparator = $format === self::FORMAT_MARKDOWN ? '<br>' : "\n";
         foreach ($data as $rowKey => $row) {
             foreach ($row as $columnKey => $column) {
                 if (\is_array($column)) {
-                    $data[$rowKey][$columnKey] = implode(self::$headers[$columnKey] === 'Domains' ? $domainSeparator : ', ', $column);
+                    $data[$rowKey][$columnKey] = implode(self::$headers[$columnKey] === 'Domains' ? "\n" : ', ', $column);
                 }
             }
         }

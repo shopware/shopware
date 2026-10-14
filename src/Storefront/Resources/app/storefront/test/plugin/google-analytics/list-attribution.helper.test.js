@@ -45,6 +45,15 @@ describe('plugin/google-analytics/list-attribution.helper', () => {
             });
         });
 
+        test('reports an empty list id or name as missing', () => {
+            document.body.innerHTML = '<div data-list-id="" data-list-name=""><div class="product-box"></div></div>';
+
+            expect(ListAttributionHelper.getListFromElement(document.querySelector('.product-box'))).toEqual({
+                item_list_id: undefined,
+                item_list_name: undefined,
+            });
+        });
+
         test('returns no list outside of any list', () => {
             document.body.innerHTML = '<div class="product-box"></div>';
 
@@ -149,6 +158,14 @@ describe('plugin/google-analytics/list-attribution.helper', () => {
             ListAttributionHelper.consume('SW10000');
 
             expect(window.localStorage.getItem('swGaSelectedItemLists')).toBeNull();
+        });
+
+        test('returns no list for a stored selection without one', () => {
+            window.localStorage.setItem('swGaSelectedItemLists', JSON.stringify([
+                { itemId: 'SW10000', expires: Date.now() + 60000 },
+            ]));
+
+            expect(ListAttributionHelper.consume('SW10000')).toEqual({});
         });
 
         test('treats an unreadable storage entry as empty', () => {

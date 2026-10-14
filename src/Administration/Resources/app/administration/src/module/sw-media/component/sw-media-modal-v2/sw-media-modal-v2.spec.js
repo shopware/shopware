@@ -120,6 +120,16 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
         expect(wrapper.find('.sw-media-modal-v2__uploads-content').attributes('style')).not.toBe('display: none;');
     });
 
+    it('should clear the selection when the sidebar emits media-item-selection-clear', async () => {
+        await wrapper.setData({
+            selection: [{ id: 'first-media' }, { id: 'second-media' }],
+        });
+
+        await wrapper.findComponent('sw-media-sidebar-stub').vm.$emit('media-item-selection-clear');
+
+        expect(wrapper.vm.selection).toEqual([]);
+    });
+
     it('should disable the library item in meteor tabs when uploads exist', async () => {
         wrapper = await createWrapper({ featureActive: true });
 

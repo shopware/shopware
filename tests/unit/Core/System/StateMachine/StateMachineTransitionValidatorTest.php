@@ -13,9 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionDefinition;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
@@ -46,48 +46,24 @@ class StateMachineTransitionValidatorTest extends TestCase
         $this->definition = $definitionRegistry->get(StateMachineTransitionDefinition::class);
     }
 
-    public function testInsertConflictingWithExistingTransitionIsRejected(): void
+    public function testNoSubscribersInMajorMode(): void
     {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchOne')->willReturn('1');
-        $validator = new StateMachineTransitionValidator($connection);
-
-        $event = $this->createEvent([
-            $this->createInsertCommand(Uuid::randomBytes(), 'authorize'),
-        ]);
-
-        $validator->preValidate($event);
-
-        $exceptions = $event->getExceptions()->getExceptions();
-        static::assertCount(1, $exceptions);
-        static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
-        static::assertSame(
-            StateMachineTransitionValidator::VIOLATION_DUPLICATE_TRANSITION,
-            $exceptions[0]->getViolations()->get(0)->getCode()
-        );
+        static::assertSame([], StateMachineTransitionValidator::getSubscribedEvents());
     }
 
-    public function testDuplicateTransitionsWithinOneWriteAreRejected(): void
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the major feature flag.
+     */
+    public function testDirectInvocationThrowsInMajorMode(): void
     {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchOne')->willReturn(false);
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchOne');
         $validator = new StateMachineTransitionValidator($connection);
-
-        $stateMachineId = Uuid::randomBytes();
-        $fromStateId = Uuid::randomBytes();
-        $event = $this->createEvent([
-            $this->createInsertCommand(Uuid::randomBytes(), 'authorize', $stateMachineId, $fromStateId),
-            $this->createInsertCommand(Uuid::randomBytes(), 'authorize', $stateMachineId, $fromStateId),
-        ]);
-
-        $validator->preValidate($event);
-
-        $exceptions = $event->getExceptions()->getExceptions();
-        static::assertCount(1, $exceptions);
-        static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
-        static::assertCount(1, $exceptions[0]->getViolations());
+        $this->expectException(FeatureException::class);
+        $validator->preValidate($this->createEvent([]));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testInsertWithoutConflictIsAccepted(): void
     {
         $connection = static::createStub(Connection::class);
@@ -103,7 +79,8 @@ class StateMachineTransitionValidatorTest extends TestCase
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
-    public function testUpdateChangingActionNameIntoConflictIsRejected(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testUpdateChangingActionNameIntoConflictIsDeprecated(): void
     {
         $id = Uuid::randomBytes();
         $connection = static::createStub(Connection::class);
@@ -127,9 +104,10 @@ class StateMachineTransitionValidatorTest extends TestCase
 
         $validator->preValidate($event);
 
-        static::assertCount(1, $event->getExceptions()->getExceptions());
+        static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testUpdateNotTouchingActionOrSourceStateIsIgnored(): void
     {
         $connection = static::createStub(Connection::class);

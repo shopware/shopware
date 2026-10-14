@@ -58,7 +58,25 @@ class LineItemQuantitySplitterTest extends TestCase
         static::assertSame(1.903, $newLineItem->getPrice()->getCalculatedTaxes()->first()?->getTax());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the PROPORTIONAL_CART_TAXES flag
+     */
     #[DisabledFeatures(['v6.8.0.0'])]
+    public function testProportionalSplitTaxesCanBeEnabledBeforeTheMajor(): void
+    {
+        $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 10);
+        $lineItem->setPrice(new CalculatedPrice(39.95, 399.50, new CalculatedTaxCollection([new CalculatedTax(19.03, 5, 399.50)]), new TaxRuleCollection([new TaxRule(5)]), 10));
+        $lineItem->setStackable(true);
+
+        $split = $this->createQtySplitter()->split($lineItem, 1, $this->salesChannelContext);
+
+        static::assertSame(1.903, $split->getPrice()?->getCalculatedTaxes()->first()?->getTax());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the PROPORTIONAL_CART_TAXES flag
+     */
+    #[DisabledFeatures(['PROPORTIONAL_CART_TAXES'])]
     public function testSplitTaxesRoundedDeprecated(): void
     {
         $splitter = $this->createQtySplitter();

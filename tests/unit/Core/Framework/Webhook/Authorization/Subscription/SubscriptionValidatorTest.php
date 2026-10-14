@@ -92,6 +92,13 @@ class SubscriptionValidatorTest extends TestCase
 
         static::assertEquals(new SubscriptionRefusals(), $refusals);
     }
+
+    public function testASubscriptionWithoutPrivilegesHoldsNone(): void
+    {
+        $refusals = $this->validator->validate(['hook' => 'product.written'], [], Subscriber::api(ApiCallerType::User), Context::createDefaultContext());
+
+        static::assertEquals(new SubscriptionRefusals(missingPrivileges: ['hook' => ['product:read', 'order:read']]), $refusals);
+    }
 }
 
 /**

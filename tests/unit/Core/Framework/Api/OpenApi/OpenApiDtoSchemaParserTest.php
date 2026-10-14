@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\OpenApi;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoDefinition;
+use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoProperty;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoType;
 use Shopware\Core\Framework\FrameworkException;
@@ -36,6 +37,75 @@ class OpenApiDtoSchemaParserTest extends TestCase
         $this->expectException(FrameworkException::class);
 
         (new OpenApiDtoSchemaParser())->parse($this->loadSchema('invalidSchemas/duplicateProperties.json'));
+    }
+
+    public function testExtensionsPropertyIsProvidedByAbstractDto(): void
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parse($this->loadSchema('invalidSchemas/extensionsProperty.json'));
+
+        static::assertCount(2, $definitions);
+        foreach ($definitions as $definition) {
+            static::assertSame(
+                ['id'],
+                array_map(static fn (OpenApiDtoProperty $property): string => $property->name, $definition->properties),
+            );
+        }
+    }
+
+    public function testDuplicateDtoNamesThrowException(): void
+    {
+        $this->expectExceptionObject(FrameworkException::invalidArgumentException(
+            'Component schema and operation generate the same DTO name "CreateOrderRequest". Use unique names or mark the composition-only component with "x-dto-inline": true.',
+        ));
+
+        (new OpenApiDtoSchemaParser())->parse($this->loadSchema('invalidSchemas/duplicateDtoNames.json'));
+    }
+
+    public function testReferencedComponentsInheritOperationPackage(): void
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parse(
+            $this->loadSchema('invalidSchemas/inheritedComponentPackage.json'),
+            includeComponentSchemas: false,
+        );
+
+        $packages = [];
+        foreach ($definitions as $definition) {
+            $packages[$definition->name] = $definition->package;
+        }
+
+        static::assertSame('checkout', $packages['CreateOrderResponse']);
+        static::assertSame('checkout', $packages['OrderEnvelope']);
+        static::assertSame('checkout', $packages['Order']);
+    }
+
+    public function testExplicitComponentPackageOverridesInheritedPackage(): void
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parse(
+            $this->loadSchema('invalidSchemas/explicitComponentPackage.json'),
+            includeComponentSchemas: false,
+        );
+
+        $packages = [];
+        foreach ($definitions as $definition) {
+            $packages[$definition->name] = $definition->package;
+        }
+
+        static::assertSame('checkout', $packages['CreateOrderResponse']);
+        static::assertSame('checkout', $packages['OrderEnvelope']);
+        static::assertSame('framework', $packages['Order']);
+        static::assertSame('framework', $packages['OrderDetails']);
+    }
+
+    public function testConflictingInheritedComponentPackagesThrowException(): void
+    {
+        $this->expectExceptionObject(FrameworkException::invalidArgumentException(
+            'Component schema "Order" inherits conflicting DTO packages "checkout" and "framework". Set "x-dto-package" explicitly on the component.',
+        ));
+
+        (new OpenApiDtoSchemaParser())->parse(
+            $this->loadSchema('invalidSchemas/conflictingInheritedComponentPackages.json'),
+            includeComponentSchemas: false,
+        );
     }
 
     public function testComponentReferencedByResponseIsClassifiedAsResponse(): void

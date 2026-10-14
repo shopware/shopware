@@ -2,9 +2,10 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding\Generator;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Console\Output\StreamOutput;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * Console input and output for scaffolding questions.
@@ -21,17 +22,16 @@ final class ScaffoldConsole
         return new ScaffoldConsoleInput($option, $answer);
     }
 
-    public static function output(): ConsoleOutput
+    public static function output(): ConsoleOutputInterface
     {
-        $output = new ConsoleOutput(decorated: false);
+        $command = (new Command('scaffold:test'))->setCode(static fn (): int => Command::SUCCESS);
+        $tester = new CommandTester($command);
+        $tester->execute([], ['decorated' => false, 'capture_stderr_separately' => true]);
 
-        $stream = fopen('php://memory', 'w', false);
-        if ($stream === false) {
-            throw new \RuntimeException('Unable to open memory stream.');
+        $output = $tester->getOutput();
+        if (!$output instanceof ConsoleOutputInterface) {
+            throw new \LogicException('Expected console output with separate stderr capture.');
         }
-
-        $reflection = new \ReflectionProperty(StreamOutput::class, 'stream');
-        $reflection->setValue($output, $stream);
 
         return $output;
     }

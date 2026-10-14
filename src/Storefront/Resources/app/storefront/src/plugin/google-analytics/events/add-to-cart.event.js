@@ -61,7 +61,7 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
         // GA4 expects the value of the added quantity, not the unit price
         const value = price === undefined ? undefined : Number(price) * (Number(quantity) || 1);
 
-        this.pushEvent('add_to_cart', {
+        const parameters = {
             'currency': productData.currency || ProductPageHelper.getCurrency(),
             'value': value,
             'items': [{
@@ -71,9 +71,33 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
                 'price': price,
                 'item_brand': formData.get('brand-name') || productData.brand,
                 'item_variant': productData.variant,
-                ...ProductPageHelper.getCategoriesFor(productId, formElement),
             }],
+        };
+
+        const categories = ProductPageHelper.getCategoriesFor(productId, formElement);
+        if (Object.keys(categories).length > 0) {
+            this._push(parameters, categories);
+            return;
+        }
+
+        // the page does not describe the categories of the product, so they are requested
+        return ProductPageHelper.resolveCategories(productId, formElement).then(resolved => {
+            // the shopper can revoke the tracking consent while the categories are requested
+            if (this.active) {
+                this._push(parameters, resolved);
+            }
         });
+    }
+
+    /**
+     * @param {Object} parameters
+     * @param {Object} categories
+     * @private
+     */
+    _push(parameters, categories) {
+        parameters.items[0] = { ...parameters.items[0], ...categories };
+
+        this.pushEvent('add_to_cart', parameters);
     }
 
     /**

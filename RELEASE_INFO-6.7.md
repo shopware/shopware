@@ -784,6 +784,12 @@ A new customer now reports `add_shipping_info` with the preselected shipping met
 
 Storefront analytics now report the selected options of a variant, such as `Red, L`, as `item_variant` in product, list, wishlist, cart, checkout and purchase events. `add_to_cart` on the product detail page reports the unit price of the graduated price tier that applies to the quantity the cart holds after the add, instead of the cheapest tier. For a sales channel with active analytics, the buy widget renders the `data-product-variant` and `data-product-prices` attributes, the product box adds `variant` to its `data-product-information`, and the hidden line items render `data-variant`.
 
+### Storefront analytics request the categories of products outside a category
+
+`add_to_cart`, `add_to_wishlist` and `remove_from_wishlist` now report the categories of a product added or removed on a page whose breadcrumb does not describe it, such as the homepage, a landing page, the wishlist or a cross selling product on a product detail page. The analytics script requests the path on the click from the new route `frontend.analytics.product-categories` (`GET /widgets/analytics/product-categories?productId=<id>`). The route returns the breadcrumb of the product detail page as a list of category names, resolved by the Store API breadcrumb route, and is HTTP cached. It returns a 404 for a sales channel without active analytics, and its URL is only added to `window.router` when analytics are active.
+
+The wishlist page holds the removal of a product back until `remove_from_wishlist` is sent, for at most one second.
+
 ### Essential characteristics label custom fields with their snippet
 
 Essential characteristics of a product now label a custom field with its `customFields.<name>` snippet, which Shopware creates in every snippet set when the custom field is created. Editing that snippet in Settings > Snippets, or overriding it in a theme's snippet files, changes the label shown in the cart, the off-canvas cart and the checkout. Before, only the label from the custom field's configuration was used and changes to the snippet had no effect.

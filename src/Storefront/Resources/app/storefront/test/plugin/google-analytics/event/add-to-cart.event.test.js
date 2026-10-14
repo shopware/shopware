@@ -13,6 +13,13 @@ function createMockPluginInstance() {
     };
 }
 
+/**
+ * The event resolves the categories of a product the page does not describe asynchronously.
+ */
+function flushPromises() {
+    return new Promise(resolve => setTimeout(resolve, 0));
+}
+
 describe('plugin/google-analytics/events/add-to-cart.event', () => {
     let addToCartInstances = [];
     let listingInstances = [];
@@ -55,7 +62,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         expect(event.getEvents()).toHaveProperty('beforeFormSubmit');
     });
 
-    test('fires add_to_cart event when AddToCart plugin emits beforeFormSubmit', () => {
+    test('fires add_to_cart event when AddToCart plugin emits beforeFormSubmit', async () => {
         document.body.innerHTML = `
             <meta property="product:price:currency" content="EUR">
             <meta property="product:price:amount" content="99.99">
@@ -75,6 +82,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         formData.append('brand-name', 'Test Brand');
 
         addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+        await flushPromises();
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
             'currency': 'EUR',
@@ -93,7 +101,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
     });
 
     describe('graduated prices and variants', () => {
-        function submitFromBuyWidget(quantity, cartMarkup = '') {
+        async function submitFromBuyWidget(quantity, cartMarkup = '') {
             document.body.innerHTML = `
                 <meta property="product:price:amount" content="10">
                 <h1 class="product-detail-name">Shirt</h1>
@@ -114,12 +122,13 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
             formData.append('lineItems[product-1][id]', 'product-1');
             formData.append('lineItems[product-1][quantity]', String(quantity));
             addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+            await flushPromises();
 
             return window.gtag.mock.calls.find(call => call[1] === 'add_to_cart')[2];
         }
 
-        test('reports the tier price of the added quantity and the variant', () => {
-            const parameters = submitFromBuyWidget(2);
+        test('reports the tier price of the added quantity and the variant', async () => {
+            const parameters = await submitFromBuyWidget(2);
 
             expect(parameters.value).toBe(40);
             expect(parameters.items[0]).toEqual(expect.objectContaining({
@@ -129,8 +138,8 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
             }));
         });
 
-        test('reports the tier of the quantity the cart holds after the add', () => {
-            const parameters = submitFromBuyWidget(2, `
+        test('reports the tier of the quantity the cart holds after the add', async () => {
+            const parameters = await submitFromBuyWidget(2, `
                 <div class="hidden-line-items-information">
                     <span class="hidden-line-item" data-id="product-1" data-line-item-id="product-1" data-quantity="9"></span>
                 </div>
@@ -140,8 +149,8 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
             expect(parameters.items[0].price).toBe(15);
         });
 
-        test('ignores a line of the same product under another line item id', () => {
-            const parameters = submitFromBuyWidget(2, `
+        test('ignores a line of the same product under another line item id', async () => {
+            const parameters = await submitFromBuyWidget(2, `
                 <div class="hidden-line-items-information">
                     <span class="hidden-line-item" data-id="product-1" data-line-item-id="other-line" data-quantity="9"></span>
                 </div>
@@ -149,6 +158,41 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
 
             expect(parameters.items[0].price).toBe(20);
         });
+    });
+
+    test('reports the requested categories of a product element on a page without breadcrumb', async () => {
+        window.activeRoute = 'frontend.home.page';
+        window.router = { 'frontend.analytics.product-categories': '/widgets/analytics/product-categories' };
+        global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(['Clothing', 'Shirts']) }));
+        document.body.innerHTML = `
+            <div class="card product-box" data-product-information='{"id":"product-1","name":"Shirt","sku":"SW1","price":10}'>
+                <div class="form-slot"></div>
+            </div>
+        `;
+
+        const addToCartInstance = createMockPluginInstance();
+        document.querySelector('.form-slot').appendChild(addToCartInstance.el);
+        addToCartInstances.push(addToCartInstance);
+        new AddToCartEvent().execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-1][id]', 'product-1');
+        formData.append('lineItems[product-1][quantity]', '1');
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        // the cart payload is posted with the form and cannot wait for the request
+        expect(formData.has('lineItems[product-1][payload][categoryNames][0]')).toBe(false);
+
+        await flushPromises();
+
+        expect(global.fetch).toHaveBeenCalledWith('/widgets/analytics/product-categories?productId=product-1', expect.anything());
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
+            'items': [expect.objectContaining({ 'item_id': 'SW1', 'item_category': 'Clothing', 'item_category2': 'Shirts' })],
+        }));
+
+        delete window.activeRoute;
+        delete window.router;
+        delete global.fetch;
     });
 
     describe('cart payload of a product element', () => {
@@ -251,7 +295,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         expect(window.gtag).not.toHaveBeenCalled();
     });
 
-    test('does not duplicate subscriptions when execute is called multiple times', () => {
+    test('does not duplicate subscriptions when execute is called multiple times', async () => {
         const addToCartInstance = createMockPluginInstance();
         addToCartInstances.push(addToCartInstance);
 
@@ -263,6 +307,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         const formData = new FormData();
         formData.append('lineItems[product-123][id]', 'product-123');
         addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+        await flushPromises();
 
         // Should only fire once, not twice
         expect(window.gtag).toHaveBeenCalledTimes(1);
@@ -303,6 +348,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         const formData = new FormData();
         formData.append('lineItems[product-1][id]', 'product-1');
         initialAddToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+        await flushPromises();
         expect(window.gtag).toHaveBeenCalledTimes(1);
 
         // Simulate pagination: new AddToCart instance appears
@@ -322,6 +368,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         const newFormData = new FormData();
         newFormData.append('lineItems[product-new][id]', 'product-new');
         newAddToCartInstance.$emitter.publish('beforeFormSubmit', newFormData);
+        await flushPromises();
 
         expect(window.gtag).toHaveBeenCalledTimes(2);
         expect(window.gtag).toHaveBeenLastCalledWith('event', 'add_to_cart', expect.objectContaining({
@@ -349,11 +396,12 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         const formData = new FormData();
         formData.append('lineItems[product-1][id]', 'product-1');
         addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+        await flushPromises();
 
         expect(window.gtag).toHaveBeenCalledTimes(1);
     });
 
-    test('skips Listing subscription when Listing plugin is not present', () => {
+    test('skips Listing subscription when Listing plugin is not present', async () => {
         const addToCartInstance = createMockPluginInstance();
         addToCartInstances.push(addToCartInstance);
 
@@ -366,6 +414,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         const formData = new FormData();
         formData.append('lineItems[product-1][id]', 'product-1');
         addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+        await flushPromises();
 
         expect(window.gtag).toHaveBeenCalledTimes(1);
     });

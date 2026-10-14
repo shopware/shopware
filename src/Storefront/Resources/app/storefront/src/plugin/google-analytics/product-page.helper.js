@@ -258,13 +258,67 @@ export default class ProductPageHelper {
     }
 
     /**
+     * The GA4 category properties of a product, requested from the storefront when the page does
+     * not describe them.
+     *
+     * The page breadcrumb is used where it is about the product: the product of a detail page, or a
+     * product element on a category listing. Anywhere else, such as the homepage, a landing page,
+     * the wishlist or a product element on a detail page, the path is requested from the storefront,
+     * which resolves it through the Store API breadcrumb route. Product elements do not carry it,
+     * because loading the categories of every product would slow down each render for an event that
+     * only fires on a click. A failed request reports no categories.
+     *
+     * @param {string} productId
+     * @param {HTMLElement|null} element the element the interaction started from, if any
+     * @returns {Promise<Object>}
+     */
+    static async resolveCategories(productId, element = null) {
+        const categories = ProductPageHelper.getCategoriesFor(productId, element);
+        if (Object.keys(categories).length > 0) {
+            return categories;
+        }
+
+        const url = window.router?.['frontend.analytics.product-categories'];
+        if (!url || !productId) {
+            return {};
+        }
+
+        try {
+            const response = await fetch(`${url}?productId=${encodeURIComponent(productId)}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+
+            if (!response.ok) {
+                return {};
+            }
+
+            return ProductPageHelper.mapCategories(await response.json());
+        } catch {
+            return {};
+        }
+    }
+
+    /**
      * Gets category hierarchy from breadcrumbs (GA4 supports up to 5 levels)
      * @returns {Object}
      */
     static getCategories() {
+        return ProductPageHelper.mapCategories(ProductPageHelper.getCategoryNames());
+    }
+
+    /**
+     * Maps a category path, ordered from the top level down, to the GA4 category properties
+     * @param {string[]|undefined} names
+     * @returns {Object}
+     */
+    static mapCategories(names) {
         const categories = {};
 
-        ProductPageHelper.getCategoryNames().forEach((name, index) => {
+        if (!Array.isArray(names)) {
+            return categories;
+        }
+
+        names.slice(0, 5).forEach((name, index) => {
             const key = index === 0 ? 'item_category' : `item_category${index + 1}`;
             categories[key] = name;
         });

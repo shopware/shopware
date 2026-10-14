@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Mcp;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -17,11 +18,23 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * {@see self::storeFor()} returns a signed pointer that only the principal who stored the result can
  * read, on any later request and without an MCP session. The session id is still recorded, so rows are
- * also removed when a handshake-era session ends (DELETE /api/_mcp).
+ * also removed when a handshake-era session ends (DELETE /api/_mcp). Rows are removed by age as well, see
+ * {@see \Shopware\Core\Framework\Mcp\ScheduledTask\McpToolResultCacheCleanupTaskHandler}.
  */
 #[Package('framework')]
 class ToolResultCacheStorage
 {
+    /**
+     * Default of `shopware.mcp.tool_result_cache_ttl`: seconds a stored result is kept after `created_at`.
+     */
+    public const DEFAULT_TTL_SECONDS = 86400;
+
+    /**
+     * Every row holds more than 100 KB (`McpToolResponse::MAX_RESPONSE_SIZE`), so a batch stays around
+     * 10 MB of row data, well below transaction size limits such as Group Replication's.
+     */
+    private const CLEANUP_BATCH_SIZE = 100;
+
     /**
      * @internal
      */
@@ -128,5 +141,32 @@ class ToolResultCacheStorage
             'content' => (string) $row['content'],
             'mimeType' => (string) $row['mime_type'],
         ];
+    }
+
+    /**
+     * Deletes rows created at or before `$threshold`, in batches of CLEANUP_BATCH_SIZE.
+     *
+     * @return int Number of deleted rows
+     */
+    public function deleteOlderThan(\DateTimeInterface $threshold): int
+    {
+        $formattedThreshold = $threshold->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $deleted = 0;
+
+        do {
+            $result = (int) $this->connection->executeStatement(
+                'DELETE FROM `mcp_tool_result_cache` WHERE `created_at` <= :threshold LIMIT :limit',
+                [
+                    'threshold' => $formattedThreshold,
+                    'limit' => self::CLEANUP_BATCH_SIZE,
+                ],
+                [
+                    'limit' => ParameterType::INTEGER,
+                ],
+            );
+            $deleted += $result;
+        } while ($result >= self::CLEANUP_BATCH_SIZE);
+
+        return $deleted;
     }
 }

@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
@@ -1704,6 +1705,11 @@ class Configuration implements ConfigurationInterface
                     ->info('Timeout in seconds for app webhook MCP tool calls.')
                     ->defaultValue(10)
                     ->min(1)
+                ->end()
+                ->integerNode('tool_result_cache_ttl')
+                    ->info('Seconds a stored oversized MCP tool result is kept before the cleanup task removes it. The task runs hourly, so a result can stay up to an hour longer.')
+                    ->defaultValue(ToolResultCacheStorage::DEFAULT_TTL_SECONDS)
+                    ->min(60)
                 ->end()
             ->end();
 

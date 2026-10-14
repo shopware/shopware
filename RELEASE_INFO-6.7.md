@@ -740,6 +740,7 @@ The deliverability card of digital products has a new "Allow multiple units per 
 ### Category Twig function removal postponed to 6.9
 
 The deprecated `category_url` and `category_linknewtab` Twig functions remain available throughout 6.8 and will be removed in 6.9.0. Extension and theme developers should migrate to `category.seoUrl` (available on `SalesChannelCategoryEntity`) and `category.shouldOpenInNewTab`. See the [migration instructions](UPGRADE-6.9.md#removed-category_url-and-category_linknewtab-twig-functions).
+
 ### Improved extensibility of buy widget form
 
 Extensibility of the `buy-widget-form.html.twig` template has been improved for extension developers. It is now possible to extend `data-add-to-cart-options` and `data-quantity-selector-options` objects via the respective twig variables `addToCartOptions` and `quantitySelectorOptions`. Additionally, the following new blocks have been added to the quantity selector input group:

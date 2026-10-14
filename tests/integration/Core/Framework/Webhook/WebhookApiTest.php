@@ -273,6 +273,19 @@ class WebhookApiTest extends TestCase
         static::assertFalse($this->fetchSubscription($webhookId));
     }
 
+    public function testAclRolesThatDoNotExistAreRejected(): void
+    {
+        $missingRoleId = Uuid::randomHex();
+        $webhookId = $this->createWebhookWithAclRoles('product.written', [$missingRoleId]);
+
+        $this->assertApiErrors([[
+            'code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION',
+            'field' => 'aclRoleIds',
+            'detail' => 'Role "' . $missingRoleId . '" does not exist.',
+        ]]);
+        static::assertFalse($this->fetchSubscription($webhookId));
+    }
+
     public function testAnEmptyAclRoleListIsRejected(): void
     {
         $webhookId = $this->createWebhookWithAclRoles('product.written', []);

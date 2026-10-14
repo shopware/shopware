@@ -291,6 +291,13 @@ class RestrictWriteSubscriberTest extends TestCase
 
     public function testAclRolesTheOwnerDoesNotHoldAreRejected(): void
     {
+        $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
+        $this->aclRoleLoader->method('getRoles')->willReturn([self::USER_ID => new AclRoles(false, ['role'])]);
+        $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([
+            'role' => new AclPrivilegeCollection([]),
+            'other-role' => new AclPrivilegeCollection([]),
+        ]);
+
         $event = $this->createEvent([$this->insertWebhook(aclRoleIds: ['role', 'other-role'])]);
         $this->createSubscriber()->validate($event);
 
@@ -304,16 +311,28 @@ class RestrictWriteSubscriberTest extends TestCase
         static::assertSame('Role "other-role" is not held by the webhook\'s owner.', $violations->get(0)->getMessage());
     }
 
-    public function testAnUnrestrictedOwnerMayListAnyRole(): void
+    public function testAnUnrestrictedOwnerMayListAnyExistingRole(): void
     {
         $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
         $this->aclRoleLoader->method('getRoles')->willReturn([self::USER_ID => new AclRoles(true, [])]);
-        $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([]);
+        $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn(['any-role' => new AclPrivilegeCollection([])]);
 
         $event = $this->createEvent([$this->insertWebhook(aclRoleIds: ['any-role'])]);
         $this->createSubscriber()->validate($event);
 
         static::assertSame([], $event->getExceptions()->getExceptions());
+    }
+
+    public function testRolesThatDoNotExistAreRejectedEvenForAnUnrestrictedOwner(): void
+    {
+        $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
+        $this->aclRoleLoader->method('getRoles')->willReturn([self::USER_ID => new AclRoles(true, [])]);
+        $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([]);
+
+        $event = $this->createEvent([$this->insertWebhook(aclRoleIds: ['missing-role'])]);
+        $this->createSubscriber()->validate($event);
+
+        $this->assertAclRoleIdsViolation($event, 'Role "missing-role" does not exist.');
     }
 
     public function testStoredAclRolesAreOnlyRejectedWhenWritten(): void

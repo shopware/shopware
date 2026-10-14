@@ -113,7 +113,7 @@ class RestrictWriteSubscriber implements EventSubscriberInterface
 
             $refusals = $this->subscriptionValidator->validate(
                 [$webhook->eventName => $webhook->eventName],
-                self::resolvePrivileges($webhook->roles, $rolePrivileges),
+                [$webhook->eventName => self::resolvePrivileges($webhook->roles, $rolePrivileges)],
                 $subscriber,
                 $context
             );

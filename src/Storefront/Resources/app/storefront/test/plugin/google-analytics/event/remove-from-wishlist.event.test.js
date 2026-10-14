@@ -271,4 +271,42 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
         delete window.router;
         delete global.fetch;
     });
+
+    // the categories request only answers after the shopper revoked the tracking consent
+    function revokeConsentDuringCategoryRequest(event) {
+        window.router = { 'frontend.analytics.product-categories': '/widgets/analytics/product-categories' };
+        global.fetch = jest.fn(() => {
+            event.disable();
+
+            return Promise.resolve({ ok: true, json: () => Promise.resolve(['Clothing']) });
+        });
+    }
+
+    function cleanUpCategoryRequest() {
+        delete window.activeRoute;
+        delete window.router;
+        delete global.fetch;
+    }
+
+    test('fires remove_from_wishlist when the wishlist storage removes a product', async () => {
+        document.body.innerHTML = '<h1 class="product-detail-name">Shirt</h1>';
+
+        await removeFromWishlistEvent._onProductRemoved({ detail: { productId: 'product-1' } });
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'remove_from_wishlist', expect.objectContaining({
+            'items': [expect.objectContaining({ 'item_id': 'product-1', 'item_name': 'Shirt' })],
+        }));
+    });
+
+    test('does not fire when the consent is revoked while the categories are requested', async () => {
+        document.body.innerHTML = '<h1 class="product-detail-name">Shirt</h1>';
+        revokeConsentDuringCategoryRequest(removeFromWishlistEvent);
+
+        await removeFromWishlistEvent._onProductRemoved({ detail: { productId: 'product-1' } });
+
+        expect(global.fetch).toHaveBeenCalled();
+        expect(window.gtag).not.toHaveBeenCalled();
+
+        cleanUpCategoryRequest();
+    });
 });

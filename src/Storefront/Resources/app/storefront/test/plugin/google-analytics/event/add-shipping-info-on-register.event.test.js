@@ -91,6 +91,19 @@ describe('plugin/google-analytics/events/add-shipping-info-on-register.event', (
         expect(shippingEvents()).toEqual([]);
     });
 
+    test('reports nothing and remembers nothing without product line items', () => {
+        document.body.innerHTML = `
+            <div class="hidden-line-items-information" data-currency="EUR" data-value="0"></div>
+            <div class="d-none" data-analytics-shipping-tier="Standard"></div>
+            <form class="register-form"></form>
+        `;
+
+        submitRegistration();
+
+        expect(shippingEvents()).toEqual([]);
+        expect(CheckoutStepHelper.hasReported('add_shipping_info', 'Standard')).toBe(false);
+    });
+
     test('is not reported again on the confirm page when the method stays the same', () => {
         renderRegisterPage('Standard');
         submitRegistration();

@@ -16,12 +16,14 @@ class EntityRouteResolver
 {
     /**
      * @param iterable<EntitySeoUrlRouteInterface> $storeApiSeoUrlRoutes
+     * @param array<string, string> $canonicalRouteNames entity name => name of the entity's canonical SEO URL route
      */
     public function __construct(
         private readonly SeoUrlRouteRegistry $registry,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         private readonly RouterInterface $router,
         private readonly iterable $storeApiSeoUrlRoutes = [],
+        private readonly array $canonicalRouteNames = [],
     ) {
     }
 
@@ -124,13 +126,32 @@ class EntityRouteResolver
             }
         }
 
-        $route = array_first($this->registry->findByDefinition($entityName));
+        $route = $this->findCanonicalRoute($entityName) ?? array_first($this->registry->findByDefinition($entityName));
 
         if ($route instanceof EntitySeoUrlRouteInterface) {
             return $route->getConfig();
         }
 
         return $this->getEntitySeoUrlRouteConfig($entityName);
+    }
+
+    /**
+     * Extensions may register additional routes for an entity, so the declared canonical route
+     * takes precedence over the registration order of the routes.
+     */
+    private function findCanonicalRoute(string $entityName): ?SeoUrlRouteInterface
+    {
+        $routeName = $this->canonicalRouteNames[$entityName] ?? null;
+        if ($routeName === null) {
+            return null;
+        }
+
+        $route = $this->registry->findByRouteName($routeName);
+        if ($route === null || $route->getConfig()->getDefinition()->getEntityName() !== $entityName) {
+            return null;
+        }
+
+        return $route;
     }
 
     private function getEntitySeoUrlRouteConfig(string $entityName): SeoUrlRouteConfig

@@ -17,7 +17,9 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\LandingPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -42,6 +44,22 @@ class EntityRouteResolverTest extends TestCase
         static::assertSame(
             SeoUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . $expectedPath . '#',
             $resolver->generateSeoUrlPlaceholder($entityName, $id)
+        );
+    }
+
+    public function testStorefrontDeclaresItsPageRoutesAsCanonicalRoutes(): void
+    {
+        if (!static::getContainer()->has(NavigationPageSeoUrlRoute::class)) {
+            static::markTestSkipped('Storefront seo url tests need storefront bundle to be installed');
+        }
+
+        static::assertSame(
+            [
+                ProductDefinition::ENTITY_NAME => ProductPageSeoUrlRoute::ROUTE_NAME,
+                CategoryDefinition::ENTITY_NAME => NavigationPageSeoUrlRoute::ROUTE_NAME,
+                LandingPageDefinition::ENTITY_NAME => LandingPageSeoUrlRoute::ROUTE_NAME,
+            ],
+            static::getContainer()->getParameter('shopware.seo_url.canonical_routes'),
         );
     }
 

@@ -12,6 +12,12 @@ Since 6.7.14.0, most line item conditions of the Rule Builder evaluated only lin
 
 The conditions now evaluate a line item by the data it carries instead of by its type, so line items of any type work with the built-in conditions again, with no change needed in extensions.
 
+### Additional SEO URL routes of extensions no longer replace the product, category and landing page routes
+
+Since 6.7.13.0, an extension registering another SEO URL route for `product`, `category` or `landing_page` could replace the storefront page route of that entity, depending on the order of the services in the container. The sitemap, internal category links and the `entitySeoUrl` Twig function then used the extension's route, and sitemap generation failed when that route defined no primary key parameter.
+
+The storefront now declares its page routes as the canonical routes of these entities in the `shopware.seo_url.canonical_routes` container parameter, which maps an entity name to a route name. Additional routes no longer affect it. To make your own route the canonical route of an entity, set its route name for that entity in this parameter, for example in a compiler pass of your plugin.
+
 ## Features
 
 ### System configuration tabs

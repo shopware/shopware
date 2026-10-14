@@ -44,6 +44,80 @@ class EntityRouteResolverTest extends TestCase
         static::assertSame(ProductPageSeoUrlRoute::ROUTE_NAME, $resolver->getRouteNameForEntityName('product'));
     }
 
+    public function testGetRouteNamePrefersTheCanonicalRouteOverEarlierRegisteredRoutesOfTheEntity(): void
+    {
+        $resolver = new EntityRouteResolver(
+            new SeoUrlRouteRegistry([
+                $this->createSeoUrlRoute('product', 'frontend.bundle.detail.page'),
+                $this->createSeoUrlRoute('product', ProductPageSeoUrlRoute::ROUTE_NAME),
+            ]),
+            $this->placeholderHandler,
+            $this->router,
+            canonicalRouteNames: ['product' => ProductPageSeoUrlRoute::ROUTE_NAME],
+        );
+
+        static::assertSame(ProductPageSeoUrlRoute::ROUTE_NAME, $resolver->getRouteNameForEntityName('product'));
+    }
+
+    public function testGenerateUrlUsesTheCanonicalRoute(): void
+    {
+        $this->router
+            ->method('generate')
+            ->willReturnCallback(static fn (string $name, array $parameters): string => $name . '?' . http_build_query($parameters));
+
+        $resolver = new EntityRouteResolver(
+            new SeoUrlRouteRegistry([
+                $this->createSeoUrlRoute('product', 'frontend.bundle.detail.page'),
+                $this->createSeoUrlRoute('product', ProductPageSeoUrlRoute::ROUTE_NAME, 'productId'),
+            ]),
+            $this->placeholderHandler,
+            $this->router,
+            canonicalRouteNames: ['product' => ProductPageSeoUrlRoute::ROUTE_NAME],
+        );
+
+        static::assertSame(ProductPageSeoUrlRoute::ROUTE_NAME . '?productId=abc123', $resolver->generateUrl('product', 'abc123'));
+    }
+
+    public function testGetRouteNameFallsBackToTheFirstRegisteredRouteWhenTheCanonicalRouteIsNotRegistered(): void
+    {
+        $resolver = new EntityRouteResolver(
+            new SeoUrlRouteRegistry([$this->createSeoUrlRoute('product', 'frontend.bundle.detail.page')]),
+            $this->placeholderHandler,
+            $this->router,
+            canonicalRouteNames: ['product' => ProductPageSeoUrlRoute::ROUTE_NAME],
+        );
+
+        static::assertSame('frontend.bundle.detail.page', $resolver->getRouteNameForEntityName('product'));
+    }
+
+    public function testGetRouteNameIgnoresACanonicalRouteOfAnotherEntity(): void
+    {
+        $resolver = new EntityRouteResolver(
+            new SeoUrlRouteRegistry([
+                $this->createSeoUrlRoute('product', ProductPageSeoUrlRoute::ROUTE_NAME),
+                $this->createSeoUrlRoute('category', 'frontend.navigation.page'),
+            ]),
+            $this->placeholderHandler,
+            $this->router,
+            canonicalRouteNames: ['product' => 'frontend.navigation.page'],
+        );
+
+        static::assertSame(ProductPageSeoUrlRoute::ROUTE_NAME, $resolver->getRouteNameForEntityName('product'));
+    }
+
+    public function testGetRouteNamePrefersTheStoreApiRouteOverTheCanonicalRouteForApiSalesChannels(): void
+    {
+        $resolver = new EntityRouteResolver(
+            new SeoUrlRouteRegistry([$this->createSeoUrlRoute('product', ProductPageSeoUrlRoute::ROUTE_NAME)]),
+            $this->placeholderHandler,
+            $this->router,
+            [$this->createEntitySeoUrlRoute('product', 'store-api.product.detail')],
+            ['product' => ProductPageSeoUrlRoute::ROUTE_NAME],
+        );
+
+        static::assertSame('store-api.product.detail', $resolver->getRouteNameForEntityName('product', Defaults::SALES_CHANNEL_TYPE_API));
+    }
+
     public function testGetRouteNameResolvesViaConfiguredRouteWhenNotRegistered(): void
     {
         $resolver = new EntityRouteResolver(

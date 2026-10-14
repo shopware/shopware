@@ -63,6 +63,10 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
+    // maps an entity name to the name of its canonical SEO URL route, see EntityRouteResolver
+    $containerConfigurator->parameters()
+        ->set('shopware.seo_url.canonical_routes', []);
+
     $services = $containerConfigurator->services();
 
     $services->set(SeoUrlDefinition::class)
@@ -129,6 +133,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SeoUrlPlaceholderHandlerInterface::class),
             service('router'),
             tagged_iterator('shopware.entity.seo_url.route'),
+            param('shopware.seo_url.canonical_routes'),
         ]);
 
     $services->set(EmptyPathInfoResolver::class)

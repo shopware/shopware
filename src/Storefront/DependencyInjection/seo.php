@@ -37,28 +37,33 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
+    $containerConfigurator->parameters()
+        ->set('shopware.seo_url.canonical_routes', [
+            ProductDefinition::ENTITY_NAME => ProductPageSeoUrlRoute::ROUTE_NAME,
+            CategoryDefinition::ENTITY_NAME => NavigationPageSeoUrlRoute::ROUTE_NAME,
+            LandingPageDefinition::ENTITY_NAME => LandingPageSeoUrlRoute::ROUTE_NAME,
+        ]);
+
     $services = $containerConfigurator->services();
 
     $services->set(ProductPageSeoUrlRoute::class)
         ->args([
             service(ProductDefinition::class),
         ])
-        // EntityRouteResolver treats the first registered route of an entity as its canonical route,
-        // so the core page routes must precede additional routes extensions register for the same entity
-        ->tag('shopware.seo_url.route', ['priority' => 100]);
+        ->tag('shopware.seo_url.route');
 
     $services->set(NavigationPageSeoUrlRoute::class)
         ->args([
             service(CategoryDefinition::class),
             service(CategoryBreadcrumbBuilder::class),
         ])
-        ->tag('shopware.seo_url.route', ['priority' => 100]);
+        ->tag('shopware.seo_url.route');
 
     $services->set(LandingPageSeoUrlRoute::class)
         ->args([
             service(LandingPageDefinition::class),
         ])
-        ->tag('shopware.seo_url.route', ['priority' => 100]);
+        ->tag('shopware.seo_url.route');
 
     $services->set(SeoUrlUpdateListener::class)
         ->args([

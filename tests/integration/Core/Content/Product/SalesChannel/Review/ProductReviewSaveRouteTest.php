@@ -16,16 +16,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
@@ -37,7 +36,6 @@ use Symfony\Component\Validator\Constraints\Range;
 #[Group('store-api')]
 class ProductReviewSaveRouteTest extends TestCase
 {
-    use EventDispatcherBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -316,11 +314,8 @@ class ProductReviewSaveRouteTest extends TestCase
             SalesChannelContextService::CUSTOMER_ID => $customerId,
         ]);
 
-        /** @var EventDispatcherInterface $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
         $caughtEvent = null;
-        $this->addEventListener(
-            $dispatcher,
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             MailBeforeSentEvent::class,
             static function (MailBeforeSentEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -338,8 +333,6 @@ class ProductReviewSaveRouteTest extends TestCase
             $salesChannelContext
         );
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
-
-        $this->resetEventDispatcher();
 
         static::assertInstanceOf(MailBeforeSentEvent::class, $caughtEvent);
         $bodyText = $caughtEvent->getMessage()->getTextBody();

@@ -829,6 +829,8 @@ Storefront analytics now treat every element with a `data-product-information` a
 
 With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does. Cart, checkout and purchase events report them as `item_brand` and `item_category`.
 
+The reorder of an order in the account now reports one `add_to_cart` with all line items of the order, each with product number, name, price, brand and categories of the original order. Before, it reported only the last line item, with its ID instead of the product number and without name and price.
+
 ### Essential characteristics label custom fields with their snippet
 
 Essential characteristics of a product now label a custom field with its `customFields.<name>` snippet, which Shopware creates in every snippet set when the custom field is created. Editing that snippet in Settings > Snippets, or overriding it in a theme's snippet files, changes the label shown in the cart, the off-canvas cart and the checkout. Before, only the label from the custom field's configuration was used and changes to the snippet had no effect.

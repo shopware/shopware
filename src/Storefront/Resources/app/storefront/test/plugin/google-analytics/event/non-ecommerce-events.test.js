@@ -29,6 +29,25 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
         new LoginEvent().execute();
     }
 
+    // the account register page sends a hidden `createCustomerAccount`, the checkout register page a checkbox
+    function registerFormEvent(createCustomerAccount = '1') {
+        const event = formEvent('register-form');
+
+        if (createCustomerAccount !== null) {
+            const input = document.createElement('input');
+            input.name = 'createCustomerAccount';
+            input.value = createCustomerAccount;
+            event.target.appendChild(input);
+        }
+
+        return event;
+    }
+
+    function signUp() {
+        new SignUpEvent()._onFormSubmit(registerFormEvent());
+        new SignUpEvent().execute();
+    }
+
     test('login reports the method through gtag on the page after the submit', () => {
         new LoginEvent()._onFormSubmit(formEvent('login-form'));
 
@@ -68,10 +87,52 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
         expect(new LoginEvent().supports(null, null, 'frontend.home.page')).toBe(true);
     });
 
-    test('sign_up reports the method through gtag', () => {
-        new SignUpEvent()._onFormSubmit(formEvent('register-form'));
+    test('sign_up reports the method through gtag on the page after the submit', () => {
+        new SignUpEvent()._onFormSubmit(registerFormEvent());
+
+        expect(window.gtag).not.toHaveBeenCalled();
+
+        new SignUpEvent().execute();
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'sign_up', { method: 'mail' });
+    });
+
+    test('sign_up is reported once', () => {
+        signUp();
+        new SignUpEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledTimes(1);
+    });
+
+    test('sign_up reports the checked "Create customer account" checkbox of the checkout', () => {
+        new SignUpEvent()._onFormSubmit(registerFormEvent('true'));
+        new SignUpEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'sign_up', { method: 'mail' });
+    });
+
+    // an unchecked checkbox is not part of the form data
+    test('sign_up reports nothing for a guest checkout', () => {
+        new SignUpEvent()._onFormSubmit(registerFormEvent(null));
+        new SignUpEvent().execute();
+
+        expect(window.gtag).not.toHaveBeenCalled();
+    });
+
+    // the server rejects the registration after the submit, for example for a registered email, and renders the form again
+    test('sign_up reports nothing when the next page shows the register form with an error', () => {
+        new SignUpEvent()._onFormSubmit(registerFormEvent());
+        document.body.innerHTML = '<form class="register-form"><input name="email" class="form-control is-invalid"></form>';
+
+        new SignUpEvent().execute();
+        document.body.innerHTML = '';
+        new SignUpEvent().execute();
+
+        expect(window.gtag).not.toHaveBeenCalled();
+    });
+
+    test('sign_up is checked on every page, because the shopper can land anywhere', () => {
+        expect(new SignUpEvent().supports(null, null, 'frontend.checkout.confirm.page')).toBe(true);
     });
 
     test('search reports the search term through gtag', () => {
@@ -85,7 +146,7 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
         window.gtagIsTagManager = true;
 
         login();
-        new SignUpEvent()._onFormSubmit(formEvent('register-form'));
+        signUp();
         new SearchAjaxEvent()._onSearch({ detail: { value: 'shirt' } });
 
         expect(window.dataLayer).toEqual([
@@ -123,7 +184,8 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
 
         events[0]._onFormSubmit(formEvent('login-form'));
         events[0].execute();
-        events[1]._onFormSubmit(formEvent('register-form'));
+        events[1]._onFormSubmit(registerFormEvent());
+        events[1].execute();
         events[2]._onSearch({ detail: { value: 'shirt' } });
 
         expect(window.gtag).not.toHaveBeenCalled();

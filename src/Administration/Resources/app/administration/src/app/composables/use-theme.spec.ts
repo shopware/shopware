@@ -55,7 +55,7 @@ describe('src/app/composables/use-theme.ts', () => {
         await useTheme().saveUserTheme('dark');
 
         expect(useTheme().theme.value).toBe('dark');
-        // eslint-disable-next-line @typescript-eslint/unbound-method
+        // eslint-disable-next-line @typescript-eslint/unbound-method -- the mock is only inspected, never called
         expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
             [USER_THEME_CONFIG_KEY]: { theme: 'dark' },
         });
@@ -70,7 +70,7 @@ describe('src/app/composables/use-theme.ts', () => {
 
         await useTheme().loadUserTheme();
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
+        // eslint-disable-next-line @typescript-eslint/unbound-method -- the mock is only inspected, never called
         expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith([USER_THEME_CONFIG_KEY]);
         expect(useTheme().theme.value).toBe('dark');
     });

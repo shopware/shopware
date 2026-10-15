@@ -7,12 +7,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
+use Shopware\Core\Checkout\Customer\Extension\RegisterRouteExtension;
+use Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
@@ -24,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -43,6 +47,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
@@ -725,11 +730,115 @@ class RegisterRouteTest extends TestCase
             $doubleOptInService,
             static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
+    }
+
+    public function testVatIdConstraintsAreAddedBeforeCustomerCreateValidationEvent(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.showAccountTypeSelection' => true,
+            ],
+        ]);
+
+        $countryId = Uuid::randomHex();
+
+        $country = new CountryEntity();
+        $country->setId($countryId);
+        $country->setVatIdRequired(true);
+        $country->setCheckVatIdPattern(false);
+
+        $countryRepository = static::createStub(SalesChannelRepository::class);
+        $countryRepository
+            ->method('search')
+            ->willReturn(
+                new EntitySearchResult(
+                    CountryDefinition::ENTITY_NAME,
+                    1,
+                    new CountryCollection([$country]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext()
+                )
+            );
+
+        $vatIdConstraintsOnDispatch = null;
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener('framework.validation.customer.create', static function (BuildValidationEvent $event) use (&$vatIdConstraintsOnDispatch): void {
+            $vatIdConstraintsOnDispatch = $event->getDefinition()->getProperty('vatIds');
+        });
+
+        $dataValidator = static::createStub(DataValidator::class);
+        $dataValidator
+            ->method('getViolations')
+            ->willReturn(new ConstraintViolationList([
+                new ConstraintViolation('Stop after validation', null, [], null, '/email', null),
+            ]));
+
+        $customerDefinitionFactory = static::createStub(DataValidationFactoryInterface::class);
+        $customerDefinitionFactory
+            ->method('create')
+            ->willReturnCallback(static fn (): DataValidationDefinition => new DataValidationDefinition('customer.create'));
+
+        $addressDefinitionFactory = static::createStub(DataValidationFactoryInterface::class);
+        $addressDefinitionFactory
+            ->method('create')
+            ->willReturnCallback(static fn (): DataValidationDefinition => new DataValidationDefinition('address.create'));
+
+        $doubleOptInService = static::createStub(DoubleOptInService::class);
+        $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+
+        $registerRoute = new RegisterRoute(
+            $eventDispatcher,
+            static::createStub(NumberRangeValueGeneratorInterface::class),
+            $dataValidator,
+            $customerDefinitionFactory,
+            $addressDefinitionFactory,
+            $systemConfigService,
+            static::createStub(EntityRepository::class),
+            static::createStub(SalesChannelContextPersister::class),
+            $countryRepository,
+            static::createStub(Connection::class),
+            static::createStub(SalesChannelContextService::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            $customerDefinitionFactory,
+            $doubleOptInService,
+            static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
+            new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $salutationId = Uuid::randomHex();
+
+        $data = [
+            'email' => 'test@test.de',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'billingAddress' => [
+                'countryId' => $countryId,
+                'salutationId' => $salutationId,
+            ],
+            'salutationId' => $salutationId,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+        ];
+
+        try {
+            $registerRoute->register(new RequestDataBag($data), Generator::generateSalesChannelContext(), false);
+            static::fail('The stubbed violation should stop the registration.');
+        } catch (ConstraintViolationException) {
+        }
+
+        static::assertIsArray($vatIdConstraintsOnDispatch);
+        static::assertCount(3, $vatIdConstraintsOnDispatch);
+        static::assertInstanceOf(NotBlank::class, $vatIdConstraintsOnDispatch[0]);
+        static::assertInstanceOf(Type::class, $vatIdConstraintsOnDispatch[1]);
+        static::assertInstanceOf(CustomerVatIdentification::class, $vatIdConstraintsOnDispatch[2]);
     }
 
     public function testRegisterWithoutBillingAddressCountryViolation(): void
@@ -837,6 +946,7 @@ class RegisterRouteTest extends TestCase
             $doubleOptInService,
             static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -944,6 +1054,7 @@ class RegisterRouteTest extends TestCase
             static::createStub(DoubleOptInService::class),
             static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -955,7 +1066,7 @@ class RegisterRouteTest extends TestCase
             static::assertCount(1, $e->getViolations());
             $violation = $e->getViolations()->get(0);
             static::assertSame('billingAddress', $violation->getPropertyPath());
-            static::assertNotEmpty($violation->getMessage());
+            static::assertNotSame('', $violation->getMessage());
         }
     }
 
@@ -1402,6 +1513,45 @@ class RegisterRouteTest extends TestCase
         static::assertSame([], $properties['storefrontUrl'][1]->choices);
     }
 
+    public function testPublishesExtension(): void
+    {
+        $data = new RequestDataBag();
+        $context = Generator::generateSalesChannelContext();
+        $additionalValidationDefinitions = new DataValidationDefinition();
+        $response = new CustomerResponse(new CustomerEntity());
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('register-route.register.pre', static function (RegisterRouteExtension $extension) use ($data, $context, $additionalValidationDefinitions, $response): void {
+            static::assertSame(['data' => $data, 'context' => $context, 'validateStorefrontUrl' => true, 'additionalValidationDefinitions' => $additionalValidationDefinitions], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new RegisterRoute(
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
+            static::createStub(DataValidator::class),
+            static::createStub(DataValidationFactoryInterface::class),
+            static::createStub(DataValidationFactoryInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(SalesChannelContextPersister::class),
+            static::createStub(SalesChannelRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(SalesChannelContextService::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(DataValidationFactoryInterface::class),
+            static::createStub(DoubleOptInService::class),
+            static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
+            static::createStub(ClockInterface::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->register($data, $context, true, $additionalValidationDefinitions));
+    }
+
     /**
      * @return array<string, array<Constraint>>
      */
@@ -1488,7 +1638,6 @@ class RegisterRouteTest extends TestCase
         ?StaticSystemConfigService $systemConfigService = null,
         EntityRepository|StaticEntityRepository|null $customerRepository = null,
         ?DataValidationFactoryInterface $accountValidationFactory = null,
-        ?DataValidationFactoryInterface $passwordValidationFactory = null,
         ?CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater = null,
         ?DoubleOptInService $doubleOptInService = null,
         ?SalesChannelRepository $countryRepository = null,
@@ -1497,7 +1646,6 @@ class RegisterRouteTest extends TestCase
         $eventDispatcher ??= new EventDispatcher();
         $accountValidationFactory ??= static::createStub(DataValidationFactoryInterface::class);
         $addressValidationFactory ??= static::createStub(DataValidationFactoryInterface::class);
-        $passwordValidationFactory ??= static::createStub(DataValidationFactoryInterface::class);
         $customFieldMapper ??= static::createStub(StoreApiCustomFieldMapper::class);
         $salutationRepository ??= static::createStub(EntityRepository::class);
         $systemConfigService ??= new StaticSystemConfigService([
@@ -1533,6 +1681,7 @@ class RegisterRouteTest extends TestCase
             $doubleOptInService,
             $customerNewsletterSalesChannelsUpdater,
             new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
     }
 

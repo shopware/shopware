@@ -32,7 +32,7 @@
 
 import { parse, parseExpression, type ParserPlugin } from '@babel/parser';
 import type { Identifier, Node as BabelNode, PatternLike } from '@babel/types';
-import { ShopwareSetupTransformError } from '../utils/transform-error';
+import { ShopwareSetupInternalError } from '../utils/transform-error';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
 import { childBabelNodes, isFunctionLikeNode, isTypeKey } from '../utils/ast-traversal';
 import { isShorthandPropertyValue, isValueReadPosition } from './identifier-position';
@@ -106,7 +106,7 @@ function parseBindingPattern(source: string): BindingPatternResult {
     const statement = ast.program.body[0];
 
     if (statement.type !== 'VariableDeclaration') {
-        throw new ShopwareSetupTransformError('Unable to parse Vue binding pattern.', 0);
+        throw new ShopwareSetupInternalError('Unable to parse Vue binding pattern.', 0);
     }
 
     const declaration = statement.declarations[0];

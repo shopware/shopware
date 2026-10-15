@@ -82,9 +82,34 @@ class Routes
         return 'not an endpoint';
     }
 
+    #[Route('/arrow-function')]
+    public function arrowFunction(): string
+    {
+        return $this->extensions->publish(
+            name: TestExtension::NAME,
+            extension: new TestExtension(),
+            function: fn () => $this->body(),
+        );
+    }
+
+    #[Route('/arrow-function-subset')]
+    public function arrowFunctionWithSubset(string $value, string $unused): string
+    {
+        return $this->extensions->publish(
+            name: SubsetParametersExtension::NAME,
+            extension: new SubsetParametersExtension($value, $unused),
+            function: fn (string $value, string $unused) => $this->bodyWithValue($value),
+        );
+    }
+
     private function body(): string
     {
         return 'result';
+    }
+
+    private function bodyWithValue(string $value): string
+    {
+        return $value;
     }
 }
 
@@ -214,5 +239,71 @@ class MethodScopedValidRoute
     private function resolve(): string
     {
         return 'named arguments may be reordered';
+    }
+}
+
+abstract class AbstractMigratedRoute
+{
+    abstract public function getDecorated(): self;
+
+    abstract public function load(): string;
+}
+
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+class AbstractContractRoute extends AbstractMigratedRoute
+{
+    public function __construct(private readonly ExtensionDispatcher $extensions)
+    {
+    }
+
+    public function getDecorated(): AbstractMigratedRoute
+    {
+        return $this;
+    }
+
+    #[Route('/abstract-contract')]
+    public function load(): string
+    {
+        return $this->extensions->publish(TestExtension::NAME, new TestExtension(), $this->body(...));
+    }
+
+    #[Route('/abstract-contract-new')]
+    public function newEndpoint(): string
+    {
+        return $this->extensions->publish(TestExtension::NAME, new TestExtension(), $this->body(...));
+    }
+
+    private function body(): string
+    {
+        return 'kept abstract contract';
+    }
+}
+
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+class UnpublishedAbstractContractRoute extends AbstractMigratedRoute
+{
+    public function getDecorated(): AbstractMigratedRoute
+    {
+        return $this;
+    }
+
+    #[Route('/unpublished-abstract-contract')]
+    public function load(): string
+    {
+        return 'a kept abstract contract still has to publish';
+    }
+}
+
+/**
+ * @extends Extension<string>
+ */
+final class SubsetParametersExtension extends Extension
+{
+    public const NAME = 'test.subset-parameters';
+
+    public function __construct(
+        public readonly string $value,
+        public readonly string $unused,
+    ) {
     }
 }

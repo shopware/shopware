@@ -12,7 +12,7 @@
 
 import { NodeTypes, type TemplateChildNode } from '@vue/compiler-dom';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
-import { ShopwareSetupTransformError } from '../utils/transform-error';
+import { ShopwareSetupInternalError, ShopwareSetupTransformError } from '../utils/transform-error';
 import {
     type DirectiveNode,
     type ElementNode,
@@ -185,12 +185,15 @@ function assertOverrideTemplateTopLevel(children: TemplateChildNode[], templateO
             return;
         }
 
+        // Text-node ranges include leading whitespace; point at the content the author must move.
+        const contentOffset = node.type === NodeTypes.TEXT ? node.loc.source.search(/\S/) : 0;
+
         throw new ShopwareSetupTransformError(
             'An override template may only contain <sw-block extends="..."> blocks at its top level. An override ' +
                 'component renders only inside the blocks it extends, so any other top-level markup would never render ' +
                 'and its setup references would resolve against the hidden override component. Move it into a ' +
                 '<sw-block extends> block.',
-            templateOffset + node.loc.start.offset,
+            templateOffset + node.loc.start.offset + contentOffset,
         );
     });
 }
@@ -223,7 +226,7 @@ function findOpeningTagAttributeEnd(template: string, elementStart: number): num
         }
     }
 
-    throw new ShopwareSetupTransformError('Unable to locate <sw-block> opening tag end.', elementStart);
+    throw new ShopwareSetupInternalError('Unable to locate <sw-block> opening tag end.', elementStart);
 }
 
 /**
@@ -239,7 +242,7 @@ function findOpeningTagNameEnd(template: string, elementStart: number): number {
         }
     }
 
-    throw new ShopwareSetupTransformError('Unable to locate <sw-block> tag name end.', elementStart);
+    throw new ShopwareSetupInternalError('Unable to locate <sw-block> tag name end.', elementStart);
 }
 
 /**

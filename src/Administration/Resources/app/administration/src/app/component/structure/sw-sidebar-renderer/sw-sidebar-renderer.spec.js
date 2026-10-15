@@ -285,6 +285,26 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             expect(document.body.style.cursor).toBe('col-resize');
         });
 
+        it('should keep iframes outside the sidebar from swallowing the drag while resizing', async () => {
+            const wrapper = await createWrapper();
+
+            await ui.sidebar.add({
+                title: 'Test sidebar',
+                locationId: 'test-sidebar',
+                resizable: true,
+            });
+            Shopware.Store.get('sidebar').sidebars[0].active = true;
+            await wrapper.vm.$nextTick();
+
+            await wrapper.find('.sw-sidebar-renderer__resize-handle').trigger('mousedown', { clientX: 100 });
+
+            expect(document.body.classList).toContain('sw-sidebar-renderer-is-resizing');
+
+            document.dispatchEvent(new MouseEvent('mouseup'));
+
+            expect(document.body.classList).not.toContain('sw-sidebar-renderer-is-resizing');
+        });
+
         it('should update width during resize and save to localStorage on stop', async () => {
             const wrapper = await createWrapper();
 

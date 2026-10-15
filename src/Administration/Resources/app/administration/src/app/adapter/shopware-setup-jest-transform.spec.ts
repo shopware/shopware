@@ -4,7 +4,7 @@
 
 import { defineComponent, ref } from 'vue';
 import { mount } from '@vue/test-utils';
-import { _overridesMap } from 'src/app/adapter/composition-extension-system';
+import resetCompositionOverrides from 'test/_helper_/reset-composition-overrides';
 // Registers the `blockOverride` store as a side effect.
 import 'src/app/store/block-override.store';
 import createDataScopeFixture from 'src/app/component/structure/sw-block-override/sw-block-override.spec/test-utils/create-data-scope-fixture';
@@ -36,15 +36,7 @@ async function mountBlockFixture() {
 }
 
 describe('test/transformer/shopwareSetupVueTransformer', () => {
-    beforeEach(() => {
-        delete _overridesMap['sw-jest-transform-fixture'];
-        delete _overridesMap['sw-jest-transform-block-fixture'];
-    });
-
-    afterAll(() => {
-        delete _overridesMap['sw-jest-transform-fixture'];
-        delete _overridesMap['sw-jest-transform-block-fixture'];
-    });
+    beforeEach(resetCompositionOverrides);
 
     it('transforms and mounts Shopware setup Vue files through the real Jest Vue transformer', async () => {
         mount(ShopwareSetupJestTransformOverride);

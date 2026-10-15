@@ -41,7 +41,7 @@ class DeprecatedServiceFeatureTagRuleTest extends RuleTestCase
                 17,
             ],
             [
-                'Deprecated Twig extension "Shopware\\Core\\DevOps\\MyFakeNamespace\\WrongVersionTwigExtension" declares function "category_url", which must be listed under "v6.9.0.0" in CompatTwigExtension::FUNCTIONS_BY_FEATURE.',
+                'Deprecated Twig extension "Shopware\\Core\\DevOps\\MyFakeNamespace\\WrongVersionTwigExtension" declares function "sw_breadcrumb_full", which must be listed under "v6.9.0.0" in CompatTwigExtension::FUNCTIONS_BY_FEATURE.',
                 15,
             ],
         ]);

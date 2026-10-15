@@ -64,7 +64,7 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
             return lineItems;
         }
 
-        // Get category from breadcrumbs (same for all items on this page)
+        // the breadcrumb of a category page is the path of its listing, not of a slider beside it
         const categories = ProductPageHelper.getCategories();
 
         productBoxes.forEach(item => {
@@ -88,7 +88,7 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
                 item_brand: productData.brand,
                 item_variant: productData.variant,
                 price: productData.price,
-                ...categories,
+                ...(ProductPageHelper.isInPageListing(item) ? categories : {}),
             });
         });
 

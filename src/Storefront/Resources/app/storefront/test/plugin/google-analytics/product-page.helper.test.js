@@ -176,12 +176,29 @@ describe('plugin/google-analytics/product-page.helper', () => {
             window.activeRoute = 'frontend.navigation.page';
             document.body.innerHTML = `
                 <nav aria-label="breadcrumb"><span class="breadcrumb-title">Sale</span></nav>
-                <div class="card product-box" data-product-information='{"id":"product-1"}'><button class="buy"></button></div>
+                <div class="cms-element-product-listing-wrapper">
+                    <div class="card product-box" data-product-information='{"id":"product-1"}'><button class="buy"></button></div>
+                </div>
             `;
 
             await expect(ProductPageHelper.resolveCategories('product-1', document.querySelector('.buy')))
                 .resolves.toEqual({ item_category: 'Sale' });
             expect(global.fetch).not.toHaveBeenCalled();
+        });
+
+        // a slider beside the listing of a category page shows products of any category
+        test('requests the path of a product element outside the listing of a category page', async () => {
+            window.activeRoute = 'frontend.navigation.page';
+            document.body.innerHTML = `
+                <nav aria-label="breadcrumb"><span class="breadcrumb-title">Sale</span></nav>
+                <div class="cms-element-product-slider">
+                    <div class="card product-box" data-product-information='{"id":"product-1"}'><button class="buy"></button></div>
+                </div>
+            `;
+
+            await expect(ProductPageHelper.resolveCategories('product-1', document.querySelector('.buy')))
+                .resolves.toEqual({ item_category: 'Clothing', item_category2: 'Shirts' });
+            expect(global.fetch).toHaveBeenCalledWith(`${url}?productId=product-1`, expect.anything());
         });
 
         test('requests the path of a product on a page without breadcrumb', async () => {
@@ -414,8 +431,10 @@ describe('plugin/google-analytics/product-page.helper', () => {
         test('reports the breadcrumb categories for a product element on a listing', () => {
             document.body.innerHTML = `
                 ${breadcrumb}
-                <div class="card product-box" data-product-information='{"id":"product-1"}'>
-                    <button class="buy"></button>
+                <div class="cms-element-product-listing-wrapper">
+                    <div class="card product-box" data-product-information='{"id":"product-1"}'>
+                        <button class="buy"></button>
+                    </div>
                 </div>
             `;
 
@@ -425,13 +444,40 @@ describe('plugin/google-analytics/product-page.helper', () => {
             });
         });
 
+        test('reports no categories for a product element outside the listing', () => {
+            document.body.innerHTML = `
+                ${breadcrumb}
+                <div class="cms-element-product-slider">
+                    <div class="card product-box" data-product-information='{"id":"product-1"}'>
+                        <button class="buy"></button>
+                    </div>
+                </div>
+            `;
+
+            expect(ProductPageHelper.getCategoriesFor('product-1', document.querySelector('.buy'))).toEqual({});
+        });
+
+        // the wishlist button reports only the product id, the element is found by its class
         test('reports the breadcrumb categories without the element of the interaction', () => {
-            document.body.innerHTML = breadcrumb;
+            document.body.innerHTML = `
+                ${breadcrumb}
+                <div class="cms-element-product-listing-wrapper">
+                    <div class="card product-box" data-product-information='{"id":"product-1"}'>
+                        <div class="product-wishlist-product-1"></div>
+                    </div>
+                </div>
+            `;
 
             expect(ProductPageHelper.getCategoriesFor('product-1')).toEqual({
                 item_category: 'Clothing',
                 item_category2: 'Shirts',
             });
+        });
+
+        test('reports no categories for a product the page shows no element of', () => {
+            document.body.innerHTML = breadcrumb;
+
+            expect(ProductPageHelper.getCategoriesFor('product-1')).toEqual({});
         });
 
         test('reports no categories for a product element on a detail page', () => {

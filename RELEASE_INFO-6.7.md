@@ -839,7 +839,7 @@ Storefront analytics now report the selected options of a variant as `item_varia
 
 ### Storefront analytics request the categories of products outside a category
 
-On a page whose breadcrumb does not describe a product, such as the homepage or the wishlist, `add_to_cart` and the wishlist events now report the categories of the product. They are requested from the new HTTP cached route `frontend.analytics.product-categories`, which returns a 404 for a sales channel without active analytics. The browser keeps the requested categories in the local storage under `swGaProductCategories`, so the cart, checkout and purchase events report them as well without requesting anything.
+For a product the page breadcrumb does not describe, such as on the homepage or the wishlist, or in a product slider of a category page, `add_to_cart` and the wishlist events now report the categories of the product. They are requested from the new HTTP cached route `frontend.analytics.product-categories`, which returns a 404 for a sales channel without active analytics. The browser keeps the requested categories in the local storage under `swGaProductCategories`, so the cart, checkout and purchase events report them as well without requesting anything.
 
 The wishlist page holds the removal of a product back for at most one second, until `remove_from_wishlist` is sent.
 

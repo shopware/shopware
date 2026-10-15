@@ -6,6 +6,7 @@ import { appendFileSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parse } from 'yaml';
 import deprecationBaseline from 'src/meta/deprecation-baseline.json';
+import { deprecationBaselineKey } from 'src/core/feature';
 import { isMajorRun } from './majorFeatureFlags';
 import type { RecordedDeprecation } from './deprecations';
 
@@ -41,18 +42,6 @@ const checkedInBaseline = JSON.stringify(baseline);
 
 // The hits this worker appended, so a usage read on every render is appended only once per hits file.
 const recordedHits = new Set<string>();
-
-/**
- * The key of a deprecation in the baseline: the message without the component path the deprecation plugin
- * appends (`Used in: …`), so one key covers every place the deprecated API is used.
- *
- * @private
- * @example
- * deprecationBaselineKey('The component "sw-x" is deprecated.\nUsed in: sw-page > sw-x'); // 'The component "sw-x" is deprecated.'
- */
-export function deprecationBaselineKey(message: string): string {
-    return message.split('\nUsed in: ')[0];
-}
 
 /**
  * The run this Jest worker belongs to, from the feature flags its environment activates.

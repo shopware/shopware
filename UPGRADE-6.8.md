@@ -393,6 +393,10 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 <details>
 
+## Invalid price definition exceptions
+
+`PriceDefinitionFieldSerializer` now throws `DataAbstractionLayerException` for invalid price-definition types instead of the removed `InvalidPriceFieldTypeException`. Update exception catches and use `DataAbstractionLayerException::invalidPriceFieldType()` to construct this error. Its error code, status, and message remain unchanged.
+
 ## `ReverseProxyCompilerPass` removed
 
 `Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass` was removed without replacement. Remove any manual registration of the compiler pass, and do not rely on reverse proxy services being absent from the container when the reverse proxy is disabled.
@@ -2756,20 +2760,6 @@ The legacy translations are no longer persisted in `theme_translation.labels` an
 The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` methods have been removed.
 Use the new `ThemeConfigurationService::getPlainThemeConfiguration` and `ThemeConfigurationService::getThemeConfigurationFieldStructure` methods instead.
 The new methods return the same data as the old ones, excluding the deprecated fields.
-
-## Removed `category_url` and `category_linknewtab` twig functions
-
-The `category_url` and `category_linknewtab` twig functions have been removed.
-The data is now directly available in the category entities, therefore use `category.seoUrl` or `category.shouldOpenInNewTab` instead.
-
-```diff
-<a class="link"
--   href="{{ category_url(item) }}"
-+   href="{{ item.seoUrl }}"
--   {% if category_linknewtab(item) %}target="_blank"{% endif %}
-+   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
-</a>
-```
 
 ## Removed `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` Twig functions
 

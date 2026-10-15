@@ -60,6 +60,9 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Invalid price definition exception factory
+
+Use `DataAbstractionLayerException::invalidPriceFieldType()` instead of constructing the deprecated `InvalidPriceFieldTypeException`. The factory preserves the legacy exception in 6.7 and returns `DataAbstractionLayerException` with the same error code and message when `v6.8.0.0` is active.
 ### Preview three 6.8 behavior changes independently
 
 Set `MEDIA_URL_PATH_ENCODING=1` to test encoded media URL paths, `PROPORTIONAL_CART_TAXES=1` to test proportional tax calculation for percentage prices and split line items, or `DELETE_CART_AFTER_ORDER_CREATION=1` to test the earlier persisted-cart deletion during checkout. Each flag can be enabled without the other 6.8 changes. When `V6_8_0_0=1`, all three activate unless explicitly disabled. The corresponding migration guidance is in `UPGRADE-6.8.md`.
@@ -337,6 +340,12 @@ agentic-commerce 1.3.0 and earlier put their UCP tools in `discovery`. Update to
 
 Creating a language could return an uncaught `500` when an Elasticsearch/OpenSearch-indexed entity's live index mapping had drifted from its current definition, for example a sales channel created after the last full reindex. `LanguageSubscriber` now catches the same known-unresolvable mapping conflicts `IndexMappingUpdater` already handles elsewhere, schedules the affected entity for a reindex instead of throwing, and only logs unexpected errors. The language is created successfully; the delayed reindex is picked up by the next indexing run or a manual `es:index`.
 
+### MCP servers run on `symfony/mcp-bundle` 0.14
+
+Shopware now requires `symfony/mcp-bundle` 0.14.1, still on `mcp/sdk` 0.8. The extension tags and the registration described for 6.7.15.0 are unchanged.
+
+One behaviour changes for plugins and bundles that register MCP tools, prompts or resources through the `shopware.mcp.*` or `shopware.store_api_mcp.*` tags: a `%` in their metadata, for example in a tool description or schema such as "5%-10%", is now kept as written. Before, the bundle read text between two `%` without whitespace in between as a container parameter placeholder, so the MCP endpoint failed with a "non-existent parameter" error, and a `%%` was shown as a single `%`. Text with a single `%`, or with whitespace between two `%` such as "between 5% and 10%", was not affected. If your plugin wrote `%%` to work around that, remove the workaround, otherwise the description now shows `%%`. App MCP capabilities are read from the app at runtime and are not affected.
+
 ### MCP endpoints are rate-limited with a sliding window
 
 `mcp_admin_api` and `mcp_store_api` in `shopware.api.rate_limiter` now use the `sliding_window` policy: 300 requests per minute per OAuth token on `/api/_mcp`, and 120 per minute per sales-channel context and per IP on `/store-api/_mcp`. Before, they used `time_backoff`, which accepts only one request per interval once the first limit is reached and keeps that state for an hour. A busy MCP client therefore got HTTP 429 on almost every call, including the handshake of a new session.
@@ -407,6 +416,14 @@ Run `bin/console es:index` after deploying. Existing documents have no price unt
 
 Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
 
+### MCP list change notifications reach sessions on every server
+
+When an app adds, changes or removes MCP tools, prompts or resources, every open MCP session on the Admin API endpoint now receives `notifications/tools/list_changed` (or the prompt or resource variant) after its next request, whichever server it is connected to. Before, only sessions known to the server that processed the app change were notified, because each server kept its own list of sessions.
+
+The list of sessions is gone, together with the `Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry` and `mcp.store_api.session_registry` services and their caches `shopware.mcp.session_registry_cache` and `mcp.store_api.session_registry_cache`. If you overrode them to share the list between servers, remove the override. A shared `framework.lock` is no longer needed for MCP notifications.
+### MCP removes many-to-many links through the mapping entity
+
+`shopware-entity-delete` now accepts mapping entities such as `product_category`, so an MCP client can remove a product from a category, or a property option from a product, without deleting either side. `ids` is then a list of objects that name every key field, for example `[{"productId": "…", "categoryId": "…"}]`. `shopware-entity-schema` reports the `mappingEntity` of each many-to-many association. Deleting rows that don't exist is now reported: as an error when none of them existed, and in `_meta.notFound` when only some did.
 ### Stored MCP tool results are removed after 24 hours
 
 MCP tool results larger than 100 KB are stored in `mcp_tool_result_cache` and read back by the client with `resources/read`. Until now they were only removed when the client ended its session with `DELETE /api/_mcp` or `DELETE /store-api/_mcp`, so results of clients that never sent it stayed in the database. The new hourly scheduled task `mcp_tool_result_cache.cleanup` removes results older than 24 hours.
@@ -429,6 +446,11 @@ Both are experimental and become stable with 6.8.0.
 ### GLB uploads with external references are rejected
 
 GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_INVALID_FILE` if it is not a valid binary glTF 2.0 container or if the `uri` of a buffer or image points to something other than an embedded `data:` URI. Self-contained models, which keep their buffers and textures in the binary chunk, are not affected and URLs in other fields such as `extras` or `asset.copyright` are still allowed.
+### `ProductCartDataContextHashEvent` for state that product cart data depends on
+
+The data context hash of the cart products only covers the sales channel context and the tax rules.
+The cart reloads product data only when this hash changes, so extensions whose product data or prices depend on other state get stale cart data.
+Listeners can add parts to this event to include additional state in the hash for every state outside the sales channel context to force a reload of product data when that state changes.
 
 ### Apps without permissions can't declare required privileges for MCP tools
 
@@ -447,6 +469,12 @@ Tool calls on `/api/_mcp` and `/store-api/_mcp` now return the result data as `s
 The text block is unchanged, so clients that parse `{"success": ..., "data": ...}` keep working. Plugin tools that extend `McpToolResponse` get the new fields without any change. Tools can pass a stable code as the second argument of `McpToolResponse::error()`.
 
 With the `v6.8.0.0` feature flag, the first text block holds the plain data or the error message instead of the `success` envelope, followed by the summary and the metadata (`{"_meta": …}`) as blocks of their own. See `UPGRADE-6.8.md` for how to switch a client.
+
+### Large MCP tool results are linked with `resource_link` and work without a session
+
+A tool result larger than 100 KB is stored and linked instead of returned inline. The link is now a signed pointer for the caller: the integration or user on `/api/_mcp`, the sales channel and `sw-context-token` on `/store-api/_mcp`. It expires after an hour and can be read on any later request of the same caller, with or without an MCP session. Another caller gets "not found".
+
+The result keeps `_meta.resourceUri` in the text block and adds `_meta.expiresAt`. Clients on protocol 2025-06-18 or later also get the link as a `resource_link` content block. The Store API endpoint can now read these results with `resources/read`; before, its links could not be resolved. Store API clients have to send the same `sw-context-token` on the read. A Store API call without `sw-context-token` gets its result inline, because the token minted for that one request could never read it back.
 
 ### Parents without an available variant are not found
 
@@ -476,6 +504,12 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `OrderLineItem.payload` can be an empty array; its `options` are `{ group, option }` pairs, its dates use the storage format `Y-m-d H:i:s.v`, and its ID lists can be `null`. `PropertyGroupOption` no longer declares `option` or requires `group`.
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
+
+### Store API schema describes line item payloads per type
+
+The Store API schema no longer restricts the line item `type` to the core values, because extensions add their own types such as `customized-products` or `subscriptionDiscount`. `payload` is an open object whose keys depend on `type`. The new `ProductLineItemPayload` and `PromotionLineItemPayload` schemas describe the payloads of `product` and `promotion` line items, and `LineItem` and `OrderLineItem` apply them through `if`/`then` conditions on `type`. Both mark every key core always writes as required, except `productType` and `composition`. An order keeps the payload of the version that placed it, so orders from older versions can lack keys added since. The cart `LineItem.payload` no longer references `ProductJsonApi`. That schema was removed, along with the JSON:API resource and relationship schemas that only it used.
+
+Show a line item whose `type` you don't know from its common fields, such as `label`, `quantity` and the price, and ignore its `payload`. If you generate types from the schema, cast `payload` to `ProductLineItemPayload` or `PromotionLineItemPayload` after checking `type`. Extensions that add a line item type can describe its payload the same way by adding an `if`/`then` entry to `allOf` of `LineItem` and `OrderLineItem` in their own Store API schema files. Keys an extension adds to a core payload go into the `properties` of `ProductLineItemPayload` or `PromotionLineItemPayload` in those files. Undeclared keys aren't part of the schema, so generated types don't contain them.
 
 ### Store API resolves the context from the storefront session on request
 
@@ -760,6 +794,10 @@ The deliverability card of digital products has a new "Allow multiple units per 
 - The method `moveGalleryItem(item, position)` moves a grid item when it is dragged or marked as cover. Override it together with `galleryItems` when your items share the position space with the product media.
 
 ## Storefront
+
+### Category Twig function removal postponed to 6.9
+
+The deprecated `category_url` and `category_linknewtab` Twig functions remain available throughout 6.8 and will be removed in 6.9.0. Extension and theme developers should migrate to `category.seoUrl` (available on `SalesChannelCategoryEntity`) and `category.shouldOpenInNewTab`. See the [migration instructions](UPGRADE-6.9.md#removed-category_url-and-category_linknewtab-twig-functions).
 
 ### Essential characteristics label custom fields with their snippet
 

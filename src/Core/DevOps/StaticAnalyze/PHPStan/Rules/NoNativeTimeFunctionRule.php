@@ -85,7 +85,7 @@ class NoNativeTimeFunctionRule implements Rule
         }
 
         if ($functionName === 'date_create' || $functionName === 'date_create_immutable') {
-            return $this->checkDateTimeFactory($node, $scope);
+            return $this->checkDateTimeFactory($node);
         }
 
         return $this->buildError();
@@ -108,7 +108,7 @@ class NoNativeTimeFunctionRule implements Rule
      *
      * @return list<IdentifierRuleError>
      */
-    private function checkDateTimeFactory(FuncCall $node, Scope $scope): array
+    private function checkDateTimeFactory(FuncCall $node): array
     {
         $args = $node->getArgs();
 

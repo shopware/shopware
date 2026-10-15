@@ -11,14 +11,14 @@ End-to-end evals for the `.agents/skills/sw-review` PR-review skill. Built on
 ```
 tests/
 ├── eval.yaml   # persona and guide task definitions
-├── routing/    # deterministic classify.sh cases (run.sh)
+├── routing/    # deterministic classify.ts cases (routing.test.ts)
 ├── _lib.sh     # shared check/emit helpers (mounted into every workspace)
 └── persona/<persona>/{catch,ignore}/{input.json, diff.patch, grader.sh}
 ```
 
 ## Prerequisites
 
-- Node 20+ (`npm i -g skillgrade`)
+- Node 22.18+ (runs the TypeScript scripts directly; `npm i -g skillgrade` for the evals)
 - `zod` global (`npm i -g zod` — skillgrade has an unbundled peer dep)
 - `jq`
 - `claude` CLI on `$PATH` with an authenticated session
@@ -26,13 +26,14 @@ tests/
 ## Routing tests (no LLM, run on every change)
 
 ```bash
-bash tests/routing/run.sh
+node --test scripts/*.test.ts tests/routing/*.test.ts   # from the skill root
 ```
 
 Each case under `tests/routing/<case>/` holds a real PR diff plus `expected.json`
 (signals that must be present, signals that must be absent, the exact guide
-set). These run in seconds and prove that `scripts/classify.sh` routes the same
-way every time.
+set). These run in seconds and prove that `scripts/classify.ts` routes the same
+way every time; `scripts/classify.test.ts` and `scripts/ci-profile.test.ts` are
+the unit tests of the scripts themselves.
 
 ## Running
 

@@ -1,6 +1,6 @@
 # Change Classification
 
-Routing is deterministic. `scripts/classify.sh` turns the changed-file list and
+Routing is deterministic. `scripts/classify.ts` turns the changed-file list and
 the diff into one JSON change profile and selects the review guides from
 `guides/index.json`. No LLM is involved, so the same PR always routes the same
 way, and `tests/routing/` proves it.
@@ -8,7 +8,7 @@ way, and `tests/routing/` proves it.
 ## Run
 
 ```text
-scripts/classify.sh --range <merge-base>...HEAD --base trunk \
+node scripts/classify.ts --range <merge-base>...HEAD --base trunk \
     --meta meta.json --root <checkout root> --rules-ref <merge-base>
 ```
 
@@ -16,18 +16,19 @@ scripts/classify.sh --range <merge-base>...HEAD --base trunk \
   the diff through the model. The changed-path list includes the old names of
   renamed files, so globs match both sides.
 - `--rules-ref`: `guides/index.json` and the guide files are read from that git
-  ref (the merge base of the PR), never from the checked-out head, so a PR
-  cannot change the rules it is reviewed against. When the ref has no index yet
-  (the guides are being introduced, or a stacked branch), the script falls back
-  to the working tree and reports `"rules_source": "working-tree"`; there is
-  nothing to protect in that case.
+  ref, never from the checked-out head, so a PR cannot change the rules it is
+  reviewed against. Interactively that is the merge base of the PR; in CI it is
+  the trusted commit the scripts themselves come from (see `ci-profile.ts`).
+  When the ref has no index yet (the guides are being introduced, or a stacked
+  branch), the script falls back to the working tree and reports
+  `"rules_source": "working-tree"`; there is nothing to protect in that case.
 - `--meta`: `{"fork": bool, "author_association": "...", "labels": [...], "fixes_issue": bool}`; all optional.
 - `--root`: the checkout; needed for `git` and for the `@internal` lookup.
 - `--files files.txt --diff diff.patch` is the offline form used by the routing
   tests (pre-computed inputs; a deleted file's path comes from the `---` line).
 - Input is normalised to LF; CRLF diffs classify like LF ones.
-- Needs bash 4 or newer (associative arrays); CI runners have it, macOS
-  `/bin/bash` 3.2 does not.
+- Needs Node 22.18 or newer: the script is TypeScript that Node runs directly
+  (type stripping), without a build step or dependencies.
 
 Output:
 
@@ -78,8 +79,11 @@ Output:
   The orchestrator splits an oversized persona slice along them.
 - `merged_from_base` (range mode) lists merge commits inside the PR: base
   changes that the diff does not show but the feature may depend on.
-- `ci` (CI mode, added by `ci-profile.sh`) carries the PR's check results, so
-  workers know when the PR's own tests did not run.
+- `ci` (CI mode, added by `ci-profile.ts`) carries the PR's check results, so
+  workers know when the PR's own tests did not run. The workflow runs
+  `ci-profile.ts` and `classify.ts` from a trusted commit (the base branch head,
+  or the default branch for `/sw-review` comment runs), never from the PR head,
+  and reads the rules from that same commit.
 - The profile also carries `all_guides`: every guide with its one-line title
   and personas. Workers get this overview and read any guide whose topic the
   diff touches even when routing did not select it. Routing is the proposal,
@@ -124,8 +128,10 @@ Output:
 
 ## Tests
 
-`bash tests/routing/run.sh` runs every case under `tests/routing/<case>/`
-(`files.txt`, `diff.patch`, `meta.json`, `expected.json`). A case states the
+`node --test tests/routing/routing.test.ts` runs every case under
+`tests/routing/<case>/` (`files.txt`, `diff.patch`, `meta.json`,
+`expected.json`); `scripts/classify.test.ts` covers the diff parser, the glob
+matcher, the `@internal` lookup and each signal on a minimal diff. A case states the
 signals that must be present, the signals that must be absent, and the exact
 guide set. Every guide has at least one case that selects it (`fx-<slug>` cases
 reuse the guide fixtures' diffs); `docs-only` and `crlf-docs-only` prove the

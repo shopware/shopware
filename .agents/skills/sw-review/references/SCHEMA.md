@@ -105,7 +105,7 @@ All other finding fields match the per-persona finding shape.
 
 Persona-worker input adds `"guides": ["guides/platform-scope.md"]` (the guides
 the orchestrator selected for this persona; the worker reads them whole after
-its persona file), `"change_profile"` (the classify.sh output, see
+its persona file), `"change_profile"` (the classify.ts output, see
 `references/CLASSIFY.md`) and, when a persona was split, `"slice_label"`
 (for example `"architecture 2/3: src/Core/Framework/ContentSystem"`). The
 merged review's `not_reviewed` is empty when everything was covered.

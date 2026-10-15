@@ -56,18 +56,14 @@ jobs:
         with:
           persist-credentials: false
 
-      # Deterministic classification of real PR diffs (no LLM). The run script exits
-      # non-zero on any failed case; the grep proves it actually evaluated cases, so an
-      # empty fixture directory cannot pass silently.
-      - name: Check script syntax
-        run: |
-          set -euo pipefail
-          bash -n .agents/skills/sw-review/scripts/classify.sh
-          bash -n .agents/skills/sw-review/tests/routing/run.sh
-          bash -n .agents/skills/sw-review/tests/_lib.sh
+      # Deterministic classification of real PR diffs (no LLM). Node runs the TypeScript
+      # directly (type stripping, no build step). The routing test fails on an empty
+      # fixture directory, so it cannot pass without evaluating cases. The grader library
+      # stays Bash because skillgrade mounts it into the eval workspaces.
+      - name: Check grader syntax
+        run: bash -n .agents/skills/sw-review/tests/_lib.sh
 
-      - name: Run routing cases
+      - name: Run classifier unit tests and routing cases
         run: |
           set -euo pipefail
-          bash .agents/skills/sw-review/tests/routing/run.sh | tee routing.log
-          grep -E '^[1-9][0-9]*/[1-9][0-9]* routing cases passed$' routing.log
+          node --test .agents/skills/sw-review/scripts/*.test.ts .agents/skills/sw-review/tests/routing/*.test.ts

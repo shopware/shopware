@@ -19,7 +19,7 @@ allowed-tools: >
     Bash(gh api repos/*/pulls/[0-9]*/commits*)
     Bash(gh auth status:*) Bash(gh repo view:*)
     Bash(find:*) Bash(ls:*) Bash(jq:*) Bash(mktemp:*)
-    Bash(.agents/skills/sw-review/scripts/classify.sh:*)
+    Bash(node .agents/skills/sw-review/scripts/classify.ts:*)
     Read Glob Grep
 ---
 
@@ -30,7 +30,7 @@ Senior Shopware 6 reviewer. Be calibrated: real findings only, no padding.
 Two layers of knowledge: five **personas** (lenses) and topic **guides**
 (`guides/<slug>.md`: pointers to the authoritative rules, or the rules
 themselves where no guideline exists, real examples, what not to flag,
-severity). Guides are selected by `scripts/classify.sh` from the changed
+severity). Guides are selected by `scripts/classify.ts` from the changed
 code, never from the PR text; every matching guide loads.
 
 This skill drives the **interactive** review path. The **unattended CI path**
@@ -64,7 +64,7 @@ Input block rules:
     - Commits: gather only when `maintainer` will run and it is cheap.
     - Wrapper-fed: trust provided `pr`, `diff` / `diff_path`, `files`, optional `commits`.
 2. **Classify.** Write `{"fork","author_association","labels","fixes_issue"}` to a temp `meta.json` and run
-   `.agents/skills/sw-review/scripts/classify.sh --range <merge-base>...<head> --base <base> --meta <meta.json> --root <checkout> --rules-ref <merge-base>`.
+   `node .agents/skills/sw-review/scripts/classify.ts --range <merge-base>...<head> --base <base> --meta <meta.json> --root <checkout> --rules-ref <merge-base>`.
    The script produces the diff itself and reads `guides/index.json` from the merge base. Keep the JSON as `change_profile` (`references/CLASSIFY.md`): path classes, signals, size, and the selected guides with the personas each guide names. Wrapper-fed (no git): use `--files` and `--diff` on the provided input. Never derive a signal from the PR title or body.
 3. **Gate personas.** Slugs: `security`, `architecture`, `code-style`, `ux`, `maintainer`. Gate off path classes and signals (`maintainer` also runs when `platform-scope`, `bc-removal-before-major` or `release-docs` was selected). User override can force one.
 4. **Large PR: split, never skip.** Over caps from `references/DIFF-DISCIPLINE.md`:
@@ -203,7 +203,7 @@ Rules:
 ## Reference Files
 
 - `personas/<slug>.md` — authoritative lens.
-- `guides/<slug>.md` — topic guides; `guides/index.json` — router triggers; `scripts/classify.sh` — deterministic classification (`references/CLASSIFY.md`).
+- `guides/<slug>.md` — topic guides; `guides/index.json` — router triggers; `scripts/classify.ts` — deterministic classification (`references/CLASSIFY.md`).
 - `references/RUNTIME.md` — shared worker rules.
 - `references/CLASSIFICATION.md` — merge, decision, severity, confidence.
 - `references/COST.md` — provider-neutral tier, budget, routing, and cache rules.

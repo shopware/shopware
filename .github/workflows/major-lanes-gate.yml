@@ -1,0 +1,35 @@
+name: Major lanes gate
+# Rule and reasoning: .github/bin/js/major-lanes-gate.ts
+#
+# Require the `Major lanes` check in branch protection. merge_group is where it judges;
+# on pull_request the job is skipped, which GitHub counts as passing, so the required
+# check is reported without a runner and the PR can enter the queue.
+
+on:
+  pull_request:
+  merge_group:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: Major lanes
+    if: github.event_name == 'merge_group'
+    runs-on: ubuntu-24.04
+    # waits for lanes still running when the group was created, see the module
+    timeout-minutes: 60
+    permissions:
+      checks: read
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/bin/js
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          retries: 3
+          script: |
+            const { checkMajorLanes } = await import('${{ github.workspace }}/.github/bin/js/major-lanes-gate.ts')
+            await checkMajorLanes({ github, core, context })

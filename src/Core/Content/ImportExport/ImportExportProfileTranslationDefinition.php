@@ -5,17 +5,24 @@ namespace Shopware\Core\Content\ImportExport;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.8.0 - reason:remove-entity - Will be removed
- *
- * @codeCoverageIgnore
+ * @deprecated tag:v6.8.0 - Will be removed
  */
 #[Package('fundamentals@after-sales')]
 class ImportExportProfileTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = ImportExportProfileDefinition::ENTITY_NAME . '_translation';
+
+    /**
+     * @internal
+     */
+    public function __construct()
+    {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+    }
 
     public function getEntityName(): string
     {

@@ -33,7 +33,7 @@ final class TaxRuleFingerprint
         return Hasher::hash($rates);
     }
 
-    private static function derivesPricesFromTaxRates(SalesChannelContext $context): bool
+    public static function derivesPricesFromTaxRates(SalesChannelContext $context): bool
     {
         $basis = $context->getCurrentCustomerGroup()->getPriceBasis();
 

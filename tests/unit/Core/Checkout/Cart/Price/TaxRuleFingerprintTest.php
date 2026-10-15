@@ -35,6 +35,12 @@ class TaxRuleFingerprintTest extends TestCase
         static::assertSame($expectsFingerprint, $fingerprint !== null);
     }
 
+    #[DataProvider('taxRuleFingerprintProvider')]
+    public function testPricesDeriveFromTaxRatesOnlyWhenTheBasisDiffersFromTheDisplayState(?string $basis, string $taxState, bool $derives): void
+    {
+        static::assertSame($derives, TaxRuleFingerprint::derivesPricesFromTaxRates(self::context($basis, $taxState, self::taxes(19.0))));
+    }
+
     public static function taxRuleFingerprintProvider(): \Generator
     {
         yield 'net basis derives the displayed gross from the country tax rate' => [

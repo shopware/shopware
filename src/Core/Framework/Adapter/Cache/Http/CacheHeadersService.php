@@ -144,6 +144,12 @@ class CacheHeadersService
             return true;
         }
 
+        if ($salesChannelContext->getShippingLocation()->getState() !== null
+            && TaxRuleFingerprint::derivesPricesFromTaxRates($salesChannelContext)
+        ) {
+            return true;
+        }
+
         if ($salesChannelContext->getPaymentMethod()->getId()
             !== $salesChannelContext->getSalesChannel()->getPaymentMethodId()
         ) {

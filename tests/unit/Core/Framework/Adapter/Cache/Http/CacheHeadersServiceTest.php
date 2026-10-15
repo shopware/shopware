@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -312,6 +313,31 @@ class CacheHeadersServiceTest extends TestCase
         static::assertNull($event);
     }
 
+    public function testAChosenStateRequiresTheCacheHashWhenPricesDeriveFromItsTaxRates(): void
+    {
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $this->createGuestContextWithChosenState(CustomerGroupEntity::PRICE_BASIS_NET, 'gross'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+        static::assertNotNull($event->get(HttpCacheCookieEvent::TAX_RULES));
+    }
+
+    public function testAChosenStateNeedsNoCacheHashWhenTheBasisMatchesTheDisplayState(): void
+    {
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $this->createGuestContextWithChosenState(CustomerGroupEntity::PRICE_BASIS_GROSS, 'gross'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertNull($event);
+    }
+
     public function testNonDefaultPaymentMethodRequiresCacheHash(): void
     {
         // switchable anonymously and rules (e.g. price rules) can condition on the payment method
@@ -587,6 +613,47 @@ class CacheHeadersServiceTest extends TestCase
         );
 
         return $salesChannelContext;
+    }
+
+    private function createGuestContextWithChosenState(string $priceBasis, string $taxState): SalesChannelContext
+    {
+        $country = (new CountryEntity())->assign(['id' => 'country-default']);
+        $state = (new CountryStateEntity())->assign(['id' => 'state-chosen', 'countryId' => 'country-default']);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+        $context->method('getRuleIds')->willReturn([]);
+        $context->method('getRuleIdsByAreas')->willReturn([]);
+        $context->method('getVersionId')->willReturn(Defaults::LIVE_VERSION);
+        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $context->method('getLanguageId')->willReturn(Defaults::LANGUAGE_SYSTEM);
+        $context->method('getTaxState')->willReturn($taxState);
+        $context->method('getCurrentCustomerGroup')->willReturn(
+            (new CustomerGroupEntity())->assign(['priceBasis' => $priceBasis])
+        );
+        $context->method('getTaxRules')->willReturn(new TaxCollection([
+            (new TaxEntity())->assign([
+                'id' => self::TAX_ID,
+                '_uniqueIdentifier' => self::TAX_ID,
+                'taxRate' => 19.0,
+                'name' => 'tax',
+                'position' => 1,
+            ]),
+        ]));
+        $context->method('getShippingLocation')->willReturn(new ShippingLocation($country, $state, null));
+        $context->method('getPaymentMethod')->willReturn((new PaymentMethodEntity())->assign(['id' => 'payment-default']));
+        $context->method('getShippingMethod')->willReturn((new ShippingMethodEntity())->assign(['id' => 'shipping-default']));
+        $context->method('getSalesChannel')->willReturn(
+            (new SalesChannelEntity())->assign([
+                'currencyId' => Defaults::CURRENCY,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'countryId' => 'country-default',
+                'paymentMethodId' => 'payment-default',
+                'shippingMethodId' => 'shipping-default',
+            ])
+        );
+
+        return $context;
     }
 
     private static function createShippingLocation(string $countryId = 'country-default'): ShippingLocation

@@ -122,9 +122,10 @@ class BoxSpacingNormalizerTest extends TestCase
         // The px-suffix pattern rejects this without backtracking; unit matching exceeds the limit.
         yield 'unit matching rejects an engine failure' => ['10', 1];
 
-        // The px-suffix pattern exceeds this limit, but the later CSS-unit pattern accepts the value.
+        // The px-suffix pattern needs a limit of 7 here. The `(` makes normalizeUnit() return before its
+        // unit and plain-number patterns, so only trim, split and keyword run, and those need 1.
         // Without the formatSide guard, no later match failure can mask the missing rejection.
-        yield 'px stripping rejects an engine failure independently of unit matching' => ['1pxx', 6];
+        yield 'px stripping rejects an engine failure independently of unit matching' => ['1px(', 3];
     }
 
     #[DataProvider('matchLimitProvider')]

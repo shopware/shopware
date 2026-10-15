@@ -664,7 +664,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('default')->defaultFalse()->end()
                         ->stringNode('major')->cannotBeEmpty()
                             ->validate()
-                                ->ifTrue(static fn (string $major): bool => !\preg_match('/^v\d+\.\d+\.0\.0$/', $major))
+                                ->ifTrue(static fn (string $major): bool => !\preg_match('/^v\d+\.\d+\.0\.0$/D', $major))
                                 ->thenInvalid('The parent major must be a canonical version flag such as "v6.8.0.0".')
                             ->end()
                         ->end()

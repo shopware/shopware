@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Price;
 
-use Shopware\Core\Checkout\Cart\Price\AbstractPriceSelector;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -40,7 +40,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         private readonly EntityRepository $unitRepository,
         private readonly QuantityPriceCalculator $calculator,
         private readonly ExtensionDispatcher $extensions,
-        private readonly AbstractPriceSelector $priceSelector,
+        private readonly PriceSelector $priceSelector,
     ) {
     }
 

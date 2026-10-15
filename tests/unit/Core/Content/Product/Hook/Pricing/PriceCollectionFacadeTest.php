@@ -30,9 +30,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -166,7 +168,7 @@ class PriceCollectionFacadeTest extends TestCase
             static::createStub(Connection::class),
             $quantityCalculator,
             new PercentagePriceCalculator(new CashRounding(), $quantityCalculator, new PercentageTaxRuleBuilder()),
-            new PriceSelector(new TaxCalculator()),
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())),
         );
 
         $product = (new PartialEntity())->assign(['taxId' => Uuid::randomHex()]);

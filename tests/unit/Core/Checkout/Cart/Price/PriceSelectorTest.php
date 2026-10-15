@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Price;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension;
 use Shopware\Core\Checkout\Cart\Price\PriceSelector;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\SelectedPrice;
@@ -14,9 +15,12 @@ use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -141,23 +145,90 @@ class PriceSelectorTest extends TestCase
         static::assertEqualsWithDelta(11.9, $selected->getValue() + $addedTax, 0.000001);
     }
 
-    public function testGetDecoratedThrowsDecorationPatternException(): void
+    public function testSelectPublishesTheExtensionWithItsInput(): void
     {
-        $selector = new PriceSelector(new TaxCalculator());
+        $price = new Price(Defaults::CURRENCY, 10.0, 11.9, false);
+        $taxRules = new TaxRuleCollection([new TaxRule(19)]);
+        $context = $this->createContext(CustomerGroupEntity::PRICE_BASIS_NET, CartPrice::TAX_STATE_GROSS);
 
-        $this->expectExceptionObject(new DecorationPatternException(PriceSelector::class));
+        $published = null;
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(PriceSelectorExtension::onPost(), static function (PriceSelectorExtension $extension) use (&$published): void {
+            $published = $extension;
+        });
 
-        $selector->getDecorated();
+        $selected = $this->createSelector($dispatcher)->select($price, $taxRules, $context);
+
+        static::assertInstanceOf(PriceSelectorExtension::class, $published);
+        static::assertSame(['price' => $price, 'taxRules' => $taxRules, 'context' => $context], $published->getParams());
+        static::assertSame($selected, $published->result);
+    }
+
+    public function testAPreListenerReplacesTheSelection(): void
+    {
+        $replacement = new SelectedPrice(9.99, isCalculated: true);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(PriceSelectorExtension::onPre(), static function (PriceSelectorExtension $extension) use ($replacement): void {
+            $extension->result = $replacement;
+            $extension->stopPropagation();
+        });
+
+        $selected = $this->createSelector($dispatcher)->select(
+            new Price(Defaults::CURRENCY, 10.0, 11.9, false),
+            new TaxRuleCollection([new TaxRule(19)]),
+            $this->createContext(CustomerGroupEntity::PRICE_BASIS_NET, CartPrice::TAX_STATE_GROSS)
+        );
+
+        static::assertSame($replacement, $selected);
+    }
+
+    public function testAPostListenerAdjustsTheSelection(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(PriceSelectorExtension::onPost(), static function (PriceSelectorExtension $extension): void {
+            $extension->result = new SelectedPrice(floor($extension->result->getValue()) + 0.99, isCalculated: true);
+        });
+
+        $selected = $this->createSelector($dispatcher)->select(
+            new Price(Defaults::CURRENCY, 10.0, 11.9, false),
+            new TaxRuleCollection([new TaxRule(19)]),
+            $this->createContext(CustomerGroupEntity::PRICE_BASIS_GROSS, CartPrice::TAX_STATE_GROSS)
+        );
+
+        static::assertSame(11.99, $selected->getValue());
+    }
+
+    public function testSelectingWithoutListenersPublishesNothing(): void
+    {
+        $dispatcher = new CollectingEventDispatcher();
+
+        $selected = $this->createSelector($dispatcher)->select(
+            new Price(Defaults::CURRENCY, 10.0, 11.9, false),
+            new TaxRuleCollection([new TaxRule(19)]),
+            $this->createContext(CustomerGroupEntity::PRICE_BASIS_GROSS, CartPrice::TAX_STATE_GROSS)
+        );
+
+        static::assertSame(11.9, $selected->getValue());
+        static::assertSame([], $dispatcher->getEvents());
     }
 
     private function select(Price $price, TaxRuleCollection $taxRules, ?string $basis, string $taxState): SelectedPrice
     {
-        $customerGroup = (new CustomerGroupEntity())->assign(['priceBasis' => $basis]);
+        return $this->createSelector(new EventDispatcher())->select($price, $taxRules, $this->createContext($basis, $taxState));
+    }
 
+    private function createSelector(EventDispatcherInterface $dispatcher): PriceSelector
+    {
+        return new PriceSelector(new TaxCalculator(), new ExtensionDispatcher($dispatcher));
+    }
+
+    private function createContext(?string $basis, string $taxState): SalesChannelContext
+    {
         $context = static::createStub(SalesChannelContext::class);
-        $context->method('getCurrentCustomerGroup')->willReturn($customerGroup);
+        $context->method('getCurrentCustomerGroup')->willReturn((new CustomerGroupEntity())->assign(['priceBasis' => $basis]));
         $context->method('getTaxState')->willReturn($taxState);
 
-        return (new PriceSelector(new TaxCalculator()))->select($price, $taxRules, $context);
+        return $context;
     }
 }

@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Price\AbstractPriceSelector;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -49,7 +49,7 @@ class ProductFeatureBuilder
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly TranslatorInterface $translator,
-        private readonly AbstractPriceSelector $priceSelector,
+        private readonly PriceSelector $priceSelector,
         private readonly QuantityPriceCalculator $quantityPriceCalculator,
     ) {
     }

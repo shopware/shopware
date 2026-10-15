@@ -8,8 +8,8 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
-use Shopware\Core\Checkout\Cart\Price\AbstractPriceSelector;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -47,7 +47,7 @@ class DeliveryCalculator
         private readonly QuantityPriceCalculator $priceCalculator,
         private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder,
         private readonly CashRounding $cashRounding,
-        private readonly AbstractPriceSelector $priceSelector
+        private readonly PriceSelector $priceSelector
     ) {
     }
 

@@ -20,7 +20,7 @@ class CurrencyPriceCalculator
     public function __construct(
         private readonly QuantityPriceCalculator $priceCalculator,
         private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder,
-        private readonly AbstractPriceSelector $priceSelector
+        private readonly PriceSelector $priceSelector
     ) {
     }
 

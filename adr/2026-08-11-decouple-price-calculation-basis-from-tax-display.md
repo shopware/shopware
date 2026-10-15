@@ -42,10 +42,11 @@ fields are independent and all four combinations are supported.
     layer (gross minus the tax it contains at the applicable rules) and handed over as an already
     calculated value, so `NetPriceCalculator` only rounds it and stays untouched.
   - Tax-free deliveries always charge the stored net value, on every basis. Nothing is derived at 0%.
-- A new decoratable `AbstractPriceSelector` service replaces the four duplicated gross-vs-net branches
+- A new internal `PriceSelector` service replaces the four duplicated gross-vs-net branches
   (`ProductPriceCalculator`, `DeliveryCalculator`, `CurrencyPriceCalculator`, the app-script price
   facades). It takes the applicable `TaxRuleCollection` along with the price, and returns the selected
-  value plus the `isCalculated` flag.
+  value plus the `isCalculated` flag. Plugins hook into it through the pre and post events of
+  `PriceSelectorExtension` instead of decorating it, so its signature can still change.
 - Nothing downstream changes. Cart math, orders, documents, tax reporting, rules, recalculation, both API
   schemas and all storefront templates keep their current shape, because the derived value enters the
   pipeline at the same point a stored one does today.

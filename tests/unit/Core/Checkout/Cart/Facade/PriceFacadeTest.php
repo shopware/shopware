@@ -30,10 +30,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -273,7 +275,7 @@ class PriceFacadeTest extends TestCase
             static::createStub(Connection::class),
             $quantityCalculator,
             new PercentagePriceCalculator(new CashRounding(), $quantityCalculator, new PercentageTaxRuleBuilder()),
-            new PriceSelector(new TaxCalculator()),
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())),
         );
 
         $original = new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(new TaxRuleCollection([new TaxRule(10)])));

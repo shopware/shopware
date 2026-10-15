@@ -26,9 +26,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -121,7 +123,7 @@ class CurrencyPriceCalculatorTest extends TestCase
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
             new PercentageTaxRuleBuilder(),
-            new PriceSelector(new TaxCalculator())
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher()))
         );
     }
 

@@ -71,7 +71,7 @@ class ProductPriceCalculatorTest extends TestCase
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
             new ExtensionDispatcher($this->eventDispatcher),
-            new PriceSelector(new TaxCalculator()),
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())),
         );
     }
 
@@ -343,7 +343,7 @@ class ProductPriceCalculatorTest extends TestCase
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
             new ExtensionDispatcher($this->eventDispatcher),
-            new PriceSelector(new TaxCalculator()),
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())),
         );
         $context = static::createStub(SalesChannelContext::class);
 
@@ -367,7 +367,7 @@ class ProductPriceCalculatorTest extends TestCase
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
             new ExtensionDispatcher($this->eventDispatcher),
-            new PriceSelector(new TaxCalculator())
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher()))
         ))->getDecorated();
     }
 
@@ -706,7 +706,7 @@ class ProductPriceCalculatorTest extends TestCase
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
             new ExtensionDispatcher($this->eventDispatcher),
-            new PriceSelector(new TaxCalculator()),
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())),
         );
     }
 

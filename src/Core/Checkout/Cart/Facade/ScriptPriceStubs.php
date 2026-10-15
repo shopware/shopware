@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\Cart\Facade;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Price\AbstractPriceSelector;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
@@ -37,7 +37,7 @@ class ScriptPriceStubs implements ResetInterface
         private readonly Connection $connection,
         private readonly QuantityPriceCalculator $quantityCalculator,
         private readonly PercentagePriceCalculator $percentageCalculator,
-        private readonly AbstractPriceSelector $priceSelector
+        private readonly PriceSelector $priceSelector
     ) {
     }
 

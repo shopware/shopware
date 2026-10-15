@@ -38,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFo
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -53,6 +54,7 @@ use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -578,7 +580,7 @@ class ProductFeatureBuilderTest extends TestCase
             $this->languageLocaleProvider,
             $this->definitionRegistry,
             $translator,
-            new PriceSelector($taxCalculator),
+            new PriceSelector($taxCalculator, new ExtensionDispatcher(new EventDispatcher())),
             new QuantityPriceCalculator(
                 new GrossPriceCalculator($taxCalculator, $cashRounding),
                 new NetPriceCalculator($taxCalculator, $cashRounding)

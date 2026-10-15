@@ -44,12 +44,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -120,7 +122,7 @@ class DeliveryCalculatorTest extends TestCase
             $quantityPriceCalculatorMock,
             static::createStub(PercentageTaxRuleBuilder::class),
             static::createStub(CashRounding::class),
-            new PriceSelector(new TaxCalculator()),
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())),
         );
 
         $deliveryCalculator->calculate(new CartDataCollection(), $cart, new DeliveryCollection([$delivery]), $context);
@@ -166,7 +168,7 @@ class DeliveryCalculatorTest extends TestCase
             $quantityPriceCalculatorMock,
             static::createStub(PercentageTaxRuleBuilder::class),
             static::createStub(CashRounding::class),
-            new PriceSelector(new TaxCalculator()),
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())),
         );
 
         $deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
@@ -234,7 +236,7 @@ class DeliveryCalculatorTest extends TestCase
             $quantityPriceCalculatorMock,
             static::createStub(PercentageTaxRuleBuilder::class),
             static::createStub(CashRounding::class),
-            new PriceSelector(new TaxCalculator()),
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())),
         );
 
         $deliveryCalculator->calculate($data, $cart, new DeliveryCollection([$delivery]), $context);
@@ -281,7 +283,7 @@ class DeliveryCalculatorTest extends TestCase
             $quantityPriceCalculatorMock,
             static::createStub(PercentageTaxRuleBuilder::class),
             static::createStub(CashRounding::class),
-            new PriceSelector(new TaxCalculator()),
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())),
         );
 
         $deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
@@ -379,7 +381,7 @@ class DeliveryCalculatorTest extends TestCase
             $quantityPriceCalculatorMock,
             new PercentageTaxRuleBuilder(),
             $cashRoundingMock,
-            new PriceSelector(new TaxCalculator()),
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())),
         );
 
         $deliveryCalculator->calculate(
@@ -573,7 +575,7 @@ class DeliveryCalculatorTest extends TestCase
             $this->createQuantityPriceCalculator(),
             static::createStub(PercentageTaxRuleBuilder::class),
             static::createStub(CashRounding::class),
-            new PriceSelector(new TaxCalculator()),
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())),
         );
 
         $deliveryCalculator->calculate($data, new Cart('test'), new DeliveryCollection([$delivery]), $context);
@@ -590,7 +592,7 @@ class DeliveryCalculatorTest extends TestCase
             ),
             new PercentageTaxRuleBuilder(),
             new CashRounding(),
-            new PriceSelector(new TaxCalculator()),
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())),
         );
     }
 

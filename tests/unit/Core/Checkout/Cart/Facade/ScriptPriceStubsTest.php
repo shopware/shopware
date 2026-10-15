@@ -18,8 +18,10 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -42,7 +44,7 @@ class ScriptPriceStubsTest extends TestCase
             'USD' => self::USD_ID,
         ]);
 
-        $stubs = new ScriptPriceStubs($connection, static::createStub(QuantityPriceCalculator::class), static::createStub(PercentagePriceCalculator::class), new PriceSelector(new TaxCalculator()));
+        $stubs = new ScriptPriceStubs($connection, static::createStub(QuantityPriceCalculator::class), static::createStub(PercentagePriceCalculator::class), new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher())));
 
         $actual = $stubs->build($prices);
 
@@ -62,7 +64,7 @@ class ScriptPriceStubsTest extends TestCase
             static::createStub(Connection::class),
             static::createStub(QuantityPriceCalculator::class),
             static::createStub(PercentagePriceCalculator::class),
-            new PriceSelector(new TaxCalculator())
+            new PriceSelector(new TaxCalculator(), new ExtensionDispatcher(new EventDispatcher()))
         );
 
         $context = static::createStub(SalesChannelContext::class);

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
+use Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\SelectedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -9,29 +10,39 @@ use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxRuleShares;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @final Depend on the AbstractPriceSelector which is the definition of public API for this scope
+ * @internal
  */
 #[Package('checkout')]
-class PriceSelector extends AbstractPriceSelector
+final class PriceSelector
 {
+    public function __construct(
+        private readonly TaxCalculator $taxCalculator,
+        private readonly ExtensionDispatcher $extensions,
+    ) {
+    }
+
     /**
-     * @internal
+     * @param TaxRuleCollection $taxRules the tax rules that apply to the price, used to derive a value the stored price does not provide
      */
-    public function __construct(private readonly TaxCalculator $taxCalculator)
-    {
-    }
-
-    public function getDecorated(): AbstractPriceSelector
-    {
-        throw new DecorationPatternException(self::class);
-    }
-
     public function select(Price $price, TaxRuleCollection $taxRules, SalesChannelContext $context): SelectedPrice
+    {
+        if (!$this->extensions->hasListeners(PriceSelectorExtension::NAME)) {
+            return $this->_select($price, $taxRules, $context);
+        }
+
+        return $this->extensions->publish(
+            name: PriceSelectorExtension::NAME,
+            extension: new PriceSelectorExtension($price, $taxRules, $context),
+            function: $this->_select(...),
+        );
+    }
+
+    private function _select(Price $price, TaxRuleCollection $taxRules, SalesChannelContext $context): SelectedPrice
     {
         $taxState = $context->getTaxState();
 

@@ -83,10 +83,10 @@ jobs:
           CURRENTS_RECORD_KEY: ${{ secrets.CURRENTS_RECORD_KEY }}
           CURRENTS_BUILD_ID: ${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}
           ATS_CMD: ${{ inputs.currents && 'pwc' || 'playwright'}}
+          NPM_INSTALL: npm config set fetch-retries=5 fetch-retry-mintimeout=20000 && npm ci
+          RUN_VISUAL_TESTS: npx "$ATS_CMD" test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER"
         run: |
           PLAYWRIGHT_VERSION=$(jq -r '.packages["node_modules/playwright-core"].version' package-lock.json)
-          NPM_INSTALL=$(npm config set fetch-retries=5 fetch-retry-mintimeout=20000 && npm ci)
-          RUN_VISUAL_TESTS=$(npx "$ATS_CMD" test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER")
           docker run --rm \
             --ipc=host \
             --init \
@@ -98,11 +98,13 @@ jobs:
             -e CURRENTS_PROJECT_ID \
             -e CURRENTS_RECORD_KEY \
             -e CURRENTS_BUILD_ID \
+            -e NPM_INSTALL \
+            -e RUN_VISUAL_TESTS \
             -v "$GITHUB_WORKSPACE:/app" \
             -w /app/tests/acceptance \
             "mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble" \
-            /bin/bash -c "${NPM_INSTALL} && ${RUN_VISUAL_TESTS}"
-            
+            /bin/bash -c "$NPM_INSTALL && $RUN_VISUAL_TESTS"
+
       - name: Upload visual test results
         if: always()
         continue-on-error: true

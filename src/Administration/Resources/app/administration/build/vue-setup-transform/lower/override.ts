@@ -73,27 +73,32 @@ function toReferencePath(rewrite: OverrideReferenceRewrite): string {
 }
 
 /**
- * The edit that replaces one reference with its slot-scope path.
+ * The text that takes one reference's place, given its slot-scope path.
  *
  * A plain occurrence is swapped for the path. A shorthand object property (`{ info }`) shares its range
  * with the property key, so the key is written out. Vue's same-name binding shorthand (`:info`) has no
  * value at all and the occurrence is the empty span behind it, so the edit is the value it was standing
  * in for.
  */
-function toReferenceRewriteEdit(rewrite: OverrideReferenceRewrite): SourceEdit {
-    const path = toReferencePath(rewrite);
-    const replacement = (() => {
-        if (rewrite.expansion === 'shorthand-property') {
+function toReplacement(rewrite: OverrideReferenceRewrite, path: string): string {
+    switch (rewrite.expansion) {
+        case 'shorthand-property':
             return `${rewrite.name}: ${path}`;
-        }
+        case 'same-name-shorthand':
+            return `="${path}"`;
+        case 'plain':
+            return path;
+    }
+}
 
-        return rewrite.expansion === 'same-name-shorthand' ? `="${path}"` : path;
-    })();
-
+/**
+ * The edit that replaces one reference with its slot-scope path.
+ */
+function toReferenceRewriteEdit(rewrite: OverrideReferenceRewrite): SourceEdit {
     return {
         start: rewrite.start,
         end: rewrite.end,
-        replacement,
+        replacement: toReplacement(rewrite, toReferencePath(rewrite)),
     };
 }
 

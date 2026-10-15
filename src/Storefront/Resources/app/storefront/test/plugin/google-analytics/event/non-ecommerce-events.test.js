@@ -12,6 +12,7 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
 
     afterEach(() => {
         delete window.gtagIsTagManager;
+        window.sessionStorage.clear();
         document.body.innerHTML = '';
         jest.clearAllMocks();
     });
@@ -23,10 +24,48 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
         return { target: form };
     }
 
-    test('login reports the method through gtag', () => {
+    function login() {
+        new LoginEvent()._onFormSubmit(formEvent('login-form'));
+        new LoginEvent().execute();
+    }
+
+    test('login reports the method through gtag on the page after the submit', () => {
         new LoginEvent()._onFormSubmit(formEvent('login-form'));
 
+        expect(window.gtag).not.toHaveBeenCalled();
+
+        new LoginEvent().execute();
+
         expect(window.gtag).toHaveBeenCalledWith('event', 'login', { method: 'mail' });
+    });
+
+    test('login is reported once', () => {
+        login();
+        new LoginEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledTimes(1);
+    });
+
+    // the server rejects wrong credentials after the submit and renders the login form again
+    test('login reports nothing when the next page shows the login form with an error', () => {
+        new LoginEvent()._onFormSubmit(formEvent('login-form'));
+        document.body.innerHTML = '<form class="login-form"><input name="password" class="form-control is-invalid"></form>';
+
+        new LoginEvent().execute();
+        document.body.innerHTML = '';
+        new LoginEvent().execute();
+
+        expect(window.gtag).not.toHaveBeenCalled();
+    });
+
+    test('login reports nothing on a page without a submitted login', () => {
+        new LoginEvent().execute();
+
+        expect(window.gtag).not.toHaveBeenCalled();
+    });
+
+    test('login is checked on every page, because the shopper can land anywhere', () => {
+        expect(new LoginEvent().supports(null, null, 'frontend.home.page')).toBe(true);
     });
 
     test('sign_up reports the method through gtag', () => {
@@ -45,7 +84,7 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
     test('pushes events without ecommerce data flat to the Tag Manager data layer', () => {
         window.gtagIsTagManager = true;
 
-        new LoginEvent()._onFormSubmit(formEvent('login-form'));
+        login();
         new SignUpEvent()._onFormSubmit(formEvent('register-form'));
         new SearchAjaxEvent()._onSearch({ detail: { value: 'shirt' } });
 
@@ -73,6 +112,7 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
         ['sign_up', SignUpEvent],
     ])('%s ignores foreign forms', (name, EventClass) => {
         new EventClass()._onFormSubmit(formEvent('newsletter-form'));
+        new EventClass().execute?.();
 
         expect(window.gtag).not.toHaveBeenCalled();
     });
@@ -82,6 +122,7 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
         events.forEach(event => event.disable());
 
         events[0]._onFormSubmit(formEvent('login-form'));
+        events[0].execute();
         events[1]._onFormSubmit(formEvent('register-form'));
         events[2]._onSearch({ detail: { value: 'shirt' } });
 

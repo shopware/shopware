@@ -1,0 +1,41 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "String length validation", "version": "1.0.0" },
+  "paths": {
+    "/strings/{routeKey}": {
+      "post": {
+        "operationId": "validateStringLengths",
+        "x-dto-namespace": "Shopware\\Core\\Example\\StringLengths",
+        "parameters": [
+          { "name": "routeKey", "in": "path", "required": true, "schema": { "type": "string", "maxLength": 4 } },
+          { "name": "queryMaxOnly", "in": "query", "schema": { "type": "string", "maxLength": 4 } },
+          { "name": "queryBounded", "in": "query", "schema": { "type": "string", "minLength": 2, "maxLength": 4 } },
+          { "name": "queryTerms", "in": "query", "schema": { "type": "array", "items": { "type": "string", "maxLength": 4 } } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["unlimited", "maxOnly"],
+                "properties": {
+                  "unlimited": { "type": "string" },
+                  "maxOnly": { "type": "string", "maxLength": 4 },
+                  "bounded": { "type": "string", "minLength": 2, "maxLength": 4 },
+                  "minimumOnly": { "type": "string", "minLength": 2 },
+                  "emptyOnly": { "type": "string", "maxLength": 0 },
+                  "nullable": { "type": ["string", "null"], "maxLength": 4 },
+                  "tags": { "type": "array", "items": { "type": "string", "maxLength": 4 } },
+                  "boundedTags": { "type": "array", "items": { "type": "string", "minLength": 2, "maxLength": 4 } },
+                  "emptyTags": { "type": "array", "items": { "type": "string", "maxLength": 0 } }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "204": { "description": "Validated" } }
+      }
+    }
+  }
+}

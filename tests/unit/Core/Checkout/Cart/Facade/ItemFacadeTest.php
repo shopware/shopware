@@ -51,7 +51,7 @@ class ItemFacadeTest extends TestCase
         static::assertSame(10.0, $facade->getPrice()->getTotal());
 
         static::assertSame('bar', $facade->getPayload()->offsetGet('foo'));
-        /** @phpstan-ignore typePerfect.noArrayAccessOnObject,staticMethod.alreadyNarrowedType (array access should be tested here explicitly, despite value already known) */
+        /** @phpstan-ignore typePerfect.noArrayAccessOnObject (array access should be tested here explicitly, despite value already known) */
         static::assertSame('bar', $facade->getPayload()['foo']);
         static::assertSame('nested', $facade->getPayload()->offsetGet('nested')['foo']);
         /** @phpstan-ignore typePerfect.noArrayAccessOnObject (array access should be tested here explicitly) */

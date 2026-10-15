@@ -58,14 +58,26 @@ checkout:
 
 # Deterministic classification runs here, outside the agent sandbox: the sandbox cannot
 # execute repository scripts or redirect output. The agent reads the result with `cat`.
+# This step runs on the host with the job token, before gh aw restores `.agents` from
+# the base branch, so the scripts come from TRUSTED_REF and never from the checked-out
+# PR head: a pull request must not be able to put code in the path of this step.
 steps:
   - name: Compute the sw-review change profile
     env:
       PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number || github.event.inputs.pr_number }}
       GH_TOKEN: ${{ github.token }}
+      # base branch head for label runs; the default branch for /sw-review comments; the dispatched branch for manual runs
+      TRUSTED_REF: ${{ github.event.pull_request.base.sha || github.sha }}
     run: |
       set -euo pipefail
-      .agents/skills/sw-review/scripts/ci-profile.sh .sw-review/profile.json
+      scripts="${RUNNER_TEMP}/sw-review-scripts"
+      mkdir -p "$scripts" .sw-review
+      git cat-file -e "${TRUSTED_REF}^{commit}" 2>/dev/null || git fetch --no-tags origin "$TRUSTED_REF"
+      if ! git archive "$TRUSTED_REF" .agents/skills/sw-review/scripts | tar -x --strip-components=4 -C "$scripts"; then
+        printf '{"available": false, "reason": "%s has no .agents/skills/sw-review/scripts"}\n' "$TRUSTED_REF" > .sw-review/profile.json
+        exit 0
+      fi
+      node "$scripts/ci-profile.ts" .sw-review/profile.json
 
 engine:
   id: claude
@@ -103,7 +115,6 @@ tools:
     - "git rev-parse"
     - "git merge-base"
     - "mkdir"
-    - ".agents/skills/sw-review/scripts/classify.sh"
 
 safe-outputs:
   messages:
@@ -146,14 +157,14 @@ You are the orchestrator. Follow the policy above:
 1. Gather the review packet once (PR metadata, changed files, commits via the
    `pull_requests` MCP toolset; the diff via `git diff <base>...HEAD` on the
    checked-out head).
-2. Classify deterministically with `.agents/skills/sw-review/scripts/classify.sh`
-   (see the policy), gate personas off the path classes and signals, attach the
+2. Read the precomputed change profile (`cat .sw-review/profile.json`, see the
+   policy), gate personas off the path classes and signals, attach the
    selected guides to the personas they name, and slice the diff per persona.
 3. For each gated persona, you MUST dispatch one persona-worker via the `Task`
    tool, selecting the matching sub-agent by name (`security`, `architecture`,
    `code-style`, `ux`, `maintainer` — defined in the `## agent:` blocks below)
    and handing it only its slice (by path when the diff is large), the
-   `change_profile` from `scripts/classify.sh`, and the guide paths selected for
+   `change_profile` from the profile file, and the guide paths selected for
    that persona. NEVER review
    a persona's slice yourself inline — not even for a small diff: the per-persona
    model escalation (`security`/`architecture` run on Opus) only happens inside

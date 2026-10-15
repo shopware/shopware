@@ -12,7 +12,7 @@ drift on the substance:
 
 - `.agents/skills/sw-review/personas/<slug>.md` — the authoritative lens per persona.
 - `.agents/skills/sw-review/guides/<slug>.md` — topic guides (pointers to the authoritative rules, real examples, do-not-flag, severity); `guides/index.json` — router triggers.
-- `.agents/skills/sw-review/scripts/classify.sh` + `references/CLASSIFY.md` — deterministic change classification and guide selection.
+- `.agents/skills/sw-review/scripts/classify.ts` + `references/CLASSIFY.md` — deterministic change classification and guide selection.
 - `.agents/skills/sw-review/references/CLASSIFICATION.md` — severity, category, decision, risk, confidence, dedupe.
 - `.agents/skills/sw-review/references/COST.md` — tiers, discovery, persona tiers, budgets, cache.
 - `.agents/skills/sw-review/references/DIFF-DISCIPLINE.md` — false-positive traps and size caps.
@@ -67,7 +67,7 @@ force a single persona.
 2. **Classify deterministically** (references/CLASSIFY.md): write the
    metadata (`fork`, `author_association`, `labels`, `fixes_issue`) to a
    `meta.json` and run
-   `.agents/skills/sw-review/scripts/classify.sh --range <merge-base>...<head> --base <base> --meta … --root <checkout> --rules-ref <merge-base>`.
+   `node .agents/skills/sw-review/scripts/classify.ts --range <merge-base>...<head> --base <base> --meta … --root <checkout> --rules-ref <merge-base>`.
    The script produces the diff itself and reads the router index from the merge
    base. The JSON it prints is the `change_profile`: path classes, signals,
    size, and the selected guides with the personas each guide names. Never

@@ -311,9 +311,13 @@ export default function createSearchRankingService() {
      * @returns {Array}
      */
     function _buildQueryScores(fieldScores, searchTerm) {
-        let terms = searchTerm.split(' ').filter((term) => {
-            return term.length >= minSearchTermLength;
-        });
+        let terms = searchTerm
+            .split(' ')
+            // Brackets around a word, e.g. `(cap`, would only match values containing the bracket
+            .map((term) => term.replace(/^[()[\]{}<>\\]+|[()[\]{}<>\\]+$/gu, ''))
+            .filter((term) => {
+                return term.length >= minSearchTermLength;
+            });
         terms = [...new Set(terms)];
 
         const queryScores = [];

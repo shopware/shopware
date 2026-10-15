@@ -280,6 +280,9 @@ class AdminSearcher
     {
         $term = mb_substr(trim($rawTerm), 0, $this->termMaxLength);
 
+        // Brackets around a word, e.g. `(cap`, keep the last word from being matched by prefix
+        $term = preg_replace('/(?<!\S)[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+(?!\S)/u', '', $term) ?? $term;
+
         $term = (string) mb_eregi_replace('\s(or)\s', '|', $term);
         $term = (string) mb_eregi_replace('\s(and)\s', ' + ', $term);
 

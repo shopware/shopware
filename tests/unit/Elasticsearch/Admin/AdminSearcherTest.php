@@ -246,6 +246,19 @@ class AdminSearcherTest extends TestCase
         static::assertSame(1, $data['product']['total']);
     }
 
+    public function testSearchStripsBracketsAroundWordsSoTheLastWordIsMatchedByPrefix(): void
+    {
+        $this->client
+            ->expects($this->once())
+            ->method('msearch')
+            ->with($this->getQueryBody('tennis cap*'))
+            ->willReturn($this->getMockResponse('tennis cap'));
+
+        $data = $this->searcher->search('tennis (cap', ['product'], Context::createDefaultContext());
+
+        static::assertSame(1, $data['product']['total']);
+    }
+
     public function testSearchNormalizesTermLevelQueries(): void
     {
         $this->client

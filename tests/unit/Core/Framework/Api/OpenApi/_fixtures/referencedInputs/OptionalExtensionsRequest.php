@@ -23,7 +23,7 @@ final class OptionalExtensionsRequest extends AbstractRequest
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $id,
     ) {
     }

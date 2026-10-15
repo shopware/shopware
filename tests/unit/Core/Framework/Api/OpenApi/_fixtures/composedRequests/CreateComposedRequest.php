@@ -25,11 +25,11 @@ final class CreateComposedRequest extends AbstractRequest
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $baseValue,
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $composedValue,
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $siblingValue,
     ) {
     }

@@ -25,9 +25,9 @@ final class CreateSingleRequest extends AbstractRequest
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $baseValue,
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $siblingValue,
     ) {
     }

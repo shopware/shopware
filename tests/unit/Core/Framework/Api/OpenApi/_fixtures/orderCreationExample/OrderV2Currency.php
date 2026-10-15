@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-17 14:18:33
+ * Last generated: 2026-07-07 00:00:00
  */
 
 namespace Shopware\Core\Checkout\Order\SalesChannel\Order;
@@ -28,13 +28,13 @@ final class OrderV2Currency extends AbstractDto
         /**
          * ISO 4217 currency code used by every amount in the order.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Regex(pattern: '~^[A-Z]{3}$~')]
         public string $isoCode,
         /**
          * Currency symbol suitable for display.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $symbol,
         /**
          * Rounding configuration applied to individual calculated items.

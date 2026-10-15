@@ -21,7 +21,7 @@ final class SharedError extends AbstractDto
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $code,
     ) {
     }

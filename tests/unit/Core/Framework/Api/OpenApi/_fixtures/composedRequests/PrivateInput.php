@@ -23,13 +23,13 @@ final class PrivateInput extends AbstractRequest
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $sharedValue,
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $siblingShared,
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $privateValue,
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $privateSibling,
     ) {
     }

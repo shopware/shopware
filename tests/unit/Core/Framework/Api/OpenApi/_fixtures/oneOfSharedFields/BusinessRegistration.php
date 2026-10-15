@@ -30,22 +30,22 @@ final class BusinessRegistration extends AbstractRequest
         /**
          * Email of the customer
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $email,
         /**
          * Customer first name
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $firstName,
         /**
          * Customer last name
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $lastName,
         /**
          * Company name
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $company,
         /**
          * @var list<string> VAT IDs

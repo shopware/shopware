@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-17 14:18:33
+ * Last generated: 2026-07-07 00:00:00
  */
 
 namespace Shopware\Core\Checkout\Order\SalesChannel\Order;
@@ -28,13 +28,13 @@ final class OrderV2OrderStatus extends AbstractDto
         /**
          * Technical name of the order state as defined by Shopware's `order.state` state machine.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Choice(choices: ['open', 'in_progress', 'completed', 'cancelled'])]
         public string $technicalName,
         /**
          * Translated order-state name in the response language selected by `sw-language-id`, resolved through Shopware's language fallback chain. Its value is configuration-dependent and is not a technical identifier.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $name,
     ) {
     }

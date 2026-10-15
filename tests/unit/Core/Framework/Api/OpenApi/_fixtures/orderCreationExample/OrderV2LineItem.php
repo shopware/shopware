@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-17 14:18:33
+ * Last generated: 2026-07-07 00:00:00
  */
 
 namespace Shopware\Core\Checkout\Order\SalesChannel\Order;
@@ -55,7 +55,7 @@ final class OrderV2LineItem extends AbstractDto
         /**
          * Identifier of the order line item.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
         public string $id,
         /**
@@ -66,7 +66,7 @@ final class OrderV2LineItem extends AbstractDto
         /**
          * Line item label captured in the order language.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $label,
         /**
          * Number of units represented by this line item.

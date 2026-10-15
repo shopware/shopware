@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-17 14:18:33
+ * Last generated: 2026-07-07 00:00:00
  */
 
 namespace Shopware\Core\Checkout\Order\SalesChannel\Order;
@@ -26,13 +26,13 @@ final class OrderV2BusinessCustomer extends AbstractDto
         /**
          * Identifier of the customer record. Guest checkouts also have a customer record.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
         public string $id,
         /**
          * Shopware customer account type.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\IdenticalTo(value: 'business')]
         public string $accountType,
         /**
@@ -43,23 +43,23 @@ final class OrderV2BusinessCustomer extends AbstractDto
         /**
          * Email address captured for the order customer.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Email]
         public string $email,
         /**
          * First name captured for the order customer.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $firstName,
         /**
          * Last name captured for the order customer.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $lastName,
         /**
          * Company name captured for the business customer.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $company,
         /**
          * @var list<string> VAT registration identifiers captured for the business customer.

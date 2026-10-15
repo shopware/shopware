@@ -23,7 +23,7 @@ final class ReadThingResponse extends AbstractResponse
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $id,
     ) {
         parent::__construct();

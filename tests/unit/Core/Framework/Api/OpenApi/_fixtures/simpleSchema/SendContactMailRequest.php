@@ -36,17 +36,17 @@ final class SendContactMailRequest extends AbstractRequest
         /**
          * Email address
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $email,
         /**
          * The subject of the contact form.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $subject,
         /**
          * The message of the contact form
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $comment,
     ) {
     }

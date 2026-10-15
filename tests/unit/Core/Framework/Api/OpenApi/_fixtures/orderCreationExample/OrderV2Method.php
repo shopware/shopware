@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-17 14:18:33
+ * Last generated: 2026-07-07 00:00:00
  */
 
 namespace Shopware\Core\Checkout\Order\SalesChannel\Order;
@@ -28,13 +28,13 @@ final class OrderV2Method extends AbstractDto
         /**
          * Identifier of the selected method.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
         public string $id,
         /**
          * Translated method name in the response language selected by `sw-language-id`, resolved through Shopware's language fallback chain.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $displayName,
     ) {
     }

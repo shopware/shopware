@@ -23,7 +23,7 @@ final class LineItem extends AbstractDto
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
         public string $id,
         #[Assert\NotNull]

@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class AddLineItemRequest extends AbstractRequest
 {
-    public int $quantity = 1;
+    public int $quantity;
 
     /**
      * @internal

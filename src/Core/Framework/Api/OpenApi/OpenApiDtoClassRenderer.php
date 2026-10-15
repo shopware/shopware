@@ -110,6 +110,11 @@ final class OpenApiDtoClassRenderer
                 ? '        parent::__construct();'
                 : '        parent::__construct(statusCode: ' . $this->responseStatusConstant($definition->responseStatusCode) . ');';
         }
+        foreach ($requiredProperties as $property) {
+            if ($property->name === 'extensions') {
+                $lines[] = '        $this->extensions = $extensions;';
+            }
+        }
         $lines[] = '    }';
         $lines[] = '}';
         $lines[] = '';
@@ -169,7 +174,7 @@ final class OpenApiDtoClassRenderer
         }
 
         $lines[] = \sprintf(
-            '        public %s $%s%s' . ($property->required ? ',' : ';'),
+            '        ' . ($property->name === 'extensions' ? '' : 'public ') . '%s $%s%s' . ($property->required ? ',' : ';'),
             $this->renderPhpType($property),
             $property->name,
             $preserveOptionalPropertyPresence ? '' : $this->renderDefault($property),
@@ -297,6 +302,11 @@ final class OpenApiDtoClassRenderer
      */
     private function renderConstraints(OpenApiDtoProperty $property): array
     {
+        // Extensions use the inherited property; their constructor argument is not promoted.
+        if ($property->name === 'extensions') {
+            return [];
+        }
+
         $constraints = [];
 
         if ($property->required && !$property->nullable) {

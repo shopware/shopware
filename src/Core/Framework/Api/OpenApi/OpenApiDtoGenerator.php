@@ -249,6 +249,9 @@ final class OpenApiDtoGenerator
                 }
 
                 $groups[$namespace][$pathKey][$method] = $operation;
+                if (\is_array($pathItem['parameters'] ?? null)) {
+                    $groups[$namespace][$pathKey]['parameters'] = $pathItem['parameters'];
+                }
             }
         }
 

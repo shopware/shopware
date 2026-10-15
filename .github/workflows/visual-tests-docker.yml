@@ -102,8 +102,13 @@ jobs:
             -e RUN_VISUAL_TESTS \
             -v "$GITHUB_WORKSPACE:/app" \
             -w /app/tests/acceptance \
+            --entrypoint bash \
             "mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble" \
-            /bin/bash -c "$NPM_INSTALL && $RUN_VISUAL_TESTS"
+            -c '
+                  npm config set fetch-retries=5 fetch-retry-mintimeout=20000
+                  npm ci
+                  npx "$ATS_CMD" test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER"
+               '
 
       - name: Upload visual test results
         if: always()

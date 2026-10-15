@@ -64,7 +64,7 @@ class WriteAuthorizerTest extends TestCase
         $this->webhookLoader->method('getSubscriptions')->willReturn([]);
 
         $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
-        $this->aclRoleLoader->method('getRoles')->willReturn([self::USER_ID => new AclRoles(false, ['role'])]);
+        $this->aclRoleLoader->method('getUserRoles')->willReturn([self::USER_ID => new AclRoles(false, ['role'])]);
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([]);
     }
 
@@ -216,7 +216,7 @@ class WriteAuthorizerTest extends TestCase
 
         $this->aclRoleLoader = $this->createMock(AclRoleLoader::class);
         $this->aclRoleLoader->expects($this->once())
-            ->method('getRoles')
+            ->method('getUserRoles')
             ->with([self::USER_ID])
             ->willReturn([self::USER_ID => new AclRoles(false, ['role-a', 'role-b'])]);
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([
@@ -242,7 +242,7 @@ class WriteAuthorizerTest extends TestCase
         $insert = $this->insertWebhook();
 
         $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
-        $this->aclRoleLoader->method('getRoles')->willReturn([self::USER_ID => new AclRoles(true, [])]);
+        $this->aclRoleLoader->method('getUserRoles')->willReturn([self::USER_ID => new AclRoles(true, [])]);
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([]);
 
         $this->validator = $this->createMock(SubscriptionValidator::class);
@@ -268,7 +268,7 @@ class WriteAuthorizerTest extends TestCase
 
         $this->aclRoleLoader = $this->createMock(AclRoleLoader::class);
         $this->aclRoleLoader->expects($this->once())
-            ->method('getRoles')
+            ->method('getUserRoles')
             ->with([self::USER_ID])
             ->willReturn([self::USER_ID => new AclRoles(false, ['role'])]);
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn(['role' => new AclPrivilegeCollection(['order:read'])]);
@@ -287,7 +287,7 @@ class WriteAuthorizerTest extends TestCase
         $insert = $this->insertWebhook(aclRoleIds: ['role-a']);
 
         $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
-        $this->aclRoleLoader->method('getRoles')->willReturn([self::USER_ID => new AclRoles(false, ['role-a', 'role-b'])]);
+        $this->aclRoleLoader->method('getUserRoles')->willReturn([self::USER_ID => new AclRoles(false, ['role-a', 'role-b'])]);
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([
             'role-a' => new AclPrivilegeCollection(['product:read']),
             'role-b' => new AclPrivilegeCollection(['order:read']),
@@ -305,7 +305,7 @@ class WriteAuthorizerTest extends TestCase
     public function testAclRolesTheOwnerDoesNotHoldAreRejected(): void
     {
         $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
-        $this->aclRoleLoader->method('getRoles')->willReturn([self::USER_ID => new AclRoles(false, ['role'])]);
+        $this->aclRoleLoader->method('getUserRoles')->willReturn([self::USER_ID => new AclRoles(false, ['role'])]);
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([
             'role' => new AclPrivilegeCollection([]),
             'other-role' => new AclPrivilegeCollection([]),
@@ -319,7 +319,7 @@ class WriteAuthorizerTest extends TestCase
     public function testAnUnrestrictedOwnerMayListAnyExistingRole(): void
     {
         $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
-        $this->aclRoleLoader->method('getRoles')->willReturn([self::USER_ID => new AclRoles(true, [])]);
+        $this->aclRoleLoader->method('getUserRoles')->willReturn([self::USER_ID => new AclRoles(true, [])]);
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn(['any-role' => new AclPrivilegeCollection([])]);
 
         static::assertSame([], $this->authorize([$this->insertWebhook(aclRoleIds: ['any-role'])]));
@@ -328,7 +328,7 @@ class WriteAuthorizerTest extends TestCase
     public function testRolesThatDoNotExistAreRejectedEvenForAnUnrestrictedOwner(): void
     {
         $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
-        $this->aclRoleLoader->method('getRoles')->willReturn([self::USER_ID => new AclRoles(true, [])]);
+        $this->aclRoleLoader->method('getUserRoles')->willReturn([self::USER_ID => new AclRoles(true, [])]);
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([]);
 
         $violations = $this->authorize([$this->insertWebhook(aclRoleIds: ['missing-role'])]);

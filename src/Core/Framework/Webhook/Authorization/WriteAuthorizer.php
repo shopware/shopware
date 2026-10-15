@@ -233,7 +233,7 @@ class WriteAuthorizer
      */
     private function resolveRoles(array $commands, array $written): array
     {
-        $ownerRoles = $this->aclRoleLoader->getRoles(array_column($written, 'ownerId'));
+        $ownerRoles = $this->loadOwnerRoles($written);
         $listedRoleIds = array_merge(...array_map(
             static fn (WebhookSubscription $webhook): array => $webhook->aclRoleIds ?? [],
             array_values($written)
@@ -243,7 +243,7 @@ class WriteAuthorizer
         $webhookRoles = [];
         $violations = [];
         foreach ($written as $webhookId => $webhook) {
-            $roles = $ownerRoles[$webhook->ownerId] ?? null;
+            $roles = $ownerRoles[$webhookId] ?? null;
             if ($roles === null) {
                 continue;
             }
@@ -264,6 +264,39 @@ class WriteAuthorizer
         }
 
         return [$webhookRoles, $violations];
+    }
+
+    /**
+     * @param array<string, WebhookSubscription> $written keyed by webhook id
+     *
+     * @return array<string, AclRoles> each webhook's owner roles, keyed by webhook id
+     */
+    private function loadOwnerRoles(array $written): array
+    {
+        $userRoles = $this->aclRoleLoader->getUserRoles(self::ownerIdsOf($written, SubscriberType::User));
+        $integrationRoles = $this->aclRoleLoader->getIntegrationRoles(self::ownerIdsOf($written, SubscriberType::Integration));
+
+        $roles = [];
+        foreach ($written as $webhookId => $webhook) {
+            $roles[$webhookId] = $webhook->ownerType === SubscriberType::User
+                ? $userRoles[$webhook->ownerId] ?? null
+                : $integrationRoles[$webhook->ownerId] ?? null;
+        }
+
+        return array_filter($roles);
+    }
+
+    /**
+     * @param array<string, WebhookSubscription> $written keyed by webhook id
+     *
+     * @return list<string>
+     */
+    private static function ownerIdsOf(array $written, SubscriberType $type): array
+    {
+        return array_column(
+            array_filter($written, static fn (WebhookSubscription $webhook): bool => $webhook->ownerType === $type),
+            'ownerId'
+        );
     }
 
     /**

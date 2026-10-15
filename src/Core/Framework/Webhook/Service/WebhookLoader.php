@@ -108,17 +108,18 @@ class WebhookLoader
         SQL;
 
         $rows = $this->connection->fetchAllAssociative($sql);
-        $ownerIds = array_map(static fn (array $row): string => $row['ownerIntegrationId'] ?? $row['ownerUserId'], $rows);
-        $ownerRoles = $this->aclRoleLoader->getRoles($ownerIds);
+        $userRoles = $this->aclRoleLoader->getUserRoles(array_values(array_filter(array_column($rows, 'ownerUserId'))));
+        $integrationRoles = $this->aclRoleLoader->getIntegrationRoles(array_values(array_filter(array_column($rows, 'ownerIntegrationId'))));
 
         $webhooks = [];
         foreach ($rows as $row) {
-            $ownerId = $row['ownerIntegrationId'] ?? $row['ownerUserId'];
-            if (!isset($ownerRoles[$ownerId])) {
+            $roles = $row['ownerIntegrationId'] !== null
+                ? $integrationRoles[$row['ownerIntegrationId']] ?? null
+                : $userRoles[$row['ownerUserId']] ?? null;
+            if ($roles === null) {
                 continue;
             }
 
-            $roles = $ownerRoles[$ownerId];
             if ($row['aclRoleIds'] !== null) {
                 $roles = $roles->intersect(Json::decodeToList($row['aclRoleIds']));
             }

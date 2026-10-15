@@ -85,6 +85,8 @@ jobs:
           ATS_CMD: ${{ inputs.currents && 'pwc' || 'playwright'}}
         run: |
           PLAYWRIGHT_VERSION=$(jq -r '.packages["node_modules/playwright-core"].version' package-lock.json)
+          NPM_INSTALL=$(npm config set fetch-retries=5 fetch-retry-mintimeout=20000 && npm ci)
+          RUN_VISUAL_TESTS=$(npx "$ATS_CMD" test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER")
           docker run --rm \
             --ipc=host \
             --init \
@@ -99,8 +101,8 @@ jobs:
             -v "$GITHUB_WORKSPACE:/app" \
             -w /app/tests/acceptance \
             "mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble" \
-            /bin/bash -c "npm config set fetch-retries=5 fetch-retry-mintimeout=20000 && \
-            npm ci && npx "$ATS_CMD" test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER""
+            /bin/bash -c "${NPM_INSTALL} && ${RUN_VISUAL_TESTS}"
+            
       - name: Upload visual test results
         if: always()
         continue-on-error: true

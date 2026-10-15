@@ -137,7 +137,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function resolveContextSource(Request $request): ContextSource
     {
         if ($userId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
-            $appIntegrationId = $request->headers->get(PlatformRequest::HEADER_APP_INTEGRATION_ID, '');
+            $appIntegrationId = strtolower((string) $request->headers->get(PlatformRequest::HEADER_APP_INTEGRATION_ID, ''));
 
             // The app integration id header is only to be used by a privileged user
             if ($appIntegrationId !== '' && $this->userAppIntegrationHeaderPrivileged($userId, $appIntegrationId)) {

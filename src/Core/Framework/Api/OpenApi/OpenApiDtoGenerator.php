@@ -44,6 +44,7 @@ final class OpenApiDtoGenerator
         'options',
         'head',
         'trace',
+        'query',
     ];
 
     /**

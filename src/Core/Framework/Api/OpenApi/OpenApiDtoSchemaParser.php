@@ -41,6 +41,7 @@ final class OpenApiDtoSchemaParser
         'options',
         'head',
         'trace',
+        'query',
     ];
 
     /**

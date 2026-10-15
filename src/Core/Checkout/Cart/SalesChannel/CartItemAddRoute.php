@@ -80,6 +80,7 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
             foreach ($items as $item) {
                 if ($clientIp !== null) {
                     if ($item->getType() === LineItem::PROMOTION_LINE_ITEM_TYPE) {
+                        // Different promotion codes must share an allowance instead of each starting a new per-item allowance.
                         $this->rateLimiter->ensureAccepted(RateLimiter::PROMOTION_CODE, $clientIp . '-' . $context->getSalesChannelId());
                     } else {
                         $cacheKey = ($item->getReferencedId() ?? $item->getId()) . '-' . $clientIp . '-' . $context->getSalesChannelId();

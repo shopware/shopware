@@ -18,5 +18,6 @@ module.exports = {
         'require-global-default-use': require(path.resolve(__dirname, 'require-global-default-use.js')),
         'valid-shopware-setup': require(path.resolve(__dirname, 'valid-shopware-setup.js')),
         'native-setup-filename': require(path.resolve(__dirname, 'native-setup-filename.js')),
+        'max-component-members': require(path.resolve(__dirname, 'max-component-members.js')),
     },
 };

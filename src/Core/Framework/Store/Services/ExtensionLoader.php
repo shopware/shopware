@@ -87,7 +87,7 @@ class ExtensionLoader
     {
         $data = [];
         foreach ($collection as $app) {
-            $data[] = $this->prepareAppData($context, $app);
+            $data[] = $this->prepareAppData($app);
         }
 
         $registeredApps = $this->loadFromListingArray($context, $data);
@@ -259,7 +259,7 @@ class ExtensionLoader
     /**
      * @return array<string, mixed>
      */
-    private function prepareAppData(Context $context, AppEntity $app): array
+    private function prepareAppData(AppEntity $app): array
     {
         $data = [
             'localId' => $app->getId(),

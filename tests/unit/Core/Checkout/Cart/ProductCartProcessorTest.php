@@ -26,6 +26,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
+use Shopware\Core\Content\Product\Events\ProductCartDataContextHashEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
@@ -37,6 +38,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\Stub\Checkout\EmptyPrice;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -145,7 +147,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             $calculator,
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new EventDispatcher()
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -214,7 +217,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             $calculator,
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new EventDispatcher()
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -312,7 +316,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new EventDispatcher()
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -353,7 +358,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new EventDispatcher()
         );
 
         $originalCart = new Cart('test');
@@ -408,7 +414,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new EventDispatcher()
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -459,7 +466,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new EventDispatcher()
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -487,5 +495,58 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame(0.5, $refPriceDef->getPurchaseUnit());
         static::assertSame(1.0, $refPriceDef->getReferenceUnit());
         static::assertSame('kg', $refPriceDef->getUnitName());
+    }
+
+    public function testDataContextHashChangesWithPartsAddedByListeners(): void
+    {
+        $withoutListener = $this->collectDataContextHash(null);
+
+        static::assertNotNull($withoutListener);
+        static::assertNotSame($withoutListener, $this->collectDataContextHash('state-1'));
+        static::assertNotSame($this->collectDataContextHash('state-1'), $this->collectDataContextHash('state-2'));
+        static::assertSame($this->collectDataContextHash('state-1'), $this->collectDataContextHash('state-1'));
+    }
+
+    public function testDataContextHashIsIndependentOfTheOrderPartsAreAdded(): void
+    {
+        $hash = function (array $order): ?string {
+            return $this->collectDataContextHash(static function (ProductCartDataContextHashEvent $event) use ($order): void {
+                foreach ($order as $name) {
+                    $event->addPart($name, $name);
+                }
+            });
+        };
+
+        static::assertSame($hash(['a', 'b']), $hash(['b', 'a']));
+    }
+
+    private function collectDataContextHash(string|\Closure|null $listener): ?string
+    {
+        $dispatcher = new EventDispatcher();
+        if (\is_string($listener)) {
+            $dispatcher->addListener(ProductCartDataContextHashEvent::class, static function (ProductCartDataContextHashEvent $event) use ($listener): void {
+                $event->addPart('plugin', $listener);
+            });
+        } elseif ($listener instanceof \Closure) {
+            $dispatcher->addListener(ProductCartDataContextHashEvent::class, $listener);
+        }
+
+        $lineItem = new LineItem('A', 'product', 'A');
+        $cart = new Cart('test');
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+
+        $processor = new ProductCartProcessor(
+            static::createStub(ProductGateway::class),
+            static::createStub(QuantityPriceCalculator::class),
+            static::createStub(ProductFeatureBuilder::class),
+            static::createStub(ProductPriceCalculator::class),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(Connection::class),
+            $dispatcher
+        );
+
+        $processor->collect(new CartDataCollection(), $cart, static::createStub(SalesChannelContext::class), new CartBehavior());
+
+        return $lineItem->getDataContextHash();
     }
 }

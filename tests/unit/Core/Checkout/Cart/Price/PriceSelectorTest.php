@@ -124,16 +124,21 @@ class PriceSelectorTest extends TestCase
         static::assertEqualsWithDelta(9.92, $austria->getValue(), 0.005);
     }
 
-    public function testGrossBasisSplitsTheDerivedNetOverPartialTaxRules(): void
+    public function testGrossBasisDerivesANetOverPartialTaxRulesThatIsTaxedBackToTheStoredGross(): void
     {
+        $taxRules = new TaxRuleCollection([new TaxRule(19, 50), new TaxRule(7, 50)]);
+
         $selected = $this->select(
             new Price(Defaults::CURRENCY, 10.0, 11.9, false),
-            new TaxRuleCollection([new TaxRule(19, 50), new TaxRule(7, 50)]),
+            $taxRules,
             CustomerGroupEntity::PRICE_BASIS_GROSS,
             CartPrice::TAX_STATE_NET
         );
 
-        static::assertEqualsWithDelta(10.56, $selected->getValue(), 0.005);
+        static::assertEqualsWithDelta(11.9 / 1.13, $selected->getValue(), 0.000001);
+
+        $addedTax = (new TaxCalculator())->calculateNetTaxes($selected->getValue(), $taxRules)->getAmount();
+        static::assertEqualsWithDelta(11.9, $selected->getValue() + $addedTax, 0.000001);
     }
 
     public function testGetDecoratedThrowsDecorationPatternException(): void

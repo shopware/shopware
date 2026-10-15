@@ -443,6 +443,52 @@ class DeliveryCalculatorTest extends TestCase
         ];
     }
 
+    public function testGrossBasisChargesTheStoredGrossOfProportionalShippingOverSeveralTaxRates(): void
+    {
+        $shippingMethod = $this->createShippingMethodWithSinglePrice(new PriceCollection([
+            new Price(Defaults::CURRENCY, 1.0, 11.9, false),
+        ]));
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
+
+        $delivery = $this->createDeliveryWithMixedRatePositions($shippingMethod, standardRateTotal: 100.0, reducedRateTotal: 100.0);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $this->createRealDeliveryCalculator()->calculate(
+            $data,
+            new Cart('test'),
+            new DeliveryCollection([$delivery]),
+            $this->createPriceBasisContext(CustomerGroupEntity::PRICE_BASIS_GROSS, CartPrice::TAX_STATE_NET)
+        );
+
+        $costs = $delivery->getShippingCosts();
+        static::assertEqualsWithDelta(11.9, $costs->getTotalPrice() + $costs->getCalculatedTaxes()->getAmount(), 0.000001);
+    }
+
+    public function testNetBasisKeepsTheStoredNetOfProportionalShippingOverSeveralTaxRates(): void
+    {
+        $shippingMethod = $this->createShippingMethodWithSinglePrice(new PriceCollection([
+            new Price(Defaults::CURRENCY, 10.0, 1.0, false),
+        ]));
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
+
+        $delivery = $this->createDeliveryWithMixedRatePositions($shippingMethod, standardRateTotal: 119.0, reducedRateTotal: 107.0);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $this->createRealDeliveryCalculator()->calculate(
+            $data,
+            new Cart('test'),
+            new DeliveryCollection([$delivery]),
+            $this->createPriceBasisContext(CustomerGroupEntity::PRICE_BASIS_NET, CartPrice::TAX_STATE_GROSS)
+        );
+
+        $costs = $delivery->getShippingCosts();
+        static::assertEqualsWithDelta(10.0, $costs->getTotalPrice() - $costs->getCalculatedTaxes()->getAmount(), 0.000001);
+    }
+
     public function testAlreadyCalculatedShippingCostsAreNotGrossedUpAgainUnderNetBasis(): void
     {
         $shippingMethod = $this->createShippingMethodWithSinglePrice(new PriceCollection([
@@ -580,6 +626,7 @@ class DeliveryCalculatorTest extends TestCase
         $context->method('getTaxState')->willReturn($taxState);
         $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getTotalRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
         $context->method('getCurrentCustomerGroup')->willReturn(
             (new CustomerGroupEntity())->assign(['priceBasis' => $priceBasis])
         );
@@ -634,6 +681,34 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryPositionCollection([
                 new DeliveryPosition(Uuid::randomHex(), $lineItem, 1, $price, new DeliveryDate(new \DateTime(), new \DateTime())),
             ]),
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        );
+    }
+
+    private function createDeliveryWithMixedRatePositions(ShippingMethodEntity $shippingMethod, float $standardRateTotal, float $reducedRateTotal): Delivery
+    {
+        $positions = new DeliveryPositionCollection();
+        foreach ([[19.0, $standardRateTotal], [7.0, $reducedRateTotal]] as [$taxRate, $total]) {
+            $lineItem = new LineItem(Uuid::randomHex(), 'product');
+            $lineItem->setDeliveryInformation(new DeliveryInformation(1, 1.0, false, null, $this->deliveryTime));
+            $lineItem->setPrice(new CalculatedPrice(
+                $total,
+                $total,
+                new CalculatedTaxCollection([new CalculatedTax($taxRate, $taxRate, $total)]),
+                new TaxRuleCollection([new TaxRule($taxRate)])
+            ));
+
+            $price = $lineItem->getPrice();
+            static::assertNotNull($price);
+
+            $positions->add(new DeliveryPosition(Uuid::randomHex(), $lineItem, 1, $price, new DeliveryDate(new \DateTime(), new \DateTime())));
+        }
+
+        return new Delivery(
+            $positions,
             new DeliveryDate(new \DateTime(), new \DateTime()),
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),

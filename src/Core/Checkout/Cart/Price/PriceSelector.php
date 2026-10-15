@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\SelectedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Cart\Tax\TaxRuleShares;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\Log\Package;
@@ -58,7 +59,7 @@ class PriceSelector extends AbstractPriceSelector
         }
 
         $containedTax = $this->taxCalculator
-            ->calculateGrossTaxes($price->getGross(), $taxRules)
+            ->calculateGrossTaxes($price->getGross(), TaxRuleShares::ofTheGross($taxRules))
             ->getAmount();
 
         return new SelectedPrice($price->getGross() - $containedTax, isCalculated: true);

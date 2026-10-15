@@ -7,11 +7,14 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -29,6 +32,8 @@ class CustomerGroupPriceBasisTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
+
+    private const DISCOUNT_ID = 'price-basis-discount';
 
     /**
      * @var array{id: string, taxRate: float, name: string}
@@ -81,7 +86,42 @@ class CustomerGroupPriceBasisTest extends TestCase
         static::assertSame(15.96, $price->getCalculatedTaxes()->getAmount());
     }
 
-    private function createProduct(float $net, float $gross): string
+    public function testGrossBasisWithNetDisplayChargesTheStoredGrossOfADiscountOverSeveralTaxRates(): void
+    {
+        $cart = $this->calculateMixedRateCartWithDiscount(
+            CustomerGroupEntity::PRICE_BASIS_GROSS,
+            displayGross: false,
+            standardRateProduct: ['net' => 1.0, 'gross' => 119.0],
+            reducedRateProduct: ['net' => 1.0, 'gross' => 107.0],
+            discount: new Price(Defaults::CURRENCY, -1.0, -11.9, false),
+        );
+
+        $discount = $cart->get(self::DISCOUNT_ID)?->getPrice();
+        static::assertNotNull($discount);
+        static::assertEqualsWithDelta(-11.9, $discount->getTotalPrice() + $discount->getCalculatedTaxes()->getAmount(), 0.000001);
+        static::assertEqualsWithDelta(119.0 + 107.0 - 11.9, $cart->getPrice()->getTotalPrice(), 0.000001);
+    }
+
+    public function testNetBasisWithGrossDisplayKeepsTheStoredNetOfADiscountOverSeveralTaxRates(): void
+    {
+        $cart = $this->calculateMixedRateCartWithDiscount(
+            CustomerGroupEntity::PRICE_BASIS_NET,
+            displayGross: true,
+            standardRateProduct: ['net' => 100.0, 'gross' => 1.0],
+            reducedRateProduct: ['net' => 100.0, 'gross' => 1.0],
+            discount: new Price(Defaults::CURRENCY, -10.0, -1.0, false),
+        );
+
+        $discount = $cart->get(self::DISCOUNT_ID)?->getPrice();
+        static::assertNotNull($discount);
+        static::assertEqualsWithDelta(-10.0, $discount->getTotalPrice() - $discount->getCalculatedTaxes()->getAmount(), 0.000001);
+        static::assertEqualsWithDelta(100.0 + 100.0 - 10.0, $cart->getPrice()->getNetPrice(), 0.000001);
+    }
+
+    /**
+     * @param array{id: string, taxRate: float, name: string}|null $tax
+     */
+    private function createProduct(float $net, float $gross, ?array $tax = null): string
     {
         $productId = Uuid::randomHex();
 
@@ -93,7 +133,7 @@ class CustomerGroupPriceBasisTest extends TestCase
             ],
             'productNumber' => Uuid::randomHex(),
             'manufacturer' => ['name' => 'test'],
-            'tax' => $this->tax,
+            'tax' => $tax ?? $this->tax,
             'stock' => 10,
             'active' => true,
             'visibilities' => [
@@ -124,6 +164,47 @@ class CustomerGroupPriceBasisTest extends TestCase
         static::assertNotNull($price);
 
         return $price;
+    }
+
+    /**
+     * @param array{net: float, gross: float} $standardRateProduct
+     * @param array{net: float, gross: float} $reducedRateProduct
+     */
+    private function calculateMixedRateCartWithDiscount(
+        string $priceBasis,
+        bool $displayGross,
+        array $standardRateProduct,
+        array $reducedRateProduct,
+        Price $discount,
+    ): Cart {
+        $reducedTax = ['id' => Uuid::randomHex(), 'taxRate' => 7.0, 'name' => 'price-basis-reduced-tax'];
+
+        $productIds = [
+            $this->createProduct($standardRateProduct['net'], $standardRateProduct['gross']),
+            $this->createProduct($reducedRateProduct['net'], $reducedRateProduct['gross'], $reducedTax),
+        ];
+
+        $context = $this->createContextForPriceBasis($priceBasis, $displayGross);
+        $this->addTaxDataToSalesChannel($context, $reducedTax);
+
+        $cart = new Cart('price-basis');
+        foreach ($productIds as $productId) {
+            $cart->add(
+                (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, 1))
+                    ->setStackable(true)
+                    ->setRemovable(true)
+            );
+        }
+
+        $cart->add(
+            (new LineItem(self::DISCOUNT_ID, LineItem::DISCOUNT_LINE_ITEM))
+                ->setLabel('price basis discount')
+                ->setGood(false)
+                ->setRemovable(true)
+                ->setPriceDefinition(new CurrencyPriceDefinition(new PriceCollection([$discount])))
+        );
+
+        return static::getContainer()->get(Processor::class)->process($cart, $context, new CartBehavior());
     }
 
     private function createContextForPriceBasis(?string $priceBasis, bool $displayGross): SalesChannelContext

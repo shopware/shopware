@@ -76,6 +76,30 @@ class CurrencyPriceCalculatorTest extends TestCase
         ];
     }
 
+    public function testGrossBasisOverSeveralTaxRatesChargesTheStoredGross(): void
+    {
+        $price = $this->createCalculator()->calculate(
+            new PriceCollection([new Price(Defaults::CURRENCY, 1.0, 119.0, false)]),
+            $this->createMixedRatePrices(standardRateTotal: 100.0, reducedRateTotal: 100.0),
+            $this->createContext(CartPrice::TAX_STATE_NET, CustomerGroupEntity::PRICE_BASIS_GROSS)
+        );
+
+        static::assertSame(105.31, $price->getUnitPrice());
+        static::assertEqualsWithDelta(119.0, $price->getTotalPrice() + $price->getCalculatedTaxes()->getAmount(), 0.000001);
+    }
+
+    public function testNetBasisOverSeveralTaxRatesKeepsTheStoredNet(): void
+    {
+        $price = $this->createCalculator()->calculate(
+            new PriceCollection([new Price(Defaults::CURRENCY, 10.0, 1.0, false)]),
+            $this->createMixedRatePrices(standardRateTotal: 119.0, reducedRateTotal: 107.0),
+            $this->createContext(CartPrice::TAX_STATE_GROSS, CustomerGroupEntity::PRICE_BASIS_NET)
+        );
+
+        static::assertSame(11.3, $price->getUnitPrice());
+        static::assertEqualsWithDelta(10.0, $price->getTotalPrice() - $price->getCalculatedTaxes()->getAmount(), 0.000001);
+    }
+
     public function testMissingCurrencyPriceIsRejected(): void
     {
         $this->expectExceptionObject(CartException::invalidPriceDefinition());
@@ -109,6 +133,24 @@ class CurrencyPriceCalculatorTest extends TestCase
                 119.0,
                 new CalculatedTaxCollection([new CalculatedTax(19.0, 19.0, 119.0)]),
                 new TaxRuleCollection([new TaxRule(19)])
+            ),
+        ]);
+    }
+
+    private function createMixedRatePrices(float $standardRateTotal, float $reducedRateTotal): CalculatedPriceCollection
+    {
+        return new CalculatedPriceCollection([
+            new CalculatedPrice(
+                $standardRateTotal,
+                $standardRateTotal,
+                new CalculatedTaxCollection([new CalculatedTax(19.0, 19.0, $standardRateTotal)]),
+                new TaxRuleCollection([new TaxRule(19)])
+            ),
+            new CalculatedPrice(
+                $reducedRateTotal,
+                $reducedRateTotal,
+                new CalculatedTaxCollection([new CalculatedTax(7.0, 7.0, $reducedRateTotal)]),
+                new TaxRuleCollection([new TaxRule(7)])
             ),
         ]);
     }

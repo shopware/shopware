@@ -13,6 +13,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
@@ -214,6 +217,42 @@ class GrossPriceCalculatorTest extends TestCase
 
         $fiveCents = $calculator->calculate($definition, new CashRoundingConfig(2, 0.05, true));
         static::assertSame(11.9, $fiveCents->getUnitPrice());
+    }
+
+    public function testUncalculatedPriceOverSeveralTaxRulesKeepsTheNetAfterTheTaxSplit(): void
+    {
+        $taxRules = (new PercentageTaxRuleBuilder())->buildCollectionRules(
+            new CalculatedTaxCollection([new CalculatedTax(19.0, 19, 119.0), new CalculatedTax(7.0, 7, 107.0)]),
+            226.0
+        );
+
+        $definition = new QuantityPriceDefinition(10.0, $taxRules, 1);
+        $definition->setIsCalculated(false);
+
+        $calculator = new GrossPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        static::assertSame(11.3, $price->getUnitPrice());
+        static::assertEqualsWithDelta(10.0, $price->getTotalPrice() - $price->getCalculatedTaxes()->getAmount(), 0.000001);
+    }
+
+    #[DataProvider('halfCentProvider')]
+    public function testUncalculatedPriceWithASingleRuleKeepsItsRoundingOnHalfCents(float $taxRate, float $net, float $expectedGross): void
+    {
+        $definition = new QuantityPriceDefinition($net, new TaxRuleCollection([new TaxRule($taxRate)]), 1);
+        $definition->setIsCalculated(false);
+
+        $calculator = new GrossPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        static::assertSame($expectedGross, $price->getUnitPrice());
+    }
+
+    public static function halfCentProvider(): \Generator
+    {
+        yield '25% on 0.02' => [25.0, 0.02, 0.03];
+        yield '10% on 0.15' => [10.0, 0.15, 0.16];
+        yield '21% on 0.50' => [21.0, 0.5, 0.61];
     }
 
     public function testTaxesAreRoundedProperly(): void

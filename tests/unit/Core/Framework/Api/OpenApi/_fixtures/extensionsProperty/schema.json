@@ -8,6 +8,7 @@
     "components": {
         "schemas": {
             "RequiredId": {
+                "x-dto-namespace": "App\\DTO",
                 "type": "object",
                 "required": [
                     "id"
@@ -23,6 +24,7 @@
                 }
             },
             "OptionalExtensions": {
+                "x-dto-namespace": "App\\DTO",
                 "type": "object",
                 "properties": {
                     "id": {

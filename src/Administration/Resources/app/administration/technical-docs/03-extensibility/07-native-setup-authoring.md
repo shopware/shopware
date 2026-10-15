@@ -50,7 +50,7 @@ The base transform also adds `:data="$dataScope"` to every `<sw-block name="..."
 
 Override-local bindings are returned under deterministic private aliases only when they are referenced inside `<sw-block extends>` content, forwarded through the reserved `__swOverride` slot-scope channel. The generated `#default` binds the base component's whole data scope under one name, and the transform rewrites every reference in the block content to read through it — a declared override binding directly, an override-local one under the file's namespace. Write to them exactly as you would in a base component: `@click="count++"` and `v-model="count"` reach the real ref. References are rewritten rather than destructured for that reason — a destructured slot prop is a plain local, so reads would work while writes silently went nowhere.
 
-One limitation follows from the rewrite: an expression inside `<sw-block extends>` content that reads a forwarded binding must not contain HTML entities (`&lt;`, `&amp;&amp;`). Vue decodes them before the transform sees the expression, so its offsets no longer line up with the source and the rewrite would corrupt the template. The transform rejects that at build time; write the character itself, which is legal in a Vue expression.
+Expressions inside `<sw-block extends>` content may contain HTML entities such as `&lt;` or `&amp;&amp;`. Vue decodes them before the transform sees the expression, so the transform decodes each complete entity itself to find where a rewritten reference sits in the source. That fails for an entity without its closing semicolon (`count &lt max`) and for one that decodes to several characters. If such an expression reads a forwarded binding, the build fails; close the entity with `;` or write the character itself.
 
 **Runtime inputs** are explicit:
 
@@ -154,7 +154,7 @@ The transform rejects these at build time:
 - Non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefinePublic()` / `swDefineOverride()` usage
 - A missing marker: no `swDefinePublic()` in a base component, or no `swDefineOverride()` in an override
 - Authored `#default`, `data`, or `v-bind` bindings on `<sw-block>`
-- HTML entities in a `<sw-block extends>` expression that reads a forwarded override binding
+- HTML entities without a closing semicolon, or that decode to several characters, in a `<sw-block extends>` expression that reads a forwarded override binding
 - Reserved top-level binding names:
   - the `__swSetup` prefix, used for the transform's generated bindings
   - `__swOverride`, the reserved override-private slot-scope token

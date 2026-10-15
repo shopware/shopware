@@ -6,13 +6,14 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinit
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
  *
- * @deprecated tag:v6.8.0 - reason:remove-subscriber - The price basis is part of every create payload from then on, the definition defaults it to `gross`.
+ * @deprecated tag:v6.8.0 - The price basis is part of every create payload from then on, the definition defaults it to `gross`.
  */
 #[Package('discovery')]
 final class CustomerGroupPriceBasisSubscriber implements EventSubscriberInterface
@@ -22,6 +23,10 @@ final class CustomerGroupPriceBasisSubscriber implements EventSubscriberInterfac
      */
     public static function getSubscribedEvents(): array
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            return [];
+        }
+
         return [
             EntityWriteEvent::class => 'derivePriceBasis',
         ];
@@ -29,6 +34,8 @@ final class CustomerGroupPriceBasisSubscriber implements EventSubscriberInterfac
 
     public function derivePriceBasis(EntityWriteEvent $event): void
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
         foreach ($event->getCommandsForEntity(CustomerGroupDefinition::ENTITY_NAME) as $command) {
             if (!$command instanceof InsertCommand) {
                 continue;

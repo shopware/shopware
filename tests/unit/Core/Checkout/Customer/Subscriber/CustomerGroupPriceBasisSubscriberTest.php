@@ -16,8 +16,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -41,6 +44,7 @@ class CustomerGroupPriceBasisSubscriberTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testSubscribesToTheWriteEvent(): void
     {
         static::assertSame(
@@ -49,10 +53,34 @@ class CustomerGroupPriceBasisSubscriberTest extends TestCase
         );
     }
 
+    public function testSubscribesToNothingWithTheMajor(): void
+    {
+        static::assertSame([], CustomerGroupPriceBasisSubscriber::getSubscribedEvents());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed together with the v6.8.0.0 feature flag.
+     */
+    public function testDerivingThrowsWithTheMajor(): void
+    {
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: ' . Feature::deprecatedClassMessage(CustomerGroupPriceBasisSubscriber::class, 'v6.8.0.0')
+        ));
+
+        $this->dispatch(new InsertCommand(
+            $this->definition,
+            ['display_gross' => 0],
+            ['id' => Uuid::randomBytes()],
+            static::createStub(EntityExistence::class),
+            '/0'
+        ));
+    }
+
     /**
      * @param array<string, mixed> $payload
      */
     #[DataProvider('insertProvider')]
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testInsertGetsTheBasisMatchingItsDisplayMode(array $payload, string $expectedBasis): void
     {
         $command = new InsertCommand(
@@ -87,6 +115,7 @@ class CustomerGroupPriceBasisSubscriberTest extends TestCase
         ];
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testUpdatesStayUntouched(): void
     {
         $command = new UpdateCommand(

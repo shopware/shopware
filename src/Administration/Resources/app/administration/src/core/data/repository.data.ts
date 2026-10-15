@@ -150,7 +150,6 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
 
         return this.runCachedRead(cache, () => {
             return this.httpClient.post(url, criteria.parse(), this.buildRequestConfig(headers)).then((response) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
             });
         });

@@ -47,22 +47,23 @@ class AccountNewsletterRecipientV2Route
         SalesChannelContext $context,
         CustomerEntity $customer
     ): ReadNewsletterRecipientStatusResponse {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('email', $customer->getEmail()));
-        $criteria->setLimit(1);
-        $criteria->addFields(['status']);
-
         return $this->extensions->publish(
             name: ReadNewsletterRecipientExtension::NAME,
-            extension: new ReadNewsletterRecipientExtension($criteria, $context, $customer),
-            function: $this->loadV2Internal(...),
+            extension: new ReadNewsletterRecipientExtension(
+                (new Criteria())
+                    ->addFilter(new EqualsFilter('email', $customer->getEmail()))
+                    ->setLimit(1)
+                    ->addFields(['status']),
+                $context,
+                $customer,
+            ),
+            function: fn (Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ReadNewsletterRecipientStatusResponse => $this->loadV2Internal($criteria, $context),
         );
     }
 
     private function loadV2Internal(
         Criteria $criteria,
         SalesChannelContext $context,
-        CustomerEntity $customer,
     ): ReadNewsletterRecipientStatusResponse {
         $status = $this->newsletterRecipientRepository->search($criteria, $context)->getEntities()->first()?->get('status') ?? self::UNDEFINED;
 

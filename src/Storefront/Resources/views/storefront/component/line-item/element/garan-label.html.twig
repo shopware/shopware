@@ -12,8 +12,8 @@
                 } %}
             {% endset %}
         {% endif %}
-    {% else %}
-        {# fallback for orders placed before the label was stored on the line item #}
+    {% elseif not feature('v6.8.0.0') %}
+        {# @deprecated tag:v6.8.0 - The product lookup for line items without a stored label will be removed, they will show no GARAN label. #}
         {% set garanLabel = productId|sw_garan_label_nested(context.context) %}
     {% endif %}
 

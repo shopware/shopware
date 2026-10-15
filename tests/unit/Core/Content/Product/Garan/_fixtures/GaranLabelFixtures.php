@@ -22,6 +22,11 @@ final class GaranLabelFixtures
      */
     public const PRODUCT_LABEL = ['guaranteeMonths' => 36, 'brand' => 'ACME', 'modelIdentifier' => 'ACME-36'];
 
+    /**
+     * Label values a line item stored earlier, different from {@see self::PRODUCT_LABEL}
+     */
+    public const STORED_LABEL = ['guaranteeMonths' => 42, 'brand' => 'ACME', 'modelIdentifier' => 'ACME-36'];
+
     public static function createResolver(): GaranLabelResolver
     {
         // resolving the label values never renders a template

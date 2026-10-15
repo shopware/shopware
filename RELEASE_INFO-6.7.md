@@ -385,7 +385,9 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 Cart and order product line items now store the GARAN label values in `payload.garanLabel`.
 Editing an order keeps the stored values; products added while editing get their current label.
-Order line items from before this change, and cart line items until the cart reloads their product, have no `garanLabel` key and show the product's current label.
+Order line items from before this change get the product's current label in `payload.garanLabel` when they are read through the Store API or the Storefront.
+Cart line items from before this change have no `garanLabel` key until the cart reloads their product.
+Line items without a stored `garanLabel` key show the product's current label until 6.8.0.0, and no GARAN label from then on.
 
 Headless frontends can read the stored values from the cart or order line item's payload instead of `/store-api/product/{productId}/garan-label`.
 

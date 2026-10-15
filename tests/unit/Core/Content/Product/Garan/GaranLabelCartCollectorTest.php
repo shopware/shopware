@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\Product\Garan\GaranLabelCartCollector;
+use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
@@ -23,8 +24,6 @@ use Shopware\Tests\Unit\Core\Content\Product\Garan\_fixtures\GaranLabelFixtures;
 #[CoversClass(GaranLabelCartCollector::class)]
 class GaranLabelCartCollectorTest extends TestCase
 {
-    private const STORED = ['guaranteeMonths' => 42, 'brand' => 'ACME', 'modelIdentifier' => 'ACME-36'];
-
     /**
      * @return \Generator<string, array{ProductEntity, array<string, int|string>|null}>
      */
@@ -44,25 +43,25 @@ class GaranLabelCartCollectorTest extends TestCase
     #[DataProvider('productProvider')]
     public function testReplacesTheLabelWithTheOneOfTheLoadedProduct(ProductEntity $product, ?array $expected): void
     {
-        $lineItem = self::createLineItem(['garanLabel' => self::STORED]);
+        $lineItem = self::createLineItem([GaranLabelResolver::PAYLOAD_KEY => GaranLabelFixtures::STORED_LABEL]);
 
         self::collect($lineItem, [$product], new CartBehavior());
 
-        static::assertSame($expected, $lineItem->getPayload()['garanLabel']);
+        static::assertSame($expected, $lineItem->getPayload()[GaranLabelResolver::PAYLOAD_KEY]);
     }
 
     public function testKeepsTheStoredLabelWhenTheProductWasNotLoaded(): void
     {
-        $lineItem = self::createLineItem(['garanLabel' => self::STORED]);
+        $lineItem = self::createLineItem([GaranLabelResolver::PAYLOAD_KEY => GaranLabelFixtures::STORED_LABEL]);
 
         self::collect($lineItem, [], new CartBehavior());
 
-        static::assertSame(self::STORED, $lineItem->getPayload()['garanLabel']);
+        static::assertSame(GaranLabelFixtures::STORED_LABEL, $lineItem->getPayload()[GaranLabelResolver::PAYLOAD_KEY]);
     }
 
     public function testAnEditedOrderKeepsTheLabelItWasPlacedWith(): void
     {
-        $lineItem = self::createLineItem(['garanLabel' => self::STORED]);
+        $lineItem = self::createLineItem([GaranLabelResolver::PAYLOAD_KEY => GaranLabelFixtures::STORED_LABEL]);
 
         self::collect(
             $lineItem,
@@ -70,7 +69,7 @@ class GaranLabelCartCollectorTest extends TestCase
             new CartBehavior([CheckoutPermissions::SKIP_PRODUCT_RECALCULATION => true]),
         );
 
-        static::assertSame(self::STORED, $lineItem->getPayload()['garanLabel']);
+        static::assertSame(GaranLabelFixtures::STORED_LABEL, $lineItem->getPayload()[GaranLabelResolver::PAYLOAD_KEY]);
     }
 
     public function testStoresTheLabelOfProductsInsideAContainer(): void
@@ -81,7 +80,7 @@ class GaranLabelCartCollectorTest extends TestCase
 
         self::collect($container, [GaranLabelFixtures::createProduct('product-id')], new CartBehavior());
 
-        static::assertSame(GaranLabelFixtures::PRODUCT_LABEL, $child->getPayload()['garanLabel']);
+        static::assertSame(GaranLabelFixtures::PRODUCT_LABEL, $child->getPayload()[GaranLabelResolver::PAYLOAD_KEY]);
     }
 
     /**

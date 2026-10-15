@@ -205,8 +205,9 @@ final class BoxSpacingNormalizer
             return ContentSystemException::boxSpacingInvalidValue($operation, $value);
         }
 
-        // With fixed valid patterns, an internal PCRE engine failure cannot be induced reliably through
-        // this public API. Keep it distinct from input limits; the exception factory pins its 500 contract.
+        // Two paths reach this 500: a PCRE error outside the input-limit codes above, which cannot be
+        // induced reliably through this public API, and `preg_split()` returning `[]`, which it does not do
+        // without flags. Keep both distinct from input limits; the exception factory pins its 500 contract.
         return ContentSystemException::boxSpacingTokenizationFailed($operation, $value, preg_last_error_msg());
     }
 

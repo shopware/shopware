@@ -40,9 +40,10 @@ class WriteAuthorizer
     }
 
     /**
-     * The checks run in order, and a webhook rejected by one is not checked further.
+     * Every change to an existing webhook must be allowed, and each webhook is then judged as it will be after the
+     * write. A webhook rejected by one check is not checked further.
      *
-     * @param array<string, WriteCommand> $commands the webhook writes, keyed by webhook id
+     * @param list<WriteCommand> $commands the webhook writes, in the order they are run
      *
      * @return list<HttpException>
      */
@@ -52,12 +53,23 @@ class WriteAuthorizer
             return [];
         }
 
-        // the stored webhooks that are changed or deleted, used by the first and the last check
-        $stored = $this->webhookLoader->getSubscriptions(array_keys(array_filter($commands, self::isModification(...))));
+        $modifications = array_filter($commands, self::isModification(...));
 
-        $violations = $this->getModificationViolations($commands, $stored, $context);
-        $violations += $this->getAclRoleIdsViolations(array_diff_key($commands, $violations));
-        $violations += $this->getSubscriptionViolations(array_diff_key($commands, $violations), $stored, $context);
+        // the stored webhooks that are changed or deleted, used by the first and the last check
+        $stored = $this->webhookLoader->getSubscriptions(array_values(array_unique(array_map(static fn (WriteCommand $command): string => $command->getDecodedPrimaryKey()['id'], $modifications))));
+
+        $violations = $this->getModificationViolations($modifications, $stored, $context);
+
+        // each webhook as it will be after the write: its last insert or update
+        $written = [];
+        foreach ($commands as $command) {
+            if ($command instanceof InsertCommand || $command instanceof UpdateCommand) {
+                $written[$command->getDecodedPrimaryKey()['id']] = $command;
+            }
+        }
+
+        $violations += $this->getAclRoleIdsViolations(array_diff_key($written, $violations));
+        $violations += $this->getSubscriptionViolations(array_diff_key($written, $violations), $stored, $context);
 
         return array_values($violations);
     }
@@ -65,17 +77,18 @@ class WriteAuthorizer
     /**
      * Only the owner, or an admin, may change or delete an app-less webhook, and nobody may change an app's webhook.
      *
-     * @param array<string, WriteCommand> $commands keyed by webhook id
+     * @param array<WriteCommand> $modifications every update and delete of the write
      * @param array<string, WebhookSubscription> $stored keyed by webhook id
      *
      * @return array<string, HttpException> keyed by webhook id
      */
-    private function getModificationViolations(array $commands, array $stored, Context $context): array
+    private function getModificationViolations(array $modifications, array $stored, Context $context): array
     {
         $source = $context->getSource();
         $violations = [];
 
-        foreach (array_filter($commands, self::isModification(...)) as $webhookId => $command) {
+        foreach ($modifications as $command) {
+            $webhookId = $command->getDecodedPrimaryKey()['id'];
             $subscription = $stored[$webhookId] ?? null;
             if ($subscription?->belongsToApp()) {
                 // an admin may still switch an app's webhook on or off, e.g. after it was disabled for failing
@@ -196,7 +209,7 @@ class WriteAuthorizer
     {
         $written = [];
         foreach ($commands as $webhookId => $command) {
-            $current = $stored[$webhookId] ?? null;
+            $current = $command instanceof UpdateCommand ? $stored[$webhookId] ?? null : null;
             $ownerType = $current?->ownerType;
             $ownerId = $current?->ownerId;
             if ($command instanceof InsertCommand) {

@@ -56,7 +56,7 @@ class RestrictWriteSubscriberTest extends TestCase
         $authorizer = $this->createMock(WriteAuthorizer::class);
         $authorizer->expects($this->once())
             ->method('getViolations')
-            ->with([Uuid::fromBytesToHex($insertId) => $insert, Uuid::fromBytesToHex($deleteId) => $delete], $context)
+            ->with([$insert, $delete], $context)
             ->willReturn([$violation]);
 
         $event = new PreWriteValidationEvent(WriteContext::createFromContext($context), [

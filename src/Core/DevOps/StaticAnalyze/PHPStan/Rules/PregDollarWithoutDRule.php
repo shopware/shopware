@@ -9,13 +9,18 @@ use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\AssignOp;
 use PhpParser\Node\Expr\BinaryOp\Concat;
+use PhpParser\Node\Expr\CallLike;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
+use PhpParser\Node\Identifier;
 use PhpParser\Node\InterpolatedStringPart;
 use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\InterpolatedString;
+use PhpParser\Node\Scalar\String_;
 use PhpParser\NodeFinder;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
@@ -24,22 +29,28 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Parser\Parser;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Validator\Constraints\Regex;
 
 /**
- * Reports `preg_*` patterns whose body ends with an unescaped `$` or `\Z` while the modifiers carry neither `D`
- * nor `m`: such a pattern also matches before a trailing newline. Patterns are read from constant strings, inline
- * `sprintf()` formats, concatenations, interpolated strings and the assignments to a local variable that precede
- * the call. A call whose pattern stays unreadable is reported as unresolved, to be restructured or allowlisted
- * per file with the reason.
+ * Reports patterns containing an unescaped `$` or `\Z` outside character classes, escapes and comments while the
+ * modifiers carry neither `D` nor `m`: such a pattern also matches before a trailing newline. Checked are the
+ * `preg_*` functions, the Symfony `Regex` constraint and the regex filters of the Symfony Finder (`name()`,
+ * `notName()`, `path()`, `notPath()`, `contains()`, `notContains()`; a Finder argument that Finder itself would
+ * read as a glob is skipped). Patterns are read from constant strings, inline `sprintf()` formats, concatenations,
+ * interpolated strings and the assignments to a local variable that precede the call. A `preg_*` call or `Regex`
+ * constraint whose pattern stays unreadable is reported as unresolved, to be restructured or allowlisted per file
+ * with the reason.
  *
- * Not detected: an anchor inside a trailing group or alternation, and a runtime modifier part carrying `D` or `m`.
+ * Not detected: a runtime modifier part carrying `D` or `m`, and the constraint used as an attribute.
  *
  * @internal
  *
- * @implements Rule<FuncCall>
+ * @implements Rule<CallLike>
  */
 #[Package('framework')]
 class PregDollarWithoutDRule implements Rule
@@ -73,6 +84,16 @@ class PregDollarWithoutDRule implements Rule
     ];
 
     /**
+     * Finder filters taking a pattern, or a list of patterns, that Finder applies with `preg_match` when it reads as a regex.
+     */
+    private const FINDER_METHODS = ['name', 'notname', 'path', 'notpath', 'contains', 'notcontains'];
+
+    /**
+     * Constraint normalizers that strip the trailing newline before the pattern is applied.
+     */
+    private const TRIMMING_NORMALIZERS = ['trim', 'rtrim'];
+
+    /**
      * Stands in for a runtime part of the pattern while the template is inspected.
      */
     private const RUNTIME = "\0";
@@ -98,38 +119,32 @@ class PregDollarWithoutDRule implements Rule
 
     public function getNodeType(): string
     {
-        return FuncCall::class;
+        return CallLike::class;
     }
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node instanceof FuncCall || !$node->name instanceof Name) {
+        if (!$node instanceof CallLike || $node->isFirstClassCallable() || !$this->isEnabledNamespace($scope->getNamespace())) {
             return [];
         }
 
-        $functionName = $node->name->toLowerString();
-        $patternsAreKeys = \in_array($functionName, self::PATTERN_KEY_FUNCTIONS, true);
-        if (!$patternsAreKeys && !\in_array($functionName, self::PATTERN_ARGUMENT_FUNCTIONS, true)) {
+        $call = $this->patternCall($node, $scope);
+        if ($call === null) {
             return [];
         }
 
-        if (!$this->isEnabledNamespace($scope->getNamespace())) {
-            return [];
-        }
-
-        $pattern = self::argument($node, 'pattern');
-        if ($pattern === null) {
-            return [];
-        }
-
-        $templates = $patternsAreKeys
-            ? $this->keyTemplates($scope->getType($pattern))
-            : $this->resolveTemplates($pattern, $scope);
+        $templates = $call['keys']
+            ? $this->keyTemplates($scope->getType($call['pattern']))
+            : $this->resolveTemplates($call['pattern'], $scope);
 
         $offending = [];
         $unknown = $templates === [];
         foreach ($templates as $template) {
-            $verdict = $this->endsWithNewlineTolerantAnchor($template);
+            if ($call['finder'] && !self::isFinderRegex($template)) {
+                continue;
+            }
+
+            $verdict = $this->hasNewlineTolerantAnchor($template);
             if ($verdict === null) {
                 $unknown = true;
             } elseif ($verdict) {
@@ -144,21 +159,84 @@ class PregDollarWithoutDRule implements Rule
                 : 'each of the patterns ' . implode(', ', $offending);
 
             return [
-                RuleErrorBuilder::message(\sprintf(self::ERROR, $functionName, $subject))
+                RuleErrorBuilder::message(\sprintf(self::ERROR, $call['label'], $subject))
                     ->identifier(self::IDENTIFIER)
                     ->build(),
             ];
         }
 
-        if ($unknown) {
+        // Finder reads anything it cannot recognise as a regex as a glob, so an unreadable argument tells nothing
+        if ($unknown && !$call['finder']) {
             return [
-                RuleErrorBuilder::message(\sprintf(self::ERROR_UNRESOLVED, $functionName))
+                RuleErrorBuilder::message(\sprintf(self::ERROR_UNRESOLVED, $call['label']))
                     ->identifier(self::IDENTIFIER_UNRESOLVED)
                     ->build(),
             ];
         }
 
         return [];
+    }
+
+    /**
+     * The pattern argument of a call that applies it as a regular expression, null for any other call.
+     *
+     * @return array{label: string, pattern: Expr, keys: bool, finder: bool}|null
+     */
+    private function patternCall(CallLike $call, Scope $scope): ?array
+    {
+        if ($call instanceof FuncCall && $call->name instanceof Name) {
+            $function = $call->name->toLowerString();
+            $keys = \in_array($function, self::PATTERN_KEY_FUNCTIONS, true);
+            if (!$keys && !\in_array($function, self::PATTERN_ARGUMENT_FUNCTIONS, true)) {
+                return null;
+            }
+
+            $pattern = self::argument($call, 'pattern');
+
+            return $pattern === null ? null : ['label' => $function, 'pattern' => $pattern, 'keys' => $keys, 'finder' => false];
+        }
+
+        if ($call instanceof New_ && $call->class instanceof Name) {
+            $class = new ObjectType($scope->resolveName($call->class));
+            if (!(new ObjectType(Regex::class))->isSuperTypeOf($class)->yes()) {
+                return null;
+            }
+
+            $normalizer = self::argument($call, 'normalizer', 4);
+            if ($normalizer !== null && \in_array($this->constantString($normalizer, $scope), self::TRIMMING_NORMALIZERS, true)) {
+                return null;
+            }
+
+            $pattern = self::argument($call, 'pattern');
+            if ($pattern instanceof Array_) {
+                // legacy options array: `new Regex(['pattern' => ...])`
+                $pattern = self::arrayItem($pattern, 'pattern');
+            }
+
+            return $pattern === null ? null : ['label' => 'Regex', 'pattern' => $pattern, 'keys' => false, 'finder' => false];
+        }
+
+        if ($call instanceof MethodCall && $call->name instanceof Identifier) {
+            $method = $call->name->toLowerString();
+            if (!\in_array($method, self::FINDER_METHODS, true)
+                || !(new ObjectType(Finder::class))->isSuperTypeOf($scope->getType($call->var))->yes()
+            ) {
+                return null;
+            }
+
+            $pattern = self::argument($call, 'patterns') ?? self::argument($call, 'pattern');
+
+            return $pattern === null ? null : ['label' => 'Finder::' . $call->name->toString(), 'pattern' => $pattern, 'keys' => false, 'finder' => true];
+        }
+
+        return null;
+    }
+
+    private function constantString(Expr $expr, Scope $scope): ?string
+    {
+        $strings = $scope->getType($expr)->getConstantStrings();
+
+        return \count($strings) === 1 ? $strings[0]->getValue() : null;
     }
 
     private function isEnabledNamespace(?string $namespace): bool
@@ -177,9 +255,9 @@ class PregDollarWithoutDRule implements Rule
     }
 
     /**
-     * The named argument if the call uses one, otherwise the first positional argument.
+     * The named argument if the call uses one, otherwise the positional argument at the given index.
      */
-    private static function argument(FuncCall $call, string $name): ?Expr
+    private static function argument(CallLike $call, string $name, int $position = 0): ?Expr
     {
         $args = $call->getArgs();
         foreach ($args as $arg) {
@@ -188,7 +266,18 @@ class PregDollarWithoutDRule implements Rule
             }
         }
 
-        return isset($args[0]) && $args[0]->name === null ? $args[0]->value : null;
+        return isset($args[$position]) && $args[$position]->name === null ? $args[$position]->value : null;
+    }
+
+    private static function arrayItem(Array_ $array, string $key): ?Expr
+    {
+        foreach ($array->items as $item) {
+            if ($item->key instanceof String_ && $item->key->value === $key) {
+                return $item->value;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -457,7 +546,7 @@ class PregDollarWithoutDRule implements Rule
      * purpose. Returns null when the delimiters cannot be told apart from runtime parts. PHPStan ships the same
      * delimiter parsing in its RegexExpressionHelper, which is not part of its public API.
      */
-    private function endsWithNewlineTolerantAnchor(string $template): ?bool
+    private function hasNewlineTolerantAnchor(string $template): ?bool
     {
         $template = ltrim($template);
         if ($template === '' || $template[0] === self::RUNTIME) {
@@ -479,30 +568,137 @@ class PregDollarWithoutDRule implements Rule
         $body = substr($template, 1, $end - 1);
         $modifiers = str_replace(self::RUNTIME, '', substr($template, $end + 1));
 
-        if (str_contains($modifiers, 'D') || str_contains($modifiers, 'm')) {
+        if (str_contains($modifiers, 'D') || str_contains($modifiers, 'm') || self::setsInlineMultiline($body)) {
             return false;
         }
 
-        if (str_contains($modifiers, 'x')) {
-            // extended mode ignores unescaped whitespace
-            $body = rtrim($body);
-        }
+        return self::containsNewlineTolerantAnchor($body, str_contains($modifiers, 'x'));
+    }
 
-        if (str_ends_with($body, '$')) {
-            // an even number of backslashes before the dollar leaves it unescaped
-            return self::countTrailingBackslashes(substr($body, 0, -1)) % 2 === 0;
-        }
+    /**
+     * An unescaped `$` or `\Z` anywhere outside a character class, `\Q…\E` or a comment is an end anchor: inside an
+     * alternation or a group it still accepts a trailing newline.
+     */
+    private static function containsNewlineTolerantAnchor(string $body, bool $extended): bool
+    {
+        $length = \strlen($body);
+        for ($i = 0; $i < $length; ++$i) {
+            $char = $body[$i];
 
-        if (str_ends_with($body, '\\Z')) {
-            // an odd number of backslashes before the Z makes it the anchor
-            return self::countTrailingBackslashes(substr($body, 0, -1)) % 2 === 1;
+            if ($char === '\\') {
+                $next = $body[$i + 1] ?? '';
+                if ($next === 'Z') {
+                    return true;
+                }
+                if ($next === 'Q') {
+                    $quoteEnd = strpos($body, '\\E', $i + 2);
+                    if ($quoteEnd === false) {
+                        return false;
+                    }
+                    $i = $quoteEnd + 1;
+
+                    continue;
+                }
+                ++$i;
+
+                continue;
+            }
+
+            if ($char === '[') {
+                $i = self::endOfCharacterClass($body, $i);
+
+                continue;
+            }
+
+            if ($char === '(' && substr($body, $i, 3) === '(?#') {
+                $commentEnd = strpos($body, ')', $i);
+                if ($commentEnd === false) {
+                    return false;
+                }
+                $i = $commentEnd;
+
+                continue;
+            }
+
+            if ($extended && $char === '#') {
+                $commentEnd = strpos($body, "\n", $i);
+                if ($commentEnd === false) {
+                    return false;
+                }
+                $i = $commentEnd;
+
+                continue;
+            }
+
+            if ($char === '$') {
+                return true;
+            }
         }
 
         return false;
     }
 
-    private static function countTrailingBackslashes(string $value): int
+    /**
+     * Position of the `]` closing the character class opened at `$start`; a `]` right after `[` or `[^` is literal.
+     */
+    private static function endOfCharacterClass(string $body, int $start): int
     {
-        return \strlen($value) - \strlen(rtrim($value, '\\'));
+        $length = \strlen($body);
+        $i = $start + 1;
+        if (($body[$i] ?? '') === '^') {
+            ++$i;
+        }
+        if (($body[$i] ?? '') === ']') {
+            ++$i;
+        }
+
+        for (; $i < $length; ++$i) {
+            if ($body[$i] === '\\') {
+                ++$i;
+
+                continue;
+            }
+
+            if ($body[$i] === '[' && ($body[$i + 1] ?? '') === ':') {
+                $posixEnd = strpos($body, ':]', $i + 2);
+                if ($posixEnd !== false) {
+                    $i = $posixEnd + 1;
+
+                    continue;
+                }
+            }
+
+            if ($body[$i] === ']') {
+                return $i;
+            }
+        }
+
+        return $length;
+    }
+
+    /**
+     * `(?m)` or `(?m:…)` switches the multiline mode on inline.
+     */
+    private static function setsInlineMultiline(string $body): bool
+    {
+        return preg_match('/\(\?[a-zA-Z]*m[a-zA-Z]*(?:-[a-zA-Z]*)?[):]/', $body) === 1;
+    }
+
+    /**
+     * Mirrors Symfony's MultiplePcreFilterIterator::isRegex(): Finder applies anything else as a glob.
+     */
+    private static function isFinderRegex(string $template): bool
+    {
+        if (str_contains($template, self::RUNTIME) || preg_match('/^(.{3,}?)[imsxuADUn]*$/Ds', $template, $match) !== 1) {
+            return false;
+        }
+
+        $start = $match[1][0];
+        $end = $match[1][-1];
+        if ($start === $end) {
+            return preg_match('/[*?[:alnum:] \\\\]/', $start) !== 1;
+        }
+
+        return \in_array([$start, $end], [['{', '}'], ['(', ')'], ['[', ']'], ['<', '>']], true);
     }
 }

@@ -26,6 +26,7 @@ class PregDollarWithoutDRuleTest extends RuleTestCase
             [$this->error('preg_match', '{^[a-z]+$}'), 20],
             [$this->error('preg_match', '/^[a-z]+$ /x'), 21],
             [$this->error('preg_match_all', '#\d+$#'), 22],
+            [$this->error('preg_match', '/(a|b$)/'), 23],
             [$this->error('preg_split', '/,$/'), 24],
             [$this->error('preg_grep', '/x$/'), 25],
             [$this->error('preg_filter', '/y$/'), 26],
@@ -50,6 +51,38 @@ class PregDollarWithoutDRuleTest extends RuleTestCase
             [$this->error('preg_match', '/^{…}$/'), 102],
             [$this->unresolved('preg_match'), 116],
             [$this->unresolved('preg_match'), 117],
+        ]);
+    }
+
+    public function testFindsAnAnchorAnywhereInThePattern(): void
+    {
+        $this->analyse([__DIR__ . '/data/PregDollarWithoutDRule/AnchorPositions.php'], [
+            [$this->error('preg_match', '/^([a-z]{2,3})(?:[-_]|$)/i'), 11],
+            [$this->error('preg_match', '/^(?:a$|b)c?/'), 12],
+            [$this->error('preg_match', '/a\Z|b/'), 13],
+            [$this->error('preg_match', '/[$]$/'), 19],
+        ]);
+    }
+
+    public function testReportsSymfonyRegexConstraints(): void
+    {
+        $this->analyse([__DIR__ . '/data/PregDollarWithoutDRule/RegexConstraintUsage.php'], [
+            [$this->error('Regex', '/^[a-z]+$/'), 14],
+            [$this->error('Regex', '/^[a-z]+$/'), 15],
+            [$this->error('Regex', '/^\d{2}$/'), 16],
+            [$this->error('Regex', '/^[A-Z][a-z]*$/'), 17],
+            [$this->unresolved('Regex'), 22],
+        ]);
+    }
+
+    public function testReportsFinderRegexFilters(): void
+    {
+        $this->analyse([__DIR__ . '/data/PregDollarWithoutDRule/FinderUsage.php'], [
+            [$this->error('Finder::name', '/\.php$/'), 13],
+            [$this->error('Finder::notPath', '/\.test\.(js|ts)$/'), 14],
+            [$this->error('Finder::path', '#^src/.+$#'), 15],
+            [$this->error('Finder::notName', '{\.tmp$}'), 16],
+            [$this->error('Finder::contains', '/^foo$/i'), 17],
         ]);
     }
 

@@ -20,7 +20,7 @@ class PregUsage
         preg_match('{^[a-z]+$}', $value); // flagged: bracket delimiter
         preg_match('/^[a-z]+$ /x', $value); // flagged: extended mode ignores the trailing whitespace
         \preg_match_all('#\d+$#', $value); // flagged: fully qualified call
-        preg_match('/(a|b$)/', $value); // NOT detected: dollar inside a trailing group (known gap)
+        preg_match('/(a|b$)/', $value); // flagged: dollar inside a trailing group
         preg_split('/,$/', $value); // flagged
         preg_grep('/x$/', [$value]); // flagged
         preg_filter('/y$/', '', $value); // flagged

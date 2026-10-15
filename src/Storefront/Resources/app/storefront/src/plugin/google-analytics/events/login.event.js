@@ -1,15 +1,21 @@
 import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
+import SessionStorage from 'src/helper/storage/session-storage.helper';
+
+const PENDING_LOGIN_KEY = 'swGaPendingLogin';
 
 export default class LoginEvent extends EventAwareAnalyticsEvent
 {
     /**
-     * @param {string} controllerName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
-     * @param {string} actionName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
-     * @param {string} activeRoute
      * @returns {boolean}
      */
-    supports(controllerName, actionName, activeRoute) {
-        return (activeRoute === 'frontend.account.login.page') || (activeRoute === 'frontend.checkout.register.page');
+    supports() {
+        // the login is reported on the page the shopper lands on, which can be any page
+        return true;
+    }
+
+    execute() {
+        super.execute();
+        this._reportPendingLogin();
     }
 
     /**
@@ -35,6 +41,22 @@ export default class LoginEvent extends EventAwareAnalyticsEvent
         const target = event.target;
 
         if (!target.classList.contains('login-form')) {
+            return;
+        }
+
+        // the server checks the credentials only after the submit, so the login is reported on the next page
+        SessionStorage.setItem(PENDING_LOGIN_KEY, '1');
+    }
+
+    _reportPendingLogin() {
+        if (!SessionStorage.getItem(PENDING_LOGIN_KEY)) {
+            return;
+        }
+
+        SessionStorage.removeItem(PENDING_LOGIN_KEY);
+
+        // a failed login renders the login form again with its fields marked as invalid
+        if (!this.active || document.querySelector('.login-form .is-invalid')) {
             return;
         }
 

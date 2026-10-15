@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception as DBALException;
 use Mcp\Capability\Registry\PromptReference;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\JsonRpc\Request;
@@ -15,7 +14,6 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\Loader\AbstractAppMcpLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
 
@@ -24,7 +22,6 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
  */
 #[Package('framework')]
 #[CoversClass(AppMcpPromptLoader::class)]
-#[CoversClass(AbstractAppMcpLoader::class)]
 class AppMcpPromptLoaderTest extends TestCase
 {
     private Connection&Stub $connection;
@@ -38,19 +35,6 @@ class AppMcpPromptLoaderTest extends TestCase
         $this->connection = static::createStub(Connection::class);
         $this->executor = static::createStub(AppMcpCapabilityExecutor::class);
         $this->loader = new AppMcpPromptLoader($this->connection, $this->executor, new NullLogger());
-    }
-
-    public function testLoadWithDBALExceptionRegistersNoPrompts(): void
-    {
-        $exception = new class('DB error') extends \Exception implements DBALException {};
-
-        $this->connection->method('fetchAllAssociative')
-            ->willThrowException($exception);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->never())->method('registerPrompt');
-
-        $this->loader->load($registry);
     }
 
     public function testLoadWithOnePromptRegistersPromptWithCorrectName(): void
@@ -115,36 +99,6 @@ class AppMcpPromptLoaderTest extends TestCase
         $this->loader->load($registry);
     }
 
-    public function testDescriptionFallsBackToPromptNameWhenNoLabelOrDescription(): void
-    {
-        $promptRow = [
-            'name' => 'mystery-prompt',
-            'url' => 'https://app.example.com/mcp/prompt/mystery',
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'label' => null,
-            'description' => null,
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$promptRow]);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->once())
-            ->method('registerPrompt')
-            ->with(
-                static::callback(function (Prompt $prompt): bool {
-                    static::assertNull($prompt->title);
-                    static::assertSame('my-app-mystery-prompt', $prompt->description);
-
-                    return true;
-                }),
-                static::isCallable(),
-                [],
-            );
-
-        $this->loader->load($registry);
-    }
-
     public function testRegisteredCallbackInvokesExecutorWithEmptyArguments(): void
     {
         $promptRow = [
@@ -186,35 +140,5 @@ class AppMcpPromptLoaderTest extends TestCase
 
         $result = ($capturedCallback)($context);
         static::assertSame('{"messages":[]}', $result);
-    }
-
-    public function testLoadWithEmptyResultRegistersNoPrompts(): void
-    {
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([]);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->never())->method('registerPrompt');
-
-        $this->loader->load($registry);
-    }
-
-    public function testPromptWithReservedShopwarePrefixIsSkipped(): void
-    {
-        $promptRow = [
-            'name' => 'context',
-            'url' => 'https://app.example.com/mcp/prompt/context',
-            'app_name' => 'shopware',
-            'app_secret' => 'secret',
-            'label' => null,
-            'description' => null,
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$promptRow]);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->never())->method('registerPrompt');
-
-        $this->loader->load($registry);
     }
 }

@@ -18,9 +18,7 @@ class ImportExportProfileTranslationDefinition extends EntityTranslationDefiniti
 {
     final public const ENTITY_NAME = ImportExportProfileDefinition::ENTITY_NAME . '_translation';
 
-    /**
-     * @internal
-     */
+    // @phpstan-ignore shopware.internalMethod (Preserve the inherited public constructor contract.)
     public function __construct()
     {
         Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));

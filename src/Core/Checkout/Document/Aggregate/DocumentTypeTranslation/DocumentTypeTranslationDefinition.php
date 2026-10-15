@@ -22,9 +22,7 @@ class DocumentTypeTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'document_type_translation';
 
-    /**
-     * @internal
-     */
+    // @phpstan-ignore shopware.internalMethod (Preserve the inherited public constructor contract.)
     public function __construct()
     {
         Feature::throwIfActive('v6.9.0.0', Feature::deprecatedClassMessage(self::class, 'v6.9.0.0'));

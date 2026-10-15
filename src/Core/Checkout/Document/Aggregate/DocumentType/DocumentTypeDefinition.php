@@ -31,9 +31,7 @@ class DocumentTypeDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'document_type';
 
-    /**
-     * @internal
-     */
+    // @phpstan-ignore shopware.internalMethod (Preserve the inherited public constructor contract.)
     public function __construct()
     {
         Feature::throwIfActive('v6.9.0.0', Feature::deprecatedClassMessage(self::class, 'v6.9.0.0'));

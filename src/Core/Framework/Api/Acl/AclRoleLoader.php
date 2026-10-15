@@ -23,59 +23,48 @@ class AclRoleLoader
     }
 
     /**
-     * @param list<string> $ids user or integration ids
+     * @param list<string> $userIds
      *
-     * @return array<string, AclRoles> keyed by user or integration id
+     * @return array<string, AclRoles> keyed by user id
      */
-    public function getRoles(array $ids): array
+    public function getUserRoles(array $userIds): array
     {
-        if ($ids === []) {
+        if ($userIds === []) {
             return [];
         }
 
-        $ids = array_values(array_unique($ids));
-
-        $userRows = $this->connection->fetchAllAssociative(
+        return self::toRoles($this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(u.id)) as id, u.admin as isAdmin, LOWER(HEX(ur.acl_role_id)) as roleId
              FROM user u
              LEFT JOIN acl_user_role ur ON ur.user_id = u.id
              WHERE u.id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => Uuid::fromHexToBytesList(array_values(array_unique($userIds)))],
             ['ids' => ArrayParameterType::BINARY]
-        );
+        ));
+    }
 
-        $integrationRows = $this->connection->fetchAllAssociative(
+    /**
+     * An app's integration only has its app's role, never the integration's own roles or admin flag.
+     *
+     * @param list<string> $integrationIds
+     *
+     * @return array<string, AclRoles> keyed by integration id
+     */
+    public function getIntegrationRoles(array $integrationIds): array
+    {
+        if ($integrationIds === []) {
+            return [];
+        }
+
+        return self::toRoles($this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(i.id)) as id, a.id IS NULL AND i.admin as isAdmin, LOWER(HEX(IF(a.id IS NULL, ir.acl_role_id, a.acl_role_id))) as roleId
              FROM integration i
              LEFT JOIN app a ON a.integration_id = i.id AND a.acl_role_id IS NOT NULL
              LEFT JOIN integration_role ir ON ir.integration_id = i.id AND a.id IS NULL
              WHERE i.id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => Uuid::fromHexToBytesList(array_values(array_unique($integrationIds)))],
             ['ids' => ArrayParameterType::BINARY]
-        );
-
-        $unrestricted = [];
-        $roleIds = [];
-        foreach ([...$userRows, ...$integrationRows] as $row) {
-            $unrestricted[$row['id']] = (bool) $row['isAdmin'];
-            $roleIds[$row['id']] ??= [];
-
-            if ($row['roleId'] !== null) {
-                $roleIds[$row['id']][] = $row['roleId'];
-            }
-        }
-
-        $roles = [];
-        foreach ($unrestricted as $id => $isUnrestricted) {
-            $roles[$id] = new AclRoles($isUnrestricted, $roleIds[$id]);
-        }
-
-        // an id that is both a user and an integration is ambiguous, so it gets no privileges
-        foreach (array_intersect(array_column($userRows, 'id'), array_column($integrationRows, 'id')) as $id) {
-            $roles[$id] = new AclRoles(false, []);
-        }
-
-        return $roles;
+        ));
     }
 
     /**
@@ -110,5 +99,31 @@ class AclRoleLoader
         }
 
         return $privileges;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows one row per role, with id, isAdmin and roleId
+     *
+     * @return array<string, AclRoles> keyed by id
+     */
+    private static function toRoles(array $rows): array
+    {
+        $unrestricted = [];
+        $roleIds = [];
+        foreach ($rows as $row) {
+            $unrestricted[$row['id']] = (bool) $row['isAdmin'];
+            $roleIds[$row['id']] ??= [];
+
+            if ($row['roleId'] !== null) {
+                $roleIds[$row['id']][] = $row['roleId'];
+            }
+        }
+
+        $roles = [];
+        foreach ($unrestricted as $id => $isUnrestricted) {
+            $roles[$id] = new AclRoles($isUnrestricted, $roleIds[$id]);
+        }
+
+        return $roles;
     }
 }

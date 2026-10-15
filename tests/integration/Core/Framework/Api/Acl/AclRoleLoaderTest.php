@@ -39,7 +39,7 @@ class AclRoleLoaderTest extends TestCase
         $adminId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM user WHERE username = :username', ['username' => 'admin']);
         static::assertIsString($adminId);
 
-        static::assertEquals([$adminId => new AclRoles(true, [])], $this->loader->getRoles([$adminId]));
+        static::assertEquals([$adminId => new AclRoles(true, [])], $this->loader->getUserRoles([$adminId]));
     }
 
     public function testANonAdminUserHasItsRoles(): void
@@ -48,7 +48,7 @@ class AclRoleLoaderTest extends TestCase
 
         static::assertEquals(
             [$user->getUserId() => new AclRoles(false, [(string) $user->getAclRoleId()])],
-            $this->loader->getRoles([$user->getUserId()])
+            $this->loader->getUserRoles([$user->getUserId()])
         );
     }
 
@@ -56,7 +56,7 @@ class AclRoleLoaderTest extends TestCase
     {
         $integrationId = TestIntegration::createAdmin($this->connection)->getId();
 
-        static::assertEquals([$integrationId => new AclRoles(true, [])], $this->loader->getRoles([$integrationId]));
+        static::assertEquals([$integrationId => new AclRoles(true, [])], $this->loader->getIntegrationRoles([$integrationId]));
     }
 
     public function testANonAdminIntegrationHasItsRoles(): void
@@ -65,7 +65,7 @@ class AclRoleLoaderTest extends TestCase
 
         static::assertEquals(
             [$integration->getId() => new AclRoles(false, [(string) $integration->getAclRoleId()])],
-            $this->loader->getRoles([$integration->getId()])
+            $this->loader->getIntegrationRoles([$integration->getId()])
         );
     }
 
@@ -82,13 +82,13 @@ class AclRoleLoaderTest extends TestCase
 
         static::assertEquals(
             [Uuid::fromBytesToHex($integrationId) => new AclRoles(false, [Uuid::fromBytesToHex($appRoleId)])],
-            $this->loader->getRoles([Uuid::fromBytesToHex($integrationId)])
+            $this->loader->getIntegrationRoles([Uuid::fromBytesToHex($integrationId)])
         );
 
         $this->removeApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
     }
 
-    public function testAnIdThatIsBothAUserAndAnIntegrationHasNoPrivileges(): void
+    public function testAUserAndAnIntegrationWithTheSameIdAreKeptApart(): void
     {
         $user = TestUser::createNewTestUser($this->connection, ['product:read']);
         $this->connection->insert('integration', [
@@ -101,14 +101,19 @@ class AclRoleLoaderTest extends TestCase
         ]);
 
         static::assertEquals(
-            [$user->getUserId() => new AclRoles(false, [])],
-            $this->loader->getRoles([$user->getUserId()])
+            [$user->getUserId() => new AclRoles(false, [(string) $user->getAclRoleId()])],
+            $this->loader->getUserRoles([$user->getUserId()])
+        );
+        static::assertEquals(
+            [$user->getUserId() => new AclRoles(true, [])],
+            $this->loader->getIntegrationRoles([$user->getUserId()])
         );
     }
 
     public function testUnknownIdsAreLeftOut(): void
     {
-        static::assertSame([], $this->loader->getRoles([Uuid::randomHex()]));
+        static::assertSame([], $this->loader->getUserRoles([Uuid::randomHex()]));
+        static::assertSame([], $this->loader->getIntegrationRoles([Uuid::randomHex()]));
     }
 
     public function testGetPrivilegesForRoles(): void

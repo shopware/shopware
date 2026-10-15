@@ -77,7 +77,6 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
 
     /**
      * returns an Object containing all primary key fields of the definition
-     * @returns {Object}
      */
     getPrimaryKeyFields() {
         return this.filterProperties((property) => {
@@ -87,7 +86,6 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
 
     /**
      * returns an Object containing all associations fields of this definition
-     * @returns {Object}
      */
     getAssociationFields() {
         return this.filterProperties((property) => {
@@ -97,7 +95,6 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
 
     /**
      * returns all toMany associationFields
-     * @returns {Object}
      */
     getToManyAssociations() {
         return this.filterProperties((property) => {
@@ -111,7 +108,6 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
 
     /**
      * returns all toMany associationFields
-     * @returns {Object}
      */
     getToOneAssociations() {
         return this.filterProperties((property) => {
@@ -125,7 +121,6 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
 
     /**
      * returns all translatable fields
-     * @returns {Object}
      */
     getTranslatableFields() {
         return this.filterProperties((property) => {
@@ -133,10 +128,6 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
         });
     }
 
-    /**
-     *
-     * @returns {Object}
-     */
     getRequiredFields() {
         return this.filterProperties((property) => {
             return property.flags?.required === true;
@@ -145,7 +136,6 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
 
     /**
      * Filter field definitions by a given predicate
-     * @param {Function} filter
      */
     filterProperties(filter: (property: Property) => boolean) {
         if (typeof filter !== 'function') {

@@ -114,7 +114,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         /**
-         * @returns {void}
          * @description Adds the sidebar to the DOM
          * @private
          */
@@ -137,7 +136,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         /**
-         * @returns {void}
          * @description Removes the sidebar from the DOM after the transition is finished
          * @private
          */
@@ -172,8 +170,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         /**
-         * @param {MouseEvent} event
-         * @returns {void}
          * @description Closes the sidebar if the user clicks outside of the sidebar
          * @private
          */
@@ -192,8 +188,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         /**
-         * @param {KeyboardEvent} event
-         * @returns {void}
          * @description Closes the sidebar if the user presses the escape key
          * @private
          */

@@ -21,9 +21,8 @@ class ConfigApiService extends ApiService {
     /**
      * Get information of the logged in user
      *
-     * @param {Object} [additionalParams = {}]
-     * @param {Object} [additionalHeaders = {}]
-     * @returns {Promise<T>}
+     * @param [additionalParams = {}]
+     * @param [additionalHeaders = {}]
      */
     getConfig(additionalParams = {}, additionalHeaders = {}) {
         const params = additionalParams;

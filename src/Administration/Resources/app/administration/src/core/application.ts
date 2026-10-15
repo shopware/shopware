@@ -372,9 +372,6 @@ class ApplicationBootstrapper {
         return this.bootFullApplication();
     }
 
-    /**
-     * Boot the login.
-     */
     bootLogin(): Promise<void | ApplicationBootstrapper> {
         // trigger a full page reload after successful login to rebuild the administration
         sessionStorage.setItem('sw-login-should-reload', 'true');

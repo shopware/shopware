@@ -24,6 +24,7 @@ import filenameRules from 'eslint-plugin-filename-rules';
 import vuejsAccessibility from 'eslint-plugin-vuejs-accessibility';
 import listeners from 'eslint-plugin-listeners';
 import json from '@eslint/json';
+import jsdoc from 'eslint-plugin-jsdoc';
 import eslintComments from '@eslint-community/eslint-plugin-eslint-comments';
 
 import swTestRules from 'eslint-plugin-sw-test-rules';
@@ -829,6 +830,9 @@ export default [
             '**/*.ts',
             '**/*.tsx',
         ],
+        plugins: {
+            jsdoc,
+        },
         rules: {
             ...baseRules,
             '@typescript-eslint/ban-ts-comment': [
@@ -838,6 +842,9 @@ export default [
             '@typescript-eslint/no-non-null-assertion': 'error',
             'sw-core-rules/no-double-cast': 'error',
             'sw-core-rules/no-ts-fix-me': 'error',
+            // The signature already holds the type in TypeScript
+            'jsdoc/no-types': 'error',
+            'jsdoc/informative-docs': 'error',
             '@typescript-eslint/no-unsafe-member-access': 'error',
             '@typescript-eslint/no-unsafe-call': 'error',
             '@typescript-eslint/no-unsafe-assignment': 'error',

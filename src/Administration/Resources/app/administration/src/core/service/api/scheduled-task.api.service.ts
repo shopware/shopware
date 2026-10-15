@@ -19,8 +19,6 @@ class ScheduledTaskApiService extends ApiService {
 
     /**
      * Run all due scheduled tasks
-     *
-     * @returns {Promise<T>}
      */
     runTasks() {
         const headers = this.getBasicHeaders();
@@ -36,8 +34,6 @@ class ScheduledTaskApiService extends ApiService {
 
     /**
      * Get the minimum run interval of all tasks
-     *
-     * @returns {Promise<T>}
      */
     getMinRunInterval(): Promise<{ minRunInterval: number }> {
         const headers = this.getBasicHeaders();

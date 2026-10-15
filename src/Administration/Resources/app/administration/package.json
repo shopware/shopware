@@ -192,6 +192,7 @@
     "eslint-plugin-import-x": "4.16.1",
     "eslint-plugin-inclusive-language": "2.2.1",
     "eslint-plugin-jest": "28.14.0",
+    "eslint-plugin-jsdoc": "62.9.0",
     "eslint-plugin-plugin-rules": "file:eslint-rules/plugin-rules",
     "eslint-plugin-promise": "6.6.0",
     "eslint-plugin-sw-core-rules": "file:eslint-rules/core-rules",

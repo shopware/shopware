@@ -17,8 +17,6 @@ class MessageQueueApiService extends ApiService {
 
     /**
      * Run all due scheduled tasks
-     *
-     * @returns {Promise<T>}
      */
     consume(receiver: string, cancelToken?: CancelToken): Promise<{ handledMessages: number }> {
         const headers = this.getBasicHeaders();

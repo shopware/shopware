@@ -963,7 +963,7 @@ class RegisterRouteTest extends TestCase
             static::assertCount(1, $e->getViolations());
             $violation = $e->getViolations()->get(0);
             static::assertSame('billingAddress', $violation->getPropertyPath());
-            static::assertNotEmpty($violation->getMessage());
+            static::assertNotSame('', $violation->getMessage());
         }
     }
 
@@ -1535,7 +1535,6 @@ class RegisterRouteTest extends TestCase
         ?StaticSystemConfigService $systemConfigService = null,
         EntityRepository|StaticEntityRepository|null $customerRepository = null,
         ?DataValidationFactoryInterface $accountValidationFactory = null,
-        ?DataValidationFactoryInterface $passwordValidationFactory = null,
         ?CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater = null,
         ?DoubleOptInService $doubleOptInService = null,
         ?SalesChannelRepository $countryRepository = null,
@@ -1544,7 +1543,6 @@ class RegisterRouteTest extends TestCase
         $eventDispatcher ??= new EventDispatcher();
         $accountValidationFactory ??= static::createStub(DataValidationFactoryInterface::class);
         $addressValidationFactory ??= static::createStub(DataValidationFactoryInterface::class);
-        $passwordValidationFactory ??= static::createStub(DataValidationFactoryInterface::class);
         $customFieldMapper ??= static::createStub(StoreApiCustomFieldMapper::class);
         $salutationRepository ??= static::createStub(EntityRepository::class);
         $systemConfigService ??= new StaticSystemConfigService([

@@ -240,10 +240,10 @@ describe('build/vue-setup-transform error locations', () => {
         },
         {
             name: 'unsupported macro',
-            script: 'defineModel();',
-            token: 'defineModel()',
+            script: 'defineExpose({});',
+            token: 'defineExpose({})',
             column: 0,
-            message: 'defineModel() is not supported',
+            message: 'defineExpose() is not supported',
         },
         {
             name: 'wrong-mode marker',

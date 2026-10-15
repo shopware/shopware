@@ -38,10 +38,10 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Clock\MockClock;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
@@ -186,9 +186,7 @@ class ProductSearchRouteTest extends TestCase
         $searchRoute = static::getContainer()->get(ProductSearchRoute::class);
         $criteriaValueResolver = static::getContainer()->get(CriteriaValueResolver::class);
         $requestCriteriaBuilder = static::getContainer()->get(RequestCriteriaBuilder::class);
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
-        static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
         static::assertInstanceOf(RequestCriteriaBuilder::class, $requestCriteriaBuilder);
 
         $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
@@ -226,13 +224,9 @@ class ProductSearchRouteTest extends TestCase
             $capturedCriteria = clone $event->getCriteria();
         };
 
-        $eventDispatcher->addListener(ProductEvents::PRODUCT_SEARCH_CRITERIA, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(ProductEvents::PRODUCT_SEARCH_CRITERIA, $listener);
 
-        try {
-            $searchRoute->load($request, $salesChannelContext, clone $originalCriteria);
-        } finally {
-            $eventDispatcher->removeListener(ProductEvents::PRODUCT_SEARCH_CRITERIA, $listener);
-        }
+        $searchRoute->load($request, $salesChannelContext, clone $originalCriteria);
 
         static::assertInstanceOf(Criteria::class, $capturedCriteria);
         static::assertEquals($originalCriteria->getFilters(), $capturedCriteria->getFilters());

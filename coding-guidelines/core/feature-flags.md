@@ -75,6 +75,11 @@ Keep `->deprecate(...)` for Symfony's deprecation notice; its version argument i
 
 ### Using flags in methods
 
+Constructors and factories on deprecated exception classes use `Feature::throwIfActive($majorFlag, $message)`: it stays silent before removal and throws when the flag is active, even inside `Feature::silent()`. 
+Error metadata methods remain callable so formatting does not mask the original failure. 
+Deprecated factory methods on retained domain exception classes use the ordinary `Feature::triggerDeprecationOrThrow()`; silence internal legacy calls with `Feature::silent()`. 
+Factories that remain available but change their return type use `ReturnTypeNarrowing`, not a method deprecation.
+
 Deprecated framework callbacks that are still called normally before removal use `Feature::throwIfActive($majorFlag, $message)` as their first statement.
 Unlike `triggerDeprecationOrThrow()`, it emits no notice while the flag is inactive and cannot be silenced once the flag is active.
 Use the ordinary deprecation helper for APIs whose callers must migrate now.

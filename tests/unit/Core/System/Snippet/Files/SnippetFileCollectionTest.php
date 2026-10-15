@@ -164,7 +164,7 @@ class SnippetFileCollectionTest extends TestCase
 
         $result = $collection->getSnippetFilesWithLocaleFallback("de-AT\n");
 
-        static::assertEmpty($result);
+        static::assertSame([], $result);
     }
 
     public function testGetSnippetFilesWithLocaleFallbackCombinesBothPriorityLevels(): void

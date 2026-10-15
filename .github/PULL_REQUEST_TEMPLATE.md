@@ -22,6 +22,7 @@ including the business context, so reviewers understand its purpose.
 
 ### 2. How?
 <!--
+A few short bullets about what the diff changes, not how you got there.
 - How did you solve it, at a high level?
 - Why did you choose this approach over alternatives?
 -->

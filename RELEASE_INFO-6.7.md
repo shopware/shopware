@@ -1,5 +1,11 @@
 # 6.7.16.0 (upcoming)
 
+## Security Fixes
+
+### Store API criteria field paths are resolved per path segment
+
+Field paths in Store API criteria (filters, sortings, and aggregations) are resolved per path segment. A path that uses `extensions` as a whole segment keeps working; a segment that only contains the text `extensions` is treated literally and rejected when it is not a real field. Integrations that use valid field paths are unaffected.
+
 ## Critical Fixes
 
 ### Theme configuration updates reach all descendants

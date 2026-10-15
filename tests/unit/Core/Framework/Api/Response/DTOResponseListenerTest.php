@@ -137,7 +137,8 @@ class DTOResponseListenerTest extends TestCase
             public string $id = 'test';
         };
         $response->setHeader('X-Test', 'value');
-        $response->addCookie(new Cookie('test', 'value'));
+        $cookie = new Cookie('test', 'value');
+        $response->addCookie($cookie);
         $response->setHeader('Cache-Control', 'max-age=60, public');
         $event = $this->createViewEvent($response);
 
@@ -146,7 +147,7 @@ class DTOResponseListenerTest extends TestCase
         static::assertSame(Response::HTTP_CREATED, $event->getResponse()?->getStatusCode());
         static::assertSame('application/json', $event->getResponse()->headers->get('Content-Type'));
         static::assertSame('value', $event->getResponse()->headers->get('X-Test'));
-        static::assertNotEmpty($event->getResponse()->headers->getCookies());
+        static::assertSame([$cookie], $event->getResponse()->headers->getCookies());
         static::assertSame('max-age=60, public', $event->getResponse()->headers->get('Cache-Control'));
     }
 

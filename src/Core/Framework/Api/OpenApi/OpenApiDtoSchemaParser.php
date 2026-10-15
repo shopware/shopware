@@ -755,7 +755,7 @@ final class OpenApiDtoSchemaParser
                     continue;
                 }
 
-                $extracted = $this->extractFromSchema($resolvedRequestSchema, $dtoName, $registry, OpenApiDtoType::Request);
+                $extracted = $this->extractFromSchema($resolvedRequestSchema, $dtoName, $registry);
                 $properties = $this->mergeProperties($extracted['properties'], $parameters);
 
                 if ($properties === []) {
@@ -820,7 +820,7 @@ final class OpenApiDtoSchemaParser
 
                 $resolvedResponseSchema = $this->dereferenceSchema($responseSchema, $registry);
                 $dtoName = $this->toPascalCase($operationId) . 'Response';
-                $extracted = $this->extractFromSchema($resolvedResponseSchema, $dtoName, $registry, OpenApiDtoType::Response);
+                $extracted = $this->extractFromSchema($resolvedResponseSchema, $dtoName, $registry);
 
                 if ($extracted['properties'] === []) {
                     continue;
@@ -955,7 +955,7 @@ final class OpenApiDtoSchemaParser
                     continue;
                 }
 
-                $extracted = $this->extractFromSchema($variant, $this->toPascalCase($variantName), $registry, $type);
+                $extracted = $this->extractFromSchema($variant, $this->toPascalCase($variantName), $registry);
                 if ($extracted['properties'] === []) {
                     continue;
                 }
@@ -975,7 +975,7 @@ final class OpenApiDtoSchemaParser
             return $this->deduplicate($definitions);
         }
 
-        $extracted = $this->extractFromSchema($schema, $name, $registry, $type);
+        $extracted = $this->extractFromSchema($schema, $name, $registry);
         if ($extracted['properties'] === []) {
             return [];
         }
@@ -998,7 +998,7 @@ final class OpenApiDtoSchemaParser
      *
      * @return array{properties: list<OpenApiDtoProperty>, nestedDefinitions: list<OpenApiDtoDefinition>}
      */
-    private function extractFromSchema(array $schema, string $parentDtoName, array $registry, OpenApiDtoType $type): array
+    private function extractFromSchema(array $schema, string $parentDtoName, array $registry): array
     {
         $resolved = $this->resolveSchemaProperties($schema, $registry);
         $resolvedSchema = $this->dereferenceSchema($schema, $registry);
@@ -1009,7 +1009,6 @@ final class OpenApiDtoSchemaParser
             $parentDtoName,
             $registry,
             $this->packageFromSchema($schema) ?? $this->packageFromSchema($resolvedSchema),
-            $type,
         );
     }
 
@@ -1020,7 +1019,7 @@ final class OpenApiDtoSchemaParser
      *
      * @return array{properties: list<OpenApiDtoProperty>, nestedDefinitions: list<OpenApiDtoDefinition>}
      */
-    private function extractPropertiesFromSchema(array $properties, array $requiredFields, string $parentDtoName, array $registry, ?string $parentPackage, OpenApiDtoType $type): array
+    private function extractPropertiesFromSchema(array $properties, array $requiredFields, string $parentDtoName, array $registry, ?string $parentPackage): array
     {
         $dtoProperties = [];
         $nestedDefinitions = [];
@@ -1050,7 +1049,7 @@ final class OpenApiDtoSchemaParser
             $required = \in_array($propertyName, $requiredFields, true);
             if ($this->isInlineObject($propertySchema)) {
                 $nestedName = $this->buildNestedDtoName($parentDtoName, $propertyName);
-                $nestedExtracted = $this->extractFromSchema($propertySchema, $nestedName, $registry, OpenApiDtoType::Nested);
+                $nestedExtracted = $this->extractFromSchema($propertySchema, $nestedName, $registry);
                 $nestedDefinitions[] = new OpenApiDtoDefinition(
                     $nestedName,
                     $nestedExtracted['properties'],
@@ -1068,7 +1067,7 @@ final class OpenApiDtoSchemaParser
             $items = $this->schemaAtKey($propertySchema, 'items');
             if ($this->schemaType($propertySchema) === 'array' && $items !== null && $this->isInlineObject($items)) {
                 $nestedName = $this->buildNestedDtoName($parentDtoName, $propertyName);
-                $nestedExtracted = $this->extractFromSchema($items, $nestedName, $registry, OpenApiDtoType::Nested);
+                $nestedExtracted = $this->extractFromSchema($items, $nestedName, $registry);
                 $nestedDefinitions[] = new OpenApiDtoDefinition(
                     $nestedName,
                     $nestedExtracted['properties'],
@@ -1242,7 +1241,7 @@ final class OpenApiDtoSchemaParser
                 ...$shared['required'],
                 ...$resolvedProperties['required'],
             ];
-            $extracted = $this->extractPropertiesFromSchema($variantProperties, array_values(array_unique($variantRequired)), $variantDtoName, $registry, $this->packageFromSchema($resolvedVariant) ?? $this->packageFromSchema($requestSchema), OpenApiDtoType::Request);
+            $extracted = $this->extractPropertiesFromSchema($variantProperties, array_values(array_unique($variantRequired)), $variantDtoName, $registry, $this->packageFromSchema($resolvedVariant) ?? $this->packageFromSchema($requestSchema));
             $properties = $this->mergeProperties($extracted['properties'], $parameters);
 
             if ($properties === []) {

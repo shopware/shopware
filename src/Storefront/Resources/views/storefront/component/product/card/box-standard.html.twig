@@ -4,6 +4,10 @@
         {% set name = product.translated.name %}
         {% set brand = product.manufacturer.translated.name|default('') %}
         {% set price = product.calculatedPrice.unitPrice %}
+        {# a matching price rule or graduated prices replace the default price, like in the buy widget #}
+        {% if product.calculatedPrices.count > 0 %}
+            {% set price = product.calculatedPrices.first.unitPrice %}
+        {% endif %}
         {% set sku = product.productNumber %}
 
         {% set cover = product.cover.media %}

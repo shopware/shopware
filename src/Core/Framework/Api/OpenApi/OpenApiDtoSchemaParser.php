@@ -63,9 +63,8 @@ final class OpenApiDtoSchemaParser
             ? $this->parseComponentSchemas($registry, $componentTypes)
             : $this->parseReferencedComponentSchemas($schema, $registry, $componentTypes);
 
-        $requestDefinitions = $this->parseRequestBodies($schema, $registry);
         $operationDefinitions = [
-            ...$requestDefinitions,
+            ...$this->parseRequestBodies($schema, $registry),
             ...$this->parseResponseBodies($schema, $registry),
         ];
         $this->assertNoComponentOperationNameCollisions($componentDefinitions, $operationDefinitions);
@@ -74,7 +73,6 @@ final class OpenApiDtoSchemaParser
             ...$componentDefinitions,
             ...$operationDefinitions,
         ]);
-        $definitions = $this->preserveRequestPropertyPresence($definitions, $schema, $registry, $requestDefinitions);
 
         return $namespace === null ? $definitions : $this->qualifyDefinitions($definitions, $namespace);
     }
@@ -110,7 +108,7 @@ final class OpenApiDtoSchemaParser
             $definitions = [...$definitions, ...$this->qualifyDefinitions($componentDefinitions, $namespace)];
         }
 
-        return $this->preserveRequestPropertyPresence($this->deduplicate($definitions), $schema, $registry);
+        return $this->deduplicate($definitions);
     }
 
     /**
@@ -211,59 +209,6 @@ final class OpenApiDtoSchemaParser
                 responseStatusCode: $definition->responseStatusCode,
                 type: $definition->type,
                 componentName: $definition->componentName,
-                preserveOptionalPropertyPresence: $definition->preserveOptionalPropertyPresence,
-            ),
-            $definitions,
-        );
-    }
-
-    /**
-     * @param list<OpenApiDtoDefinition> $definitions
-     * @param array<string, mixed> $schema
-     * @param array<string, array<string, mixed>> $registry
-     * @param list<OpenApiDtoDefinition> $requestDefinitions
-     *
-     * @return list<OpenApiDtoDefinition>
-     */
-    private function preserveRequestPropertyPresence(array $definitions, array $schema, array $registry, array $requestDefinitions = []): array
-    {
-        $requestNames = array_fill_keys(array_map(static fn (OpenApiDtoDefinition $definition): string => $definition->name, $requestDefinitions), true);
-        $requestReferences = [];
-        foreach ($this->arrayAtPath($schema, ['paths']) ?? [] as $pathData) {
-            if (!\is_array($pathData)) {
-                continue;
-            }
-
-            $requestReferences = [...$requestReferences, ...$this->extractRefNames($pathData['parameters'] ?? [])];
-            foreach (self::HTTP_METHODS as $method) {
-                $operation = $this->schemaAtKey($pathData, $method);
-                if ($operation === null) {
-                    continue;
-                }
-
-                $requestReferences = [
-                    ...$requestReferences,
-                    ...$this->extractRefNames($operation['requestBody'] ?? []),
-                    ...$this->extractRefNames($operation['parameters'] ?? []),
-                ];
-            }
-        }
-        $requestComponents = array_fill_keys($this->collectReferencedComponentNames($requestReferences, $registry), true);
-
-        return array_map(
-            static fn (OpenApiDtoDefinition $definition): OpenApiDtoDefinition => new OpenApiDtoDefinition(
-                name: $definition->name,
-                properties: $definition->properties,
-                description: $definition->description,
-                package: $definition->package,
-                enumValues: $definition->enumValues,
-                enumType: $definition->enumType,
-                responseStatusCode: $definition->responseStatusCode,
-                type: $definition->type,
-                componentName: $definition->componentName,
-                preserveOptionalPropertyPresence: $definition->type === OpenApiDtoType::Request
-                    || isset($requestNames[$definition->name])
-                    || ($definition->componentName !== null && isset($requestComponents[$definition->componentName])),
             ),
             $definitions,
         );
@@ -665,7 +610,6 @@ final class OpenApiDtoSchemaParser
                 responseStatusCode: $definition->responseStatusCode,
                 type: $definition->type,
                 componentName: $componentName,
-                preserveOptionalPropertyPresence: $definition->preserveOptionalPropertyPresence,
             ),
             $definitions,
         );
@@ -907,9 +851,7 @@ final class OpenApiDtoSchemaParser
                 format: $this->stringOrNull($constraintSchema['format'] ?? null),
                 pattern: $this->stringOrNull($constraintSchema['pattern'] ?? null),
                 enum: $this->isNativeEnumReference($schema, $registry) ? null : $this->scalarEnum($constraintSchema['enum'] ?? null),
-                defaultValue: $this->defaultValue($constraintSchema),
-                hasDefaultValue: $this->hasDefaultValue($constraintSchema),
-                constValue: $this->defaultScalarValue($constraintSchema['const'] ?? null),
+                constValue: $this->scalarValue($constraintSchema['const'] ?? null),
                 minItems: $this->intOrNull($constraintSchema['minItems'] ?? null),
                 minLength: $this->intOrNull($constraintSchema['minLength'] ?? null),
                 maxLength: $this->intOrNull($constraintSchema['maxLength'] ?? null),
@@ -1123,9 +1065,7 @@ final class OpenApiDtoSchemaParser
             format: $this->stringOrNull($constraintSchema['format'] ?? null),
             pattern: $this->stringOrNull($constraintSchema['pattern'] ?? null),
             enum: $this->isNativeEnumReference($schema, $registry) ? null : $this->scalarEnum($constraintSchema['enum'] ?? null),
-            defaultValue: $this->defaultValue($constraintSchema),
-            hasDefaultValue: $this->hasDefaultValue($constraintSchema),
-            constValue: $this->defaultScalarValue($constraintSchema['const'] ?? null),
+            constValue: $this->scalarValue($constraintSchema['const'] ?? null),
             minItems: $this->intOrNull($constraintSchema['minItems'] ?? null),
             minLength: $this->intOrNull($constraintSchema['minLength'] ?? null),
             maxLength: $this->intOrNull($constraintSchema['maxLength'] ?? null),
@@ -1688,46 +1628,7 @@ final class OpenApiDtoSchemaParser
         return $properties;
     }
 
-    /**
-     * @param array<string, mixed> $schema
-     */
-    private function hasDefaultValue(array $schema): bool
-    {
-        if (\array_key_exists('const', $schema)) {
-            return false;
-        }
-
-        if (\array_key_exists('default', $schema)) {
-            return $this->defaultValue($schema) !== null;
-        }
-
-        $enum = $schema['enum'] ?? null;
-
-        return \is_array($enum) && \count($enum) === 1 && $this->defaultScalarValue($enum[0]) !== null;
-    }
-
-    /**
-     * @param array<string, mixed> $schema
-     */
-    private function defaultValue(array $schema): string|int|float|bool|null
-    {
-        if (\array_key_exists('const', $schema)) {
-            return null;
-        }
-
-        if (\array_key_exists('default', $schema)) {
-            return $this->defaultScalarValue($schema['default']);
-        }
-
-        $enum = $schema['enum'] ?? null;
-        if (!\is_array($enum) || \count($enum) !== 1) {
-            return null;
-        }
-
-        return $this->defaultScalarValue($enum[0]);
-    }
-
-    private function defaultScalarValue(mixed $value): string|int|float|bool|null
+    private function scalarValue(mixed $value): string|int|float|bool|null
     {
         return \is_string($value) || \is_int($value) || \is_float($value) || \is_bool($value) ? $value : null;
     }

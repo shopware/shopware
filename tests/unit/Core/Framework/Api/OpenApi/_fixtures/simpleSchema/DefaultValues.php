@@ -17,23 +17,23 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class DefaultValues extends AbstractDto
 {
-    public int $limit = 10;
+    public int $limit;
 
-    public string $sortOrder = 'relevance';
+    public string $sortOrder;
 
-    public bool $active = true;
+    public bool $active;
 
     /**
-     * Single-value enum, should default to the only value
+     * Single-value enum without an explicit default
      */
     #[Assert\Choice(choices: ['storefront'])]
-    public string $source = 'storefront';
+    public string $source;
 
     /**
      * Multi-value enum with explicit default
      */
     #[Assert\Choice(choices: ['web', 'api'])]
-    public string $channel = 'web';
+    public string $channel;
 
     /**
      * @internal

@@ -60,6 +60,9 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Invalid price definition exception factory
+
+Use `DataAbstractionLayerException::invalidPriceFieldType()` instead of constructing the deprecated `InvalidPriceFieldTypeException`. The factory preserves the legacy exception in 6.7 and returns `DataAbstractionLayerException` with the same error code and message when `v6.8.0.0` is active.
 ### Preview three 6.8 behavior changes independently
 
 Set `MEDIA_URL_PATH_ENCODING=1` to test encoded media URL paths, `PROPORTIONAL_CART_TAXES=1` to test proportional tax calculation for percentage prices and split line items, or `DELETE_CART_AFTER_ORDER_CREATION=1` to test the earlier persisted-cart deletion during checkout. Each flag can be enabled without the other 6.8 changes. When `V6_8_0_0=1`, all three activate unless explicitly disabled. The corresponding migration guidance is in `UPGRADE-6.8.md`.
@@ -204,6 +207,10 @@ The BC attribute for `PropertyGroupCollection::sortByConfig()` now correctly mar
 
 `shopware.system_config` entries in `config/packages` now accept arrays, including `[]`. An empty sales-channel value clears an array from the default scope; a more specific sales-channel key still overrides an empty default parent.
 
+### VAT ID constraints of the registration can be modified via `BuildValidationEvent`
+
+`RegisterRoute` now adds the `vatIds` constraints (`NotBlank` for countries with a required VAT ID, `Type` and `CustomerVatIdentification`) before dispatching `framework.validation.customer.create`. Subscribers of this event can now adjust or remove them, for example to make the VAT ID optional for certain business customers. Previously the constraints were added after the event and could not be changed. This matches the existing behaviour of `ChangeCustomerProfileRoute`.
+
 ### `JsonField` supports typed properties with additional extension data
 
 `JsonField` accepts the new `allowAdditionalProperties: true` constructor argument. Use it for a JSON field with stable, mapped properties whose types should be validated while extension-owned keys must remain writable:
@@ -337,6 +344,12 @@ agentic-commerce 1.3.0 and earlier put their UCP tools in `discovery`. Update to
 
 Creating a language could return an uncaught `500` when an Elasticsearch/OpenSearch-indexed entity's live index mapping had drifted from its current definition, for example a sales channel created after the last full reindex. `LanguageSubscriber` now catches the same known-unresolvable mapping conflicts `IndexMappingUpdater` already handles elsewhere, schedules the affected entity for a reindex instead of throwing, and only logs unexpected errors. The language is created successfully; the delayed reindex is picked up by the next indexing run or a manual `es:index`.
 
+### MCP servers run on `symfony/mcp-bundle` 0.14
+
+Shopware now requires `symfony/mcp-bundle` 0.14.1, still on `mcp/sdk` 0.8. The extension tags and the registration described for 6.7.15.0 are unchanged.
+
+One behaviour changes for plugins and bundles that register MCP tools, prompts or resources through the `shopware.mcp.*` or `shopware.store_api_mcp.*` tags: a `%` in their metadata, for example in a tool description or schema such as "5%-10%", is now kept as written. Before, the bundle read text between two `%` without whitespace in between as a container parameter placeholder, so the MCP endpoint failed with a "non-existent parameter" error, and a `%%` was shown as a single `%`. Text with a single `%`, or with whitespace between two `%` such as "between 5% and 10%", was not affected. If your plugin wrote `%%` to work around that, remove the workaround, otherwise the description now shows `%%`. App MCP capabilities are read from the app at runtime and are not affected.
+
 ### MCP endpoints are rate-limited with a sliding window
 
 `mcp_admin_api` and `mcp_store_api` in `shopware.api.rate_limiter` now use the `sliding_window` policy: 300 requests per minute per OAuth token on `/api/_mcp`, and 120 per minute per sales-channel context and per IP on `/store-api/_mcp`. Before, they used `time_backoff`, which accepts only one request per interval once the first limit is reached and keeps that state for an hour. A busy MCP client therefore got HTTP 429 on almost every call, including the handshake of a new session.
@@ -390,6 +403,14 @@ The product detail page links the terms below the GARAN label, in the new block 
 ### Customer login publishes an extension event
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
+
+### Product reviews will require an author and a rating
+
+With `v6.8.0.0`, `POST /store-api/product/{productId}/review` rejects a review without `points`, and the `product_review` entity marks `externalUser` and `points` as required and only accepts `points` from 1 to 5, so creating a review through the Admin API, the Sync API or a repository without them fails. The destructive migration step of the 6.8 update fills `product_review.external_user` for existing reviews without an author, with the first name of the review's customer or an empty string, sets `points` to `0` for existing reviews without a rating, and makes both columns `NOT NULL`. `0` points stands for a review without a rating: `product.ratingAverage` already ignores such reviews, like it ignores reviews without `points` today. Integrations, imports and headless frontends that create reviews should send both fields now, and those that read `points` should treat `0` like a missing rating; enable the `v6.8.0.0` feature flag to test it.
+
+### `FloatField` accepts a value range
+
+`FloatField` takes an optional `minValue` and `maxValue`, like `IntField`. A write with a value outside the range fails with a `WriteConstraintViolationException`.
 
 ### Shared order restoration for Store API routes
 

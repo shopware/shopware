@@ -136,6 +136,7 @@ export default class VueAdapter extends ViewAdapter {
         this.vueComponents = {};
 
         this.app = createApp({
+            // eslint-disable-next-line vue/component-definition-name-casing -- the root app is no registered component
             name: 'ShopwareAdministration',
             template: '<sw-admin />',
             mounted: () => window.removePageLoadingIndicator(),

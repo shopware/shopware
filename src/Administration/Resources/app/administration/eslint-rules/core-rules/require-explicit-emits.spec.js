@@ -26,8 +26,80 @@ tester.run('require-explicit-emits', rule, {
             }
             `,
         },
+        {
+            name: 'file that emits without a component definition',
+            filename: 'test.js',
+            code: `
+            export class Emitter {
+                notify() {
+                    this.$emit('my-awesome-event');
+                }
+            }
+            `,
+        },
     ],
     invalid: [
+        {
+            name: 'component wrapped in defineComponent without `emits` field',
+            filename: 'test.js',
+            code: `
+                export default defineComponent({
+                    methods: {
+                        myMethod() {
+                            this.$emit('my-awesome-event');
+                        },
+                    },
+                });
+            `,
+            output: `
+                export default defineComponent({
+emits: ['my-awesome-event'],
+
+                    methods: {
+                        myMethod() {
+                            this.$emit('my-awesome-event');
+                        },
+                    },
+                });
+            `,
+            errors: [{
+                message: 'Event(s) \'my-awesome-event\' not defined in the emits option.',
+            }],
+        },
+        {
+            name: '`emits` field inserted after `inject` when a spread follows it',
+            filename: 'test.js',
+            languageOptions: { ecmaVersion: 2018 },
+            code: `
+                export default {
+                    inject: ['acl'],
+                    ...baseOptions,
+
+                    methods: {
+                        myMethod() {
+                            this.$emit('my-awesome-event');
+                        },
+                    },
+                };
+            `,
+            output: `
+                export default {
+                    inject: ['acl'],
+
+emits: ['my-awesome-event'],
+                    ...baseOptions,
+
+                    methods: {
+                        myMethod() {
+                            this.$emit('my-awesome-event');
+                        },
+                    },
+                };
+            `,
+            errors: [{
+                message: 'Event(s) \'my-awesome-event\' not defined in the emits option.',
+            }],
+        },
         {
             name: 'component without `emits` field',
             filename: 'test.js',

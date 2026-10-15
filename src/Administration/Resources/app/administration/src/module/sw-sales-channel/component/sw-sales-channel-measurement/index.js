@@ -11,6 +11,10 @@ const { Criteria } = Shopware.Data;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    inject: ['repositoryFactory', 'acl'],
+
+    emits: ['measurement-system-change'],
+
     props: {
         salesChannel: {
             type: Object,
@@ -32,10 +36,6 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
         },
     },
-
-    inject: ['repositoryFactory', 'acl'],
-
-    emits: ['measurement-system-change'],
 
     data() {
         return {

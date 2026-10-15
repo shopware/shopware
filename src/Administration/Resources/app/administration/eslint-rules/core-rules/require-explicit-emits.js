@@ -87,6 +87,13 @@ module.exports = {
                 return true;
             }
 
+            // defineComponent()
+            if (parent.type === 'CallExpression' &&
+                parent.callee.type === 'Identifier' &&
+                parent.callee.name === 'defineComponent') {
+                return true;
+            }
+
             // registered component, extend component, override component or mixin
             if (parent.type === 'CallExpression' &&
                 parent.callee.type === 'MemberExpression' &&
@@ -127,6 +134,10 @@ module.exports = {
         }
 
         function fixMissingEmitDefinitions(programNode) {
+            if (!componentNode) {
+                return;
+            }
+
             const emitsDefinition = emitsNode?.elements.map(element => element.value) ?? [];
             const pendingEmitDefinitions = Array.from(emittedEvents)
                 .filter(e => e && !emitsDefinition.includes(e));
@@ -167,7 +178,7 @@ module.exports = {
             ];
 
             const nodeAfterWhichToInsert = componentNode.properties
-                .findLast(property => fieldsBeforeEmits.includes(property.key.name));
+                .findLast(property => fieldsBeforeEmits.includes(property.key?.name));
 
             if (nodeAfterWhichToInsert) {
                 return fixer.insertTextAfter(nodeAfterWhichToInsert, `,\n\nemits: [${stringEmitEvents}]`);

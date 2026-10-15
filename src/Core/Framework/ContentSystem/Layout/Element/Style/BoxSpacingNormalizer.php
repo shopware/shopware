@@ -205,6 +205,8 @@ final class BoxSpacingNormalizer
             return ContentSystemException::boxSpacingInvalidValue($operation, $value);
         }
 
+        // With fixed valid patterns, an internal PCRE engine failure cannot be induced reliably through
+        // this public API. Keep it distinct from input limits; the exception factory pins its 500 contract.
         return ContentSystemException::boxSpacingTokenizationFailed($operation, $value, preg_last_error_msg());
     }
 
@@ -233,7 +235,12 @@ final class BoxSpacingNormalizer
             return '';
         }
 
-        if (preg_match(self::PLAIN_NUMBER_WITH_PX_PATTERN, $trimmed, $matches) === 1) {
+        $matched = preg_match(self::PLAIN_NUMBER_WITH_PX_PATTERN, $trimmed, $matches);
+        if ($matched === false) {
+            throw $this->tokenizationFailure('match', $trimmed);
+        }
+
+        if ($matched === 1) {
             return $matches[1];
         }
 
@@ -293,18 +300,28 @@ final class BoxSpacingNormalizer
             return $trimmed;
         }
 
-        if (preg_match(self::CSS_KEYWORD_PATTERN, $trimmed) === 1) {
+        if ($this->matches(self::CSS_KEYWORD_PATTERN, $trimmed)) {
             return strtolower($trimmed);
         }
 
-        if (str_contains($trimmed, '(') || preg_match(self::HAS_CSS_UNIT_PATTERN, $trimmed) === 1) {
+        if (str_contains($trimmed, '(') || $this->matches(self::HAS_CSS_UNIT_PATTERN, $trimmed)) {
             return $trimmed;
         }
 
-        if (preg_match(self::PLAIN_NUMBER_PATTERN, $trimmed) === 1) {
+        if ($this->matches(self::PLAIN_NUMBER_PATTERN, $trimmed)) {
             return $trimmed . 'px';
         }
 
         return $trimmed;
+    }
+
+    private function matches(string $pattern, string $value): bool
+    {
+        $matched = preg_match($pattern, $value);
+        if ($matched === false) {
+            throw $this->tokenizationFailure('match', $value);
+        }
+
+        return $matched === 1;
     }
 }

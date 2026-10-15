@@ -112,7 +112,7 @@ class YamlStyleOptionLoader extends AbstractContentSystemStyleOptionLoader
 
         $violations = $this->validator->validate(new StyleOptionSpecificationDtoCollection($dtos));
         if ($violations->count() > 0) {
-            throw ContentSystemException::styleOptionLoadFailed($violations);
+            throw ContentSystemException::styleOptionLoadFailed($directory, ContentSystemException::violationMessages($violations));
         }
 
         return $resolved;

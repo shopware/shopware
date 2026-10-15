@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Element\Style;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -109,6 +111,41 @@ class BoxSpacingNormalizerTest extends TestCase
             (new BoxSpacingNormalizer())->normalizeCssValue($value);
         } finally {
             static::assertNotFalse(ini_set('pcre.backtrack_limit', $previousLimit));
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string, int}>
+     */
+    public static function matchLimitProvider(): iterable
+    {
+        // The px-suffix pattern rejects this without backtracking; unit matching exceeds the limit.
+        yield 'unit matching rejects an engine failure' => ['10', 1];
+
+        // The px-suffix pattern exceeds this limit, but the later CSS-unit pattern accepts the value.
+        // Without the formatSide guard, no later match failure can mask the missing rejection.
+        yield 'px stripping rejects an engine failure independently of unit matching' => ['1pxx', 6];
+    }
+
+    #[DataProvider('matchLimitProvider')]
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
+    public function testMatchLimitFailureIsRejectedInsteadOfTreatedAsANonMatch(string $value, int $backtrackLimit): void
+    {
+        // Disable JIT before any pattern is cached so the interpreter's limit is deterministic.
+        $jit = ini_get('pcre.jit');
+        $limit = ini_get('pcre.backtrack_limit');
+        static::assertNotFalse($jit);
+        static::assertNotFalse($limit);
+        ini_set('pcre.jit', '0');
+        ini_set('pcre.backtrack_limit', (string) $backtrackLimit);
+
+        try {
+            $this->expectExceptionObject(ContentSystemException::boxSpacingInvalidValue('match', $value));
+            (new BoxSpacingNormalizer())->normalizeCssValue($value);
+        } finally {
+            ini_set('pcre.jit', $jit);
+            ini_set('pcre.backtrack_limit', $limit);
         }
     }
 }

@@ -104,7 +104,7 @@ class DatabaseTypeLoaderTest extends TestCase
             ['name' => 'App:Good:Hero', 'schema' => json_encode($this->schema(), \JSON_THROW_ON_ERROR), 'app_name' => 'GoodApp'],
             ['name' => 'App:Bad:Type', 'schema' => json_encode($this->schema(), \JSON_THROW_ON_ERROR), 'app_name' => 'BadApp'],
         ], $validator);
-        $this->expectExceptionObject(ContentSystemException::elementTypeLoadFailed($violations));
+        $this->expectExceptionObject(ContentSystemException::elementTypeLoadFailed('active app definitions', ContentSystemException::violationMessages($violations)));
         $loader->load();
     }
 

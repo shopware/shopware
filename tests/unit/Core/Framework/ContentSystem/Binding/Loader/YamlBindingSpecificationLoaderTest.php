@@ -270,7 +270,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         $failing->method('validate')->willReturn($violations);
         $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')], $failing);
 
-        $this->expectExceptionObject(ContentSystemException::bindingSpecificationLoadFailed($violations));
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationLoadFailed($this->tempDir, ContentSystemException::violationMessages($violations)));
 
         $loader->load();
     }

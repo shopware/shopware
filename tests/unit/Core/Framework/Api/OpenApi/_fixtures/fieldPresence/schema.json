@@ -1,7 +1,7 @@
 {
     "openapi": "3.1.0",
     "info": {
-        "title": "Required, nullable and default request fields",
+        "title": "Required, nullable and default request and response fields",
         "version": "1.0.0"
     },
     "paths": {
@@ -21,8 +21,19 @@
                     }
                 },
                 "responses": {
-                    "204": {
-                        "description": "Accepted"
+                    "200": {
+                        "description": "Field presence",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/StringFieldPresenceInput"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -43,8 +54,19 @@
                     }
                 },
                 "responses": {
-                    "204": {
-                        "description": "Accepted"
+                    "200": {
+                        "description": "Field presence",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/IntegerFieldPresenceInput"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -65,8 +87,19 @@
                     }
                 },
                 "responses": {
-                    "204": {
-                        "description": "Accepted"
+                    "200": {
+                        "description": "Field presence",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/NumberFieldPresenceInput"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -87,8 +120,61 @@
                     }
                 },
                 "responses": {
-                    "204": {
-                        "description": "Accepted"
+                    "200": {
+                        "description": "Field presence",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/BooleanFieldPresenceInput"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/presence/components": {
+            "post": {
+                "operationId": "checkSharedFieldPresence",
+                "x-dto-namespace": "Shopware\\Core\\Example\\FieldPresence",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "shared": {
+                                        "$ref": "#/components/schemas/SharedFieldPresence"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Shared and response-only field presence",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "shared": {
+                                            "$ref": "#/components/schemas/SharedFieldPresence"
+                                        },
+                                        "responseOnly": {
+                                            "$ref": "#/components/schemas/ResponseOnlyFieldPresence"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -363,6 +449,24 @@
                         "default": null
                     }
                 }
+            },
+            "SharedFieldPresence": {
+                "x-dto-namespace": "Shopware\\Core\\Example\\FieldPresence",
+                "x-dto-package": "framework",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/StringFieldPresenceInput"
+                    }
+                ]
+            },
+            "ResponseOnlyFieldPresence": {
+                "x-dto-namespace": "Shopware\\Core\\Example\\FieldPresence",
+                "x-dto-package": "framework",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/StringFieldPresenceInput"
+                    }
+                ]
             }
         }
     }

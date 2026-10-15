@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Api\AbstractDto;
  */
 final class Criteria extends AbstractDto
 {
-    public TotalCountMode $totalCountMode = TotalCountMode::NONE;
+    public TotalCountMode $totalCountMode;
 
     /**
      * @internal

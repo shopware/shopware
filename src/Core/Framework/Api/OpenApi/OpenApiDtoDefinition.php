@@ -27,7 +27,6 @@ final readonly class OpenApiDtoDefinition
         public int $responseStatusCode = Response::HTTP_OK,
         public OpenApiDtoType $type = OpenApiDtoType::Nested,
         public ?string $componentName = null,
-        public bool $preserveOptionalPropertyPresence = false,
     ) {
     }
 }

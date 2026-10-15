@@ -124,7 +124,7 @@
           "source": {
             "type": "string",
             "enum": ["storefront"],
-            "description": "Single-value enum, should default to the only value"
+            "description": "Single-value enum without an explicit default"
           },
           "channel": {
             "type": "string",

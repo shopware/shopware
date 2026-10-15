@@ -86,7 +86,7 @@ final class OpenApiDtoClassRenderer
             if ($property->required) {
                 continue;
             }
-            $lines[] = $this->renderProperty($property, $definition->type === OpenApiDtoType::Request || $definition->preserveOptionalPropertyPresence);
+            $lines[] = $this->renderProperty($property);
             $lines[] = '';
         }
         $requiredProperties = array_values(array_filter($definition->properties, static fn (OpenApiDtoProperty $property): bool => $property->required));
@@ -150,7 +150,7 @@ final class OpenApiDtoClassRenderer
         return implode("\n", $lines);
     }
 
-    private function renderProperty(OpenApiDtoProperty $property, bool $preserveOptionalPropertyPresence = false): string
+    private function renderProperty(OpenApiDtoProperty $property): string
     {
         $lines = [];
         $phpDoc = $this->renderPropertyPhpDoc($property);
@@ -169,10 +169,9 @@ final class OpenApiDtoClassRenderer
         }
 
         $lines[] = \sprintf(
-            '        public %s $%s%s' . ($property->required ? ',' : ';'),
+            '        public %s $%s' . ($property->required ? ',' : ';'),
             $this->renderPhpType($property),
             $property->name,
-            $preserveOptionalPropertyPresence ? '' : $this->renderDefault($property),
         );
 
         return implode("\n", $property->required ? $lines : array_map(static fn (string $line): string => substr($line, 4), $lines));
@@ -395,23 +394,6 @@ final class OpenApiDtoClassRenderer
         }
 
         return !$this->isPrimitive($property->phpType);
-    }
-
-    private function renderDefault(OpenApiDtoProperty $property): string
-    {
-        if ($property->required) {
-            return '';
-        }
-
-        if ($property->hasDefaultValue) {
-            if ($property->nativeEnum) {
-                return ' = ' . $property->phpType . '::' . $this->enumCaseName($property->defaultValue, $property->phpType);
-            }
-
-            return ' = ' . $this->formatDefaultValue($property->defaultValue);
-        }
-
-        return '';
     }
 
     private function enumCaseName(string|int|float|bool|null $value, string $enumName): string

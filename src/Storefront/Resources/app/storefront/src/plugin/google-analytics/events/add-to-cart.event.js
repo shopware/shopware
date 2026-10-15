@@ -162,6 +162,7 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
                 'quantity': formData.get(`lineItems[${id}][quantity]`),
                 'price': element.getAttribute('data-price'),
                 'item_brand': element.getAttribute('data-brand'),
+                'item_variant': element.getAttribute('data-variant'),
                 ...LineItemHelper.getCategoriesFromElement(element),
             };
         });

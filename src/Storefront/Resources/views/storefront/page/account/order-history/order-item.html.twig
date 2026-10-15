@@ -162,6 +162,7 @@
                                                                               data-name="{{ lineItem.label }}"
                                                                               data-price="{{ lineItem.unitPrice }}"
                                                                               data-brand="{{ lineItem.payload.manufacturerName|default('') }}"
+                                                                              data-variant="{{ lineItem.payload.options|default([])|map(option => option.option)|join(', ') }}"
                                                                               {{ categoryAttributes|raw }}></span>
                                                                     {% endblock %}
                                                                 {% endif %}

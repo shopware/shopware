@@ -429,7 +429,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         addToCartInstance.el.setAttribute('data-analytics-currency', 'USD');
         addToCartInstance.el.innerHTML = `
             <span data-analytics-line-item data-id="product-1" data-sku="SW-1" data-name="Shirt" data-price="19.99"
-                  data-brand="Brand" data-category-1="Clothing" data-category-2="Shirts"></span>
+                  data-brand="Brand" data-variant="Red, XL" data-category-1="Clothing" data-category-2="Shirts"></span>
             <span data-analytics-line-item data-id="product-2" data-sku="SW-2" data-name="Cap" data-price="5" data-brand=""></span>
         `;
         addToCartInstance.$emitter = new NativeEventEmitter(addToCartInstance.el);
@@ -450,7 +450,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
             'currency': 'USD',
             'value': 54.98,
             'items': [
-                { item_id: 'SW-1', item_name: 'Shirt', quantity: 2, price: 19.99, item_brand: 'Brand', item_category: 'Clothing', item_category2: 'Shirts' },
+                { item_id: 'SW-1', item_name: 'Shirt', quantity: 2, price: 19.99, item_brand: 'Brand', item_variant: 'Red, XL', item_category: 'Clothing', item_category2: 'Shirts' },
                 { item_id: 'SW-2', item_name: 'Cap', quantity: 3, price: 5 },
             ],
         });

@@ -244,14 +244,33 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
 
             const formData = submitFromProductElement(`
                 ${breadcrumb}
-                <article data-product-information='{"id":"product-1","brand":"Brand"}'>
-                    <div class="form-slot"></div>
-                </article>
+                <div class="cms-element-product-listing-wrapper">
+                    <article data-product-information='{"id":"product-1","brand":"Brand"}'>
+                        <div class="form-slot"></div>
+                    </article>
+                </div>
             `, createFormData());
 
             expect(formData.get('lineItems[product-1][payload][manufacturerName]')).toBe('Brand');
             expect(formData.get('lineItems[product-1][payload][categoryNames][0]')).toBe('Clothing');
             expect(formData.get('lineItems[product-1][payload][categoryNames][1]')).toBe('Shirts');
+        });
+
+        // the categories of a slider product are requested with the add and kept for the cart
+        test('posts no categories for a product element outside the listing of a category page', () => {
+            window.activeRoute = 'frontend.navigation.page';
+
+            const formData = submitFromProductElement(`
+                ${breadcrumb}
+                <div class="cms-element-product-slider">
+                    <article data-product-information='{"id":"product-1","brand":"Brand"}'>
+                        <div class="form-slot"></div>
+                    </article>
+                </div>
+            `, createFormData());
+
+            expect(formData.get('lineItems[product-1][payload][manufacturerName]')).toBe('Brand');
+            expect([...formData.keys()].some(key => key.includes('[categoryNames]'))).toBe(false);
         });
 
         test('keeps a payload the form already posts', () => {

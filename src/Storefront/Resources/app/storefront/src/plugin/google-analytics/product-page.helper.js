@@ -14,6 +14,8 @@ import ProductCategoryHelper from 'src/plugin/google-analytics/product-category.
 export default class ProductPageHelper {
     static PRODUCT_ELEMENT_SELECTOR = '[data-product-information]';
 
+    static LISTING_SELECTOR = '.cms-element-product-listing-wrapper';
+
     /**
      * Gets product data from available sources (detail page or product card)
      * @param {string} productId
@@ -242,20 +244,46 @@ export default class ProductPageHelper {
     }
 
     /**
-     * The breadcrumb categories for a product, if the breadcrumb is about it. On the product
-     * detail page the breadcrumb is the path of the page product, so a product element there, such
-     * as cross selling, reports none rather than the path of another product.
+     * The breadcrumb categories for a product, if the breadcrumb is about it, see `isDescribedByBreadcrumb()`.
      *
      * @param {string} productId
      * @param {HTMLElement|null} element the element the interaction started from, if any
      * @returns {Object}
      */
     static getCategoriesFor(productId, element = null) {
-        if (window.activeRoute === 'frontend.detail.page' && ProductPageHelper.getProductCard(productId, element)) {
-            return {};
+        return ProductPageHelper.isDescribedByBreadcrumb(productId, element) ? ProductPageHelper.getCategories() : {};
+    }
+
+    /**
+     * Whether the page breadcrumb is the category path of a product. It is for the product of a
+     * detail page and for the products of the listing on a category page. A product element
+     * anywhere else, such as a slider on a category page or cross selling on a detail page, can
+     * show a product of any category.
+     *
+     * @param {string} productId
+     * @param {HTMLElement|null} element the element the interaction started from, if any
+     * @returns {boolean}
+     */
+    static isDescribedByBreadcrumb(productId, element = null) {
+        const productElement = ProductPageHelper.getProductCard(productId, element);
+
+        if (window.activeRoute === 'frontend.detail.page') {
+            return !productElement;
         }
 
-        return ProductPageHelper.getCategories();
+        return ProductPageHelper.isInPageListing(productElement);
+    }
+
+    /**
+     * Whether a product element belongs to the product listing of the page. On a category page
+     * the listing shows the products of that category.
+     *
+     * @param {HTMLElement|null} productElement
+     * @returns {boolean}
+     */
+    static isInPageListing(productElement) {
+        return window.activeRoute !== 'frontend.detail.page'
+            && !!productElement?.closest(ProductPageHelper.LISTING_SELECTOR);
     }
 
     /**
@@ -263,8 +291,8 @@ export default class ProductPageHelper {
      * not describe them.
      *
      * The page breadcrumb is used where it is about the product: the product of a detail page, or a
-     * product element on a category listing. Anywhere else, such as the homepage, a landing page,
-     * the wishlist or a product element on a detail page, the path is requested from the storefront,
+     * product of a category listing. Anywhere else, such as the homepage, a landing page, the
+     * wishlist, a slider or a product element on a detail page, the path is requested from the storefront,
      * which resolves it through the Store API breadcrumb route. Product elements do not carry it,
      * because loading the categories of every product would slow down each render for an event that
      * only fires on a click. A failed request reports no categories.

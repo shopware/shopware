@@ -127,9 +127,10 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
      * so neither the cart nor the checkout loads anything for analytics. This only runs for a sales
      * channel with analytics and after consent, so a shop without tracking sends nothing extra.
      *
-     * A product element sends its own brand and the category the shopper is browsing. A page
-     * without breadcrumb, such as the homepage or the search, sends no category, and neither does
-     * a product element on a product detail page, whose breadcrumb belongs to the page product.
+     * A product element sends its own brand, and a product of a category listing the category the
+     * shopper is browsing. Any other product element sends no category, such as one on the
+     * homepage, in the search, in a slider or on a product detail page. Its categories are requested
+     * with the add and kept for the cart, see `ProductPageHelper.resolveCategories()`.
      *
      * @param {FormData} formData
      * @param {string} productId
@@ -149,7 +150,7 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
         }
 
         const hasCategories = [...formData.keys()].some(key => key.startsWith(`${prefix}[categoryNames]`));
-        if (hasCategories || window.activeRoute === 'frontend.detail.page') {
+        if (hasCategories || !ProductPageHelper.isDescribedByBreadcrumb(productId, formElement)) {
             return;
         }
 

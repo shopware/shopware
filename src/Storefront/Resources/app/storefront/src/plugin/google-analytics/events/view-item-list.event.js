@@ -66,7 +66,7 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
         const productBoxes = listing?.querySelectorAll(ProductPageHelper.PRODUCT_ELEMENT_SELECTOR) ?? [];
         const lineItems = [];
 
-        // Get category from breadcrumbs (same for all items on this page)
+        // the breadcrumb of a category page is the path of its listing, not of a slider beside it
         const categories = ProductPageHelper.getCategories();
 
         // a paginated listing renders one page of a longer list, so the index counts across pages
@@ -94,7 +94,7 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
                 item_variant: productData.variant,
                 price: productData.price,
                 index: listStart + lineItems.length,
-                ...categories,
+                ...(ProductPageHelper.isInPageListing(item) ? categories : {}),
             });
         });
 

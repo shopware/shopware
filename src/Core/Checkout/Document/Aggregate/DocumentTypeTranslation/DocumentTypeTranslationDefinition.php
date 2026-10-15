@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @codeCoverageIgnore
+ *
  * @deprecated tag:v6.9.0 - Will be removed
  */
 #[Package('after-sales')]

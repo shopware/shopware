@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<DocumentTypeTranslationEntity>
  *
+ * @codeCoverageIgnore
+ *
  * @deprecated tag:v6.9.0 - Will be removed
  */
 #[Package('after-sales')]

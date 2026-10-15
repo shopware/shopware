@@ -326,8 +326,9 @@ final class OpenApiDtoClassRenderer
             $constraints[] = '        #[Assert\IdenticalTo(value: ' . $this->formatDefaultValue($property->constValue) . ')]';
         }
 
-        if ($property->phpType === 'string' && $property->minLength !== null) {
-            $constraints[] = '        #[Assert\Length(min: ' . $property->minLength . ')]';
+        $lengthArguments = $this->renderLengthArguments($property->minLength, $property->maxLength);
+        if ($property->phpType === 'string' && $lengthArguments !== null) {
+            $constraints[] = '        #[Assert\Length(' . $lengthArguments . ')]';
         }
 
         if ($property->phpType === OpenApiDtoSchemaParser::PHP_TYPE_ARRAY && $property->minItems !== null) {
@@ -354,8 +355,9 @@ final class OpenApiDtoClassRenderer
 
         $constraints = ['new Assert\Type(\'' . $this->escapePhpSingleQuoted($property->arrayItemType) . '\')'];
 
-        if ($property->arrayItemType === 'string' && $property->arrayItemMinLength !== null) {
-            $constraints[] = 'new Assert\Length(min: ' . $property->arrayItemMinLength . ')';
+        $lengthArguments = $this->renderLengthArguments($property->arrayItemMinLength, $property->arrayItemMaxLength);
+        if ($property->arrayItemType === 'string' && $lengthArguments !== null) {
+            $constraints[] = 'new Assert\Length(' . $lengthArguments . ')';
         }
 
         if (\count($constraints) === 1) {
@@ -363,6 +365,19 @@ final class OpenApiDtoClassRenderer
         }
 
         return '[' . implode(', ', $constraints) . ']';
+    }
+
+    private function renderLengthArguments(?int $minLength, ?int $maxLength): ?string
+    {
+        $arguments = [];
+        if ($minLength !== null) {
+            $arguments[] = 'min: ' . $minLength;
+        }
+        if ($maxLength !== null) {
+            $arguments[] = 'max: ' . $maxLength;
+        }
+
+        return $arguments !== [] ? implode(', ', $arguments) : null;
     }
 
     private function needsValidConstraint(OpenApiDtoProperty $property): bool

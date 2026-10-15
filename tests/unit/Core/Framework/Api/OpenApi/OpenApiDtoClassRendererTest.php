@@ -32,6 +32,51 @@ use Symfony\Component\Validator\Validation;
 class OpenApiDtoClassRendererTest extends TestCase
 {
     /**
+     * @return iterable<string, array{array<string, mixed>, list<string>}>
+     */
+    public static function stringLengthCases(): iterable
+    {
+        yield 'required strings allow empty values without a minimum' => [[], []];
+        yield 'unconstrained strings have no implicit maximum' => [['unlimited' => str_repeat('a', 300)], []];
+        yield 'maximum allows exactly four Unicode characters' => [['maxOnly' => 'éééé'], []];
+        yield 'maximum rejects five Unicode characters' => [['maxOnly' => 'ééééé'], ['maxOnly']];
+        yield 'combined bounds accept both boundaries' => [['bounded' => 'ab', 'boundedTags' => ['ab', 'abcd']], []];
+        yield 'combined bounds reject short values' => [['bounded' => 'a', 'boundedTags' => ['a']], ['bounded', 'boundedTags[0]']];
+        yield 'combined bounds reject long values' => [['bounded' => 'abcde', 'boundedTags' => ['abcde']], ['bounded', 'boundedTags[0]']];
+        yield 'minimum alone imposes no maximum' => [['minimumOnly' => str_repeat('a', 300)], []];
+        yield 'minimum alone still rejects short values' => [['minimumOnly' => 'a'], ['minimumOnly']];
+        yield 'zero maximum accepts empty strings and items' => [['emptyOnly' => '', 'emptyTags' => ['']], []];
+        yield 'zero maximum rejects nonempty strings and items' => [['emptyOnly' => 'a', 'emptyTags' => ['a']], ['emptyOnly', 'emptyTags[0]']];
+        yield 'nullable bounded string accepts explicit null' => [['nullable' => null], []];
+        yield 'nullable bounded string rejects long values' => [['nullable' => 'abcde'], ['nullable']];
+        yield 'array maximum permits empty and boundary items' => [['tags' => ['', 'abcd']], []];
+        yield 'array maximum checks every item' => [['tags' => ['abcd', 'abcde']], ['tags[1]']];
+        yield 'query and path parameters accept maximum length' => [['routeKey' => 'abcd', 'queryMaxOnly' => 'abcd', 'queryBounded' => 'abcd', 'queryTerms' => ['', 'abcd']], []];
+        yield 'query and path parameters reject excess length' => [['routeKey' => 'abcde', 'queryMaxOnly' => 'abcde', 'queryBounded' => 'abcde', 'queryTerms' => ['abcd', 'abcde']], ['routeKey', 'queryMaxOnly', 'queryBounded', 'queryTerms[1]']];
+        yield 'query parameter retains minimum length' => [['queryBounded' => 'a'], ['queryBounded']];
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @param list<string> $expectedPaths
+     */
+    #[DataProvider('stringLengthCases')]
+    public function testGeneratedStringLengthConstraintsValidateSchemaBounds(array $data, array $expectedPaths): void
+    {
+        $class = $this->loadRenderedClass('stringLengths/schema.json', 'ValidateStringLengthsRequest');
+        $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer())]);
+        $dto = $serializer->denormalize(['unlimited' => '', 'maxOnly' => '', 'routeKey' => '', ...$data], $class);
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+
+        $paths = [];
+        foreach ($validator->validate($dto) as $violation) {
+            $paths[] = $violation->getPropertyPath();
+        }
+
+        static::assertEqualsCanonicalizing($expectedPaths, $paths);
+    }
+
+    /**
      * @return iterable<string, array{string, string|int|float|bool}>
      */
     public static function scalarFieldTypes(): iterable

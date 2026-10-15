@@ -912,7 +912,9 @@ final class OpenApiDtoSchemaParser
                 constValue: $this->defaultScalarValue($constraintSchema['const'] ?? null),
                 minItems: $this->intOrNull($constraintSchema['minItems'] ?? null),
                 minLength: $this->intOrNull($constraintSchema['minLength'] ?? null),
+                maxLength: $this->intOrNull($constraintSchema['maxLength'] ?? null),
                 arrayItemMinLength: $this->arrayItemMinLength($constraintSchema),
+                arrayItemMaxLength: $this->arrayItemMaxLength($constraintSchema),
                 unresolvedReference: $type['unresolved'],
                 nativeEnum: $this->isNativeEnumReference($schema, $registry),
             )]);
@@ -1126,7 +1128,9 @@ final class OpenApiDtoSchemaParser
             constValue: $this->defaultScalarValue($constraintSchema['const'] ?? null),
             minItems: $this->intOrNull($constraintSchema['minItems'] ?? null),
             minLength: $this->intOrNull($constraintSchema['minLength'] ?? null),
+            maxLength: $this->intOrNull($constraintSchema['maxLength'] ?? null),
             arrayItemMinLength: $this->arrayItemMinLength($constraintSchema),
+            arrayItemMaxLength: $this->arrayItemMaxLength($constraintSchema),
             unresolvedReference: $unresolvedReference,
             arrayMapValueType: $phpType === self::PHP_TYPE_ARRAY ? $this->arrayMapValueType($constraintSchema, $registry) : null,
             nativeEnum: $this->isNativeEnumReference($schema, $registry),
@@ -1779,6 +1783,16 @@ final class OpenApiDtoSchemaParser
         $items = $this->schemaAtKey($schema, 'items');
 
         return $items !== null ? $this->intOrNull($items['minLength'] ?? null) : null;
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     */
+    private function arrayItemMaxLength(array $schema): ?int
+    {
+        $items = $this->schemaAtKey($schema, 'items');
+
+        return $items !== null ? $this->intOrNull($items['maxLength'] ?? null) : null;
     }
 
     private function stringOrNull(mixed $value): ?string

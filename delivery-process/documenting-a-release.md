@@ -17,7 +17,7 @@ To have a structured and automated workflow:
 
 Every PR that introduces a significant change must update one or both of these files:
 
-- `RELEASE_INFO-6.<current minor line>.md`: Tracks new features, API updates, deprecations, and general improvements.
+- `RELEASE_INFO-6.<current major line>.md`: Tracks new features, API updates, deprecations, and general improvements.
 - `UPGRADE-6.<next major>.md`: Covers breaking changes, deprecations, migration steps, and any required developer action.
 
 Developers edit these files directly in the repository.

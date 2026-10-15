@@ -18,7 +18,7 @@ Skip release documentation for narrow local bug fixes, implementation-only refac
 
 Write into the following files, but only if the decision above applies:
 
-- Developer-facing notes: add a concise entry to `RELEASE_INFO-6.<current minor line>.md` in the upcoming section and relevant category.
+- Developer-facing notes: add a concise entry to `RELEASE_INFO-6.<current major line>.md` in the upcoming section and relevant category.
   Keep it short and to the point and avoid describing implementation details.
   The short information should inform third party developers about all relevant changes and how to adopt them.
 - `UPGRADE-6.<next major>.md` answers one question: must existing third-party code or configuration (extension, app, integration, theme, hosting setup) change to keep working after the next major?

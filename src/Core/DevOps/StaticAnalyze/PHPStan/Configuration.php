@@ -80,4 +80,12 @@ final readonly class Configuration
     {
         return $this->parameters['reflectionInUnitTestsEnabledNamespaces'] ?? [];
     }
+
+    /**
+     * @return list<string>
+     */
+    public function getRuntimeListenerOnSharedEventDispatcherEnabledNamespaces(): array
+    {
+        return $this->parameters['runtimeListenerOnSharedEventDispatcherEnabledNamespaces'] ?? [];
+    }
 }

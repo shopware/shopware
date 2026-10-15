@@ -789,12 +789,8 @@ export default {
             const mainVariantId = this.productEntity.variantListingConfig?.mainVariantId;
             if (mainVariantId && variantIds.includes(mainVariantId)) {
                 this.productEntity.variantListingConfig.mainVariantId = null;
-
-                const displaySingleProduct = this.productEntity.variantListingConfig?.displayParent !== null;
-
-                if (displaySingleProduct) {
-                    this.productEntity.variantListingConfig.displayParent = true;
-                }
+                this.productEntity.variantListingConfig.displayParent =
+                    this.productEntity.variantListingConfig.displayParent === true;
             }
 
             this.productRepository.save(this.productEntity);

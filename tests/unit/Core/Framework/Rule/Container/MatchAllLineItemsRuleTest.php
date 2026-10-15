@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTagRule;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -27,7 +26,6 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 #[Package('fundamentals@after-sales')]
 #[CoversClass(MatchAllLineItemsRule::class)]
-#[CoversClass(Container::class)]
 class MatchAllLineItemsRuleTest extends TestCase
 {
     public function testAndRuleNameIsStillTheSame(): void

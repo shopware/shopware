@@ -528,4 +528,38 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         delete window.router;
         delete global.fetch;
     });
+
+    test('reports every line item of the reorder of an order', () => {
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstance.el = document.createElement('form');
+        addToCartInstance.el.setAttribute('data-analytics-currency', 'USD');
+        addToCartInstance.el.innerHTML = `
+            <span data-analytics-line-item data-id="product-1" data-sku="SW-1" data-name="Shirt" data-price="19.99"
+                  data-brand="Brand" data-variant="Red, XL" data-category-1="Clothing" data-category-2="Shirts"></span>
+            <span data-analytics-line-item data-id="product-2" data-sku="SW-2" data-name="Cap" data-price="5" data-brand=""></span>
+        `;
+        addToCartInstance.$emitter = new NativeEventEmitter(addToCartInstance.el);
+        addToCartInstances.push(addToCartInstance);
+
+        new AddToCartEvent().execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-1][id]', 'product-1');
+        formData.append('lineItems[product-1][quantity]', '2');
+        formData.append('lineItems[product-2][id]', 'product-2');
+        formData.append('lineItems[product-2][quantity]', '3');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).toHaveBeenCalledTimes(1);
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', {
+            'currency': 'USD',
+            'value': 54.98,
+            'items': [
+                { item_id: 'SW-1', item_name: 'Shirt', quantity: 2, price: 19.99, item_brand: 'Brand', item_variant: 'Red, XL', item_category: 'Clothing', item_category2: 'Shirts' },
+                { item_id: 'SW-2', item_name: 'Cap', quantity: 3, price: 5 },
+            ],
+        });
+        expect([...formData.keys()].some(key => key.includes('[payload]'))).toBe(false);
+    });
 });

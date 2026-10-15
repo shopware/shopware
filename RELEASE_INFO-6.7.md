@@ -814,7 +814,7 @@ Storefront analytics now send ecommerce events in the format Google documents fo
 * With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`. Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
 * Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings. Amounts are rounded to cents.
 * The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`. Discounts are no longer reported as items.
-* `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`. They stopped working with 6.6.10.0 and 6.7.11.0, when these forms changed.
+* `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`. They stopped working with 6.6.10.0 and 6.7.11.0, when these forms changed. `login` is now reported on the page after the login and only for a successful login, so a wrong password no longer counts as a login.
 
 The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics. The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
 ### Category Twig function removal postponed to 6.9
@@ -832,6 +832,7 @@ With active analytics, adding a product from a product box now posts its brand a
 ### Storefront analytics report each checkout step once
 
 `add_shipping_info` and `add_payment_info` are now reported once per selected method of a checkout, instead of on every reload of the confirm page. A new customer reports `add_shipping_info` when registering in the checkout.
+The reorder of an order in the account now reports one `add_to_cart` with all line items of the order, each with product number, name, price, brand and categories of the original order. Before, it reported only the last line item, with its ID instead of the product number and without name and price.
 
 ### Storefront analytics report item variants and graduated prices
 

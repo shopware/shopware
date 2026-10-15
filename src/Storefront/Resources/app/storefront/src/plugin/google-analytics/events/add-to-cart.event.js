@@ -1,5 +1,6 @@
 import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
 import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
+import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 
 export default class AddToCartEvent extends EventAwareAnalyticsEvent
 {
@@ -32,6 +33,14 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
 
         const formData = event.detail;
         const formElement = event.target;
+
+        // the reorder in the account adds all line items of an order with one form
+        const lineItemElements = formElement?.querySelectorAll?.('[data-analytics-line-item]') ?? [];
+        if (lineItemElements.length > 0) {
+            this._pushLineItems(formData, formElement, lineItemElements);
+            return;
+        }
+
         let productId = null;
 
         formData.forEach((value, key) => {
@@ -156,6 +165,39 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
 
         ProductPageHelper.getCategoryNames().forEach((name, index) => {
             formData.set(`${prefix}[categoryNames][${index}]`, name);
+        });
+    }
+
+    /**
+     * Reports all line items of a form that adds several of them, such as the reorder of an order.
+     * Their data comes from the order, so prices and currency are those of the original order.
+     *
+     * @param {FormData} formData
+     * @param {HTMLElement} formElement
+     * @param {NodeList} lineItemElements
+     * @private
+     */
+    _pushLineItems(formData, formElement, lineItemElements) {
+        const items = [...lineItemElements].map(element => {
+            const id = element.getAttribute('data-id');
+
+            return {
+                'item_id': element.getAttribute('data-sku') || id,
+                'item_name': element.getAttribute('data-name'),
+                'quantity': formData.get(`lineItems[${id}][quantity]`),
+                'price': element.getAttribute('data-price'),
+                'item_brand': element.getAttribute('data-brand'),
+                'item_variant': element.getAttribute('data-variant'),
+                ...LineItemHelper.getCategoriesFromElement(element),
+            };
+        });
+
+        const value = items.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
+
+        this.pushEvent('add_to_cart', {
+            'currency': formElement.getAttribute('data-analytics-currency') || ProductPageHelper.getCurrency(),
+            'value': value,
+            'items': items,
         });
     }
 }

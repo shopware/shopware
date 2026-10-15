@@ -280,6 +280,18 @@ function collectBabelReferences(
     childBabelNodes(node, isTypeKey).forEach((child) => collectBabelReferences(child, scopes, references, node));
 }
 
+function getWriteTarget(node: BabelNode): BabelNode | null {
+    if (node.type === 'AssignmentExpression') {
+        return node.left;
+    }
+
+    if (node.type === 'UpdateExpression') {
+        return node.argument;
+    }
+
+    return null;
+}
+
 /**
  * Collects identifiers written by one expression: assignment targets and update (`x++`) operands.
  *
@@ -295,8 +307,7 @@ function collectBabelWriteTargets(root: BabelNode): Map<string, SourceRange> {
             return;
         }
 
-        const written =
-            node.type === 'AssignmentExpression' ? node.left : node.type === 'UpdateExpression' ? node.argument : null;
+        const written = getWriteTarget(node);
 
         if (written?.type === 'Identifier' && !targets.has(written.name)) {
             targets.set(written.name, getNodeRange(written));

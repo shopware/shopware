@@ -255,12 +255,14 @@ function walkConvertedBlock(
     } else {
         const trailing = collectTrailingChain(children);
 
-        next = trailing
-            ? { conditions: trailing, crossedBlock: true }
-            : // An empty block interrupts nothing, so an inherited chain survives it.
-              chain && children.length === 0
-              ? { ...chain, crossedBlock: true }
-              : null;
+        if (trailing) {
+            next = { conditions: trailing, crossedBlock: true };
+        } else if (chain && children.length === 0) {
+            // An empty block interrupts nothing, so an inherited chain survives it.
+            next = { ...chain, crossedBlock: true };
+        } else {
+            next = null;
+        }
     }
 
     walkSiblings(node.children, context);

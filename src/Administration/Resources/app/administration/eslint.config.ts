@@ -194,6 +194,19 @@ const baseRules = {
     ],
     'vue/prefer-import-from-vue': 'off',
     'vue/one-component-per-file': 'off',
+
+    // Lost with eslint-config-airbnb-base in the ESLint 9 update, restored with its options
+    'no-else-return': [
+        'error',
+        { allowElseIf: false },
+    ],
+    'no-useless-return': 'error',
+    'no-lonely-if': 'error',
+    'no-unneeded-ternary': [
+        'error',
+        { defaultAssignment: false },
+    ],
+    'no-nested-ternary': 'error',
 };
 
 export default [

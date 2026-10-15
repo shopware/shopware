@@ -130,6 +130,16 @@ function isShadowed(pass: Pass, path: NodePath, name: string): boolean {
     return false;
 }
 
+function refsAccessTodo(pass: Pass, path: NodePath, refName: string | null): string {
+    if (!refName) {
+        return 'dynamic this.$refs access';
+    }
+
+    return isShadowed(pass, path, refName)
+        ? `template ref '${refName}' is shadowed by a local binding`
+        : `template ref '${refName}' collides with an existing binding`;
+}
+
 /** `this.$refs.x` → `x.value`, handled on the outer member so the ref name is known. */
 function rewriteRefsAccess(pass: Pass, node: t.MemberExpression, path: NodePath, isComponent: boolean): boolean {
     const { ctx } = pass;
@@ -149,16 +159,7 @@ function rewriteRefsAccess(pass: Pass, node: t.MemberExpression, path: NodePath,
 
     // The shadowed case must not register the ref either — transform-script would emit a
     // `const x = ref(null)` that nothing ever assigns.
-    report(
-        ctx,
-        'todo',
-        refName
-            ? isShadowed(pass, path, refName)
-                ? `template ref '${refName}' is shadowed by a local binding`
-                : `template ref '${refName}' collides with an existing binding`
-            : 'dynamic this.$refs access',
-        node,
-    );
+    report(ctx, 'todo', refsAccessTodo(pass, path, refName), node);
 
     return node.computed;
 }

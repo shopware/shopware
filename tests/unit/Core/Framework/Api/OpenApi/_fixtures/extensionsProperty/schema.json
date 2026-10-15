@@ -4,7 +4,7 @@
         "title": "Inherited extensions property",
         "version": "1.0.0"
     },
-    "paths": [],
+    "paths": {},
     "components": {
         "schemas": {
             "RequiredExtensions": {

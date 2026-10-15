@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
@@ -161,6 +163,31 @@ class StoredElementTest extends TestCase
 
         static::assertInstanceOf(StoredValue::class, $value);
         static::assertTrue($value->isNull());
+    }
+
+    #[TestDox('serializes a mapped consumer source as an array for DAL constraints')]
+    public function testJsonSerializeEncodesMappingSourceAsArray(): void
+    {
+        $element = StoredElementBuilder::create('core:image', 'element-1')
+            ->withConsumer(
+                'media',
+                ContextType::Single,
+                scope: ConsumerScope::Root,
+                projection: 'product_media_to_media',
+                source: MappingSourceReference::root('product', 'cover'),
+            )
+            ->build();
+
+        static::assertSame(
+            [
+                'type' => 'single',
+                'required' => false,
+                'scope' => 'root',
+                'projection' => 'product_media_to_media',
+                'source' => ['type' => 'root', 'id' => 'product', 'path' => 'cover'],
+            ],
+            $element->jsonSerialize()['acceptsContext']['media']
+        );
     }
 
     #[TestDox('serializes an empty property map as an array, never as an object')]

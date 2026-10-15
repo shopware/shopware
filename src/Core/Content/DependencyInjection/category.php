@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
+use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryMappingCandidateProvider;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategorySpecificationSource;
 use Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
@@ -230,4 +231,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(EntityLayoutContextFactory::class),
         ])
         ->tag('content_system.entity_specification_source', ['priority' => 100]);
+
+    $services->set(CategoryMappingCandidateProvider::class)
+        ->args([
+            service(CategoryContentLayoutDefinition::class),
+        ])
+        ->tag('content_system.mapping_candidate_provider', ['priority' => 100]);
 };

@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { Node, mergeAttributes } from './tiptap';
 
 async function createWrapper(
     additionalOptions = {
@@ -83,6 +84,80 @@ describe('src/app/component/meteor-wrapper/mt-text-editor', () => {
         // Check if button with aria-label "Bold" is not present
         button = wrapper.find('[aria-label="mt-text-editor-toolbar.buttons.bold"]');
         expect(button.exists()).toBe(false);
+    });
+
+    /**
+     * A custom node shaped the way the inline mapping chip is: serialization carries only the marker attribute, while
+     * the visible chip — class and human label — comes from a plain-DOM node view.
+     *
+     * Three things at once. `tipTapConfig` is not declared as a prop on this wrapper, so it only reaches the editor
+     * through `$attrs`. The extension is built from the admin's hoisted copy of `@tiptap/core` while the editor runs
+     * the copy bundled into the Meteor library, so this proves an extension survives crossing that boundary. And most
+     * importantly it pins the round-trip: this editor parses `modelValue` on mount and locks itself behind a review
+     * gate if re-serializing differs, so a node that renders anything cosmetic into its serialized form makes the
+     * field unusable on every refresh.
+     */
+    const exampleChipNode = () =>
+        Node.create({
+            name: 'exampleChip',
+            group: 'inline',
+            inline: true,
+            atom: true,
+            addAttributes: () => ({
+                path: {
+                    default: null,
+                    parseHTML: (element) => element.getAttribute('data-example-chip'),
+                    renderHTML: (attributes) => ({ 'data-example-chip': attributes.path }),
+                },
+            }),
+            parseHTML: () => [{ tag: 'span[data-example-chip]' }],
+            renderHTML: ({ HTMLAttributes }) => [
+                'span',
+                mergeAttributes(HTMLAttributes),
+            ],
+            addNodeView: () => ({ node }) => {
+                const dom = document.createElement('span');
+
+                dom.className = 'example-chip';
+                dom.setAttribute('data-example-chip', node.attrs.path);
+                dom.textContent = `label for ${node.attrs.path}`;
+
+                return { dom };
+            },
+        });
+
+    it('should forward tipTapConfig through $attrs, so a custom node reaches the editor schema', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                modelValue: '<p>Buy the <span data-example-chip="product.name"></span> today</p>',
+                tipTapConfig: {
+                    extensions: [exampleChipNode()],
+                },
+            },
+        });
+
+        await flushPromises();
+
+        const chip = wrapper.find('.example-chip');
+
+        expect(chip.exists()).toBe(true);
+        expect(chip.attributes('data-example-chip')).toBe('product.name');
+        expect(chip.text()).toBe('label for product.name');
+    });
+
+    it('should not raise the review gate for a custom node whose serialized form round-trips', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                modelValue: '<p>Buy the <span data-example-chip="product.name"></span> today</p>',
+                tipTapConfig: {
+                    extensions: [exampleChipNode()],
+                },
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.find('.mt-text-editor__gate').exists()).toBe(false);
     });
 
     it('should bind the v-model to the underlying text editor', async () => {

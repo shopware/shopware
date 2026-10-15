@@ -30,6 +30,29 @@
             :key="selectedElementId"
             class="sw-experience-studio-element-settings__tabs-area"
         >
+            <mt-banner
+                v-if="isLoadingMappingCandidates"
+                variant="info"
+                role="status"
+                aria-live="polite"
+            >
+                {{ $t('sw-experience-studio.detail.elementSettings.mapping.loadingCandidates') }}
+            </mt-banner>
+
+            <mt-banner
+                v-else-if="hasMappingCandidateLoadError"
+                variant="critical"
+                role="alert"
+            >
+                <p>{{ $t('sw-experience-studio.detail.elementSettings.mapping.loadError') }}</p>
+                <mt-button
+                    size="small"
+                    @click="onRetryMappingCandidates"
+                >
+                    {{ $t('sw-experience-studio.detail.elementSettings.mapping.retryAction') }}
+                </mt-button>
+            </mt-banner>
+
             <mt-tabs
                 class="sw-experience-studio-element-settings__tabs"
                 position-identifier="sw-experience-studio-element-settings"
@@ -54,10 +77,15 @@
                     :values="elementPropertyValues"
                     :allow-edit="allowEdit"
                     :selected-element-type="selectedElementType"
-                    :is-inline-editing-active="isInlineEditingActive"
-                    :show-inline-text-hints="true"
+                    :mapping-candidates="mappingCandidates"
+                    :is-loading-mapping-candidates="isLoadingMappingCandidates"
+                    :mapping-candidate-load-error="mappingCandidateLoadError"
+                    :mappings="elementMappings"
+                    :violations="violations"
                     show-panels
                     @update-field="onUpdateElementField"
+                    @update-mapping="onUpdateElementMapping"
+                    @retry-mapping-candidates="onRetryMappingCandidates"
                 />
             </div>
 

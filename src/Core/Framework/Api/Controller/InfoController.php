@@ -26,6 +26,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSys
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\Context;
@@ -84,6 +86,7 @@ class InfoController extends AbstractController
         private readonly AbstractContentSystemBindingSpecificationRegistry $bindingSpecificationRegistry,
         private readonly StoredSchemaResolver $storedSchemaResolver,
         private readonly AbstractContentSystemLayoutPresetRegistry $layoutPresetRegistry,
+        private readonly AbstractContentSystemMappingCandidateRegistry $mappingCandidateRegistry,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
         private readonly MediaFileExtensionListProvider $mediaFileExtensionListProvider,
     ) {
@@ -199,6 +202,27 @@ class InfoController extends AbstractController
         );
 
         return new JsonResponse(['rootSources' => $rootSources]);
+    }
+
+    /**
+     * The data-mapping catalogue, keyed by root source, so the Administration can offer an author the dynamic
+     * data a layout of that type may be mapped to. Every known root source carries an entry, empty when it
+     * offers nothing mappable, which keeps the client from having to tell "no candidates" apart from
+     * "unknown source".
+     */
+    #[Route(path: '/api/_info/content-system-mapping-candidates.json', name: 'api.info.content-system-mapping-candidates', methods: ['GET'])]
+    public function contentSystemMappingCandidates(): JsonResponse
+    {
+        $candidates = [];
+
+        foreach ($this->rootSourceRegistry->knownRootSources() as $rootSource) {
+            $candidates[$rootSource] = array_map(
+                static fn (MappingCandidate $candidate): array => $candidate->toSchema(),
+                array_values($this->mappingCandidateRegistry->forRootSource($rootSource))
+            );
+        }
+
+        return new JsonResponse(['mappingCandidates' => (object) $candidates]);
     }
 
     #[Route(path: '/api/_info/events.json', name: 'api.info.business-events', methods: ['GET'])]

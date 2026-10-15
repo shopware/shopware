@@ -39,17 +39,19 @@ class ContentPreviewPageBuilderTest extends TestCase
     #[TestDox('checks the decoded stored tree and hands the same tree to the pipeline in full mode, returning the render result and synthesized context')]
     public function testBuildChecksStoredTreeAndRendersItThroughThePipeline(): void
     {
-        $specification = $this->specification();
+        $specification = $this->specification('product');
         $salesChannelContext = Generator::generateSalesChannelContext();
         $renderResult = new RenderResult([], LayoutReference::create('preview-layout', 'preview', null), null);
         $stored = [new StoredElement('e1', 'Sw:Content:Heading')];
 
         // Both halves read the decoded stored tree: the check takes it directly, and the pipeline takes it
         // wrapped in a preview-labelled RenderableLayout, lowering it itself once its stored steps have run.
+        // The check additionally takes the resolved specification's root source, which is what names the mapping
+        // catalogue its inline-mapping pass judges the draft's tokens against.
         $checker = static::createMock(DraftLayoutChecker::class);
         $checker->expects($this->once())
             ->method('check')
-            ->with(static::identicalTo($stored))
+            ->with(static::identicalTo($stored), 'product')
             ->willReturn(new ConstraintViolationList());
 
         $pipeline = static::createMock(ContentPipeline::class);
@@ -156,9 +158,9 @@ class ContentPreviewPageBuilderTest extends TestCase
         );
     }
 
-    private function specification(): RenderingSpecification
+    private function specification(?string $rootSource = null): RenderingSpecification
     {
-        return new RenderingSpecification([], PlaceholderValues::from([]), new Request());
+        return new RenderingSpecification([], PlaceholderValues::from([]), new Request(), rootSource: $rootSource);
     }
 
     private function contextService(SalesChannelContext $context): SalesChannelContextServiceInterface

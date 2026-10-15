@@ -16,7 +16,7 @@
 - `DiagnoseResponse` - Sibling `\JsonSerializable` for the resolve-and-diagnose route, owning its two-key shape (`resolutions`, `diagnostics`). `fromReport(array $resolutions, DiagnosticsReport $report)` normalizes the raw resolutions plus the already-merged report via `LayoutDiagnosticsResultNormalizer`; `jsonSerialize()` casts `resolutions` to `{}`-when-empty. Same output-only discipline as `MutationResponse`
 - Preview resolution entry: `Adapter/RenderingSpecificationResolver::resolveWithoutLayout(entityType, entityId, request, context)` — assignment-free, selects source by `supportsEntityType()`
 - Root-context selection (diagnose + draft mutation routes): the request `rootSource` is resolved through `Adapter/RootSourceRegistry::resolveGated($rootSource, $context)`, which routes to the matching source (`sourceFor()`: entity type, section key, or `none`) and returns its `providedRootContext()`. An empty/absent `rootSource` means intrinsic well-formedness only. It does NOT use `resolveWithoutLayout()` (that is the preview path)
-- Check: `DraftLayoutChecker` (module root) — preview-action draft check (intrinsic-subset diagnostics)
+- Check: `DraftLayoutChecker` (module root) — preview-action intrinsic-subset diagnostics plus whole-field and inline mapping admission when `rootSource` is present
 - Introspection endpoints the admin UI pairs with this action: `Framework/Api/Controller/InfoController` (`content-system-element-types`, `content-system-data-loaders`, `content-system-entity-types`, `content-system-style-options`, `content-system-root-sources`)
 
 ## Constraints

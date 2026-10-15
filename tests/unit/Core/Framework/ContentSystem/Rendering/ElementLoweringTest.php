@@ -30,6 +30,13 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
@@ -320,6 +327,27 @@ class ElementLoweringTest extends TestCase
         );
     }
 
+    #[TestDox('resolves a page-level requirement referenced by an inline mapping token')]
+    public function testFullModeResolvesARequirementConsumedByAnInlineMappingToken(): void
+    {
+        $loader = $this->loader();
+        $loader->expects($this->once())
+            ->method('load')
+            ->willReturn(ContentDataLoaderResult::cached(new StubStruct()));
+
+        $text = StoredElementBuilder::create('Sw:Content:Text', 'text-1')
+            ->withProperty('text', '{{map:product.name}}')
+            ->build();
+        $wrapper = $this->virtualRoot($text);
+
+        $this->lower(
+            $loader,
+            [$wrapper],
+            [new DataRequirement('product', 'entity', new StubLoaderConfig())],
+            $wrapper
+        );
+    }
+
     /**
      * The match must keep the dot boundary: a `productId` consumer is not reading a path into the `product`
      * requirement, so the requirement stays unconsumed and must not load. A plain prefix match would wrongly
@@ -551,10 +579,35 @@ class ElementLoweringTest extends TestCase
             ),
             new ContextDeliveryResolver(
                 new ContextDistributor(new ContextPathResolver()),
-                new ContextPathResolver()
+                new ContextPathResolver(),
+                new ContentSystemPropertyProjectionRegistry([]),
+                new MappingTypeCompatibility()
             ),
             new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry())),
-            new ContextPathResolver()
+            $this->inlineMappingExpander(),
+            new MappingConsumers(),
+            new ContextPathResolver(),
+        );
+    }
+
+    /**
+     * No fixture here declares an inlineMappable property, so expansion is a pass-through. It is wired with a real
+     * expander over an EMPTY catalogue rather than a mock, so that a token in a fixture would be left verbatim —
+     * which is the documented behaviour — instead of quietly satisfying a mock expectation.
+     */
+    private function inlineMappingExpander(): InlineMappingExpander
+    {
+        $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn([]);
+
+        return new InlineMappingExpander(
+            $this->typeRegistry(),
+            new InlineMappingTokenParser(),
+            new InlineMappingInterpolator(
+                $candidates,
+                new ContentSystemPropertyProjectionRegistry([]),
+                new ContextPathResolver(),
+            ),
         );
     }
 
@@ -587,6 +640,9 @@ class ElementLoweringTest extends TestCase
             'Sw:Box' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Box')->build(),
             'Sw:Product' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Product')
                 ->reference('product', StubStruct::class)
+                ->build(),
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                ->primitive('text', 'string', inlineMappable: true)
                 ->build(),
         ];
 

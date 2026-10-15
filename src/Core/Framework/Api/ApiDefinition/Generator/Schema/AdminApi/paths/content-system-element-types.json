@@ -72,7 +72,7 @@
                                                         "description": "Map of property name to property specification. Encodes as `[]` when the type declares no properties (for example a slot-only container).",
                                                         "additionalProperties": {
                                                             "type": "object",
-                                                            "required": ["type", "translatable", "enum", "default", "required", "title", "description", "adminUI"],
+                                                            "required": ["type", "contextTypes", "translatable", "enum", "default", "properties", "required", "mappable", "inlineMappable", "title", "description", "adminUI", "defaultMapping"],
                                                             "properties": {
                                                                 "type": {
                                                                     "oneOf": [
@@ -87,6 +87,13 @@
                                                                         }
                                                                     ],
                                                                     "description": "Primitive type name, FQCN, object, or a list of those for union declarations."
+                                                                },
+                                                                "contextTypes": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string",
+                                                                        "enum": ["single", "collection"]
+                                                                    }
                                                                 },
                                                                 "translatable": {
                                                                     "type": "boolean"
@@ -110,6 +117,12 @@
                                                                 "required": {
                                                                     "type": "boolean"
                                                                 },
+                                                                "mappable": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "inlineMappable": {
+                                                                    "type": "boolean"
+                                                                },
                                                                 "title": {
                                                                     "type": "string"
                                                                 },
@@ -118,6 +131,12 @@
                                                                 },
                                                                 "adminUI": {
                                                                     "type": ["object", "null"]
+                                                                },
+                                                                "defaultMapping": {
+                                                                    "oneOf": [
+                                                                        { "$ref": "#/components/schemas/ContentSystemMappingSourceReference" },
+                                                                        { "type": "null" }
+                                                                    ]
                                                                 }
                                                             }
                                                         }

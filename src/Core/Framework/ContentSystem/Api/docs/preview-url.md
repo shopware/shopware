@@ -33,7 +33,7 @@ The `ContentPreviewRequest` envelope:
 
 ## Errors
 
-Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`ContentSystemException`). Because the mint runs the one build gate, it renders against real entity data too, so a fault raised during hydration keeps its own status instead of collapsing to 400 (see the HTTP column). The store write adds one further failure:
+Envelope and draft-layout failures are rejected with `400 Bad Request` (`ContentSystemException`). Because the mint runs the one build gate, it renders against real entity data too, so a fault raised during hydration keeps its own status instead of collapsing to 400 (see the HTTP column). The store write adds one further failure:
 
 | Condition | HTTP | Factory / source |
 |---|---|---|
@@ -42,7 +42,7 @@ Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`Con
 | An `includes` or `excludes` parameter in any of the attribute, query or request bag | 400 | `fieldSelectionNotSupported` — field selection is refused here as it is on the store-api content routes |
 | `entityType` matches no specification source | 400 | `unknownEntityType` |
 | Layout element missing a non-empty string `id`/`component`; a duplicate element `id`, nesting past the maximum depth, or a non-array nested child; or an element config that is a client defect | 400 | `invalidLayoutStructure` |
-| Layout has any intrinsic-scope error `LayoutDiagnostics` reports | 400 | `elementTypesInvalid` (via `DraftLayoutChecker`, which surfaces every intrinsic-scope error from `LayoutDiagnostics`; the message carries the violation, not its code) |
+| Layout has an intrinsic-scope error from `LayoutDiagnostics`, or a whole-field mapping / inline token violates its property's mapping rules or source catalogue | 400 | `elementTypesInvalid` (via `DraftLayoutChecker`; the message carries the violation, not its code) |
 | Data-loader source not registered | 500 | `ContentSystemException::dataLoaderNotRegistered` — thrown while resolving the loader for a source (`DataLoaderProvider`), outside any loader's `load()` |
 | Non-degradable hydration fault (`\TypeError`, a database failure, any exception outside `ShopwareHttpException`) | 500 | propagates through `load()` by design |
 | Invalid sales channel id | 404 / 412 | `SalesChannelException` (not a `ContentSystemException`) |

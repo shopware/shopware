@@ -37,9 +37,13 @@ use Shopware\Core\Framework\Log\Package;
  * property means a resolution ran and found nothing, and it has exactly two producers: a loader's
  * {@see ContentDataLoaderResult::notFound()},
  * and a context delivery that resolved to nothing (an under-supplied distribution strategy handing an
- * unmatched consumer null, or an optional dotted consumer key whose value cannot be traversed). Neither
- * authoring nor non-delivery is among them — an authored null and an undelivered consumer key are both
- * absent. Keeping present-null and key-absent apart is the point of the distinction.
+ * unmatched consumer null). Neither authoring nor non-delivery is among them — an authored null and an
+ * undelivered consumer key are both absent. Keeping present-null and key-absent apart is the point of the
+ * distinction.
+ *
+ * A consumer carrying a typed source — a data mapping — is an explicit replacement for the target property's
+ * authored and loader-resolved value. If its source supplies nothing, no key is delivered and the target stays
+ * omitted; a missing mapping never falls back to another value source.
  *
  * The same reading applies to a declared key with no stored value: the member carries "the stored value
  * under that key", so a declared reference property nothing filled is absent rather than null. An authored
@@ -107,7 +111,18 @@ final readonly class RenderedElementFactory
             }
         }
 
+        $mappedPropertyKeys = [];
+        foreach ($stored->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
+            if ($consumer->source !== null) {
+                $mappedPropertyKeys[] = $consumer->propertyAlias ?? (string) $consumerKey;
+            }
+        }
+
         foreach ($this->declaredAuthoredKeys($declaredProperties) as $key) {
+            if (\in_array($key, $mappedPropertyKeys, true) && !\array_key_exists($key, $deliveredContext)) {
+                continue;
+            }
+
             if ($this->carriesAValue($storedProperties, $key)) {
                 $properties[$key] = $storedProperties[$key]->jsonSerialize();
                 $provenance[$key] = new ValueProvenance(ValueOrigin::DeclaredAuthored);
@@ -115,6 +130,10 @@ final readonly class RenderedElementFactory
         }
 
         foreach (array_keys($stored->dataRequirements) as $key) {
+            if (\in_array($key, $mappedPropertyKeys, true)) {
+                continue;
+            }
+
             if (\array_key_exists($key, $resolvedLoaderValues)) {
                 $properties[$key] = $resolvedLoaderValues[$key]->value;
                 $provenance[$key] = new ValueProvenance(

@@ -19,7 +19,6 @@ type PreviewMessagePayload = {
     source?: string;
     type?: string;
     elementId?: string | null;
-    value?: string | null;
     requestId?: number;
     top?: number;
     left?: number;
@@ -37,13 +36,7 @@ type PreviewScrollPosition = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    emits: [
-        'select-element',
-        'inline-edit-start',
-        'inline-edit-change',
-        'inline-edit-commit',
-        'inline-edit-cancel',
-    ],
+    emits: ['select-element'],
 
     props: {
         layout: {
@@ -70,11 +63,6 @@ export default Shopware.Component.wrapComponentConfig({
             type: String,
             required: false,
             default: null,
-        },
-        suspendAutoReload: {
-            type: Boolean,
-            required: false,
-            default: false,
         },
     },
 
@@ -112,44 +100,10 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (payload.type === 'select-element') {
                 this.$emit('select-element', payload.elementId ?? null);
-                return;
             }
 
-            if (!payload.elementId) {
-                return;
-            }
-
-            if (payload.type === 'inline-edit-start') {
-                this.$emit('inline-edit-start', {
-                    elementId: payload.elementId,
-                });
-
-                return;
-            }
-
-            if (payload.type === 'inline-edit-change' && typeof payload.value === 'string') {
-                this.$emit('inline-edit-change', {
-                    elementId: payload.elementId,
-                    value: payload.value,
-                });
-
-                return;
-            }
-
-            if (payload.type === 'inline-edit-commit' && typeof payload.value === 'string') {
-                this.$emit('inline-edit-commit', {
-                    elementId: payload.elementId,
-                    value: payload.value,
-                });
-
-                return;
-            }
-
-            if (payload.type === 'inline-edit-cancel') {
-                this.$emit('inline-edit-cancel', {
-                    elementId: payload.elementId,
-                });
-            }
+            // The scroll handshake messages are answered by the one-shot listeners
+            // requestActiveFrameScrollPosition() and restoreFrameScrollPosition() install, not here.
         };
         window.addEventListener('message', this.previewMessageHandler);
 
@@ -180,12 +134,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         entityId() {
             this.schedulePreviewReload();
-        },
-
-        suspendAutoReload(nextValue: boolean, previousValue: boolean) {
-            if (previousValue && !nextValue) {
-                this.debouncedLoadPreview?.();
-            }
         },
     },
 
@@ -266,10 +214,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         schedulePreviewReload(): void {
-            if (this.suspendAutoReload) {
-                return;
-            }
-
             this.debouncedLoadPreview?.();
         },
 

@@ -712,6 +712,60 @@
           }
         }
       }
+    },
+    "/_action/content-system/layout/map-property": {
+      "post": {
+        "tags": ["Content System"],
+        "summary": "Map a property in a draft layout",
+        "operationId": "contentSystemLayoutMapProperty",
+        "description": "Maps one mappable property to a catalogued path for the required root source. Context cardinality and projection are derived by the server. The authored property value remains stored as fallback.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ContentLayoutMapPropertyRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated draft layout plus diagnostics.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/400" }
+        }
+      }
+    },
+    "/_action/content-system/layout/unmap-property": {
+      "post": {
+        "tags": ["Content System"],
+        "summary": "Unmap a property in a draft layout",
+        "operationId": "contentSystemLayoutUnmapProperty",
+        "description": "Removes one property mapping and exposes its retained authored fallback value.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ContentLayoutUnmapPropertyRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated draft layout plus diagnostics.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/400" }
+        }
+      }
     }
   }
 }

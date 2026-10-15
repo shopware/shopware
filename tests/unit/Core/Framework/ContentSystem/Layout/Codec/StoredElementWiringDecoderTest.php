@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\In
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -168,6 +169,96 @@ class StoredElementWiringDecoderTest extends StoredElementCodecTestCase
             static::assertSame($expected->getErrorCode(), $exception->getErrorCode());
             static::assertSame($expected->getMessage(), $exception->getMessage());
         }
+    }
+
+    #[TestDox('decodes and writes back a mapped consumer')]
+    public function testDecodeReadsAProjectionOnAMappingConsumer(): void
+    {
+        $element = $this->codec()->decode(self::baseWire(['acceptsContext' => [
+            'media' => [
+                'type' => 'single',
+                'required' => false,
+                'scope' => 'root',
+                'projection' => 'product_media_to_media',
+                'source' => MappingSourceReference::fromRootPath('product.cover')->jsonSerialize(),
+            ],
+        ]]));
+
+        $consumer = $element->contextDefinitions->getAllConsumers()['media'];
+
+        static::assertSame('product_media_to_media', $consumer->projection);
+        static::assertSame([
+            'type' => 'single',
+            'required' => false,
+            'scope' => 'root',
+            'projection' => 'product_media_to_media',
+            'source' => MappingSourceReference::fromRootPath('product.cover')->jsonSerialize(),
+        ], $consumer->jsonSerialize());
+    }
+
+    /**
+     * The absent key's meaning, pinned the way the scope cases above are: a consumer that never mentions a
+     * projection must write none back, or every consumer stored before the key existed changes shape.
+     */
+    #[TestDox('writes back no projection key for a consumer that declares none')]
+    public function testDecodedConsumerWithoutAProjectionWritesNoProjectionKey(): void
+    {
+        $element = $this->codec()->decode(self::baseWire(['acceptsContext' => [
+            'product' => ['type' => 'single', 'required' => true],
+        ]]));
+
+        $consumer = $element->contextDefinitions->getAllConsumers()['product'];
+
+        static::assertNull($consumer->projection);
+        static::assertSame(['type' => 'single', 'required' => true], $consumer->jsonSerialize());
+    }
+
+    /**
+     * `Rendering/ContextDeliveryResolver` applies a projection only on the root-scoped dotted branch, so a
+     * projection anywhere else would be stored and then never run. Both halves of the shape are rejected.
+     *
+     * @param array<string, mixed> $consumers
+     */
+    #[DataProvider('rejectsProjectionOutsideAMappingProvider')]
+    #[TestDox('rejects a projection on $_dataName')]
+    public function testDecodeRejectsAProjectionOutsideAMappingConsumer(array $consumers, ContentSystemException $expected): void
+    {
+        try {
+            $this->codec()->decode(self::baseWire(['acceptsContext' => $consumers]));
+            static::fail('Expected decode to reject the projection on a non-mapping consumer.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame($expected->getErrorCode(), $exception->getErrorCode());
+            static::assertSame($expected->getMessage(), $exception->getMessage());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, ContentSystemException}>
+     */
+    public static function rejectsProjectionOutsideAMappingProvider(): iterable
+    {
+        yield 'a parent-scoped consumer' => [
+            [
+                'product.cover' => [
+                    'type' => 'single',
+                    'required' => false,
+                    'projection' => 'product_media_to_media',
+                ],
+            ],
+            ContentSystemException::projectionOnNonMappingConsumer('product.cover', 'product_media_to_media'),
+        ];
+
+        yield 'a root-scoped consumer keyed by a bare ambient name' => [
+            [
+                'product' => [
+                    'type' => 'single',
+                    'required' => false,
+                    'scope' => 'root',
+                    'projection' => 'product_media_to_media',
+                ],
+            ],
+            ContentSystemException::projectionOnNonMappingConsumer('product', 'product_media_to_media'),
+        ];
     }
 
     /**

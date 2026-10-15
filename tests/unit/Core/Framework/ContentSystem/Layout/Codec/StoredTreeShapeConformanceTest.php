@@ -18,6 +18,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Sty
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
@@ -244,6 +245,14 @@ class StoredTreeShapeConformanceTest extends TestCase
             '',
         ];
 
+        yield 'a whole-source mapping consumer' => [
+            self::forest(['acceptsContext' => [
+                'text' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'source' => MappingSourceReference::root('product')->jsonSerialize()],
+            ]]),
+            self::ACCEPTED,
+            '',
+        ];
+
         // A null passes Symfony's Type, Collection and All untouched, so every site whose decode counterpart
         // requires a value needs its own null rejection.
         yield 'a null root element' => [[null], self::REJECTED, ''];
@@ -392,6 +401,52 @@ class StoredTreeShapeConformanceTest extends TestCase
         yield 'a root-scoped consumer that also redistributes' => [
             self::forest(['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'scope' => 'root'],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a mapping consumer declaring a projection' => [
+            self::forest(['acceptsContext' => [
+                'media' => [
+                    'type' => 'single',
+                    'required' => false,
+                    'scope' => 'root',
+                    'projection' => 'product_media_to_media',
+                    'source' => MappingSourceReference::fromRootPath('product.cover')->jsonSerialize(),
+                ],
+            ]]),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a parent-scoped consumer declaring a projection' => [
+            self::forest(['acceptsContext' => [
+                'product.cover' => ['type' => 'single', 'required' => false, 'projection' => 'product_media_to_media'],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a root-scoped consumer keyed by a bare name declaring a projection' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'projection' => 'product_media_to_media'],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a non-string consumer projection' => [
+            self::forest(['acceptsContext' => [
+                'product.cover' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'projection' => 42],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a required mapping consumer' => [
+            self::forest(['acceptsContext' => [
+                'text' => ['type' => 'single', 'required' => true, 'scope' => 'root', 'source' => MappingSourceReference::fromRootPath('product.name')->jsonSerialize()],
             ]]),
             self::REJECTED,
             '',

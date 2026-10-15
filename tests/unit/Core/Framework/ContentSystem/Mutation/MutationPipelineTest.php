@@ -251,6 +251,29 @@ class MutationPipelineTest extends TestCase
         static::assertSame($mutated, $result->layout);
     }
 
+    /**
+     * The draft mutation routes are the Experience Studio's feedback channel, so the source has to reach
+     * every analysis pass or a mapping problem stays invisible until save on exactly the path an author
+     * edits through.
+     */
+    #[TestDox('threads the root source into the analysis of the re-wired tree, not only the first pass')]
+    public function testRunThreadsRootSourceIntoEveryAnalysis(): void
+    {
+        $mutated = new StoredTree([StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build()]);
+
+        $diagnostics = $this->createMock(LayoutDiagnostics::class);
+        // Both passes, because the mirror wires the created element and the second pass is the one describing
+        // the tree actually returned; a source reaching only the first would report against a stale tree.
+        $diagnostics->expects($this->exactly(2))
+            ->method('analyze')
+            ->with(static::anything(), static::anything(), static::identicalTo('category'))
+            ->willReturnCallback(fn (array $roots): LayoutAnalysis => new LayoutAnalysis(new DiagnosticsReport([]), $this->productResolutions($roots)));
+
+        $result = $this->pipeline($diagnostics)->run($this->mutation($mutated, ['p1'], created: ['p1']), $this->inputTree(), null, 'category');
+
+        static::assertNotSame($mutated, $result->layout);
+    }
+
     private function pipeline(LayoutDiagnostics $diagnostics): MutationPipeline
     {
         return new MutationPipeline($diagnostics, new ContextConsumerMirror());

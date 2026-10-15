@@ -90,6 +90,28 @@ class PersistedLayoutMutatorTest extends TestCase
         static::assertSame(['block-b'], array_map(static fn (StoredElement $e): string => $e->id, $result->layout->roots));
     }
 
+    public function testConstructsASourceAwareMutationFromTheLockedLayout(): void
+    {
+        $id = $this->ids->get('layout');
+        $context = Context::createDefaultContext();
+        $repository = $this->staticRepository($this->entity($id, null, 'category'), $id, $context);
+        $capturedRootSource = null;
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
+
+        $mutator->mutateSourceAware(
+            $id,
+            null,
+            static function (string $rootSource) use (&$capturedRootSource): LayoutMutation {
+                $capturedRootSource = $rootSource;
+
+                return new RemoveElement('block-a');
+            },
+            $context,
+        );
+
+        static::assertSame('category', $capturedRootSource);
+    }
+
     #[DataProvider('diagnosesAgainstRootSourceProvider')]
     #[TestDox('diagnoses the mutated tree against the context resolved from the layouts root source ($_dataName)')]
     public function testDiagnosesAgainstResolvedRootSource(string $rootSource, bool $rooted): void

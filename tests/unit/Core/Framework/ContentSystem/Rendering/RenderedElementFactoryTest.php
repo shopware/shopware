@@ -7,10 +7,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentity;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
@@ -427,6 +429,35 @@ class RenderedElementFactoryTest extends TestCase
         static::assertSame((new ValueFingerprinter())->fingerprint($loaded), $identity->producedFingerprint);
 
         static::assertNull($result->provenance['headline']->loaderIdentity);
+    }
+
+    #[TestDox('omits an authored value when its mapped source was unavailable')]
+    public function testUnavailableMappingSuppressesAuthoredValue(): void
+    {
+        $stored = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withProperty('headline', 'Authored fallback')
+            ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.name'))
+            ->build();
+
+        $result = $this->mintResult($stored, [], [], [], []);
+
+        static::assertArrayNotHasKey('headline', $result->element->properties);
+        static::assertArrayNotHasKey('headline', $result->provenance);
+    }
+
+    #[TestDox('omits a loader value when its mapped source was unavailable')]
+    public function testUnavailableMappingSuppressesLoaderValue(): void
+    {
+        $stored = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withProperty('headline', 'Authored fallback')
+            ->withDataRequirement('headline', 'product', new StubLoaderConfig())
+            ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.name'))
+            ->build();
+
+        $result = $this->mintResult($stored, ['headline' => new StubStruct()], [], [], []);
+
+        static::assertArrayNotHasKey('headline', $result->element->properties);
+        static::assertArrayNotHasKey('headline', $result->provenance);
     }
 
     #[TestDox('records nothing for a key no member wrote')]

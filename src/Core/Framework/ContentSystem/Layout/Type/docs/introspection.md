@@ -22,10 +22,12 @@ Response:
       "properties": {
         "<propertyName>": {
           "type": "string",
+          "contextTypes": ["single"],
           "translatable": false,
           "enum": null,
           "default": null,
           "required": true,
+          "mappable": false,
           "title": "...",
           "description": "...",
           "adminUI": null
@@ -43,7 +45,9 @@ Response:
 }
 ```
 
-`source` is `core`, `bundle:<name>`, `plugin:<name>`, or `app:<name>`; a property `type` is a primitive name (`string`, `boolean`, `integer`, `number`) or an FQCN for hydrated data. Each entry additionally carries a folded `bindingSpecifications` catalog, and the response carries one top-level `styleOptions` catalog covering every type — see [Style options](../../Element/Style/docs/introspection.md) and [Binding specifications](../../../Binding/docs/introspection.md).
+`source` is `core`, `bundle:<name>`, `plugin:<name>`, or `app:<name>`; a property `type` is a primitive name (`string`, `boolean`, `integer`, `number`) or an FQCN for hydrated data.
+
+`mappable` and `contextTypes` serve the data-mapping selection UI together: the first says whether the property may be mapped at all, the second which kind of mapping candidate can fill it — `single`, `collection`, or both for a union or a bare `object`. `contextTypes` is DERIVED from `type` rather than authored, and exists because the type alone does not answer the question for a client: telling `MediaCollection` from `MediaEntity` means walking a PHP class hierarchy. A client filtering the mapping catalogue should match a candidate's `contextType` against this before anything else; the finer assignability check remains the server's at the write boundary. Each entry additionally carries a folded `bindingSpecifications` catalog, and the response carries one top-level `styleOptions` catalog covering every type — see [Style options](../../Element/Style/docs/introspection.md) and [Binding specifications](../../../Binding/docs/introspection.md).
 
 ## `storageSchema`
 

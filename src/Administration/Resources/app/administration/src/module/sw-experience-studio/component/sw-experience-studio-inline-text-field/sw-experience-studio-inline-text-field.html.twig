@@ -1,0 +1,29 @@
+{% block sw_experience_studio_inline_text_field %}
+<div class="sw-experience-studio-inline-text-field">
+    {% block sw_experience_studio_inline_text_field_editor %}
+    <mt-text-editor
+        v-bind="editorBindings"
+        @update:model-value="onUpdateEditorHtml"
+    />
+    {% endblock %}
+
+    {% block sw_experience_studio_inline_text_field_help_text %}
+    <div
+        v-if="helpText"
+        class="sw-experience-studio-inline-text-field__help-text"
+    >
+        {{ helpText }}
+    </div>
+    {% endblock %}
+
+    {% block sw_experience_studio_inline_text_field_mapping_modal %}
+    <sw-experience-studio-mapping-modal
+        v-if="isMappingModalOpen"
+        :candidates="candidates"
+        :property-title="label"
+        @select="onSelectMapping"
+        @close="onCloseMappingModal"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

@@ -73,6 +73,54 @@ class ContextPathResolverTest extends TestCase
         static::assertSame('child-name', $result);
     }
 
+    #[TestDox('resolves a catalogued mapping through the array-backed customFields member')]
+    public function testResolveMappingPathResolvesCustomField(): void
+    {
+        $struct = new StubPathStruct(customFields: ['material' => 'Leather']);
+
+        static::assertSame(
+            'Leather',
+            $this->resolver->resolveMappingPath($struct, ['customFields', 'material'], false, 'product.customFields.material', 'elem-1')
+        );
+    }
+
+    #[TestDox('does not expose array traversal to ordinary context wiring')]
+    public function testResolvePathKeepsCustomFieldsOpaqueForOrdinaryConsumers(): void
+    {
+        $struct = new StubPathStruct(customFields: ['material' => 'Leather']);
+
+        static::assertNull(
+            $this->resolver->resolvePath($struct, ['customFields', 'material'], false, 'product.customFields.material', 'elem-1')
+        );
+    }
+
+    #[TestDox('does not permit custom-field array traversal below the root entity')]
+    public function testResolveMappingPathRejectsNestedCustomFieldArrays(): void
+    {
+        $child = new StubPathStruct(customFields: ['secret' => 'hidden']);
+        $struct = new StubPathStruct(child: $child);
+
+        static::assertNull(
+            $this->resolver->resolveMappingPath(
+                $struct,
+                ['child', 'customFields', 'secret'],
+                false,
+                'product.child.customFields.secret',
+                'elem-1'
+            )
+        );
+    }
+
+    #[TestDox('returns null when a catalogued custom field has no value on the entity')]
+    public function testResolveMappingPathReturnsNullForMissingCustomField(): void
+    {
+        $struct = new StubPathStruct(customFields: []);
+
+        static::assertNull(
+            $this->resolver->resolveMappingPath($struct, ['customFields', 'material'], false, 'product.customFields.material', 'elem-1')
+        );
+    }
+
     /**
      * @param list<string> $path
      */

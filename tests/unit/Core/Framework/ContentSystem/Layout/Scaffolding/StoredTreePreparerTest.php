@@ -52,6 +52,18 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame('Product prod-1', $prepared[0]->property('title')?->asString());
     }
 
+    #[TestDox('preserves an inline mapping token for the render-time mapping pass')]
+    public function testPreparePreservesAnInlineMappingToken(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', '{{map:product.name}}')
+            ->build();
+
+        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
+
+        static::assertSame('{{map:product.name}}', $prepared[0]->property('text')?->asString());
+    }
+
     #[TestDox('substitutes tokens in slot children at every depth')]
     public function testPrepareRecursesIntoSlotChildren(): void
     {

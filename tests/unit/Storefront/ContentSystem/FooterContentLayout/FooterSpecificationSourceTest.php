@@ -50,6 +50,12 @@ class FooterSpecificationSourceTest extends TestCase
         static::assertTrue($this->source->supports('', new Request(), $context));
     }
 
+    #[TestDox('uses the footer section as its mapping catalogue source')]
+    public function testRootSourceReturnsFooterSection(): void
+    {
+        static::assertSame('footer', $this->source->rootSource());
+    }
+
     #[TestDox('resolves layout ID from domain-aware assignment')]
     public function testResolveLayoutIdReturnsLayoutIdFromAssignment(): void
     {

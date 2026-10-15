@@ -111,13 +111,6 @@ function collectBlockScopedDeclarations(statements: Statement[], into: Set<strin
 }
 
 /**
- * One identifier a rename pass must rewrite, together with the exact text to put in its place.
- *
- * For most occurrences `replacement` is just the alias, but a shorthand object property (`{ foo }`)
- * must expand to `{ foo: alias }` - renaming the single shared identifier in place would silently
- * rewrite the property *key* as well, so the collector emits the expanded replacement here.
- */
-/**
  * How much of the surrounding syntax an occurrence's replacement text has to reproduce.
  *
  * A plain occurrence can be swapped for the alias, but two forms share one source range with a name
@@ -132,12 +125,6 @@ type SetupRenameTarget = {
     localName: string;
     expansion: SetupRenameExpansion;
 };
-
-// The plain shorthand form (`{ foo }`) is recognised by `isShorthandPropertyValue`, shared with the
-// template-expression pass. The defaulted form (`{ foo = 1 }`) shares the same source range but nests
-// the identifier as an `AssignmentPattern`'s `left`, so the leaf cannot recognise it from its parent
-// alone; it is handled by the dedicated branch in `collectSetupRenameTargets`, which reports the same
-// expansion.
 
 /**
  * Whether an identifier is the local side of a shorthand type export (`export type { C }`).

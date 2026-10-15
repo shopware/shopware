@@ -25,7 +25,7 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 #[Package('framework')]
 class ConfigurationService
 {
-    private const DOMAIN_REGEX = '/^([\w-]+)\.?([\w-]*)$/';
+    private const DOMAIN_REGEX = '/^([\w-]+)\.?([\w-]*)$/D';
 
     /**
      * @internal

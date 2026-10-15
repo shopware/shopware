@@ -22,9 +22,10 @@ including the business context, so reviewers understand its purpose.
 
 ### 2. How?
 <!--
-A few short bullets about what the diff changes, not how you got there.
-- How did you solve it, at a high level?
-- Why did you choose this approach over alternatives?
+Context the diff cannot show. Skip small changes, reviewers read the code.
+- Your approach in one or two sentences
+- Changes with a big blast radius, such as public API, config, schema, or shared behaviour
+- Alternatives you considered and why you rejected them
 -->
 
 ### 3. Testing

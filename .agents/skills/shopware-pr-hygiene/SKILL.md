@@ -12,8 +12,10 @@ Keep PR metadata predictable.
 
 - Follow `.github/PULL_REQUEST_TEMPLATE.md` closely.
 - Do not add extra PR description sections such as a separate validation section.
-- Describe the diff against the base branch (`git diff <base>...HEAD`), not the session history. Changes to intermediate drafts never reached the base branch, so do not mention them.
-- Keep "How?" to a few one-line bullets at a high level. Leave out details reviewers can read in the diff, such as link styles or small test adjustments.
+- Write the description for human reviewers. Keep it short and give the context the diff cannot show: why the change is needed, the decisions behind it, and the alternatives you rejected and why.
+- Do not walk through the diff. Reviewers read the code, so skip small changes such as renamed headings, single files, or test cases.
+- Always call out changes with a big blast radius, such as public API, configuration, database schema, events, caching, or behaviour other features rely on.
+- Never describe the work session. Drafts and fixes that happened before the commit are not part of the change.
 - Tick only the checklist items that are true for this PR.
 - Use a conventional PR title when requested, for example `fix: allow TestBootstrapper to activate Composer plugins`.
 - After review feedback or CI failures, create a follow-up commit explaining that specific fix. Do not amend or force-push existing commits unless the user explicitly asks.

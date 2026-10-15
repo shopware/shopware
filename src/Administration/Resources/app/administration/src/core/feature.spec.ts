@@ -8,11 +8,13 @@ import { parse } from 'yaml';
 
 import Feature, { UNREGISTERED_UPCOMING_MAJORS } from 'src/core/feature';
 import normalizeFeatureFlag from 'test/_helper_/normalizeFeatureFlag';
+import { useProductionDeprecationGuard } from 'test/_helper_/deprecations';
 
 describe('src/core/feature', () => {
     const originalFlags = { ...Feature.flags };
 
     beforeEach(() => {
+        useProductionDeprecationGuard();
         Feature.init({ V7_0_0_0: false });
     });
 

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\Garan;
 
 use Shopware\Core\Checkout\Cart\Order\CartConvertedEvent;
-use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -12,8 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Stores the GARAN label values in the payload of the order's product line items, so the order keeps showing the
- * label it was placed with. Every order conversion passes here, whichever cart processors calculated the cart.
+ * Stores the GARAN label values in the payload of order line items that did not get them from the cart
+ * ({@see GaranLabelCartCollector}): products added while editing an order, where the collector does not run, and
+ * carts calculated by other processors, like SwagCommercial quotes.
  *
  * @internal
  */
@@ -40,9 +40,6 @@ class GaranLabelOrderSubscriber implements EventSubscriberInterface
     {
         $order = $event->getConvertedCart();
 
-        // an edited order keeps the GARAN label it was placed with
-        $keepStoredLabels = $event->getCart()->getBehavior()?->hasPermission(CheckoutPermissions::SKIP_PRODUCT_RECALCULATION) ?? false;
-
         $productIds = [];
 
         foreach ($order['lineItems'] ?? [] as $key => $lineItem) {
@@ -50,7 +47,8 @@ class GaranLabelOrderSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            if ($keepStoredLabels && \array_key_exists('garanLabel', $lineItem['payload'] ?? [])) {
+            // a new order keeps the label its cart showed, an edited order the label it was placed with
+            if (\array_key_exists(GaranLabelResolver::PAYLOAD_KEY, $lineItem['payload'] ?? [])) {
                 continue;
             }
 
@@ -77,7 +75,7 @@ class GaranLabelOrderSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $order['lineItems'][$key]['payload']['garanLabel'] = $this->resolver->resolveSnapshot($product);
+            $order['lineItems'][$key]['payload'][GaranLabelResolver::PAYLOAD_KEY] = $this->resolver->resolveSnapshot($product);
         }
 
         $event->setConvertedCart($order);

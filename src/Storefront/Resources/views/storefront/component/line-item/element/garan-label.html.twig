@@ -13,7 +13,7 @@
             {% endset %}
         {% endif %}
     {% else %}
-        {# carts, and orders placed before the label was stored on the line item #}
+        {# fallback for orders placed before the label was stored on the line item #}
         {% set garanLabel = productId|sw_garan_label_nested(context.context) %}
     {% endif %}
 

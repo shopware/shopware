@@ -2,6 +2,8 @@
 
 These rules apply to all parser, renderer, and generator tests in this directory.
 
+Fixture schemas and generated DTOs MUST follow the [production DTO contract](../../../../../../src/Core/Framework/Api/AGENTS.md).
+
 - Every valid generation scenario MUST have its own directory under `_fixtures/<scenario>/`, containing a complete OpenAPI JSON document and every resulting generated PHP DTO or enum beside it.
 - Assert the complete generated PHP output and the complete set of generated files;
   do not replace fixture coverage with selected property, constructor, package, or source-string assertions.

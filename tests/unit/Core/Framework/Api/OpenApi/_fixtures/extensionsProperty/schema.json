@@ -7,11 +7,10 @@
     "paths": {},
     "components": {
         "schemas": {
-            "RequiredExtensions": {
+            "RequiredId": {
                 "type": "object",
                 "required": [
-                    "id",
-                    "extensions"
+                    "id"
                 ],
                 "properties": {
                     "id": {

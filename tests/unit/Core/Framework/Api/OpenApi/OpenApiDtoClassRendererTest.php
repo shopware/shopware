@@ -15,7 +15,6 @@ use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Exception\MissingConstructorArgumentsException;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
@@ -39,26 +38,16 @@ class OpenApiDtoClassRendererTest extends TestCase
         static::assertEquals($data, get_object_vars($dto));
     }
 
-    public function testRequiredExtensionsInitializeInheritedProperty(): void
+    public function testExtensionsRemainOptionalPluginData(): void
     {
-        $class = $this->loadRenderedClass('referencedInputs/schema.json', 'RequireExtensionsRequest');
-        $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer())]);
+        $class = $this->loadRenderedClass('extensionsProperty/schema.json', 'RequiredId');
+        $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer())], [new JsonEncoder()]);
 
-        foreach ([[], ['custom' => ['value' => 'input']]] as $extensions) {
-            $dto = $serializer->denormalize(['extensions' => $extensions], $class);
-            static::assertSame(['extensions' => $extensions], get_object_vars($dto));
+        foreach ([['id' => 'input'], ['id' => 'input', 'extensions' => []], ['id' => 'input', 'extensions' => ['custom' => ['value' => 'input']]], ['id' => 'input', 'extensions' => null]] as $data) {
+            $dto = $serializer->denormalize($data, $class);
+            static::assertEquals($data, get_object_vars($dto));
+            static::assertJsonStringEqualsJsonString(json_encode($data, \JSON_THROW_ON_ERROR), $serializer->serialize($dto, 'json'));
         }
-    }
-
-    public function testRequiredNullableExtensionsPreserveExplicitNull(): void
-    {
-        $class = $this->loadRenderedClass('referencedInputs/schema.json', 'RequireNullableExtensionsRequest');
-        $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer())]);
-        $dto = $serializer->denormalize(['extensions' => null], $class);
-        static::assertSame(['extensions' => null], get_object_vars($dto));
-
-        $this->expectException(MissingConstructorArgumentsException::class);
-        $serializer->denormalize([], $class);
     }
 
     public function testRequestDefaultsPreserveOmissionAndExplicitValues(): void

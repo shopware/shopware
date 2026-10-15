@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-17 14:18:33
+ * Last generated: 2026-07-07 00:00:00
  */
 
 namespace Shopware\Core\Checkout\Order\SalesChannel\Order;
@@ -29,13 +29,13 @@ final class OrderV2EstimatedDelivery extends AbstractDto
         /**
          * Earliest estimated delivery date and time.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]
         public string $earliest,
         /**
          * Latest estimated delivery date and time.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]
         public string $latest,
     ) {

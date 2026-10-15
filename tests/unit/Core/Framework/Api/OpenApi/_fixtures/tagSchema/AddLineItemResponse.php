@@ -29,7 +29,7 @@ final class AddLineItemResponse extends AbstractResponse
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $token,
     ) {
         parent::__construct();

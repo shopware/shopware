@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-17 14:18:33
+ * Last generated: 2026-07-07 00:00:00
  */
 
 namespace Shopware\Core\Checkout\Order\SalesChannel\Order;
@@ -28,13 +28,13 @@ final class OrderV2Language extends AbstractDto
         /**
          * Identifier of the language persisted with the order.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
         public string $id,
         /**
          * IETF BCP 47 locale code, for example `en-GB` or `de-DE`.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $localeCode,
     ) {
     }

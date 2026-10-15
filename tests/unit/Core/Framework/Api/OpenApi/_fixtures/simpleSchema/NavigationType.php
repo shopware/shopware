@@ -32,13 +32,13 @@ final class NavigationType extends AbstractDto
         /**
          * Type of the navigation entry
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Choice(choices: ['page', 'link', 'folder'])]
         public string $type,
         /**
          * Route name for the navigation
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Choice(choices: ['frontend.navigation.page', 'frontend.landing.page', 'frontend.detail.page'])]
         public string $routeName,
     ) {

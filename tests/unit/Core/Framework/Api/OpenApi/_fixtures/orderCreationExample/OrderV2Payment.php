@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-17 14:18:33
+ * Last generated: 2026-07-07 00:00:00
  */
 
 namespace Shopware\Core\Checkout\Order\SalesChannel\Order;
@@ -28,7 +28,7 @@ final class OrderV2Payment extends AbstractDto
         /**
          * Identifier of the primary order transaction.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
         public string $transactionId,
         /**

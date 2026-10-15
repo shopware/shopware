@@ -31,7 +31,7 @@ final class LineItem extends AbstractDto
         /**
          * Product identifier
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
         public string $id,
         /**

@@ -26,7 +26,7 @@ final class JwtImpersonationPayload extends AbstractRequest
         /**
          * Generated customer impersonation JWT token.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $token,
     ) {
     }

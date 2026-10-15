@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-17 14:18:33
+ * Last generated: 2026-07-07 00:00:00
  */
 
 namespace Shopware\Core\Checkout\Order\SalesChannel\Order;
@@ -68,27 +68,27 @@ final class OrderV2Address extends AbstractDto
         /**
          * First name of the address recipient.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $firstName,
         /**
          * Last name of the address recipient.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $lastName,
         /**
          * Street name and house number.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $street,
         /**
          * Postal or ZIP code.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $postalCode,
         /**
          * City or locality.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $city,
         /**
          * ISO 3166-1 alpha-2 country code.
@@ -98,7 +98,7 @@ final class OrderV2Address extends AbstractDto
         /**
          * Translated country name for display.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $countryName,
     ) {
     }

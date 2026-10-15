@@ -29,9 +29,9 @@ final class CreateInputRequest extends AbstractRequest
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $bodyValue,
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $itemId,
         #[Assert\NotNull]
         public int $limit,

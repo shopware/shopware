@@ -802,8 +802,9 @@ export default [
             ],
             'sw-test-rules/test-file-max-lines-error': [
                 'error',
-                { max: 1000 },
+                { max: 500 },
             ],
+            'sw-test-rules/no-vm-access': 'error',
         },
     },
 

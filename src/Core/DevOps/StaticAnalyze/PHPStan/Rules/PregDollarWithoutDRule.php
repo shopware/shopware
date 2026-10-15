@@ -37,16 +37,9 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Validator\Constraints\Regex;
 
 /**
- * Reports patterns containing an unescaped `$` or `\Z` outside character classes, escapes and comments while the
- * modifiers carry neither `D` nor `m`: such a pattern also matches before a trailing newline. Checked are the
- * `preg_*` functions, the Symfony `Regex` constraint and the regex filters of the Symfony Finder (`name()`,
- * `notName()`, `path()`, `notPath()`, `contains()`, `notContains()`; a Finder argument that Finder itself would
- * read as a glob is skipped). Patterns are read from constant strings, inline `sprintf()` formats, concatenations,
- * interpolated strings and the assignments to a local variable that precede the call. A `preg_*` call or `Regex`
- * constraint whose pattern stays unreadable is reported as unresolved, to be restructured or allowlisted per file
- * with the reason.
- *
- * Not detected: a runtime modifier part carrying `D` or `m`, and the constraint used as an attribute.
+ * Reports patterns with an unescaped `$` or `\Z` but neither `D` nor `m`: they also match before a trailing newline.
+ * Covers `preg_*`, the Symfony `Regex` constraint and the Finder regex filters; an unreadable `preg_*` or `Regex`
+ * pattern is reported as unresolved. Not covered: runtime modifiers and `#[Regex]` attributes.
  *
  * @internal
  *
@@ -63,9 +56,6 @@ class PregDollarWithoutDRule implements Rule
 
     public const ERROR_UNRESOLVED = '%s(): the pattern cannot be resolved statically. Make it visible at the call, or allowlist the file with the reason.';
 
-    /**
-     * Functions taking the pattern (or an array of patterns) as their `pattern` argument.
-     */
     private const PATTERN_ARGUMENT_FUNCTIONS = [
         'preg_match',
         'preg_match_all',
@@ -76,30 +66,21 @@ class PregDollarWithoutDRule implements Rule
         'preg_filter',
     ];
 
-    /**
-     * Functions taking the patterns as the keys of their `pattern` argument.
-     */
     private const PATTERN_KEY_FUNCTIONS = [
         'preg_replace_callback_array',
     ];
 
-    /**
-     * Finder filters taking a pattern, or a list of patterns, that Finder applies with `preg_match` when it reads as a regex.
-     */
     private const FINDER_METHODS = ['name', 'notname', 'path', 'notpath', 'contains', 'notcontains'];
 
-    /**
-     * Constraint normalizers that strip the trailing newline before the pattern is applied.
-     */
     private const TRIMMING_NORMALIZERS = ['trim', 'rtrim'];
 
     /**
-     * Stands in for a runtime part of the pattern while the template is inspected.
+     * Placeholder for a runtime part of the pattern.
      */
     private const RUNTIME = "\0";
 
     /**
-     * Caps the cross product of union-typed concatenation parts.
+     * Caps the concatenation cross product.
      */
     private const MAX_TEMPLATES = 16;
 
@@ -165,7 +146,7 @@ class PregDollarWithoutDRule implements Rule
             ];
         }
 
-        // Finder reads anything it cannot recognise as a regex as a glob, so an unreadable argument tells nothing
+        // Finder reads what it cannot recognise as a glob
         if ($unknown && !$call['finder']) {
             return [
                 RuleErrorBuilder::message(\sprintf(self::ERROR_UNRESOLVED, $call['label']))
@@ -178,8 +159,6 @@ class PregDollarWithoutDRule implements Rule
     }
 
     /**
-     * The pattern argument of a call that applies it as a regular expression, null for any other call.
-     *
      * @return array{label: string, pattern: Expr, keys: bool, finder: bool}|null
      */
     private function patternCall(CallLike $call, Scope $scope): ?array
@@ -209,7 +188,7 @@ class PregDollarWithoutDRule implements Rule
 
             $pattern = self::argument($call, 'pattern');
             if ($pattern instanceof Array_) {
-                // legacy options array: `new Regex(['pattern' => ...])`
+                // legacy options array
                 $pattern = self::arrayItem($pattern, 'pattern');
             }
 
@@ -254,9 +233,6 @@ class PregDollarWithoutDRule implements Rule
         return false;
     }
 
-    /**
-     * The named argument if the call uses one, otherwise the positional argument at the given index.
-     */
     private static function argument(CallLike $call, string $name, int $position = 0): ?Expr
     {
         $args = $call->getArgs();
@@ -373,7 +349,7 @@ class PregDollarWithoutDRule implements Rule
     }
 
     /**
-     * Replays the writes to the variable that precede its read: the last plain assignment, then every `.=` after it.
+     * Replays the last assignment before the read, then each `.=` after it.
      *
      * @return list<string>
      */
@@ -397,9 +373,7 @@ class PregDollarWithoutDRule implements Rule
     }
 
     /**
-     * Writes to `$name` in the function body owning the read, in source order, nested functions excluded. A read
-     * inside an arrow function, or inside a closure that captures the variable, continues in the enclosing body.
-     * Only writes located before the read count, so a self-referencing assignment resolves to its predecessor.
+     * Writes before the read in the owning function; arrow functions and capturing closures continue outward.
      *
      * @return list<Assign|AssignOp\Concat>
      */
@@ -495,7 +469,7 @@ class PregDollarWithoutDRule implements Rule
     }
 
     /**
-     * Cross product of the two sides; a side that could not be read counts as one runtime part.
+     * An unreadable side counts as one runtime part.
      *
      * @param list<string> $lefts
      * @param list<string> $rights
@@ -518,8 +492,6 @@ class PregDollarWithoutDRule implements Rule
     }
 
     /**
-     * A template made of runtime parts only tells nothing.
-     *
      * @param list<string> $templates
      *
      * @return list<string>
@@ -529,9 +501,6 @@ class PregDollarWithoutDRule implements Rule
         return array_values(array_filter($templates, static fn (string $template) => trim($template, self::RUNTIME) !== ''));
     }
 
-    /**
-     * Replaces sprintf conversion specifications with runtime placeholders and unescapes `%%`.
-     */
     private function formatToTemplate(string $format): string
     {
         return preg_replace_callback(
@@ -542,9 +511,8 @@ class PregDollarWithoutDRule implements Rule
     }
 
     /**
-     * `$` and `\Z` both match before a final newline unless `D` is set; `m` turns `$` into a per-line anchor on
-     * purpose. Returns null when the delimiters cannot be told apart from runtime parts. PHPStan ships the same
-     * delimiter parsing in its RegexExpressionHelper, which is not part of its public API.
+     * Null when the delimiters are runtime parts.
+     * PHPStan's RegexExpressionHelper parses delimiters too, but is not public API.
      */
     private function hasNewlineTolerantAnchor(string $template): ?bool
     {
@@ -575,10 +543,6 @@ class PregDollarWithoutDRule implements Rule
         return self::containsNewlineTolerantAnchor($body, str_contains($modifiers, 'x'));
     }
 
-    /**
-     * An unescaped `$` or `\Z` anywhere outside a character class, `\Q…\E` or a comment is an end anchor: inside an
-     * alternation or a group it still accepts a trailing newline.
-     */
     private static function containsNewlineTolerantAnchor(string $body, bool $extended): bool
     {
         $length = \strlen($body);
@@ -639,7 +603,7 @@ class PregDollarWithoutDRule implements Rule
     }
 
     /**
-     * Position of the `]` closing the character class opened at `$start`; a `]` right after `[` or `[^` is literal.
+     * A `]` right after `[` or `[^` is literal.
      */
     private static function endOfCharacterClass(string $body, int $start): int
     {
@@ -676,16 +640,13 @@ class PregDollarWithoutDRule implements Rule
         return $length;
     }
 
-    /**
-     * `(?m)` or `(?m:…)` switches the multiline mode on inline.
-     */
     private static function setsInlineMultiline(string $body): bool
     {
         return preg_match('/\(\?[a-zA-Z]*m[a-zA-Z]*(?:-[a-zA-Z]*)?[):]/', $body) === 1;
     }
 
     /**
-     * Mirrors Symfony's MultiplePcreFilterIterator::isRegex(): Finder applies anything else as a glob.
+     * Mirrors Symfony's MultiplePcreFilterIterator::isRegex().
      */
     private static function isFinderRegex(string $template): bool
     {

@@ -225,7 +225,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
                     key: 'media',
                     source: { type: 'root', id: 'product', path: 'cover' },
                     contextType: 'single',
-                    projection: 'product_media_to_media',
                 },
             );
 
@@ -234,7 +233,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
                 propertyKey: 'media',
                 source: { type: 'root', id: 'product', path: 'cover' },
                 contextType: 'single',
-                projection: 'product_media_to_media',
             });
         });
 
@@ -254,7 +252,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
                     key: 'text',
                     path: 'category.name',
                     contextType: 'single',
-                    projection: null,
                 },
             );
 

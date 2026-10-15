@@ -19,7 +19,7 @@ class MutationPipeline
     public function __construct(
         private readonly LayoutDiagnostics $diagnostics,
         private readonly ContextConsumerMirror $contextMirror,
-        private readonly ?DefaultMappingSeeder $defaultMappingSeeder = null,
+        private readonly DefaultMappingSeeder $defaultMappingSeeder,
     ) {
     }
 
@@ -31,13 +31,12 @@ class MutationPipeline
     public function run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext, ?string $rootSource = null): MutationResult
     {
         $mutated = $mutation->apply($tree);
-        if ($this->defaultMappingSeeder !== null) {
-            $mutated = $this->defaultMappingSeeder->seed($mutated, $rootSource, $mutation->created());
-        }
+        $scaffoldedIds = $mutation->freshlyScaffolded();
+        $mutated = $this->defaultMappingSeeder->seed($mutated, $rootSource, $scaffoldedIds);
 
         $analysis = $this->diagnostics->analyze($mutated->roots, $rootContext, $rootSource);
 
-        $wired = $this->contextMirror->apply($mutated, $analysis->resolutions, $mutation->created());
+        $wired = $this->contextMirror->apply($mutated, $analysis->resolutions, $scaffoldedIds);
 
         // Re-analyze only when the wiring changed the tree, so the returned diagnostics and resolutions describe the returned tree.
         if ($wired !== $mutated) {

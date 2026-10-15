@@ -159,6 +159,10 @@ class LayoutDiagnostics
             foreach ($this->mappingViolations($tree, $rootSource) as $violation) {
                 $violations[] = $violation;
             }
+        } else {
+            foreach ($this->inlineMappingViolationsWithoutRootSource($tree) as $violation) {
+                $violations[] = $violation;
+            }
         }
 
         return new LayoutAnalysis(new DiagnosticsReport($violations), $resolutions);
@@ -181,6 +185,30 @@ class LayoutDiagnostics
         $violations = [];
 
         foreach ($this->mappingInspector->inspect($tree, $rootSource) as $problem) {
+            $violations[] = new Violation(
+                ViolationCode::InvalidMapping,
+                $problem->elementId,
+                $problem->propertyKey,
+                $problem->exception->getMessage(),
+            );
+        }
+
+        return $violations;
+    }
+
+    /**
+     * Explicit inline mapping intent needs a bound source to resolve. Report that missing prerequisite even
+     * when the caller has no catalogue to check; whole-field mappings remain unjudged in this case.
+     *
+     * @param list<StoredElement> $tree
+     *
+     * @return list<Violation>
+     */
+    private function inlineMappingViolationsWithoutRootSource(array $tree): array
+    {
+        $violations = [];
+
+        foreach ($this->mappingInspector->inspectInlineWithoutRootSource($tree) as $problem) {
             $violations[] = new Violation(
                 ViolationCode::InvalidMapping,
                 $problem->elementId,

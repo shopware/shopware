@@ -19,7 +19,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
@@ -363,7 +362,6 @@ class ContentLayoutWriteValidatorTest extends TestCase
             $candidateRegistry,
             new MappingTypeCompatibility(),
             new MappingConsumers(),
-            new ContentSystemPropertyProjectionRegistry([]),
             new InlineMappingTokenParser(),
         ));
     }

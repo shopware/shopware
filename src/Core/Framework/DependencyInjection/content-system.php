@@ -48,6 +48,8 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionL
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
@@ -92,7 +94,6 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolat
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\StorefrontContextMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
@@ -169,6 +170,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PartialRenderer::class),
             service(DataLoaderConfigSerializerProvider::class),
             service(DataLoaderProvider::class),
+            service(InlineMappingTokenParser::class),
         ]);
 
     // Output Services
@@ -256,6 +258,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('content_system.data_loader');
 
+    $services->set(StorefrontContextLoader::class)
+        ->tag('content_system.data_loader');
+
     // Data Loader Provider with Tagged Locator
     $services->set(DataLoaderProvider::class)
         ->args([
@@ -264,6 +269,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // Config Serializers
     $services->set(EntityLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
+
+    $services->set(StorefrontContextLoaderConfigSerializer::class)
         ->tag('content_system.config_serializer');
 
     $services->set(EntityCollectionLoaderConfigSerializer::class)
@@ -344,9 +352,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ContextDistributor::class),
             service(ContextPathResolver::class),
-            service(ContentSystemPropertyProjectionRegistry::class),
-            service(MappingTypeCompatibility::class),
             service(ContentSystemMappingCandidateRegistry::class),
+            service(StoredMappingInspector::class),
         ]);
 
     $services->set(RenderedTreeFactory::class)
@@ -756,25 +763,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(PropertyMappingMutationFactory::class)
         ->args([
             service(ContentSystemElementTypeRegistry::class),
-            service(ContentSystemMappingCandidateRegistry::class),
-            service(MappingTypeCompatibility::class),
+            service(StoredMappingInspector::class),
         ]);
 
     $services->set(ContentSystemMappingCandidateRegistry::class)
         ->args([
             tagged_iterator('content_system.mapping_candidate_provider'),
+            service('logger'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(StorefrontContextMappingCandidateProvider::class)
         ->tag('content_system.mapping_candidate_provider', ['priority' => -100]);
-
-    // Value reshaping between a mapped path and the property it fills; read by the write gate, by
-    // ContextDeliveryResolver above, and by the introspection endpoint
-    $services->set(ContentSystemPropertyProjectionRegistry::class)
-        ->args([
-            tagged_iterator('content_system.property_projection'),
-        ]);
 
     // Inline mapping: the `{{map:path}}` tokens an author embeds in an inlineMappable string property. The parser
     // is the single source of truth for the syntax and is shared by the render path and the write gate, so the
@@ -784,13 +784,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(InlineMappingInterpolator::class)
         ->args([
             service(ContentSystemMappingCandidateRegistry::class),
-            service(ContentSystemPropertyProjectionRegistry::class),
-            service(ContextPathResolver::class),
+            service(StoredMappingInspector::class),
         ]);
 
     $services->set(InlineMappingExpander::class)
         ->args([
-            service(ContentSystemElementTypeRegistry::class),
+            service(StoredMappingInspector::class),
             service(InlineMappingTokenParser::class),
             service(InlineMappingInterpolator::class),
         ]);
@@ -803,7 +802,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemMappingCandidateRegistry::class),
             service(MappingTypeCompatibility::class),
             service(MappingConsumers::class),
-            service(ContentSystemPropertyProjectionRegistry::class),
             service(InlineMappingTokenParser::class),
         ]);
 
@@ -902,8 +900,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(DefaultMappingSeeder::class)
         ->args([
             service(ContentSystemElementTypeRegistry::class),
-            service(ContentSystemMappingCandidateRegistry::class),
-            service(MappingTypeCompatibility::class),
+            service(StoredMappingInspector::class),
         ]);
 
     // Layout Mutation Actions (Admin API)

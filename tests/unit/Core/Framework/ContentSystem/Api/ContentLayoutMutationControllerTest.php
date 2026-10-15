@@ -36,7 +36,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
@@ -271,6 +270,13 @@ class ContentLayoutMutationControllerTest extends TestCase
         $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $compatibility = new MappingTypeCompatibility();
+        $mappingInspector = new StoredMappingInspector(
+            $typeRegistry,
+            $candidateRegistry,
+            $compatibility,
+            new MappingConsumers(),
+            new InlineMappingTokenParser(),
+        );
 
         return new ContentLayoutMutationController(
             $mutator,
@@ -280,15 +286,8 @@ class ContentLayoutMutationControllerTest extends TestCase
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
             // BindingApplicator is final: a real instance over a stubbed serializer provider.
             new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
-            new PropertyMappingMutationFactory($typeRegistry, $candidateRegistry, $compatibility),
-            new StoredMappingInspector(
-                $typeRegistry,
-                $candidateRegistry,
-                $compatibility,
-                new MappingConsumers(),
-                new ContentSystemPropertyProjectionRegistry([]),
-                new InlineMappingTokenParser(),
-            ),
+            new PropertyMappingMutationFactory($typeRegistry, $mappingInspector),
+            $mappingInspector,
         );
     }
 

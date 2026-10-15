@@ -22,6 +22,9 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvide
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -32,11 +35,15 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingMetadata;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Provider\StorefrontContextMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
@@ -49,7 +56,9 @@ use Shopware\Core\Framework\ContentSystem\Rendering\RenderedTreeFactory;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
@@ -72,6 +81,44 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ElementLowering::class)]
 class ElementLoweringTest extends TestCase
 {
+    public function testStorefrontContextMappingsUseLoaderValuesWithoutExposingTheInternalRequirement(): void
+    {
+        $currency = new CurrencyEntity();
+        $currency->setIsoCode('USD');
+        $currency->setSymbol('$');
+        $context = Generator::generateSalesChannelContext(currency: $currency);
+        $source = new MappingSourceReference('context', 'storefront', path: 'currency.isoCode');
+        $wholeField = StoredElementBuilder::create('Sw:Content:Text', 'mapped-1')
+            ->withProperty('text', 'Fallback')
+            ->withDataRequirement(StorefrontContextLoader::REQUIREMENT_KEY, StorefrontContextLoader::SOURCE, new StorefrontContextLoaderConfig())
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: $source)
+            ->build();
+        $inline = StoredElementBuilder::create('Sw:Content:Text', 'inline-1')
+            ->withProperty('text', 'Currency {{map:context:storefront.currency.isoCode}}')
+            ->build();
+        $cacheContext = new RenderingCacheContext();
+
+        $rendered = $this->storefrontContextLowering()->lower(
+            [$wholeField, $inline],
+            RenderingMode::FULL,
+            $context,
+            new Request(),
+            $cacheContext,
+            [],
+            null,
+            'product',
+            inlineMappings: new InlineMappingMetadata([
+                'inline-1' => [
+                    'text' => (new InlineMappingTokenParser())->parse('Currency {{map:context:storefront.currency.isoCode}}'),
+                ],
+            ]),
+        )->tree;
+
+        static::assertSame(['text' => 'USD'], $rendered[0]->properties);
+        static::assertSame(['text' => 'Currency USD'], $rendered[1]->properties);
+        static::assertTrue($cacheContext->isDisabled());
+    }
+
     /**
      * An effort-negative claim: the never-expectation is the behaviour under test, not decoration. A skeleton
      * is a structural answer, so neither the element's declared data requirement nor the page-level one may
@@ -344,7 +391,13 @@ class ElementLoweringTest extends TestCase
             $loader,
             [$wrapper],
             [new DataRequirement('product', 'entity', new StubLoaderConfig())],
-            $wrapper
+            $wrapper,
+            new InlineMappingMetadata([
+                'text-1' => [
+                    'text' => (new InlineMappingTokenParser())->parse('{{map:product.name}}'),
+                ],
+            ]),
+            'product',
         );
     }
 
@@ -507,6 +560,8 @@ class ElementLoweringTest extends TestCase
         array $forest,
         array $pageDataRequirements = [],
         ?StoredElement $virtualRoot = null,
+        ?InlineMappingMetadata $inlineMappings = null,
+        ?string $rootSource = null,
     ): array {
         return $this->lowering($loader)->lower(
             $forest,
@@ -516,6 +571,8 @@ class ElementLoweringTest extends TestCase
             new RenderingCacheContext(),
             $pageDataRequirements,
             $virtualRoot,
+            $rootSource,
+            $inlineMappings,
         )->tree;
     }
 
@@ -564,6 +621,17 @@ class ElementLoweringTest extends TestCase
         $provider = static::createStub(DataLoaderProvider::class);
         $provider->method('get')->willReturn($loader);
         $configSerializer ??= new StubLoaderConfigSerializer();
+        $types = $this->typeRegistry();
+        $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn([]);
+        $parser = new InlineMappingTokenParser();
+        $mappingInspector = new StoredMappingInspector(
+            $types,
+            $candidates,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            $parser,
+        );
 
         return new ElementLowering(
             new ElementDataResolver(
@@ -580,13 +648,50 @@ class ElementLoweringTest extends TestCase
             new ContextDeliveryResolver(
                 new ContextDistributor(new ContextPathResolver()),
                 new ContextPathResolver(),
-                new ContentSystemPropertyProjectionRegistry([]),
-                new MappingTypeCompatibility()
+                $candidates,
+                $mappingInspector,
             ),
-            new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry())),
+            new RenderedTreeFactory(new RenderedElementFactory($types)),
             $this->inlineMappingExpander(),
             new MappingConsumers(),
             new ContextPathResolver(),
+        );
+    }
+
+    private function storefrontContextLowering(): ElementLowering
+    {
+        $registry = new ContentSystemMappingCandidateRegistry([new StorefrontContextMappingCandidateProvider()]);
+        $loader = new StorefrontContextLoader();
+        $serializer = new StorefrontContextLoaderConfigSerializer();
+        $pathResolver = new ContextPathResolver();
+        $types = $this->typeRegistry();
+        $mappingInspector = new StoredMappingInspector(
+            $types,
+            $registry,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            new InlineMappingTokenParser(),
+        );
+
+        return new ElementLowering(
+            new ElementDataResolver(
+                new DataLoaderProvider(new ServiceLocator([
+                    StorefrontContextLoader::SOURCE => static fn (): StorefrontContextLoader => $loader,
+                ])),
+                new LoaderInputResolver(),
+                new LoaderValueIdentityFactory(
+                    new DataLoaderConfigSerializerProvider(new ServiceLocator([
+                        StorefrontContextLoader::SOURCE => static fn (): StorefrontContextLoaderConfigSerializer => $serializer,
+                    ])),
+                    new ConfigCanonicalizer(),
+                    new ValueFingerprinter(),
+                ),
+            ),
+            new ContextDeliveryResolver(new ContextDistributor($pathResolver), $pathResolver, $registry, $mappingInspector),
+            new RenderedTreeFactory(new RenderedElementFactory($types)),
+            new InlineMappingExpander($mappingInspector, new InlineMappingTokenParser(), new InlineMappingInterpolator($registry, $mappingInspector)),
+            new MappingConsumers(),
+            $pathResolver,
         );
     }
 
@@ -599,14 +704,21 @@ class ElementLoweringTest extends TestCase
     {
         $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $candidates->method('forRootSource')->willReturn([]);
+        $parser = new InlineMappingTokenParser();
+        $mappingInspector = new StoredMappingInspector(
+            $this->typeRegistry(),
+            $candidates,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            $parser,
+        );
 
         return new InlineMappingExpander(
-            $this->typeRegistry(),
-            new InlineMappingTokenParser(),
+            $mappingInspector,
+            $parser,
             new InlineMappingInterpolator(
                 $candidates,
-                new ContentSystemPropertyProjectionRegistry([]),
-                new ContextPathResolver(),
+                $mappingInspector,
             ),
         );
     }
@@ -642,7 +754,7 @@ class ElementLoweringTest extends TestCase
                 ->reference('product', StubStruct::class)
                 ->build(),
             'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
-                ->primitive('text', 'string', inlineMappable: true)
+                ->primitive('text', 'string', mappable: true, inlineMappable: true)
                 ->build(),
         ];
 

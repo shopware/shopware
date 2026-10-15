@@ -46,6 +46,7 @@ class AttachElementsTest extends TestCase
         $expected = [$first->id, $first->slots['content'][0]->id, $second->id];
         static::assertSame($expected, $op->affected());
         static::assertSame($expected, $op->created());
+        static::assertSame($expected, $op->freshlyScaffolded());
     }
 
     #[TestDox('inserts every element at an explicit index, preserving their order')]

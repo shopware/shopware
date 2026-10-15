@@ -10,7 +10,6 @@ function candidate(overrides: Partial<ContentSystemMappingCandidate> = {}): Cont
         group: 'basic',
         valueType: 'string',
         contextType: 'single',
-        projection: null,
         ...overrides,
     };
 }

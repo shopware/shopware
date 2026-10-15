@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mapping\Provider;
 
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * Contributes the mapping candidates one root source offers. Tag an implementation
@@ -15,9 +18,9 @@ use Shopware\Core\Framework\Log\Package;
  * provider, owned by the module that owns the entity) or many (a cross-cutting provider that offers the same
  * shape of data for every layout type).
  *
- * Every path a provider returns must resolve through `ContextPathResolver` against the root-ambient data of
- * the root sources it claims, and must be safe to serve publicly — see {@see MappingCandidate} for why both
- * are the provider's responsibility rather than something the framework can check for it.
+ * Every candidate must be safe to serve publicly. Override {@see resolveRootSource()} for candidate-specific
+ * storefront accessors or reshaping; the default reader preserves existing one-hop and Struct-path providers.
+ * See {@see MappingCandidate} for why exposure is the provider's responsibility.
  */
 #[Package('framework')]
 abstract class AbstractMappingCandidateProvider
@@ -32,6 +35,38 @@ abstract class AbstractMappingCandidateProvider
     abstract public function provide(string $rootSource): array;
 
     /**
+     * Resolve a root reference offered by this provider. The registry checks exact catalogue identity before
+     * dispatch, so this fallback is limited to a path the provider explicitly offered. Providers with translated
+     * or inherited values should override this with storefront-facing accessors.
+     */
+    public function resolveRootSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
+    {
+        if ($source->type !== 'root') {
+            return MappingSourceResolution::noValue();
+        }
+
+        $root = $context->rootValues[$source->id] ?? null;
+        if ($source->path === null) {
+            return \array_key_exists($source->id, $context->rootValues)
+                ? MappingSourceResolution::resolved($root)
+                : MappingSourceResolution::noValue();
+        }
+
+        if (!$root instanceof Struct) {
+            return MappingSourceResolution::noValue();
+        }
+
+        $result = (new ContextPathResolver())->resolveMappingPathWithPresence(
+            $root,
+            explode('.', $source->path),
+        );
+
+        return $result['found']
+            ? MappingSourceResolution::resolved($result['value'])
+            : MappingSourceResolution::noValue();
+    }
+
+    /**
      * Whether this provider can resolve the supplied non-root source reference. Candidate catalogues remain the
      * admission boundary: the renderer calls this only on the provider that offered the stored reference for the
      * current root source.
@@ -42,11 +77,11 @@ abstract class AbstractMappingCandidateProvider
     }
 
     /**
-     * Resolve an admitted non-root reference. Returning null means the provider is unavailable or has no value;
-     * the renderer omits the mapped property and continues rendering.
+     * Resolve an admitted non-root reference. Return `noValue()` when source data is missing and `resolved(null)`
+     * when it explicitly resolves to null. The registry logs provider exceptions and returns a failed result.
      */
-    public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): mixed
+    public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
     {
-        return null;
+        return MappingSourceResolution::noValue();
     }
 }

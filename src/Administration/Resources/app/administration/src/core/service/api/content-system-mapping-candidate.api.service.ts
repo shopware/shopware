@@ -24,7 +24,6 @@ export interface ContentSystemMappingCandidate {
     /** Declared PHP class or interface types that accept this candidate's effective value. */
     compatibleTypes?: string[];
     contextType: 'single' | 'collection';
-    projection: string | null;
     labelTranslations?: Record<string, string>;
     descriptionTranslations?: Record<string, string>;
 }
@@ -34,6 +33,26 @@ export interface ContentSystemMappingCandidate {
  */
 export interface ContentSystemMappingCandidateResponse {
     mappingCandidates: Record<string, ContentSystemMappingCandidate[]>;
+}
+
+/**
+ * One token span returned by the PHP inline mapping parser.
+ *
+ * @private
+ */
+export interface ContentSystemInlineMappingToken {
+    path: string;
+    match: string;
+    offset: number;
+    insideMarkup: boolean;
+}
+
+/**
+ * @private
+ */
+export interface ContentSystemInlineMappingParseResponse {
+    revision: number;
+    tokens: ContentSystemInlineMappingToken[];
 }
 
 /**
@@ -62,6 +81,16 @@ class ContentSystemMappingCandidateApiService extends ApiService {
 
                 return candidates;
             });
+    }
+
+    parseInlineMappingTokens(text: string, revision: number): Promise<ContentSystemInlineMappingParseResponse> {
+        return this.httpClient
+            .post<ContentSystemInlineMappingParseResponse>(
+                '/_action/content-system/inline-mapping/parse',
+                { text, revision },
+                { headers: this.getBasicHeaders() },
+            )
+            .then((response) => ApiService.handleResponse<ContentSystemInlineMappingParseResponse>(response));
     }
 }
 

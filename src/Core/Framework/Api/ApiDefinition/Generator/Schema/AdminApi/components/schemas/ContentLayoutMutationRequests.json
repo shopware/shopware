@@ -742,7 +742,7 @@
             "ContentLayoutDiagnoseRequest": {
                 "title": "Content layout diagnose request",
                 "type": "object",
-                "description": "An unsaved draft layout to resolve and diagnose, plus an optional root source. The whole body is optional; an empty body diagnoses an empty tree.",
+                "description": "An unsaved draft layout to resolve and diagnose, plus an optional root source. Supply runtimeContext to hydrate an entity and report source-value and provider outcomes. The whole body is optional; an empty body diagnoses an empty tree.",
                 "properties": {
                     "layout": {
                         "type": "array",
@@ -757,6 +757,22 @@
                         "description": "Optional root source the draft is resolved against. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section (`header`, `footer`), or `none`. With it unset, only intrinsic well-formedness is evaluated.",
                         "default": null,
                         "example": "product"
+                    },
+                    "runtimeContext": {
+                        "type": ["object", "null"],
+                        "description": "Optional real Storefront render context. When present, the diagnose action runs the draft through the normal render pipeline and merges runtime mapping findings into diagnostics. Its entityType must match rootSource when rootSource is supplied.",
+                        "properties": {
+                            "entityType": { "type": "string", "minLength": 1 },
+                            "entityId": { "type": "string", "minLength": 1 },
+                            "salesChannelId": { "type": "string", "minLength": 1 },
+                            "languageId": { "type": ["string", "null"] },
+                            "currencyId": { "type": ["string", "null"] },
+                            "domainId": { "type": ["string", "null"] },
+                            "customerId": { "type": ["string", "null"] },
+                            "queryParameters": { "type": "object", "additionalProperties": true }
+                        },
+                        "required": ["entityType", "entityId", "salesChannelId"],
+                        "additionalProperties": false
                     }
                 }
             }

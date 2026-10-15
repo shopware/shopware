@@ -23,7 +23,6 @@ final readonly class RenderingSpecification
         public ?string $targetElementId = null,
         public array $cacheTags = [],
         public ?string $rootSource = null,
-        public bool $isAdminPreview = false,
     ) {
     }
 }

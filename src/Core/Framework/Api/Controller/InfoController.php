@@ -6,6 +6,7 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
@@ -89,6 +90,7 @@ class InfoController extends AbstractController
         private readonly AbstractContentSystemMappingCandidateRegistry $mappingCandidateRegistry,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
         private readonly MediaFileExtensionListProvider $mediaFileExtensionListProvider,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -210,9 +212,17 @@ class InfoController extends AbstractController
      * offers nothing mappable, which keeps the client from having to tell "no candidates" apart from
      * "unknown source".
      */
-    #[Route(path: '/api/_info/content-system-mapping-candidates.json', name: 'api.info.content-system-mapping-candidates', methods: ['GET'])]
+    #[Route(
+        path: '/api/_info/content-system-mapping-candidates.json',
+        name: 'api.info.content-system-mapping-candidates',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['custom_field:read']],
+        methods: ['GET']
+    )]
     public function contentSystemMappingCandidates(): JsonResponse
     {
+        // This catalogue includes custom-field labels and help text, so its HTTP cache follows custom-field metadata.
+        $this->cacheTagCollector->addTag('custom_field');
+
         $candidates = [];
 
         foreach ($this->rootSourceRegistry->knownRootSources() as $rootSource) {

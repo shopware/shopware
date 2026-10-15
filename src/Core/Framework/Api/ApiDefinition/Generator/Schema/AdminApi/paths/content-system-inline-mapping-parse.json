@@ -1,0 +1,65 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Content System Inline Mapping Parser",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/_action/content-system/inline-mapping/parse": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Parse inline mapping tokens",
+                "operationId": "contentSystemInlineMappingParse",
+                "description": "Parses authored text using the server's inline mapping syntax and returns token spans with the caller's text revision. Offsets are UTF-8 byte offsets in the submitted text. The Administration must discard a response whose revision no longer matches the edited value. Requires the `content_layout:read` privilege. Text containing mapping syntax is limited to 256 KiB.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["text", "revision"],
+                                "properties": {
+                                    "text": { "type": "string" },
+                                    "revision": { "type": "integer", "minimum": 0 }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Server-parsed token spans and the echoed revision.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["revision", "tokens"],
+                                    "properties": {
+                                        "revision": { "type": "integer" },
+                                        "tokens": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": ["path", "match", "offset", "insideMarkup"],
+                                                "properties": {
+                                                    "path": { "type": "string" },
+                                                    "match": { "type": "string" },
+                                                    "offset": { "type": "integer", "minimum": 0, "description": "UTF-8 byte offset in the submitted text." },
+                                                    "insideMarkup": { "type": "boolean" }
+                                                },
+                                                "additionalProperties": false
+                                            }
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" }
+                }
+            }
+        }
+    }
+}

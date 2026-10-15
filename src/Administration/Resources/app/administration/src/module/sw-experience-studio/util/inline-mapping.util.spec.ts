@@ -1,9 +1,5 @@
-import {
-    canonicalInlineMappingToken,
-    editorHtmlToTokens,
-    parseInlineMappingTokens,
-    tokensToEditorHtml,
-} from './inline-mapping.util';
+import { canonicalInlineMappingToken, editorHtmlToTokens, tokensToEditorHtml } from './inline-mapping.util';
+import type { ContentSystemInlineMappingToken } from 'src/core/service/api/content-system-mapping-candidate.api.service';
 
 const KNOWN = new Set([
     'product.name',
@@ -15,88 +11,54 @@ const KNOWN = new Set([
 ]);
 const isKnownPath = (path: string) => KNOWN.has(path);
 
-describe('module/sw-experience-studio/util/inline-mapping.util', () => {
-    it.each([
-        [
-            'a bare token',
-            '{{map:product.name}}',
-            ['product.name'],
-        ],
-        [
-            'surrounding prose',
-            '<p>Buy the {{map:product.name}} today, only {{map:product.price}}.</p>',
-            [
-                'product.name',
-                'product.price',
-            ],
-        ],
-        [
-            'internal whitespace',
-            '{{ map:product.name }}',
-            ['product.name'],
-        ],
-        [
-            'a custom field path',
-            '{{map:product.customFields.swag_color}}',
-            ['product.customFields.swag_color'],
-        ],
-        [
-            'a Unicode custom field path',
-            '{{map:product.customFields.größe}}',
-            ['product.customFields.größe'],
-        ],
-        [
-            'a typed context source path',
-            '{{map:context:storefront.currency.isoCode}}',
-            ['context:storefront.currency.isoCode'],
-        ],
-        [
-            'a namespaced typed source path',
-            '{{map:external-source:lookup-id.value}}',
-            ['external-source:lookup-id.value'],
-        ],
-        [
-            'the same path twice',
-            '{{map:product.name}} and {{map:product.name}}',
-            [
-                'product.name',
-                'product.name',
-            ],
-        ],
-        [
-            'an ordinary placeholder',
-            '{{ product.name }}',
-            [],
-        ],
-        [
-            'an undotted path',
-            '{{map:product}}',
-            [],
-        ],
-        [
-            'a prefix without braces',
-            'map:product.name',
-            [],
-        ],
-        [
-            'a path with a dash',
-            '{{map:product.some-name}}',
-            [],
-        ],
-    ])('lists the mapping paths in %s', (_name, text, expected) => {
-        expect(parseInlineMappingTokens(text)).toEqual(expected);
-    });
+function utf8ByteLength(text: string): number {
+    let bytes = 0;
 
+    for (const character of text) {
+        const codePoint = character.codePointAt(0) ?? 0;
+        bytes += codePoint <= 0x7f ? 1 : codePoint <= 0x7ff ? 2 : codePoint <= 0xffff ? 3 : 4;
+    }
+
+    return bytes;
+}
+
+function parsedTokens(text: string): ContentSystemInlineMappingToken[] {
+    const tokens: ContentSystemInlineMappingToken[] = [];
+
+    for (const path of KNOWN) {
+        const match = canonicalInlineMappingToken(path);
+        let offset = text.indexOf(match);
+
+        while (offset !== -1) {
+            const byteOffset = utf8ByteLength(text.slice(0, offset));
+            tokens.push({ path, match, offset: byteOffset, insideMarkup: false });
+            offset = text.indexOf(match, offset + match.length);
+        }
+    }
+
+    return tokens.sort((first, second) => first.offset - second.offset);
+}
+
+describe('module/sw-experience-studio/util/inline-mapping.util', () => {
     it('turns known tokens into nodes and leaves unknown ones as text', () => {
-        const html = tokensToEditorHtml('<p>Buy the {{map:product.name}} in {{map:product.nmae}} today.</p>', isKnownPath);
+        const text = '<p>Buy the {{map:product.name}} in {{map:product.nmae}} today.</p>';
+        const html = tokensToEditorHtml(text, parsedTokens(text), isKnownPath);
 
         expect(html).toBe('<p>Buy the <span data-sw-map="product.name"></span> in {{map:product.nmae}} today.</p>');
     });
 
+    it('uses UTF-8 byte spans correctly when text before a token contains an astral character', () => {
+        const text = '🙂 {{map:product.name}}';
+        const spans = [{ path: 'product.name', match: '{{map:product.name}}', offset: 5, insideMarkup: false }];
+
+        expect(tokensToEditorHtml(text, spans, isKnownPath)).toBe('<p>🙂 <span data-sw-map="product.name"></span></p>');
+    });
+
     it('normalises whitespace inside a token when converting to a node', () => {
-        expect(tokensToEditorHtml('{{  map:product.name  }}', isKnownPath)).toBe(
-            '<p><span data-sw-map="product.name"></span></p>',
-        );
+        const text = '{{  map:product.name  }}';
+        const spans = [{ path: 'product.name', match: text, offset: 0, insideMarkup: false }];
+
+        expect(tokensToEditorHtml(text, spans, isKnownPath)).toBe('<p><span data-sw-map="product.name"></span></p>');
     });
 
     /**
@@ -131,7 +93,7 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
             '<p></p>',
         ],
     ])('wraps %s in a paragraph', (_name, stored, expected) => {
-        expect(tokensToEditorHtml(stored, isKnownPath)).toBe(expected);
+        expect(tokensToEditorHtml(stored, parsedTokens(stored), isKnownPath)).toBe(expected);
     });
 
     it.each([
@@ -152,35 +114,40 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
             '<ul><li><p>One</p></li></ul>',
         ],
     ])('leaves %s alone, because it already has a block structure', (_name, stored) => {
-        expect(tokensToEditorHtml(stored, () => false)).toBe(stored);
+        expect(tokensToEditorHtml(stored, parsedTokens(stored), () => false)).toBe(stored);
     });
 
     it('leaves an ordinary placeholder untouched', () => {
-        expect(tokensToEditorHtml('<p>Hello {{ product.name }}</p>', isKnownPath)).toBe('<p>Hello {{ product.name }}</p>');
+        const text = '<p>Hello {{ product.name }}</p>';
+        expect(tokensToEditorHtml(text, parsedTokens(text), isKnownPath)).toBe(text);
     });
 
     it('turns nodes back into tokens, discarding the rendered label', () => {
         const stored = editorHtmlToTokens(
             '<p>Buy the <span data-sw-map="product.name" class="chip">Product name</span> today.</p>',
+            KNOWN,
         );
 
         expect(stored).toBe('<p>Buy the {{map:product.name}} today.</p>');
     });
 
     it('reads the path regardless of attribute order', () => {
-        const stored = editorHtmlToTokens('<span class="chip" contenteditable="false" data-sw-map="product.price">9</span>');
+        const stored = editorHtmlToTokens(
+            '<span class="chip" contenteditable="false" data-sw-map="product.price">9</span>',
+            KNOWN,
+        );
 
         expect(stored).toBe('{{map:product.price}}');
     });
 
     it('unwraps a node whose path is not a dotted path rather than dropping the text', () => {
-        expect(editorHtmlToTokens('<p>a <span data-sw-map="nonsense">kept words</span> b</p>')).toBe(
+        expect(editorHtmlToTokens('<p>a <span data-sw-map="nonsense">kept words</span> b</p>', KNOWN)).toBe(
             '<p>a kept words b</p>',
         );
     });
 
     it('keeps a token the author typed as text, so typing one by hand works', () => {
-        expect(editorHtmlToTokens('<p>Buy the {{map:product.name}} today.</p>')).toBe(
+        expect(editorHtmlToTokens('<p>Buy the {{map:product.name}} today.</p>', KNOWN)).toBe(
             '<p>Buy the {{map:product.name}} today.</p>',
         );
     });
@@ -188,19 +155,19 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
     it('round-trips a stored text through the editor representation', () => {
         const stored = '<p>Buy the {{map:product.name}} today, only {{map:product.price}}.</p>';
 
-        expect(editorHtmlToTokens(tokensToEditorHtml(stored, isKnownPath))).toBe(stored);
+        expect(editorHtmlToTokens(tokensToEditorHtml(stored, parsedTokens(stored), isKnownPath), KNOWN)).toBe(stored);
     });
 
     it('round-trips a Unicode custom field path through the editor representation', () => {
         const stored = '<p>Size: {{map:product.customFields.größe}}</p>';
 
-        expect(editorHtmlToTokens(tokensToEditorHtml(stored, isKnownPath))).toBe(stored);
+        expect(editorHtmlToTokens(tokensToEditorHtml(stored, parsedTokens(stored), isKnownPath), KNOWN)).toBe(stored);
     });
 
     it('round-trips a text whose tokens are all unknown', () => {
         const stored = '<p>Buy the {{map:product.nmae}} today.</p>';
 
-        expect(editorHtmlToTokens(tokensToEditorHtml(stored, isKnownPath))).toBe(stored);
+        expect(editorHtmlToTokens(tokensToEditorHtml(stored, parsedTokens(stored), isKnownPath), KNOWN)).toBe(stored);
     });
 
     /**
@@ -209,11 +176,12 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
      * accepts: it closes the paragraph early and leaves an empty one above the mapped content.
      */
     it('round-trips a whole-text mapping to the bare token it was stored as', () => {
-        expect(editorHtmlToTokens(tokensToEditorHtml('{{map:product.name}}', isKnownPath))).toBe('{{map:product.name}}');
+        const stored = '{{map:product.name}}';
+        expect(editorHtmlToTokens(tokensToEditorHtml(stored, parsedTokens(stored), isKnownPath), KNOWN)).toBe(stored);
     });
 
     it('takes the paragraph off a text that holds nothing but a token', () => {
-        expect(editorHtmlToTokens('<p><span data-sw-map="product.name">Product name</span></p>')).toBe(
+        expect(editorHtmlToTokens('<p><span data-sw-map="product.name">Product name</span></p>', KNOWN)).toBe(
             '{{map:product.name}}',
         );
     });
@@ -241,15 +209,15 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
             '',
         ],
     ])('stores %s as an empty value', (_name, editorHtml) => {
-        expect(editorHtmlToTokens(editorHtml)).toBe('');
+        expect(editorHtmlToTokens(editorHtml, KNOWN)).toBe('');
     });
 
     it('round-trips an empty value', () => {
-        expect(editorHtmlToTokens(tokensToEditorHtml('', isKnownPath))).toBe('');
+        expect(editorHtmlToTokens(tokensToEditorHtml('', parsedTokens(''), isKnownPath), KNOWN)).toBe('');
     });
 
     it('keeps empty paragraphs the author typed as spacing', () => {
-        expect(editorHtmlToTokens('<p></p><p></p>')).toBe('<p></p><p></p>');
+        expect(editorHtmlToTokens('<p></p><p></p>', KNOWN)).toBe('<p></p><p></p>');
     });
 
     it.each([
@@ -274,7 +242,7 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
             '<p style="text-align: center">{{map:product.name}}</p>',
         ],
     ])('keeps the paragraph when the author put %s there', (_name, editorHtml, expected) => {
-        expect(editorHtmlToTokens(editorHtml)).toBe(expected);
+        expect(editorHtmlToTokens(editorHtml, KNOWN)).toBe(expected);
     });
 
     it('writes the canonical token form', () => {

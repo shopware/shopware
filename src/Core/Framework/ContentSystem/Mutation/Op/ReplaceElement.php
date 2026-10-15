@@ -101,6 +101,7 @@ final class ReplaceElement extends AbstractLayoutMutation
         $this->affected = $this->subtreeIds($replacement);
         // Carried-over children keep their nodes; only the replaced node itself is re-scaffolded.
         $this->created = [$replacement->id];
+        $this->freshlyScaffolded = [$replacement->id];
 
         return $tree->replace($this->elementId, $replacement);
     }
@@ -238,7 +239,7 @@ final class ReplaceElement extends AbstractLayoutMutation
             if (
                 $consumer->source === null
                 && isset($newTypeProperties[$propertyKey])
-                && !$newTypeProperties[$propertyKey]->type()->isPrimitive()
+                && $newTypeProperties[$propertyKey]->type()->enforceableTypes() === null
             ) {
                 $kept[$key] = $consumer;
             }
@@ -253,7 +254,7 @@ final class ReplaceElement extends AbstractLayoutMutation
             return $replacement;
         }
 
-        $problems = $this->mappingInspector->inspect([$replacement], $this->rootSource);
+        $problems = $this->mappingInspector->inspectWholeField([$replacement], $this->rootSource);
 
         if ($problems === []) {
             return $replacement;

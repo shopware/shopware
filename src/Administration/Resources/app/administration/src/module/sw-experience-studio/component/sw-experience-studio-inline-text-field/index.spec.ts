@@ -18,7 +18,6 @@ const candidate = (path: string, valueType = 'string'): ContentSystemMappingCand
         group: 'basic',
         valueType,
         contextType: 'single',
-        projection: null,
     }) as ContentSystemMappingCandidate;
 
 const createVm = (value: string, candidates = [candidate('product.name')]) => {
@@ -28,6 +27,8 @@ const createVm = (value: string, candidates = [candidate('product.name')]) => {
         disabled: false,
         editorHtml: '',
         lastEmittedValue: null as string | null,
+        parseRevision: 0,
+        parsedTokens: [] as { path: string; match: string; offset: number; insideMarkup: boolean }[],
         isMappingModalOpen: false,
         activeEditor: null as unknown,
         emitted: [] as string[],
@@ -37,6 +38,23 @@ const createVm = (value: string, candidates = [candidate('product.name')]) => {
         toEditorHtml(next: string) {
             return methods.toEditorHtml.call(this, next);
         },
+        refreshEditorValue(next: string, updateEditorMarkup = true) {
+            const tokens: { path: string; match: string; offset: number; insideMarkup: boolean }[] = [];
+            const tokenPattern = /\{\{\s*map:([A-Za-z0-9_.:-]+)\s*\}\}/g;
+            for (const result of next.matchAll(tokenPattern)) {
+                const match = result[0];
+                const path = result[1];
+                const offset = result.index;
+
+                if (path && offset !== undefined && path.includes('.')) {
+                    tokens.push({ path, match, offset, insideMarkup: false });
+                }
+            }
+            this.parsedTokens = tokens.sort((first, second) => first.offset - second.offset);
+            if (updateEditorMarkup) {
+                this.editorHtml = this.toEditorHtml(next) as string;
+            }
+        },
         onCloseMappingModal() {
             methods.onCloseMappingModal.call(this);
         },
@@ -45,17 +63,26 @@ const createVm = (value: string, candidates = [candidate('product.name')]) => {
     Object.defineProperty(vm, 'candidatePaths', {
         get: () => computed.candidatePaths.call(vm),
     });
+    Object.defineProperty(vm, 'knownTokenPaths', {
+        get: () =>
+            new Set([
+                ...(computed.candidatePaths.call(vm) as Set<string>),
+                ...vm.parsedTokens.map((token) => token.path),
+            ]),
+    });
 
-    vm.editorHtml = vm.toEditorHtml(value) as string;
+    vm.refreshEditorValue(value);
 
     return vm;
 };
 
 describe('module/sw-experience-studio/component/sw-experience-studio-inline-text-field', () => {
-    it('shows a known token as a node and an unknown one as text', () => {
+    it('shows server-recognized tokens as nodes even when the candidate catalogue has no matching path', () => {
         const vm = createVm('<p>{{map:product.name}} and {{map:product.nmae}}</p>');
 
-        expect(vm.editorHtml).toBe('<p><span data-sw-map="product.name"></span> and {{map:product.nmae}}</p>');
+        expect(vm.editorHtml).toBe(
+            '<p><span data-sw-map="product.name"></span> and <span data-sw-map="product.nmae"></span></p>',
+        );
     });
 
     it('emits the token form when the editor changes', () => {
@@ -92,9 +119,85 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
         expect(vm.lastEmittedValue).toBeNull();
     });
 
+    it('ignores a parser response for an older value revision', async () => {
+        const responses = new Map<number, (response: { revision: number; tokens: [] }) => void>();
+        const parseInlineMappingTokens = jest.fn(
+            (_text: string, revision: number) =>
+                new Promise<{ revision: number; tokens: [] }>((resolve) => {
+                    responses.set(revision, resolve);
+                }),
+        );
+        jest.spyOn(Shopware, 'Service').mockReturnValue({ parseInlineMappingTokens } as never);
+
+        const vm = {
+            value: 'older text',
+            parseRevision: 0,
+            parsedTokens: [],
+            editorHtml: '',
+            candidates: [],
+            candidatePaths: new Set<string>(),
+            toEditorHtml: (value: string) => `<p>${value}</p>`,
+        };
+
+        const olderRequest = methods.refreshEditorValue.call(vm, 'older text') as Promise<void>;
+        vm.value = 'newer text';
+        const newerRequest = methods.refreshEditorValue.call(vm, 'newer text') as Promise<void>;
+
+        responses.get(2)?.({ revision: 2, tokens: [] });
+        await newerRequest;
+        responses.get(1)?.({ revision: 1, tokens: [] });
+        await olderRequest;
+
+        expect(vm.editorHtml).toBe('<p>newer text</p>');
+        jest.restoreAllMocks();
+    });
+
+    it('refreshes spans after a local edit without replacing the editor markup', async () => {
+        const parsedToken = {
+            path: 'customFields.privateLabel',
+            match: '{{map:customFields.privateLabel}}',
+            offset: 0,
+            insideMarkup: false,
+        };
+        const parseInlineMappingTokens = jest.fn((_text: string, revision: number) =>
+            Promise.resolve({ revision, tokens: [parsedToken] }),
+        );
+        jest.spyOn(Shopware, 'Service').mockReturnValue({ parseInlineMappingTokens } as never);
+
+        const editorHtml = '<p><span data-sw-map="customFields.privateLabel">customFields.privateLabel</span>!</p>';
+        const vm = {
+            value: '{{map:customFields.privateLabel}}!',
+            parseRevision: 0,
+            parsedTokens: [parsedToken],
+            candidates: [],
+            candidatePaths: new Set<string>(),
+            editorHtml: '',
+            lastEmittedValue: null as string | null,
+            emitted: [] as string[],
+            $emit(_event: string, payload: string) {
+                this.emitted.push(payload);
+            },
+            refreshEditorValue(value: string, updateEditorMarkup = true) {
+                return methods.refreshEditorValue.call(this, value, updateEditorMarkup);
+            },
+        };
+        Object.defineProperty(vm, 'knownTokenPaths', {
+            get: () => new Set(vm.parsedTokens.map((token) => token.path)),
+        });
+
+        methods.onUpdateEditorHtml.call(vm, editorHtml);
+        await flushPromises();
+
+        expect(parseInlineMappingTokens).toHaveBeenCalledWith('<p>{{map:customFields.privateLabel}}!</p>', 1);
+        expect(vm.parsedTokens).toEqual([parsedToken]);
+        expect(vm.editorHtml).toBe(editorHtml);
+        expect(vm.emitted).toEqual(['<p>{{map:customFields.privateLabel}}!</p>']);
+        jest.restoreAllMocks();
+    });
+
     it('redraws tokens as nodes once the catalogue arrives, but not once the author has typed', () => {
         const pending = createVm('<p>{{map:product.name}}</p>', []);
-        expect(pending.editorHtml).toBe('<p>{{map:product.name}}</p>');
+        expect(pending.editorHtml).toBe('<p><span data-sw-map="product.name"></span></p>');
 
         pending.candidates = [candidate('product.name')];
         watch.candidates.call(pending);

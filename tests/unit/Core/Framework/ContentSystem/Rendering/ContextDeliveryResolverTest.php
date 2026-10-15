@@ -5,7 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Rendering;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
@@ -13,21 +20,28 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Br
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentPropertyProjection;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryIndex;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubContextStruct;
 use Shopware\Core\Test\Stub\ContentSystem\StubPathStruct;
-use Shopware\Core\Test\Stub\ContentSystem\StubUppercaseProjection;
 
 /**
  * @internal
@@ -36,6 +50,30 @@ use Shopware\Core\Test\Stub\ContentSystem\StubUppercaseProjection;
 #[CoversClass(ContextDeliveryResolver::class)]
 class ContextDeliveryResolverTest extends TestCase
 {
+    public function testProductCoverMappingReceivesTheProvidersMediaValue(): void
+    {
+        $media = new MediaEntity();
+        $media->setUniqueIdentifier(Uuid::randomHex());
+        $cover = new ProductMediaEntity();
+        $cover->setUniqueIdentifier(Uuid::randomHex());
+        $cover->setMedia($media);
+        $product = new SalesChannelProductEntity();
+        $product->setCover($cover);
+
+        $child = $this->mappedChild();
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')->withSlot('main', [$child])->build();
+        $resolver = new ContextDeliveryResolver(
+            new ContextDistributor(new ContextPathResolver()),
+            new ContextPathResolver(),
+            $registry = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())]),
+            $this->mappingInspector($registry, MediaEntity::class),
+        );
+
+        $index = $resolver->resolve([$root], [], ['product' => $product], rootSource: 'product');
+
+        static::assertSame(['cover' => $media], $index->all()['child-1']->context);
+    }
+
     #[TestDox('delivers a parent value to its own children')]
     public function testDeliversFromParentToItsChildren(): void
     {
@@ -381,12 +419,10 @@ class ContextDeliveryResolverTest extends TestCase
     }
 
     /**
-     * The optional twin of the rejection above. A dotted path needs a Struct to traverse, and an optional
-     * consumer that cannot get one delivers nothing — it does NOT write the present null that every other
-     * resolution-found-nothing writes. A mapped property with no delivery is omitted when the rendered element is created.
+     * An ordinary optional consumer delivers a present null when traversal cannot resolve its path.
      */
-    #[TestDox('writes no key for an optional dotted root-scoped consumer over a non-Struct ambient value')]
-    public function testOptionalDottedRootScopedConsumerWritesNoKeyOverANonStructAmbientValue(): void
+    #[TestDox('writes null for an optional dotted root-scoped consumer over a non-Struct ambient value')]
+    public function testOptionalDottedRootScopedConsumerWritesNullOverANonStructAmbientValue(): void
     {
         $child = StoredElementBuilder::create('Sw:Box', 'child-1')
             ->withConsumer('product.cover', ContextType::Single, required: false, scope: ConsumerScope::Root)
@@ -397,14 +433,14 @@ class ContextDeliveryResolverTest extends TestCase
 
         $index = $this->resolver()->resolve([$root], [], ['product' => 'not-a-struct']);
 
-        static::assertSame([], $index->all()['child-1']->context);
+        static::assertSame(['product.cover' => null], $index->all()['child-1']->context);
     }
 
     /**
-     * Resolving no leaf writes no delivery. RenderedElementFactory omits mapped properties with no delivery.
+     * Resolving no leaf still writes a present null for ordinary context wiring.
      */
-    #[TestDox('writes no mapping delivery when a dotted root-scoped consumer resolves to null')]
-    public function testADottedRootScopedConsumerResolvingToNullWritesNoKey(): void
+    #[TestDox('writes null when an ordinary dotted root-scoped consumer resolves to null')]
+    public function testAnOrdinaryDottedRootScopedConsumerResolvingToNullWritesNull(): void
     {
         $child = StoredElementBuilder::create('Sw:Box', 'child-1')
             ->withConsumer('product.cover', ContextType::Single, required: false, scope: ConsumerScope::Root)
@@ -413,11 +449,9 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        // The ambient value is a perfectly good Struct; it just holds nothing at `cover`, which is the
-        // ordinary case this rule exists for rather than a malformed one.
         $index = $this->resolver()->resolve([$root], [], ['product' => new StubContextStruct()]);
 
-        static::assertSame([], $index->all()['child-1']->context);
+        static::assertSame(['product.cover' => null], $index->all()['child-1']->context);
     }
 
     /**
@@ -532,34 +566,6 @@ class ContextDeliveryResolverTest extends TestCase
         static::assertSame('child-1', $delivery->elementId);
     }
 
-    #[TestDox('runs a declared projection over the resolved value before delivering it')]
-    public function testADeclaredProjectionReshapesTheDeliveredValue(): void
-    {
-        $index = $this->resolve(
-            $this->mappedChild(projection: StubUppercaseProjection::NAME),
-            new StubContextStruct('page-cover'),
-            [new StubUppercaseProjection()]
-        );
-
-        static::assertSame(['cover' => 'PAGE-COVER'], $index->all()['child-1']->context);
-    }
-
-    /**
-     * A projection is not applied for its own sake — the value it produced has to be what the property is
-     * fed, so this pins that the reshaped value and not the raw one reaches the delivery.
-     */
-    #[TestDox('does not run a projection the consumer did not declare')]
-    public function testAnUndeclaredProjectionLeavesTheResolvedValueAlone(): void
-    {
-        $index = $this->resolve(
-            $this->mappedChild(projection: null),
-            new StubContextStruct('page-cover'),
-            [new StubUppercaseProjection()]
-        );
-
-        static::assertSame(['cover' => 'page-cover'], $index->all()['child-1']->context);
-    }
-
     public function testOneMappedSourceCanFillSeveralProperties(): void
     {
         $child = StoredElementBuilder::create('Sw:Card', 'child-1')
@@ -567,7 +573,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withConsumer('subtitle', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.cover'))
             ->build();
 
-        $index = $this->resolve($child, new StubContextStruct('page-cover'), []);
+        $index = $this->resolve($child, new StubContextStruct('page-cover'));
 
         static::assertSame([
             'title' => 'page-cover',
@@ -581,9 +587,68 @@ class ContextDeliveryResolverTest extends TestCase
             ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.customFields.material'))
             ->build();
 
-        $index = $this->resolve($child, new StubPathStruct(customFields: ['material' => 'Leather']), []);
+        $index = $this->resolve($child, new StubPathStruct(customFields: ['material' => 'Leather']));
 
         static::assertSame(['text' => 'Leather'], $index->all()['child-1']->context);
+    }
+
+    public function testPresentNullFromAMappedSourceIsDeliveredAsPresentNull(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Content:Text', 'child-1')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.customFields.material'))
+            ->build();
+
+        $index = $this->resolve($child, new StubPathStruct(customFields: ['material' => null]));
+
+        static::assertArrayHasKey('text', $index->all()['child-1']->context);
+        static::assertNull($index->all()['child-1']->context['text']);
+    }
+
+    public function testProviderFailureOmitsTheMappedValueWithoutFailingRendering(): void
+    {
+        $candidate = new MappingCandidate('product.cover', 'cover', '', 'media', 'string');
+        $mappingSources = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $mappingSources->method('forRootSource')->willReturn(['product.cover' => $candidate]);
+        $mappingSources->method('resolveSourceForRootSource')->willReturn(MappingSourceResolution::failed(new \RuntimeException('provider failed')));
+        $resolver = new ContextDeliveryResolver(
+            new ContextDistributor(new ContextPathResolver()),
+            new ContextPathResolver(),
+            $mappingSources,
+            $this->mappingInspector($mappingSources),
+        );
+
+        $mappingDiagnostics = new MappingRuntimeDiagnosticCollector();
+        $delivery = $resolver->resolve(
+            [$this->mappedChild()],
+            [],
+            ['product' => new StubContextStruct('page-cover')],
+            rootSource: 'product',
+            mappingDiagnostics: $mappingDiagnostics,
+        );
+
+        static::assertSame([], $delivery->all()['child-1']->context);
+        static::assertSame(ViolationCode::InvalidMapping, $mappingDiagnostics->violations()[0]->code);
+        static::assertStringContainsString('provider failed', $mappingDiagnostics->violations()[0]->message);
+    }
+
+    public function testProductMappingUsesTheOwningProvidersActiveTranslation(): void
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setName('Raw variant name');
+        $product->setTranslated(['name' => 'Inherited storefront name']);
+        $child = StoredElementBuilder::create('Sw:Content:Text', 'child-1')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::root('product', 'name'))
+            ->build();
+        $resolver = new ContextDeliveryResolver(
+            new ContextDistributor(new ContextPathResolver()),
+            new ContextPathResolver(),
+            $registry = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())]),
+            $this->mappingInspector($registry),
+        );
+
+        $index = $resolver->resolve([$child], [], ['product' => $product], rootSource: 'product');
+
+        static::assertSame(['text' => 'Inherited storefront name'], $index->all()['child-1']->context);
     }
 
     public function testMissingCustomFieldProducesNoMappingDelivery(): void
@@ -592,9 +657,13 @@ class ContextDeliveryResolverTest extends TestCase
             ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.customFields.material'))
             ->build();
 
-        $index = $this->resolve($child, new StubPathStruct(customFields: []), []);
+        $diagnostics = new MappingRuntimeDiagnosticCollector();
+        $index = $this->resolve($child, new StubPathStruct(customFields: []), mappingDiagnostics: $diagnostics);
 
         static::assertSame([], $index->all()['child-1']->context);
+        static::assertCount(1, $diagnostics->violations());
+        static::assertSame('text', $diagnostics->violations()[0]->key);
+        static::assertStringContainsString('has no value', $diagnostics->violations()[0]->message);
     }
 
     #[TestDox('does not deliver a stored mapping after its source leaves the live candidate catalogue')]
@@ -604,96 +673,44 @@ class ContextDeliveryResolverTest extends TestCase
             ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.customFields.material'))
             ->build();
 
-        $index = $this->resolve($child, new StubPathStruct(customFields: ['material' => 'Leather']), [], candidatePaths: []);
+        $index = $this->resolve($child, new StubPathStruct(customFields: ['material' => 'Leather']), candidatePaths: []);
 
         static::assertSame([], $index->all()['child-1']->context);
     }
 
-    /**
-     * The path resolved to nothing, so there is nothing to reshape. Getting here at all would hand `project()`
-     * a null it is documented never to receive.
-     */
-    #[TestDox('skips the projection when the mapped path resolved to nothing')]
-    public function testAProjectionIsNotReachedForAPathThatResolvedToNull(): void
+    #[TestDox('omits a mapping whose live candidate declares a different effective value type')]
+    public function testCandidateValueTypeDriftProducesNoMappingDelivery(): void
     {
-        $index = $this->resolve(
-            $this->mappedChild(projection: StubUppercaseProjection::NAME),
-            new StubContextStruct(),
-            [new StubUppercaseProjection()]
+        $child = $this->mappedChild();
+
+        $index = $this->resolve($child, new StubContextStruct('page-cover'), candidateValueType: 'boolean');
+
+        static::assertSame([], $index->all()['child-1']->context);
+    }
+
+    #[TestDox('does not resolve a stored mapping whose target property is no longer mappable')]
+    public function testStoredMappingMustStillPassTheSharedTargetAdmissionRule(): void
+    {
+        $candidate = new MappingCandidate(
+            path: 'product.cover',
+            label: 'a label',
+            description: 'a description',
+            group: 'basic',
+            valueType: 'string',
+        );
+        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn(['product.cover' => $candidate]);
+        $candidates->expects($this->never())->method('resolveSourceForRootSource');
+        $resolver = new ContextDeliveryResolver(
+            new ContextDistributor(new ContextPathResolver()),
+            new ContextPathResolver(),
+            $candidates,
+            $this->mappingInspector($candidates, coverMappable: false),
         );
 
-        static::assertSame([], $index->all()['child-1']->context);
-    }
+        $delivery = $resolver->resolve([$this->mappedChild()], [], ['product' => new StubContextStruct('page-cover')], rootSource: 'product');
 
-    /**
-     * The plugin that registered the projection was uninstalled under a layout still mapping through it. The
-     * storefront keeps rendering and the mapped property receives no delivery.
-     */
-    #[TestDox('delivers nothing when the declared projection is no longer registered')]
-    public function testAnUnregisteredProjectionDeliversNothingForAnOptionalConsumer(): void
-    {
-        $index = $this->resolve(
-            $this->mappedChild(projection: StubUppercaseProjection::NAME),
-            new StubContextStruct('page-cover'),
-            []
-        );
-
-        static::assertSame([], $index->all()['child-1']->context);
-    }
-
-    /**
-     * The input-type gate. `StubUppercaseProjection` accepts a string and `product.child` resolves to a
-     * Struct, which is the shape a candidate declaring the wrong input type produces. Reaching `project()`
-     * with it would raise a TypeError mid-render instead.
-     */
-    #[TestDox('delivers nothing when the resolved value is not the type the projection accepts')]
-    public function testAValueOutsideTheProjectionsInputTypeDeliversNothing(): void
-    {
-        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
-            ->withConsumer(
-                'child',
-                ContextType::Single,
-                required: false,
-                scope: ConsumerScope::Root,
-                projection: StubUppercaseProjection::NAME,
-                source: MappingSourceReference::fromRootPath('product.child'),
-            )
-            ->build();
-
-        $index = $this->resolve(
-            $child,
-            new StubPathStruct('outer', new StubPathStruct('inner')),
-            [new StubUppercaseProjection()]
-        );
-
-        static::assertSame([], $index->all()['child-1']->context);
-    }
-
-    /**
-     * A required consumer fails naming the element, exactly as an unresolvable path does. No mapping is ever
-     * written required, so this is the element-YAML case rather than the authoring one.
-     */
-    #[TestDox('fails naming the element when a required consumer declares a projection that is not registered')]
-    public function testAnUnregisteredProjectionOnARequiredConsumerThrows(): void
-    {
-        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
-            ->withConsumer(
-                'cover',
-                ContextType::Single,
-                required: true,
-                scope: ConsumerScope::Root,
-                projection: StubUppercaseProjection::NAME,
-                source: MappingSourceReference::fromRootPath('product.cover'),
-            )
-            ->build();
-
-        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
-            'product.cover',
-            'child-1',
-            'Projection "stub_uppercase" is not registered',
-        ));
-
-        $this->resolve($child, new StubContextStruct('page-cover'), []);
+        static::assertSame([], $delivery->all()['child-1']->context);
     }
 
     #[TestDox('hands an exact-key root delivery the same instance the ambient map holds')]
@@ -711,18 +728,17 @@ class ContextDeliveryResolverTest extends TestCase
 
     private function resolver(): ContextDeliveryResolver
     {
-        return $this->resolverWith([]);
+        return $this->resolverWith();
     }
 
     /**
-     * @param list<AbstractContentPropertyProjection> $projections
      * @param list<string> $candidatePaths
      */
-    private function resolverWith(array $projections, array $candidatePaths = [
+    private function resolverWith(array $candidatePaths = [
         'product.cover',
         'product.customFields.material',
         'product.child',
-    ]): ContextDeliveryResolver
+    ], string $candidateValueType = 'string'): ContextDeliveryResolver
     {
         $candidates = [];
         foreach ($candidatePaths as $path) {
@@ -731,44 +747,89 @@ class ContextDeliveryResolverTest extends TestCase
                 label: 'a label',
                 description: 'a description',
                 group: 'basic',
-                valueType: 'string',
+                valueType: $candidateValueType,
             );
             $candidates[$candidate->source->displayName()] = $candidate;
         }
 
         $mappingSources = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $mappingSources->method('forRootSource')->willReturn($candidates);
+        $mappingSources->method('resolveSourceForRootSource')->willReturnCallback(
+            static function (?string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution {
+                $root = $context->rootValues[$source->id] ?? null;
+                if ($source->path === null) {
+                    return $root === null ? MappingSourceResolution::noValue() : MappingSourceResolution::resolved($root);
+                }
+
+                if (!$root instanceof Struct) {
+                    return MappingSourceResolution::noValue();
+                }
+
+                $result = (new ContextPathResolver())->resolveMappingPathWithPresence($root, explode('.', $source->path));
+
+                return $result['found']
+                    ? MappingSourceResolution::resolved($result['value'])
+                    : MappingSourceResolution::noValue();
+            }
+        );
 
         return new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
             new ContextPathResolver(),
-            new ContentSystemPropertyProjectionRegistry($projections),
-            new MappingTypeCompatibility(),
             $mappingSources,
+            $this->mappingInspector($mappingSources, $candidateValueType),
         );
     }
 
+    private function mappingInspector(
+        AbstractContentSystemMappingCandidateRegistry $candidates,
+        string $coverType = 'string',
+        bool $coverMappable = true,
+    ): StoredMappingInspector {
+        $specifications = [
+            'Sw:Section' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Section')->build(),
+            'Sw:Box' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Box')
+                ->primitive('cover', $coverType, mappable: $coverMappable)
+                ->primitive('title', 'string', mappable: true)
+                ->primitive('subtitle', 'string', mappable: true)
+                ->primitive('text', 'string', mappable: true)
+                ->build(),
+            'Sw:Card' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Card')
+                ->primitive('title', 'string', mappable: true)
+                ->primitive('subtitle', 'string', mappable: true)
+                ->build(),
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                ->primitive('text', 'string', mappable: true, inlineMappable: true)
+                ->build(),
+        ];
+        $types = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $types->method('has')->willReturnCallback(static fn (string $name): bool => isset($specifications[$name]));
+        $types->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specifications[$name]);
+
+        return new StoredMappingInspector($types, $candidates, new MappingTypeCompatibility(), new MappingConsumers(), new InlineMappingTokenParser());
+    }
+
     /**
-     * The shared shape of the projection cases: one child mapping `product.<member>` under a root, rendered
+     * One child mapping `product.<member>` under a root, rendered
      * against a single ambient `product`.
      *
-     * @param list<AbstractContentPropertyProjection> $projections
      * @param list<string> $candidatePaths
      */
-    private function resolve(StoredElement $child, Struct $ambient, array $projections, array $candidatePaths = [
+    private function resolve(StoredElement $child, Struct $ambient, array $candidatePaths = [
         'product.cover',
         'product.customFields.material',
         'product.child',
-    ]): ContextDeliveryIndex
+    ], string $candidateValueType = 'string', ?MappingRuntimeDiagnosticCollector $mappingDiagnostics = null): ContextDeliveryIndex
     {
         $root = StoredElementBuilder::create('Sw:Section', 'root-1')
             ->withSlot('main', [$child])
             ->build();
 
-        return $this->resolverWith($projections, $candidatePaths)->resolve([$root], [], ['product' => $ambient], rootSource: 'product');
+        return $this->resolverWith($candidatePaths, $candidateValueType)
+            ->resolve([$root], [], ['product' => $ambient], rootSource: 'product', mappingDiagnostics: $mappingDiagnostics);
     }
 
-    private function mappedChild(?string $projection): StoredElement
+    private function mappedChild(): StoredElement
     {
         return StoredElementBuilder::create('Sw:Box', 'child-1')
             ->withConsumer(
@@ -776,7 +837,6 @@ class ContextDeliveryResolverTest extends TestCase
                 ContextType::Single,
                 required: false,
                 scope: ConsumerScope::Root,
-                projection: $projection,
                 source: MappingSourceReference::fromRootPath('product.cover'),
             )
             ->build();

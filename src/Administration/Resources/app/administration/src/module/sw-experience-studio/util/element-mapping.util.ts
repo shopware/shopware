@@ -64,7 +64,7 @@ export function isInlineMappableProperty(property: ContentSystemElementTypePrope
  *
  * Unlike `getCandidatesForProperty` there is no `contextTypes` filter, because the property being filled is the text
  * itself rather than a typed slot. Non-root sources are allowed too: the server resolves them through their source
- * provider, while `valueType` ensures the value has a text form after any projection.
+ * provider, while `valueType` ensures the delivered value has a text form.
  *
  * @private
  * @sw-package discovery

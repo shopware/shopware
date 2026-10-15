@@ -52,6 +52,52 @@ class ContextPathResolver
     }
 
     /**
+     * Mapping-only optional lookup that distinguishes a missing segment from a present terminal null.
+     *
+     * @param array<string> $path
+     *
+     * @return array{found: bool, value: mixed}
+     */
+    public function resolveMappingPathWithPresence(?Struct $data, array $path): array
+    {
+        if ($path === []) {
+            return ['found' => $data !== null, 'value' => $data];
+        }
+
+        $current = $data;
+        $pathCount = \count($path);
+
+        foreach ($path as $index => $segment) {
+            if (
+                \is_array($current)
+                && $pathCount === 2
+                && $index === 1
+                && $path[0] === 'customFields'
+            ) {
+                return \array_key_exists($segment, $current)
+                    ? ['found' => true, 'value' => $current[$segment]]
+                    : ['found' => false, 'value' => null];
+            }
+
+            if (!$current instanceof Struct) {
+                return ['found' => false, 'value' => null];
+            }
+
+            $values = $current->getVars();
+            if (!\array_key_exists($segment, $values)) {
+                return ['found' => false, 'value' => null];
+            }
+
+            $current = $values[$segment];
+            if ($current === null && $index < $pathCount - 1) {
+                return ['found' => false, 'value' => null];
+            }
+        }
+
+        return ['found' => true, 'value' => $current];
+    }
+
+    /**
      * Check if a consumer key matches or is a subpath of a provider key.
      *
      * Enables consumers to access nested properties via path resolution

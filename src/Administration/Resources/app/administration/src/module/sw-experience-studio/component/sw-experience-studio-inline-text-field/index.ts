@@ -1,6 +1,9 @@
 import { markRaw } from 'vue';
 import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbar';
-import type { ContentSystemMappingCandidate } from 'src/core/service/api/content-system-mapping-candidate.api.service';
+import type {
+    ContentSystemInlineMappingToken,
+    ContentSystemMappingCandidate,
+} from 'src/core/service/api/content-system-mapping-candidate.api.service';
 import { getMappingCandidateTranslation } from '../../util/element-mapping.util';
 import { editorHtmlToTokens, tokensToEditorHtml, MAPPING_TOKEN_NODE_NAME } from '../../util/inline-mapping.util';
 import { createMappingTokenNode } from '../../util/mapping-token-node';
@@ -65,6 +68,8 @@ export default Shopware.Component.wrapComponentConfig({
         customButtons: CustomButton[];
         editorHtml: string;
         lastEmittedValue: string | null;
+        parseRevision: number;
+        parsedTokens: ContentSystemInlineMappingToken[];
     } {
         return {
             isMappingModalOpen: false,
@@ -73,12 +78,14 @@ export default Shopware.Component.wrapComponentConfig({
             customButtons: [],
             editorHtml: '',
             lastEmittedValue: null,
+            parseRevision: 0,
+            parsedTokens: [],
         };
     },
 
     created() {
         this.createEditorConfig();
-        this.editorHtml = this.toEditorHtml(this.value);
+        void this.refreshEditorValue(this.value);
     },
 
     watch: {
@@ -94,7 +101,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.lastEmittedValue = null;
-            this.editorHtml = this.toEditorHtml(nextValue);
+            void this.refreshEditorValue(nextValue);
         },
 
         /**
@@ -116,6 +123,13 @@ export default Shopware.Component.wrapComponentConfig({
             return new Set(this.candidates.map((candidate) => candidate.path));
         },
 
+        knownTokenPaths(): Set<string> {
+            return new Set([
+                ...this.candidatePaths,
+                ...this.parsedTokens.map((token) => token.path),
+            ]);
+        },
+
         editorBindings(): object {
             return {
                 modelValue: this.editorHtml,
@@ -129,7 +143,35 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         toEditorHtml(value: string): string {
-            return tokensToEditorHtml(value, (path) => this.candidatePaths.has(path));
+            return tokensToEditorHtml(value, this.parsedTokens, (path) => this.knownTokenPaths.has(path));
+        },
+
+        async refreshEditorValue(value: string, updateEditorMarkup = true): Promise<void> {
+            const revision = ++this.parseRevision;
+
+            try {
+                const response = await Shopware.Service('contentSystemMappingCandidateService').parseInlineMappingTokens(
+                    value,
+                    revision,
+                );
+                if (revision !== this.parseRevision || response.revision !== revision) {
+                    return;
+                }
+
+                this.parsedTokens = response.tokens;
+                if (updateEditorMarkup) {
+                    this.editorHtml = this.toEditorHtml(value);
+                }
+            } catch {
+                if (revision !== this.parseRevision) {
+                    return;
+                }
+
+                this.parsedTokens = [];
+                if (updateEditorMarkup) {
+                    this.editorHtml = tokensToEditorHtml(value, [], () => false);
+                }
+            }
         },
 
         /**
@@ -190,9 +232,10 @@ export default Shopware.Component.wrapComponentConfig({
          */
         onUpdateEditorHtml(html: string): void {
             this.editorHtml = html;
-            this.lastEmittedValue = editorHtmlToTokens(html);
+            this.lastEmittedValue = editorHtmlToTokens(html, this.knownTokenPaths);
 
             this.$emit('update:value', this.lastEmittedValue);
+            void this.refreshEditorValue(this.lastEmittedValue, false);
         },
 
         onOpenMappingModal(editor: MinimalEditor): void {

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Mapping\Registry;
 
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\Log\Package;
 
@@ -28,13 +29,13 @@ abstract class AbstractContentSystemMappingCandidateRegistry
     abstract public function forRootSource(string $rootSource): array;
 
     /**
-     * Resolve an admitted non-root source through the provider that offered it for this root source;
-     * a missing provider/value is represented by null.
+     * Resolve an admitted source through the provider that offered it for this root source;
+     * explicit result distinguishes a resolved null, no value, and provider failure.
      */
     abstract public function resolveSource(
         MappingSourceReference $source,
         MappingSourceResolutionContext $context,
-    ): mixed;
+    ): MappingSourceResolution;
 
     /**
      * Resolve a source through the provider that offered it for the specified root source. Passing the root
@@ -45,9 +46,9 @@ abstract class AbstractContentSystemMappingCandidateRegistry
         ?string $rootSource,
         MappingSourceReference $source,
         MappingSourceResolutionContext $context,
-    ): mixed {
+    ): MappingSourceResolution {
         if ($rootSource === null) {
-            return null;
+            return MappingSourceResolution::noValue();
         }
 
         return $this->resolveSource(

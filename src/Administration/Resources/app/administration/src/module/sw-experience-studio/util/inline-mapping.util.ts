@@ -14,30 +14,7 @@
  * @sw-package discovery
  */
 
-/**
- * Mirrors `InlineMappingTokenParser::TOKEN_PATTERN` on the server. The two must agree exactly: a token this file
- * writes but the server does not recognise renders as visible braces on the storefront, and a token the server
- * recognises but this file does not becomes editable text the author can corrupt.
- *
- * @private
- */
-const TOKEN_PATTERN =
-    /\{\{\s*map:((?:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+|[A-Za-z0-9_]+)(?:\.[A-Za-z0-9_\x7f-\u{10FFFF}]+)+)\s*\}\}/gu;
-
-/**
- * A single dotted path, anchored — used to vet an attribute value that came back from the editor.
- *
- * @private
- */
-const PATH_PATTERN = /^(?:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+|[A-Za-z0-9_]+)(?:\.[A-Za-z0-9_\x7f-\u{10FFFF}]+)+$/u;
-
-/**
- * A whole text mapped to one value: a token and nothing else.
- *
- * @private
- */
-const WHOLE_TEXT_TOKEN_PATTERN =
-    /^\{\{\s*map:((?:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+|[A-Za-z0-9_]+)(?:\.[A-Za-z0-9_\x7f-\u{10FFFF}]+)+)\s*\}\}$/u;
+import type { ContentSystemInlineMappingToken } from 'src/core/service/api/content-system-mapping-candidate.api.service';
 
 /**
  * @private
@@ -95,43 +72,64 @@ export function canonicalInlineMappingToken(path: string): string {
 }
 
 /**
- * Lists the mapping paths a stored text refers to, in document order, with duplicates kept.
+ * Stored text to editor markup.
+ *
+ * `isKnownPath` decides which server-recognized tokens become nodes. Recognition comes from the PHP parser, not from
+ * the selectable candidate catalogue: a token stays editable when its label is unavailable, and the node falls
+ * back to showing its path. Candidate availability controls insertion and resolution, not whether existing syntax
+ * survives an edit.
  *
  * @private
  */
-export function parseInlineMappingTokens(text: string): string[] {
-    const paths: string[] = [];
+export function tokensToEditorHtml(
+    text: string,
+    tokens: ContentSystemInlineMappingToken[],
+    isKnownPath: (path: string) => boolean,
+): string {
+    let substituted = '';
+    let cursor = 0;
 
-    for (const match of text.matchAll(TOKEN_PATTERN)) {
-        paths.push(match[1]);
+    for (const token of tokens) {
+        if (token.insideMarkup || !isKnownPath(token.path)) {
+            continue;
+        }
+
+        const offset = utf8ByteOffsetToUtf16Index(text, token.offset);
+        if (offset < cursor || text.slice(offset, offset + token.match.length) !== token.match) {
+            continue;
+        }
+
+        substituted += text.slice(cursor, offset);
+        substituted += `<span ${MAPPING_TOKEN_ATTRIBUTE}="${token.path}"></span>`;
+        cursor = offset + token.match.length;
     }
 
-    return paths;
+    substituted += text.slice(cursor);
+
+    return ensureBlockLevel(substituted);
 }
 
 /**
- * Stored text to editor markup.
- *
- * `isKnownPath` decides which tokens become nodes. A token naming a path the catalogue does not describe is left as
- * literal text, mirroring how the server leaves it verbatim in the rendered output: the author sees their typo
- * instead of a chip claiming to be a mapping. Turning it into a node would be worse than cosmetic — the node would
- * write itself back as a well-formed token, so the editor would have laundered a mistake into something that looks
- * deliberate.
+ * PHP reports byte offsets while JavaScript string operations use UTF-16 code units. Convert the server span before
+ * slicing, preserving correct positions when authored text before a token contains non-ASCII characters.
  *
  * @private
  */
-export function tokensToEditorHtml(text: string, isKnownPath: (path: string) => boolean): string {
-    const substituted = text.replace(TOKEN_PATTERN, (match, path: string) => {
-        if (!isKnownPath(path)) {
-            return match;
+function utf8ByteOffsetToUtf16Index(text: string, byteOffset: number): number {
+    let bytes = 0;
+    let codeUnits = 0;
+
+    while (codeUnits < text.length && bytes < byteOffset) {
+        const codePoint = text.codePointAt(codeUnits);
+        if (codePoint === undefined) {
+            return -1;
         }
 
-        // The path charset admits no character that is special in an attribute value, which the anchored pattern
-        // above guarantees before the token is ever written back.
-        return `<span ${MAPPING_TOKEN_ATTRIBUTE}="${path}"></span>`;
-    });
+        bytes += codePoint <= 0x7f ? 1 : codePoint <= 0x7ff ? 2 : codePoint <= 0xffff ? 3 : 4;
+        codeUnits += codePoint > 0xffff ? 2 : 1;
+    }
 
-    return ensureBlockLevel(substituted);
+    return bytes === byteOffset ? codeUnits : -1;
 }
 
 /**
@@ -179,18 +177,18 @@ function ensureBlockLevel(html: string): string {
  *
  * @private
  */
-export function editorHtmlToTokens(html: string): string {
+export function editorHtmlToTokens(html: string, knownPaths: Set<string>): string {
     const document = new DOMParser().parseFromString(`<body>${html}</body>`, 'text/html');
     const nodes = Array.from(document.body.querySelectorAll(`span[${MAPPING_TOKEN_ATTRIBUTE}]`));
 
     for (const node of nodes) {
         const path = node.getAttribute(MAPPING_TOKEN_ATTRIBUTE) ?? '';
-        const replacement = PATH_PATTERN.test(path) ? canonicalInlineMappingToken(path) : (node.textContent ?? '');
+        const replacement = knownPaths.has(path) ? canonicalInlineMappingToken(path) : (node.textContent ?? '');
 
         node.replaceWith(document.createTextNode(replacement));
     }
 
-    return bareStoredValue(document.body) ?? document.body.innerHTML;
+    return bareStoredValue(document.body, knownPaths) ?? document.body.innerHTML;
 }
 
 /**
@@ -217,7 +215,7 @@ export function editorHtmlToTokens(html: string): string {
  *
  * @private
  */
-function bareStoredValue(body: HTMLElement): string | null {
+function bareStoredValue(body: HTMLElement, knownPaths: Set<string>): string | null {
     const paragraph = loneBareParagraph(body);
 
     if (paragraph === null) {
@@ -235,9 +233,9 @@ function bareStoredValue(body: HTMLElement): string | null {
         return null;
     }
 
-    const match = WHOLE_TEXT_TOKEN_PATTERN.exec(text);
+    const path = Array.from(knownPaths).find((candidate) => canonicalInlineMappingToken(candidate) === text);
 
-    return match ? canonicalInlineMappingToken(match[1]) : null;
+    return path === undefined ? null : canonicalInlineMappingToken(path);
 }
 
 /**

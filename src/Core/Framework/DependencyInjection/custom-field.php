@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition;
@@ -58,7 +57,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('custom_field.repository'),
             service('cache.object'),
-            service(CacheTagCollector::class),
         ])
         ->tag('content_system.mapping_candidate_provider');
 

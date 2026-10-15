@@ -1050,7 +1050,6 @@ export default Shopware.Component.wrapComponentConfig({
             propertyKey: string;
             source: { type: string; id: string; config?: Record<string, unknown>; path?: string } | null;
             contextType: 'single' | 'collection' | null;
-            projection?: string | null;
         }): Promise<void> {
             if (!this.layout) {
                 return;

@@ -53,7 +53,6 @@ function candidate(overrides: Partial<ContentSystemMappingCandidate> = {}): Cont
         group: 'basic',
         valueType: 'string',
         contextType: 'single',
-        projection: null,
         ...overrides,
     };
 }
@@ -96,20 +95,6 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                 'product.active',
                 'context:storefront.currency.isoCode',
             ]);
-        });
-
-        /**
-         * `valueType` is the effective type after any projection, so a projection that formats an entity as text is
-         * offered on its result rather than on the entity it reads.
-         */
-        it('offers a projected candidate on its projected type', () => {
-            const projected = candidate({
-                path: 'product.releaseDate',
-                valueType: 'string',
-                projection: 'product.release_date.formatted',
-            });
-
-            expect(getInlineMappingCandidates([projected])).toEqual([projected]);
         });
 
         it('offers stringifiable context candidates to inline text mappings', () => {

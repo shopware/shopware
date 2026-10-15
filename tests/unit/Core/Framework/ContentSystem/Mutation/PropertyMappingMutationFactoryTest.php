@@ -10,10 +10,13 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\PropertyMappingMutationFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
@@ -76,6 +79,12 @@ class PropertyMappingMutationFactoryTest extends TestCase
             ),
         ]);
 
-        return new PropertyMappingMutationFactory($typeRegistry, $candidateRegistry, new MappingTypeCompatibility());
+        return new PropertyMappingMutationFactory($typeRegistry, new StoredMappingInspector(
+            $typeRegistry,
+            $candidateRegistry,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            new InlineMappingTokenParser(),
+        ));
     }
 }

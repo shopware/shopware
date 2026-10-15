@@ -29,7 +29,6 @@ class MappingCandidateTest extends TestCase
             group: 'media',
             valueType: MediaEntity::class,
             contextType: ContextType::Single,
-            projection: 'media_from_category',
         );
 
         $schema = $candidate->toSchema();
@@ -50,7 +49,6 @@ class MappingCandidateTest extends TestCase
                 ...array_values(class_implements(MediaEntity::class) ?: []),
             ],
             'contextType' => 'single',
-            'projection' => 'media_from_category',
         ], $schema);
         static::assertContains(Entity::class, $schema['compatibleTypes']);
         static::assertContains(Struct::class, $schema['compatibleTypes']);
@@ -60,7 +58,7 @@ class MappingCandidateTest extends TestCase
         static::assertSame([], get_object_vars($descriptionTranslations));
     }
 
-    public function testAnUnprojectedCandidateReportsANullProjectionRatherThanOmittingTheKey(): void
+    public function testAPrimitiveCandidateHasNoCompatibleClassTypes(): void
     {
         $candidate = new MappingCandidate(
             path: 'category.name',
@@ -72,8 +70,6 @@ class MappingCandidateTest extends TestCase
 
         $schema = $candidate->toSchema();
 
-        static::assertArrayHasKey('projection', $schema);
-        static::assertNull($schema['projection']);
         static::assertSame([], $schema['compatibleTypes']);
     }
 

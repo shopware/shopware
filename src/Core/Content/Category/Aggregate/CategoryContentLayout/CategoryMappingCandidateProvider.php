@@ -2,8 +2,12 @@
 
 namespace Shopware\Core\Content\Category\Aggregate\CategoryContentLayout;
 
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\Log\Package;
 
@@ -11,14 +15,8 @@ use Shopware\Core\Framework\Log\Package;
  * The mapping catalogue for a listing page layout: the category fields an author may bind a mappable element
  * property to.
  *
- * Every path here reads a member that sits DIRECTLY on the category entity, which is what makes it resolvable:
- * `ContextPathResolver` needs a `Struct` at every intermediate step, so a one-hop path has no intermediate to
- * fail on. `media` is offered because `CategoryContentLayoutDefinition::getEntityAssociations()` eager-loads
- * it — an association the page-level requirement does not load would resolve to null on every render.
- *
- * The translated members (`name`, `description`, the meta fields) need no `.translated` hop: the DAL has
- * already written the context language's value onto the member itself by the time the layout renders, and
- * `category.translated.name` could not resolve anyway, because `translated` is a plain array.
+ * Reads only the declared members through entity accessors, preferring the active translation where relevant.
+ * `media` is offered because `CategoryContentLayoutDefinition::getEntityAssociations()` eager-loads it.
  *
  * @internal
  */
@@ -52,6 +50,32 @@ class CategoryMappingCandidateProvider extends AbstractMappingCandidateProvider
                 valueType: MediaEntity::class,
             ),
         ];
+    }
+
+    public function resolveRootSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
+    {
+        if ($source->type !== 'root' || !$this->supports($source->id)) {
+            return MappingSourceResolution::noValue();
+        }
+
+        $category = $context->rootValues[$source->id] ?? null;
+        if (!$category instanceof CategoryEntity) {
+            return MappingSourceResolution::noValue();
+        }
+
+        $value = match ($source->path) {
+            'name' => $category->getTranslation('name') ?? $category->getName(),
+            'description' => $category->getTranslation('description') ?? $category->getDescription(),
+            'metaTitle' => $category->getTranslation('metaTitle') ?? $category->getMetaTitle(),
+            'metaDescription' => $category->getTranslation('metaDescription') ?? $category->getMetaDescription(),
+            'keywords' => $category->getTranslation('keywords') ?? $category->getKeywords(),
+            'media' => $category->getMedia(),
+            default => null,
+        };
+
+        return \in_array($source->path, ['name', 'description', 'metaTitle', 'metaDescription', 'keywords', 'media'], true)
+            ? MappingSourceResolution::resolved($value)
+            : MappingSourceResolution::noValue();
     }
 
     private function text(string $member, string $group): MappingCandidate

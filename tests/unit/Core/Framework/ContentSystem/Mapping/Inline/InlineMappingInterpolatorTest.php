@@ -7,20 +7,30 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StubPathStruct;
-use Shopware\Core\Test\Stub\ContentSystem\StubUppercaseProjection;
 
 /**
- * The three outcomes this class has to keep apart: a path the catalogue never offered (null, so the token survives),
- * a catalogued path that resolved to nothing (empty string), and a resolved one (escaped text).
+ * An unresolved candidate or value returns null so the caller preserves the token; a resolved value returns escaped
+ * text, including an actual empty string.
  *
  * @internal
  */
@@ -30,21 +40,30 @@ class InlineMappingInterpolatorTest extends TestCase
 {
     private const NAME_PATH = 'product.name';
 
-    /**
-     * `nonStructProp` is just a plain string member on the stub; the name refers to its role in other tests.
-     */
-    private const PROJECTED_PATH = 'product.nonStructProp';
-
     public function testResolvesACataloguedPathToItsText(): void
     {
         $ambient = ['product' => new StubPathStruct(name: 'Shirt')];
 
-        static::assertSame('Shirt', $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', 'el-1'));
+        static::assertSame('Shirt', $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element()));
+    }
+
+    public function testInlineProductTokenUsesTheOwningProvidersActiveTranslation(): void
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setName('Raw variant name');
+        $product->setTranslated(['name' => 'Inherited storefront name']);
+        $candidates = new ContentSystemMappingCandidateRegistry([new ProductMappingCandidateProvider(new ProductContentLayoutDefinition())]);
+        $interpolator = new InlineMappingInterpolator(
+            $candidates,
+            $this->mappingInspector($candidates),
+        );
+
+        static::assertSame('Inherited storefront name', $interpolator->interpolate(self::NAME_PATH, ['product' => $product], 'product', $this->element()));
     }
 
     /**
-     * Null rather than an empty string, because the caller reads null as "leave the author's characters alone". An
-     * uncatalogued token was never a mapping, so deleting it would be presumptuous and a typo would go unnoticed.
+     * Null rather than an empty string, because the caller reads null as "leave the author's characters alone". A
+     * missing value is not evidence that the author intended to delete the token or surrounding text.
      */
     #[TestDox('resolves a stringifiable context candidate through its provider')]
     public function testResolvesAContextCandidateThroughItsProvider(): void
@@ -59,11 +78,10 @@ class InlineMappingInterpolatorTest extends TestCase
         );
         $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $candidates->method('forRootSource')->willReturn([$candidate->source->displayName() => $candidate]);
-        $candidates->method('resolveSourceForRootSource')->willReturn('EUR');
+        $candidates->method('resolveSourceForRootSource')->willReturn(MappingSourceResolution::resolved('EUR'));
         $interpolator = new InlineMappingInterpolator(
             $candidates,
-            new ContentSystemPropertyProjectionRegistry([]),
-            new ContextPathResolver(),
+            $this->mappingInspector($candidates),
         );
 
         static::assertSame(
@@ -72,10 +90,31 @@ class InlineMappingInterpolatorTest extends TestCase
                 $candidate->path,
                 [],
                 'product',
-                'el-1',
-                new StoredElement('el-1', 'Sw:Content:Text'),
+                $this->element(),
             ),
         );
+    }
+
+    public function testProviderFailureLeavesTheInlineTokenUnresolved(): void
+    {
+        $candidate = new MappingCandidate('product.name', 'name', '', 'basic', 'string');
+        $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
+        $candidates->method('resolveSourceForRootSource')->willReturn(MappingSourceResolution::failed(new \RuntimeException('provider failed')));
+        $interpolator = new InlineMappingInterpolator($candidates, $this->mappingInspector($candidates));
+
+        $diagnostics = new MappingRuntimeDiagnosticCollector();
+
+        static::assertNull($interpolator->interpolate(
+            self::NAME_PATH,
+            [],
+            'product',
+            $this->element(),
+            mappingDiagnostics: $diagnostics,
+            propertyKey: 'text',
+        ));
+        static::assertSame(ViolationCode::InvalidMapping, $diagnostics->violations()[0]->code);
+        static::assertSame('text', $diagnostics->violations()[0]->key);
     }
 
     #[TestDox('answers null for a path the catalogue does not offer, which leaves the token verbatim')]
@@ -83,7 +122,7 @@ class InlineMappingInterpolatorTest extends TestCase
     {
         $ambient = ['product' => new StubPathStruct(name: 'Shirt')];
 
-        static::assertNull($this->interpolator()->interpolate('product.secret', $ambient, 'product', 'el-1'));
+        static::assertNull($this->interpolator()->interpolate('product.secret', $ambient, 'product', $this->element()));
     }
 
     /**
@@ -98,16 +137,29 @@ class InlineMappingInterpolatorTest extends TestCase
     }
 
     /**
-     * Empty, not null: a mapping DID run, it just found nothing. There is no authored value to fall back to the way a
-     * whole-field mapping has, because here the surrounding text is the authored value.
+     * An unavailable source makes the whole affected text property unavailable to the storefront.
      *
      * @param array<string, mixed> $ambient
      */
     #[DataProvider('unresolvableAmbientProvider')]
-    #[TestDox('renders a catalogued path that resolved to nothing as empty')]
-    public function testRendersACataloguedButUnresolvedPathAsEmpty(array $ambient): void
+    #[TestDox('answers null for a catalogued path that resolved to nothing')]
+    public function testAnswersNullForACataloguedButUnresolvedPath(array $ambient): void
     {
-        static::assertSame('', $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', 'el-1'));
+        static::assertNull($this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element()));
+    }
+
+    public function testKeepsAResolvedEmptyStringDistinctFromMissingValue(): void
+    {
+        $ambient = ['product' => new StubPathStruct(name: '')];
+
+        static::assertSame('', $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element()));
+    }
+
+    public function testRejectsAResolvedValueOutsideTheCandidatesEffectiveType(): void
+    {
+        $ambient = ['product' => new StubPathStruct(customFields: ['material' => 42])];
+
+        static::assertNull($this->interpolator()->interpolate('product.customFields.material', $ambient, 'product', $this->element()));
     }
 
     /**
@@ -132,49 +184,15 @@ class InlineMappingInterpolatorTest extends TestCase
     {
         $ambient = ['product' => new StubPathStruct(name: $stored)];
 
-        static::assertSame($expected, $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', 'el-1'));
+        static::assertSame($expected, $this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'product', $this->element()));
     }
 
-    #[TestDox('renders a catalogued path whose value has no text form as empty')]
-    public function testRendersANonStringifiableCandidateAsEmpty(): void
+    #[TestDox('answers null for a catalogued path whose value has no text form')]
+    public function testAnswersNullForANonStringifiableCandidate(): void
     {
         $ambient = ['product' => new StubPathStruct(name: 'Shirt')];
 
-        static::assertSame('', $this->interpolator()->interpolate('product.media', $ambient, 'product', 'el-1'));
-    }
-
-    #[TestDox('applies the projection the candidate declares before writing the value into the text')]
-    public function testAppliesTheCandidatesProjection(): void
-    {
-        $ambient = ['product' => new StubPathStruct(nonStructProp: 'Shirt')];
-
-        static::assertSame('SHIRT', $this->interpolator()->interpolate(self::PROJECTED_PATH, $ambient, 'product', 'el-1'));
-    }
-
-    /**
-     * Stored data can outlive the plugin that registered its projection. Rendering empty keeps the page up, which
-     * matches how a whole-field mapping degrades.
-     */
-    #[TestDox('renders empty when the declared projection is no longer registered')]
-    public function testRendersEmptyWhenTheProjectionIsMissing(): void
-    {
-        $ambient = ['product' => new StubPathStruct(nonStructProp: 'Shirt')];
-        $interpolator = $this->interpolator(projections: []);
-
-        static::assertSame('', $interpolator->interpolate(self::PROJECTED_PATH, $ambient, 'product', 'el-1'));
-    }
-
-    /**
-     * A projection declares its input type as a contract and is entitled to assume it, so a value outside that type
-     * must never reach it. This is the case where a candidate's declared type and the data's actual shape disagree,
-     * which stored data outliving its code can produce.
-     */
-    #[TestDox('renders empty rather than calling a projection with a value outside its declared input type')]
-    public function testRendersEmptyWhenTheValueIsOutsideTheProjectionsInputType(): void
-    {
-        $ambient = ['product' => new StubPathStruct(nonStructProp: 42)];
-
-        static::assertSame('', $this->interpolator()->interpolate(self::PROJECTED_PATH, $ambient, 'product', 'el-1'));
+        static::assertNull($this->interpolator()->interpolate('product.media', $ambient, 'product', $this->element()));
     }
 
     #[TestDox('reads a path through nested Structs')]
@@ -182,7 +200,7 @@ class InlineMappingInterpolatorTest extends TestCase
     {
         $ambient = ['product' => new StubPathStruct(child: new StubPathStruct(name: 'Inner'))];
 
-        static::assertSame('Inner', $this->interpolator()->interpolate('product.child.name', $ambient, 'product', 'el-1'));
+        static::assertSame('Inner', $this->interpolator()->interpolate('product.child.name', $ambient, 'product', $this->element()));
     }
 
     #[TestDox('answers nothing for a root source with no catalogue at all')]
@@ -190,54 +208,87 @@ class InlineMappingInterpolatorTest extends TestCase
     {
         $ambient = ['product' => new StubPathStruct(name: 'Shirt')];
 
-        static::assertNull($this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'category', 'el-1'));
+        static::assertNull($this->interpolator()->interpolate(self::NAME_PATH, $ambient, 'category', $this->element()));
     }
 
-    /**
-     * @param list<StubUppercaseProjection>|null $projections
-     */
-    private function interpolator(?array $projections = null): InlineMappingInterpolator
+    private function interpolator(): InlineMappingInterpolator
     {
-        $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
-        $candidates->method('forRootSource')->willReturnCallback(
-            static fn (string $rootSource): array => $rootSource !== 'product' ? [] : [
-                self::NAME_PATH => new MappingCandidate(
-                    path: self::NAME_PATH,
-                    label: 'a label',
-                    description: 'a description',
-                    group: 'basic',
-                    valueType: 'string',
-                ),
-                'product.child.name' => new MappingCandidate(
-                    path: 'product.child.name',
-                    label: 'a label',
-                    description: 'a description',
-                    group: 'basic',
-                    valueType: 'string',
-                ),
-                'product.media' => new MappingCandidate(
-                    path: 'product.media',
-                    label: 'a label',
-                    description: 'a description',
-                    group: 'media',
-                    valueType: MediaEntity::class,
-                ),
-                // Key and path always agree: the real registry is documented as keyed BY path.
-                self::PROJECTED_PATH => new MappingCandidate(
-                    path: self::PROJECTED_PATH,
-                    label: 'a label',
-                    description: 'a description',
-                    group: 'basic',
-                    valueType: 'string',
-                    projection: StubUppercaseProjection::NAME,
-                ),
-            ]
-        );
+        $candidates = new ContentSystemMappingCandidateRegistry([new InlineTestRootProvider([
+            self::NAME_PATH => new MappingCandidate(
+                path: self::NAME_PATH,
+                label: 'a label',
+                description: 'a description',
+                group: 'basic',
+                valueType: 'string',
+            ),
+            'product.child.name' => new MappingCandidate(
+                path: 'product.child.name',
+                label: 'a label',
+                description: 'a description',
+                group: 'basic',
+                valueType: 'string',
+            ),
+            'product.customFields.material' => new MappingCandidate(
+                path: 'product.customFields.material',
+                label: 'material',
+                description: '',
+                group: 'basic',
+                valueType: 'string',
+            ),
+            'product.media' => new MappingCandidate(
+                path: 'product.media',
+                label: 'a label',
+                description: 'a description',
+                group: 'media',
+                valueType: MediaEntity::class,
+            ),
+        ])]);
 
         return new InlineMappingInterpolator(
             $candidates,
-            new ContentSystemPropertyProjectionRegistry($projections ?? [new StubUppercaseProjection()]),
-            new ContextPathResolver(),
+            $this->mappingInspector($candidates),
         );
+    }
+
+    private function mappingInspector(AbstractContentSystemMappingCandidateRegistry $candidates): StoredMappingInspector
+    {
+        $types = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $types->method('has')->willReturn(false);
+
+        return new StoredMappingInspector(
+            $types,
+            $candidates,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            new InlineMappingTokenParser(),
+        );
+    }
+
+    private function element(): StoredElement
+    {
+        return new StoredElement('el-1', 'Sw:Content:Text');
+    }
+}
+
+/**
+ * @internal
+ */
+class InlineTestRootProvider extends AbstractMappingCandidateProvider
+{
+    /**
+     * @param array<string, MappingCandidate> $candidates
+     */
+    public function __construct(private readonly array $candidates)
+    {
+    }
+
+    public function supports(string $rootSource): bool
+    {
+        return $rootSource === 'product';
+    }
+
+    public function provide(string $rootSource): array
+    {
+        return array_values($this->candidates);
     }
 }

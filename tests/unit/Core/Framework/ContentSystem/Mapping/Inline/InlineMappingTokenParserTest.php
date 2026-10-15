@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingToken;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\Log\Package;
@@ -94,6 +95,30 @@ class InlineMappingTokenParserTest extends TestCase
         static::assertSame(4, $tokens[0]->offset);
     }
 
+    public function testParseRejectsOversizedTextThatContainsMappingIntent(): void
+    {
+        $text = str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES) . '{{map:product.name}}';
+
+        $this->expectExceptionObject(ContentSystemException::inlineMappingInputTooLarge(InlineMappingTokenParser::MAX_INPUT_BYTES));
+
+        $this->parser()->parse($text);
+    }
+
+    public function testParseAllowsLongLiteralTextWithoutMappingIntent(): void
+    {
+        $text = str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES + 1);
+
+        static::assertSame([], $this->parser()->parse($text));
+    }
+
+    public function testParseScansMoreThanTheOldTokenLimitWithoutTruncating(): void
+    {
+        $tokenCount = 1_000;
+        $text = implode(' ', array_fill(0, $tokenCount, '{{map:product.name}}'));
+
+        static::assertCount($tokenCount, $this->parser()->parse($text));
+    }
+
     public function testReplaceSubstitutesEveryResolvedToken(): void
     {
         $replaced = $this->parser()->replace(
@@ -150,6 +175,7 @@ class InlineMappingTokenParserTest extends TestCase
         yield 'after a closed tag' => ['<p>hi</p>{{map:product.name}}', false];
         yield 'no markup at all' => ['{{map:product.name}}', false];
         yield 'after a stray closing bracket' => ['a > b {{map:product.name}}', false];
+        yield 'quoted greater-than inside an attribute' => ['<a title="a > {{map:product.name}}">x</a>', true];
     }
 
     #[DataProvider('markupPositionProvider')]
@@ -161,6 +187,17 @@ class InlineMappingTokenParserTest extends TestCase
 
         static::assertCount(1, $tokens);
         static::assertSame($expected, $parser->occursInsideMarkup($text, $tokens[0]->offset));
+        static::assertSame($expected, $tokens[0]->insideMarkup);
+    }
+
+    #[TestDox('never resolves a mapping token inside an HTML attribute')]
+    public function testReplaceLeavesAttributeTokensLiteral(): void
+    {
+        $text = '<a title="a > {{map:product.name}}">{{map:product.name}}</a>';
+
+        $resolved = $this->parser()->replace($text, static fn (): string => 'Shirt');
+
+        static::assertSame('<a title="a > {{map:product.name}}">Shirt</a>', $resolved);
     }
 
     private function parser(): InlineMappingTokenParser

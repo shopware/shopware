@@ -112,10 +112,9 @@ class StoredElementBuilder
         ?string $consumerAlias = null,
         ?string $propertyAlias = null,
         ConsumerScope $scope = ConsumerScope::Parent,
-        ?string $projection = null,
         ?MappingSourceReference $source = null,
     ): self {
-        $this->consumers[$key] = new ContextConsumer($type, $required, $redistribute, $consumerAlias, $propertyAlias, $scope, $projection, $source);
+        $this->consumers[$key] = new ContextConsumer($type, $required, $redistribute, $consumerAlias, $propertyAlias, $scope, $source);
 
         return $this;
     }

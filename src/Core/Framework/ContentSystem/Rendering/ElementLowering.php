@@ -4,13 +4,17 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingMetadata;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\Provider\StorefrontContextMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -78,8 +82,7 @@ final readonly class ElementLowering
      * @param list<DataRequirement> $pageDataRequirements the rendering specification's page-level requirements
      * @param StoredElement|null $virtualRoot the wrapper the preparation minted, or null when it did not wrap
      * @param string|null $rootSource the specification's root source, naming the mapping catalogue inline tokens
-     *                                resolve against; without one, storefront rendering removes valid tokens
-     * @param bool $preserveUncataloguedInlineTokens whether Admin preview keeps unresolved inline tokens visible
+     *                                resolve against; without one, mapping-like text remains literal
      *
      * @throws ContentSystemException when a required consumer's path cannot be resolved
      */
@@ -92,20 +95,23 @@ final readonly class ElementLowering
         array $pageDataRequirements,
         ?StoredElement $virtualRoot,
         ?string $rootSource = null,
-        bool $preserveUncataloguedInlineTokens = false,
+        ?InlineMappingMetadata $inlineMappings = null,
     ): LoweringResult {
         if ($mode === RenderingMode::SKELETON) {
             return $this->treeFactory->create($forest, new ContextDeliveryIndex(), [], $mode);
         }
 
-        $loaderValues = $this->resolveLoaderValues($forest, $context, $request, $cacheContext);
+        $mappingDiagnostics = new MappingRuntimeDiagnosticCollector();
+        $inlineMappings ??= new InlineMappingMetadata();
+
+        $loaderValues = $this->resolveLoaderValues($forest, $context, $request, $cacheContext, $rootSource, $inlineMappings);
         $ambient = [];
 
         // No wrapper, or no page-level requirement a root-scoped consumer reads: nothing ambient to resolve.
         // The wrapper comes from the pre-prune forest, so consumption is judged over the whole page and a
         // partial render loads the same requirements as the full render.
         if ($virtualRoot !== null) {
-            $consumed = $this->consumedRequirements([$virtualRoot], $pageDataRequirements);
+            $consumed = $this->consumedRequirements([$virtualRoot], $pageDataRequirements, $inlineMappings);
 
             if ($consumed !== []) {
                 $ambient = $this->dataResolver->resolveRequirements(
@@ -136,6 +142,7 @@ final readonly class ElementLowering
             $request,
             $cacheContext,
             $rootSource,
+            $mappingDiagnostics,
         );
 
         // Inline mapping expansion sits between delivery and the mint, and that is the only window it fits in: it
@@ -152,10 +159,13 @@ final readonly class ElementLowering
             $request,
             $cacheContext,
             $plainLoaderValues,
-            $preserveUncataloguedInlineTokens,
+            $mappingDiagnostics,
+            $inlineMappings,
         );
 
-        return $this->treeFactory->create($forest, $deliveries, $loaderValues, $mode);
+        $lowered = $this->treeFactory->create($forest, $deliveries, $loaderValues, $mode);
+
+        return new LoweringResult($lowered->tree, $lowered->provenance, $mappingDiagnostics->violations());
     }
 
     /**
@@ -180,9 +190,9 @@ final readonly class ElementLowering
      *
      * @return list<DataRequirement>
      */
-    private function consumedRequirements(array $forest, array $pageDataRequirements): array
+    private function consumedRequirements(array $forest, array $pageDataRequirements, InlineMappingMetadata $inlineMappings): array
     {
-        $rootConsumerKeys = $this->rootConsumerKeys($forest);
+        $rootConsumerKeys = $this->rootConsumerKeys($forest, $inlineMappings);
 
         return array_values(array_filter(
             $pageDataRequirements,
@@ -213,17 +223,17 @@ final readonly class ElementLowering
      *
      * @return list<string>
      */
-    private function rootConsumerKeys(array $elements): array
+    private function rootConsumerKeys(array $elements, InlineMappingMetadata $inlineMappings): array
     {
         $keys = [];
 
         foreach ($elements as $element) {
             $keys[] = $element->contextDefinitions->getConsumerKeysByScope(ConsumerScope::Root);
             $keys[] = array_values($this->mappingConsumers->mappedPaths($element));
-            $keys[] = $this->inlineMappingExpander->mappingPaths($element);
+            $keys[] = $this->inlineMappingExpander->mappingPaths($element, $inlineMappings);
 
             foreach ($element->slots as $children) {
-                $keys[] = $this->rootConsumerKeys($children);
+                $keys[] = $this->rootConsumerKeys($children, $inlineMappings);
             }
         }
 
@@ -263,17 +273,23 @@ final readonly class ElementLowering
         SalesChannelContext $context,
         Request $request,
         RenderingCacheContext $cacheContext,
+        ?string $rootSource,
+        InlineMappingMetadata $inlineMappings,
     ): array {
         $values = [];
 
         foreach ($forest as $root) {
-            $this->collectLoaderValues($root, $context, $request, $cacheContext, $values);
+            $this->collectLoaderValues($root, $context, $request, $cacheContext, $rootSource, $inlineMappings, $values);
         }
 
         return $values;
     }
 
     /**
+     * The internal Storefront context requirement is kept only while a whole-field consumer or inline token
+     * needs it. Inline text has no map operation to persist such a requirement, so it declares one here for
+     * this render. This preserves the normal data-loader cacheability path for both mapping forms.
+     *
      * @param array<string, array<string, ResolvedLoaderValue>> $values
      */
     private function collectLoaderValues(
@@ -281,9 +297,19 @@ final readonly class ElementLowering
         SalesChannelContext $context,
         Request $request,
         RenderingCacheContext $cacheContext,
+        ?string $rootSource,
+        InlineMappingMetadata $inlineMappings,
         array &$values,
     ): void {
-        $resolved = $this->dataResolver->resolve($element, $context, $request, $cacheContext);
+        $requirements = $element->dataRequirements;
+        $usesStorefrontContext = $rootSource !== null && $this->usesStorefrontContext($element, $inlineMappings);
+        if ($usesStorefrontContext) {
+            $requirements[StorefrontContextLoader::REQUIREMENT_KEY] = StorefrontContextLoader::requirement();
+        } else {
+            unset($requirements[StorefrontContextLoader::REQUIREMENT_KEY]);
+        }
+
+        $resolved = $this->dataResolver->resolveRequirements($element, $requirements, $context, $request, $cacheContext);
 
         if ($resolved !== []) {
             $values[$element->id] = $resolved;
@@ -291,8 +317,26 @@ final readonly class ElementLowering
 
         foreach ($element->slots as $children) {
             foreach ($children as $child) {
-                $this->collectLoaderValues($child, $context, $request, $cacheContext, $values);
+                $this->collectLoaderValues($child, $context, $request, $cacheContext, $rootSource, $inlineMappings, $values);
             }
         }
+    }
+
+    private function usesStorefrontContext(StoredElement $element, InlineMappingMetadata $inlineMappings): bool
+    {
+        foreach ($element->contextDefinitions->getAllConsumers() as $consumer) {
+            $source = $consumer->source;
+            if ($source !== null && StorefrontContextMappingCandidateProvider::isApprovedSource($source)) {
+                return true;
+            }
+        }
+
+        foreach ($this->inlineMappingExpander->mappingPaths($element, $inlineMappings) as $path) {
+            if (StorefrontContextMappingCandidateProvider::isApprovedDisplayName($path)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

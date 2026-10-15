@@ -67,7 +67,7 @@ class MappingTypeCompatibilityTest extends TestCase
     }
 
     /**
-     * The render-path counterpart, which holds a resolved value to the input type a projection declares.
+     * The render-path counterpart, which checks a provider's value against its candidate's effective type.
      */
     #[DataProvider('admissionProvider')]
     public function testAdmits(string $type, mixed $value, bool $expected): void

@@ -4,10 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping\Registry;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
@@ -86,7 +89,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         $provider->candidates = [$updated];
 
         static::assertSame($original, $registry->forRootSource('product')['plugin:example']);
-        static::assertSame('resolved', $registry->resolveSourceForRootSource('product', $source, $context));
+        static::assertSame('resolved', $registry->resolveSourceForRootSource('product', $source, $context)->value);
         static::assertSame(1, $provider->provideCalls);
 
         $registry->reset();
@@ -113,8 +116,98 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         ]);
         $decorator = new ForwardingMappingCandidateRegistry($registry);
 
-        static::assertSame('candidate provider', $decorator->resolveSourceForRootSource('product', $source, $context));
-        static::assertNull($decorator->resolveSourceForRootSource('category', $source, $context));
+        static::assertSame('candidate provider', $decorator->resolveSourceForRootSource('product', $source, $context)->value);
+        static::assertFalse($decorator->resolveSourceForRootSource('category', $source, $context)->hasValue);
+    }
+
+    public function testCollectsOnlyTheConsultedCandidatesCacheTags(): void
+    {
+        $source = new MappingSourceReference('plugin', 'example');
+        $candidate = self::candidate('plugin:example', source: $source, cacheTags: ['candidate-tag', 'set-tag']);
+        $cacheContext = new RenderingCacheContext();
+        $context = new MappingSourceResolutionContext(
+            new StoredElement('element-id', 'test-element'),
+            [],
+            [],
+            null,
+            null,
+            $cacheContext,
+            'product',
+        );
+        $registry = new ContentSystemMappingCandidateRegistry([
+            new SourceResolvingProvider(['product'], [$candidate], 'resolved'),
+            new StaticMappingCandidateProvider(['product'], [self::candidate('product.name')]),
+        ]);
+
+        $registry->resolveSource($source, $context);
+
+        static::assertSame(['candidate-tag', 'set-tag'], $cacheContext->getTags());
+    }
+
+    public function testRootResolutionUsesTheProviderThatOfferedTheExactCandidate(): void
+    {
+        $source = MappingSourceReference::root('product', 'name');
+        $candidate = self::candidate('product.name', source: $source);
+        $registry = new ContentSystemMappingCandidateRegistry([
+            new SourceResolvingProvider(['product'], [], 'wrong provider'),
+            new SourceResolvingProvider(['product'], [$candidate], 'owning provider'),
+        ]);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], null, null, null);
+
+        static::assertSame('owning provider', $registry->resolveSourceForRootSource('product', $source, $context)->value);
+    }
+
+    public function testSourceResolutionWithoutARootSourceDoesNotBypassTheCatalogue(): void
+    {
+        $source = new MappingSourceReference('plugin', 'example');
+        $provider = new SourceResolvingProvider(['product'], [self::candidate('plugin:example', source: $source)], 'resolved');
+        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $context = new MappingSourceResolutionContext(
+            new StoredElement('element-id', 'test-element'),
+            [],
+            [],
+            null,
+            null,
+            null,
+        );
+
+        static::assertFalse($registry->resolveSource($source, $context)->hasValue);
+    }
+
+    public function testResolutionKeepsPresentNullDistinctFromNoValue(): void
+    {
+        $source = new MappingSourceReference('plugin', 'example');
+        $provider = new SourceResolvingProvider(['product'], [self::candidate('plugin:example', source: $source)], null);
+        $registry = new ContentSystemMappingCandidateRegistry([$provider]);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], null, null, null);
+
+        $result = $registry->resolveSourceForRootSource('product', $source, $context);
+
+        static::assertTrue($result->hasValue);
+        static::assertNull($result->value);
+        static::assertFalse($result->isFailure());
+    }
+
+    public function testProviderFailureIsReturnedAndLoggedInsteadOfEscapingTheRegistry(): void
+    {
+        $source = new MappingSourceReference('plugin', 'example');
+        $candidate = self::candidate('plugin:example', source: $source);
+        $provider = new FailingMappingCandidateProvider(['product'], [$candidate]);
+        $failure = new \RuntimeException('provider failure');
+        $provider->failure = $failure;
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error')->with(
+            'A content mapping provider failed while resolving a candidate.',
+            static::callback(static fn (array $context): bool => $context['exception'] === $failure && $context['candidate'] === 'plugin:example'),
+        );
+        $registry = new ContentSystemMappingCandidateRegistry([$provider], $logger);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-id', 'test-element'), [], [], null, null, null);
+
+        $result = $registry->resolveSourceForRootSource('product', $source, $context);
+
+        static::assertTrue($result->isFailure());
+        static::assertSame($failure, $result->failure);
+        static::assertFalse($result->hasValue);
     }
 
     public function testARootSourceNobodyClaimsYieldsAnEmptyCatalogueRatherThanThrowing(): void
@@ -139,6 +232,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         string $path,
         string $label = 'a label',
         ?MappingSourceReference $source = null,
+        array $cacheTags = [],
     ): MappingCandidate {
         return new MappingCandidate(
             path: $path,
@@ -147,6 +241,7 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
             group: 'basic',
             valueType: 'string',
             source: $source,
+            cacheTags: $cacheTags,
         );
     }
 }
@@ -186,7 +281,7 @@ class SourceResolvingProvider extends StaticMappingCandidateProvider
      * @param list<string> $rootSources
      * @param list<MappingCandidate> $candidates
      */
-    public function __construct(array $rootSources, array $candidates, private readonly string $result)
+    public function __construct(array $rootSources, array $candidates, private readonly mixed $result)
     {
         parent::__construct($rootSources, $candidates);
     }
@@ -196,9 +291,14 @@ class SourceResolvingProvider extends StaticMappingCandidateProvider
         return $source->type === 'plugin' && $source->id === 'example';
     }
 
-    public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): mixed
+    public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
     {
-        return $this->result;
+        return MappingSourceResolution::resolved($this->result);
+    }
+
+    public function resolveRootSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
+    {
+        return MappingSourceResolution::resolved($this->result);
     }
 }
 
@@ -224,7 +324,7 @@ class ForwardingMappingCandidateRegistry extends AbstractContentSystemMappingCan
     public function resolveSource(
         MappingSourceReference $source,
         MappingSourceResolutionContext $context,
-    ): mixed {
+    ): MappingSourceResolution {
         return $this->decorated->resolveSource($source, $context);
     }
 }
@@ -260,8 +360,26 @@ class MutableMappingCandidateProvider extends AbstractMappingCandidateProvider
         return $source->type === 'plugin' && $source->id === 'example';
     }
 
-    public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): mixed
+    public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
     {
-        return 'resolved';
+        return MappingSourceResolution::resolved('resolved');
+    }
+}
+
+/**
+ * @internal
+ */
+class FailingMappingCandidateProvider extends StaticMappingCandidateProvider
+{
+    public ?\Throwable $failure = null;
+
+    public function supportsSource(MappingSourceReference $source): bool
+    {
+        return $source->type === 'plugin' && $source->id === 'example';
+    }
+
+    public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
+    {
+        throw $this->failure ?? new \RuntimeException('provider failed');
     }
 }

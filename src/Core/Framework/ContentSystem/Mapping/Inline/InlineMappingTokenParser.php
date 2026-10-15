@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mapping\Inline;
 
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
-use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
-use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -21,11 +20,8 @@ use Shopware\Core\Framework\Log\Package;
  * - **The `map:` prefix** makes a mapping author-declared rather than inferred. Without it the catalogue would be
  *   the only thing separating a mapping from prose, so any dotted brace expression an author typed would be
  *   claimed — and an unknown one could not then be reported as an error, because it might be prose.
- * - **It reserves a namespace** against {@see StoredTreePreparer}'s placeholder substitution, which replaces
- *   `{{<key>}}` for every key in the specification's placeholder values and runs BEFORE expansion.
- *   {@see PlaceholderValues::from()} DROPS a `map:`-prefixed key to keep the two namespaces disjoint by enforcement
- *   rather than by convention. It drops rather than throws because placeholder keys include request query
- *   parameters, so rejecting would let any visitor error a page with a crafted query string.
+ * - **Preparation captures spans before substitution.** Placeholder values can contain the same characters as a
+ *   mapping token, but only authored spans are carried into dependency discovery and expansion.
  * - **The dot is required**, mirroring {@see MappingCandidate}'s constructor. Mapping exposes members of a typed
  *   source; consuming a source whole is ordinary context wiring, not a mapping.
  *
@@ -37,10 +33,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class InlineMappingTokenParser
 {
-    /**
-     * The reserved placeholder-key prefix. {@see PlaceholderValues::from()} drops keys starting with this.
-     */
     public const TOKEN_PREFIX = 'map:';
+
+    /**
+     * Maximum authored text size the parser will scan when it contains a mapping token.
+     */
+    public const MAX_INPUT_BYTES = 262_144;
 
     private const TOKEN_PATTERN = '/\{\{\s*map:(?<path>(?:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+|[A-Za-z0-9_]+)(?:\.[A-Za-z0-9_\x7f-\xff]+)+)\s*\}\}/';
 
@@ -62,18 +60,25 @@ final class InlineMappingTokenParser
             return [];
         }
 
-        if (!preg_match_all(self::TOKEN_PATTERN, $text, $matches, \PREG_OFFSET_CAPTURE)) {
-            return [];
+        if (\strlen($text) > self::MAX_INPUT_BYTES) {
+            throw ContentSystemException::inlineMappingInputTooLarge(self::MAX_INPUT_BYTES);
         }
 
         $tokens = [];
+        $cursor = 0;
+        $insideTag = false;
+        $quote = null;
 
-        foreach ($matches['path'] as $index => $path) {
+        while (preg_match(self::TOKEN_PATTERN, $text, $matches, \PREG_OFFSET_CAPTURE, $cursor) === 1) {
+            $offset = $matches[0][1];
+            [$insideTag, $quote] = $this->scanMarkupState($text, $cursor, $offset, $insideTag, $quote);
             $tokens[] = new InlineMappingToken(
-                path: $path[0],
-                match: $matches[0][$index][0],
-                offset: $matches[0][$index][1],
+                path: $matches['path'][0],
+                match: $matches[0][0],
+                offset: $offset,
+                insideMarkup: $insideTag,
             );
+            $cursor = $offset + \strlen($matches[0][0]);
         }
 
         return $tokens;
@@ -94,17 +99,32 @@ final class InlineMappingTokenParser
             return $text;
         }
 
-        $replaced = preg_replace_callback(
-            self::TOKEN_PATTERN,
-            static function (array $match) use ($resolve): string {
-                $replacement = $resolve($match['path']);
+        return $this->replaceTokens($text, $this->parse($text), $resolve);
+    }
 
-                return $replacement ?? $match[0];
-            },
-            $text
-        );
+    /**
+     * Replaces tokens using spans captured before placeholder substitution. The caller owns those spans and must
+     * preserve their offsets while rewriting the surrounding literal text.
+     *
+     * @param list<InlineMappingToken> $tokens
+     * @param callable(string): ?string $resolve
+     */
+    public function replaceTokens(string $text, array $tokens, callable $resolve): string
+    {
+        if ($tokens === []) {
+            return $text;
+        }
 
-        return $replaced ?? $text;
+        $result = '';
+        $cursor = 0;
+
+        foreach ($tokens as $token) {
+            $result .= substr($text, $cursor, $token->offset - $cursor);
+            $result .= $token->insideMarkup ? $token->match : ($resolve($token->path) ?? $token->match);
+            $cursor = $token->offset + \strlen($token->match);
+        }
+
+        return $result . substr($text, $cursor);
     }
 
     /**
@@ -124,21 +144,44 @@ final class InlineMappingTokenParser
      * second line. Supporting attributes properly would mean HTML-aware interpolation; refusing them at the gate
      * costs one scan.
      *
-     * The test is the last unbalanced angle bracket before the token: a `<` with no `>` after it means the offset
-     * is still inside that tag.
+     * A quoted `>` does not close a tag. Parse uses the same scanner once across all token offsets.
      */
     public function occursInsideMarkup(string $text, int $offset): bool
     {
-        $before = substr($text, 0, $offset);
+        return $this->scanMarkupState($text, 0, $offset, false, null)[0];
+    }
 
-        $lastOpen = strrpos($before, '<');
+    /**
+     * @return array{bool, ?string}
+     */
+    private function scanMarkupState(string $text, int $start, int $end, bool $insideTag, ?string $quote): array
+    {
+        for ($i = $start; $i < $end; ++$i) {
+            $character = $text[$i];
 
-        if ($lastOpen === false) {
-            return false;
+            if (!$insideTag) {
+                if ($character === '<') {
+                    $insideTag = true;
+                }
+
+                continue;
+            }
+
+            if ($quote !== null) {
+                if ($character === $quote) {
+                    $quote = null;
+                }
+
+                continue;
+            }
+
+            if ($character === '"' || $character === '\'') {
+                $quote = $character;
+            } elseif ($character === '>') {
+                $insideTag = false;
+            }
         }
 
-        $lastClose = strrpos($before, '>');
-
-        return $lastClose === false || $lastClose < $lastOpen;
+        return [$insideTag, $quote];
     }
 }

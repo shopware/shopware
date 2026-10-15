@@ -4,18 +4,26 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MapProperty;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
  * @internal
@@ -53,7 +61,45 @@ class MapPropertyTest extends TestCase
         static::assertSame('product.metaTitle', $consumers['text']->source?->displayName());
     }
 
+    public function testRejectsAnIncompatibleCandidateBeforeWriting(): void
+    {
+        $tree = new StoredTree([new StoredElement('element-1', 'Sw:Text')]);
+
+        $this->expectExceptionObject(ContentSystemException::mappingTypeMismatch('text', 'string', MediaEntity::class));
+
+        $this->map('text', 'product.cover')->apply($tree);
+    }
+
+    public function testMappingStorefrontContextAddsItsLoaderRequirement(): void
+    {
+        $tree = new StoredTree([new StoredElement('element-1', 'Sw:Text')]);
+        $source = new MappingSourceReference('context', 'storefront', path: 'currency.isoCode');
+
+        $mapped = $this->mapSource('text', $source)->apply($tree)->roots[0];
+
+        static::assertSame($source->jsonSerialize(), $mapped->contextDefinitions->getAllConsumers()['text']->source?->jsonSerialize());
+        static::assertSame(StorefrontContextLoader::SOURCE, $mapped->dataRequirements[StorefrontContextLoader::REQUIREMENT_KEY]->source);
+        static::assertSame([], $mapped->dataRequirements[StorefrontContextLoader::REQUIREMENT_KEY]->config->jsonSerialize());
+    }
+
+    public function testStorefrontContextMappingRejectsAnOccupiedInternalRequirementKey(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withDataRequirement(StorefrontContextLoader::REQUIREMENT_KEY, 'entity', new StubLoaderConfig())
+            ->build();
+        $source = new MappingSourceReference('context', 'storefront', path: 'currency.isoCode');
+
+        $this->expectExceptionObject(ContentSystemException::mappingRequirementConflict(StorefrontContextLoader::REQUIREMENT_KEY));
+
+        $this->mapSource('text', $source)->apply(new StoredTree([$element]));
+    }
+
     private function map(string $propertyKey, string $sourcePath): MapProperty
+    {
+        return $this->mapSource($propertyKey, MappingSourceReference::fromRootPath($sourcePath));
+    }
+
+    private function mapSource(string $propertyKey, MappingSourceReference $source): MapProperty
     {
         $specification = ContentSystemElementTypeSpecificationBuilder::create('Sw:Text')
             ->primitive('text', 'string', mappable: true)
@@ -70,16 +116,31 @@ class MapPropertyTest extends TestCase
         $candidateRegistry->method('forRootSource')->willReturn([
             'product.name' => $this->candidate('product.name'),
             'product.metaTitle' => $this->candidate('product.metaTitle'),
+            'product.cover' => new MappingCandidate('product.cover', 'label', 'description', 'media', MediaEntity::class),
+            'context:storefront.currency.isoCode' => new MappingCandidate(
+                'context:storefront.currency.isoCode',
+                'label',
+                'description',
+                'storefront-context',
+                'string',
+                ContextType::Single,
+                source: new MappingSourceReference('context', 'storefront', path: 'currency.isoCode'),
+            ),
         ]);
 
         return new MapProperty(
             $typeRegistry,
-            $candidateRegistry,
-            new MappingTypeCompatibility(),
+            new StoredMappingInspector(
+                $typeRegistry,
+                $candidateRegistry,
+                new MappingTypeCompatibility(),
+                new MappingConsumers(),
+                new InlineMappingTokenParser(),
+            ),
             'product',
             'element-1',
             $propertyKey,
-            MappingSourceReference::fromRootPath($sourcePath),
+            $source,
         );
     }
 

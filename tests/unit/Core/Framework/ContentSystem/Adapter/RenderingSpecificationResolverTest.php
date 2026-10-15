@@ -113,7 +113,6 @@ class RenderingSpecificationResolverTest extends TestCase
 
         static::assertSame($placeholders, $specification->placeholderValues);
         static::assertSame($request, $specification->request);
-        static::assertTrue($specification->isAdminPreview);
         static::assertSame('element-7', $specification->targetElementId);
     }
 

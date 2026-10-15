@@ -1,9 +1,5 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
-import {
-    findElementLocation,
-    updateElementPropertiesInLayout,
-    updateElementStyleInLayout,
-} from './content-element.util';
+import { findElementLocation, updateElementPropertiesInLayout, updateElementStyleInLayout } from './content-element.util';
 
 const { cloneDeep } = Shopware.Utils.object;
 
@@ -111,5 +107,4 @@ describe('module/sw-experience-studio/util/content-element.util', () => {
 
         expect(testLayout[0].slots!.content[0]).not.toHaveProperty('style');
     });
-
 });

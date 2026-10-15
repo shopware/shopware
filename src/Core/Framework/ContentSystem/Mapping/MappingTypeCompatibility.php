@@ -27,7 +27,7 @@ final class MappingTypeCompatibility
      * any class-typed candidate and no primitive.
      *
      * @param string|list<string> $declaredType the property's declared `type`, as {@see PropertyType::type()} returns it
-     * @param string $candidateValueType the candidate's EFFECTIVE type, after its projection
+     * @param string $candidateValueType the candidate's effective provider output type
      */
     public function permits(string|array $declaredType, string $candidateValueType): bool
     {
@@ -56,7 +56,7 @@ final class MappingTypeCompatibility
     /**
      * Whether a RUNTIME VALUE is of `$type`, in the same type vocabulary {@see permits()} speaks.
      *
-     * The render path's counterpart to permits(): a projection declares the type it accepts, and this is what
+     * The render path's counterpart to permits(): a provider declares the type it returns, and this is what
      * holds a resolved value to that declaration before `project()` is handed it.
      *
      * @param string $type a `PropertyType::PRIMITIVE_TYPES` member, bare `object`, or an FQCN

@@ -15,7 +15,6 @@ describe('src/module/sw-experience-studio/store/experience-studio-mapping-candid
         group: 'basic',
         valueType: 'string',
         contextType: 'single',
-        projection: null,
     };
 
     const getStore = () =>

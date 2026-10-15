@@ -4,12 +4,14 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductContentLayout;
 
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Product\ContentSystem\Mapping\ProductMediaCollectionToMediaCollectionProjection;
-use Shopware\Core\Content\Product\ContentSystem\Mapping\ProductMediaToMediaProjection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\Log\Package;
 
@@ -21,18 +23,13 @@ use Shopware\Core\Framework\Log\Package;
  * `EntityLoader` loads through the sales-channel repository wherever one is registered. It matters only for
  * anything naming the root's own class; the members below are inherited unchanged.
  *
- * Every path reads a member sitting DIRECTLY on the product entity, which is what makes it resolvable:
- * `ContextPathResolver` needs a `Struct` at every intermediate step, so a one-hop path has no intermediate to
- * fail on. The translated members (`name`, `description`, the meta fields) need no `.translated` hop — the DAL
- * has already written the context language's value onto the member by the time the layout renders, and
- * `product.translated.name` could not resolve anyway, because `translated` is a plain array.
+ * The provider reads the declared fields through storefront-facing accessors. Translated members prefer the
+ * active translation, which can carry an inherited product value even when the raw member is null.
  *
- * The two media offers are the reason projections exist. Neither `cover` nor `media` holds a picture: they
- * hold product-media ASSIGNMENT records, one level away from the {@see MediaEntity} every media element
- * declares. `valueType` here is what the property ends up with, and the projection is the hop that gets it
- * there. Both depend on `ProductContentLayoutDefinition::getEntityAssociations()` eager-loading `media.media`
- * and `cover.media`; an association the page-level requirement does not load resolves to null on every
- * render, which a mapping reads as "fall back to the authored value" rather than as the bug it is.
+ * The two media offers unwrap product-media assignment records here, so their declared value types match
+ * what the provider returns. Both depend on
+ * `ProductContentLayoutDefinition::getEntityAssociations()` eager-loading `media.media`
+ * and `cover.media`; an unloaded association resolves to null and omits the mapped destination.
  *
  * @internal
  */
@@ -73,7 +70,6 @@ class ProductMappingCandidateProvider extends AbstractMappingCandidateProvider
                 description: self::SNIPPET_ROOT . '.cover.description',
                 group: 'media',
                 valueType: MediaEntity::class,
-                projection: ProductMediaToMediaProjection::NAME,
             ),
             new MappingCandidate(
                 path: $this->path('media'),
@@ -82,9 +78,53 @@ class ProductMappingCandidateProvider extends AbstractMappingCandidateProvider
                 group: 'media',
                 valueType: MediaCollection::class,
                 contextType: ContextType::Collection,
-                projection: ProductMediaCollectionToMediaCollectionProjection::NAME,
             ),
         ];
+    }
+
+    public function resolveRootSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
+    {
+        if ($source->type !== 'root' || !$this->supports($source->id)) {
+            return MappingSourceResolution::noValue();
+        }
+
+        $product = $context->rootValues[$source->id] ?? null;
+        if (!$product instanceof SalesChannelProductEntity) {
+            return MappingSourceResolution::noValue();
+        }
+
+        return match ($source->path) {
+            null => MappingSourceResolution::resolved($product),
+            'name' => MappingSourceResolution::resolved($product->getTranslation('name') ?? $product->getName()),
+            'description' => MappingSourceResolution::resolved($product->getTranslation('description') ?? $product->getDescription()),
+            'productNumber' => MappingSourceResolution::resolved($product->getProductNumber()),
+            'metaTitle' => MappingSourceResolution::resolved($product->getTranslation('metaTitle') ?? $product->getMetaTitle()),
+            'metaDescription' => MappingSourceResolution::resolved($product->getTranslation('metaDescription') ?? $product->getMetaDescription()),
+            'keywords' => MappingSourceResolution::resolved($product->getTranslation('keywords') ?? $product->getKeywords()),
+            'cover' => MappingSourceResolution::resolved($product->getCover()?->getMedia()),
+            'media' => MappingSourceResolution::resolved($this->media($product->getMedia())),
+            default => MappingSourceResolution::noValue(),
+        };
+    }
+
+    private function media(?ProductMediaCollection $assignments): ?MediaCollection
+    {
+        if ($assignments === null) {
+            return null;
+        }
+
+        $sorted = array_values($assignments->getElements());
+        usort($sorted, static fn (ProductMediaEntity $a, ProductMediaEntity $b): int => $a->getPosition() <=> $b->getPosition());
+
+        $media = new MediaCollection();
+        foreach ($sorted as $assignment) {
+            $entity = $assignment->getMedia();
+            if ($entity !== null) {
+                $media->add($entity);
+            }
+        }
+
+        return $media;
     }
 
     private function text(string $member, string $group): MappingCandidate

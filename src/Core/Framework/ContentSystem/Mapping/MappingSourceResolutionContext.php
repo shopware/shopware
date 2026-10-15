@@ -11,8 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Runtime inputs available to a registered mapping-source provider. Providers must read only values they explicitly
  * expose through their candidate catalogue and preserve cache tags through the supplied rendering cache context.
- * `$rootSource` identifies the catalogue whose admitted candidate is being resolved; it is null for legacy direct
- * resolution calls that do not carry a layout root source.
+ * `$rootSource` identifies the catalogue whose admitted candidate is being resolved. A null root source cannot
+ * resolve a candidate through the registry.
  */
 #[Package('framework')]
 final readonly class MappingSourceResolutionContext

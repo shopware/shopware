@@ -11,7 +11,7 @@
                     "System Info & Health Check"
                 ],
                 "summary": "Get content system data mapping candidates",
-                "description": "Get the curated data a mappable element property may be mapped to, keyed by the root source a layout is bound to. The catalogue is an allowlist rather than a projection of the entity schema: only a path listed here is admitted by the content layout write boundary.",
+                "description": "Get the curated data a mappable element property may be mapped to, keyed by the root source a layout is bound to. Requires custom_field:read because candidates may include custom-field labels and help text. The catalogue is an allowlist rather than a projection of the entity schema: only a path listed here is admitted by the content layout write boundary.",
                 "operationId": "content-system-mapping-candidates",
                 "responses": {
                     "200": {
@@ -29,7 +29,7 @@
                                                 "type": "array",
                                                 "items": {
                                                     "type": "object",
-                                                    "required": ["path", "source", "label", "description", "group", "valueType", "compatibleTypes", "contextType", "projection", "labelTranslations", "descriptionTranslations"],
+                                                    "required": ["path", "source", "label", "description", "group", "valueType", "compatibleTypes", "contextType", "labelTranslations", "descriptionTranslations"],
                                                     "properties": {
                                                         "path": {
                                                             "type": "string",
@@ -60,7 +60,7 @@
                                                         },
                                                         "valueType": {
                                                             "type": "string",
-                                                            "description": "The effective type the property receives, after any projection has run: a primitive (\"string\", \"integer\", \"number\", \"boolean\") or a fully qualified class name."
+                                                            "description": "The effective type the provider delivers to the property: a primitive (\"string\", \"integer\", \"number\", \"boolean\") or a fully qualified class name."
                                                         },
                                                         "compatibleTypes": {
                                                             "type": "array",
@@ -73,10 +73,6 @@
                                                             "type": "string",
                                                             "enum": ["single", "collection"],
                                                             "description": "Whether the candidate yields a single value or a collection."
-                                                        },
-                                                        "projection": {
-                                                            "type": ["string", "null"],
-                                                            "description": "Name of the projection adapting the resolved value to valueType, or null when the value at the path already has that type. Informational: the server applies it, the client only echoes it back when storing the mapping."
                                                         },
                                                         "labelTranslations": {
                                                             "type": "object",

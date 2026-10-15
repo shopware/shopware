@@ -21,6 +21,7 @@ final readonly class InlineMappingToken
         public string $path,
         public string $match,
         public int $offset,
+        public bool $insideMarkup = false,
     ) {
     }
 }

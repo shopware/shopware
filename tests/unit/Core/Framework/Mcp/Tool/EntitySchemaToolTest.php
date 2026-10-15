@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Tool\EntitySchemaTool;
 
 /**
@@ -84,6 +85,10 @@ class EntitySchemaToolTest extends TestCase
         static::assertSame('one-to-many', $assocMap['children']['type']);
         static::assertSame('many-to-many', $assocMap['tags']['type']);
         static::assertSame('one-to-one', $assocMap['detail']['type']);
+
+        static::assertArrayHasKey('mappingEntity', $assocMap['tags'], 'many-to-many associations name their mapping entity');
+        static::assertArrayNotHasKey('mappingEntity', $assocMap['parent']);
+        static::assertArrayNotHasKey('mappingEntity', $assocMap['children']);
     }
 
     public function testFieldWithoutRequiredFlagIsNotRequired(): void
@@ -122,6 +127,7 @@ class EntitySchemaToolTest extends TestCase
         static::assertFalse($result['success']);
         static::assertStringContainsString('unknown_entity', $result['error']);
         static::assertStringContainsString('shopware://entities', $result['error']);
+        static::assertSame(McpToolError::INVALID_ARGUMENTS, $result['code']);
     }
 }
 

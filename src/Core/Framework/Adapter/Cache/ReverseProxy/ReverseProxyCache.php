@@ -31,17 +31,26 @@ class ReverseProxyCache implements StoreInterface
          * @deprecated tag:v6.8.0 - Parameter $states will be removed
          */
         private readonly array $states,
-        private readonly CacheTagCollector $collector
+        private readonly CacheTagCollector $collector,
+        private readonly bool $reverseProxyEnabled,
     ) {
     }
 
     public function __destruct()
     {
+        if (!$this->reverseProxyEnabled) {
+            return;
+        }
+
         $this->gateway->flush();
     }
 
     public function __invoke(InvalidateCacheEvent $event): void
     {
+        if (!$this->reverseProxyEnabled) {
+            return;
+        }
+
         $this->gateway->invalidate($event->getKeys());
     }
 

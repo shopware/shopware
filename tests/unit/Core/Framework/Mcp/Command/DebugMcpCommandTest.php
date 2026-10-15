@@ -31,7 +31,6 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 #[Package('framework')]
 #[CoversClass(DebugMcpCommand::class)]
-#[CoversClass(McpCapabilityCatalog::class)]
 class DebugMcpCommandTest extends TestCase
 {
     /**
@@ -829,12 +828,52 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('tools', $output);
     }
 
+    public function testToolsClaimingTheReservedDiscoveryGroupAreReported(): void
+    {
+        $command = new DebugMcpCommand(
+            Server::builder(),
+            new Registry(),
+            static::createStub(McpAllowlistProvider::class),
+            new McpCapabilityCatalog(null, $this->stubPrivilegeProvider()),
+            demotedDiscoveryTools: ['store-api' => ['create_cart' => 'Acme\\CartTool']],
+        );
+
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Moved from the reserved "discovery" group', $output);
+        static::assertStringContainsString('create_cart (store-api, Acme\\CartTool)', $output);
+    }
+
+    public function testScopeOptionLimitsDiscoveryGroupWarningsToThatServer(): void
+    {
+        $command = new DebugMcpCommand(
+            Server::builder(),
+            new Registry(),
+            static::createStub(McpAllowlistProvider::class),
+            new McpCapabilityCatalog(null, $this->stubPrivilegeProvider()),
+            demotedDiscoveryTools: [
+                'api' => ['acme-admin-tool' => 'Acme\\AdminTool'],
+                'store-api' => ['create_cart' => 'Acme\\CartTool'],
+            ],
+        );
+
+        $tester = new CommandTester($command);
+        $tester->execute(['--scope' => 'api']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('acme-admin-tool (api, Acme\\AdminTool)', $output);
+        static::assertStringNotContainsString('create_cart', $output);
+    }
+
     public function testNothingIsReportedWhenEveryCapabilityIsAssigned(): void
     {
         $tester = new CommandTester($this->makeCommand(new Registry()));
         $tester->execute([]);
 
         static::assertStringNotContainsString('exposed by no server', $tester->getDisplay());
+        static::assertStringNotContainsString('Moved from the reserved "discovery" group', $tester->getDisplay());
     }
 
     private function makeCommand(

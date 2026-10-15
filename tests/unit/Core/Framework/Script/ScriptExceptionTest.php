@@ -4,9 +4,12 @@ namespace Shopware\Tests\Unit\Core\Framework\Script;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\ScriptException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -25,6 +28,7 @@ class ScriptExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testHookMethodOutsideOfSalesChannelContextException(): void
     {
         $exception = ScriptException::hookMethodOutsideOfSalesChannelContext('method');
@@ -33,12 +37,33 @@ class ScriptExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testStorefrontBundleMissingForHookMethodException(): void
     {
         $exception = ScriptException::storefrontBundleMissingForHookMethod('method');
 
         static::assertSame('FRAMEWORK__HOOK_METHOD_STOREFRONT_BUNDLE_MISSING', $exception->getErrorCode());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the major feature flag.
+     */
+    public function testLegacyContextFactoryThrowsInMajorMode(): void
+    {
+        static::expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: ' . Feature::deprecatedMethodMessage(ScriptException::class, ScriptException::class . '::hookMethodOutsideOfSalesChannelContext', 'v6.8.0.0')));
+
+        ScriptException::hookMethodOutsideOfSalesChannelContext('render');
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the major feature flag.
+     */
+    public function testLegacyStorefrontFactoryThrowsInMajorMode(): void
+    {
+        static::expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: ' . Feature::deprecatedMethodMessage(ScriptException::class, ScriptException::class . '::storefrontBundleMissingForHookMethod', 'v6.8.0.0')));
+
+        ScriptException::storefrontBundleMissingForHookMethod('render');
     }
 
     public function testAccessFromScriptExecutionContextNotAllowedException(): void

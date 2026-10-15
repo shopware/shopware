@@ -14,9 +14,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\AbstractPriceSorter;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPriceAsc;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPriceDesc;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -24,8 +22,7 @@ use Shopware\Core\Framework\Log\Package;
  */
 #[Package('checkout')]
 #[CoversClass(FilterSorterPriceAsc::class)]
-#[CoversClass(FilterSorterPriceDesc::class)]
-class FilterSorterPriceTest extends TestCase
+class FilterSorterPriceAscTest extends TestCase
 {
     /**
      * @param array<LineItem> $items
@@ -33,13 +30,13 @@ class FilterSorterPriceTest extends TestCase
      * @param array<string> $expected
      */
     #[DataProvider('sortingProvider')]
-    public function testSorting(AbstractPriceSorter $sorter, array $meta, array $items, array $expected): void
+    public function testSorting(array $meta, array $items, array $expected): void
     {
         $package = new DiscountPackage(new LineItemQuantityCollection($meta));
 
         $package->setCartItems(new LineItemFlatCollection($items));
 
-        $sorter->sort(new DiscountPackageCollection([$package]));
+        (new FilterSorterPriceAsc())->sort(new DiscountPackageCollection([$package]));
 
         $ordered = $package->getMetaData()->fmap(static fn (LineItemQuantity $item) => $item->getLineItemId());
 
@@ -49,7 +46,6 @@ class FilterSorterPriceTest extends TestCase
     public static function sortingProvider(): \Generator
     {
         yield 'Test ascending sorting' => [
-            new FilterSorterPriceAsc(),
             [
                 new LineItemQuantity('a', 1),
                 new LineItemQuantity('b', 1),
@@ -63,23 +59,7 @@ class FilterSorterPriceTest extends TestCase
             ['b', 'a', 'c'],
         ];
 
-        yield 'Test descending sorting' => [
-            new FilterSorterPriceDesc(),
-            [
-                new LineItemQuantity('a', 1),
-                new LineItemQuantity('b', 1),
-                new LineItemQuantity('c', 1),
-            ],
-            [
-                self::item('a', 200),
-                self::item('b', 100),
-                self::item('c', 300),
-            ],
-            ['c', 'a', 'b'],
-        ];
-
         yield 'Test ascending sorting with duplicate meta items' => [
-            new FilterSorterPriceAsc(),
             [
                 new LineItemQuantity('a', 1),
                 new LineItemQuantity('a', 1),

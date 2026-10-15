@@ -549,6 +549,10 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 ## Administration
 
+### `sw-empty-state` stays available until 6.9
+
+The removal of the deprecated `sw-empty-state` component was moved from 6.8 to 6.9, so extensions using it keep working with 6.8. Development builds log a deprecation warning once per usage site, including the component path that renders it. Migrate to `mt-empty-state` before 6.9, see `UPGRADE-6.9.md`.
+
 ### Native setup components support defineModel()
 
 `defineModel()` was rejected at build time inside a Shopware `<script setup>` block, so a base component had to declare the prop and the `update:` emit of a `v-model` binding by hand. It is now supported in base components and behaves as in any Vue component — the prop, the emit, the modifiers object and `{ default }` are all Vue's own:
@@ -564,6 +568,7 @@ swDefinePublic({ modelValue });
 The binding is ordinary base state: private unless listed in `swDefinePublic({ ... })`, and a write to it still emits, from the template, from a parent holding a template ref, and through an override that replaced it.
 
 `defineModel()` stays rejected in an override component, which declares neither props nor emits. Base components can use Vue's conventional binding names, including `const title = defineModel('title')` and `[modelValue, modelModifiers] = defineModel()`.
+
 ### [Internal] Native `<sw-block>` names are isolated per component
 
 Native `<sw-block>` blocks are now identified by `componentName + blockName`, matching how TwigJS identifies a `{% block %}`. Previously they matched on the block name alone, so a `<sw-block extends="foo">` or a legacy Twig override of `foo` could apply to a `<sw-block name="foo">` in an unrelated component. Blocks with the same name in different components are now isolated, and a `name` / `extends` pair only resolves against each other within the same component. No action is required from core or plugin developers.

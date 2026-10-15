@@ -1762,20 +1762,6 @@ Plan to migrate all code to axios v1 as soon as possible.
 For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
 The architectural rationale is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
 
-## Removal of "sw-empty-state"
-
-The old `sw-empty-state` component will be removed in the next major version.
-Please use the new `mt-empty-state` component instead.
-
-Before:
-```html
-<sw-empty-state title="short title" subline="longer subline" />
-```
-After:
-```html
-<mt-empty-state title="short title" description="longer description"/>
-```
-
 ## Removed empty state Twig block anchors
 
 The empty Twig anchors left behind when Administration empty states moved to `mt-empty-state` were removed: `sw_flow_list_empty_state_icon`, `sw_mail_header_footer_list_grid_empty_state_icon`, `sw_mail_template_list_grid_empty_state_icon`, `sw_order_create_address_modal_empty_state_content`, `sw_order_customer_grid_empty_state_icon`, `sw_promotion_v2_individual_codes_behavior_empty_state_icon`, `sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon`, `sw_settings_listing_option_criteria_card_empty_state_icon`, `sw_settings_listing_content_card_view_options_card_empty_state_icon`, `sw_product_feature_set_card_empty_state_image`, `sw_product_feature_set_card_empty_state_label`, `sw_tax_rule_card_empty_state_image` and `sw_tax_rule_card_empty_state_label`. The product detail anchors went the same way: `sw_product_detail_prices_empty_state_image`, `sw_product_detail_prices_price_empty_state_text`, `sw_product_detail_prices_price_empty_state_text_child`, `sw_product_detail_prices_price_empty_state_text_inherited`, `sw_product_detail_prices_price_empty_state_text_link`, `sw_product_detail_prices_price_empty_state_text_not_inherited`, `sw_product_detail_prices_price_empty_state_text_empty`, `sw_product_detail_cross_selling_empty_state_actions`, `sw_product_detail_cross_selling_empty_state_icon`, `sw_product_detail_cross_selling_empty_state_content`, `sw_product_detail_cross_selling_empty_state_content_child`, `sw_product_detail_cross_selling_empty_state_content_child_inherited`, `sw_product_detail_cross_selling_empty_state_content_child_inherited_link`, `sw_product_detail_cross_selling_empty_state_content_child_not_inherited` and `sw_product_detail_cross_selling_empty_state_content_empty`. Override the surrounding `*_empty_state` block and pass the icon through the `icon` prop of `mt-empty-state` instead.

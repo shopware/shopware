@@ -25,8 +25,6 @@ final readonly class OpenApiDtoProperty
         public ?string $format = null,
         public ?string $pattern = null,
         public ?array $enum = null,
-        public string|int|float|bool|null $defaultValue = null,
-        public bool $hasDefaultValue = false,
         public ?int $minItems = null,
         public ?int $minLength = null,
         public ?int $maxLength = null,

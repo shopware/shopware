@@ -30,6 +30,7 @@
     justify = 'normal',
     justifyContent = 'normal',
     fullWidth = false,
+    sticky = false,
     border = null,
     borderVariant = null,
     borderFullWidth = false,
@@ -88,6 +89,9 @@
     variants: {
         fullWidth: {
             true: 'full-width',
+        },
+        sticky: {
+            true: 'is-sticky',
         },
         borderFullWidth: {
             true: 'border-full-width',
@@ -307,6 +311,7 @@
 {% set containerDefaults = {
     class: containerCVA.apply({
         fullWidth,
+        sticky,
         borderFullWidth,
         border,
         borderVariant,

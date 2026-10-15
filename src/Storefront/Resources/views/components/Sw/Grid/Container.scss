@@ -38,6 +38,12 @@
         padding-right: 0;
     }
 
+    &.is-sticky {
+        position: sticky;
+        z-index: 1;
+        top: 1rem;
+    }
+
     &:not(.border-full-width) {
         border: none !important;
     }

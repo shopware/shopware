@@ -4,6 +4,7 @@
     "paths": {
         "/search": {
             "post": {
+                "x-dto-namespace": "App\\DTO",
                 "operationId": "search",
                 "requestBody": {
                     "content": {

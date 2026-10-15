@@ -38,20 +38,21 @@ class OpenApiDtoGeneratorTest extends TestCase
     /**
      * @return iterable<string, array{string}>
      */
-    public static function generatorFixtures(): iterable
+    public static function openApiFixtures(): iterable
     {
-        yield 'referenced request inputs and inherited parameters' => ['referencedInputs'];
-        yield 'shared components keep their namespace' => ['namespacedComponent'];
+        foreach (Finder::create()->files()->name('*.json')->notPath('invalidSchemas')->sortByName()->in(__DIR__ . '/_fixtures') as $schemaFile) {
+            yield $schemaFile->getRelativePathname() => [$schemaFile->getPathname()];
+        }
     }
 
-    #[DataProvider('generatorFixtures')]
-    public function testGeneratedFilesMatchAdjacentFixtures(string $fixture): void
+    #[DataProvider('openApiFixtures')]
+    public function testGeneratedFilesMatchAdjacentFixtures(string $schemaFile): void
     {
-        $fixtureDirectory = __DIR__ . '/_fixtures/' . $fixture;
+        $fixtureDirectory = \dirname($schemaFile);
         $frameworkPath = $this->projectDirectory . '/src/Core/Framework';
         $schemaDirectory = $frameworkPath . '/Api/ApiDefinition/Generator/Schema/StoreApi';
         $this->filesystem->mkdir($schemaDirectory);
-        $this->filesystem->copy($fixtureDirectory . '/schema.json', $schemaDirectory . '/schema.json');
+        $this->filesystem->copy($schemaFile, $schemaDirectory . '/schema.json');
         $generator = new OpenApiDtoGenerator(
             new OpenApiDtoSchemaParser(),
             new OpenApiDtoClassRenderer(new MockClock('2026-07-07 00:00:00')),
@@ -69,9 +70,14 @@ class OpenApiDtoGeneratorTest extends TestCase
             $relativePath = preg_replace('#^Shopware/#', '', $relativePath);
             $path = $this->projectDirectory . '/src/' . $relativePath;
             $expectedPaths[] = $path;
-            static::assertSame($expected, $this->filesystem->readFile($path));
+            static::assertSame(
+                preg_replace('/Last generated: [^\r\n]+/', 'Last generated: <generated>', $expected),
+                preg_replace('/Last generated: [^\r\n]+/', 'Last generated: <generated>', $this->filesystem->readFile($path)),
+                $fixtureFile->getBasename(),
+            );
         }
 
+        static::assertNotSame([], $expectedPaths);
         sort($expectedPaths);
         $writtenPaths = $result->writtenFiles;
         sort($writtenPaths);

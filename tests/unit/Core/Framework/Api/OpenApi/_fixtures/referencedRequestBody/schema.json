@@ -4,6 +4,7 @@
     "paths": {
         "/newsletter-recipient": {
             "post": {
+                "x-dto-namespace": "App\\DTO",
                 "operationId": "readNewsletterRecipient",
                 "description": "Read newsletter recipients.",
                 "requestBody": {

@@ -7,6 +7,7 @@
     "paths": {
         "/composed": {
             "post": {
+                "x-dto-namespace": "App\\DTO",
                 "operationId": "createComposed",
                 "x-dto-package": "framework",
                 "requestBody": {
@@ -56,6 +57,7 @@
         },
         "/single": {
             "post": {
+                "x-dto-namespace": "App\\DTO",
                 "operationId": "createSingle",
                 "x-dto-package": "framework",
                 "requestBody": {
@@ -94,6 +96,7 @@
         },
         "/variants": {
             "post": {
+                "x-dto-namespace": "App\\DTO",
                 "operationId": "createVariant",
                 "x-dto-package": "framework",
                 "requestBody": {

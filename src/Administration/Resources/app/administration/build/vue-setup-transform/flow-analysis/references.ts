@@ -294,6 +294,18 @@ function forEachBabelReference(
     }
 
     if (node.type === 'ObjectProperty') {
+        // A defaulted shorthand target (`({ count = 1 } = source)`) shares its range with the key, like
+        // `{ count }`. Its identifier is reported with the property as parent so the rewrite keeps the key;
+        // the key itself is skipped, since visiting it could only duplicate that edit.
+        if (node.shorthand && node.value.type === 'AssignmentPattern' && node.value.left.type === 'Identifier') {
+            if (!isDeclared(node.value.left.name, scopes)) {
+                visit(node.value.left, node);
+            }
+
+            forEachBabelReference(node.value.right, scopes, visit, node.value);
+            return;
+        }
+
         if (node.computed) {
             forEachBabelReference(node.key, scopes, visit, node);
         }

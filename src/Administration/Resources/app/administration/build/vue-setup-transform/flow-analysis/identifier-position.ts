@@ -106,14 +106,22 @@ function isValueReadPosition(node: BabelNode, parent: BabelNode | null): boolean
 }
 
 /**
- * Whether an identifier is the value of a shorthand object property without a default (`{ foo }`).
+ * Whether an identifier is the value of a shorthand object property, plain (`{ foo }`) or defaulted
+ * (`{ foo = 1 }`).
  *
  * The property key and value share one source range, so replacing the identifier in place would rewrite
  * the key as well. Every pass that rewrites such an occurrence has to expand the shorthand to
  * `key: <replacement>` instead, which is why the judgement lives next to `isValueReadPosition`.
+ *
+ * The defaulted form nests the identifier as the `AssignmentPattern`'s `left`, so a walk only recognises
+ * it when it hands over the `ObjectProperty` as the parent instead of the `AssignmentPattern`.
  */
 function isShorthandPropertyValue(node: Identifier, parent: BabelNode | null): boolean {
-    return parent?.type === 'ObjectProperty' && parent.shorthand === true && parent.value === node;
+    if (parent?.type !== 'ObjectProperty' || parent.shorthand !== true) {
+        return false;
+    }
+
+    return parent.value === node || (parent.value.type === 'AssignmentPattern' && parent.value.left === node);
 }
 
 /**

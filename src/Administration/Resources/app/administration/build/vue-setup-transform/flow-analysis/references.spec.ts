@@ -98,6 +98,14 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
             expect(getOccurrences('({ info, label: caption })')).toEqual(['info@3-7:shorthand-property', 'caption@16-23']);
         });
 
+        it('marks a defaulted shorthand assignment target so the key survives the rewrite', () => {
+            expect(getOccurrences('({ count = fallback } = source)')).toEqual([
+                'count@3-8:shorthand-property',
+                'fallback@11-19',
+                'source@24-30',
+            ]);
+        });
+
         it('reports no occurrence for a shadowed or template-scoped name', () => {
             expect(getOccurrences('items.map((info) => info + label)', ['items'])).toEqual(['label@27-32']);
         });

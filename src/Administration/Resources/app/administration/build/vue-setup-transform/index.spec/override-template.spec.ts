@@ -167,6 +167,32 @@ describe('build/vue-setup-transform override template forwarding', () => {
         expectVueCompilerScriptToCompile(result, 'dynamic-arguments.override.vue');
     });
 
+    it('keeps the key of a defaulted shorthand assignment target', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <button @click="({ count = 1 } = source)">{{ count }}</button>
+            </sw-block>
+            </template>
+            <script setup>
+            import { ref } from 'vue';
+
+            const count = ref(0);
+            const source = {};
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'defaulted-shorthand.override.vue').code;
+        const namespaced = (name: string) => `__swSetupOverrideScope(__swSetupScope).${name}`;
+
+        // Like `{ count }`, the defaulted form shares its range with the key, so the rewrite spells the key
+        // out; replacing it in place would leave a member expression as a shorthand, which does not parse.
+        expect(result).toContain(`@click="({ count: ${namespaced('count')} = 1 } = ${namespaced('source')})"`);
+        expectVueCompilerScriptToCompile(result, 'defaulted-shorthand.override.vue');
+    });
+
     it('rewrites override-local references in TypeScript and optional-chain template expressions', () => {
         const source = stripIndent`
             <template>

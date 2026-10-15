@@ -70,6 +70,11 @@ class AclRoleLoader
             $roles[$id] = new AclRoles($isUnrestricted, $roleIds[$id]);
         }
 
+        // an id that is both a user and an integration is ambiguous, so it gets no privileges
+        foreach (array_intersect(array_column($userRows, 'id'), array_column($integrationRows, 'id')) as $id) {
+            $roles[$id] = new AclRoles(false, []);
+        }
+
         return $roles;
     }
 

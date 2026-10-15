@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\Api\Acl\AclRoles;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -85,6 +86,24 @@ class AclRoleLoaderTest extends TestCase
         );
 
         $this->removeApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
+    }
+
+    public function testAnIdThatIsBothAUserAndAnIntegrationHasNoPrivileges(): void
+    {
+        $user = TestUser::createNewTestUser($this->connection, ['product:read']);
+        $this->connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($user->getUserId()),
+            'label' => 'admin integration',
+            'access_key' => AccessKeyHelper::generateAccessKey('integration'),
+            'secret_access_key' => 'secret',
+            'admin' => 1,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        static::assertEquals(
+            [$user->getUserId() => new AclRoles(false, [])],
+            $this->loader->getRoles([$user->getUserId()])
+        );
     }
 
     public function testUnknownIdsAreLeftOut(): void

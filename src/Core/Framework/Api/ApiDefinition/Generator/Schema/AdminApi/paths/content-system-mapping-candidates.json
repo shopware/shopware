@@ -11,7 +11,7 @@
                     "System Info & Health Check"
                 ],
                 "summary": "Get content system data mapping candidates",
-                "description": "Get the curated data a mappable element property may be mapped to, keyed by the root source a layout is bound to. The catalogue is an allowlist rather than a projection of the entity schema: only a path listed here is admitted by the content layout write boundary.",
+                "description": "Get the curated data a mappable element property may be mapped to, keyed by the root source a layout is bound to. Requires custom_field:read because candidates may include custom-field labels and help text. The catalogue is an allowlist rather than a projection of the entity schema: only a path listed here is admitted by the content layout write boundary.",
                 "operationId": "content-system-mapping-candidates",
                 "responses": {
                     "200": {
@@ -29,7 +29,7 @@
                                                 "type": "array",
                                                 "items": {
                                                     "type": "object",
-                                                    "required": ["path", "source", "label", "description", "group", "valueType", "compatibleTypes", "contextType", "projection", "labelTranslations", "descriptionTranslations"],
+                                                    "required": ["path", "source", "label", "description", "group", "valueType", "compatibleTypes", "inlineMappable", "canonicalToken", "contextType", "labelTranslations", "descriptionTranslations"],
                                                     "properties": {
                                                         "path": {
                                                             "type": "string",
@@ -60,11 +60,11 @@
                                                         },
                                                         "valueType": {
                                                             "type": "string",
-                                                            "description": "The effective type the property receives, after any projection has run: a primitive (\"string\", \"integer\", \"number\", \"boolean\") or a fully qualified class name."
+                                                            "description": "The effective type the provider delivers to the property: a primitive (\"string\", \"integer\", \"number\", \"boolean\") or a fully qualified class name."
                                                         },
                                                         "compatibleTypes": {
                                                             "type": "array",
-                                                            "description": "For class-valued candidates, the declared class or interface types that accept this candidate's effective value, including the value type itself. Primitive candidates return an empty array. Use this to filter class-valued candidates against property types; the server remains authoritative when saving a mapping.",
+                                                            "description": "Declared property types that accept this candidate's effective value, computed using the same compatibility rule that admits mappings. Includes primitive types, object, and assignable class and interface types where applicable.",
                                                             "items": {
                                                                 "type": "string"
                                                             }
@@ -74,9 +74,13 @@
                                                             "enum": ["single", "collection"],
                                                             "description": "Whether the candidate yields a single value or a collection."
                                                         },
-                                                        "projection": {
+                                                        "inlineMappable": {
+                                                            "type": "boolean",
+                                                            "description": "Whether the server's inline mapping interpolator can render this candidate as text."
+                                                        },
+                                                        "canonicalToken": {
                                                             "type": ["string", "null"],
-                                                            "description": "Name of the projection adapting the resolved value to valueType, or null when the value at the path already has that type. Informational: the server applies it, the client only echoes it back when storing the mapping."
+                                                            "description": "The token text to use when inserting or serializing this candidate, generated by the server's inline mapping parser. Null when the candidate path cannot be represented by a valid inline token."
                                                         },
                                                         "labelTranslations": {
                                                             "type": "object",

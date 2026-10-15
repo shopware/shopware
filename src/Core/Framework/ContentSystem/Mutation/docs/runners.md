@@ -10,11 +10,12 @@ through the same `MutationResult` named constructor.
 `LayoutDiagnostics $diagnostics, ContextConsumerMirror $contextMirror`.
 
 `run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext): MutationResult` applies the mutation to the
-already-decoded `$tree`, diagnoses the whole new tree, mirrors the proven consumers onto `$mutation->created()` via
+already-decoded `$tree`, seeds defaults on fresh scaffolds, diagnoses the whole new tree, mirrors the proven consumers onto the same fresh ids via
 `ContextConsumerMirror::apply()`, re-diagnoses when (and only when) the wiring returned a different `StoredTree`
 instance, and hands the wired tree, the surviving analysis and the mutation to
 `MutationResult::fromAnalyzedMutation()`, which owns the restriction of the returned resolutions to the affected set
 (`array_intersect_key($analysis->resolutions, array_flip($affected))`).
+Each operation reports the exact ids in `freshlyScaffolded()`; the runner does not infer this from `created()`. `DuplicateElement` is a copy rather than a fresh scaffold, so its new ids are excluded from seeding and mirroring while still appearing in its created/affected reports.
 
 The instance-identity check is the whole gate: mirroring returns the input tree unchanged when it writes no
 consumer, so the common case stays at one analysis pass while a wired response never carries diagnostics describing

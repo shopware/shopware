@@ -46,12 +46,11 @@ class ContentPreviewPageBuilderTest extends TestCase
 
         // Both halves read the decoded stored tree: the check takes it directly, and the pipeline takes it
         // wrapped in a preview-labelled RenderableLayout, lowering it itself once its stored steps have run.
-        // The check additionally takes the resolved specification's root source, which is what names the mapping
-        // catalogue its inline-mapping pass judges the draft's tokens against.
+        // The check judges intrinsic tree defects only; mapping faults are diagnostic and do not block preview.
         $checker = static::createMock(DraftLayoutChecker::class);
         $checker->expects($this->once())
             ->method('check')
-            ->with(static::identicalTo($stored), 'product')
+            ->with(static::identicalTo($stored))
             ->willReturn(new ConstraintViolationList());
 
         $pipeline = static::createMock(ContentPipeline::class);

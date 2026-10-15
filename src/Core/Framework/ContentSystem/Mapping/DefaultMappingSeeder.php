@@ -2,13 +2,15 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mapping;
 
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
-use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Provider\StorefrontContextMappingCandidateProvider;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -22,8 +24,7 @@ final readonly class DefaultMappingSeeder
 {
     public function __construct(
         private AbstractContentSystemElementTypeRegistry $types,
-        private AbstractContentSystemMappingCandidateRegistry $candidates,
-        private MappingTypeCompatibility $compatibility,
+        private StoredMappingInspector $mappingInspector,
     ) {
     }
 
@@ -46,8 +47,11 @@ final readonly class DefaultMappingSeeder
      */
     private function seedElement(StoredElement $element, string $rootSource, array $targets): StoredElement
     {
-        $specification = isset($targets[$element->id]) ? $this->types->get($element->component) : null;
+        $specification = isset($targets[$element->id]) && $this->types->has($element->component)
+            ? $this->types->get($element->component)
+            : null;
         $consumers = $element->contextDefinitions->getAllConsumers();
+        $requirements = $element->dataRequirements;
         $changed = false;
 
         foreach ($specification?->properties() ?? [] as $propertyKey => $property) {
@@ -56,24 +60,24 @@ final readonly class DefaultMappingSeeder
                 continue;
             }
 
-            $candidate = $this->candidates->forRootSource($rootSource)[$source->displayName()] ?? null;
-            if ($candidate === null || !$candidate->source->isSameAs($source)) {
+            $candidate = $this->mappingInspector->admitProperty($element->component, $propertyKey, $source, $rootSource);
+            if ($candidate instanceof ContentSystemException) {
                 continue;
             }
 
-            $declaredType = $property->type()->type();
-            if (
-                !$this->compatibility->permits($declaredType, $candidate->valueType)
-                || !\in_array($candidate->contextType->value, $property->type()->contextTypes(), true)
-            ) {
-                continue;
+            if (StorefrontContextMappingCandidateProvider::isApprovedSource($candidate->source)) {
+                $existing = $requirements[StorefrontContextLoader::REQUIREMENT_KEY] ?? null;
+                if ($existing !== null && ($existing->source !== StorefrontContextLoader::SOURCE || $existing->config->jsonSerialize() !== [])) {
+                    continue;
+                }
+
+                $requirements[StorefrontContextLoader::REQUIREMENT_KEY] = StorefrontContextLoader::requirement();
             }
 
             $consumers[$propertyKey] = new ContextConsumer(
                 $candidate->contextType,
                 false,
                 scope: ConsumerScope::Root,
-                projection: $candidate->projection,
                 source: $candidate->source,
             );
             $changed = true;
@@ -92,6 +96,6 @@ final readonly class DefaultMappingSeeder
             ? new ContextDefinitions($element->contextDefinitions->getAllProviders(), $consumers)
             : $element->contextDefinitions;
 
-        return $element->withContextDefinitions($definitions)->withSlots($slots);
+        return $element->withContextDefinitions($definitions)->withDataRequirements($requirements)->withSlots($slots);
     }
 }

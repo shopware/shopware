@@ -56,9 +56,10 @@ parent-rebuilding recursion over `StoredElement::$slots`, because `StoredTree::l
 Writing no consumer returns the input `StoredTree` instance itself, which is what the pipeline's re-analysis gate
 reads.
 
-Restricting mirroring to `created()` is what makes an explicit unwiring durable: the ambient offer that proved the
+Restricting mirroring to freshly scaffolded `created()` ids is what makes an explicit unwiring durable: the ambient offer that proved the
 reference does not go away, so mirroring on a non-creating mutation would write back in the same response the
-consumer that was just removed. That durability holds through every mutation except one: `ReplaceElement`
+consumer that was just removed. `DuplicateElement` reports new ids but copies the authored wiring exactly, so the
+pipeline does not mirror or seed defaults on its clone. `ReplaceElement`
 re-scaffolds the target element under the same id, which counts as `created()` (see
 [replace-element.md](replace-element.md)), so mirroring re-applies to it and restores every consumer the node's own
 resolutions still prove, including one an explicit unwiring had just removed. That is wanted: a type swap is a

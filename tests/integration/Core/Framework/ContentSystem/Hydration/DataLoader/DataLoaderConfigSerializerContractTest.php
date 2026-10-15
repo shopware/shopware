@@ -21,6 +21,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyDataLoader;
@@ -153,6 +154,10 @@ class DataLoaderConfigSerializerContractTest extends TestCase
         yield EntityCollectionLoader::SOURCE => [
             'source' => EntityCollectionLoader::SOURCE,
             'config' => ['entity' => 'product', 'property' => 'name', 'associations' => ['manufacturer']],
+        ];
+        yield StorefrontContextLoader::SOURCE => [
+            'source' => StorefrontContextLoader::SOURCE,
+            'config' => [],
         ];
         yield TestMultiReferenceGatingLoader::SOURCE => [
             'source' => TestMultiReferenceGatingLoader::SOURCE,

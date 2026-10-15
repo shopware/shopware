@@ -146,6 +146,35 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(vm.diagnostics).toEqual([violation]);
     });
 
+    it('debounces diagnoses while the layout is changing', async () => {
+        jest.useFakeTimers();
+        const diagnose = jest.fn().mockResolvedValue({ diagnostics: { violations: [] } });
+        const vm = {
+            layout: { layout: [] },
+            diagnostics: [],
+            diagnoseRequestSequence: 0,
+            latestDiagnoseRequestId: 0,
+            diagnoseTimeoutId: null as number | null,
+            draftMutationService: () => ({ diagnose }),
+            resolveMutationRootSource: () => 'category',
+            diagnoseLayout() {
+                return methods.diagnoseLayout.call(this);
+            },
+        };
+
+        methods.scheduleDiagnoseLayout.call(vm);
+        jest.advanceTimersByTime(200);
+        methods.scheduleDiagnoseLayout.call(vm);
+        jest.advanceTimersByTime(799);
+        expect(diagnose).not.toHaveBeenCalled();
+
+        jest.advanceTimersByTime(1);
+        await flushPromises();
+
+        expect(diagnose).toHaveBeenCalledTimes(1);
+        jest.useRealTimers();
+    });
+
     it('creates draft mutation payload from typed layout elements and rootSource', () => {
         const element: ContentElementNode = {
             id: 'element-1',

@@ -44,6 +44,12 @@ import './sw-experience-studio-detail.scss';
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
+const DIAGNOSE_DEBOUNCE_MS = 800;
+const MAPPING_MUTATION_ERROR_SNIPPETS: Record<string, string> = {
+    CONTENT_SYSTEM__PROPERTY_NOT_MAPPABLE: 'sw-experience-studio.detail.mappingMutationErrors.propertyNotMappable',
+    CONTENT_SYSTEM__UNKNOWN_MAPPING_PATH: 'sw-experience-studio.detail.mappingMutationErrors.unknownMappingPath',
+    CONTENT_SYSTEM__MAPPING_TYPE_MISMATCH: 'sw-experience-studio.detail.mappingMutationErrors.mappingTypeMismatch',
+};
 
 type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
 
@@ -155,6 +161,7 @@ export default Shopware.Component.wrapComponentConfig({
         showDiagnostics: boolean;
         diagnoseRequestSequence: number;
         latestDiagnoseRequestId: number;
+        diagnoseTimeoutId: number | null;
         availableLayoutTypes: string[];
         isLoadingLayoutTypes: boolean;
         layoutTypeLoadError: string | null;
@@ -190,6 +197,7 @@ export default Shopware.Component.wrapComponentConfig({
             showDiagnostics: false,
             diagnoseRequestSequence: 0,
             latestDiagnoseRequestId: 0,
+            diagnoseTimeoutId: null,
             availableLayoutTypes: [],
             isLoadingLayoutTypes: false,
             layoutTypeLoadError: null,
@@ -419,6 +427,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     beforeUnmount(): void {
+        if (this.diagnoseTimeoutId !== null) {
+            window.clearTimeout(this.diagnoseTimeoutId);
+        }
+
         if (this.historyKeydownHandler) {
             document.removeEventListener('keydown', this.historyKeydownHandler);
         }
@@ -882,7 +894,7 @@ export default Shopware.Component.wrapComponentConfig({
                 this.selectedElementId = result.selectedElementId;
             }
 
-            void this.diagnoseLayout();
+            this.scheduleDiagnoseLayout();
         },
 
         async onDuplicateElement(elementId: string): Promise<void> {
@@ -1050,7 +1062,6 @@ export default Shopware.Component.wrapComponentConfig({
             propertyKey: string;
             source: { type: string; id: string; config?: Record<string, unknown>; path?: string } | null;
             contextType: 'single' | 'collection' | null;
-            projection?: string | null;
         }): Promise<void> {
             if (!this.layout) {
                 return;
@@ -1079,6 +1090,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async diagnoseLayout(): Promise<void> {
+            if (this.diagnoseTimeoutId !== null) {
+                window.clearTimeout(this.diagnoseTimeoutId);
+                this.diagnoseTimeoutId = null;
+            }
+
             if (!this.layout) {
                 this.diagnostics = [];
 
@@ -1103,6 +1119,20 @@ export default Shopware.Component.wrapComponentConfig({
                     this.diagnostics = [];
                 }
             }
+        },
+
+        scheduleDiagnoseLayout(): void {
+            if (this.diagnoseTimeoutId !== null) {
+                window.clearTimeout(this.diagnoseTimeoutId);
+            }
+
+            // A pending edit makes any currently running diagnosis stale before its response can land.
+            this.diagnoseRequestSequence += 1;
+            this.latestDiagnoseRequestId = this.diagnoseRequestSequence;
+            this.diagnoseTimeoutId = window.setTimeout(() => {
+                this.diagnoseTimeoutId = null;
+                void this.diagnoseLayout();
+            }, DIAGNOSE_DEBOUNCE_MS);
         },
 
         resolveMutationRootSource(): string | null {
@@ -1144,6 +1174,18 @@ export default Shopware.Component.wrapComponentConfig({
                 this.createNotificationError({
                     message:
                         'The layout edit is not valid in the current structure. Please review your change and try again.',
+                });
+
+                return;
+            }
+
+            const mappingErrorSnippet = codes
+                .map((code) => MAPPING_MUTATION_ERROR_SNIPPETS[code])
+                .find((snippet): snippet is string => typeof snippet === 'string');
+
+            if (mappingErrorSnippet) {
+                this.createNotificationError({
+                    message: this.$t(mappingErrorSnippet),
                 });
 
                 return;
@@ -1362,7 +1404,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.layout.layout = previousEntry.layout;
             this.selectedElementId = previousEntry.selectedElementId;
             this.showDiagnostics = false;
-            void this.diagnoseLayout();
+            this.scheduleDiagnoseLayout();
         },
 
         onRedo(): void {
@@ -1380,7 +1422,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.layout.layout = nextEntry.layout;
             this.selectedElementId = nextEntry.selectedElementId;
             this.showDiagnostics = false;
-            void this.diagnoseLayout();
+            this.scheduleDiagnoseLayout();
         },
 
         onHistoryKeydown(event: KeyboardEvent): void {

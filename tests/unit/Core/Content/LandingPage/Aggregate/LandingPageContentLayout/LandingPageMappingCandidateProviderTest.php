@@ -9,7 +9,10 @@ use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\Landing
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -41,8 +44,17 @@ class LandingPageMappingCandidateProviderTest extends TestCase
 
         static::assertSame('string', $candidate->valueType);
         static::assertSame(ContextType::Single, $candidate->contextType);
-        static::assertNull($candidate->projection);
         static::assertSame('basic', $candidate->group);
+    }
+
+    public function testResolvesTheActiveLandingPageTranslation(): void
+    {
+        $landingPage = new LandingPageEntity();
+        $landingPage->setName('Raw name');
+        $landingPage->setTranslated(['name' => 'Storefront name']);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['landing_page' => $landingPage], [], null, null, null);
+
+        static::assertSame('Storefront name', $this->provider->resolveRootSource(MappingSourceReference::root('landing_page', 'name'), $context)->value);
     }
 
     public function testEveryOfferedPathNamesADirectMemberOfTheLandingPageEntity(): void

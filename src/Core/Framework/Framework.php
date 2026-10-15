@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentLayoutAssign
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentRouteCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemDataLoaderCompilerPass;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemPropertyProjectionCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemStyleOptionCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\CreateGeneratorScaffoldingCommandPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
@@ -27,6 +26,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompiler
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FrameworkMigrationReplacementCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\HttpCacheConfigCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\MappingCandidateProviderCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAnalysisCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
@@ -143,9 +143,9 @@ class Framework extends Bundle
         $container->addCompilerPass(new MessageHandlerCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new ContentRouteCompilerPass());
         $container->addCompilerPass(new ContentSystemDataLoaderCompilerPass());
+        $container->addCompilerPass(new MappingCandidateProviderCompilerPass());
         $container->addCompilerPass(new ContentSystemCompilerPass());
         $container->addCompilerPass(new ContentSystemStyleOptionCompilerPass());
-        $container->addCompilerPass(new ContentSystemPropertyProjectionCompilerPass());
         $container->addCompilerPass(new ContentLayoutAssignableCompilerPass());
         $container->addCompilerPass(new ScheduledTaskExecutorCompilerPass());
         $container->addCompilerPass(new CreateGeneratorScaffoldingCommandPass());

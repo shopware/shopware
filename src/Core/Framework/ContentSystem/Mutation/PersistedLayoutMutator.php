@@ -35,7 +35,7 @@ class PersistedLayoutMutator
         private readonly EntityRepository $contentLayoutRepository,
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly LayoutDiagnostics $diagnostics,
-        private readonly ?DefaultMappingSeeder $defaultMappingSeeder = null,
+        private readonly DefaultMappingSeeder $defaultMappingSeeder,
     ) {
     }
 
@@ -81,9 +81,7 @@ class PersistedLayoutMutator
             // mutated one is handed to the write path the same way: the layout field's serializer takes stored
             // elements directly.
             $mutated = $mutation->apply(new StoredTree($layout->getLayout(), $layout->getRootSource()));
-            if ($this->defaultMappingSeeder !== null) {
-                $mutated = $this->defaultMappingSeeder->seed($mutated, $layout->getRootSource(), $mutation->created());
-            }
+            $mutated = $this->defaultMappingSeeder->seed($mutated, $layout->getRootSource(), $mutation->freshlyScaffolded());
 
             $this->contentLayoutRepository->update([[
                 'id' => $layoutId,

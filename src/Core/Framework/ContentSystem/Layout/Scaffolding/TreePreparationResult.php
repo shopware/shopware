@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Scaffolding;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingMetadata;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -26,11 +27,13 @@ final readonly class TreePreparationResult
     /**
      * @param list<StoredElement> $tree the post-prune forest, what gets lowered and rendered
      * @param list<StoredElement> $prePruneForest the wrapped forest before the partial prune, what wiring validation and the duplicate-element-id check judge
+     * @param InlineMappingMetadata $inlineMappings token spans captured before placeholder substitution
      */
     public function __construct(
         public array $tree,
         public array $prePruneForest,
         public RenderScaffolding $scaffolding,
+        public InlineMappingMetadata $inlineMappings,
     ) {
     }
 }

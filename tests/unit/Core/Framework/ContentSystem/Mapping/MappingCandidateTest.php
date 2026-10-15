@@ -29,7 +29,6 @@ class MappingCandidateTest extends TestCase
             group: 'media',
             valueType: MediaEntity::class,
             contextType: ContextType::Single,
-            projection: 'media_from_category',
         );
 
         $schema = $candidate->toSchema();
@@ -48,9 +47,10 @@ class MappingCandidateTest extends TestCase
                 MediaEntity::class,
                 ...array_values(class_parents(MediaEntity::class) ?: []),
                 ...array_values(class_implements(MediaEntity::class) ?: []),
+                'object',
             ],
+            'inlineMappable' => false,
             'contextType' => 'single',
-            'projection' => 'media_from_category',
         ], $schema);
         static::assertContains(Entity::class, $schema['compatibleTypes']);
         static::assertContains(Struct::class, $schema['compatibleTypes']);
@@ -60,7 +60,7 @@ class MappingCandidateTest extends TestCase
         static::assertSame([], get_object_vars($descriptionTranslations));
     }
 
-    public function testAnUnprojectedCandidateReportsANullProjectionRatherThanOmittingTheKey(): void
+    public function testPrimitiveCandidateOnlyAcceptsItsOwnDeclaredTypeAndCanBeInterpolatedAsText(): void
     {
         $candidate = new MappingCandidate(
             path: 'category.name',
@@ -72,9 +72,25 @@ class MappingCandidateTest extends TestCase
 
         $schema = $candidate->toSchema();
 
-        static::assertArrayHasKey('projection', $schema);
-        static::assertNull($schema['projection']);
-        static::assertSame([], $schema['compatibleTypes']);
+        static::assertSame(['string'], $schema['compatibleTypes']);
+        static::assertTrue($schema['inlineMappable']);
+    }
+
+    public function testPathlessTypedSourceRemainsFieldMappableButIsNotInlineMappable(): void
+    {
+        $candidate = new MappingCandidate(
+            path: 'context:example',
+            label: 'a label',
+            description: 'a description',
+            group: 'basic',
+            valueType: 'string',
+            source: new MappingSourceReference('context', 'example'),
+        );
+
+        $schema = $candidate->toSchema();
+
+        static::assertSame(['string'], $schema['compatibleTypes']);
+        static::assertFalse($schema['inlineMappable']);
     }
 
     public function testAnInterfaceValuedCandidateIncludesItsParentInterfaces(): void
@@ -90,6 +106,7 @@ class MappingCandidateTest extends TestCase
         static::assertSame([
             \IteratorAggregate::class,
             \Traversable::class,
+            'object',
         ], $candidate->toSchema()['compatibleTypes']);
     }
 

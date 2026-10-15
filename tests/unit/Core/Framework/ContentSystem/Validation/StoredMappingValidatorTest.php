@@ -17,7 +17,6 @@ use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
@@ -76,14 +75,23 @@ class StoredMappingValidatorTest extends TestCase
         static::assertSame(self::CATEGORY_NAME_PATH, $violations->get(0)->getInvalidValue());
     }
 
-    private function mappedElement(): StoredElement
+    public function testStoredCardinalityMismatchHasItsOwnWriteErrorCode(): void
+    {
+        $violations = $this->validator(mappable: true)->validate([$this->mappedElement(ContextType::Collection)], 'category');
+
+        static::assertCount(1, $violations);
+        static::assertSame('/element-1/text', $violations->get(0)->getPropertyPath());
+        static::assertSame(ContentSystemException::MAPPING_CONTEXT_TYPE_MISMATCH, $violations->get(0)->getCode());
+    }
+
+    private function mappedElement(ContextType $contextType = ContextType::Single): StoredElement
     {
         return new StoredElement(
             id: 'element-1',
             component: 'Sw:Content:Text',
             contextDefinitions: new ContextDefinitions(consumers: [
                 'text' => new ContextConsumer(
-                    type: ContextType::Single,
+                    type: $contextType,
                     required: false,
                     scope: ConsumerScope::Root,
                     source: MappingSourceReference::fromRootPath(self::CATEGORY_NAME_PATH),
@@ -118,7 +126,6 @@ class StoredMappingValidatorTest extends TestCase
             $candidateRegistry,
             new MappingTypeCompatibility(),
             new MappingConsumers(),
-            new ContentSystemPropertyProjectionRegistry([]),
             new InlineMappingTokenParser(),
         ));
     }

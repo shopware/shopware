@@ -12,6 +12,24 @@ describe('module/sw-experience-studio/component/sw-experience-studio-preview', (
         expect(debouncedLoadPreview).toHaveBeenCalledTimes(1);
     });
 
+    it('configures the preview reload debounce to 800 ms', () => {
+        const debounceSpy = jest.spyOn(Shopware.Utils, 'debounce');
+        const vm = {
+            debouncedLoadPreview: null as (() => void) | null,
+            previewMessageHandler: null as ((event: MessageEvent) => void) | null,
+            isTrustedPreviewMessage: () => true,
+            schedulePreviewReload: jest.fn(),
+            loadPreview: jest.fn(),
+            $emit: jest.fn(),
+        };
+
+        (previewComponent as unknown as { created: () => void }).created.call(vm);
+        expect(debounceSpy).toHaveBeenCalledWith(expect.any(Function), 800);
+
+        window.removeEventListener('message', vm.previewMessageHandler as EventListener);
+        debounceSpy.mockRestore();
+    });
+
     it('relays element selection but ignores inline edit messages from the preview', () => {
         const created = (previewComponent as unknown as { created: () => void }).created;
         const emit = jest.fn();

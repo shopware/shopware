@@ -75,6 +75,7 @@ class DuplicateElementTest extends TestCase
 
         $clone = $result->roots[1];
         static::assertSame([$clone->id, $clone->slots['content'][0]->id], $duplicate->created());
+        static::assertSame([], $duplicate->freshlyScaffolded());
         static::assertNotContains('root', $duplicate->created());
         static::assertNotContains('child', $duplicate->created());
     }

@@ -48,6 +48,7 @@ final class AttachElement extends AbstractLayoutMutation
         $this->affected = $this->subtreeIds($clone);
         // created and affected are the same set here: every node of the fresh subtree.
         $this->created = $this->subtreeIds($clone);
+        $this->freshlyScaffolded = $this->created;
 
         if ($this->parentElementId === null) {
             return $tree->insertAtRoot($this->index, [$clone]);

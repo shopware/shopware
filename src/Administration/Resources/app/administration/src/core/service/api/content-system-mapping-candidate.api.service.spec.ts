@@ -31,8 +31,10 @@ describe('contentSystemMappingCandidateService', () => {
                     description: 'Category name',
                     group: 'basic',
                     valueType: 'string',
+                    compatibleTypes: ['string'],
+                    inlineMappable: true,
+                    canonicalToken: '{{map:category.name}}',
                     contextType: 'single',
-                    projection: null,
                 },
             ],
         };
@@ -52,5 +54,26 @@ describe('contentSystemMappingCandidateService', () => {
         });
 
         await expect(service.getMappingCandidates()).resolves.toEqual({});
+    });
+
+    it('returns server-parsed inline mapping token spans with their revision', async () => {
+        const { service, clientMock } = createService();
+        const parsed = {
+            revision: 4,
+            tokens: [
+                {
+                    path: 'product.name',
+                    match: '{{  map:product.name  }}',
+                    canonicalToken: '{{map:product.name}}',
+                    offset: 3,
+                    insideMarkup: false,
+                    malformed: false,
+                },
+            ],
+        };
+
+        clientMock.onPost('/_action/content-system/inline-mapping/parse').reply(200, parsed);
+
+        await expect(service.parseInlineMappingTokens('<p>{{map:product.name}}</p>', 4)).resolves.toEqual(parsed);
     });
 });

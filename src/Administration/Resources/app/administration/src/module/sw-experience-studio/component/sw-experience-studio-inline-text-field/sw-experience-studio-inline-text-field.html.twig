@@ -2,6 +2,7 @@
 <div class="sw-experience-studio-inline-text-field">
     {% block sw_experience_studio_inline_text_field_editor %}
     <mt-text-editor
+        v-if="isEditorReady"
         v-bind="editorBindings"
         @update:model-value="onUpdateEditorHtml"
     />

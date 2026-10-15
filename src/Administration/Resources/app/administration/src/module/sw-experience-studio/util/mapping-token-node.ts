@@ -59,7 +59,10 @@ export function createMappingTokenNode(options: { resolveLabel: (path: string) =
          * single mount of a text that contains a chip.
          */
         renderHTML({ HTMLAttributes }: { HTMLAttributes: object }) {
-            return ['span', mergeAttributes(HTMLAttributes)];
+            return [
+                'span',
+                mergeAttributes(HTMLAttributes),
+            ];
         },
 
         /**
@@ -77,8 +80,7 @@ export function createMappingTokenNode(options: { resolveLabel: (path: string) =
          * one.
          */
         addNodeView() {
-            const { resolveLabel } = (this as unknown as { options: { resolveLabel: (path: string) => string } })
-                .options;
+            const { resolveLabel } = (this as unknown as { options: { resolveLabel: (path: string) => string } }).options;
 
             return ({ node }: { node: { attrs: Record<string, unknown> } }) => {
                 const path = typeof node.attrs.path === 'string' ? node.attrs.path : '';

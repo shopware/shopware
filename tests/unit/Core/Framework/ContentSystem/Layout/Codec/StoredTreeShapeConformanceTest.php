@@ -406,44 +406,6 @@ class StoredTreeShapeConformanceTest extends TestCase
             '',
         ];
 
-        yield 'a mapping consumer declaring a projection' => [
-            self::forest(['acceptsContext' => [
-                'media' => [
-                    'type' => 'single',
-                    'required' => false,
-                    'scope' => 'root',
-                    'projection' => 'product_media_to_media',
-                    'source' => MappingSourceReference::fromRootPath('product.cover')->jsonSerialize(),
-                ],
-            ]]),
-            self::ACCEPTED,
-            '',
-        ];
-
-        yield 'a parent-scoped consumer declaring a projection' => [
-            self::forest(['acceptsContext' => [
-                'product.cover' => ['type' => 'single', 'required' => false, 'projection' => 'product_media_to_media'],
-            ]]),
-            self::REJECTED,
-            '',
-        ];
-
-        yield 'a root-scoped consumer keyed by a bare name declaring a projection' => [
-            self::forest(['acceptsContext' => [
-                'product' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'projection' => 'product_media_to_media'],
-            ]]),
-            self::REJECTED,
-            '',
-        ];
-
-        yield 'a non-string consumer projection' => [
-            self::forest(['acceptsContext' => [
-                'product.cover' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'projection' => 42],
-            ]]),
-            self::REJECTED,
-            '',
-        ];
-
         yield 'a required mapping consumer' => [
             self::forest(['acceptsContext' => [
                 'text' => ['type' => 'single', 'required' => true, 'scope' => 'root', 'source' => MappingSourceReference::fromRootPath('product.name')->jsonSerialize()],

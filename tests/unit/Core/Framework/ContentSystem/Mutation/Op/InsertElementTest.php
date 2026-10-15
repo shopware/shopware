@@ -60,6 +60,7 @@ class InsertElementTest extends TestCase
 
         static::assertSame([$result->roots[1]->id], $insert->affected());
         static::assertSame([$result->roots[1]->id], $insert->created());
+        static::assertSame($insert->created(), $insert->freshlyScaffolded());
     }
 
     #[TestDox('splices the new element into a parent slot at the given index, leaving the parent\'s other fields intact')]

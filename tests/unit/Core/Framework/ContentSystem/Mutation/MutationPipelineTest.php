@@ -20,6 +20,12 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\DefaultMappingSeeder;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
@@ -206,8 +212,8 @@ class MutationPipelineTest extends TestCase
         static::assertArrayHasKey('product', $replaced->contextDefinitions->getAllConsumers());
     }
 
-    #[TestDox('wires the clone of an unwired element and leaves the unwired original alone')]
-    public function testDuplicateWiresTheCloneOnly(): void
+    #[TestDox('keeps deliberate unwiring on a duplicate')]
+    public function testDuplicatePreservesTheUnwiredClone(): void
     {
         $result = $this->pipeline($this->diagnosticsResolvingProduct())->run(new DuplicateElement('el-1'), $this->unwiredTree(), null);
 
@@ -216,7 +222,7 @@ class MutationPipelineTest extends TestCase
         static::assertSame('el-1', $children[0]->id);
         static::assertSame([], $children[0]->contextDefinitions->getAllConsumers());
         static::assertNotSame('el-1', $children[1]->id);
-        static::assertArrayHasKey('product', $children[1]->contextDefinitions->getAllConsumers());
+        static::assertSame([], $children[1]->contextDefinitions->getAllConsumers());
     }
 
     #[TestDox('returns no resolutions when the mutation affects nothing')]
@@ -276,7 +282,22 @@ class MutationPipelineTest extends TestCase
 
     private function pipeline(LayoutDiagnostics $diagnostics): MutationPipeline
     {
-        return new MutationPipeline($diagnostics, new ContextConsumerMirror());
+        $typeRegistry = $this->typeRegistry();
+        $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidateRegistry->method('forRootSource')->willReturn([]);
+        $inspector = new StoredMappingInspector(
+            $typeRegistry,
+            $candidateRegistry,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            new InlineMappingTokenParser(),
+        );
+
+        return new MutationPipeline(
+            $diagnostics,
+            new ContextConsumerMirror(),
+            new DefaultMappingSeeder($typeRegistry, $inspector),
+        );
     }
 
     private function inputTree(): StoredTree
@@ -411,6 +432,7 @@ class MutationPipelineTest extends TestCase
     ): void {
         $mutation->method('affected')->willReturn($affected);
         $mutation->method('created')->willReturn($created);
+        $mutation->method('freshlyScaffolded')->willReturn($created);
         $mutation->method('orphaned')->willReturn($orphaned);
         $mutation->method('droppedWiring')->willReturn($droppedWiring);
         $mutation->method('droppedProperties')->willReturn($droppedProperties);

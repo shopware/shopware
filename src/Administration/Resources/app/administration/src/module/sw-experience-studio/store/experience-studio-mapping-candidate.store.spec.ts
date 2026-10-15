@@ -14,8 +14,10 @@ describe('src/module/sw-experience-studio/store/experience-studio-mapping-candid
         description: 'Category name',
         group: 'basic',
         valueType: 'string',
+        compatibleTypes: ['string'],
+        inlineMappable: true,
+        canonicalToken: '{{map:category.name}}',
         contextType: 'single',
-        projection: null,
     };
 
     const getStore = () =>
@@ -70,5 +72,24 @@ describe('src/module/sw-experience-studio/store/experience-studio-mapping-candid
         expect(store.loadError).toBe('catalogue unavailable');
         expect(store.hasLoaded).toBe(false);
         expect(store.isLoading).toBe(false);
+    });
+
+    it('allows retrying after a failed catalogue request', async () => {
+        const getMappingCandidates = jest
+            .fn()
+            .mockRejectedValueOnce(new Error('catalogue unavailable'))
+            .mockResolvedValueOnce({ category: [candidate] });
+        jest.spyOn(Shopware, 'Service').mockReturnValue({ getMappingCandidates } as never);
+
+        const store = getStore();
+        await store.loadMappingCandidates();
+        expect(store.loadError).toBe('catalogue unavailable');
+
+        await store.loadMappingCandidates();
+
+        expect(getMappingCandidates).toHaveBeenCalledTimes(2);
+        expect(store.getByRootSource('category')).toEqual([candidate]);
+        expect(store.hasLoaded).toBe(true);
+        expect(store.loadError).toBeNull();
     });
 });

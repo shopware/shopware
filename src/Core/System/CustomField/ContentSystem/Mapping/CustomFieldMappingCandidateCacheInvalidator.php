@@ -5,6 +5,7 @@ namespace Shopware\Core\System\CustomField\ContentSystem\Mapping;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
@@ -35,19 +36,54 @@ class CustomFieldMappingCandidateCacheInvalidator implements EventSubscriberInte
 
     public function invalidate(EntityWrittenContainerEvent $event): void
     {
+        $tags = [];
+
         foreach ([
             CustomFieldDefinition::ENTITY_NAME,
             CustomFieldSetDefinition::ENTITY_NAME,
             CustomFieldSetRelationDefinition::ENTITY_NAME,
         ] as $entityName) {
-            if ($event->getEventByEntityName($entityName) === null) {
+            $entityEvent = $event->getEventByEntityName($entityName);
+            if ($entityEvent === null) {
                 continue;
             }
 
-            $this->cache->invalidateTags([self::CACHE_TAG]);
-            $this->cacheInvalidator->invalidate(['custom_field']);
+            $tags[] = 'custom_field';
 
+            if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
+                foreach ($entityEvent->getIds() as $id) {
+                    if (\is_string($id)) {
+                        $tags[] = CustomFieldMappingCacheTags::candidate($this->normalizeId($id));
+                    }
+                }
+            }
+
+            if ($entityName === CustomFieldSetDefinition::ENTITY_NAME) {
+                foreach ($entityEvent->getIds() as $id) {
+                    if (\is_string($id)) {
+                        $tags[] = CustomFieldMappingCacheTags::set($this->normalizeId($id));
+                    }
+                }
+            }
+
+            foreach ($entityEvent->getPayloads() as $payload) {
+                $setId = $payload['customFieldSetId'] ?? $payload['setId'] ?? null;
+                if (\is_string($setId)) {
+                    $tags[] = CustomFieldMappingCacheTags::set($this->normalizeId($setId));
+                }
+            }
+        }
+
+        if ($tags === []) {
             return;
         }
+
+        $this->cache->invalidateTags([self::CACHE_TAG]);
+        $this->cacheInvalidator->invalidate(array_values(array_unique($tags)));
+    }
+
+    private function normalizeId(string $id): string
+    {
+        return \strlen($id) === 16 ? Uuid::fromBytesToHex($id) : $id;
     }
 }

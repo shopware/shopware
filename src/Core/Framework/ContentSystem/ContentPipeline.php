@@ -81,7 +81,7 @@ class ContentPipeline
             $specification->dataRequirements,
             $this->virtualRootOf($preparation->prePruneForest),
             $specification->rootSource,
-            $specification->isAdminPreview,
+            $preparation->inlineMappings,
         );
 
         $renderedTree = $this->unwrapVirtualRoot($lowered->tree, $scaffolding);
@@ -106,6 +106,7 @@ class ContentPipeline
             $finishedTree,
             $finalizationEvent->layout,
             $collectValueIndex ? $this->indexFactory->create($finishedTree, $lowered->provenance) : null,
+            $lowered->mappingDiagnostics,
         );
     }
 

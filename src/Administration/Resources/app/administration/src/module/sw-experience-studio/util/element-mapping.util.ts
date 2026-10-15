@@ -15,16 +15,6 @@ export function isMappingConsumer(
 ): consumer is ContentElementContextConsumer & { source: NonNullable<ContentElementContextConsumer['source']> } {
     return typeof consumer?.source === 'object' && consumer.source !== null;
 }
-
-const PRIMITIVE_TYPES = [
-    'string',
-    'integer',
-    'number',
-    'boolean',
-];
-
-const UNCONSTRAINED_OBJECT_TYPE = 'object';
-
 /**
  * @private
  * @sw-package discovery
@@ -58,19 +48,18 @@ export function isInlineMappableProperty(property: ContentSystemElementTypePrope
 /**
  * Narrows the catalogue to the candidates that have a text form.
  *
- * This mirrors `InlineMappingInterpolator::STRINGIFIABLE_TYPES`, which is `PropertyType::PRIMITIVE_TYPES`. An entity
- * or a collection cannot be written into a sentence, and the server refuses such a token outright rather than
- * rendering something apologetic, so offering one here would only lead the author into a validation error.
+ * The server supplies `inlineMappable` from the same rule used by `InlineMappingInterpolator`, so the Administration
+ * does not need a copy of the stringifiable type set.
  *
  * Unlike `getCandidatesForProperty` there is no `contextTypes` filter, because the property being filled is the text
  * itself rather than a typed slot. Non-root sources are allowed too: the server resolves them through their source
- * provider, while `valueType` ensures the value has a text form after any projection.
+ * provider, while `valueType` ensures the delivered value has a text form.
  *
  * @private
  * @sw-package discovery
  */
 export function getInlineMappingCandidates(candidates: ContentSystemMappingCandidate[]): ContentSystemMappingCandidate[] {
-    return candidates.filter((candidate) => isPrimitive(candidate.valueType));
+    return candidates.filter((candidate) => candidate.inlineMappable);
 }
 
 /**
@@ -130,9 +119,8 @@ export function findPropertyMapping(element: ContentElementNode | null, property
 /**
  * Narrows the catalogue to the candidates whose value can fill `property`.
  *
- * `contextTypes` separates collection properties from single-value properties. `compatibleTypes` mirrors the
- * server's PHP assignability check, so class candidates only appear for properties that can accept their value.
- * The Administration cannot derive either distinction from class names alone.
+ * `contextTypes` and `compatibleTypes` are supplied by the server. The latter is computed by the same compatibility
+ * rule used to admit a stored mapping, so the UI only intersects server-owned metadata with the property declaration.
  *
  * @private
  * @sw-package discovery
@@ -141,13 +129,14 @@ export function getCandidatesForProperty(
     candidates: ContentSystemMappingCandidate[],
     property: ContentSystemElementTypeProperty,
 ): ContentSystemMappingCandidate[] {
-    const declaredTypes = Array.isArray(property.type) ? property.type : [property.type];
     const contextTypes = property.contextTypes ?? [];
 
     return candidates.filter(
         (candidate) =>
             contextTypes.includes(candidate.contextType) &&
-            declaredTypes.some((declaredType) => permitsCandidate(declaredType, candidate)),
+            (Array.isArray(property.type) ? property.type : [property.type]).some((declaredType) =>
+                candidate.compatibleTypes.includes(declaredType),
+            ),
     );
 }
 
@@ -182,22 +171,4 @@ export function groupCandidates(
             candidates: groupCandidateList,
         }),
     );
-}
-
-function permitsCandidate(declaredType: string, candidate: ContentSystemMappingCandidate): boolean {
-    const candidateValueType = candidate.valueType;
-
-    if (declaredType === UNCONSTRAINED_OBJECT_TYPE) {
-        return !isPrimitive(candidateValueType);
-    }
-
-    if (isPrimitive(declaredType)) {
-        return declaredType === candidateValueType;
-    }
-
-    return candidate.compatibleTypes?.includes(declaredType) ?? declaredType === candidateValueType;
-}
-
-function isPrimitive(type: string): boolean {
-    return PRIMITIVE_TYPES.includes(type);
 }

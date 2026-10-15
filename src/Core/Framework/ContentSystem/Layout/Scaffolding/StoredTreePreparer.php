@@ -9,6 +9,9 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvide
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingMetadata;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingToken;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
@@ -20,8 +23,9 @@ use Shopware\Core\Framework\Log\Package;
  * Brings a stored forest into the state the rendering steps require, and hands stored forests back. Its
  * steps are ordered and internal: a caller asks for a prepared tree, never for one of the steps.
  *
- * The order is placeholder resolution, then the virtual-root wrap, then the partial prune, and finally the
- * scaffolding the finishing steps read. Placeholder resolution runs in FULL mode only. The skeleton response
+ * The order is preparation-event dispatch (owned by the pipeline), authored-token parsing and placeholder
+ * resolution, then the virtual-root wrap, the partial prune, and the scaffolding the finishing steps read.
+ * Placeholder resolution runs in FULL mode only. The skeleton response
  * carries a tree's structure and its style, never a property value, so resolving into values it discards is
  * work no reader can observe.
  *
@@ -35,6 +39,8 @@ final class StoredTreePreparer
         private readonly PartialRenderer $partialRenderer,
         private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
         private readonly DataLoaderProvider $dataLoaderProvider,
+        private readonly InlineMappingTokenParser $inlineMappingTokenParser,
+        private readonly AbstractContentSystemElementTypeRegistry $typeRegistry,
     ) {
     }
 
@@ -43,7 +49,8 @@ final class StoredTreePreparer
      */
     public function prepare(array $tree, RenderingSpecification $specification, RenderingMode $mode): TreePreparationResult
     {
-        $tree = $this->resolveTreePlaceholders($tree, $specification, $mode);
+        $inlineTokens = [];
+        $tree = $this->resolveTreePlaceholders($tree, $specification, $mode, $inlineTokens);
 
         $virtualRootWrapped = $this->virtualRootWrapper->requiresWrapping($specification, $tree);
 
@@ -59,25 +66,29 @@ final class StoredTreePreparer
         return new TreePreparationResult(
             $tree,
             $prePruneForest,
-            $this->deriveScaffolding($tree, $extractTargetId, $virtualRootWrapped)
+            $this->deriveScaffolding($tree, $extractTargetId, $virtualRootWrapped),
+            new InlineMappingMetadata($inlineTokens),
         );
     }
 
     /**
      * @param list<StoredElement> $tree
+     * @param array<string, array<string, list<InlineMappingToken>>> $inlineTokens
      *
      * @return list<StoredElement>
      */
-    private function resolveTreePlaceholders(array $tree, RenderingSpecification $specification, RenderingMode $mode): array
+    private function resolveTreePlaceholders(array $tree, RenderingSpecification $specification, RenderingMode $mode, array &$inlineTokens): array
     {
         if ($mode !== RenderingMode::FULL) {
             return $tree;
         }
 
-        return array_map(
-            fn (StoredElement $element): StoredElement => $this->resolvePlaceholders($element, $specification->placeholderValues),
-            $tree
-        );
+        $prepared = [];
+        foreach ($tree as $element) {
+            $prepared[] = $this->resolvePlaceholders($element, $specification->placeholderValues, $inlineTokens);
+        }
+
+        return $prepared;
     }
 
     /**
@@ -142,13 +153,26 @@ final class StoredTreePreparer
      * A list or map value is handed on untouched, string leaves inside it included: a placeholder is a
      * property of the authored value, and reaching into a container would resolve tokens the authoring
      * surface never offered to resolve.
+     *
+     * @param array<string, array<string, list<InlineMappingToken>>> $inlineTokens
      */
-    private function resolvePlaceholders(StoredElement $element, PlaceholderValues $values): StoredElement
+    private function resolvePlaceholders(StoredElement $element, PlaceholderValues $values, array &$inlineTokens): StoredElement
     {
+        $declaredProperties = $this->typeRegistry->has($element->component)
+            ? $this->typeRegistry->get($element->component)->properties()
+            : [];
         $properties = [];
         foreach ($element->properties() as $key => $value) {
             if ($value->isString()) {
-                $substituted = $this->substitute($value->asString(), $values);
+                $authored = $value->asString();
+                $tokens = ($declaredProperties[(string) $key] ?? null)?->inlineMappable()
+                    ? $this->inlineMappingTokenParser->parse($authored)
+                    : [];
+                [$substituted, $adjustedTokens] = $this->substituteAuthoredText($authored, $values, $tokens);
+                if ($adjustedTokens !== []) {
+                    $inlineTokens[$element->id][(string) $key] = $adjustedTokens;
+                }
+
                 $value = $substituted === null ? StoredValue::ofNull() : StoredValue::ofString($substituted);
             }
 
@@ -162,10 +186,10 @@ final class StoredTreePreparer
 
         $slots = [];
         foreach ($element->slots as $slotName => $children) {
-            $slots[$slotName] = array_map(
-                fn (StoredElement $child): StoredElement => $this->resolvePlaceholders($child, $values),
-                $children
-            );
+            $slots[$slotName] = [];
+            foreach ($children as $child) {
+                $slots[$slotName][] = $this->resolvePlaceholders($child, $values, $inlineTokens);
+            }
         }
 
         return $element->withProperties($properties)->withDataRequirements($dataRequirements)->withSlots($slots);
@@ -224,20 +248,66 @@ final class StoredTreePreparer
     }
 
     /**
-     * One pass over the declared keys, no recursion into what a substitution produced. A value that is
-     * entirely a single unresolved placeholder collapses to null; an unresolved placeholder embedded in other
-     * text stays verbatim. The reserved `map:` namespace stays intact for the later inline mapping pass.
+     * A single unresolved placeholder collapses to null; an unresolved placeholder embedded in other text stays
+     * verbatim. Substitution does not inspect or recognize mapping syntax.
      */
     private function substitute(string $input, PlaceholderValues $values): ?string
     {
-        foreach ($values->all() as $key => $value) {
-            $input = str_replace('{{' . $key . '}}', (string) $value, $input);
-        }
-
-        if (preg_match('/^\{\{\s*(?<key>[^{}]+?)\s*\}\}$/', $input, $matches) === 1
-            && !str_starts_with(trim($matches['key']), InlineMappingTokenParser::TOKEN_PREFIX)
+        if (preg_match('/^\{\{\s*(?<key>[^{}:]+?)\s*\}\}$/', $input, $matches) === 1
+            && !\array_key_exists($matches['key'], $values->all())
         ) {
             return null;
+        }
+
+        return $this->substituteLiteral($input, $values);
+    }
+
+    /**
+     * Substitutes placeholder values only in literal spans and shifts the authored token offsets to the prepared text.
+     * Tokens supplied by placeholder values are never added to this metadata.
+     *
+     * @param list<InlineMappingToken> $tokens
+     *
+     * @return array{?string, list<InlineMappingToken>}
+     */
+    private function substituteAuthoredText(string $input, PlaceholderValues $values, array $tokens): array
+    {
+        if ($tokens === []) {
+            return [$this->substitute($input, $values), []];
+        }
+
+        $rewritten = '';
+        $cursor = 0;
+        $adjustedTokens = [];
+
+        foreach ($tokens as $token) {
+            $rewritten .= $this->substituteLiteral(substr($input, $cursor, $token->offset - $cursor), $values);
+            $adjustedTokens[] = new InlineMappingToken(
+                $token->path,
+                $token->match,
+                \strlen($rewritten),
+                $token->insideMarkup,
+                $token->malformed,
+            );
+            $rewritten .= $token->match;
+            $cursor = $token->offset + \strlen($token->match);
+        }
+
+        $rewritten .= $this->substituteLiteral(substr($input, $cursor), $values);
+
+        return [$rewritten, $adjustedTokens];
+    }
+
+    private function substituteLiteral(string $input, PlaceholderValues $values): string
+    {
+        foreach ($values->all() as $key => $value) {
+            // Mapping names stay literal outside opted-in properties too. Request parameters must not
+            // overwrite mapping syntax when a property deliberately bypasses the mapping parser.
+            if (str_starts_with(ltrim($key, " \t\n\r\v\f"), InlineMappingTokenParser::TOKEN_PREFIX)) {
+                continue;
+            }
+
+            $input = str_replace('{{' . $key . '}}', (string) $value, $input);
         }
 
         return $input;

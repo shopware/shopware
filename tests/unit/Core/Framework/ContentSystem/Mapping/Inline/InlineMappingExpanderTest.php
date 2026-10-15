@@ -5,18 +5,24 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping\Inline;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingMetadata;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingToken;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubPathStruct;
@@ -36,7 +42,7 @@ class InlineMappingExpanderTest extends TestCase
     {
         $element = $this->element(['text' => StoredValue::ofString('Buy the {{map:product.name}} today')]);
 
-        $expanded = $this->expander()->expand([$element], $this->ambient(), 'product');
+        $expanded = $this->expandPrepared($this->expander(), [$element], $this->ambient(), 'product');
 
         static::assertSame('Buy the Shirt today', $expanded[0]->property('text')?->asString());
     }
@@ -45,34 +51,62 @@ class InlineMappingExpanderTest extends TestCase
      * The flag is the gate, not the token's own presence. Expanding on the strength of a token alone would make
      * `inlineMappable` advisory.
      */
-    #[TestDox('removes an inline mapping token from a property that did not declare inlineMappable')]
+    #[TestDox('preserves literal mapping syntax in a property that did not declare inlineMappable')]
     public function testLeavesATokenInAPropertyThatDidNotOptIn(): void
     {
         $element = $this->element(['other' => StoredValue::ofString('{{map:product.name}}')]);
 
-        $expanded = $this->expander()->expand([$element], $this->ambient(), 'product');
+        $expanded = $this->expandPrepared($this->expander(), [$element], $this->ambient(), 'product');
 
-        static::assertSame('', $expanded[0]->property('other')?->asString());
+        static::assertSame('{{map:product.name}}', $expanded[0]->property('other')?->asString());
     }
 
-    #[TestDox('removes an uncatalogued token from storefront output')]
+    #[TestDox('removes an unavailable token while preserving surrounding authored text')]
+    public function testRemovesAnUncataloguedTokenAndPreservesSurroundingText(): void
+    {
+        $element = $this->element(['text' => StoredValue::ofString('Buy {{map:product.secret}} today')]);
+
+        $expanded = $this->expandPrepared($this->expander(), [$element], $this->ambient(), 'product');
+
+        static::assertSame('Buy  today', $expanded[0]->property('text')?->asString());
+    }
+
+    public function testRemovesATokenWhenTheCataloguedSourceHasNoValue(): void
+    {
+        $element = $this->element(['text' => StoredValue::ofString('Buy {{map:product.name}} today')]);
+
+        $expanded = $this->expandPrepared($this->expander(), [$element], ['product' => new StubPathStruct()], 'product');
+
+        static::assertSame('Buy  today', $expanded[0]->property('text')?->asString());
+    }
+
+    public function testKeepsTheTextPropertyWhenTheResolvedValueIsAnEmptyString(): void
+    {
+        $element = $this->element(['text' => StoredValue::ofString('Name: {{map:product.name}}')]);
+
+        $expanded = $this->expandPrepared($this->expander(), [$element], ['product' => new StubPathStruct(name: '')], 'product');
+
+        static::assertSame('Name: ', $expanded[0]->property('text')?->asString());
+    }
+
+    #[TestDox('removes an uncatalogued token independently of render surface')]
     public function testRemovesAnUncataloguedToken(): void
     {
         $element = $this->element(['text' => StoredValue::ofString('{{map:product.secret}}')]);
 
-        $expanded = $this->expander()->expand([$element], $this->ambient(), 'product');
+        $expanded = $this->expandPrepared($this->expander(), [$element], $this->ambient(), 'product');
 
         static::assertSame('', $expanded[0]->property('text')?->asString());
     }
 
-    #[TestDox('preserves an uncatalogued token in Admin preview')]
-    public function testPreservesAnUncataloguedTokenInAdminPreview(): void
+    #[TestDox('removes a malformed dotless mapping token before rendering')]
+    public function testRemovesAMalformedDotlessToken(): void
     {
-        $element = $this->element(['text' => StoredValue::ofString('{{map:product.secret}}')]);
+        $element = $this->element(['text' => StoredValue::ofString('Buy {{map:product}} today')]);
 
-        $expanded = $this->expander()->expand([$element], $this->ambient(), 'product', preserveUncataloguedTokens: true);
+        $expanded = $this->expandPrepared($this->expander(), [$element], $this->ambient(), 'product');
 
-        static::assertSame('{{map:product.secret}}', $expanded[0]->property('text')?->asString());
+        static::assertSame('Buy  today', $expanded[0]->property('text')?->asString());
     }
 
     #[TestDox('expands a Storefront context token for a rootless section source')]
@@ -88,49 +122,49 @@ class InlineMappingExpanderTest extends TestCase
         );
         $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
         $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
-        $candidates->method('resolveSourceForRootSource')->willReturn('EUR');
+        $candidates->method('resolveSourceForRootSource')->willReturn(MappingSourceResolution::resolved('EUR'));
+        $mappingInspector = $this->mappingInspector($candidates);
         $expander = new InlineMappingExpander(
-            $this->typeRegistry(),
+            $mappingInspector,
             new InlineMappingTokenParser(),
             new InlineMappingInterpolator(
                 $candidates,
-                new ContentSystemPropertyProjectionRegistry([]),
-                new ContextPathResolver(),
+                $mappingInspector,
             ),
         );
         $element = $this->element(['text' => StoredValue::ofString('Currency: {{map:context:storefront.currency.isoCode}}')]);
 
-        $expanded = $expander->expand([$element], [], 'header');
+        $expanded = $this->expandPrepared($expander, [$element], [], 'header');
 
         static::assertSame('Currency: EUR', $expanded[0]->property('text')?->asString());
     }
 
-    #[TestDox('removes an unknown token for a rootless section source')]
-    public function testLeavesUnknownTokenVerbatimForRootlessSectionSource(): void
+    #[TestDox('removes an unknown inline token for a rootless section source')]
+    public function testRemovesUnknownTokenForRootlessSectionSource(): void
     {
         $element = $this->element(['text' => StoredValue::ofString('{{map:context:storefront.unknown}}')]);
 
-        $expanded = $this->expander()->expand([$element], [], 'header');
+        $expanded = $this->expandPrepared($this->expander(), [$element], [], 'header');
 
         static::assertSame('', $expanded[0]->property('text')?->asString());
     }
 
-    #[TestDox('removes tokens when the layout has no root source')]
+    #[TestDox('removes inline tokens when the layout has no root source')]
     public function testRemovesTokensWithoutARootSource(): void
     {
         $element = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')]);
         $forest = [$element];
 
-        $expanded = $this->expander()->expand($forest, $this->ambient(), null);
+        $expanded = $this->expandPrepared($this->expander(), $forest, $this->ambient(), null);
 
         static::assertSame('', $expanded[0]->property('text')?->asString());
     }
 
     /**
-     * Container strings are never interpolated, but storefront output still removes their mapping syntax.
+     * Container strings are outside the inline mapping contract.
      */
-    #[TestDox('removes mapping tokens from strings nested in a list or map property')]
-    public function testRemovesTokensInsideContainerProperties(): void
+    #[TestDox('preserves mapping-like text nested in a list or map property')]
+    public function testPreservesTokensInsideContainerProperties(): void
     {
         $element = $this->element([
             'text' => StoredValue::ofMap([
@@ -138,9 +172,9 @@ class InlineMappingExpanderTest extends TestCase
             ]),
         ]);
 
-        $expanded = $this->expander()->expand([$element], $this->ambient(), 'product');
+        $expanded = $this->expandPrepared($this->expander(), [$element], $this->ambient(), 'product');
 
-        static::assertSame('', $expanded[0]->property('text')?->asMap()['nested']->asList()[0]->asString());
+        static::assertSame('{{map:product.name}}', $expanded[0]->property('text')?->asMap()['nested']->asList()[0]->asString());
     }
 
     #[TestDox('expands tokens in slot children too')]
@@ -153,7 +187,7 @@ class InlineMappingExpanderTest extends TestCase
             slots: ['content' => [$child]],
         );
 
-        $expanded = $this->expander()->expand([$parent], $this->ambient(), 'product');
+        $expanded = $this->expandPrepared($this->expander(), [$parent], $this->ambient(), 'product');
 
         static::assertSame('Shirt', $expanded[0]->slots['content'][0]->property('text')?->asString());
     }
@@ -163,23 +197,143 @@ class InlineMappingExpanderTest extends TestCase
     {
         $element = $this->element(['text' => StoredValue::ofInt(42)]);
 
-        $expanded = $this->expander()->expand([$element], $this->ambient(), 'product');
+        $expanded = $this->expandPrepared($this->expander(), [$element], $this->ambient(), 'product');
 
         static::assertSame(42, $expanded[0]->property('text')?->asInt());
     }
 
     /**
-     * An unregistered component is reported as an intrinsic violation elsewhere; its tokens are scrubbed from
-     * storefront output without attempting interpolation.
+     * An unregistered component is reported as an intrinsic violation elsewhere; its authored text remains.
      */
-    #[TestDox('removes an inline mapping token on an unregistered component')]
+    #[TestDox('preserves mapping-like text on an unregistered component')]
     public function testLeavesATokenAloneOnAnUnregisteredComponent(): void
     {
         $element = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')], component: 'Sw:Unknown');
 
-        $expanded = $this->expander()->expand([$element], $this->ambient(), 'product');
+        $expanded = $this->expandPrepared($this->expander(), [$element], $this->ambient(), 'product');
 
-        static::assertSame('', $expanded[0]->property('text')?->asString());
+        static::assertSame('{{map:product.name}}', $expanded[0]->property('text')?->asString());
+    }
+
+    public function testOmitsAnOversizedExpandedPropertyAndKeepsOtherContent(): void
+    {
+        $element = $this->element([
+            'text' => StoredValue::ofString('<p>' . str_repeat('{{map:product.name}}', 17) . '</p>'),
+            'other' => StoredValue::ofString('Unaffected'),
+        ]);
+        $diagnostics = new MappingRuntimeDiagnosticCollector();
+
+        $expanded = $this->expandPrepared(
+            $this->expander(),
+            [$element],
+            ['product' => new StubPathStruct(name: str_repeat('x', 65536))],
+            'product',
+            $diagnostics,
+        );
+
+        static::assertSame(0, \strlen($expanded[0]->property('text')?->asString() ?? ''));
+        static::assertSame('Unaffected', $expanded[0]->property('other')?->asString());
+        static::assertCount(1, $diagnostics->violations());
+        static::assertSame('el-1', $diagnostics->violations()[0]->elementId);
+        static::assertSame('text', $diagnostics->violations()[0]->key);
+        static::assertStringContainsString('1048576 bytes per property', $diagnostics->violations()[0]->message);
+    }
+
+    public function testAllowsExactlyOneMiBIncludingSurroundingMarkup(): void
+    {
+        $element = $this->element(['text' => StoredValue::ofString('<p>{{map:product.name}}</p>')]);
+        $source = str_repeat('x', 1048576 - 7);
+        $diagnostics = new MappingRuntimeDiagnosticCollector();
+
+        $expanded = $this->expandPrepared($this->expander(), [$element], ['product' => new StubPathStruct(name: $source)], 'product', $diagnostics);
+
+        static::assertSame('<p>' . $source . '</p>', $expanded[0]->property('text')?->asString());
+        static::assertSame([], $diagnostics->violations());
+    }
+
+    public function testCountsEscapingAgainstThePropertyLimit(): void
+    {
+        $element = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')]);
+        $diagnostics = new MappingRuntimeDiagnosticCollector();
+
+        $expanded = $this->expandPrepared(
+            $this->expander(),
+            [$element],
+            ['product' => new StubPathStruct(name: str_repeat('"', 174763))],
+            'product',
+            $diagnostics,
+        );
+
+        static::assertSame(0, \strlen($expanded[0]->property('text')?->asString() ?? ''));
+        static::assertCount(1, $diagnostics->violations());
+    }
+
+    public function testSharesTheRenderBudgetAcrossPropertiesRootsAndChildrenAndStopsResolving(): void
+    {
+        $candidate = new MappingCandidate('product.name', 'Name', '', 'basic', 'string');
+        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
+        $candidates->expects($this->exactly(4))->method('resolveSourceForRootSource')
+            ->willReturn(MappingSourceResolution::resolved(str_repeat('x', 1048576)));
+        $child = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')], id: 'child');
+        $parent = $this->element([
+            'text' => StoredValue::ofString('{{map:product.name}}'),
+            'caption' => StoredValue::ofString('{{map:product.name}}'),
+        ], id: 'parent')->withSlots(['content' => [$child]]);
+        $forest = [$parent];
+        foreach (['second-root', 'over-budget'] as $id) {
+            $forest[] = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')], id: $id);
+        }
+        $diagnostics = new MappingRuntimeDiagnosticCollector();
+
+        $expanded = $this->expandPrepared($this->expander($candidates), $forest, [], 'product', $diagnostics);
+
+        static::assertSame(1048576, \strlen($expanded[0]->property('text')?->asString() ?? ''));
+        static::assertSame(1048576, \strlen($expanded[0]->slots['content'][0]->property('text')?->asString() ?? ''));
+        static::assertSame(1048576, \strlen($expanded[1]->property('text')?->asString() ?? ''));
+        static::assertSame(1048576, \strlen($expanded[0]->property('caption')?->asString() ?? ''));
+        static::assertSame('', $expanded[2]->property('text')?->asString());
+        static::assertCount(1, $diagnostics->violations());
+        static::assertSame('over-budget', $diagnostics->violations()[0]->elementId);
+        static::assertStringContainsString('4194304 bytes per render', $diagnostics->violations()[0]->message);
+    }
+
+    public function testDiscardingFailedPropertiesDoesNotRefundTheRenderBudget(): void
+    {
+        $candidate = new MappingCandidate('product.name', 'Name', '', 'basic', 'string');
+        $candidates = static::createMock(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn([$candidate->path => $candidate]);
+        $candidates->expects($this->exactly(4))->method('resolveSourceForRootSource')
+            ->willReturn(MappingSourceResolution::resolved(str_repeat('x', 1048576)));
+        $forest = [];
+        foreach (['first', 'second', 'third', 'fourth', 'fifth'] as $id) {
+            $forest[] = $this->element(['text' => StoredValue::ofString('{{map:product.name}}{{map:product.name}}')], id: $id);
+        }
+        $diagnostics = new MappingRuntimeDiagnosticCollector();
+
+        $expanded = $this->expandPrepared($this->expander($candidates), $forest, [], 'product', $diagnostics);
+
+        foreach ($expanded as $element) {
+            static::assertSame('', $element->property('text')?->asString());
+        }
+        static::assertCount(5, $diagnostics->violations());
+    }
+
+    public function testStartsAFreshBudgetForEachRender(): void
+    {
+        $expander = $this->expander();
+        $ambient = ['product' => new StubPathStruct(name: str_repeat('x', 1048576))];
+        $forest = [];
+        foreach (['first', 'second', 'third', 'fourth'] as $id) {
+            $forest[] = $this->element(['text' => StoredValue::ofString('{{map:product.name}}')], id: $id);
+        }
+        $this->expandPrepared($expander, $forest, $ambient, 'product');
+        $diagnostics = new MappingRuntimeDiagnosticCollector();
+
+        $expanded = $this->expandPrepared($expander, [$forest[0]], $ambient, 'product', $diagnostics);
+
+        static::assertSame(1048576, \strlen($expanded[0]->property('text')?->asString() ?? ''));
+        static::assertSame([], $diagnostics->violations());
     }
 
     /**
@@ -198,26 +352,78 @@ class InlineMappingExpanderTest extends TestCase
         return new StoredElement(id: $id, component: $component, properties: $properties);
     }
 
-    private function expander(): InlineMappingExpander
+    /**
+     * @param list<StoredElement> $forest
+     * @param array<string, mixed> $ambient
+     *
+     * @return list<StoredElement>
+     */
+    private function expandPrepared(InlineMappingExpander $expander, array $forest, array $ambient, ?string $rootSource, ?MappingRuntimeDiagnosticCollector $diagnostics = null): array
     {
-        $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
-        $candidates->method('forRootSource')->willReturnCallback(static fn (string $rootSource): array => $rootSource !== 'product' ? [] : [
-            'product.name' => new MappingCandidate(
-                path: 'product.name',
-                label: 'a label',
-                description: 'a description',
-                group: 'basic',
-                valueType: 'string',
-            ),
-        ]);
+        $tokens = [];
+        $this->collectTokens($forest, $tokens);
+
+        return $expander->expand($forest, $ambient, $rootSource, mappingDiagnostics: $diagnostics, inlineMappings: new InlineMappingMetadata($tokens));
+    }
+
+    /**
+     * @param list<StoredElement> $forest
+     * @param array<string, array<string, list<InlineMappingToken>>> $tokens
+     */
+    private function collectTokens(array $forest, array &$tokens): void
+    {
+        $parser = new InlineMappingTokenParser();
+
+        foreach ($forest as $element) {
+            foreach ($element->properties() as $key => $value) {
+                if ($value->isString()) {
+                    $parsed = $parser->parse($value->asString());
+                    if ($parsed !== []) {
+                        $tokens[$element->id][(string) $key] = $parsed;
+                    }
+                }
+            }
+
+            foreach ($element->slots as $children) {
+                $this->collectTokens($children, $tokens);
+            }
+        }
+    }
+
+    private function expander(?AbstractContentSystemMappingCandidateRegistry $candidates = null): InlineMappingExpander
+    {
+        if ($candidates === null) {
+            $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+            $candidates->method('forRootSource')->willReturnCallback(static fn (string $rootSource): array => $rootSource !== 'product' ? [] : [
+                'product.name' => new MappingCandidate(
+                    path: 'product.name',
+                    label: 'a label',
+                    description: 'a description',
+                    group: 'basic',
+                    valueType: 'string',
+                ),
+            ]);
+            $candidates->method('resolveSourceForRootSource')->willReturnCallback(
+                static function (?string $rootSource, MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution {
+                    $root = $context->rootValues[$source->id] ?? null;
+
+                    $values = $root instanceof StubPathStruct ? $root->getVars() : [];
+
+                    return \array_key_exists($source->path ?? '', $values)
+                        ? MappingSourceResolution::resolved($values[$source->path ?? ''])
+                        : MappingSourceResolution::noValue();
+                }
+            );
+        }
+
+        $mappingInspector = $this->mappingInspector($candidates);
 
         return new InlineMappingExpander(
-            $this->typeRegistry(),
+            $mappingInspector,
             new InlineMappingTokenParser(),
             new InlineMappingInterpolator(
                 $candidates,
-                new ContentSystemPropertyProjectionRegistry([]),
-                new ContextPathResolver(),
+                $mappingInspector,
             ),
         );
     }
@@ -229,6 +435,7 @@ class InlineMappingExpanderTest extends TestCase
     {
         $spec = ContentSystemElementTypeSpecificationBuilder::create(self::COMPONENT)
             ->primitive('text', 'string', inlineMappable: true)
+            ->primitive('caption', 'string', inlineMappable: true)
             ->primitive('other', 'string')
             ->build();
 
@@ -239,5 +446,16 @@ class InlineMappingExpanderTest extends TestCase
         );
 
         return $registry;
+    }
+
+    private function mappingInspector(AbstractContentSystemMappingCandidateRegistry $candidates): StoredMappingInspector
+    {
+        return new StoredMappingInspector(
+            $this->typeRegistry(),
+            $candidates,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            new InlineMappingTokenParser(),
+        );
     }
 }

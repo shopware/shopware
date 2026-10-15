@@ -10,7 +10,7 @@ The DI tags a plugin registers its content system services under, and the classe
 | `content_system.specification_source` | `section` attribute    | `section` (required, e.g. `header` / `footer`) |
 | `content_system.data_loader`          | `getRequirementType()` | None                                           |
 | `content_system.config_serializer`    | `getSource()`          | None                                           |
-| `content_system.mapping_candidate_provider` | `supports()` / `provide()` | `priority` (optional; higher-priority providers win overlapping candidates) |
+| `content_system.mapping_candidate_provider` | `registeredCandidateKeys()`, `supports()` / `provide()` | None; duplicate registered keys fail container compilation |
 | `content_system.section_resolver`     | `section` attribute    | `section` (required, e.g. `main` / `header` / `footer`) |
 
 Framework-owned DI configuration: `src/Core/Framework/DependencyInjection/content-system.php`. Domain sources register in their owning module's DI instead: `content_system.entity_specification_source` is tagged in `src/Core/Content/DependencyInjection/product.php`, `category.php` and `landing_page.php`, and `content_system.specification_source` is tagged in `src/Storefront/DependencyInjection/content-system.php` for the header and footer sections.

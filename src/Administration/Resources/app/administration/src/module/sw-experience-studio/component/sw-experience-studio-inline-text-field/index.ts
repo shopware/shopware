@@ -1,6 +1,9 @@
 import { markRaw } from 'vue';
 import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbar';
-import type { ContentSystemMappingCandidate } from 'src/core/service/api/content-system-mapping-candidate.api.service';
+import type {
+    ContentSystemInlineMappingToken,
+    ContentSystemMappingCandidate,
+} from 'src/core/service/api/content-system-mapping-candidate.api.service';
 import { getMappingCandidateTranslation } from '../../util/element-mapping.util';
 import { editorHtmlToTokens, tokensToEditorHtml, MAPPING_TOKEN_NODE_NAME } from '../../util/inline-mapping.util';
 import { createMappingTokenNode } from '../../util/mapping-token-node';
@@ -14,6 +17,8 @@ type MinimalEditor = {
         };
     };
 };
+
+const INLINE_MAPPING_PARSE_DEBOUNCE_MS = 800;
 
 /**
  * Rich text field for a property that accepts inline mapping tokens.
@@ -64,7 +69,11 @@ export default Shopware.Component.wrapComponentConfig({
         tipTapConfig: object;
         customButtons: CustomButton[];
         editorHtml: string;
+        isEditorReady: boolean;
         lastEmittedValue: string | null;
+        parseRevision: number;
+        parseTimeoutId: number | null;
+        parsedTokens: ContentSystemInlineMappingToken[];
     } {
         return {
             isMappingModalOpen: false,
@@ -72,13 +81,25 @@ export default Shopware.Component.wrapComponentConfig({
             tipTapConfig: {},
             customButtons: [],
             editorHtml: '',
+            isEditorReady: false,
             lastEmittedValue: null,
+            parseRevision: 0,
+            parseTimeoutId: null,
+            parsedTokens: [],
         };
     },
 
     created() {
         this.createEditorConfig();
-        this.editorHtml = this.toEditorHtml(this.value);
+        void this.refreshEditorValue(this.value);
+    },
+
+    beforeUnmount() {
+        if (this.parseTimeoutId !== null) {
+            window.clearTimeout(this.parseTimeoutId);
+        }
+
+        this.parseRevision += 1;
     },
 
     watch: {
@@ -94,7 +115,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.lastEmittedValue = null;
-            this.editorHtml = this.toEditorHtml(nextValue);
+            void this.refreshEditorValue(nextValue);
         },
 
         /**
@@ -112,8 +133,26 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        candidatePaths(): Set<string> {
-            return new Set(this.candidates.map((candidate) => candidate.path));
+        knownTokenTexts(): Map<string, string> {
+            const canonicalTokens = new Map<string, string>();
+
+            for (const candidate of this.candidates) {
+                if (candidate.canonicalToken !== null) {
+                    canonicalTokens.set(candidate.path, candidate.canonicalToken);
+                }
+            }
+
+            for (const token of this.parsedTokens) {
+                if (!token.malformed) {
+                    canonicalTokens.set(token.path, token.canonicalToken);
+                }
+            }
+
+            return canonicalTokens;
+        },
+
+        knownTokenPaths(): Set<string> {
+            return new Set(this.knownTokenTexts.keys());
         },
 
         editorBindings(): object {
@@ -129,7 +168,55 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         toEditorHtml(value: string): string {
-            return tokensToEditorHtml(value, (path) => this.candidatePaths.has(path));
+            return tokensToEditorHtml(value, this.parsedTokens, (path) => this.knownTokenPaths.has(path));
+        },
+
+        async refreshEditorValue(value: string, updateEditorMarkup = true, requestRevision?: number): Promise<void> {
+            if (this.parseTimeoutId !== null) {
+                window.clearTimeout(this.parseTimeoutId);
+                this.parseTimeoutId = null;
+            }
+
+            const revision = requestRevision ?? ++this.parseRevision;
+
+            try {
+                const response = await Shopware.Service('contentSystemMappingCandidateService').parseInlineMappingTokens(
+                    value,
+                    revision,
+                );
+                if (revision !== this.parseRevision || response.revision !== revision) {
+                    return;
+                }
+
+                this.parsedTokens = response.tokens;
+                if (updateEditorMarkup) {
+                    this.editorHtml = this.toEditorHtml(value);
+                }
+                this.isEditorReady = true;
+            } catch {
+                if (revision !== this.parseRevision) {
+                    return;
+                }
+
+                this.parsedTokens = [];
+                if (updateEditorMarkup) {
+                    this.editorHtml = tokensToEditorHtml(value, [], () => false);
+                }
+                this.isEditorReady = true;
+            }
+        },
+
+        scheduleEditorValueParse(value: string): void {
+            if (this.parseTimeoutId !== null) {
+                window.clearTimeout(this.parseTimeoutId);
+            }
+
+            // Invalidate any in-flight response immediately; the replacement parse runs after input settles.
+            const revision = ++this.parseRevision;
+            this.parseTimeoutId = window.setTimeout(() => {
+                this.parseTimeoutId = null;
+                void this.refreshEditorValue(value, false, revision);
+            }, INLINE_MAPPING_PARSE_DEBOUNCE_MS);
         },
 
         /**
@@ -190,9 +277,10 @@ export default Shopware.Component.wrapComponentConfig({
          */
         onUpdateEditorHtml(html: string): void {
             this.editorHtml = html;
-            this.lastEmittedValue = editorHtmlToTokens(html);
+            this.lastEmittedValue = editorHtmlToTokens(html, this.knownTokenTexts);
 
             this.$emit('update:value', this.lastEmittedValue);
+            this.scheduleEditorValueParse(this.lastEmittedValue);
         },
 
         onOpenMappingModal(editor: MinimalEditor): void {

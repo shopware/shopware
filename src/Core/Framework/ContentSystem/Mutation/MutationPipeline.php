@@ -19,25 +19,24 @@ class MutationPipeline
     public function __construct(
         private readonly LayoutDiagnostics $diagnostics,
         private readonly ContextConsumerMirror $contextMirror,
-        private readonly ?DefaultMappingSeeder $defaultMappingSeeder = null,
+        private readonly DefaultMappingSeeder $defaultMappingSeeder,
     ) {
     }
 
     /**
      * @param StoredTree $tree the decoded draft tree
-     * @param list<ProvidedContext>|null $rootContext the bound source's root-ambient context, or null for the well-formedness subset
-     * @param string|null $rootSource the id of the bound source, or null to skip the data-mapping checks
+     * @param list<ProvidedContext>|null $rootContext the bound source's root-ambient context, or null when none is bound
+     * @param string|null $rootSource the id of the bound source, or null when none is bound
      */
     public function run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext, ?string $rootSource = null): MutationResult
     {
         $mutated = $mutation->apply($tree);
-        if ($this->defaultMappingSeeder !== null) {
-            $mutated = $this->defaultMappingSeeder->seed($mutated, $rootSource, $mutation->created());
-        }
+        $scaffoldedIds = $mutation->freshlyScaffolded();
+        $mutated = $this->defaultMappingSeeder->seed($mutated, $rootSource, $scaffoldedIds);
 
         $analysis = $this->diagnostics->analyze($mutated->roots, $rootContext, $rootSource);
 
-        $wired = $this->contextMirror->apply($mutated, $analysis->resolutions, $mutation->created());
+        $wired = $this->contextMirror->apply($mutated, $analysis->resolutions, $scaffoldedIds);
 
         // Re-analyze only when the wiring changed the tree, so the returned diagnostics and resolutions describe the returned tree.
         if ($wired !== $mutated) {

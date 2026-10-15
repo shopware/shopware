@@ -45,15 +45,38 @@ function property(overrides: Partial<ContentSystemElementTypeProperty> = {}): Co
 }
 
 function candidate(overrides: Partial<ContentSystemMappingCandidate> = {}): ContentSystemMappingCandidate {
+    const valueType = overrides.valueType ?? 'string';
+
     return {
         path: 'category.name',
         source: { type: 'root', id: 'category', path: 'name' },
         label: 'sw-experience-studio.mapping.category.name.label',
         description: 'sw-experience-studio.mapping.category.name.description',
         group: 'basic',
-        valueType: 'string',
+        valueType,
+        compatibleTypes:
+            overrides.compatibleTypes ??
+            ([
+                'string',
+                'integer',
+                'number',
+                'boolean',
+            ].includes(valueType)
+                ? [valueType]
+                : [
+                      valueType,
+                      'object',
+                  ]),
+        inlineMappable:
+            overrides.inlineMappable ??
+            [
+                'string',
+                'integer',
+                'number',
+                'boolean',
+            ].includes(valueType),
+        canonicalToken: `{{map:${overrides.path ?? 'category.name'}}}`,
         contextType: 'single',
-        projection: null,
         ...overrides,
     };
 }
@@ -98,20 +121,6 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
             ]);
         });
 
-        /**
-         * `valueType` is the effective type after any projection, so a projection that formats an entity as text is
-         * offered on its result rather than on the entity it reads.
-         */
-        it('offers a projected candidate on its projected type', () => {
-            const projected = candidate({
-                path: 'product.releaseDate',
-                valueType: 'string',
-                projection: 'product.release_date.formatted',
-            });
-
-            expect(getInlineMappingCandidates([projected])).toEqual([projected]);
-        });
-
         it('offers stringifiable context candidates to inline text mappings', () => {
             const contextCandidate = candidate({
                 path: 'context:storefront.currency.isoCode',
@@ -121,10 +130,37 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
             expect(getInlineMappingCandidates([contextCandidate])).toEqual([contextCandidate]);
         });
 
+        it('does not offer a pathless typed source in the inline picker', () => {
+            const pathlessCandidate = candidate({
+                path: 'context:example',
+                source: { type: 'context', id: 'example' },
+                inlineMappable: false,
+                canonicalToken: null,
+            });
+
+            expect(getInlineMappingCandidates([pathlessCandidate])).toEqual([]);
+            expect(pathlessCandidate.compatibleTypes).toEqual(['string']);
+        });
+
         it('offers a collection-scoped candidate whose value is a string', () => {
             const candidates = [candidate({ path: 'product.tagNames', valueType: 'string', contextType: 'collection' })];
 
             expect(getInlineMappingCandidates(candidates).map((entry) => entry.path)).toEqual(['product.tagNames']);
+        });
+
+        it('uses the server-provided inline eligibility instead of inferring it from the candidate type', () => {
+            const stringCandidate = candidate({ valueType: 'string', inlineMappable: false });
+            const entityCandidate = candidate({
+                valueType: 'Acme\\Entity',
+                inlineMappable: true,
+            });
+
+            expect(
+                getInlineMappingCandidates([
+                    stringCandidate,
+                    entityCandidate,
+                ]),
+            ).toEqual([entityCandidate]);
         });
     });
 
@@ -277,6 +313,7 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                     compatibleTypes: [
                         'Acme\\ImageEntity',
                         'Acme\\MediaEntity',
+                        'object',
                     ],
                 }),
                 candidate({
@@ -285,6 +322,7 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                     compatibleTypes: [
                         'Acme\\ProductEntity',
                         'Acme\\Entity',
+                        'object',
                     ],
                 }),
             ];
@@ -297,6 +335,16 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
             );
 
             expect(matching.map((entry) => entry.path)).toEqual(['product.media']);
+        });
+
+        it('uses the server-provided compatible types instead of inferring compatibility from valueType', () => {
+            const entry = {
+                ...candidate({ valueType: 'string' }),
+                compatibleTypes: ['integer'],
+            };
+
+            expect(getCandidatesForProperty([entry], property({ type: 'integer' }))).toEqual([entry]);
+            expect(getCandidatesForProperty([entry], property({ type: 'string' }))).toEqual([]);
         });
 
         it('rejects a primitive candidate for an unconstrained object property', () => {

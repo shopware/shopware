@@ -16,11 +16,11 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
         jest.clearAllMocks();
     });
 
-    function formEvent(className, validity = true) {
+    function formEvent(className) {
         const form = document.createElement('form');
         form.classList.add(className);
 
-        return { target: form, detail: { validity } };
+        return { target: form };
     }
 
     test('login reports the method through gtag', () => {
@@ -57,14 +57,22 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
         expect(window.gtag).not.toHaveBeenCalled();
     });
 
+    // FormHandler only publishes `validSubmit` for a valid form, so an invalid form reports nothing
     test.each([
-        ['login', LoginEvent, 'login-form'],
-        ['sign_up', SignUpEvent, 'register-form'],
-    ])('%s ignores invalid and foreign forms', (name, EventClass, className) => {
+        ['login', LoginEvent],
+        ['sign_up', SignUpEvent],
+    ])('%s listens to the valid submit of the form handler', (name, EventClass) => {
         const event = new EventClass();
 
-        event._onFormSubmit(formEvent(className, false));
-        event._onFormSubmit(formEvent('newsletter-form'));
+        expect(event.getPluginName()).toBe('FormHandler');
+        expect(Object.keys(event.getEvents())).toEqual(['validSubmit']);
+    });
+
+    test.each([
+        ['login', LoginEvent],
+        ['sign_up', SignUpEvent],
+    ])('%s ignores foreign forms', (name, EventClass) => {
+        new EventClass()._onFormSubmit(formEvent('newsletter-form'));
 
         expect(window.gtag).not.toHaveBeenCalled();
     });

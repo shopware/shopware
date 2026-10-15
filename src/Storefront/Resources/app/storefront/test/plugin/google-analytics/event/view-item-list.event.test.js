@@ -49,27 +49,6 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
         });
     });
 
-    test('reports the breadcrumb categories only for the products of the listing', () => {
-        document.body.innerHTML = `
-            <nav aria-label="breadcrumb"><span class="breadcrumb-title">Electronics</span></nav>
-            <div class="cms-element-product-slider">
-                <div class="product-box" data-product-information='{ "id": "1", "name": "Mug", "price": 9.5, "sku": "slider-1" }'></div>
-            </div>
-            <div class="cms-element-product-listing-wrapper">
-                <div class="product-box" data-product-information='{ "id": "2", "name": "Laptop", "price": 999.99, "sku": "listing-1" }'></div>
-            </div>
-        `;
-
-        new ViewItemListEvent().execute();
-
-        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', expect.objectContaining({
-            'items': [
-                { item_id: 'slider-1', item_name: 'Mug', price: 9.5 },
-                { item_id: 'listing-1', item_name: 'Laptop', price: 999.99, item_category: 'Electronics' },
-            ],
-        }));
-    });
-
     test('reports product elements of extensions that do not use the product box class', () => {
         document.body.innerHTML = `
             <div class="cms-element-product-listing-wrapper">

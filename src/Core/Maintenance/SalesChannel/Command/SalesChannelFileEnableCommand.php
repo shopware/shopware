@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelFile\SalesChannelFileCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Component\Console\Attribute\Argument;
@@ -59,7 +60,7 @@ class SalesChannelFileEnableCommand extends Command
         }
 
         $context = Context::createCLIContext();
-        $salesChannelIds = $this->findSalesChannelIds($all ? null : $ids, $context);
+        $salesChannelIds = $this->findSalesChannelIds($all ? null : $this->validIds($ids, $output), $context);
 
         if ($salesChannelIds === []) {
             $output->write('No files were enabled. No Storefront or Headless sales channel matches.');
@@ -87,12 +88,36 @@ class SalesChannelFileEnableCommand extends Command
     }
 
     /**
+     * The DAL only matches lowercase ids, and an invalid id would abort the search with an exception.
+     *
+     * @param list<string> $ids
+     *
+     * @return list<string>
+     */
+    private function validIds(array $ids, OutputInterface $output): array
+    {
+        $ids = array_values(array_unique(array_map(strtolower(...), $ids)));
+        $invalidIds = array_values(array_filter($ids, static fn (string $id): bool => !Uuid::isValid($id)));
+
+        if ($invalidIds !== []) {
+            $output->writeln(\sprintf('Ignored invalid id(s): %s', implode(', ', $invalidIds)));
+        }
+
+        return array_values(array_diff($ids, $invalidIds));
+    }
+
+    /**
      * @param list<string>|null $ids
      *
      * @return list<string>
      */
     private function findSalesChannelIds(?array $ids, Context $context): array
     {
+        // An empty id list would not restrict the criteria and select every sales channel.
+        if ($ids === []) {
+            return [];
+        }
+
         $criteria = new Criteria($ids);
         $criteria->addFilter(new EqualsAnyFilter('typeId', [
             Defaults::SALES_CHANNEL_TYPE_STOREFRONT,

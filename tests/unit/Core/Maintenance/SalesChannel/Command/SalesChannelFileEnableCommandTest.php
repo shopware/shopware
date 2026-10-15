@@ -111,6 +111,62 @@ class SalesChannelFileEnableCommandTest extends TestCase
         static::assertSame([], $fileRepository->creates);
     }
 
+    public function testUppercaseIdsAreSearchedInLowercase(): void
+    {
+        $searchedIds = null;
+        $salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class, [
+            static function (Criteria $criteria) use (&$searchedIds): array {
+                $searchedIds = $criteria->getIds();
+
+                return [self::STOREFRONT_ID];
+            },
+        ]);
+        $fileRepository = new StaticEntityRepository([new SalesChannelFileCollection()]);
+
+        $tester = new CommandTester(new SalesChannelFileEnableCommand($salesChannelRepository, $fileRepository));
+
+        static::assertSame(Command::SUCCESS, $tester->execute(['ids' => [strtoupper(self::STOREFRONT_ID)]]));
+        static::assertSame([self::STOREFRONT_ID], $searchedIds);
+        static::assertSame('Enabled 2 file(s) for 1 sales channel(s)', $tester->getDisplay());
+    }
+
+    public function testInvalidIdsAreReportedAndIgnored(): void
+    {
+        $searchedIds = null;
+        $salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class, [
+            static function (Criteria $criteria) use (&$searchedIds): array {
+                $searchedIds = $criteria->getIds();
+
+                return [self::STOREFRONT_ID];
+            },
+        ]);
+        $fileRepository = new StaticEntityRepository([new SalesChannelFileCollection()]);
+
+        $tester = new CommandTester(new SalesChannelFileEnableCommand($salesChannelRepository, $fileRepository));
+
+        static::assertSame(Command::SUCCESS, $tester->execute(['ids' => ['foo', self::STOREFRONT_ID]]));
+        static::assertSame([self::STOREFRONT_ID], $searchedIds);
+        static::assertSame(
+            'Ignored invalid id(s): foo' . \PHP_EOL . 'Enabled 2 file(s) for 1 sales channel(s)',
+            $tester->getDisplay(),
+        );
+    }
+
+    public function testOnlyInvalidIdsDoNotSelectEverySalesChannel(): void
+    {
+        $salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class);
+        $fileRepository = StaticEntityRepository::of(SalesChannelFileCollection::class);
+
+        $tester = new CommandTester(new SalesChannelFileEnableCommand($salesChannelRepository, $fileRepository));
+
+        static::assertSame(Command::SUCCESS, $tester->execute(['ids' => ['foo']]));
+        static::assertSame(
+            'Ignored invalid id(s): foo' . \PHP_EOL . 'No files were enabled. No Storefront or Headless sales channel matches.',
+            $tester->getDisplay(),
+        );
+        static::assertSame([], $fileRepository->creates);
+    }
+
     private function file(string $salesChannelId, string $fileName, bool $enabled): SalesChannelFileEntity
     {
         $file = new SalesChannelFileEntity();

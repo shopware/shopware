@@ -11,7 +11,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfig;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
-use Shopware\Core\Framework\Telemetry\Metrics\Exception\MissingMetricConfigurationException;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
@@ -197,7 +196,7 @@ class MeterTest extends TestCase
             true,
         );
 
-        $this->expectException(MissingMetricConfigurationException::class);
+        $this->expectExceptionObject(TelemetryException::metricMissingConfiguration('test'));
         $meter->emit($configuredMetric);
     }
 
@@ -207,7 +206,7 @@ class MeterTest extends TestCase
 
         $meter = new Meter(
             static::createStub(TransportCollection::class),
-            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            $this->configProviderWithSuccessfulExpectation($metricConfig, lookups: 1),
             static::createStub(MetricLabelProcessor::class),
             static::createStub(LoggerInterface::class),
             'prod',
@@ -223,7 +222,7 @@ class MeterTest extends TestCase
 
         $meter = new Meter(
             static::createStub(TransportCollection::class),
-            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            $this->configProviderWithSuccessfulExpectation($metricConfig, lookups: 1),
             static::createStub(MetricLabelProcessor::class),
             static::createStub(LoggerInterface::class),
             'prod',
@@ -295,7 +294,7 @@ class MeterTest extends TestCase
             true,
         );
 
-        $this->expectException(MissingMetricConfigurationException::class);
+        $this->expectExceptionObject(TelemetryException::metricMissingConfiguration('test'));
         $meter->isEnabled('test');
     }
 
@@ -311,7 +310,7 @@ class MeterTest extends TestCase
 
         $meter = new Meter(
             $collection,
-            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            $this->configProviderWithSuccessfulExpectation($metricConfig, lookups: 1),
             $labelProcessor,
             static::createStub(LoggerInterface::class),
             'prod',
@@ -467,11 +466,11 @@ class MeterTest extends TestCase
         return [$configuredMetric, $metricConfig, $metric, $transportCall];
     }
 
-    public function configProviderWithSuccessfulExpectation(mixed $metricConfig): MetricConfigProvider&MockObject
+    public function configProviderWithSuccessfulExpectation(mixed $metricConfig, int $lookups = 2): MetricConfigProvider&MockObject
     {
         // emit() resolves the config twice: once in the isEnabled() gate, once while processing
         $metricConfigProvider = $this->createMock(MetricConfigProvider::class);
-        $metricConfigProvider->expects($this->atLeastOnce())->method('get')->with('test')->willReturn($metricConfig);
+        $metricConfigProvider->expects($this->exactly($lookups))->method('get')->with('test')->willReturn($metricConfig);
 
         return $metricConfigProvider;
     }

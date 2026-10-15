@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\OpenApi;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoDefinition;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoProperty;
@@ -20,6 +21,42 @@ use Symfony\Component\Finder\Finder;
 #[CoversClass(OpenApiDtoSchemaParser::class)]
 class OpenApiDtoSchemaParserTest extends TestCase
 {
+    /**
+     * @param array<string, bool> $expectedProperties
+     */
+    #[DataProvider('composedRequestCases')]
+    public function testComposedRequestsPreserveSiblingAndRequiredFields(string $name, array $expectedProperties): void
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parse($this->loadSchema('../_fixtures_generator/composedRequests.json'));
+
+        foreach ($definitions as $definition) {
+            if ($definition->name !== $name) {
+                continue;
+            }
+
+            $properties = [];
+            foreach ($definition->properties as $property) {
+                $properties[$property->name] = $property->required;
+            }
+            static::assertEquals($expectedProperties, $properties);
+
+            return;
+        }
+
+        static::fail('Missing request definition: ' . $name);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, bool>}>
+     */
+    public static function composedRequestCases(): iterable
+    {
+        yield 'allOf with sibling properties and required fields' => ['CreateComposedRequest', ['baseValue' => true, 'composedValue' => true, 'siblingValue' => true, 'optionalValue' => false]];
+        yield 'single allOf reference with sibling fields' => ['CreateSingleRequest', ['baseValue' => true, 'siblingValue' => true, 'optionalValue' => false]];
+        yield 'inline variant with composed shared and private fields' => ['PrivateInput', ['sharedValue' => true, 'siblingShared' => true, 'privateValue' => true, 'privateSibling' => true]];
+        yield 'referenced variant with composed business fields' => ['BusinessInput', ['sharedValue' => true, 'siblingShared' => true, 'businessValue' => true, 'businessSibling' => true]];
+    }
+
     public function testRequestDependenciesPreserveOptionalPropertyPresence(): void
     {
         $schema = $this->loadSchema('../_fixtures_generator/requestDefaults.json');

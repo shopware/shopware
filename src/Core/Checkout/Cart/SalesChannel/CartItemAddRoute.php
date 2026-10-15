@@ -78,12 +78,13 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
 
             $clientIp = ($this->requestStack->getMainRequest() ?? $request)->getClientIp();
             foreach ($items as $item) {
-                if ($item->getType() === LineItem::PROMOTION_LINE_ITEM_TYPE && $clientIp !== null) {
-                    $this->rateLimiter->ensureAccepted(RateLimiter::PROMOTION_CODE, $clientIp . '-' . $context->getSalesChannelId());
-                }
-                if ($request->getClientIp() !== null) {
-                    $cacheKey = ($item->getReferencedId() ?? $item->getId()) . '-' . $request->getClientIp() . '-' . $context->getSalesChannelId();
-                    $this->rateLimiter->ensureAccepted(RateLimiter::CART_ADD_LINE_ITEM, $cacheKey, $context->getSalesChannelId());
+                if ($clientIp !== null) {
+                    if ($item->getType() === LineItem::PROMOTION_LINE_ITEM_TYPE) {
+                        $this->rateLimiter->ensureAccepted(RateLimiter::PROMOTION_CODE, $clientIp . '-' . $context->getSalesChannelId());
+                    } else {
+                        $cacheKey = ($item->getReferencedId() ?? $item->getId()) . '-' . $clientIp . '-' . $context->getSalesChannelId();
+                        $this->rateLimiter->ensureAccepted(RateLimiter::CART_ADD_LINE_ITEM, $cacheKey, $context->getSalesChannelId());
+                    }
                 }
 
                 $alreadyExists = $cart->has($item->getId());

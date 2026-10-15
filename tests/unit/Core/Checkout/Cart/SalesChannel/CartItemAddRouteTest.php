@@ -201,6 +201,20 @@ class CartItemAddRouteTest extends TestCase
         ]);
     }
 
+    public function testStorefrontProductsUsePerItemRateLimit(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('/', server: ['REMOTE_ADDR' => '127.0.0.1']));
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())->method('ensureAccepted')
+            ->with(RateLimiter::CART_ADD_LINE_ITEM, 'product-id-127.0.0.1-' . self::SALES_CHANNEL_ID, self::SALES_CHANNEL_ID);
+        $route = $this->createRoute($rateLimiter, $requestStack);
+
+        $route->add(new Request(), new Cart('test'), $this->createSalesChannelContext(), [
+            new LineItem('product', LineItem::PRODUCT_LINE_ITEM_TYPE, 'product-id'),
+        ]);
+    }
+
     public function testStoreApiPromotionRateLimitRejectsBeforeAddingItem(): void
     {
         $exception = RateLimiterException::limitExceeded(time() + 30);

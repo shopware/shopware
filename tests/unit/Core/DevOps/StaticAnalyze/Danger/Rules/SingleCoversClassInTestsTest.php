@@ -21,7 +21,7 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
 #[CoversClass(SingleCoversClassInTests::class)]
 class SingleCoversClassInTestsTest extends TestCase
 {
-    #[TestDox('Fails only for new test files covering more than one class')]
+    #[TestDox('Fails for every added or modified test file covering more than one class')]
     #[DataProvider('coversProvider')]
     public function testDetection(string $fileName, string $status, string $content, bool $expectFailure): void
     {
@@ -65,10 +65,28 @@ class SingleCoversClassInTestsTest extends TestCase
             self::testClass(''),
             false,
         ];
-        yield 'modified test covering two classes passes, only new files are gated' => [
+        yield 'modified test covering two classes fails, whatever the diff touched' => [
             'tests/unit/Core/Checkout/CartAndOrderTest.php',
             File::STATUS_MODIFIED,
             self::testClass("#[CoversClass(Cart::class)]\n#[CoversClass(Order::class)]"),
+            true,
+        ];
+        yield 'modified test covering two classes in one attribute group fails' => [
+            'tests/unit/Core/Checkout/CartTest.php',
+            File::STATUS_MODIFIED,
+            self::testClass('#[CoversClass(Cart::class), CoversClass(Order::class)]'),
+            true,
+        ];
+        yield 'modified test covering one class passes' => [
+            'tests/unit/Core/Checkout/CartTest.php',
+            File::STATUS_MODIFIED,
+            self::testClass('#[CoversClass(Order::class)]'),
+            false,
+        ];
+        yield 'removed test is not inspected' => [
+            'tests/unit/Core/Checkout/CartAndOrderTest.php',
+            File::STATUS_REMOVED,
+            '',
             false,
         ];
         yield 'CoversClass strings inside the test body do not count' => [

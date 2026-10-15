@@ -203,7 +203,6 @@ class EntityIndexerRegistry
     public function sendIndexingMessage(array $indexer = [], array $skip = [], bool $postUpdate = false): void
     {
         if ($indexer === []) {
-            $indexer = [];
             foreach ($this->indexer as $loop) {
                 $indexer[] = $loop->getName();
             }

@@ -81,9 +81,6 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
                 if ($item->getType() === LineItem::PROMOTION_LINE_ITEM_TYPE && $clientIp !== null) {
                     $this->rateLimiter->ensureAccepted(RateLimiter::PROMOTION_CODE, $clientIp . '-' . $context->getSalesChannelId());
                 }
-            }
-
-            foreach ($items as $item) {
                 if ($request->getClientIp() !== null) {
                     $cacheKey = ($item->getReferencedId() ?? $item->getId()) . '-' . $request->getClientIp() . '-' . $context->getSalesChannelId();
                     $this->rateLimiter->ensureAccepted(RateLimiter::CART_ADD_LINE_ITEM, $cacheKey, $context->getSalesChannelId());

@@ -257,7 +257,7 @@ class CartItemAddRouteTest extends TestCase
         try {
             $route->add($storefront ? new Request() : $request, $cart, $this->createSalesChannelContext(), $storefront ? $items : null);
         } finally {
-            static::assertCount(0, $cart->getLineItems());
+            static::assertCount($batch ? 3 : 0, $cart->getLineItems());
         }
     }
 

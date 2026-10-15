@@ -19,7 +19,14 @@
         }
     }
 
-    &__add-button {
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    &__add-button,
+    &__settings-button {
         display: flex;
         align-items: center;
         justify-content: center;

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\Log\Package;
@@ -74,6 +75,11 @@ class ContentLayoutDefinitionTest extends TestCase
         static::assertTrue($rootSource->is(ApiAware::class));
         static::assertTrue($rootSource->is(Required::class));
         static::assertTrue($rootSource->is(Immutable::class));
+
+        $settings = $fields->get('settings');
+        static::assertInstanceOf(JsonField::class, $settings);
+        static::assertTrue($settings->is(ApiAware::class));
+        static::assertFalse($settings->is(Required::class));
 
         $productAssociation = $fields->get('productContentLayouts');
         static::assertInstanceOf(OneToManyAssociationField::class, $productAssociation);

@@ -18,6 +18,20 @@
                     "version": {
                         "type": ["string", "null"]
                     },
+                    "settings": {
+                        "description": "Page-level settings authored on the layout, such as the scroll navigation. Always present; an empty map is serialized as `[]` (consistent with Shopware's JSON-map fields).",
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "maxItems": 0,
+                                "description": "The empty settings map, serialized as `[]`."
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        ]
+                    },
                     "elements": {
                         "type": "array",
                         "items": { "$ref": "#/components/schemas/ContentElement" }
@@ -27,7 +41,7 @@
                         "enum": ["content_page"]
                     }
                 },
-                "required": ["apiAlias", "id", "name", "version", "elements"]
+                "required": ["apiAlias", "id", "name", "version", "settings", "elements"]
             }
         }
     }

@@ -72,6 +72,31 @@
                         "description": "Accepted"
                     }
                 }
+            },
+            "query": {
+                "operationId": "queryInputs",
+                "x-dto-namespace": "Shopware\\Core\\Example\\Operation",
+                "x-dto-package": "framework",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Version"
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/InputAlias"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Matching input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InputSearchResult"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/optional-extensions": {
@@ -152,6 +177,19 @@
             }
         },
         "schemas": {
+            "InputSearchResult": {
+                "x-dto-inline": true,
+                "type": "object",
+                "required": ["matched"],
+                "properties": {
+                    "matched": {
+                        "type": "boolean"
+                    },
+                    "settings": {
+                        "$ref": "#/components/schemas/InputSettings"
+                    }
+                }
+            },
             "InputPayload": {
                 "x-dto-inline": true,
                 "type": "object",

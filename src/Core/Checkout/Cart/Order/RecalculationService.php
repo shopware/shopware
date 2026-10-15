@@ -23,11 +23,11 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -45,15 +45,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class RecalculationService
 {
-    /**
-     * @internal
-     */
-    public const AWAITING_PAYMENT_STATES = [
-        OrderTransactionStates::STATE_OPEN,
-        OrderTransactionStates::STATE_REMINDED,
-        OrderTransactionStates::STATE_PARTIALLY_PAID,
-    ];
-
     /**
      * @internal
      *
@@ -529,6 +520,6 @@ class RecalculationService
 
         $state = $order->getTransactions()?->get($primaryOrderTransactionId)?->getStateMachineState()?->getTechnicalName();
 
-        return \in_array($state, self::AWAITING_PAYMENT_STATES, true);
+        return \in_array($state, OrderService::ALLOWED_TRANSACTION_STATES, true);
     }
 }

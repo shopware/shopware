@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Order\Subscriber;
 
-use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeVersionMergeEvent;
@@ -53,16 +53,16 @@ class OrderTransactionVersionMergeSubscriber implements EventSubscriberInterface
 
         $criteria = new Criteria($ids);
         $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
-            new EqualsAnyFilter('stateMachineState.technicalName', RecalculationService::AWAITING_PAYMENT_STATES),
+            new EqualsAnyFilter('stateMachineState.technicalName', OrderService::ALLOWED_TRANSACTION_STATES),
         ]));
 
-        $paymentNoLongerDue = $this->orderTransactionRepository
+        $paymentNoLongerChangeable = $this->orderTransactionRepository
             ->searchIds($criteria, Context::createCLIContext()->createWithVersionId($versionId))
             ->getIds();
 
         $event->writes['update'][OrderTransactionDefinition::ENTITY_NAME] = array_map(
-            static function (array $transaction) use ($paymentNoLongerDue): array {
-                if (\in_array($transaction['id'], $paymentNoLongerDue, true)) {
+            static function (array $transaction) use ($paymentNoLongerChangeable): array {
+                if (\in_array($transaction['id'], $paymentNoLongerChangeable, true)) {
                     unset($transaction['amount']);
                 }
 

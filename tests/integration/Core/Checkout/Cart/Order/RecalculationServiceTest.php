@@ -648,7 +648,7 @@ class RecalculationServiceTest extends TestCase
     public static function liveTransactionTransitionProvider(): \Generator
     {
         yield 'still open' => [null, true];
-        yield 'partially paid during the edit' => [StateMachineTransitionActions::ACTION_PAID_PARTIALLY, true];
+        yield 'partially paid during the edit' => [StateMachineTransitionActions::ACTION_PAID_PARTIALLY, false];
         yield 'paid during the edit' => [StateMachineTransitionActions::ACTION_PAID, false];
     }
 

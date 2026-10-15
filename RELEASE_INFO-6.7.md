@@ -406,7 +406,7 @@ The product detail page links the terms below the GARAN label, in the new block 
 
 ### Order recalculation keeps an open payment transaction in sync with the order total
 
-Recalculating an order, for example after editing it in the Administration, now moves the order's primary transaction to the new order total while that transaction is `open`, `reminded` or `paid_partially`. The transaction keeps its ID and state, and payment extensions reading `order_transaction.amount` of an order that isn't fully paid get the edited total instead of the amount the transaction was created with. Transactions in any other state keep their amount, also when the payment completes while the order is being edited.
+Recalculating an order, for example after editing it in the Administration, now moves the order's primary transaction to the new order total while the customer could still change the order's payment, so in the states of `OrderService::ALLOWED_TRANSACTION_STATES`: `open`, `cancelled`, `reminded`, `failed`, `chargeback` and `unconfirmed`. The transaction keeps its ID and state, and payment extensions reading `order_transaction.amount` of an order that isn't paid yet get the edited total instead of the amount the transaction was created with. Transactions in any other state keep their amount, also when the payment completes while the order is being edited.
 
 `OrderConverter::convertToCart()` now converts the order's transactions too, with the primary transaction first. With the new cart permission `CheckoutPermissions::KEEP_ORDER_TRANSACTION`, the cart processor keeps that transaction and moves it to the cart total instead of creating a new one, and `OrderConverter::convertToOrder()` writes it back as an update of its amount and payment method.
 

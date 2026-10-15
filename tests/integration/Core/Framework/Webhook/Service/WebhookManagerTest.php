@@ -1176,7 +1176,7 @@ class WebhookManagerTest extends TestCase
 
     public function testAsyncDispatchWithoutAppUsesDefaultPartitionKey(): void
     {
-        $webhookId = WebhookBuilder::ownedByUser($this->adminId)
+        WebhookBuilder::ownedByUser($this->adminId)
             ->subscribe(ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com')
             ->name('hook1')
             ->insert($this->connection);
@@ -1601,7 +1601,7 @@ class WebhookManagerTest extends TestCase
 
     public function testSyncDispatchWithNonAppWebhookCreatesOutboxEntry(): void
     {
-        $webhookId = WebhookBuilder::ownedByUser($this->adminId)
+        WebhookBuilder::ownedByUser($this->adminId)
             ->subscribe(CustomerBeforeLoginEvent::EVENT_NAME, 'https://test.com')
             ->name('hook1')
             ->insert($this->connection);

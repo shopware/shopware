@@ -90,9 +90,12 @@ They form the lowest-priority layer, so snippet files shipped by the core, plugi
 Asset installation now overwrites existing files without deleting their directory first when using `--force` or rebuilding a missing asset manifest. This prevents delayed storage deletions from removing freshly uploaded files. Obsolete files are still removed, and no configuration changes are required.
 
 Deactivating a plugin now removes its asset manifest entry but retains its public files until uninstall. This avoids a pending directory deletion removing files uploaded after reactivation. Uninstall still removes the plugin's public files.
+
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
-The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels. It only creates missing files, so a file switched off in the Administration stays off, and a second run changes nothing. The command always exits with `0`, which makes it suitable for install hooks in `.shopware-project.yml`.
+The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels.
+It only creates missing files, so a file switched off in the Administration stays off, and a second run changes nothing.
+The command always exits with `0`, which makes it suitable for install hooks in `.shopware-project.yml`.
 
 ### Product stream builders can migrate without dropping the legacy contract
 

@@ -594,7 +594,7 @@ class OrderRouteTest extends TestCase
                     'associations' => [
                         'stateMachineState' => [
                             'associations' => [
-                                'orders' => ['limit' => 1000],
+                                'orders' => [],
                             ],
                         ],
                     ],

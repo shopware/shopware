@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryException;
@@ -275,6 +276,10 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['fields'])) {
+            foreach ($payload['fields'] as $accessor) {
+                $this->validateFieldsAccessorIsApiAware($definition, (string) $accessor, $context);
+            }
+
             $criteria->addFields($payload['fields']);
         }
 
@@ -557,6 +562,19 @@ class RequestCriteriaBuilder
      * Every field is ApiAware for the Admin API by default (see Field::__construct), so Admin API requests are only
      * affected by explicitly restricted fields.
      */
+    /**
+     * Partial loading (`fields`) turns every association in an accessor path into a loaded association at read time,
+     * so the paths are held to the same rule as the `associations` parameter.
+     */
+    private function validateFieldsAccessorIsApiAware(EntityDefinition $definition, string $accessor, Context $context): void
+    {
+        foreach (EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $accessor) as $field) {
+            if ($field instanceof AssociationField) {
+                $this->validateAssociationIsApiAware($field, $field->getPropertyName(), $context);
+            }
+        }
+    }
+
     private function validateAssociationIsApiAware(AssociationField $field, string $propertyName, Context $context): void
     {
         if ($field->getFlag(ApiCriteriaAware::class)) {

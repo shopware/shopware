@@ -447,7 +447,9 @@ class StructEncoderTest extends TestCase
         static::assertSame('test', $encoded['name']);
         static::assertArrayNotHasKey('description', $encoded);
         static::assertSame(['name' => 'translated name'], $encoded['translated']);
+        static::assertArrayNotHasKey('description', $encoded['translated']);
         static::assertSame(['foo' => 'visible'], $encoded['customFields']);
+        static::assertArrayNotHasKey('bar', $encoded['customFields']);
     }
 
     /**

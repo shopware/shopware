@@ -629,35 +629,44 @@ class RequestCriteriaBuilderTest extends TestCase
         $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
     }
 
-    public function testAssociationWithoutApiAwareIsRejectedForStoreApi(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function protectedAssociationPayloadProvider(): iterable
     {
-        $payload = ['associations' => ['hidden' => []]];
-
-        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('hidden'));
-
-        $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
-    }
-
-    public function testAssociationNotAllowedForStoreApiSourceIsRejected(): void
-    {
-        $payload = ['associations' => ['adminOnly' => []]];
-
-        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('adminOnly'));
-
-        $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
-    }
-
-    public function testNestedAssociationWithoutApiAwareIsRejectedForStoreApi(): void
-    {
-        $payload = [
-            'associations' => [
-                'exposed' => [
-                    'associations' => ['hidden' => []],
-                ],
-            ],
+        yield 'association without ApiAware' => [
+            ['associations' => ['hidden' => []]],
+            'hidden',
         ];
 
-        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('hidden'));
+        yield 'association restricted to the admin api' => [
+            ['associations' => ['adminOnly' => []]],
+            'adminOnly',
+        ];
+
+        yield 'nested association without ApiAware' => [
+            ['associations' => ['exposed' => ['associations' => ['hidden' => []]]]],
+            'hidden',
+        ];
+
+        yield 'association without ApiAware in fields' => [
+            ['fields' => ['hidden.id']],
+            'hidden',
+        ];
+
+        yield 'nested association without ApiAware in fields' => [
+            ['fields' => ['exposed.hidden.id']],
+            'hidden',
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('protectedAssociationPayloadProvider')]
+    public function testProtectedAssociationIsRejectedForStoreApi(array $payload, string $expectedAccessor): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope($expectedAccessor));
 
         $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
     }
@@ -697,20 +706,6 @@ class RequestCriteriaBuilderTest extends TestCase
         $criteria = $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getApiAwareAssociationDefinition(), $context);
 
         static::assertTrue($criteria->hasAssociation('hidden'));
-    }
-
-    public function testAssociationInFieldsWithoutApiAwareIsRejectedForStoreApi(): void
-    {
-        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('hidden'));
-
-        $this->requestCriteriaBuilder->fromArray(['fields' => ['hidden.id']], new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
-    }
-
-    public function testNestedAssociationInFieldsWithoutApiAwareIsRejectedForStoreApi(): void
-    {
-        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('hidden'));
-
-        $this->requestCriteriaBuilder->fromArray(['fields' => ['exposed.hidden.id']], new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
     }
 
     public function testApiAwareAssociationInFieldsIsAcceptedForStoreApi(): void

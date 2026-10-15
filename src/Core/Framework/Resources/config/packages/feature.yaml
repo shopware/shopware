@@ -56,6 +56,21 @@ shopware:
         major: v6.8.0.0
         toggleable: true
         description: "Experimental! Enable new caching, includes following breaking changes: Only include rule ids which are relevant for different content in the HTTP cache context key; Remove cache states and cache pages for logged in customers or when the cart is filled by default; Enable caching for Store-API."
+      - name: MEDIA_URL_PATH_ENCODING
+        default: false
+        major: v6.8.0.0
+        toggleable: true
+        description: "Encode media URL path segments when generating media URLs, without additional encoding in document logos, product exports, import/export, or Storefront templates."
+      - name: PROPORTIONAL_CART_TAXES
+        default: false
+        major: v6.8.0.0
+        toggleable: true
+        description: "Scale existing calculated taxes for percentage prices and split line-item quantities instead of recalculating them."
+      - name: DELETE_CART_AFTER_ORDER_CREATION
+        default: false
+        major: v6.8.0.0
+        toggleable: true
+        description: "Delete the persisted cart immediately after the order is created, before order-placed events are dispatched."
       - name: DEFERRED_CART_ERRORS
         default: false
         major: v6.8.0.0

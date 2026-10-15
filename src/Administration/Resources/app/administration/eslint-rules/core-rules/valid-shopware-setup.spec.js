@@ -104,6 +104,15 @@ swDefinePublic({ count });
 </script>`,
         },
         {
+            filename: 'base-model.vue',
+            code: `<script setup lang="ts">
+const [modelValue, modelModifiers] = defineModel<string>();
+const title = defineModel<string>('title' as const);
+const count = 1;
+swDefinePublic({ modelValue, title, count });
+</script>`,
+        },
+        {
             filename: 'base-slots.vue',
             code: `<script setup lang="ts">
 const slots = defineSlots<{ default(props: { count: number }): unknown }>();
@@ -247,6 +256,19 @@ swDefineOverride({});
             errors: [
                 {
                     message: 'defineEmits() is only supported in base Shopware setup blocks.',
+                },
+            ],
+        },
+        {
+            filename: 'override-model.override.vue',
+            code: `<script setup lang="ts">
+const value = defineModel<string>();
+swDefineOverride({ value });
+</script>`,
+            errors: [
+                {
+                    message: 'defineModel() is only supported in base Shopware setup blocks. '
+                        + 'Declare a replacement for the base model binding with swDefineOverride({ ... }) instead.',
                 },
             ],
         },

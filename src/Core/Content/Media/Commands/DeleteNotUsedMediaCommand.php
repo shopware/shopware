@@ -265,7 +265,7 @@ class DeleteNotUsedMediaCommand extends Command
 
         // last remaining batch
         if ($batch !== []) {
-            return $callback($i++, $batch);
+            return $callback($i, $batch);
         }
 
         return true;

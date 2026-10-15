@@ -14,7 +14,7 @@
  * accessors below.
  */
 
-import type { CallExpression, Statement } from '@babel/types';
+import type { CallExpression, Statement, VariableDeclarator } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 import { absoluteRange, unwrapTransparentMacroExpression } from './utils';
@@ -37,13 +37,15 @@ type MacroName =
  * One top-level macro/helper call found in a Shopware setup block.
  *
  * `form` distinguishes a bare statement (`defineEmits(['save']);`) from a declaration initializer
- * (`const emit = defineEmits(['save']);`).
+ * (`const emit = defineEmits(['save']);`), and `declarator` carries that initializer's declaration -
+ * the only place the binding pattern a macro declares is still addressable.
  */
 type MacroCallEntry = {
     name: MacroName;
     call: CallExpression;
     statement: Statement;
     form: 'statement' | 'declaration';
+    declarator?: VariableDeclarator;
 };
 
 type MacroRule = {
@@ -132,8 +134,15 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
     },
     defineModel: {
         vueBuiltin: true,
-        modes: [],
-        wrongModeMessage: 'Vue macro defineModel() is not supported inside Shopware setup blocks.',
+        modes: ['base'],
+        // An override declares neither props nor emits - it replaces bindings of a base component that
+        // already owns both halves of the model.
+        wrongModeMessage: [
+            'defineModel() is only supported in base Shopware setup blocks.',
+            'Declare a replacement for the base model binding with swDefineOverride({ ... }) instead.',
+        ].join(' '),
+        setupInput: true,
+        exposable: true,
     },
     swDefinePublic: {
         modes: ['base'],
@@ -267,6 +276,7 @@ function collectMacroCallEntries(statement: Statement): MacroCallEntry[] {
                           ...macro,
                           statement,
                           form: 'declaration' as const,
+                          declarator: declaration,
                       },
                   ]
                 : [];

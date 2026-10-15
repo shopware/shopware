@@ -47,6 +47,15 @@ class RecalculationService
 {
     /**
      * @internal
+     */
+    public const AWAITING_PAYMENT_STATES = [
+        OrderTransactionStates::STATE_OPEN,
+        OrderTransactionStates::STATE_REMINDED,
+        OrderTransactionStates::STATE_PARTIALLY_PAID,
+    ];
+
+    /**
+     * @internal
      *
      * @param EntityRepository<OrderCollection> $orderRepository
      * @param EntityRepository<ProductCollection> $productRepository
@@ -520,10 +529,6 @@ class RecalculationService
 
         $state = $order->getTransactions()?->get($primaryOrderTransactionId)?->getStateMachineState()?->getTechnicalName();
 
-        return \in_array($state, [
-            OrderTransactionStates::STATE_OPEN,
-            OrderTransactionStates::STATE_REMINDED,
-            OrderTransactionStates::STATE_PARTIALLY_PAID,
-        ], true);
+        return \in_array($state, self::AWAITING_PAYMENT_STATES, true);
     }
 }

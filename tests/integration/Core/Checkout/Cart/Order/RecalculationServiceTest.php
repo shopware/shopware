@@ -614,6 +614,44 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($order['total'], $transaction->getAmount()->getTotalPrice());
     }
 
+    #[DataProvider('liveTransactionTransitionProvider')]
+    public function testMergeMovesTheTransactionOnlyWhileItStillAwaitsPayment(?string $liveTransition, bool $followsTheNewTotal): void
+    {
+        $order = $this->persistCart($this->generateDemoCart());
+        $orderId = $order['orderId'];
+        $transactionId = $this->fetchOrderWithTransactions($orderId, $this->context)->getPrimaryOrderTransactionId();
+        static::assertNotNull($transactionId);
+
+        $versionId = $this->createVersionedOrder($orderId);
+        $this->addProductToVersionedOrder('Test', 10.0, 19.0, $orderId, $versionId, $order['total']);
+
+        if ($liveTransition !== null) {
+            static::getContainer()->get(StateMachineRegistry::class)->transition(
+                new Transition(OrderTransactionDefinition::ENTITY_NAME, $transactionId, $liveTransition, 'stateId'),
+                $this->context
+            );
+        }
+
+        $this->orderRepository->merge($versionId, $this->context);
+
+        $mergedOrder = $this->fetchOrderWithTransactions($orderId, $this->context);
+        static::assertNotSame($order['total'], $mergedOrder->getAmountTotal());
+
+        $transaction = $mergedOrder->getTransactions()?->get($transactionId);
+        static::assertNotNull($transaction);
+        static::assertSame(
+            $followsTheNewTotal ? $mergedOrder->getAmountTotal() : $order['total'],
+            $transaction->getAmount()->getTotalPrice()
+        );
+    }
+
+    public static function liveTransactionTransitionProvider(): \Generator
+    {
+        yield 'still open' => [null, true];
+        yield 'partially paid during the edit' => [StateMachineTransitionActions::ACTION_PAID_PARTIALLY, true];
+        yield 'paid during the edit' => [StateMachineTransitionActions::ACTION_PAID, false];
+    }
+
     public function testAddProductToOrderWithCustomerComment(): void
     {
         // create order

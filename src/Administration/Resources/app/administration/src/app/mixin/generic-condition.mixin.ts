@@ -17,6 +17,8 @@ interface Field {
         criteria: Criteria;
         options: unknown[];
         placeholder: string;
+        descriptionProperty?: string;
+        descriptionPosition?: string;
     };
 }
 
@@ -190,6 +192,10 @@ export default Mixin.register(
                             value,
                         };
                     });
+                }
+
+                if (fieldClone.config.descriptionProperty) {
+                    fieldClone.config.descriptionPosition ??= 'bottom';
                 }
 
                 if (fieldClone.type === 'bool') {

@@ -46,12 +46,14 @@ use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection as TaxRuleEntityCollection;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\Generator;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
@@ -67,6 +69,8 @@ class ProductFeatureBuilderTest extends TestCase
     private const LANGUAGE_CHAIN = [self::LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM];
 
     private const CHILD_LANGUAGE_CHAIN = [self::CHILD_LANGUAGE_ID, self::LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM];
+
+    private const LOCALE_CODE = 'de-DE';
 
     private const CURRENCY_ID = 'currency-id-123';
 
@@ -87,6 +91,8 @@ class ProductFeatureBuilderTest extends TestCase
 
     private Stub&DefinitionInstanceRegistry $definitionRegistry;
 
+    private Stub&TranslatorInterface $translator;
+
     private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
@@ -94,21 +100,11 @@ class ProductFeatureBuilderTest extends TestCase
         $this->customFieldRepository = static::createStub(EntityRepository::class);
         $this->languageLocaleProvider = static::createStub(LanguageLocaleCodeProvider::class);
         $this->definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $this->translator = static::createStub(TranslatorInterface::class);
+        $this->translator->method('trans')->willReturnArgument(0);
         $this->salesChannelContext = Generator::generateSalesChannelContext();
 
-        $taxCalculator = new TaxCalculator();
-        $cashRounding = new CashRounding();
-
-        $this->productFeatureBuilder = new ProductFeatureBuilder(
-            $this->customFieldRepository,
-            $this->languageLocaleProvider,
-            $this->definitionRegistry,
-            new PriceSelector($taxCalculator),
-            new QuantityPriceCalculator(
-                new GrossPriceCalculator($taxCalculator, $cashRounding),
-                new NetPriceCalculator($taxCalculator, $cashRounding)
-            ),
-        );
+        $this->productFeatureBuilder = $this->createProductFeatureBuilder($this->translator);
     }
 
     public function testAddFeaturesIntoLineItems(): void
@@ -166,7 +162,6 @@ class ProductFeatureBuilderTest extends TestCase
 
         $this->productFeatureBuilder->add([$lineItem], $data, $this->salesChannelContext);
 
-        static::assertNotEmpty($lineItem->getPayload()['features']);
         static::assertSame([
             [
                 'label' => 'color',
@@ -245,6 +240,53 @@ class ProductFeatureBuilderTest extends TestCase
                 'type' => 'customField',
             ],
         ], $features);
+    }
+
+    public function testCustomFieldLabelPrefersTheSnippetOfTheCustomField(): void
+    {
+        $this->useSnippets([self::LOCALE_CODE => ['customFields.custom_material' => 'Holzart']]);
+
+        $features = $this->buildCustomFieldFeatures([
+            'en-GB' => 'Material',
+            'de-DE' => 'Werkstoff',
+        ]);
+
+        static::assertSame('Holzart', $features[0]['label']);
+    }
+
+    /**
+     * Only Storefront requests set the translator locale, so the snippet has to be read in the
+     * locale of the context for Store API and Admin API requests to label the feature correctly.
+     */
+    public function testCustomFieldLabelReadsTheSnippetInTheLocaleOfTheContext(): void
+    {
+        $this->useSnippets([
+            'en-GB' => ['customFields.custom_material' => 'Fabric'],
+            self::LOCALE_CODE => ['customFields.custom_material' => 'Stoff'],
+        ]);
+
+        $features = $this->buildCustomFieldFeatures([
+            'en-GB' => 'Material',
+            'de-DE' => 'Werkstoff',
+        ]);
+
+        static::assertSame('Stoff', $features[0]['label']);
+    }
+
+    /**
+     * @param array<string, string> $snippets
+     */
+    #[DataProvider('unusableSnippetProvider')]
+    public function testCustomFieldLabelFallsBackToTheConfigLabelWithoutAUsableSnippet(array $snippets): void
+    {
+        $this->useSnippets([self::LOCALE_CODE => $snippets]);
+
+        $features = $this->buildCustomFieldFeatures([
+            'en-GB' => 'Material',
+            'de-DE' => 'Werkstoff',
+        ]);
+
+        static::assertSame('Werkstoff', $features[0]['label']);
     }
 
     /**
@@ -501,6 +543,50 @@ class ProductFeatureBuilderTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{array<string, string>}>
+     */
+    public static function unusableSnippetProvider(): iterable
+    {
+        yield 'no snippet for the custom field' => [['customFields.custom_other' => 'Sonstiges']];
+        yield 'empty snippet for the custom field' => [['customFields.custom_material' => '']];
+        yield 'snippet is the technical name' => [['customFields.custom_material' => 'custom_material']];
+    }
+
+    /**
+     * The translator echoes the key of every snippet that is not defined in the requested locale,
+     * as the real translator does.
+     *
+     * @param array<string, array<string, string>> $snippetsByLocale
+     */
+    private function useSnippets(array $snippetsByLocale): void
+    {
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(
+            static fn (string $id, array $parameters, ?string $domain, ?string $locale): string => $snippetsByLocale[$locale ?? ''][$id] ?? $id
+        );
+
+        $this->productFeatureBuilder = $this->createProductFeatureBuilder($translator);
+    }
+
+    private function createProductFeatureBuilder(TranslatorInterface $translator): ProductFeatureBuilder
+    {
+        $taxCalculator = new TaxCalculator();
+        $cashRounding = new CashRounding();
+
+        return new ProductFeatureBuilder(
+            $this->customFieldRepository,
+            $this->languageLocaleProvider,
+            $this->definitionRegistry,
+            $translator,
+            new PriceSelector($taxCalculator),
+            new QuantityPriceCalculator(
+                new GrossPriceCalculator($taxCalculator, $cashRounding),
+                new NetPriceCalculator($taxCalculator, $cashRounding)
+            ),
+        );
+    }
+
+    /**
      * Builds the features of a line item referencing a product with a single custom field feature.
      * The context defaults to the `de-DE` language chain; the system language is `en-GB` throughout.
      *
@@ -569,6 +655,7 @@ class ProductFeatureBuilderTest extends TestCase
                 languageIdChain: $languageIdChain,
                 currencyFactor: $currencyFactor,
             ),
+            languageInfo: new LanguageInfo('Deutsch', self::LOCALE_CODE),
         );
     }
 

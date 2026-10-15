@@ -293,6 +293,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ReferencedDocumentResolver::class),
             service('order.repository'),
             service(ScriptExecutor::class),
+            service(DocumentConfigLoader::class),
         ]);
 
     $services->set(DocumentRoute::class)

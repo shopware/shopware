@@ -125,7 +125,7 @@ class CacheHeadersServiceTest extends TestCase
             static::assertSame($cookie->getValue(), $response->headers->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE));
         } else {
             $cookies = $response->headers->getCookies();
-            static::assertNotEmpty($cookies, 'the client cookie should be cleared');
+            static::assertNotCount(0, $cookies, 'the client cookie should be cleared');
 
             foreach ($cookies as $cookie) {
                 static::assertSame(1, $cookie->getExpiresTime(), 'cookie should expire');
@@ -360,7 +360,7 @@ class CacheHeadersServiceTest extends TestCase
         $this->cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
-        static::assertEmpty($cookies);
+        static::assertCount(0, $cookies);
 
         $salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM]));
@@ -370,7 +370,7 @@ class CacheHeadersServiceTest extends TestCase
         $this->cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
-        static::assertNotEmpty($cookies);
+        static::assertNotCount(0, $cookies);
         // assert cache hash exist when currency is set to different value then the sales channel default
         static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
         $firstHash = $cookies[0]->getValue();
@@ -383,7 +383,7 @@ class CacheHeadersServiceTest extends TestCase
         $this->cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
-        static::assertNotEmpty($cookies);
+        static::assertNotCount(0, $cookies);
         static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
         $secondHash = $cookies[0]->getValue();
         // assert cache hash is different when currency id is different
@@ -505,14 +505,14 @@ class CacheHeadersServiceTest extends TestCase
         $cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
-        static::assertEmpty($cookies);
+        static::assertCount(0, $cookies);
 
         $request->cookies->set('my-custom-cookie', 'foo');
 
         $cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
-        static::assertNotEmpty($cookies);
+        static::assertNotCount(0, $cookies);
         // assert cache hash exist when customCookie is set
         static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
         $firstHash = $cookies[0]->getValue();
@@ -522,7 +522,7 @@ class CacheHeadersServiceTest extends TestCase
         $cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
-        static::assertNotEmpty($cookies);
+        static::assertNotCount(0, $cookies);
         static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
         $secondHash = $cookies[0]->getValue();
         // assert cache hash is different when custom cookie is different

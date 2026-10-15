@@ -28,12 +28,12 @@ class CompositeProcessorTest extends TestCase
 
         $request->query->set('no-aggregations', true);
         static::getContainer()->get(CompositeListingProcessor::class)->prepare($request, $criteria, $context);
-        static::assertEmpty($criteria->getAggregations());
+        static::assertCount(0, $criteria->getAggregations());
 
         $request->query->set('only-aggregations', true);
         static::getContainer()->get(CompositeListingProcessor::class)->prepare($request, $criteria, $context);
-        static::assertEmpty($criteria->getSorting());
-        static::assertEmpty($criteria->getAssociations());
+        static::assertCount(0, $criteria->getSorting());
+        static::assertCount(0, $criteria->getAssociations());
         static::assertSame(0, $criteria->getLimit());
         static::assertSame(Criteria::TOTAL_COUNT_MODE_NONE, $criteria->getTotalCountMode());
     }

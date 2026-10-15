@@ -79,6 +79,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater;
 use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
 use Shopware\Core\Content\Product\Garan\GaranLabelInlineImage;
 use Shopware\Core\Content\Product\Garan\GaranLabelMailSubscriber;
+use Shopware\Core\Content\Product\Garan\GaranLabelOrderSubscriber;
 use Shopware\Core\Content\Product\Garan\GaranLabelProductValidator;
 use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
 use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
@@ -320,6 +321,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(GaranLabelMailSubscriber::class)
         ->args([
             service(GaranLabelInlineImage::class),
+            service('product.repository'),
+            service(GaranLabelResolver::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(GaranLabelOrderSubscriber::class)
+        ->args([
             service('product.repository'),
             service(GaranLabelResolver::class),
         ])
@@ -631,6 +639,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductStreamBuilder::class),
             service(CacheTagCollector::class),
             service(ExtensionDispatcher::class),
+            service('logger'),
         ]);
 
     $services->set(ProductIndexer::class)
@@ -807,6 +816,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheTagCollector::class),
             service(Connection::class),
             service(ExtensionDispatcher::class),
+            service('logger'),
         ]);
 
     $services->set(ProductReviewSaveRoute::class)

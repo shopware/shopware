@@ -12,9 +12,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -206,7 +208,10 @@ trait SalesChannelApiTestBehaviour
                     'url' => 'http://localhost',
                 ],
             ],
-            'countries' => [['id' => $this->getValidCountryId(null)]],
+            'countries' => $salesChannelOverride['countries'] ?? array_map(
+                static fn (string $id): array => ['id' => $id],
+                $this->getTestSalesChannelCountryIds()
+            ),
         ], $salesChannelOverride);
 
         $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext());
@@ -299,6 +304,34 @@ trait SalesChannelApiTestBehaviour
             throw new \RuntimeException($content['errors'][0]['detail']);
         }
         $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content['token']);
+    }
+
+    /**
+     * createCustomer() and login() use a country of the default sales channel for the customer address, so test sales
+     * channels get that country as well. Otherwise checkouts are correctly rejected as blocked. Some tests remove or
+     * replace the default sales channel, then only the first valid country is assigned.
+     *
+     * @return list<string>
+     */
+    private function getTestSalesChannelCountryIds(): array
+    {
+        $ids = [$this->getValidCountryId(null)];
+
+        $criteria = (new Criteria())->setLimit(1)
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('shippingAvailable', true))
+            ->addFilter(new EqualsFilter('salesChannels.id', TestDefaults::SALES_CHANNEL))
+            ->addSorting(new FieldSorting('iso'));
+
+        /** @var EntityRepository<CountryCollection> $countryRepository */
+        $countryRepository = static::getContainer()->get('country.repository');
+        $customerCountryId = $countryRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        if ($customerCountryId !== null) {
+            $ids[] = $customerCountryId;
+        }
+
+        return array_values(array_unique($ids));
     }
 
     private function getRandomId(string $table): string

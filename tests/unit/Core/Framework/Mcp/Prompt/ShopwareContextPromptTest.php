@@ -20,7 +20,7 @@ class ShopwareContextPromptTest extends TestCase
         $result = ($prompt)();
 
         static::assertIsArray($result);
-        static::assertNotEmpty($result);
+        static::assertNotCount(0, $result);
         static::assertArrayHasKey('role', $result[0]);
         static::assertArrayHasKey('content', $result[0]);
         static::assertSame('user', $result[0]['role']);

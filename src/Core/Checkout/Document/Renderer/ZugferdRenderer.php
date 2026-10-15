@@ -80,8 +80,6 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         foreach ($chunk as ['language_id' => $languageId, 'ids' => $chunkIds]) {
             $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $chunkIds), $rendererConfig->deepLinkCode);
             $criteria->addAssociation('lineItems.product.manufacturer');
-            $criteria->addAssociation('lineItems.product.unit');
-            $criteria->addAssociation('lineItems.product.parent.unit');
 
             $context->assign([
                 'languageIdChain' => \array_values(\array_unique(\array_filter([$languageId, ...$languageIdChain]))),

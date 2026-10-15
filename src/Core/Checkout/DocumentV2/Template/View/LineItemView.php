@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\DocumentV2\Template\Enum\UnitCode;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -163,7 +162,7 @@ final readonly class LineItemView
             name: $lineItem->getLabel(),
             quantity: $quantity,
             basisQuantity: self::PRICE_BASIS_QUANTITY,
-            unitCode: self::getUnitCode($product),
+            unitCode: self::getUnitCode($lineItem),
             netUnitPrice: $totalNet / $quantity,
             lineTotal: $totalNet,
             taxCategory: TaxCategory::fromRate($taxRate),
@@ -261,7 +260,7 @@ final readonly class LineItemView
             name: $lineItem->getLabel(),
             quantity: $quantity,
             basisQuantity: self::PRICE_BASIS_QUANTITY,
-            unitCode: self::getUnitCode($product),
+            unitCode: self::getUnitCode($lineItem),
             netUnitPrice: $lineTotal / $quantity,
             lineTotal: $lineTotal,
             taxCategory: TaxCategory::fromRate($taxRate),
@@ -269,10 +268,10 @@ final readonly class LineItemView
         );
     }
 
-    private static function getUnitCode(?ProductEntity $product): string
+    private static function getUnitCode(OrderLineItemEntity $lineItem): string
     {
-        $unit = $product?->getUnit() ?? $product?->getParent()?->getUnit();
+        $uneceCode = $lineItem->getPayload()['uneceCode'] ?? null;
 
-        return $unit?->getUneceCode() ?? UnitCode::PIECE->value;
+        return \is_string($uneceCode) && $uneceCode !== '' ? $uneceCode : UnitCode::PIECE->value;
     }
 }

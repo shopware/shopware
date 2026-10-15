@@ -20,7 +20,6 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Unit\UnitEntity;
 
 /**
  * @internal
@@ -151,24 +150,14 @@ class LineItemViewTest extends TestCase
         static::assertSame('1234567890123', $view->ean);
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     #[DataProvider('unitCodeProvider')]
-    public function testListFromOrderUsesTheUnitCodeOfTheProduct(?string $ownCode, ?string $parentCode, string $expectedCode): void
+    public function testListFromOrderUsesTheUnitCodeFromThePayload(array $payload, string $expectedCode): void
     {
-        $product = new ProductEntity();
-        $product->setUniqueIdentifier(Uuid::randomHex());
-        $product->setProductNumber('SKU-1');
-        if ($ownCode !== null) {
-            $product->setUnit($this->createUnit($ownCode));
-        }
-        if ($parentCode !== null) {
-            $parent = new ProductEntity();
-            $parent->setUniqueIdentifier(Uuid::randomHex());
-            $parent->setUnit($this->createUnit($parentCode));
-            $product->setParent($parent);
-        }
-
         $lineItem = $this->createProductLineItem('p-1', 'Widget');
-        $lineItem->setProduct($product);
+        $lineItem->setPayload($payload);
 
         $view = LineItemView::listFromOrder($this->createOrder(CartPrice::TAX_STATE_NET, [$lineItem]))[0];
 
@@ -176,18 +165,16 @@ class LineItemViewTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{ownCode: ?string, parentCode: ?string, expectedCode: string}>
+     * @return iterable<string, array{payload: array<string, mixed>, expectedCode: string}>
      */
     public static function unitCodeProvider(): iterable
     {
-        yield 'own unit code is used' => ['ownCode' => 'KGM', 'parentCode' => null, 'expectedCode' => 'KGM'];
-        yield 'variant without own unit uses the parent unit code' => ['ownCode' => null, 'parentCode' => 'XBX', 'expectedCode' => 'XBX'];
-        yield 'own unit wins over the parent unit' => ['ownCode' => 'MTR', 'parentCode' => 'XBX', 'expectedCode' => 'MTR'];
-        yield 'own unit without code falls back to piece, not to the parent code' => ['ownCode' => '', 'parentCode' => 'XBX', 'expectedCode' => 'H87'];
-        yield 'no unit falls back to piece' => ['ownCode' => null, 'parentCode' => null, 'expectedCode' => 'H87'];
+        yield 'code stored at order time is used' => ['payload' => ['uneceCode' => 'KGM'], 'expectedCode' => 'KGM'];
+        yield 'order placed before the code existed falls back to piece' => ['payload' => ['productNumber' => 'SKU-1'], 'expectedCode' => 'H87'];
+        yield 'product without a code falls back to piece' => ['payload' => ['uneceCode' => null], 'expectedCode' => 'H87'];
     }
 
-    public function testListFromOrderFallsBackToPieceForCustomLineItemsWithoutProduct(): void
+    public function testListFromOrderFallsBackToPieceForCustomLineItems(): void
     {
         $lineItem = $this->createLineItemOfType(LineItem::CUSTOM_LINE_ITEM_TYPE, 'Service');
         $lineItem->setPrice(new CalculatedPrice(10.0, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -321,7 +308,7 @@ class LineItemViewTest extends TestCase
         static::assertSame(100.0, $views[0]->netUnitPrice);
     }
 
-    public function testListFromCreditItemsFallsBackToPieceWithoutProduct(): void
+    public function testListFromCreditItemsFallsBackToPieceWithoutCode(): void
     {
         $credit = $this->createCreditLineItem('Refund', new CalculatedPrice(10.0, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
@@ -330,15 +317,10 @@ class LineItemViewTest extends TestCase
         static::assertSame('H87', $views[0]->unitCode);
     }
 
-    public function testListFromCreditItemsUsesTheUnitCodeOfALinkedProduct(): void
+    public function testListFromCreditItemsUsesTheUnitCodeFromThePayload(): void
     {
-        $product = new ProductEntity();
-        $product->setUniqueIdentifier(Uuid::randomHex());
-        $product->setProductNumber('SKU-1');
-        $product->setUnit($this->createUnit('KGM'));
-
         $credit = $this->createCreditLineItem('Refund', new CalculatedPrice(10.0, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
-        $credit->setProduct($product);
+        $credit->setPayload(['uneceCode' => 'KGM']);
 
         $views = LineItemView::listFromCreditItems($this->createOrder(CartPrice::TAX_STATE_NET, [$credit]));
 
@@ -467,17 +449,6 @@ class LineItemViewTest extends TestCase
         $item->setPrice($price);
 
         return $item;
-    }
-
-    private function createUnit(string $uneceCode): UnitEntity
-    {
-        $unit = new UnitEntity();
-        $unit->setId(Uuid::randomHex());
-        if ($uneceCode !== '') {
-            $unit->setUneceCode($uneceCode);
-        }
-
-        return $unit;
     }
 
     /**

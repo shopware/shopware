@@ -88,12 +88,6 @@ class InvoiceDataProviderTest extends TestCase
             \array_keys($criteria->getAssociations()),
         );
 
-        foreach (['lineItems', 'lineItems.children'] as $path) {
-            $product = $criteria->getAssociation($path . '.product');
-            static::assertTrue($product->hasAssociation('unit'));
-            static::assertTrue($product->getAssociation('parent')->hasAssociation('unit'));
-        }
-
         $lineItemsSorting = $criteria->getAssociation('lineItems')->getSorting();
         static::assertCount(1, $lineItemsSorting);
         static::assertSame('position', $lineItemsSorting[0]->getField());

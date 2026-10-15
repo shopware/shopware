@@ -30,7 +30,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
-use Shopware\Core\System\Unit\UnitEntity;
 
 /**
  * @internal
@@ -568,8 +567,11 @@ class ZugferdDocumentTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     #[DataProvider('unitCodeProvider')]
-    public function testLineUsesTheUnitCodeOfTheProduct(?string $ownCode, ?string $parentCode, string $expectedCode): void
+    public function testLineUsesTheUnitCodeFromThePayload(array $payload, string $expectedCode): void
     {
         $order = new OrderEntity();
         $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
@@ -578,23 +580,12 @@ class ZugferdDocumentTest extends TestCase
         $order->setItemRounding(new CashRoundingConfig(2, .01, false));
         $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
 
-        $product = new ProductEntity();
-        $product->setProductNumber('123');
-        if ($ownCode !== null) {
-            $product->setUnit($this->createUnit($ownCode));
-        }
-        if ($parentCode !== null) {
-            $parent = new ProductEntity();
-            $parent->setUnit($this->createUnit($parentCode));
-            $product->setParent($parent);
-        }
-
         $lineItem = new OrderLineItemEntity();
         $lineItem->setId(Uuid::randomHex());
-        $lineItem->setProduct($product);
         $lineItem->setLabel('Product ' . $lineItem->getId());
         $lineItem->setQuantity(1);
         $lineItem->setPosition(1);
+        $lineItem->setPayload($payload);
         $lineItem->setPrice(new CalculatedPrice(
             100.0,
             100.0,
@@ -625,33 +616,20 @@ class ZugferdDocumentTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{ownCode: ?string, parentCode: ?string, expectedCode: string}>
+     * @return \Generator<string, array{payload: array<string, mixed>, expectedCode: string}>
      */
     public static function unitCodeProvider(): \Generator
     {
-        yield 'own unit code is used' => [
-            'ownCode' => 'KGM',
-            'parentCode' => null,
+        yield 'code stored at order time is used' => [
+            'payload' => ['uneceCode' => 'KGM'],
             'expectedCode' => 'KGM',
         ];
-        yield 'variant without own unit uses the parent unit code' => [
-            'ownCode' => null,
-            'parentCode' => 'XBX',
-            'expectedCode' => 'XBX',
-        ];
-        yield 'own unit wins over the parent unit' => [
-            'ownCode' => 'MTR',
-            'parentCode' => 'XBX',
-            'expectedCode' => 'MTR',
-        ];
-        yield 'own unit without code falls back to piece, not to the parent code' => [
-            'ownCode' => '',
-            'parentCode' => 'XBX',
+        yield 'order placed before the code existed falls back to piece' => [
+            'payload' => ['productNumber' => '123'],
             'expectedCode' => 'H87',
         ];
-        yield 'no unit falls back to piece' => [
-            'ownCode' => null,
-            'parentCode' => null,
+        yield 'product without a code falls back to piece' => [
+            'payload' => ['uneceCode' => null],
             'expectedCode' => 'H87',
         ];
     }
@@ -820,17 +798,6 @@ class ZugferdDocumentTest extends TestCase
             $summary->getElementsByTagName('ChargeTotalAmount')->item(0)?->nodeValue,
             \number_format($chargeSum, 2, '.', '')
         );
-    }
-
-    private function createUnit(string $uneceCode): UnitEntity
-    {
-        $unit = new UnitEntity();
-        $unit->setId(Uuid::randomHex());
-        if ($uneceCode !== '') {
-            $unit->setUneceCode($uneceCode);
-        }
-
-        return $unit;
     }
 
     private function createOrderLineItem(float $price, float $taxRate, bool $isGross, ?int $position = null): OrderLineItemEntity

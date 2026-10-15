@@ -413,7 +413,9 @@ An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the ap
 
 ### ZUGFeRD e-invoices send the real unit code
 
-ZUGFeRD and XRechnung invoices now use the `uneceCode` of the product's unit for the invoiced quantity and the price base quantity of each line, instead of always `H87` (piece). Variants without their own unit use the parent's unit. Lines whose unit has no code still get `H87`.
+Product line items now store the `uneceCode` of the product's unit in their payload (`payload.uneceCode`) when they are added to the cart, so orders keep the code the unit had when the order was placed. Variants without their own unit store the parent's code.
+
+ZUGFeRD and XRechnung invoices use this code for the invoiced quantity and the price base quantity of each line, instead of always `H87` (piece). Lines without a code, including orders placed before this change, still get `H87`.
 
 ## API
 

@@ -192,6 +192,10 @@
                                 "type": "string",
                                 "pattern": "^[0-9a-f]{32}$"
                             },
+                            "uneceCode": {
+                                "description": "UN/ECE Recommendation 20 or 21 code of the product unit when the order was placed.",
+                                "type": ["string", "null"]
+                            },
                             "productType": {
                                 "$ref": "#/components/schemas/Product/properties/type"
                             }

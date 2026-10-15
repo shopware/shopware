@@ -28,7 +28,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
@@ -230,7 +229,7 @@ class ZugferdDocument
             $this->addLineTotalAmount($totalNet);
         }
 
-        $unitCode = $this->getUnitCode($product);
+        $unitCode = $this->getUnitCode($lineItem);
 
         $this->zugferdBuilder
             ->addNewPosition($parentPosition . $lineItem->getPosition())
@@ -553,11 +552,11 @@ class ZugferdDocument
         return 'Delivery refund';
     }
 
-    private function getUnitCode(?ProductEntity $product): string
+    private function getUnitCode(OrderLineItemEntity $lineItem): string
     {
-        $unit = $product?->getUnit() ?? $product?->getParent()?->getUnit();
+        $uneceCode = $lineItem->getPayload()['uneceCode'] ?? null;
 
-        return $unit?->getUneceCode() ?? ZugferdUnitCodes::REC20_PIECE;
+        return \is_string($uneceCode) && $uneceCode !== '' ? $uneceCode : ZugferdUnitCodes::REC20_PIECE;
     }
 
     private function getPercentageBasisAmount(bool $isPercentage, float $discountValue, float $actualAmount): ?float

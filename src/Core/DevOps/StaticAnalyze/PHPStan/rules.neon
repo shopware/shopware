@@ -1,5 +1,6 @@
 rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolResponseRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpReservedToolGroupRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScheduledTaskTooLowIntervalRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleAreasFlagNotAllowedRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
@@ -36,10 +37,14 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertsOnObjectsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoDependsWithDataProviderRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoExpectExceptionMessageRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoFeatureSkipInUnitTestsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoKernelInUnitTestsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoReflectionInUnitTestsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoKernelLifecycleManagerInUnitTestsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoKernelBootInSetUpBeforeClassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoMockBuilderConstructorBypassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoRuntimeListenerOnSharedEventDispatcherRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoUnreachableAssertionAfterExpectExceptionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitClassAttributesOverAnnotationsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitMethodAttributesOverAnnotationsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoNativeTimeFunctionRule

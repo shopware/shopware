@@ -3,8 +3,8 @@
 
 <sw-extension-deactivation-modal
     v-if="showDeactivationModal"
-    :extension-name="label"
-    :is-licensed="license !== null"
+    :extension-name="extension.label"
+    :is-licensed="!!extension.storeLicense"
     :is-loading="isLoading"
     @modal-close="closeDeactivationModal"
     @extension-deactivate="closeModalAndDeactivateExtension"

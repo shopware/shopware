@@ -73,10 +73,22 @@ parameters:
         createMockWithoutExpectationsEnabledNamespaces:
             - 'Shopware\Tests\Unit\'
             - 'Shopware\Tests\DevOps\'
+        # narrows NoFeatureSkipInUnitTestsRule to the namespaces the FeatureFlagExtension rewrites; consumers
+        # registering their unit namespace with the extension append it here
+        featureSkipInUnitTestsEnabledNamespaces:
+            - 'Shopware\Tests\Unit\'
         # narrows NoKernelInUnitTestsRule to the suites that must not boot the kernel; the migration suite
         # runs against a database on purpose
         kernelInUnitTestsEnabledNamespaces:
             - 'Shopware\Tests\Unit\'
+        # narrows NoReflectionInUnitTestsRule to the unit suites; consumers append their unit namespace once
+        # their tests no longer use reflection
+        reflectionInUnitTestsEnabledNamespaces:
+            - 'Shopware\Tests\Unit\'
+        # narrows NoRuntimeListenerOnSharedEventDispatcherRule to the suites that run against the container; a
+        # unit test only ever holds a dispatcher it built itself
+        runtimeListenerOnSharedEventDispatcherEnabledNamespaces:
+            - 'Shopware\Tests\Integration\'
 
 services:
     -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
@@ -89,5 +101,8 @@ parametersSchema:
         allowedStorefrontRouteNamespaces: list(string),
         allowedUnitTestClassNamespaces: list(string),
         createMockWithoutExpectationsEnabledNamespaces: list(string),
+        featureSkipInUnitTestsEnabledNamespaces: list(string),
         kernelInUnitTestsEnabledNamespaces: list(string),
+        reflectionInUnitTestsEnabledNamespaces: list(string),
+        runtimeListenerOnSharedEventDispatcherEnabledNamespaces: list(string),
 ])

@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -169,7 +170,7 @@ class ControllerRateLimiterTest extends TestCase
         static::assertInstanceOf(Session::class, $session);
         $flashBag = $session->getFlashBag();
 
-        static::assertNotEmpty($flash = $flashBag->get('info'));
+        static::assertNotCount(0, $flash = $flashBag->get('info'));
         static::assertSame($this->translator->trans('error.rateLimitExceeded', ['%seconds%' => 10]), $flash[0]);
     }
 
@@ -396,6 +397,7 @@ class ControllerRateLimiterTest extends TestCase
             static::getContainer()->get(AccountService::class),
             new GuestAuthenticator(),
             new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $order = $this->createCustomerWithOrder();

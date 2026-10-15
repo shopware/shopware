@@ -11,6 +11,7 @@ use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Extension\ProductDetailRouteExtension;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -68,6 +70,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -91,6 +94,15 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         methods: [Request::METHOD_POST, Request::METHOD_GET]
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
+    {
+        return $this->extensions->publish(
+            name: ProductDetailRouteExtension::NAME,
+            extension: new ProductDetailRouteExtension($productId, $request, $context, $criteria),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
     {
         return Profiler::trace('product-detail-route', function () use ($productId, $request, $context, $criteria) {
             $requestedProductId = $productId;
@@ -130,7 +142,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                 $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
             }
 
-            if (!$product instanceof SalesChannelProductEntity) {
+            if (!$product instanceof SalesChannelProductEntity || $this->isParentWithoutResolvedVariant($product, $resolveVariantIdEvent)) {
                 throw ProductException::productNotFound($productId);
             }
 
@@ -294,6 +306,14 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         return $variantId->firstId() ?? $productId;
     }
 
+    // the parent itself is only loaded when none of its variants could be resolved
+    private function isParentWithoutResolvedVariant(SalesChannelProductEntity $product, ResolveVariantIdEvent $event): bool
+    {
+        return $product->getParentId() === null
+            && $product->getChildCount() > 0
+            && $product->getId() !== $event->getResolvedVariantId();
+    }
+
     private function findBestVariantByTerm(string $term, string $productId, SalesChannelContext $context): ?string
     {
         $criteria = (new Criteria())
@@ -395,7 +415,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
     private function getBreadcrumbCategory(Request $request, SalesChannelProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
-        if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('BREADCRUMB_REWORK')) {
             if ($this->config->getBool('core.listing.buildBreadcrumbByReferrerCategory', $context->getSalesChannelId())) {
                 $referrerCategoryId = $request->query->get('referrerCategoryId');
 

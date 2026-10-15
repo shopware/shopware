@@ -2,8 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
-use Mcp\Capability\Discovery\DocBlockParser;
-use Mcp\Capability\Discovery\SchemaGenerator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -23,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 
 /**
@@ -454,6 +453,7 @@ class EntitySearchToolTest extends TestCase
         static::assertFalse($data['success']);
         static::assertStringContainsString('unknown_entity', $data['error']);
         static::assertStringContainsString('shopware://entities', $data['error']);
+        static::assertSame(McpToolError::INVALID_ARGUMENTS, $data['code']);
     }
 
     #[TestDox('A rejected filter is answered with the parser pointer and detail instead of escaping to the SDK\'s generic error')]
@@ -526,22 +526,5 @@ class EntitySearchToolTest extends TestCase
         $this->expectExceptionObject(new \RuntimeException('bug, not bad input'));
 
         ($tool)('product');
-    }
-
-    #[TestDox('Every __invoke parameter carries a description into the SDK-generated input schema')]
-    public function testEveryParameterIsDescribedInTheInputSchema(): void
-    {
-        $method = new \ReflectionMethod(EntitySearchTool::class, '__invoke');
-        $schema = (new SchemaGenerator(new DocBlockParser()))->generate($method);
-
-        static::assertIsArray($schema['properties']);
-        static::assertCount(\count($method->getParameters()), $schema['properties']);
-
-        foreach ($schema['properties'] as $name => $property) {
-            static::assertIsArray($property);
-            static::assertArrayHasKey('description', $property, \sprintf('$%s has no description', $name));
-            static::assertIsString($property['description']);
-            static::assertNotSame('', $property['description'], \sprintf('$%s has an empty description', $name));
-        }
     }
 }

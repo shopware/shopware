@@ -21,12 +21,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\StatsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -39,7 +39,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Group('store-api')]
 class ProductListingRouteTest extends TestCase
 {
-    use EventDispatcherBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -118,8 +117,7 @@ class ProductListingRouteTest extends TestCase
         $this->createData();
 
         $queries = [];
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             ProductListingCriteriaEvent::class,
             static function (ProductListingCriteriaEvent $event) use (&$queries): void {
                 $query = $event->getRequest()->query->all();
@@ -281,6 +279,62 @@ class ProductListingRouteTest extends TestCase
 
         static::assertCount(1, $response['elements']);
         static::assertContains($response['elements'][0]['id'], [$this->variantIds['greenL'], $this->variantIds['greenXl']]);
+    }
+
+    public function testLoadProductsUsingDynamicGroupWithOnlyAnEmptyCondition(): void
+    {
+        $this->createData('product_stream', $this->ids->create('productStream'));
+
+        $filterId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM product_stream_filter WHERE product_stream_id = :streamId',
+            ['streamId' => Uuid::fromHexToBytes($this->ids->get('productStream'))]
+        );
+        static::assertIsString($filterId);
+
+        // "Product" "is equal to any of" without a product
+        $this->productStreamFilterRepository->update([[
+            'id' => $filterId,
+            'type' => 'equalsAny',
+            'field' => 'id',
+            'value' => null,
+        ]], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category')
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame('product_listing', $response['apiAlias']);
+        static::assertCount(6, $response['elements']);
+    }
+
+    public function testLoadProductsUsingInvalidDynamicGroup(): void
+    {
+        $this->createData('product_stream', $this->ids->create('productStream'));
+
+        $filterId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM product_stream_filter WHERE product_stream_id = :streamId',
+            ['streamId' => Uuid::fromHexToBytes($this->ids->get('productStream'))]
+        );
+        static::assertIsString($filterId);
+
+        // A dynamic product group without any condition is invalid
+        $this->productStreamFilterRepository->delete([['id' => $filterId]], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category')
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame('product_listing', $response['apiAlias']);
+        static::assertSame(0, $response['total']);
+        static::assertCount(0, $response['elements']);
     }
 
     public function testIncludes(): void

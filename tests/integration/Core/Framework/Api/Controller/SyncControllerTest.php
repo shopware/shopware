@@ -325,7 +325,7 @@ class SyncControllerTest extends TestCase
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
             ['id' => ArrayParameterType::BINARY]
         );
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
     }
 
     public function testCriteriaDeleteRequiresReadPrivilegesForCriteriaSelection(): void
@@ -414,7 +414,7 @@ class SyncControllerTest extends TestCase
             ['id' => ArrayParameterType::BINARY]
         );
 
-        static::assertNotEmpty($exists);
+        static::assertNotCount(0, $exists);
 
         $queuedMessages = $this->getDispatchedMessageCount(ProductIndexingMessage::class);
         static::assertSame(1, $queuedMessages);
@@ -456,7 +456,7 @@ class SyncControllerTest extends TestCase
             ['id' => ArrayParameterType::BINARY]
         );
 
-        static::assertNotEmpty($exists);
+        static::assertNotCount(0, $exists);
 
         static::assertSame(0, $this->getDispatchedMessageCount(ProductIndexingMessage::class));
     }

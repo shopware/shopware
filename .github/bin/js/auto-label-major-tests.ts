@@ -1,7 +1,7 @@
 /**
- * Auto-apply the relevant major-test labels when a PR touches major feature flags.
+ * Auto-apply major-test labels for major feature flags and acceptance spec changes.
  *
- * Detection is registry-driven: every flag registered with `major: true` in
+ * Detection is registry-driven: every version-shaped flag or flag with a versioned `major` in
  * `src/Core/Framework/Resources/config/packages/feature.yaml` counts, read from the
  * PR's own head so flags added by the PR itself are covered. Every consuming
  * construct (`Feature::isActive`, `skipTestIf(In)Active`, `withFeatureEnabled/Disabled`,
@@ -21,6 +21,8 @@
  * The PHP arm retains that repository-wide marker detection. The Administration
  * Jest arm uses the same markers only in Administration source and test files;
  * a feature-registry change enables both arms because it changes both baselines.
+ * Acceptance spec changes enable the ATS arm, using the same paths as
+ * acceptance-tests-changed; fixtures, tasks and dependency-only changes do not.
  */
 
 export const FEATURE_REGISTRY_PATH = 'src/Core/Framework/Resources/config/packages/feature.yaml';
@@ -120,6 +122,7 @@ type DiffFileSection = {
 export type MajorTestArms = {
     php: boolean;
     js: boolean;
+    acceptance: boolean;
 };
 
 // All run conditions beyond the workflow-level `if: github.event_name == 'pull_request'`
@@ -141,7 +144,8 @@ export function shouldDetect(context: PullRequestDetectionContext): boolean {
 
     const labels = (pullRequest.labels ?? []).map((label) => label.name);
 
-    return !labels.includes('major-tests') && (!labels.includes('major-php') || !labels.includes('major-js'));
+    return !labels.includes('major-tests') &&
+        ['major-php', 'major-js', 'major-acceptance'].some((label) => !labels.includes(label));
 }
 
 export function parseMajorFlags(registryYaml: string): string[] {
@@ -152,10 +156,11 @@ export function parseMajorFlags(registryYaml: string): string[] {
         const name = line.match(/^\s*-\s*name:\s*(\S+)/);
         if (name) {
             currentFlag = name[1];
-        } else if (currentFlag && /^\s*major:\s*(true|false)\b/.test(line)) {
-            if (line.includes('true')) {
+            if (/^v\d+\.\d+\.0\.0$/i.test(currentFlag)) {
                 majorFlags.push(currentFlag);
             }
+        } else if (currentFlag && /^\s*major:\s*v\d+\.\d+\.0\.0\b/i.test(line)) {
+            majorFlags.push(currentFlag);
             currentFlag = null;
         }
     }
@@ -242,12 +247,17 @@ export function hasMajorJsMarkers(diff: string, majorFlags: string[]): boolean {
     return changedLines.some((line) => markers.some((marker) => marker.test(line)));
 }
 
+export function hasAcceptanceTestChanges(diff: string): boolean {
+    return splitDiffByFile(diff).some(({ path }) => /^tests\/acceptance\/tests\/(?:.*\/)?[^/]+\.spec\.ts$/.test(path));
+}
+
 export function labelsForMajorTestArms(arms: MajorTestArms, existingLabels: PullRequestLabel[] = []): string[] {
     const existing = new Set(existingLabels.map((label) => label.name));
 
     return [
         arms.php && !existing.has('major-php') ? 'major-php' : null,
         arms.js && !existing.has('major-js') ? 'major-js' : null,
+        arms.acceptance && !existing.has('major-acceptance') ? 'major-acceptance' : null,
     ].filter((label): label is string => label !== null);
 }
 
@@ -255,7 +265,7 @@ export async function detectMajorTestArms({ github, core, context }: DetectionTo
     if (!shouldDetect(context)) {
         core.info('skipping major-flag detection: event, fork head, or existing label rules it out');
 
-        return { php: false, js: false };
+        return { php: false, js: false, acceptance: false };
     }
 
     const { data: registry } = await github.rest.repos.getContent({
@@ -278,10 +288,11 @@ export async function detectMajorTestArms({ github, core, context }: DetectionTo
     const arms = {
         php: hasMajorMarkers(String(diff), majorFlags),
         js: hasMajorJsMarkers(String(diff), majorFlags),
+        acceptance: hasAcceptanceTestChanges(String(diff)),
     };
     core.info(
-        arms.php || arms.js
-            ? `major marker found in the diff (${majorFlags.length} registered major flags; php=${arms.php}; js=${arms.js})`
+        arms.php || arms.js || arms.acceptance
+            ? `major tests selected (${majorFlags.length} registered major flags; php=${arms.php}; js=${arms.js}; acceptance=${arms.acceptance})`
             : 'no major markers in the diff',
     );
 

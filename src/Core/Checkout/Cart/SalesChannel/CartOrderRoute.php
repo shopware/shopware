@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Cart\Extension\CartOrderRouteExtension;
 use Shopware\Core\Checkout\Cart\Extension\CheckoutPlaceOrderExtension;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\Order\OrderPlaceResult;
@@ -76,6 +77,15 @@ class CartOrderRoute extends AbstractCartOrderRoute
     )]
     public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse
     {
+        return $this->extensions->publish(
+            name: CartOrderRouteExtension::NAME,
+            extension: new CartOrderRouteExtension($cart, $context, $data),
+            function: $this->_order(...),
+        );
+    }
+
+    private function _order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse
+    {
         $hash = $data->getAlnum('hash');
 
         if ($hash && !$this->cartContextHasher->isMatching($hash, $cart, $context)) {
@@ -98,7 +108,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
             $orderId = $placed->orderId;
 
-            if (Feature::isActive('v6.8.0.0')) {
+            if (Feature::isActive('DELETE_CART_AFTER_ORDER_CREATION')) {
                 // @deprecated tag:v6.8.0 - After the cart is deleted, the lock is no longer needed. The following operations should be moved outside the locked closure.
                 $this->cartPersister->delete($context->getToken(), $context);
             }
@@ -140,7 +150,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
                 $this->eventDispatcher->dispatch($event);
             });
 
-            if (!Feature::isActive('v6.8.0.0')) {
+            if (!Feature::isActive('DELETE_CART_AFTER_ORDER_CREATION')) {
                 // cart will delete immediately after order is created to avoid inconsistencies.
                 $this->cartPersister->delete($context->getToken(), $context);
             }

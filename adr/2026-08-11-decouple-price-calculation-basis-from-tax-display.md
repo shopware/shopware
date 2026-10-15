@@ -54,6 +54,9 @@ How exact is the derived flavor? The displayed value must be a valid cash amount
 the non-authoritative side ends up within half a rounding unit per unit sold. That shrinks the per-country
 variance from full VAT percentage points to sub-cent noise. Exactness to the cent on both sides would need
 per-surface derivation with visible penny mismatches (Alternative A). We accept the sub-cent variance.
+With several tax rules, as for proportional shipping costs or a discount spread over tax rates, the rule
+shares are first converted to the price the downstream calculator applies them to, so the authoritative
+value survives the round trip.
 
 Loose ends handled:
 
@@ -61,11 +64,15 @@ Loose ends handled:
   cookie and the entity cache hash additionally include a fingerprint of the context's tax rules exactly
   when the basis flavor differs from the display flavor (`net` basis with gross display, `gross` basis
   with net display). A basis matching its display state and every tax-free context do not fragment the
-  cache.
+  cache. A visitor who picks a state gets a cache hash in that case as well, because state tax rules change
+  the derived value.
 - **Sorting and filtering** keep using the stored value of the display flavor, because `Context` only
   knows the tax state, not the price basis. The same gap decides which variant or rule price becomes a
   listing's cheapest price. With linked prices that matches the derived value at the product's home tax
   rate; unlinked or stale values of the non-authoritative flavor drift.
+- **Tax providers** replace the calculated taxes after the calculation and keep the displayed flavor fixed,
+  as before. The basis therefore only holds while a provider's rates match the shop's tax rules; a
+  basis-aware tax adjustment is a possible follow-up.
 - **Admin**: the customer group detail page offers the tax display and the price basis as two independent
   controls, each writing its own field.
 

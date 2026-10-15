@@ -67,10 +67,14 @@ Scopes are provided through services implementing `StoreApiSchemaMigrationScopeP
 
 ### Using `x-parameter-group` for Reusable Parameters
 
-> [!WARNING]  
+> [!WARNING]
 > This functionality was added to decrease duplication for criteria related parameters, is experimental and may be removed any time. Please refrain from relying on.
 
-The OpenAPI 3.1 standard does not natively support reusable parameter groups across different endpoints. As a lot of StoreAPI endpoints share common query parameters sets (Criteria, ProductListingCriteria), we introduce a custom `x-parameter-group` extension to allow reuse of these parameters without a need to duplicate them across multiple endpoint definitions.
+OpenAPI 3.2 does not define reusable groups of individual parameters.
+As many StoreAPI endpoints share query parameter sets (Criteria, ProductListingCriteria),
+we use the custom `x-parameter-group` extension to reuse them across endpoint definitions.
+The new [`in: querystring`](https://spec.openapis.org/oas/v3.2.0.html#parameter-locations) alternative describes the entire query string through `content` and cannot coexist with individual `in: query` parameters.
+Adopting it requires changes to query binding and DTO generation.
 
 The `StoreApiGenerator` recognizes the `x-parameter-group` key and replaces it with a predefined list of parameters.
 

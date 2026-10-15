@@ -209,7 +209,6 @@ class ThemeLifecycleHandler
     {
         $salesChannels = [];
         $themeSalesChannel = [];
-        $themeName = $themeId;
 
         try {
             $themeIds = [$themeId];

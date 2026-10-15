@@ -376,7 +376,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
                 this.buildRequestConfig(headers),
             )
             .then(({ data }) => {
-                if ((data as { success: boolean }).success === false) {
+                if ((data as { success?: boolean }).success === false) {
                     throw data;
                 }
                 return Promise.resolve();
@@ -451,7 +451,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
     assign(id: EntityKey<EntityName>, context = Shopware.Context.api): Promise<HttpResponse> {
         const headers = this.buildHeaders(context);
 
-        return this.httpClient.post(`${this.route}`, { id }, this.buildRequestConfig(headers));
+        return this.httpClient.post(this.route, { id }, this.buildRequestConfig(headers));
     }
 
     /**
@@ -528,7 +528,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
                 this.buildRequestConfig(headers),
             )
             .then(({ data }) => {
-                if ((data as { success: boolean }).success === false) {
+                if ((data as { success?: boolean }).success === false) {
                     throw data;
                 }
                 return Promise.resolve();
@@ -670,7 +670,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
             Object.assign(changes, { id: entity.id });
 
             return this.httpClient
-                .post(`${this.route}`, changes, this.buildRequestConfig(headers))
+                .post(this.route, changes, this.buildRequestConfig(headers))
                 .catch((errorResponse: ErrorResponse) => {
                     const errors = errorResponse?.response?.data?.errors;
                     if (!errors) {

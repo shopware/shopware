@@ -55,7 +55,8 @@ export default Shopware.Component.wrapComponentConfig({
     created() {
         this.heightHandler = Shopware.ExtensionAPI.handle('locationUpdateHeight', ({ height, locationId }) => {
             if (locationId === this.locationId) {
-                const parsed = Number(height);
+                // Extensions post this message, so the height can arrive as a string
+                const parsed = Number(height as unknown);
                 this.locationHeight = Number.isNaN(parsed) ? null : parsed;
             }
         });

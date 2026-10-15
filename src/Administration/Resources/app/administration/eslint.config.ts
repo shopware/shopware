@@ -769,6 +769,9 @@ export default [
                 { caughtErrors: 'all', caughtErrorsIgnorePattern: '^_' },
             ],
             '@typescript-eslint/prefer-promise-reject-errors': 'warn',
+            '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
+            '@typescript-eslint/no-unnecessary-template-expression': 'error',
+            '@typescript-eslint/no-unnecessary-type-conversion': 'error',
             'sw-deprecation-rules/no-compat-conditions': ['error'],
             'sw-core-rules/enforce-async-component-registers': 'error',
             'sw-deprecation-rules/no-empty-listeners': [

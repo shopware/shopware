@@ -484,7 +484,6 @@ export default [
             },
         },
         rules: {
-            'sw-core-rules/require-explicit-emits': 'error',
             'sw-core-rules/enforce-async-component-registers': 'error',
             'sw-deprecation-rules/no-compat-conditions': ['error'],
             'sw-deprecation-rules/no-empty-listeners': [
@@ -506,6 +505,7 @@ export default [
             '**/*.spec.ts',
         ],
         rules: {
+            'sw-core-rules/require-explicit-emits': 'error',
             'vue/require-prop-types': 'error',
             'vue/require-default-prop': 'error',
             'vue/no-mutating-props': 'error',

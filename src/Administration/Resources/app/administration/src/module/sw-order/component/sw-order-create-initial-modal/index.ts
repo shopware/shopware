@@ -22,6 +22,8 @@ export default Component.wrapComponentConfig({
 
     inject: ['feature'],
 
+    emits: ['modal-close', 'order-preview'],
+
     mixins: [Mixin.getByName('notification'), Mixin.getByName('cart-notification')],
 
     data(): {

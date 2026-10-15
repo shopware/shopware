@@ -82,12 +82,10 @@ class ContentSystemException extends HttpException
     public const UNKNOWN_REQUEST_FIELD = 'CONTENT_SYSTEM__UNKNOWN_REQUEST_FIELD';
     public const UNSUPPORTED_STYLE_VALUE_TYPE = 'CONTENT_SYSTEM__UNSUPPORTED_STYLE_VALUE_TYPE';
     public const STYLE_OPTION_DUPLICATE = 'CONTENT_SYSTEM__STYLE_OPTION_DUPLICATE';
-    public const STYLE_OPTIONS_INVALID = 'CONTENT_SYSTEM__STYLE_OPTIONS_INVALID';
     public const STYLE_OPTION_LOAD_FAILED = 'CONTENT_SYSTEM__STYLE_OPTION_LOAD_FAILED';
     public const STYLE_OPTION_INVALID_FILENAME = 'CONTENT_SYSTEM__STYLE_OPTION_INVALID_FILENAME';
     public const BINDING_SPECIFICATION_DUPLICATE = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DUPLICATE';
     public const BINDING_SPECIFICATION_LOAD_FAILED = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_LOAD_FAILED';
-    public const BINDING_SPECIFICATIONS_INVALID = 'CONTENT_SYSTEM__BINDING_SPECIFICATIONS_INVALID';
     public const BINDING_SPECIFICATION_NOT_FOUND = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_NOT_FOUND';
     public const BINDING_TYPE_MISMATCH = 'CONTENT_SYSTEM__BINDING_TYPE_MISMATCH';
     public const BINDING_SPECIFICATION_UNKNOWN_TYPE = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_UNKNOWN_TYPE';
@@ -95,6 +93,7 @@ class ContentSystemException extends HttpException
     public const BINDING_SPECIFICATION_RESERVED_ID = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID';
     public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
     public const BOX_SPACING_TOKENIZATION_FAILED = 'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED';
+    public const BOX_SPACING_INVALID_VALUE = 'CONTENT_SYSTEM__BOX_SPACING_INVALID_VALUE';
     public const LAYOUT_WRITE_MEMO_MISSING = 'CONTENT_SYSTEM__LAYOUT_WRITE_MEMO_MISSING';
     public const LOADER_INPUT_NOT_DECLARED = 'CONTENT_SYSTEM__LOADER_INPUT_NOT_DECLARED';
     public const LOADER_INPUT_UNRESOLVED = 'CONTENT_SYSTEM__LOADER_INPUT_UNRESOLVED';
@@ -106,9 +105,11 @@ class ContentSystemException extends HttpException
     public const INVALID_ELEMENT_ID = 'CONTENT_SYSTEM__INVALID_ELEMENT_ID';
 
     /**
-     * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
-     * diagnostics layer and the draft decode path map only these per element to a client-facing 400 and let
-     * every other code propagate, so an internal fault is never relabelled as the client's mistake.
+     * Error codes that mark a defect in client-supplied layout input rather than an internal fault. The
+     * diagnostics layer and the draft decode path map only these, per element, to a client-facing result.
+     * The DAL layout write remaps these codes, raised by the tree codec or the write boundary, to a write
+     * rejection, and separately remaps {@see INVALID_LAYOUT_STRUCTURE} from its duplicate-id check; every
+     * other code propagates unchanged.
      *
      * {@see INVALID_MAP_KEY} is one of them because a JSON object member named "5" arrives as an integer PHP
      * array key: a numeric property, data-requirement, slot or context key is a malformed payload the client
@@ -138,6 +139,7 @@ class ContentSystemException extends HttpException
         self::PROVIDER_DELIVERY_COLLISION,
         self::INVALID_MAP_KEY,
         self::INVALID_ELEMENT_ID,
+        self::BOX_SPACING_INVALID_VALUE,
     ];
 
     public static function isClientDefect(\Throwable $exception): bool
@@ -182,9 +184,9 @@ class ContentSystemException extends HttpException
      * {@see invalidMapKey()} take, because a decode-time throw has four audiences and this status answers only
      * the last of them:
      *
-     * - the DAL write wraps every {@see ContentSystemException} into a `WriteConstraintViolationException`
-     *   ({@see StoredElementListFieldSerializer::normalize()}), and that is a 400 whatever the code says —
-     *   catalogue membership decides nothing here;
+     * - the DAL write wraps a catalogued exception, or `INVALID_LAYOUT_STRUCTURE`, into a
+     *   `WriteConstraintViolationException` ({@see StoredElementListFieldSerializer::normalize()}), resulting in a
+     *   400 response; all other `ContentSystemException`s retain their original error classification;
      * - the strict draft decode ({@see DraftLayoutDecoder::decode()}) re-raises a catalogued code as
      *   `invalidLayoutStructure`, a 400, and lets an uncatalogued one propagate;
      * - the lintable decode the diagnose route runs ({@see DraftLayoutDecoder::decodeLintable()}) collects a
@@ -637,23 +639,18 @@ class ContentSystemException extends HttpException
 
     public static function elementTypesInvalid(ConstraintViolationListInterface $violations): self
     {
-        $messages = [];
-        foreach ($violations as $violation) {
-            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::ELEMENT_TYPES_INVALID,
             'Element type validation failed: {{ reason }}',
-            ['reason' => implode('; ', $messages)]
+            ['reason' => self::violationMessages($violations)]
         );
     }
 
     public static function elementTypeInvalidFilename(string $segment, string $file): self
     {
         return new self(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_INTERNAL_SERVER_ERROR,
             self::ELEMENT_TYPE_INVALID_FILENAME,
             'Invalid element type filename segment "{{ segment }}" in file "{{ file }}". Segments must match [a-z0-9]+(-[a-z0-9]+)*',
             ['segment' => $segment, 'file' => $file]
@@ -683,7 +680,7 @@ class ContentSystemException extends HttpException
     public static function layoutPresetInvalidFilename(string $segment, string $file): self
     {
         return new self(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_INTERNAL_SERVER_ERROR,
             self::LAYOUT_PRESET_INVALID_FILENAME,
             'Invalid layout preset filename segment "{{ segment }}" in file "{{ file }}". Segments must match [a-z0-9]+(-[a-z0-9]+)*',
             ['segment' => $segment, 'file' => $file]
@@ -713,16 +710,11 @@ class ContentSystemException extends HttpException
 
     public static function layoutPresetsInvalid(ConstraintViolationListInterface $violations): self
     {
-        $messages = [];
-        foreach ($violations as $violation) {
-            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
-        }
-
         return new self(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_INTERNAL_SERVER_ERROR,
             self::LAYOUT_PRESETS_INVALID,
             'Layout preset validation failed: {{ reason }}',
-            ['reason' => implode('; ', $messages)]
+            ['reason' => self::violationMessages($violations)]
         );
     }
 
@@ -757,16 +749,11 @@ class ContentSystemException extends HttpException
 
     public static function invalidLayoutStructure(ConstraintViolationListInterface $violations): self
     {
-        $messages = [];
-        foreach ($violations as $violation) {
-            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_LAYOUT_STRUCTURE,
             'Invalid layout structure: {{ reason }}',
-            ['reason' => implode('; ', $messages)]
+            ['reason' => self::violationMessages($violations)]
         );
     }
 
@@ -970,21 +957,6 @@ class ContentSystemException extends HttpException
         );
     }
 
-    public static function styleOptionsInvalid(ConstraintViolationListInterface $violations): self
-    {
-        $messages = [];
-        foreach ($violations as $violation) {
-            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
-        }
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::STYLE_OPTIONS_INVALID,
-            'Style option validation failed: {{ reason }}',
-            ['reason' => implode('; ', $messages)]
-        );
-    }
-
     public static function styleOptionLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
     {
         return new self(
@@ -999,7 +971,7 @@ class ContentSystemException extends HttpException
     public static function styleOptionInvalidFilename(string $name, string $file): self
     {
         return new self(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_INTERNAL_SERVER_ERROR,
             self::STYLE_OPTION_INVALID_FILENAME,
             'Invalid style option filename "{{ name }}" in file "{{ file }}". The option name must match [a-z0-9]+(-[a-z0-9]+)*',
             ['name' => $name, 'file' => $file]
@@ -1040,22 +1012,7 @@ class ContentSystemException extends HttpException
         );
     }
 
-    public static function bindingSpecificationsInvalid(ConstraintViolationListInterface $violations): self
-    {
-        $messages = [];
-        foreach ($violations as $violation) {
-            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
-        }
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::BINDING_SPECIFICATIONS_INVALID,
-            'Binding specification validation failed: {{ reason }}',
-            ['reason' => implode('; ', $messages)]
-        );
-    }
-
-    // The load-time 400 for a specification whose declared (or inline-implicit) type is not a registered element
+    // The load-time 500 for a specification whose declared (or inline-implicit) type is not a registered element
     // type. The canonicalizer needs the type for every specification it processes (sugared or canonical), so an
     // unknown type is rejected here rather than deferred to TypeConsistentBindingSpecification. Deliberately not
     // in CLIENT_DEFECT_CODES: that list is only for element-tree config defects the diagnostics kernel catches, not
@@ -1063,21 +1020,21 @@ class ContentSystemException extends HttpException
     public static function bindingSpecificationUnknownType(string $id, string $type): self
     {
         return new self(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_INTERNAL_SERVER_ERROR,
             self::BINDING_SPECIFICATION_UNKNOWN_TYPE,
             'Binding specification "{{ id }}" declares the unknown element type "{{ type }}".',
             ['id' => $id, 'type' => $type]
         );
     }
 
-    // The load-time 400 for any sugar that cannot expand deterministically (unrecognized resolves shape, mixed
+    // The load-time 500 for any sugar that cannot expand deterministically (unrecognized resolves shape, mixed
     // loader/source keys, ambiguous or zero eligible tier-A sources, ambiguous or zero entity-name derivation,
     // unknown tier-B config key). The reason carries the mechanical fix the author must apply. Deliberately not in
     // CLIENT_DEFECT_CODES, for the same reason as bindingSpecificationUnknownType.
     public static function bindingSpecificationCanonicalizationFailed(string $id, string $reason): self
     {
         return new self(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_INTERNAL_SERVER_ERROR,
             self::BINDING_SPECIFICATION_CANONICALIZATION_FAILED,
             'Cannot canonicalize binding specification "{{ id }}": {{ reason }}',
             ['id' => $id, 'reason' => $reason]
@@ -1146,10 +1103,11 @@ class ContentSystemException extends HttpException
     }
 
     /**
-     * The internal 500 for a PCRE failure while tokenizing a box-spacing style value into its four sides —
-     * a malformed-UTF-8 subject, or a backtrack/recursion limit on a large one. BoxSpacingNormalizer throws
-     * instead of substituting a plausible-looking split, because a substituted split is indistinguishable
-     * from a real one and would be stored as if it were the authored value.
+     * The internal 500 for a PCRE engine failure while tokenizing a box-spacing style value into its four
+     * sides. Input-caused failures such as malformed UTF-8 and backtrack/recursion limits use
+     * {@see boxSpacingInvalidValue()} instead. BoxSpacingNormalizer throws instead of substituting a
+     * plausible-looking split, because a substituted split is indistinguishable from a real one and would be
+     * stored as if it were the authored value.
      *
      * The value is identified by its byte length and a content fingerprint rather than echoed: the message
      * must stay bounded, and the very inputs that reach this path may not be valid UTF-8 to begin with.
@@ -1163,6 +1121,24 @@ class ContentSystemException extends HttpException
             [
                 'operation' => $operation,
                 'reason' => $reason,
+                'length' => (string) \strlen($value),
+                'fingerprint' => Hasher::hash($value),
+            ]
+        );
+    }
+
+    /**
+     * A client-supplied box-spacing value exceeded a PCRE processing limit or was not valid UTF-8.
+     * The value is identified by length and fingerprint instead of being echoed into the error response.
+     */
+    public static function boxSpacingInvalidValue(string $operation, string $value): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::BOX_SPACING_INVALID_VALUE,
+            'Could not {{ operation }} the box-spacing value because it exceeds the supported input limits or has invalid encoding. Value length: {{ length }} bytes, fingerprint: {{ fingerprint }}.',
+            [
+                'operation' => $operation,
                 'length' => (string) \strlen($value),
                 'fingerprint' => Hasher::hash($value),
             ]
@@ -1230,6 +1206,16 @@ class ContentSystemException extends HttpException
         );
 
         return new WriteConstraintViolationException(new ConstraintViolationList([$violation]), $writePath);
+    }
+
+    public static function violationMessages(ConstraintViolationListInterface $violations): string
+    {
+        $messages = [];
+        foreach ($violations as $violation) {
+            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
+        }
+
+        return implode('; ', $messages);
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\Adapter\Database;
+namespace Shopware\Tests\DevOps\Core\Framework\Adapter\Database;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnectionResetter;

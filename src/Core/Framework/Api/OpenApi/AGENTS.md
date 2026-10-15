@@ -2,6 +2,7 @@
 
 These rules apply when changing request or response DTOs, their shared base classes, OpenAPI schemas, or DTO generation.
 
+- Use OpenAPI `3.2.0` for schema documents and DTO fixtures.
 - Request and response DTOs MUST remain mutable so third-party extension events can adjust them;
   do not make their classes or properties `readonly`.
 - Required fields MUST remain mandatory constructor arguments, including nullable fields and fields with schema defaults.

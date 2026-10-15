@@ -90,7 +90,7 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
 
         it('reports a write target like any other read, so a rewrite covers it', () => {
             // `count++` has to be rewritten as much as `{{ count }}` does - it is the write that made the
-            // destructured slot prop a trap in the first place.
+            // A write target is rewritten like any other read.
             expect(getOccurrences('count++')).toEqual(['count@0-5']);
         });
 

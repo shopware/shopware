@@ -17,6 +17,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class DefaultValues extends AbstractDto
 {
+    public const DEFAULT_LIMIT = 10;
+
+    public const DEFAULT_SORT_ORDER = 'relevance';
+
+    public const DEFAULT_ACTIVE = true;
+
+    public const DEFAULT_CHANNEL = 'web';
+
     public int $limit;
 
     public string $sortOrder;

@@ -20,6 +20,20 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Package('framework')]
 final class CreateDefaultsRequest extends AbstractRequest
 {
+    public const DEFAULT_ID = 'fallback';
+
+    public const DEFAULT_COUNT = 10;
+
+    public const DEFAULT_ACTIVE = true;
+
+    public const DEFAULT_COMMENT = 'fallback';
+
+    public const DEFAULT_TAGS = ['first', 'first', 'second'];
+
+    public const DEFAULT_EMPTY_TAGS = [];
+
+    public const DEFAULT_OPTIONS = ['mode' => 'fast', 'nested' => ['values' => [1, false, null]], 'label' => 'it\'s\\configured'];
+
     public int $count;
 
     public bool $active;
@@ -34,6 +48,23 @@ final class CreateDefaultsRequest extends AbstractRequest
 
     #[Assert\Valid]
     public SharedDefaults $shared;
+
+    /**
+     * @var list<string>
+     */
+    #[Assert\All(new Assert\Type('string'))]
+    public array $tags;
+
+    /**
+     * @var list<string>
+     */
+    #[Assert\All(new Assert\Type('string'))]
+    public array $emptyTags;
+
+    /**
+     * @var array<string, mixed>
+     */
+    public array $options;
 
     /**
      * @internal

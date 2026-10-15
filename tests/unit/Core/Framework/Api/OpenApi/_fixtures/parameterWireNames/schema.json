@@ -1,6 +1,9 @@
 {
     "openapi": "3.1.0",
-    "info": {"title": "parameterWireNames", "version": "1.0.0"},
+    "info": {
+        "title": "parameterWireNames",
+        "version": "1.0.0"
+    },
     "paths": {
         "/wire-names": {
             "post": {
@@ -11,7 +14,8 @@
                         "name": "query-name",
                         "in": "query",
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "default": "it's\\query"
                         }
                     }
                 ],
@@ -22,10 +26,16 @@
                                 "type": "object",
                                 "properties": {
                                     "body-name": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "default": "body"
                                     },
                                     "camelCase": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "default": ""
+                                    },
+                                    "HTTPStatus": {
+                                        "type": "integer",
+                                        "default": 200
                                     }
                                 }
                             }

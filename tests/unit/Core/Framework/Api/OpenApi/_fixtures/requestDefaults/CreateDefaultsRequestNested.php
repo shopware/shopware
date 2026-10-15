@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class CreateDefaultsRequestNested extends AbstractDto
 {
+    public const DEFAULT_COUNT = 10;
+
     public int $count;
 
     /**

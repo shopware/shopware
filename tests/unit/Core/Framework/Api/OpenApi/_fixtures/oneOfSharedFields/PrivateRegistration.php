@@ -17,6 +17,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class PrivateRegistration extends AbstractRequest
 {
+    public const DEFAULT_ACCOUNT_TYPE = 'private';
+
     /**
      * Account type
      */

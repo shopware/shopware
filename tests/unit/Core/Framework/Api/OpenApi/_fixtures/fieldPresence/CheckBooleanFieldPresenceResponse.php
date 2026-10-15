@@ -21,6 +21,18 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Package('framework')]
 final class CheckBooleanFieldPresenceResponse extends AbstractResponse
 {
+    public const DEFAULT_REQUIRED_SCALAR_WITH_DEFAULT = false;
+
+    public const DEFAULT_REQUIRED_NULLABLE_WITH_DEFAULT = false;
+
+    public const DEFAULT_OPTIONAL_SCALAR_WITH_DEFAULT = false;
+
+    public const DEFAULT_OPTIONAL_NULLABLE_WITH_DEFAULT = false;
+
+    public const DEFAULT_REQUIRED_NULLABLE_WITH_NULL_DEFAULT = null;
+
+    public const DEFAULT_OPTIONAL_NULLABLE_WITH_NULL_DEFAULT = null;
+
     public bool $optionalScalar;
 
     public bool $optionalScalarWithDefault;

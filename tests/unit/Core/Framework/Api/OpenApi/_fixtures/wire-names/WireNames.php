@@ -18,6 +18,16 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class WireNames extends AbstractDto
 {
+    public const DEFAULT_TOTAL_COUNT_MODE = 0;
+
+    public const DEFAULT_POST_FILTER = 'it\'s\\default';
+
+    public const DEFAULT_CAMEL_CASE = 'it\'s\\default';
+
+    public const DEFAULT_SNAKE_CASE = 'it\'s\\default';
+
+    public const DEFAULT_QUOTE_FIELD = 'it\'s\\default';
+
     #[SerializedName('post-filter')]
     public string $postFilter;
 

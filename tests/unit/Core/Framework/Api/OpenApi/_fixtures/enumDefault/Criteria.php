@@ -16,7 +16,13 @@ use Shopware\Core\Framework\Api\AbstractDto;
  */
 final class Criteria extends AbstractDto
 {
+    public const DEFAULT_TOTAL_COUNT_MODE = TotalCountMode::NONE;
+
+    public const DEFAULT_EXACT_MODE = TotalCountMode::EXACT;
+
     public TotalCountMode $totalCountMode;
+
+    public TotalCountMode $exactMode;
 
     /**
      * @internal

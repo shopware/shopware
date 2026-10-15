@@ -251,6 +251,7 @@ const baseRules = {
     ],
     'no-nested-ternary': 'error',
 
+    'sw-core-rules/no-swallowed-errors': 'error',
     '@eslint-community/eslint-comments/require-description': [
         'error',
         {

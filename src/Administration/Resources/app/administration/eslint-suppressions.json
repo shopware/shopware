@@ -407,6 +407,11 @@
       "count": 1
     }
   },
+  "src/app/component/extension-api/sw-iframe-renderer/index.ts": {
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
   "src/app/component/form/select/base/sw-select-selection-list/sw-select-selection-list.spec.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
@@ -599,6 +604,9 @@
   "src/app/component/media/sw-media-modal-delete/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 1
     }
   },
   "src/app/component/media/sw-media-modal-folder-dissolve/index.js": {
@@ -671,6 +679,9 @@
     },
     "@eslint-community/eslint-comments/require-description": {
       "count": 27
+    },
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 5
     }
   },
   "src/app/component/media/sw-model-viewer/index.ts": {
@@ -681,6 +692,9 @@
   "src/app/component/media/sw-model-viewer/sw-model-viewer.spec.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 16
+    },
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 5
     }
   },
   "src/app/component/media/sw-sidebar-media-item/index.js": {
@@ -1881,6 +1895,11 @@
       "count": 1
     }
   },
+  "src/app/service/filter.service.spec.js": {
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
   "src/app/service/license-violations.service.js": {
     "complexity": {
       "count": 1
@@ -1907,6 +1926,9 @@
   },
   "src/app/service/media-default-folder.service.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
@@ -2147,6 +2169,9 @@
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 8
+    },
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 1
     }
   },
   "src/core/consent/broadcast-changes.ts": {
@@ -2346,6 +2371,9 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 1
     }
   },
   "src/core/factory/http.factory.spec.js": {
@@ -2353,6 +2381,9 @@
       "count": 1
     },
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
@@ -2859,6 +2890,9 @@
   "src/core/service/api/validation.api.service.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 1
     }
   },
   "src/core/service/customer-group-registration-listener.service.js": {
@@ -2891,6 +2925,9 @@
     },
     "max-lines-per-function": {
       "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 3
     }
   },
   "src/core/service/jsonapi-parser.service.ts": {
@@ -2906,6 +2943,9 @@
       "count": 2
     },
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
@@ -3684,6 +3724,9 @@
     },
     "sw-core-rules/max-component-members": {
       "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 1
     }
   },
   "src/module/sw-cms/page/sw-cms-list/sw-cms-list.html.twig": {
@@ -3807,6 +3850,9 @@
   "src/module/sw-customer/component/sw-customer-imitate-customer-modal/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 1
     }
   },
   "src/module/sw-customer/constant/sw-customer.constant.js": {
@@ -3901,6 +3947,9 @@
   "src/module/sw-extension/page/sw-extension-app-module-page/index.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2
+    },
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 1
     }
   },
   "src/module/sw-extension/page/sw-extension-config/index.ts": {
@@ -3913,6 +3962,9 @@
   },
   "src/module/sw-extension/page/sw-extension-my-extensions-account/index.ts": {
     "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
@@ -5821,6 +5873,9 @@
     },
     "sw-core-rules/max-component-members": {
       "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 1
     }
   },
   "src/module/sw-settings-country/component/sw-settings-country-address-handling/sw-settings-country-address-handling.spec.js": {
@@ -6066,6 +6121,9 @@
   "src/module/sw-settings-language/component/sw-settings-language-add-modal/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 2
     }
   },
   "src/module/sw-settings-language/index.js": {
@@ -6084,6 +6142,9 @@
     },
     "sw-core-rules/max-component-members": {
       "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 2
     }
   },
   "src/module/sw-settings-listing/component/sw-settings-listing-default-sales-channel/index.js": {
@@ -6491,6 +6552,11 @@
       "count": 1
     }
   },
+  "src/module/sw-settings-services/component/sw-settings-services-grant-permissions-modal/index.ts": {
+    "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
   "src/module/sw-settings-services/service/index.ts": {
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
@@ -6737,6 +6803,9 @@
   },
   "src/module/sw-settings-tax/page/sw-settings-tax-list/index.js": {
     "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },

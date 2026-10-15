@@ -207,6 +207,10 @@ The BC attribute for `PropertyGroupCollection::sortByConfig()` now correctly mar
 
 `shopware.system_config` entries in `config/packages` now accept arrays, including `[]`. An empty sales-channel value clears an array from the default scope; a more specific sales-channel key still overrides an empty default parent.
 
+### VAT ID constraints of the registration can be modified via `BuildValidationEvent`
+
+`RegisterRoute` now adds the `vatIds` constraints (`NotBlank` for countries with a required VAT ID, `Type` and `CustomerVatIdentification`) before dispatching `framework.validation.customer.create`. Subscribers of this event can now adjust or remove them, for example to make the VAT ID optional for certain business customers. Previously the constraints were added after the event and could not be changed. This matches the existing behaviour of `ChangeCustomerProfileRoute`.
+
 ### `JsonField` supports typed properties with additional extension data
 
 `JsonField` accepts the new `allowAdditionalProperties: true` constructor argument. Use it for a JSON field with stable, mapped properties whose types should be validated while extension-owned keys must remain writable:
@@ -399,6 +403,14 @@ The product detail page links the terms below the GARAN label, in the new block 
 ### Customer login publishes an extension event
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
+
+### Product reviews will require an author and a rating
+
+With `v6.8.0.0`, `POST /store-api/product/{productId}/review` rejects a review without `points`, and the `product_review` entity marks `externalUser` and `points` as required and only accepts `points` from 1 to 5, so creating a review through the Admin API, the Sync API or a repository without them fails. The destructive migration step of the 6.8 update fills `product_review.external_user` for existing reviews without an author, with the first name of the review's customer or an empty string, sets `points` to `0` for existing reviews without a rating, and makes both columns `NOT NULL`. `0` points stands for a review without a rating: `product.ratingAverage` already ignores such reviews, like it ignores reviews without `points` today. Integrations, imports and headless frontends that create reviews should send both fields now, and those that read `points` should treat `0` like a missing rating; enable the `v6.8.0.0` feature flag to test it.
+
+### `FloatField` accepts a value range
+
+`FloatField` takes an optional `minValue` and `maxValue`, like `IntField`. A write with a value outside the range fails with a `WriteConstraintViolationException`.
 
 ### Shared order restoration for Store API routes
 

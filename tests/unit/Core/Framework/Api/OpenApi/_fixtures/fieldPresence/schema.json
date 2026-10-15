@@ -198,7 +198,7 @@
                     },
                     "requiredScalarWithDefault": {
                         "type": "string",
-                        "default": "fallback"
+                        "default": ""
                     },
                     "requiredNullable": {
                         "type": [
@@ -211,14 +211,14 @@
                             "string",
                             "null"
                         ],
-                        "default": "fallback"
+                        "default": ""
                     },
                     "optionalScalar": {
                         "type": "string"
                     },
                     "optionalScalarWithDefault": {
                         "type": "string",
-                        "default": "fallback"
+                        "default": ""
                     },
                     "optionalNullable": {
                         "type": [
@@ -231,7 +231,7 @@
                             "string",
                             "null"
                         ],
-                        "default": "fallback"
+                        "default": ""
                     },
                     "requiredNullableWithNullDefault": {
                         "type": [
@@ -265,7 +265,7 @@
                     },
                     "requiredScalarWithDefault": {
                         "type": "integer",
-                        "default": 10
+                        "default": 0
                     },
                     "requiredNullable": {
                         "type": [
@@ -278,14 +278,14 @@
                             "integer",
                             "null"
                         ],
-                        "default": 10
+                        "default": 0
                     },
                     "optionalScalar": {
                         "type": "integer"
                     },
                     "optionalScalarWithDefault": {
                         "type": "integer",
-                        "default": 10
+                        "default": 0
                     },
                     "optionalNullable": {
                         "type": [
@@ -298,7 +298,7 @@
                             "integer",
                             "null"
                         ],
-                        "default": 10
+                        "default": 0
                     },
                     "requiredNullableWithNullDefault": {
                         "type": [
@@ -399,7 +399,7 @@
                     },
                     "requiredScalarWithDefault": {
                         "type": "boolean",
-                        "default": true
+                        "default": false
                     },
                     "requiredNullable": {
                         "type": [
@@ -412,14 +412,14 @@
                             "boolean",
                             "null"
                         ],
-                        "default": true
+                        "default": false
                     },
                     "optionalScalar": {
                         "type": "boolean"
                     },
                     "optionalScalarWithDefault": {
                         "type": "boolean",
-                        "default": true
+                        "default": false
                     },
                     "optionalNullable": {
                         "type": [
@@ -432,7 +432,7 @@
                             "boolean",
                             "null"
                         ],
-                        "default": true
+                        "default": false
                     },
                     "requiredNullableWithNullDefault": {
                         "type": [

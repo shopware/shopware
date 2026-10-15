@@ -839,10 +839,10 @@ final class OpenApiDtoSchemaParser
             }
 
             $constraintSchema = $this->dereferenceSchema($schema, $registry);
+            $defaultSchema = \array_key_exists('default', $schema) ? $schema : $constraintSchema;
             $type = $this->mapOpenApiTypeToPhp($schema, $registry);
             $properties = $this->mergeProperties($properties, [new OpenApiDtoProperty(
                 name: $this->toPropertyName($name),
-                schemaName: $name,
                 phpType: $type['phpType'],
                 required: ($parameter['required'] ?? null) === true,
                 nullable: $type['nullable'],
@@ -851,7 +851,6 @@ final class OpenApiDtoSchemaParser
                 format: $this->stringOrNull($constraintSchema['format'] ?? null),
                 pattern: $this->stringOrNull($constraintSchema['pattern'] ?? null),
                 enum: $this->isNativeEnumReference($schema, $registry) ? null : $this->scalarEnum($constraintSchema['enum'] ?? null),
-                constValue: $this->scalarValue($constraintSchema['const'] ?? null),
                 minItems: $this->intOrNull($constraintSchema['minItems'] ?? null),
                 minLength: $this->intOrNull($constraintSchema['minLength'] ?? null),
                 maxLength: $this->intOrNull($constraintSchema['maxLength'] ?? null),
@@ -859,6 +858,10 @@ final class OpenApiDtoSchemaParser
                 arrayItemMaxLength: $this->arrayItemMaxLength($constraintSchema),
                 unresolvedReference: $type['unresolved'],
                 nativeEnum: $this->isNativeEnumReference($schema, $registry),
+                schemaName: $name,
+                constValue: $this->scalarValue($constraintSchema['const'] ?? null),
+                defaultValue: $defaultSchema['default'] ?? null,
+                hasDefaultValue: \array_key_exists('default', $defaultSchema),
             )]);
         }
 
@@ -1053,10 +1056,10 @@ final class OpenApiDtoSchemaParser
         array $registry = [],
     ): OpenApiDtoProperty {
         $constraintSchema = $this->dereferenceSchema($schema, $registry);
+        $defaultSchema = \array_key_exists('default', $schema) ? $schema : $constraintSchema;
 
         return new OpenApiDtoProperty(
             name: $this->toPropertyName($propertyName),
-            schemaName: $propertyName,
             phpType: $phpType,
             required: $required,
             nullable: $nullable ?? $this->hasTypeNull($schema),
@@ -1065,7 +1068,6 @@ final class OpenApiDtoSchemaParser
             format: $this->stringOrNull($constraintSchema['format'] ?? null),
             pattern: $this->stringOrNull($constraintSchema['pattern'] ?? null),
             enum: $this->isNativeEnumReference($schema, $registry) ? null : $this->scalarEnum($constraintSchema['enum'] ?? null),
-            constValue: $this->scalarValue($constraintSchema['const'] ?? null),
             minItems: $this->intOrNull($constraintSchema['minItems'] ?? null),
             minLength: $this->intOrNull($constraintSchema['minLength'] ?? null),
             maxLength: $this->intOrNull($constraintSchema['maxLength'] ?? null),
@@ -1074,6 +1076,10 @@ final class OpenApiDtoSchemaParser
             unresolvedReference: $unresolvedReference,
             arrayMapValueType: $phpType === self::PHP_TYPE_ARRAY ? $this->arrayMapValueType($constraintSchema, $registry) : null,
             nativeEnum: $this->isNativeEnumReference($schema, $registry),
+            schemaName: $propertyName,
+            constValue: $this->scalarValue($constraintSchema['const'] ?? null),
+            defaultValue: $defaultSchema['default'] ?? null,
+            hasDefaultValue: \array_key_exists('default', $defaultSchema),
         );
     }
 

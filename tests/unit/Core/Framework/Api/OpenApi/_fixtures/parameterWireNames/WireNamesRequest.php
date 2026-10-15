@@ -17,10 +17,21 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
  */
 final class WireNamesRequest extends AbstractRequest
 {
+    public const DEFAULT_BODY_NAME = 'body';
+
+    public const DEFAULT_CAMEL_CASE = '';
+
+    public const DEFAULT_HTTP_STATUS = 200;
+
+    public const DEFAULT_QUERY_NAME = 'it\'s\\query';
+
     #[SerializedName('body-name')]
     public string $bodyName;
 
     public string $camelCase;
+
+    #[SerializedName('HTTPStatus')]
+    public int $hTTPStatus;
 
     #[SerializedName('query-name')]
     public string $queryName;

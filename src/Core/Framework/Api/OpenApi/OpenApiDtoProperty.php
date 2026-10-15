@@ -35,6 +35,8 @@ final readonly class OpenApiDtoProperty
         public bool $nativeEnum = false,
         public ?string $schemaName = null,
         public string|int|float|bool|null $constValue = null,
+        public mixed $defaultValue = null,
+        public bool $hasDefaultValue = false,
     ) {
     }
 }

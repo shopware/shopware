@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class SharedDefaultsNested extends AbstractDto
 {
+    public const DEFAULT_ACTIVE = true;
+
     public bool $active;
 
     /**

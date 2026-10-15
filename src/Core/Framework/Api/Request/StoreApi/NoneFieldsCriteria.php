@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-10-14 15:28:02
+ * Last generated: 2026-10-15 13:43:34
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
@@ -22,6 +22,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Package('framework')]
 final class NoneFieldsCriteria extends AbstractRequest
 {
+    public const DEFAULT_TOTAL_COUNT_MODE = TotalCountMode::NONE;
+
     /**
      * Search result page
      */

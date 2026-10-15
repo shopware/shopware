@@ -1136,7 +1136,7 @@ class ContentSystemException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::BOX_SPACING_INVALID_VALUE,
-            'The box-spacing value could not be {{ operation }} because it exceeds the supported input limits or has invalid encoding. Value length: {{ length }} bytes, fingerprint: {{ fingerprint }}.',
+            'Could not {{ operation }} the box-spacing value because it exceeds the supported input limits or has invalid encoding. Value length: {{ length }} bytes, fingerprint: {{ fingerprint }}.',
             [
                 'operation' => $operation,
                 'length' => (string) \strlen($value),

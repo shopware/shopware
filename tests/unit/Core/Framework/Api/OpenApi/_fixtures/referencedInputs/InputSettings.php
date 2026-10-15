@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class InputSettings extends AbstractDto
 {
+    public const DEFAULT_ENABLED = true;
+
     public bool $enabled;
 
     /**

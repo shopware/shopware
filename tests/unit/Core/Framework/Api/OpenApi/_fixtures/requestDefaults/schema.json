@@ -73,12 +73,45 @@
                     },
                     "shared": {
                         "$ref": "#/components/schemas/SharedDefaults"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            "first",
+                            "first",
+                            "second"
+                        ]
+                    },
+                    "emptyTags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": []
+                    },
+                    "options": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "default": {
+                            "mode": "fast",
+                            "nested": {
+                                "values": [
+                                    1,
+                                    false,
+                                    null
+                                ]
+                            },
+                            "label": "it's\\configured"
+                        }
                     }
                 }
             },
-        "SharedDefaults": {
-            "x-dto-namespace": "App\\Shared",
-            "x-dto-package": "framework",
+            "SharedDefaults": {
+                "x-dto-namespace": "App\\Shared",
+                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "count": {

@@ -82,6 +82,7 @@ final class OpenApiDtoClassRenderer
         $classDeclaration = 'final class ' . $this->shortClassName($definition->name) . ' extends ' . $this->shortClassName($baseClass);
         $lines[] = $classDeclaration;
         $lines[] = '{';
+        $lines = [...$lines, ...$this->renderDefaultConstants($definition)];
         foreach ($definition->properties as $property) {
             if ($property->required) {
                 continue;
@@ -148,6 +149,42 @@ final class OpenApiDtoClassRenderer
         $lines[] = '';
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function renderDefaultConstants(OpenApiDtoDefinition $definition): array
+    {
+        $lines = [];
+        $names = [];
+        foreach ($definition->properties as $property) {
+            if (!$property->hasDefaultValue) {
+                continue;
+            }
+
+            $fieldName = $property->schemaName ?? $property->name;
+            $name = preg_replace('/([A-Z]+)([A-Z][a-z])/', '$1_$2', $fieldName);
+            $name = preg_replace('/([a-z0-9])([A-Z])/', '$1_$2', (string) $name);
+            $name = 'DEFAULT_' . strtoupper(trim((string) preg_replace('/[^a-zA-Z0-9_]+/', '_', (string) $name), '_'));
+            if (isset($names[$name])) {
+                throw FrameworkException::invalidArgumentException(\sprintf(
+                    'Defaults in "%s" produce duplicate PHP constant name "%s".',
+                    $definition->name,
+                    $name,
+                ));
+            }
+            $names[$name] = true;
+
+            $value = $property->defaultValue;
+            $formattedValue = $property->nativeEnum && (\is_string($value) || \is_int($value))
+                ? $this->shortClassName($property->phpType) . '::' . $this->enumCaseName($value, $property->phpType)
+                : $this->formatDefaultValue($value);
+            $lines[] = '    public const ' . $name . ' = ' . $formattedValue . ';';
+            $lines[] = '';
+        }
+
+        return $lines;
     }
 
     private function renderProperty(OpenApiDtoProperty $property): string
@@ -412,8 +449,22 @@ final class OpenApiDtoClassRenderer
         return $caseName;
     }
 
-    private function formatDefaultValue(string|int|float|bool|null $value): string
+    private function formatDefaultValue(mixed $value): string
     {
+        if ($value === null) {
+            return 'null';
+        }
+
+        if (\is_array($value)) {
+            $items = [];
+            $isList = array_is_list($value);
+            foreach ($value as $key => $item) {
+                $items[] = ($isList ? '' : $this->formatDefaultValue($key) . ' => ') . $this->formatDefaultValue($item);
+            }
+
+            return '[' . implode(', ', $items) . ']';
+        }
+
         if (\is_float($value)) {
             return var_export($value, true);
         }
@@ -426,7 +477,11 @@ final class OpenApiDtoClassRenderer
             return $value ? 'true' : 'false';
         }
 
-        return (string) $value;
+        if (\is_int($value)) {
+            return (string) $value;
+        }
+
+        throw FrameworkException::invalidArgumentException('Schema defaults must be JSON values.');
     }
 
     private function phpTypeAllowsNullablePrefix(string $type): bool

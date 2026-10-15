@@ -22,14 +22,15 @@ class OpenApiDtoClassRendererTest extends TestCase
     /**
      * @return iterable<string, array{string}>
      */
-    public static function invalidEnumSchemas(): iterable
+    public static function invalidRenderingSchemas(): iterable
     {
         yield 'enum cases normalize to the same name' => ['enumCaseCollision.json'];
         yield 'enum value cannot produce a case name' => ['emptyEnumCase.json'];
+        yield 'defaults normalize to the same constant name' => ['defaultConstantCollision.json'];
     }
 
-    #[DataProvider('invalidEnumSchemas')]
-    public function testInvalidEnumCannotBeRendered(string $fixture): void
+    #[DataProvider('invalidRenderingSchemas')]
+    public function testInvalidSchemaCannotBeRendered(string $fixture): void
     {
         $schema = json_decode((new Filesystem())->readFile(__DIR__ . '/_fixtures/invalidSchemas/' . $fixture), true, flags: \JSON_THROW_ON_ERROR);
         static::assertIsArray($schema);

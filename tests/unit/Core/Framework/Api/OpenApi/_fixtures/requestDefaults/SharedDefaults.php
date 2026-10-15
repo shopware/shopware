@@ -19,6 +19,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Package('framework')]
 final class SharedDefaults extends AbstractDto
 {
+    public const DEFAULT_COUNT = 10;
+
+    public const DEFAULT_MODE = DefaultMode::NONE;
+
     public int $count;
 
     #[Assert\Valid]

@@ -17,6 +17,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class ConstValues extends AbstractDto
 {
+    public const DEFAULT_OPTIONAL_KIND = 'fixed';
+
     #[Assert\IdenticalTo(value: 'fixed')]
     public string $optionalKind;
 

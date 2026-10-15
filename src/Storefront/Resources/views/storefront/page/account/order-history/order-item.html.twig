@@ -107,6 +107,7 @@
                                                   id="orderDetailForm-{{ order.Id }}"
                                                   method="post"
                                                   class="order-table-header-context-menu-content-form"
+                                                  {% if storefrontAnalytics and storefrontAnalytics.isActive() %}data-analytics-currency="{{ order.currency.isoCode }}"{% endif %}
                                                   data-add-to-cart="true">
                                                 {% block page_account_order_item_context_menu_reorder_form_redirect %}
                                                     <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
@@ -147,6 +148,23 @@
                                                                                name="lineItems[{{ lineItem.identifier }}][payload][categoryNames][{{ index }}]"
                                                                                value="{{ categoryName }}">
                                                                     {% endfor %}
+
+                                                                    {# the form adds all line items of the order at once, so `add_to_cart` reads each of them from here #}
+                                                                    {% block page_account_order_item_context_menu_reorder_form_line_item_analytics %}
+                                                                        {% set categoryAttributes = '' %}
+                                                                        {% for name in lineItem.payload.categoryNames|default([])|slice(0, 5) %}
+                                                                            {% set categoryAttributes = categoryAttributes ~ ' data-category-' ~ loop.index ~ '="' ~ name|e('html_attr') ~ '"' %}
+                                                                        {% endfor %}
+                                                                        <span class="d-none"
+                                                                              data-analytics-line-item
+                                                                              data-id="{{ lineItem.identifier }}"
+                                                                              data-sku="{{ lineItem.payload.productNumber ?? lineItem.identifier }}"
+                                                                              data-name="{{ lineItem.label }}"
+                                                                              data-price="{{ lineItem.unitPrice }}"
+                                                                              data-brand="{{ lineItem.payload.manufacturerName|default('') }}"
+                                                                              data-variant="{{ lineItem.payload.options|default([])|map(option => option.option)|join(', ') }}"
+                                                                              {{ categoryAttributes|raw }}></span>
+                                                                    {% endblock %}
                                                                 {% endif %}
                                                             {% endif %}
                                                         {% endblock %}

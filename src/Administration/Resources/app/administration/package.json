@@ -31,7 +31,7 @@
     "lint:all": "npm run lint:types && npm run lint && npm run lint:scss && npm run format",
     "lint:debugging": "eslint",
     "lint:deprecations": "FILES=$(git status -s | awk '/(js|ts|vue|html\\.twig)$/ {print $2}'); [ -z \"$FILES\" ] || eslint --rule '\"sw-deprecation-rules/private-feature-declarations\": \"error\"' $FILES",
-    "lint:fix": "npm run lint -- --fix",
+    "lint:fix": "npm run lint -- --fix --prune-suppressions",
     "lint:junit": "eslint --format junit src test build/vite-plugins/virtual-shopware-modules extension-tooling scripts/extensionTooling scripts/generate-shopware-modules scripts/codemods build.ts > eslint.junit.xml",
     "lint:scss": "stylelint **/*.scss --cache",
     "lint:scss-fix": "npm run lint:scss -- --fix",

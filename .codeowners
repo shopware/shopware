@@ -49,6 +49,13 @@ src/Core/Framework/Resources/views/documents/** @shopware/product-cc-after-sales
 ? src/Administration/Resources/app/administration/src/module/sw-flow/service/flow-builder.service.ts @shopware/product-cc-after-sales
 ? src/Core/Content/Mail/Service/** @shopware/product-cc-after-sales
 
+# framework: the Administration lint gate and its baselines
+src/Administration/Resources/app/administration/eslint.config.ts @shopware/product-cc-framework
+src/Administration/Resources/app/administration/eslint-rules/** @shopware/product-cc-framework
+src/Administration/Resources/app/administration/eslint-suppressions.json @shopware/product-cc-framework
+src/Administration/Resources/app/administration/knip.json @shopware/product-cc-framework
+src/Administration/Resources/app/administration/knip-baseline.json @shopware/product-cc-framework
+
 # product-operations
 .github/** @shopware/product-operations
 

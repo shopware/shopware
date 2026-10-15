@@ -404,6 +404,18 @@ The product detail page links the terms below the GARAN label, in the new block 
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### Telemetry updates
+
+- Default metrics prefix was changed from `io.opentelemetry.contrib.php.shopware` to `shopware.platform`.
+- `http.server.request.duration` now shows client-facing latency without post-response processing.
+- `cart.calculation.duration` records failed calculations (added `result=success|failed` label).
+- `Telemetry::instrument()` now collects duration metrics also for failed callbacks. 
+- Added support for lazy labels calculation in `DurationMetric` and `ConfiguredMetric` (see instrumentors for usage examples).
+- New methods `Telemetry::isMetricEnabled()` / `Meter::isEnabled()` saying if a metric would be emitted, so expensive calculations may be skipped for disabled metrics.
+- Metrics are flushed after all other terminate tasks.
+
+Metrics are still behind the feature flag `TELEMETRY_METRICS`.
+
 ### Order recalculation keeps an open payment transaction in sync with the order total
 
 Recalculating an order, for example after editing it in the Administration, now moves the order's primary transaction to the new order total while the customer could still change the order's payment, so in the states of `OrderService::ALLOWED_TRANSACTION_STATES`: `open`, `cancelled`, `reminded`, `failed`, `chargeback` and `unconfirmed`. The transaction keeps its ID and state, and payment extensions reading `order_transaction.amount` of an order that isn't paid yet get the edited total instead of the amount the transaction was created with. Transactions in any other state keep their amount, also when the payment completes while the order is being edited.

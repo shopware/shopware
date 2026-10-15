@@ -7,6 +7,7 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
 use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriter;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Log\Package;
@@ -63,6 +64,34 @@ class CsvFileWriterTest extends TestCase
         static::assertSame('Main Street 1', $rows[1][7]);
     }
 
+    public function testReimportingTheRawExportedFileKeepsTheEscapingQuote(): void
+    {
+        $config = new Config([], [], []);
+
+        // a value that legitimately starts with a trigger character, e.g. a phone number
+        $this->writer->append($config, ['phone' => '+49123', 'city' => 'Berlin'], 0);
+        $this->writer->finish($config, 'export.csv');
+
+        $reader = new CsvReader();
+        $stream = fopen('php://temp', 'r+');
+        static::assertIsResource($stream);
+        fwrite($stream, $this->filesystem->read('export.csv'));
+        rewind($stream);
+
+        /** @var list<array<string, string>> $rows */
+        $rows = iterator_to_array($reader->read($config, $stream, 0), false);
+        fclose($stream);
+
+        // Documented behaviour: importing the raw exported file back keeps the escaping quote,
+        // so a formula-prefixed value changes by one leading quote. Opening and saving the file
+        // in a spreadsheet application removes the quote, so a round-trip through a spreadsheet
+        // stays lossless. We escape on export only and never strip on import, so the neutralization
+        // is unconditional.
+        static::assertCount(1, $rows);
+        static::assertSame('\'+49123', $rows[0]['phone']);
+        static::assertSame('Berlin', $rows[0]['city']);
+    }
+
     #[DataProvider('triggerProvider')]
     public function testEachTriggerCharacterIsEscaped(string $value, string $expected): void
     {
@@ -88,6 +117,10 @@ class CsvFileWriterTest extends TestCase
         yield 'tab' => ["\tfoo", "'\tfoo"];
         yield 'carriage return' => ["\rfoo", "'\rfoo"];
         yield 'line feed' => ["\nfoo", "'\nfoo"];
+        yield 'full-width equals' => ['＝1+1', '\'＝1+1'];
+        yield 'full-width plus' => ['＋1', '\'＋1'];
+        yield 'full-width minus' => ['－1', '\'－1'];
+        yield 'full-width at' => ['＠foo', '\'＠foo'];
         yield 'safe text' => ['foo', 'foo'];
         yield 'safe number' => ['42', '42'];
         yield 'empty' => ['', ''];

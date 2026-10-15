@@ -13,10 +13,11 @@ class CsvFileWriter extends AbstractFileWriter
     /**
      * Characters that make a spreadsheet application interpret a cell as a formula.
      * A value starting with one of these is prefixed so the cell is treated as text.
+     * The list includes the full-width variants OWASP lists (＝ ＋ － ＠).
      *
      * @see https://owasp.org/www-community/attacks/CSV_Injection
      */
-    private const FORMULA_TRIGGER_CHARACTERS = ['=', '+', '-', '@', "\t", "\r", "\n"];
+    private const FORMULA_TRIGGER_CHARACTERS = ['=', '+', '-', '@', "\t", "\r", "\n", '＝', '＋', '－', '＠'];
 
     /**
      * @internal
@@ -53,7 +54,7 @@ class CsvFileWriter extends AbstractFileWriter
             return $value;
         }
 
-        if (\in_array($value[0], self::FORMULA_TRIGGER_CHARACTERS, true)) {
+        if (\in_array(mb_substr($value, 0, 1), self::FORMULA_TRIGGER_CHARACTERS, true)) {
             return '\'' . $value;
         }
 

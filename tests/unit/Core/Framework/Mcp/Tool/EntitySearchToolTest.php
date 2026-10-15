@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
 
 /**
@@ -452,6 +453,7 @@ class EntitySearchToolTest extends TestCase
         static::assertFalse($data['success']);
         static::assertStringContainsString('unknown_entity', $data['error']);
         static::assertStringContainsString('shopware://entities', $data['error']);
+        static::assertSame(McpToolError::INVALID_ARGUMENTS, $data['code']);
     }
 
     #[TestDox('A rejected filter is answered with the parser pointer and detail instead of escaping to the SDK\'s generic error')]

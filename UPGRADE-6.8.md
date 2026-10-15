@@ -302,6 +302,14 @@ After a customer logs out, the storefront session now holds the context token th
 
 <details>
 
+## Product reviews require a rating
+
+`POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.
+
+The `product_review` entity marks `externalUser` and `points` as required and only accepts `points` from 1 to 5, so creating a review through the Admin API, the Sync API or a repository without them, or with `points` outside that range, fails. Integrations and imports that create reviews have to send both fields.
+
+The columns `product_review.external_user` and `product_review.points` become `NOT NULL` in the destructive migration step, so code of the previous version keeps working until then. That step fills `external_user` for existing reviews without an author, with the first name of the review's customer or an empty string for reviews without a customer, and sets `points` to `0` for existing reviews without a rating. `0` points now stands for a review without a rating: the rating average ignores these reviews, and integrations, apps and headless frontends that read `points` have to treat `0` the way they treated `null` before.
+
 ## Type-based number range preview Admin API removed
 
 The type-based Admin API number range preview route `/api/_action/number-range/preview-pattern/{type}` has been removed.
@@ -370,11 +378,32 @@ The `/api/_action/mail-template/validate` route has been removed without replace
 The Admin API detail routes `/api/customer/{customerId}/default-billing-address`, `/api/customer/{customerId}/default-shipping-address`, and `/api/order/{orderId}/billing-address` now resolve their configured reference only.
 Previously, these routes could return unrelated records or fail because the underlying DAL associations were not modeled as one-to-one associations.
 
+## MCP tool results no longer wrap their data in a `{"success": …}` text envelope
+
+Tool results of both MCP servers (`/api/_mcp` and `/store-api/_mcp`) carry their data in `structuredContent`, and a failed call sets `isError: true`. Until 6.8.0 the first text block additionally contained the legacy envelope `{"success": true, "data": …, "_meta": …}` or `{"success": false, "error": …}`. With 6.8.0 that envelope is removed:
+
+- The first text block holds the result data as plain JSON (the copy of `structuredContent` the MCP specification asks for), or the error message for a failed call.
+- A failed call follows with its details as a text block `{"details": {…}}`, when it has any.
+- A summary, if the tool gives one, follows as a separate text block.
+- The metadata (for example `dryRun`, `total`, `resourceUri`, `usage`) follows as a text block `{"_meta": {…}}`, and is also sent in the result's `_meta` with the prefix `shopware/` (for example `shopware/dryRun`).
+
+If your MCP client or integration parses `content[0].text` as `{"success": …, "data": …}`:
+
+- Read `structuredContent` for the data and `isError` for the outcome. Both are already sent on 6.7, so you can switch before updating. `structuredContent` requires protocol revision 2025-06-18 or later; on older revisions read the first text block.
+- Read metadata from the result's `_meta` (`shopware/<key>`) instead of the envelope's `_meta`.
+- For error details, read `structuredContent.error` (`code`, `message`, `details`) instead of the envelope's `error` and `code`.
+
+Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new format.
+
 </details>
 
 # Core
 
 <details>
+
+## Invalid price definition exceptions
+
+`PriceDefinitionFieldSerializer` now throws `DataAbstractionLayerException` for invalid price-definition types instead of the removed `InvalidPriceFieldTypeException`. Update exception catches and use `DataAbstractionLayerException::invalidPriceFieldType()` to construct this error. Its error code, status, and message remain unchanged.
 
 ## `ReverseProxyCompilerPass` removed
 
@@ -2739,20 +2768,6 @@ The legacy translations are no longer persisted in `theme_translation.labels` an
 The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` methods have been removed.
 Use the new `ThemeConfigurationService::getPlainThemeConfiguration` and `ThemeConfigurationService::getThemeConfigurationFieldStructure` methods instead.
 The new methods return the same data as the old ones, excluding the deprecated fields.
-
-## Removed `category_url` and `category_linknewtab` twig functions
-
-The `category_url` and `category_linknewtab` twig functions have been removed.
-The data is now directly available in the category entities, therefore use `category.seoUrl` or `category.shouldOpenInNewTab` instead.
-
-```diff
-<a class="link"
--   href="{{ category_url(item) }}"
-+   href="{{ item.seoUrl }}"
--   {% if category_linknewtab(item) %}target="_blank"{% endif %}
-+   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
-</a>
-```
 
 ## Removed `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` Twig functions
 

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\WithoutErrorHandler;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition;
@@ -44,6 +45,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -695,6 +697,60 @@ class RequestCriteriaBuilderTest extends TestCase
         $criteria = $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getApiAwareAssociationDefinition(), $context);
 
         static::assertTrue($criteria->hasAssociation('hidden'));
+    }
+
+    public function testAssociationInFieldsWithoutApiAwareIsRejectedForStoreApi(): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('hidden'));
+
+        $this->requestCriteriaBuilder->fromArray(['fields' => ['hidden.id']], new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+    }
+
+    public function testNestedAssociationInFieldsWithoutApiAwareIsRejectedForStoreApi(): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('hidden'));
+
+        $this->requestCriteriaBuilder->fromArray(['fields' => ['exposed.hidden.id']], new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+    }
+
+    public function testApiAwareAssociationInFieldsIsAcceptedForStoreApi(): void
+    {
+        $criteria = $this->requestCriteriaBuilder->fromArray(['fields' => ['id', 'exposed.exposed.id']], new Criteria(), $this->getApiAwareAssociationDefinition(), $this->createStoreApiContext());
+
+        static::assertSame(['id', 'exposed.exposed.id'], $criteria->getFields());
+    }
+
+    public function testAssociationInFieldsWithoutApiAwareIsAcceptedForAdminApi(): void
+    {
+        $context = new Context(new AdminApiSource(Uuid::randomHex()));
+
+        $criteria = $this->requestCriteriaBuilder->fromArray(['fields' => ['hidden.id']], new Criteria(), $this->getApiAwareAssociationDefinition(), $context);
+
+        static::assertSame(['hidden.id'], $criteria->getFields());
+    }
+
+    /**
+     * Partial loading turns `stateMachineState.orders` into a loaded association, which the `associations`
+     * parameter already rejects for the Store API.
+     */
+    public function testOrdersOfAnOrderStateCannotBeLoadedThroughFields(): void
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [new OrderDefinition(), new StateMachineStateDefinition()],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+        $aggregationParser = new AggregationParser();
+        $builder = new RequestCriteriaBuilder(
+            $aggregationParser,
+            new ApiCriteriaValidator($registry),
+            new CriteriaArrayConverter($aggregationParser),
+            new CompressedCriteriaDecoder(),
+        );
+
+        $this->expectExceptionObject(DataAbstractionLayerException::accessorNotAllowedInApiScope('orders'));
+
+        $builder->fromArray(['fields' => ['stateMachineState.orders.orderNumber']], new Criteria(), $registry->get(OrderDefinition::class), $this->createStoreApiContext());
     }
 
     public function testInvalidAssociationsCriteria(): void

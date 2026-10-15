@@ -90,6 +90,19 @@ describe('plugin/google-analytics/analytics-event', () => {
         }]);
     });
 
+    // a sum of prices such as 0.1 + 0.2 is 0.30000000000000004
+    test('rounds amounts to cents', () => {
+        new AnalyticsEvent().pushEvent('view_item_list', {
+            value: 0.1 + 0.2,
+            items: [{ item_id: 'product-1', price: 961.3899999999999, discount: '2.50', quantity: '2', index: 3 }],
+        });
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', {
+            value: 0.3,
+            items: [{ item_id: 'product-1', price: 961.39, discount: 2.5, quantity: 2, index: 3 }],
+        });
+    });
+
     test('keeps a value that is not a number as it is', () => {
         new AnalyticsEvent().pushEvent('purchase', { value: 'not a number', items: [] });
 

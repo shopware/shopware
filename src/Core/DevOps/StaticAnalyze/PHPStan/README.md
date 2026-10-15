@@ -62,6 +62,8 @@ includes:
 
 ## Customization
 
+`DeprecatedExceptionPattern` validates constructors and factories on deprecated exception classes without `reason:remove-exception` exemptions. They must start with `Feature::throwIfActive()` for the removal flag; existing ordinary constructor/factory triggers remain supported. Known status/error-code and legacy metadata getters remain callable without deprecation guards, including after a flag-state change. Deprecated methods on retained domain exception classes use the ordinary `Feature::triggerDeprecationOrThrow()` rule.
+
 `DeprecatedMethodsThrowDeprecationRule` delegates framework callback checks to `DeprecatedFrameworkMethodPattern`.
 Its `frameworkMethods` constructor argument maps a contract class to method names and native values: `[]` or `null` specify the required return value when the removal flag is active; `true` keeps the method callable without a deprecation guard.
 The `throwOnlyClasses` and `throwOnlyServiceTags` arguments select classes whose other deprecated public methods must start with `Feature::throwIfActive()`.

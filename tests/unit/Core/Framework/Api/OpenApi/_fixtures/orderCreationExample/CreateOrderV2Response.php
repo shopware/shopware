@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-17 14:18:33
+ * Last generated: 2026-07-07 00:00:00
  */
 
 namespace Shopware\Core\Checkout\Order\SalesChannel\Order;
@@ -39,18 +39,18 @@ final class CreateOrderV2Response extends AbstractResponse
         /**
          * Identifier of the created order.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
         public string $id,
         /**
          * Human-readable order number shown to the customer.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $orderNumber,
         /**
          * Date and time when the order was placed.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]
         public string $createdAt,
         /**

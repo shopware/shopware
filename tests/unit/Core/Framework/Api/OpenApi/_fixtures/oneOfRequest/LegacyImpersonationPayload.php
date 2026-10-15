@@ -26,19 +26,19 @@ final class LegacyImpersonationPayload extends AbstractRequest
         /**
          * Generated customer impersonation token (legacy UUID token).
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Uuid]
         public string $token,
         /**
          * ID of the customer.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Uuid]
         public string $customerId,
         /**
          * ID of the user who generated the token.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Uuid]
         public string $userId,
     ) {

@@ -39,18 +39,18 @@ final class CreateCartResponse extends AbstractResponse
         /**
          * Name of the cart, e.g. guest-cart
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $name,
         /**
          * Unique identifier of the cart
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
         public string $id,
         /**
          * Date and time the cart was created
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]
         public string $createdAt,
     ) {

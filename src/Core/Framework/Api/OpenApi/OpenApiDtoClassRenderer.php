@@ -300,7 +300,7 @@ final class OpenApiDtoClassRenderer
         $constraints = [];
 
         if ($property->required && !$property->nullable) {
-            $constraints[] = $property->phpType === 'string' ? '        #[Assert\NotBlank]' : '        #[Assert\NotNull]';
+            $constraints[] = '        #[Assert\NotNull]';
         }
 
         if ($property->format !== null && isset(self::FORMAT_ASSERTIONS[$property->format])) {

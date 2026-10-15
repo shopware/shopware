@@ -21,7 +21,7 @@ final class Response extends AbstractDto
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\IdenticalTo(value: 'account_newsletter_recipient')]
         public string $apiAlias,
     ) {

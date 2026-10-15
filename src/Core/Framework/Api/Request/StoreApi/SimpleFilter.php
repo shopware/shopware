@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-16 14:46:07
+ * Last generated: 2026-10-15 12:34:03
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
@@ -23,12 +23,12 @@ final class SimpleFilter extends AbstractDto
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Choice(choices: ['contains', 'equalsAny', 'prefix', 'suffix'])]
         public string $type,
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $field,
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $value,
     ) {
     }

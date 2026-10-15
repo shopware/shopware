@@ -24,7 +24,7 @@ final class ApiInfoRequest extends AbstractRequest
         /**
          * Type of the api
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $type,
     ) {
     }

@@ -39,7 +39,7 @@ final class CreateDefaultsRequest extends AbstractRequest
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $id,
     ) {
     }

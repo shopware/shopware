@@ -25,9 +25,9 @@ final class ReadInputRequest extends AbstractRequest
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $itemId,
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $locale,
     ) {
     }

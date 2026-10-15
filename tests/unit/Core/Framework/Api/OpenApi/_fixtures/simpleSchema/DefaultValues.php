@@ -39,7 +39,7 @@ final class DefaultValues extends AbstractDto
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $query,
     ) {
     }

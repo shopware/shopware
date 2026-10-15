@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-17 14:18:33
+ * Last generated: 2026-07-07 00:00:00
  */
 
 namespace Shopware\Core\Checkout\Order\SalesChannel\Order;
@@ -39,7 +39,7 @@ final class CreateOrderV2Request extends AbstractRequest
         /**
          * Hash from the latest `GET /checkout/cart` response. Order creation fails with HTTP 409 when the current calculated cart no longer matches this value.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Length(min: 1)]
         public string $cartHash,
     ) {

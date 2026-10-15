@@ -21,9 +21,9 @@ final class Error extends AbstractDto
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $code,
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $message,
     ) {
     }

@@ -21,10 +21,10 @@ final class SalesChannelContextContextSource extends AbstractDto
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Choice(choices: ['sales-channel', 'shop-api'])]
         public string $type,
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $salesChannelId,
     ) {
     }

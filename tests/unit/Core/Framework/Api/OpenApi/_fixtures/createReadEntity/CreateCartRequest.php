@@ -32,7 +32,7 @@ final class CreateCartRequest extends AbstractRequest
         /**
          * Name of the cart, e.g. guest-cart
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $name,
     ) {
     }

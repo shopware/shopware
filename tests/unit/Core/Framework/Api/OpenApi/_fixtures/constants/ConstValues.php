@@ -36,7 +36,7 @@ final class ConstValues extends AbstractDto
      * @internal
      */
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\IdenticalTo(value: 'fixed')]
         public string $kind,
     ) {

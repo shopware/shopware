@@ -15,6 +15,8 @@ use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Exception\MissingConstructorArgumentsException;
+use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
@@ -29,6 +31,89 @@ use Symfony\Component\Validator\Validation;
 #[CoversClass(OpenApiDtoClassRenderer::class)]
 class OpenApiDtoClassRendererTest extends TestCase
 {
+    /**
+     * @return iterable<string, array{string, string|int|float|bool}>
+     */
+    public static function scalarFieldTypes(): iterable
+    {
+        yield 'string' => ['String', 'provided'];
+        yield 'integer' => ['Integer', 7];
+        yield 'number' => ['Number', 1.25];
+        yield 'boolean' => ['Boolean', false];
+    }
+
+    #[DataProvider('scalarFieldTypes')]
+    public function testRequestFieldPresenceMatrix(string $type, string|int|float|bool $value): void
+    {
+        $class = $this->loadRenderedClass('fieldPresence/schema.json', 'Check' . $type . 'FieldPresenceRequest');
+        $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer())], [new JsonEncoder()]);
+        $required = ['requiredScalar' => $value, 'requiredScalarWithDefault' => $value, 'requiredNullable' => null, 'requiredNullableWithDefault' => null, 'requiredNullableWithNullDefault' => null];
+
+        $dto = $serializer->denormalize($required, $class);
+        static::assertEquals($required, get_object_vars($dto));
+        static::assertJsonStringEqualsJsonString(json_encode($required, \JSON_THROW_ON_ERROR), $serializer->serialize($dto, 'json'));
+
+        $data = [...$required, 'optionalScalar' => $value, 'optionalScalarWithDefault' => $value, 'optionalNullable' => null, 'optionalNullableWithDefault' => null, 'optionalNullableWithNullDefault' => null];
+        $dto = $serializer->denormalize($data, $class);
+        static::assertEquals($data, get_object_vars($dto));
+        static::assertJsonStringEqualsJsonString(json_encode($data, \JSON_THROW_ON_ERROR), $serializer->serialize($dto, 'json'));
+
+        $data = [...$data, 'requiredNullable' => $value, 'requiredNullableWithDefault' => $value, 'requiredNullableWithNullDefault' => $value, 'optionalNullable' => $value, 'optionalNullableWithDefault' => $value, 'optionalNullableWithNullDefault' => $value];
+        $dto = $serializer->denormalize($data, $class);
+        static::assertEquals($data, get_object_vars($dto));
+        static::assertJsonStringEqualsJsonString(json_encode($data, \JSON_THROW_ON_ERROR), $serializer->serialize($dto, 'json'));
+    }
+
+    /**
+     * @return iterable<string, array{string, string|int|float|bool, string}>
+     */
+    public static function requiredFieldCases(): iterable
+    {
+        foreach (self::scalarFieldTypes() as $type => [$name, $value]) {
+            foreach (['requiredScalar', 'requiredScalarWithDefault', 'requiredNullable', 'requiredNullableWithDefault', 'requiredNullableWithNullDefault'] as $field) {
+                yield $type . ' missing ' . $field => [$name, $value, $field];
+            }
+        }
+    }
+
+    #[DataProvider('requiredFieldCases')]
+    public function testRequiredFieldsCannotBeOmittedEvenWithDefaults(string $type, string|int|float|bool $value, string $field): void
+    {
+        $class = $this->loadRenderedClass('fieldPresence/schema.json', 'Check' . $type . 'FieldPresenceRequest');
+        $data = ['requiredScalar' => $value, 'requiredScalarWithDefault' => $value, 'requiredNullable' => null, 'requiredNullableWithDefault' => null, 'requiredNullableWithNullDefault' => null];
+        unset($data[$field]);
+        $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer())]);
+
+        $this->expectException(MissingConstructorArgumentsException::class);
+        $serializer->denormalize($data, $class);
+    }
+
+    /**
+     * @return iterable<string, array{string, string|int|float|bool, string, class-string<\Throwable>}>
+     */
+    public static function nonNullableFieldCases(): iterable
+    {
+        foreach (self::scalarFieldTypes() as $type => [$name, $value]) {
+            foreach (['requiredScalar', 'requiredScalarWithDefault', 'optionalScalar', 'optionalScalarWithDefault'] as $field) {
+                yield $type . ' null ' . $field => [$name, $value, $field, str_starts_with($field, 'required') ? \TypeError::class : NotNormalizableValueException::class];
+            }
+        }
+    }
+
+    /**
+     * @param class-string<\Throwable> $exceptionClass
+     */
+    #[DataProvider('nonNullableFieldCases')]
+    public function testNonNullableFieldsRejectNullEvenWithDefaults(string $type, string|int|float|bool $value, string $field, string $exceptionClass): void
+    {
+        $class = $this->loadRenderedClass('fieldPresence/schema.json', 'Check' . $type . 'FieldPresenceRequest');
+        $data = ['requiredScalar' => $value, 'requiredScalarWithDefault' => $value, 'requiredNullable' => null, 'requiredNullableWithDefault' => null, 'requiredNullableWithNullDefault' => null, $field => null];
+        $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer())]);
+
+        $this->expectException($exceptionClass);
+        $serializer->denormalize($data, $class);
+    }
+
     public function testReferencedInputsBecomeRequiredConstructorArguments(): void
     {
         $class = $this->loadRenderedClass('referencedInputs/schema.json', 'CreateInputRequest');

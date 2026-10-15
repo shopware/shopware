@@ -46,7 +46,7 @@ final class ReadCartResponse extends AbstractResponse
         /**
          * Context token identifying the cart
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $token,
     ) {
         parent::__construct();

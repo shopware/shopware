@@ -47,19 +47,19 @@ final class UserProfile extends AbstractDto
         /**
          * Unique identifier
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Uuid]
         public string $id,
         /**
          * Email address
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\Email]
         public string $email,
         /**
          * Creation timestamp
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         #[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]
         public string $createdAt,
     ) {

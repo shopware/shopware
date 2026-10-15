@@ -1,0 +1,369 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Required, nullable and default request fields",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/presence/string": {
+            "post": {
+                "operationId": "checkStringFieldPresence",
+                "x-dto-namespace": "Shopware\\Core\\Example\\FieldPresence",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StringFieldPresenceInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        },
+        "/presence/integer": {
+            "post": {
+                "operationId": "checkIntegerFieldPresence",
+                "x-dto-namespace": "Shopware\\Core\\Example\\FieldPresence",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegerFieldPresenceInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        },
+        "/presence/number": {
+            "post": {
+                "operationId": "checkNumberFieldPresence",
+                "x-dto-namespace": "Shopware\\Core\\Example\\FieldPresence",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NumberFieldPresenceInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        },
+        "/presence/boolean": {
+            "post": {
+                "operationId": "checkBooleanFieldPresence",
+                "x-dto-namespace": "Shopware\\Core\\Example\\FieldPresence",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BooleanFieldPresenceInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "StringFieldPresenceInput": {
+                "x-dto-inline": true,
+                "type": "object",
+                "required": [
+                    "requiredScalar",
+                    "requiredScalarWithDefault",
+                    "requiredNullable",
+                    "requiredNullableWithDefault",
+                    "requiredNullableWithNullDefault"
+                ],
+                "properties": {
+                    "requiredScalar": {
+                        "type": "string"
+                    },
+                    "requiredScalarWithDefault": {
+                        "type": "string",
+                        "default": "fallback"
+                    },
+                    "requiredNullable": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "requiredNullableWithDefault": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "default": "fallback"
+                    },
+                    "optionalScalar": {
+                        "type": "string"
+                    },
+                    "optionalScalarWithDefault": {
+                        "type": "string",
+                        "default": "fallback"
+                    },
+                    "optionalNullable": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "optionalNullableWithDefault": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "default": "fallback"
+                    },
+                    "requiredNullableWithNullDefault": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "default": null
+                    },
+                    "optionalNullableWithNullDefault": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "default": null
+                    }
+                }
+            },
+            "IntegerFieldPresenceInput": {
+                "x-dto-inline": true,
+                "type": "object",
+                "required": [
+                    "requiredScalar",
+                    "requiredScalarWithDefault",
+                    "requiredNullable",
+                    "requiredNullableWithDefault",
+                    "requiredNullableWithNullDefault"
+                ],
+                "properties": {
+                    "requiredScalar": {
+                        "type": "integer"
+                    },
+                    "requiredScalarWithDefault": {
+                        "type": "integer",
+                        "default": 10
+                    },
+                    "requiredNullable": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "requiredNullableWithDefault": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "default": 10
+                    },
+                    "optionalScalar": {
+                        "type": "integer"
+                    },
+                    "optionalScalarWithDefault": {
+                        "type": "integer",
+                        "default": 10
+                    },
+                    "optionalNullable": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "optionalNullableWithDefault": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "default": 10
+                    },
+                    "requiredNullableWithNullDefault": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "default": null
+                    },
+                    "optionalNullableWithNullDefault": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "default": null
+                    }
+                }
+            },
+            "NumberFieldPresenceInput": {
+                "x-dto-inline": true,
+                "type": "object",
+                "required": [
+                    "requiredScalar",
+                    "requiredScalarWithDefault",
+                    "requiredNullable",
+                    "requiredNullableWithDefault",
+                    "requiredNullableWithNullDefault"
+                ],
+                "properties": {
+                    "requiredScalar": {
+                        "type": "number"
+                    },
+                    "requiredScalarWithDefault": {
+                        "type": "number",
+                        "default": 2.5
+                    },
+                    "requiredNullable": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "requiredNullableWithDefault": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "default": 2.5
+                    },
+                    "optionalScalar": {
+                        "type": "number"
+                    },
+                    "optionalScalarWithDefault": {
+                        "type": "number",
+                        "default": 2.5
+                    },
+                    "optionalNullable": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "optionalNullableWithDefault": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "default": 2.5
+                    },
+                    "requiredNullableWithNullDefault": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "default": null
+                    },
+                    "optionalNullableWithNullDefault": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "default": null
+                    }
+                }
+            },
+            "BooleanFieldPresenceInput": {
+                "x-dto-inline": true,
+                "type": "object",
+                "required": [
+                    "requiredScalar",
+                    "requiredScalarWithDefault",
+                    "requiredNullable",
+                    "requiredNullableWithDefault",
+                    "requiredNullableWithNullDefault"
+                ],
+                "properties": {
+                    "requiredScalar": {
+                        "type": "boolean"
+                    },
+                    "requiredScalarWithDefault": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "requiredNullable": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "requiredNullableWithDefault": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ],
+                        "default": true
+                    },
+                    "optionalScalar": {
+                        "type": "boolean"
+                    },
+                    "optionalScalarWithDefault": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "optionalNullable": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "optionalNullableWithDefault": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ],
+                        "default": true
+                    },
+                    "requiredNullableWithNullDefault": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ],
+                        "default": null
+                    },
+                    "optionalNullableWithNullDefault": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ],
+                        "default": null
+                    }
+                }
+            }
+        }
+    }
+}

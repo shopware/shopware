@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-17 14:18:33
+ * Last generated: 2026-07-07 00:00:00
  */
 
 namespace Shopware\Core\Checkout\Order\SalesChannel\Order;
@@ -28,12 +28,12 @@ final class OrderV2LineItemOption extends AbstractDto
         /**
          * Translated option-group name, for example `Color`.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $group,
         /**
          * Translated selected option name, for example `Blue`.
          */
-        #[Assert\NotBlank]
+        #[Assert\NotNull]
         public string $option,
     ) {
     }

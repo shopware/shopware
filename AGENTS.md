@@ -129,4 +129,5 @@ do not create them, and do not use them in tests, fixtures, or examples unless t
 | **Twig** (Storefront)  | `composer ludtwig:storefront` | `composer ludtwig:storefront:fix`            |
 | **Snippets**           | `composer translation:lint`   | Manual fix required                          |
 | **Prettier** (Admin)   | `composer format:admin`       | `composer format:admin:fix`                  |
+| **Dead code** (Admin)  | `composer knip:admin`         | N/A - must fix manually                      |
 | **GitHub Actions**     | `composer lint:actions`       | `composer lint:actions:fix`                  |

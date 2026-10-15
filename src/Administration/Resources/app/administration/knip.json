@@ -1,0 +1,22 @@
+{
+  "entry": [
+    "src/index.ts",
+    "_jest.config.ts",
+    "test/globalTeardown.js",
+    "eslint-rules/*/*.js",
+    "lighthouserc.js",
+    "lighthouse-auth.js",
+    "jsdoc.config.js",
+    "scripts/runNpmAudit.ts"
+  ],
+  "ignore": [
+    "scripts/codemods/sfc-migration/__fixtures__/**",
+    "build/vite-plugins/**/{_fixtures,fixtures}/**"
+  ],
+  "paths": {
+    "scss/*": ["src/app/assets/scss/*.scss"],
+    "src/*": ["src/*"]
+  },
+  "ignoreDependencies": ["shopware"],
+  "ignoreUnresolved": ["administrationtest/globalTeardown\\.js$"]
+}

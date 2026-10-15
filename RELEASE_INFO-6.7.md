@@ -6,6 +6,8 @@
 
 Saving a base theme now updates inherited runtime configuration and recompiles assigned descendant themes at every inheritance level.
 Child and grandchild themes no longer require a separate save after changing their base theme, and descendant-specific overrides are preserved.
+Deactivating or uninstalling a base theme is also blocked while any descendant theme or theme copy is assigned to a sales channel.
+The error identifies the affected themes and sales channels; remove or replace those assignments before removing the base theme.
 
 ### Sales channel contexts expose the default currency again
 

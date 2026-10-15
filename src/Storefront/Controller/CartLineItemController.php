@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -141,6 +142,8 @@ class CartLineItemController extends StorefrontController
                 $cart = $this->cartService->add($cart, $lineItem, $context);
 
                 $this->traceErrors($cart);
+            } catch (RateLimitExceededException $exception) {
+                $this->addFlash(self::INFO, $this->trans('error.rateLimitExceeded', ['%seconds%' => $exception->getWaitTime()]));
             } catch (\Exception) {
                 $this->addFlash(self::DANGER, $this->trans('error.message-default'));
             }

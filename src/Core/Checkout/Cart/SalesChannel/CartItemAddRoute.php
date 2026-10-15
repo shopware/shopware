@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -37,7 +38,8 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
         private readonly LineItemFactoryRegistry $lineItemFactory,
         private readonly RateLimiter $rateLimiter,
         private readonly CartLocker $cartLocker,
-        private readonly ExtensionDispatcher $extensions
+        private readonly ExtensionDispatcher $extensions,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -71,6 +73,13 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
                 /** @var array<mixed> $item */
                 foreach ($request->request->all('items') as $item) {
                     $items[] = $this->lineItemFactory->create($item, $context);
+                }
+            }
+
+            $clientIp = ($this->requestStack->getMainRequest() ?? $request)->getClientIp();
+            foreach ($items as $item) {
+                if ($item->getType() === LineItem::PROMOTION_LINE_ITEM_TYPE && $clientIp !== null) {
+                    $this->rateLimiter->ensureAccepted(RateLimiter::PROMOTION_CODE, $clientIp . '-' . $context->getSalesChannelId());
                 }
             }
 

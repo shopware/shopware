@@ -278,6 +278,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.rate_limiter'),
             service(CartLocker::class),
             service(ExtensionDispatcher::class),
+            service('request_stack'),
         ]);
 
     $services->set(CartOrderRoute::class)

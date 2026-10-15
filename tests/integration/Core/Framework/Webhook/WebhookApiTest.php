@@ -210,6 +210,27 @@ class WebhookApiTest extends TestCase
         static::assertSame('https://owner.example', $this->loadWebhook($webhookId)->getUrl());
     }
 
+    public function testAWebhookCannotBeDeletedAndRecreatedByAnotherUserInOneSyncRequest(): void
+    {
+        $webhookId = $this->createWebhookOwnedByAnotherUser();
+
+        $connection = static::getContainer()->get(Connection::class);
+        TestUser::createNewTestUser($connection, ['webhook:create', 'webhook:delete', 'product:read'])->authorizeBrowser($this->getBrowser());
+
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/sync', [
+            ['action' => 'delete', 'entity' => 'webhook', 'payload' => [['id' => $webhookId]]],
+            ['action' => 'upsert', 'entity' => 'webhook', 'payload' => [[
+                'id' => $webhookId,
+                'name' => 'Replaced',
+                'eventName' => 'product.written',
+                'url' => 'https://replaced.example',
+            ]]],
+        ]);
+
+        static::assertStringContainsString(WebhookException::WEBHOOK_NOT_OWNED, (string) $this->getBrowser()->getResponse()->getContent());
+        static::assertSame('https://owner.example', $this->loadWebhook($webhookId)->getUrl());
+    }
+
     public function testWebhookCannotBeUpdatedByAnIntegrationNamingItsOwner(): void
     {
         $connection = static::getContainer()->get(Connection::class);

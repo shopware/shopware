@@ -197,9 +197,9 @@ class WriteAuthorizerTest extends TestCase
 
         $this->validator = static::createStub(SubscriptionValidator::class);
         $this->validator->method('validate')->willReturn(new SubscriptionRefusals(
-            notHookable: [self::id($product)],
-            notPermitted: [self::id($order)],
-            missingPrivileges: [self::id($customer) => ['customer:read']],
+            notHookable: [$product->getDecodedPrimaryKey()['id']],
+            notPermitted: [$order->getDecodedPrimaryKey()['id']],
+            missingPrivileges: [$customer->getDecodedPrimaryKey()['id'] => ['customer:read']],
         ));
 
         $violations = $this->authorize([$product, $order, $customer]);
@@ -228,8 +228,8 @@ class WriteAuthorizerTest extends TestCase
         $this->validator->expects($this->once())
             ->method('validate')
             ->with(
-                [self::id($insert) => 'product.written'],
-                [self::id($insert) => ['product:read', 'order:read', 'customer:read']],
+                [$insert->getDecodedPrimaryKey()['id'] => 'product.written'],
+                [$insert->getDecodedPrimaryKey()['id'] => ['product:read', 'order:read', 'customer:read']],
                 Subscriber::api(ApiCallerType::User),
             )
             ->willReturn(new SubscriptionRefusals());
@@ -248,7 +248,7 @@ class WriteAuthorizerTest extends TestCase
         $this->validator = $this->createMock(SubscriptionValidator::class);
         $this->validator->expects($this->once())
             ->method('validate')
-            ->with([self::id($insert) => 'product.written'], [self::id($insert) => null])
+            ->with([$insert->getDecodedPrimaryKey()['id'] => 'product.written'], [$insert->getDecodedPrimaryKey()['id'] => null])
             ->willReturn(new SubscriptionRefusals());
 
         $this->authorize([$insert]);
@@ -261,9 +261,9 @@ class WriteAuthorizerTest extends TestCase
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
         $this->webhookLoader->expects($this->once())
             ->method('getSubscriptions')
-            ->with([self::id($update)])
+            ->with([$update->getDecodedPrimaryKey()['id']])
             ->willReturn([
-                self::id($update) => new WebhookSubscription(self::id($update), SubscriberType::User, self::USER_ID, 'product.written', null),
+                $update->getDecodedPrimaryKey()['id'] => new WebhookSubscription($update->getDecodedPrimaryKey()['id'], SubscriberType::User, self::USER_ID, 'product.written', null),
             ]);
 
         $this->aclRoleLoader = $this->createMock(AclRoleLoader::class);
@@ -276,7 +276,7 @@ class WriteAuthorizerTest extends TestCase
         $this->validator = $this->createMock(SubscriptionValidator::class);
         $this->validator->expects($this->once())
             ->method('validate')
-            ->with([self::id($update) => 'order.written'], [self::id($update) => ['order:read']])
+            ->with([$update->getDecodedPrimaryKey()['id'] => 'order.written'], [$update->getDecodedPrimaryKey()['id'] => ['order:read']])
             ->willReturn(new SubscriptionRefusals());
 
         static::assertSame([], $this->authorize([$update]));
@@ -296,7 +296,7 @@ class WriteAuthorizerTest extends TestCase
         $this->validator = $this->createMock(SubscriptionValidator::class);
         $this->validator->expects($this->once())
             ->method('validate')
-            ->with([self::id($insert) => 'product.written'], [self::id($insert) => ['product:read']])
+            ->with([$insert->getDecodedPrimaryKey()['id'] => 'product.written'], [$insert->getDecodedPrimaryKey()['id'] => ['product:read']])
             ->willReturn(new SubscriptionRefusals());
 
         $this->authorize([$insert]);
@@ -341,7 +341,7 @@ class WriteAuthorizerTest extends TestCase
         $update = $this->updateWebhook(['event_name' => 'product.written']);
         $this->webhookLoader = static::createStub(WebhookLoader::class);
         $this->webhookLoader->method('getSubscriptions')->willReturn([
-            self::id($update) => new WebhookSubscription(self::id($update), SubscriberType::User, self::USER_ID, 'order.written', ['role', 'lost-role']),
+            $update->getDecodedPrimaryKey()['id'] => new WebhookSubscription($update->getDecodedPrimaryKey()['id'], SubscriberType::User, self::USER_ID, 'order.written', ['role', 'lost-role']),
         ]);
 
         static::assertSame([], $this->authorize([$update]));
@@ -354,20 +354,15 @@ class WriteAuthorizerTest extends TestCase
      */
     private function authorize(array $commands, ?Context $context = null): array
     {
-        $keyed = [];
-        foreach ($commands as $command) {
-            $keyed[self::id($command)] = $command;
-        }
-
         return (new WriteAuthorizer($this->validator, $this->webhookLoader, $this->aclRoleLoader))
-            ->getViolations($keyed, $context ?? $this->userContext(self::USER_ID));
+            ->getViolations($commands, $context ?? $this->userContext(self::USER_ID));
     }
 
     private function storeWebhook(WriteCommand $command, SubscriberType $ownerType, string $ownerId): void
     {
         $this->webhookLoader = static::createStub(WebhookLoader::class);
         $this->webhookLoader->method('getSubscriptions')->willReturn([
-            self::id($command) => new WebhookSubscription(self::id($command), $ownerType, $ownerId, 'product.written', null),
+            $command->getDecodedPrimaryKey()['id'] => new WebhookSubscription($command->getDecodedPrimaryKey()['id'], $ownerType, $ownerId, 'product.written', null),
         ]);
     }
 
@@ -413,11 +408,6 @@ class WriteAuthorizerTest extends TestCase
             static::createStub(EntityExistence::class),
             '/update'
         );
-    }
-
-    private static function id(WriteCommand $command): string
-    {
-        return Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
     }
 
     /**

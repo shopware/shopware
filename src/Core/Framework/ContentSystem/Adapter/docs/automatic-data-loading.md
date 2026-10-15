@@ -6,7 +6,7 @@ Entity-based rendering automatically loads the main entity before rendering your
 
 **Auto-loaded entities and associations:**
 
-The entity class is the SALES-CHANNEL one wherever the entity has a sales-channel definition, because `EntityLoader` loads through the sales-channel repository when one is registered. That is the class a mapping candidate's `valueType` or a projection's `inputType()` has to name for a member read off the root.
+The entity class is the SALES-CHANNEL one wherever the entity has a sales-channel definition, because `EntityLoader` loads through the sales-channel repository when one is registered. A mapping provider reading the root receives that sales-channel entity and advertises its effective output type in the candidate's `valueType`.
 
 | Endpoint                                          | Entity            | Context Key    | Pre-loaded Associations                                                                             |
 |---------------------------------------------------|-------------------|----------------|-----------------------------------------------------------------------------------------------------|

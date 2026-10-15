@@ -6,6 +6,7 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSys
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
@@ -87,8 +89,10 @@ class InfoController extends AbstractController
         private readonly StoredSchemaResolver $storedSchemaResolver,
         private readonly AbstractContentSystemLayoutPresetRegistry $layoutPresetRegistry,
         private readonly AbstractContentSystemMappingCandidateRegistry $mappingCandidateRegistry,
+        private readonly InlineMappingTokenParser $inlineMappingTokenParser,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
         private readonly MediaFileExtensionListProvider $mediaFileExtensionListProvider,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -210,14 +214,29 @@ class InfoController extends AbstractController
      * offers nothing mappable, which keeps the client from having to tell "no candidates" apart from
      * "unknown source".
      */
-    #[Route(path: '/api/_info/content-system-mapping-candidates.json', name: 'api.info.content-system-mapping-candidates', methods: ['GET'])]
+    #[Route(
+        path: '/api/_info/content-system-mapping-candidates.json',
+        name: 'api.info.content-system-mapping-candidates',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['custom_field:read']],
+        methods: ['GET']
+    )]
     public function contentSystemMappingCandidates(): JsonResponse
     {
+        // This catalogue includes custom-field labels and help text, so its HTTP cache follows custom-field metadata.
+        $this->cacheTagCollector->addTag('custom_field');
+
         $candidates = [];
 
         foreach ($this->rootSourceRegistry->knownRootSources() as $rootSource) {
             $candidates[$rootSource] = array_map(
-                static fn (MappingCandidate $candidate): array => $candidate->toSchema(),
+                function (MappingCandidate $candidate): array {
+                    return [
+                        ...$candidate->toSchema(),
+                        'canonicalToken' => InlineMappingTokenParser::isValidPath($candidate->path)
+                            ? $this->inlineMappingTokenParser->canonicalToken($candidate->path)
+                            : null,
+                    ];
+                },
                 array_values($this->mappingCandidateRegistry->forRootSource($rootSource))
             );
         }

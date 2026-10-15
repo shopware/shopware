@@ -115,15 +115,17 @@ describe('src/app/component/meteor-wrapper/mt-text-editor', () => {
                 'span',
                 mergeAttributes(HTMLAttributes),
             ],
-            addNodeView: () => ({ node }) => {
-                const dom = document.createElement('span');
+            addNodeView:
+                () =>
+                ({ node }) => {
+                    const dom = document.createElement('span');
 
-                dom.className = 'example-chip';
-                dom.setAttribute('data-example-chip', node.attrs.path);
-                dom.textContent = `label for ${node.attrs.path}`;
+                    dom.className = 'example-chip';
+                    dom.setAttribute('data-example-chip', node.attrs.path);
+                    dom.textContent = `label for ${node.attrs.path}`;
 
-                return { dom };
-            },
+                    return { dom };
+                },
         });
 
     it('should forward tipTapConfig through $attrs, so a custom node reaches the editor schema', async () => {

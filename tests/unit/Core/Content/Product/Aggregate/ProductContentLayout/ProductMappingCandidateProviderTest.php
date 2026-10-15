@@ -8,12 +8,15 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
-use Shopware\Core\Content\Product\ContentSystem\Mapping\ProductMediaCollectionToMediaCollectionProjection;
-use Shopware\Core\Content\Product\ContentSystem\Mapping\ProductMediaToMediaProjection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
@@ -30,7 +33,7 @@ class ProductMappingCandidateProviderTest extends TestCase
         static::assertFalse($provider->supports('category'));
     }
 
-    public function testOffersTypedProductFieldsAndProjectedMediaCandidates(): void
+    public function testOffersTypedProductFieldsAndProviderResolvedMediaCandidates(): void
     {
         $candidates = (new ProductMappingCandidateProvider(new ProductContentLayoutDefinition()))->provide('product');
         $byPath = [];
@@ -54,9 +57,58 @@ class ProductMappingCandidateProviderTest extends TestCase
         static::assertSame('string', $byPath['product.name']->valueType);
         static::assertSame('seo', $byPath['product.metaTitle']->group);
         static::assertSame(MediaEntity::class, $byPath['product.cover']->valueType);
-        static::assertSame(ProductMediaToMediaProjection::NAME, $byPath['product.cover']->projection);
         static::assertSame(MediaCollection::class, $byPath['product.media']->valueType);
         static::assertSame(ContextType::Collection, $byPath['product.media']->contextType);
-        static::assertSame(ProductMediaCollectionToMediaCollectionProjection::NAME, $byPath['product.media']->projection);
+    }
+
+    public function testResolvesTheActiveTranslatedProductValueThroughItsAccessor(): void
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setName('Raw variant name');
+        $product->setTranslated(['name' => 'Inherited storefront name']);
+        $provider = new ProductMappingCandidateProvider(new ProductContentLayoutDefinition());
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], null, null, null);
+
+        static::assertSame('Inherited storefront name', $provider->resolveRootSource(MappingSourceReference::root('product', 'name'), $context)->value);
+        static::assertSame($product, $provider->resolveRootSource(MappingSourceReference::root('product'), $context)->value);
+    }
+
+    public function testResolvesMediaWithoutAProjectionAndPreservesTheProductCollection(): void
+    {
+        $first = $this->assignment(0);
+        $second = $this->assignment(1);
+        $unloaded = new ProductMediaEntity();
+        $unloaded->setUniqueIdentifier(Uuid::randomHex());
+        $unloaded->setPosition(2);
+
+        $assignments = new ProductMediaCollection([$second, $unloaded, $first]);
+        $product = new SalesChannelProductEntity();
+        $product->setCover($first);
+        $product->setMedia($assignments);
+
+        $provider = new ProductMappingCandidateProvider(new ProductContentLayoutDefinition());
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], null, null, null);
+
+        static::assertSame($first->getMedia(), $provider->resolveRootSource(MappingSourceReference::root('product', 'cover'), $context)->value);
+        $media = $provider->resolveRootSource(MappingSourceReference::root('product', 'media'), $context)->value;
+        static::assertInstanceOf(MediaCollection::class, $media);
+        static::assertSame([$first->getMedia(), $second->getMedia()], array_values($media->getElements()));
+        static::assertSame([$second, $unloaded, $first], array_values($assignments->getElements()));
+
+        $product->setMedia(new ProductMediaCollection());
+        static::assertCount(0, $provider->resolveRootSource(MappingSourceReference::root('product', 'media'), $context)->value);
+    }
+
+    private function assignment(int $position): ProductMediaEntity
+    {
+        $media = new MediaEntity();
+        $media->setUniqueIdentifier(Uuid::randomHex());
+
+        $assignment = new ProductMediaEntity();
+        $assignment->setUniqueIdentifier(Uuid::randomHex());
+        $assignment->setPosition($position);
+        $assignment->setMedia($media);
+
+        return $assignment;
     }
 }

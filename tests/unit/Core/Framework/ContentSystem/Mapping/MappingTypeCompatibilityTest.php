@@ -28,6 +28,20 @@ class MappingTypeCompatibilityTest extends TestCase
         static::assertSame($expected, (new MappingTypeCompatibility())->permits($declaredType, $candidateValueType));
     }
 
+    public function testCompatibleTypesDescribeExactlyTheDeclaredTypesPermittedForACandidate(): void
+    {
+        $compatibility = new MappingTypeCompatibility();
+        $compatibleTypes = MappingTypeCompatibility::compatibleTypes(SalesChannelProductEntity::class);
+
+        static::assertContains(ProductEntity::class, $compatibleTypes);
+        static::assertContains('object', $compatibleTypes);
+        static::assertNotContains(MediaEntity::class, $compatibleTypes);
+
+        foreach ($compatibleTypes as $declaredType) {
+            static::assertTrue($compatibility->permits($declaredType, SalesChannelProductEntity::class));
+        }
+    }
+
     public static function compatibilityProvider(): iterable
     {
         yield 'a primitive takes the same primitive' => ['string', 'string', true];
@@ -67,7 +81,7 @@ class MappingTypeCompatibilityTest extends TestCase
     }
 
     /**
-     * The render-path counterpart, which holds a resolved value to the input type a projection declares.
+     * The render-path counterpart, which checks a provider's value against its candidate's effective type.
      */
     #[DataProvider('admissionProvider')]
     public function testAdmits(string $type, mixed $value, bool $expected): void

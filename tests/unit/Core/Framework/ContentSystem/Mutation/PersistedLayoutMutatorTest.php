@@ -19,6 +19,13 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\DefaultMappingSeeder;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
@@ -61,7 +68,7 @@ class PersistedLayoutMutatorTest extends TestCase
 
         $orphaning = $this->orphaningMutation('block-a');
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
 
         $result = $mutator->mutate($id, null, $orphaning, $context);
 
@@ -81,7 +88,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $context = Context::createDefaultContext();
         $repository = $this->staticRepository($this->entity($id, self::VERSION), $id, $context);
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
 
         $result = $mutator->mutate($id, self::VERSION, new RemoveElement('block-a'), $context);
 
@@ -96,7 +103,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $context = Context::createDefaultContext();
         $repository = $this->staticRepository($this->entity($id, null, 'category'), $id, $context);
         $capturedRootSource = null;
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
 
         $mutator->mutateSourceAware(
             $id,
@@ -141,7 +148,7 @@ class PersistedLayoutMutatorTest extends TestCase
             )
             ->willReturn(new LayoutAnalysis($report, []));
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $registry, $diagnostics);
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $registry, $diagnostics, $this->defaultMappingSeeder());
 
         $result = $mutator->mutate($id, null, new RemoveElement('block-a'), $context);
 
@@ -155,7 +162,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $context = Context::createDefaultContext();
         $repository = $this->staticRepository($this->entity($id, '2026-06-22T10:00:00.123456+00:00'), $id, $context);
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
 
         $result = $mutator->mutate($id, '2026-06-22T10:00:00.123000+00:00', new RemoveElement('block-a'), $context);
 
@@ -171,7 +178,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $writeException = (new WriteException())->add(new \RuntimeException('binding broke resolvability'));
         $repository->method('update')->willThrowException($writeException);
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
 
         $this->expectExceptionObject($writeException);
 
@@ -248,7 +255,7 @@ class PersistedLayoutMutatorTest extends TestCase
     ): void {
         $context = Context::createDefaultContext();
         $repository = $this->staticRepository($entity, $layoutId, $context);
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
 
         try {
             $mutator->mutate($layoutId, $token, new RemoveElement('block-a'), $context);
@@ -338,6 +345,23 @@ class PersistedLayoutMutatorTest extends TestCase
         return $diagnostics;
     }
 
+    private function defaultMappingSeeder(): DefaultMappingSeeder
+    {
+        $types = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+
+        return new DefaultMappingSeeder(
+            $types,
+            new StoredMappingInspector(
+                $types,
+                $candidateRegistry,
+                new MappingTypeCompatibility(),
+                new MappingConsumers(),
+                new InlineMappingTokenParser(),
+            ),
+        );
+    }
+
     private function providedContext(): ProvidedContext
     {
         return new ProvidedContext(
@@ -382,6 +406,11 @@ class PersistedLayoutMutatorTest extends TestCase
             }
 
             public function created(): array
+            {
+                return [];
+            }
+
+            public function freshlyScaffolded(): array
             {
                 return [];
             }

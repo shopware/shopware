@@ -7,9 +7,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * What one child receives from one round of {@see ContextDistributor::distribute()}, and the pair of
- * arguments {@see RenderedElementFactory::create()} takes as its `$deliveredContext` and
- * `$distributionReferencedKeys`.
+ * What one child receives from one round of {@see ContextDistributor::distribute()}, plus mapping fallback
+ * decisions passed to {@see RenderedElementFactory::create()}.
  *
  * `$context` is keyed by the key each value was DELIVERED under — a consumer's `propertyAlias` when it
  * declares one, otherwise its own consumer key. A key present here holding `null` is a resolution that ran
@@ -21,6 +20,9 @@ use Shopware\Core\Framework\Log\Package;
  * keys that were actually used against this child: a sibling that happens to store the same key but never
  * matched as a consumer contributes nothing here.
  *
+ * `$mappingFallbackKeys` names whole-field mappings whose source was missing or empty. Those destinations may
+ * use their authored or loader-resolved value; a present `null` is delivered normally and does not appear here.
+ *
  * @internal
  */
 #[Package('framework')]
@@ -29,16 +31,18 @@ final readonly class ContextDelivery
     /**
      * @param array<string, mixed> $context keyed by the key the value was delivered under
      * @param list<string> $distributionReferencedKeys stored keys a distribution config named
+     * @param list<string> $mappingFallbackKeys mapped destinations whose source was missing or empty, so their authored or loader-resolved value may be used
      */
     public function __construct(
         public string $elementId,
         public array $context = [],
         public array $distributionReferencedKeys = [],
+        public array $mappingFallbackKeys = [],
     ) {
     }
 
     /**
-     * The same delivery under a different context map, keeping `elementId` and `distributionReferencedKeys`.
+     * The same delivery under a different context map, keeping its element id and mapping metadata.
      *
      * {@see ContextDeliveryResolver} overlays an element's root-scoped consumers onto what its parent
      * delivered, and both preserved fields say something the overlay cannot know: the element the delivery
@@ -50,7 +54,7 @@ final readonly class ContextDelivery
      */
     public function withContext(array $context): self
     {
-        return new self($this->elementId, $context, $this->distributionReferencedKeys);
+        return new self($this->elementId, $context, $this->distributionReferencedKeys, $this->mappingFallbackKeys);
     }
 
     /**
@@ -60,6 +64,6 @@ final readonly class ContextDelivery
      */
     public function isEmpty(): bool
     {
-        return $this->context === [] && $this->distributionReferencedKeys === [];
+        return $this->context === [] && $this->distributionReferencedKeys === [] && $this->mappingFallbackKeys === [];
     }
 }

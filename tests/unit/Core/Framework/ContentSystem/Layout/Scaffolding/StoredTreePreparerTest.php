@@ -21,6 +21,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor;
@@ -59,9 +60,61 @@ class StoredTreePreparerTest extends TestCase
             ->withProperty('text', '{{map:product.name}}')
             ->build();
 
-        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
+        $prepared = $this->prepare([$element], [
+            'productId' => 'prod-1',
+            'map:product.name' => 'query supplied text',
+        ]);
 
         static::assertSame('{{map:product.name}}', $prepared[0]->property('text')?->asString());
+    }
+
+    #[TestDox('captures authored token spans after placeholder substitution shifts their byte offsets')]
+    public function testPrepareCarriesAuthoredTokenSpans(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', 'A {{prefix}} {{map:product.name}}')
+            ->build();
+
+        $result = $this->preparer()->prepare(
+            [$element],
+            $this->specification(['prefix' => 'longer']),
+            RenderingMode::FULL,
+        );
+
+        static::assertSame('A longer {{map:product.name}}', $result->tree[0]->property('text')?->asString());
+        $token = $result->inlineMappings->tokensFor('root-id', 'text')[0];
+        static::assertSame(9, $token->offset);
+        static::assertSame('{{map:product.name}}', $token->match);
+    }
+
+    #[TestDox('keeps authored mapping spans separate from placeholder-injected text')]
+    public function testPrepareDoesNotTurnPlaceholderValuesIntoMappingInstructions(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', '{{map:product.name}} / {{query}}')
+            ->build();
+
+        $prepared = $this->prepare([$element], ['query' => '{{map:product.name}}']);
+
+        static::assertSame(
+            '{{map:product.name}} / {{map:product.name}}',
+            $prepared[0]->property('text')?->asString(),
+        );
+    }
+
+    #[TestDox('does not parse mapping syntax assembled from placeholder text')]
+    public function testPrepareDoesNotTurnPartialPlaceholderValuesIntoMappingInstructions(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('text', '{{query}}product.name}}')
+            ->build();
+
+        $prepared = $this->prepare([$element], ['query' => '{{map:']);
+
+        static::assertSame(
+            '{{map:product.name}}',
+            $prepared[0]->property('text')?->asString(),
+        );
     }
 
     #[TestDox('substitutes tokens in slot children at every depth')]
@@ -268,6 +321,7 @@ class StoredTreePreparerTest extends TestCase
     {
         yield 'no declared value matches it' => ['Category {{categoryId}}', ['productId' => 'prod-1']];
         yield 'the placeholder values map is empty' => ['Product {{productId}}', []];
+        yield 'mapping syntax without a dotted path remains literal' => ['{{map:product}}', []];
     }
 
     #[TestDox('collapses a lone unresolved token to null')]
@@ -354,6 +408,7 @@ class StoredTreePreparerTest extends TestCase
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
             new DataLoaderConfigSerializerProvider($serializerLocator),
             new DataLoaderProvider($loaderLocator),
+            new InlineMappingTokenParser(),
         );
     }
 

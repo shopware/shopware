@@ -5,12 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping\Provider;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\StorefrontContextMappingCandidateProvider;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\Test\Generator;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
@@ -34,13 +34,10 @@ class StorefrontContextMappingCandidateProviderTest extends TestCase
         static::assertSame(['string'], array_values(array_unique(array_map(static fn ($candidate): string => $candidate->valueType, $candidates))));
     }
 
-    #[TestDox('resolves an approved currency value from the Storefront context')]
-    public function testResolvesCurrencyIsoCodeFromSalesChannelContext(): void
+    #[TestDox('resolves an approved currency value from the element loader result')]
+    public function testResolvesCurrencyIsoCodeFromLoaderValue(): void
     {
         $provider = new StorefrontContextMappingCandidateProvider();
-        $currency = new CurrencyEntity();
-        $currency->setIsoCode('USD');
-        $salesChannelContext = Generator::generateSalesChannelContext(currency: $currency);
         $source = new MappingSourceReference('context', 'storefront', path: 'currency.isoCode');
 
         $resolved = $provider->resolveSource(
@@ -48,13 +45,36 @@ class StorefrontContextMappingCandidateProviderTest extends TestCase
             new MappingSourceResolutionContext(
                 StoredElementBuilder::create('core:text', 'element-1')->build(),
                 [],
-                [],
-                $salesChannelContext,
+                [StorefrontContextLoader::REQUIREMENT_KEY => new ArrayStruct(['currency.isoCode' => 'USD'])],
+                null,
                 null,
                 null,
             ),
         );
 
-        static::assertSame('USD', $resolved);
+        static::assertTrue($resolved->hasValue);
+        static::assertSame('USD', $resolved->value);
+    }
+
+    public function testMissingLoaderValueDoesNotReadTheSalesChannelContext(): void
+    {
+        $source = new MappingSourceReference('context', 'storefront', path: 'currency.isoCode');
+        $resolved = (new StorefrontContextMappingCandidateProvider())->resolveSource(
+            $source,
+            new MappingSourceResolutionContext(StoredElementBuilder::create('core:text', 'element-1')->build(), [], [], null, null, null),
+        );
+
+        static::assertFalse($resolved->hasValue);
+    }
+
+    public function testOnlyBuiltInPathsClaimTheInternalLoader(): void
+    {
+        $provider = new StorefrontContextMappingCandidateProvider();
+
+        static::assertTrue($provider->supportsSource(new MappingSourceReference('context', 'storefront', path: 'currency.isoCode')));
+        static::assertFalse($provider->supportsSource(new MappingSourceReference('context', 'storefront', path: 'customer.email')));
+        static::assertFalse($provider->supportsSource(new MappingSourceReference('context', 'storefront', ['custom' => true], 'currency.isoCode')));
+        static::assertTrue(StorefrontContextMappingCandidateProvider::isApprovedDisplayName('context:storefront.tax.state'));
+        static::assertFalse(StorefrontContextMappingCandidateProvider::isApprovedDisplayName('context:storefront.customer.email'));
     }
 }

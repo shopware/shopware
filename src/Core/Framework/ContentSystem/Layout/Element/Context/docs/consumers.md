@@ -29,7 +29,6 @@ Fields:
   - `true` - Element fails if context unavailable
   - `false` - Element works without context
 - `propertyAlias` (optional) - Renames the property key where context data is stored in this element. The consumed data is stored with this alias instead of the original context key. Useful for component reusability when elements expect specific property names. Cannot contain dots. Must be unique within the element (no two consumers can resolve to the same property key).
-- `projection` (optional) - Names a registered transform applied to the resolved value before it lands on the property, for the case where a path reaches the right data in the wrong shape. Only a `scope: root` consumer keyed by a dotted path may declare one; anywhere else it is rejected, because that is the only place the render path applies it. See [Mapping/Projection](../../../../Mapping/Projection/AbstractContentPropertyProjection.php) for what a projection may do, and note that an author never picks one: the mapping catalogue pairs each path with its projection and the write gate holds a stored mapping to that pairing.
 
 Consumer receives context data directly as a property.
 
@@ -52,3 +51,9 @@ Consumer receives context data directly as a property.
 ```
 
 Element receives `product.cover` from parent context but stores it as `image` internally, matching what the renderer expects. Enables component reusability across different data sources.
+
+## Mapping dependencies
+
+A whole-field mapping is still a stored root-scoped consumer keyed by its destination property. Its typed `source` names the candidate the provider resolves; the source path also contributes a page-level loading dependency. It is delivered directly from root context at any tree depth and does not travel through parent providers.
+
+An inline token in an opted-in string property is authored text, not an `acceptsContext` consumer. After the preparation event, the renderer parses authored tokens before placeholder substitution and carries their spans through loading. Their paths derive page-level dependencies for that render; they do not create stored consumer wiring. Tokens inserted by placeholder values remain literal. Ordinary consumers retain the present-null versus absent distinction: a present root value resolving to `null` is delivered, while a missing root or path is absent. See [the mapping contract](../../../Mapping/README.md) and [the render pipeline order](../../../docs/pipeline-contract.md).

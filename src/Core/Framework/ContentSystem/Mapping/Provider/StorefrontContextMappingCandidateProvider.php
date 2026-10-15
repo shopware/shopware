@@ -3,10 +3,13 @@
 namespace Shopware\Core\Framework\ContentSystem\Mapping\Provider;
 
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
  * Offers a small, explicit allowlist of non-sensitive Storefront context values for data mapping.
@@ -16,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class StorefrontContextMappingCandidateProvider extends AbstractMappingCandidateProvider
 {
-    private const SOURCE_ID = 'storefront';
+    public const SOURCE_ID = 'storefront';
 
     /**
      * @var array<string, string>
@@ -27,6 +30,16 @@ final class StorefrontContextMappingCandidateProvider extends AbstractMappingCan
         'language.localeCode' => 'sw-experience-studio.mapping.context.languageLocale',
         'tax.state' => 'sw-experience-studio.mapping.context.taxState',
     ];
+
+    public static function registeredCandidateKeys(): array
+    {
+        return [
+            '*' => array_map(
+                static fn (string $path): string => 'context:' . self::SOURCE_ID . '.' . $path,
+                array_keys(self::ALLOWED_PATHS),
+            ),
+        ];
+    }
 
     public function supports(string $rootSource): bool
     {
@@ -56,21 +69,44 @@ final class StorefrontContextMappingCandidateProvider extends AbstractMappingCan
 
     public function supportsSource(MappingSourceReference $source): bool
     {
-        return $source->type === 'context' && $source->id === self::SOURCE_ID;
+        return self::isApprovedSource($source);
     }
 
-    public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): mixed
+    public static function isApprovedSource(MappingSourceReference $source): bool
     {
-        if ($context->salesChannelContext === null || !\array_key_exists((string) $source->path, self::ALLOWED_PATHS)) {
-            return null;
+        return $source->type === 'context'
+            && $source->id === self::SOURCE_ID
+            && $source->config === []
+            && $source->path !== null
+            && \array_key_exists($source->path, self::ALLOWED_PATHS);
+    }
+
+    public static function isApprovedDisplayName(string $path): bool
+    {
+        $prefix = 'context:' . self::SOURCE_ID . '.';
+
+        return str_starts_with($path, $prefix) && \array_key_exists(substr($path, \strlen($prefix)), self::ALLOWED_PATHS);
+    }
+
+    public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
+    {
+        if (!self::isApprovedSource($source)) {
+            return MappingSourceResolution::noValue();
         }
 
-        return match ($source->path) {
-            'currency.isoCode' => $context->salesChannelContext->getCurrency()->getIsoCode(),
-            'currency.symbol' => $context->salesChannelContext->getCurrency()->getSymbol(),
-            'language.localeCode' => $context->salesChannelContext->getLanguageInfo()->localeCode,
-            'tax.state' => $context->salesChannelContext->getTaxState(),
-            default => null,
-        };
+        $loaded = $context->loaderValues[StorefrontContextLoader::REQUIREMENT_KEY] ?? null;
+        if (!$loaded instanceof ArrayStruct) {
+            return MappingSourceResolution::noValue();
+        }
+
+        $values = $loaded->getVars();
+        $path = $source->path;
+        if ($path === null) {
+            return MappingSourceResolution::noValue();
+        }
+
+        return \array_key_exists($path, $values)
+            ? MappingSourceResolution::resolved($values[$path])
+            : MappingSourceResolution::noValue();
     }
 }

@@ -303,7 +303,6 @@ export default Shopware.Component.wrapComponentConfig({
             key: string;
             source: { type: string; id: string; config?: Record<string, unknown>; path?: string } | null;
             contextType: 'single' | 'collection' | null;
-            projection: string | null;
         }): void {
             const selectedElement = this.selectedElement;
 
@@ -316,7 +315,6 @@ export default Shopware.Component.wrapComponentConfig({
                 propertyKey: payload.key,
                 source: payload.source,
                 contextType: payload.contextType,
-                projection: payload.projection,
             });
         },
 

@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mapping\Registry;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\Log\Package;
@@ -35,8 +38,10 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
     /**
      * @param iterable<AbstractMappingCandidateProvider> $providers
      */
-    public function __construct(private readonly iterable $providers)
-    {
+    public function __construct(
+        private readonly iterable $providers,
+        private readonly LoggerInterface $logger = new NullLogger(),
+    ) {
     }
 
     public function getDecorated(): AbstractContentSystemMappingCandidateRegistry
@@ -52,32 +57,43 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
     public function resolveSource(
         MappingSourceReference $source,
         MappingSourceResolutionContext $context,
-    ): mixed {
-        if ($context->rootSource !== null) {
-            $catalogue = $this->catalogueForRootSource($context->rootSource);
-            $candidateKey = $source->displayName();
-            $candidate = $catalogue['candidates'][$candidateKey] ?? null;
-            $provider = $catalogue['providers'][$candidateKey] ?? null;
-
-            if (
-                $candidate === null
-                || $provider === null
-                || !$candidate->source->isSameAs($source)
-                || !$provider->supportsSource($source)
-            ) {
-                return null;
-            }
-
-            return $provider->resolveSource($source, $context);
+    ): MappingSourceResolution {
+        if ($context->rootSource === null) {
+            return MappingSourceResolution::noValue();
         }
 
-        foreach ($this->providers as $provider) {
-            if ($provider->supportsSource($source)) {
-                return $provider->resolveSource($source, $context);
-            }
+        $catalogue = $this->catalogueForRootSource($context->rootSource);
+        $candidateKey = $source->displayName();
+        $candidate = $catalogue['candidates'][$candidateKey] ?? null;
+        $provider = $catalogue['providers'][$candidateKey] ?? null;
+
+        if (
+            $candidate === null
+            || $provider === null
+            || !$candidate->source->isSameAs($source)
+        ) {
+            return MappingSourceResolution::noValue();
         }
 
-        return null;
+        $context->cacheContext?->addTags($candidate->cacheTags);
+
+        try {
+            if ($source->type !== 'root' && !$provider->supportsSource($source)) {
+                return MappingSourceResolution::noValue();
+            }
+
+            $result = $source->type === 'root'
+                ? $provider->resolveRootSource($source, $context)
+                : $provider->resolveSource($source, $context);
+        } catch (\Throwable $failure) {
+            return $this->logProviderFailure($provider, $candidateKey, $context, $failure);
+        }
+
+        if (!$result->isFailure() || $result->failure === null) {
+            return $result;
+        }
+
+        return $this->logProviderFailure($provider, $candidateKey, $context, $result->failure);
     }
 
     public function forRootSource(string $rootSource): array
@@ -127,5 +143,22 @@ final class ContentSystemMappingCandidateRegistry extends AbstractContentSystemM
             'candidates' => $candidates,
             'providers' => $providers,
         ];
+    }
+
+    private function logProviderFailure(
+        AbstractMappingCandidateProvider $provider,
+        string $candidate,
+        MappingSourceResolutionContext $context,
+        \Throwable $failure,
+    ): MappingSourceResolution {
+        $this->logger->error('A content mapping provider failed while resolving a candidate.', [
+            'exception' => $failure,
+            'provider' => $provider::class,
+            'rootSource' => $context->rootSource,
+            'candidate' => $candidate,
+            'elementId' => $context->element->id,
+        ]);
+
+        return MappingSourceResolution::failed($failure);
     }
 }

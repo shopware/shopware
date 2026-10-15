@@ -31,7 +31,7 @@ use Symfony\Component\HttpFoundation\Response;
  * fills it itself from a picked `mediaId`, so mapping competes with an existing source rather than with a
  * plain authored value.
  *
- * Missing mapped data is omitted from the rendered element, even if an authored value is stored beneath it.
+ * Missing mapped data falls back to the element's authored value; explicit null remains an intentional mapping.
  *
  * A mapping is a root-scoped context consumer keyed by the property it fills and carrying a typed source
  * reference into the page-level data, and the
@@ -209,10 +209,10 @@ class CategoryLayoutDataMappingTest extends TestCase
     }
 
     /**
-     * A missing mapped member omits the property, even when the layout stores an authored value.
+     * The unresolved mapping placeholder is omitted from rendered text so its syntax never reaches the Storefront.
      */
-    #[TestDox('renders an empty text value when the inline mapping source member is unavailable')]
-    public function testInlineMappingPathResolvingToNullRendersAnEmptyTextValue(): void
+    #[TestDox('omits an inline token when its source member has no text value')]
+    public function testInlineMappingPathResolvingToNullOmitsTheToken(): void
     {
         $this->createCategory();
         $this->persistLayout($this->textElement(mappedTo: 'category.description'));
@@ -221,16 +221,16 @@ class CategoryLayoutDataMappingTest extends TestCase
     }
 
     /**
-     * A missing mapped entity value also omits the property rather than exposing an authored selection.
+     * A missing mapped entity value falls back to the authored media selection.
      */
-    #[TestDox('omits the mapped reference when the category has no media')]
-    public function testAMappedReferenceResolvingToNullOmitsTheProperty(): void
+    #[TestDox('uses the authored media when the category has no mapped media')]
+    public function testAMappedReferenceWithoutAValueUsesTheAuthoredMedia(): void
     {
         $this->createMedia('picked-media');
         $this->createCategory();
         $this->persistLayout($this->imageElement(mappedTo: 'category.media', mediaId: $this->ids->get('picked-media')));
 
-        static::assertArrayNotHasKey('media', $this->servedProperties());
+        static::assertSame($this->ids->get('picked-media'), $this->servedProperties()['media']['id'] ?? null);
     }
 
     /**

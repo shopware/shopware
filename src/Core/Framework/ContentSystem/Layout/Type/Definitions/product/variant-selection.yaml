@@ -14,7 +14,15 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
     required: false
     title: "Product"
-    description: "Hydrated product whose variants can be selected; resolved from the current product context. Optional because a product context may be unavailable, for example outside a product detail page; without a product, the component renders its fallback message instead of failing."
+    description: "Hydrated product whose variants can be selected. Defaults to the current product but can be mapped to another product. Optional because a product context may be unavailable; without a product, the component renders its fallback message instead of failing."
+    resolvedBy: productId
+    mappable: true
+    defaultMapping:
+      type: root
+      id: product
+    adminUI:
+      component: "entity-single-select"
+      entity: "product"
 
   configuratorSettings:
     type: Shopware\Core\Content\Property\PropertyGroupCollection

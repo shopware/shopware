@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -709,6 +710,11 @@ class InfoControllerTest extends TestCase
         static::assertContains('category.name', $paths);
         static::assertContains('category.media', $paths);
 
+        $candidatesByPath = array_column($data['mappingCandidates']['category'], null, 'path');
+        $nameCandidate = $candidatesByPath['category.name'] ?? null;
+        static::assertIsArray($nameCandidate);
+        static::assertSame('{{map:category.name}}', $nameCandidate['canonicalToken']);
+
         // Root entity candidates lead with the page-level requirement key; the shared Storefront context
         // candidates are also available on entity-backed layouts.
         foreach ($paths as $path) {
@@ -722,6 +728,19 @@ class InfoControllerTest extends TestCase
         static::assertContains('context:storefront.currency.symbol', $paths);
         static::assertContains('context:storefront.language.localeCode', $paths);
         static::assertContains('context:storefront.tax.state', $paths);
+    }
+
+    public function testContentSystemMappingCandidatesRequiresCustomFieldReadPermission(): void
+    {
+        $browser = $this->getBrowser();
+        TestUser::createNewTestUser(
+            $browser->getContainer()->get(Connection::class),
+            ['category:read'],
+        )->authorizeBrowser($browser);
+
+        $browser->request(Request::METHOD_GET, '/api/_info/content-system-mapping-candidates.json');
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
     }
 
     public function testContentSystemRootSources(): void

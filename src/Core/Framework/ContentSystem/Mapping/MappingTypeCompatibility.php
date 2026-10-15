@@ -27,7 +27,7 @@ final class MappingTypeCompatibility
      * any class-typed candidate and no primitive.
      *
      * @param string|list<string> $declaredType the property's declared `type`, as {@see PropertyType::type()} returns it
-     * @param string $candidateValueType the candidate's EFFECTIVE type, after its projection
+     * @param string $candidateValueType the candidate's effective provider output type
      */
     public function permits(string|array $declaredType, string $candidateValueType): bool
     {
@@ -41,22 +41,55 @@ final class MappingTypeCompatibility
             return false;
         }
 
-        if ($declaredType === self::UNCONSTRAINED_OBJECT_TYPE) {
-            return !$this->isPrimitive($candidateValueType);
+        return \in_array($declaredType, self::compatibleTypes($candidateValueType), true);
+    }
+
+    /**
+     * Lists every declared property type accepted by the same rule as {@see permits()}.
+     * The Administration uses this server-computed set to present compatible candidates without reimplementing
+     * primitive, object, or PHP class assignability rules in the browser.
+     *
+     * @return list<string>
+     */
+    public static function compatibleTypes(string $candidateValueType): array
+    {
+        if (self::isPrimitiveType($candidateValueType)) {
+            return [$candidateValueType];
         }
 
-        if ($this->isPrimitive($declaredType)) {
-            return $declaredType === $candidateValueType;
+        if ($candidateValueType === self::UNCONSTRAINED_OBJECT_TYPE) {
+            return [self::UNCONSTRAINED_OBJECT_TYPE];
         }
 
-        return !$this->isPrimitive($candidateValueType)
-            && is_a($candidateValueType, $declaredType, true);
+        $types = [$candidateValueType];
+
+        if (class_exists($candidateValueType)) {
+            $types = [
+                ...$types,
+                ...array_values(class_parents($candidateValueType) ?: []),
+                ...array_values(class_implements($candidateValueType) ?: []),
+            ];
+        } elseif (interface_exists($candidateValueType)) {
+            $types = [
+                ...$types,
+                ...array_values(class_implements($candidateValueType) ?: []),
+            ];
+        }
+
+        $types[] = self::UNCONSTRAINED_OBJECT_TYPE;
+
+        return array_values(array_unique($types));
+    }
+
+    public static function isPrimitiveType(string $type): bool
+    {
+        return \in_array($type, PropertyType::PRIMITIVE_TYPES, true);
     }
 
     /**
      * Whether a RUNTIME VALUE is of `$type`, in the same type vocabulary {@see permits()} speaks.
      *
-     * The render path's counterpart to permits(): a projection declares the type it accepts, and this is what
+     * The render path's counterpart to permits(): a provider declares the type it returns, and this is what
      * holds a resolved value to that declaration before `project()` is handed it.
      *
      * @param string $type a `PropertyType::PRIMITIVE_TYPES` member, bare `object`, or an FQCN
@@ -72,10 +105,5 @@ final class MappingTypeCompatibility
             self::UNCONSTRAINED_OBJECT_TYPE => \is_object($value),
             default => $value instanceof $type,
         };
-    }
-
-    private function isPrimitive(string $type): bool
-    {
-        return \in_array($type, PropertyType::PRIMITIVE_TYPES, true);
     }
 }

@@ -4,7 +4,15 @@ namespace Shopware\Tests\Unit\Core\System\CustomField\ContentSystem\Mapping;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\ContentSystem\Mapping\CustomFieldMappingCandidateProvider;
@@ -33,7 +41,6 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         $provider = new CustomFieldMappingCandidateProvider(
             new StaticEntityRepository([new CustomFieldCollection([$material, $weight])]),
             new TagAwareAdapter(new ArrayAdapter()),
-            static::createStub(CacheTagCollector::class),
         );
 
         static::assertTrue($provider->supports('product'));
@@ -51,6 +58,39 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         static::assertSame('number', $candidates[1]->valueType);
     }
 
+    public function testPagesThroughBoundedSearchesWithoutTruncatingTheCandidateCatalogue(): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria, Context $context): EntitySearchResult {
+                static $expectedOffsets = [0, 250];
+                $expectedOffset = array_shift($expectedOffsets);
+
+                static::assertSame(250, $criteria->getLimit());
+                static::assertSame($expectedOffset, $criteria->getOffset());
+
+                $offset = $criteria->getOffset() ?? 0;
+                $count = $offset === 0 ? 250 : 1;
+                $fields = [];
+
+                for ($index = 0; $index < $count; ++$index) {
+                    $fields[] = $this->customField('field_' . ($offset + $index), CustomFieldTypes::TEXT);
+                }
+
+                $collection = new CustomFieldCollection($fields);
+
+                return new EntitySearchResult('custom_field', $count, $collection, null, $criteria, $context);
+            });
+
+        $provider = new CustomFieldMappingCandidateProvider(
+            $repository,
+            new TagAwareAdapter(new ArrayAdapter()),
+        );
+
+        static::assertCount(251, $provider->provide('product'));
+    }
+
     public function testOmitsCustomFieldsWhoseStoredShapeIsNotSupported(): void
     {
         $media = $this->customField('manual', CustomFieldTypes::TEXT, ['customFieldType' => 'media']);
@@ -61,10 +101,31 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         $provider = new CustomFieldMappingCandidateProvider(
             new StaticEntityRepository([new CustomFieldCollection([$media, $multiSelect, $json, $date])]),
             new TagAwareAdapter(new ArrayAdapter()),
-            static::createStub(CacheTagCollector::class),
         );
 
         static::assertSame([], $provider->provide('product'));
+    }
+
+    public function testExcludesAmbiguousPersistedNamesAndKeepsOtherCandidatesAvailable(): void
+    {
+        $firstDuplicate = $this->customField('duplicate', CustomFieldTypes::TEXT);
+        $secondDuplicate = $this->customField('duplicate', CustomFieldTypes::TEXT);
+        $available = $this->customField('available', CustomFieldTypes::TEXT);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning')->with(
+            'Ambiguous custom-field mapping candidates were excluded from the catalogue.',
+            static::callback(static fn (array $context): bool => $context['rootSource'] === 'product'
+                && $context['candidate'] === 'product.customFields.duplicate'
+                && \count($context['customFieldIds']) === 2),
+        );
+
+        $provider = new CustomFieldMappingCandidateProvider(
+            new StaticEntityRepository([new CustomFieldCollection([$firstDuplicate, $secondDuplicate, $available])]),
+            new TagAwareAdapter(new ArrayAdapter()),
+            $logger,
+        );
+
+        static::assertSame(['product.customFields.available'], array_column($provider->provide('product'), 'path'));
     }
 
     public function testOnlySupportsEntityRootsWithCustomFieldRelations(): void
@@ -72,7 +133,6 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         $provider = new CustomFieldMappingCandidateProvider(
             new StaticEntityRepository([]),
             new TagAwareAdapter(new ArrayAdapter()),
-            static::createStub(CacheTagCollector::class),
         );
 
         static::assertFalse($provider->supports('header'));
@@ -81,21 +141,37 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
         static::assertSame([], $provider->provide('header'));
     }
 
-    public function testCollectsTheCustomFieldCacheTagWhenTheCatalogueIsAlreadyCached(): void
+    public function testReadsOnlyTheNamedCustomFieldFromTheLoadedRootEntity(): void
     {
-        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
-        $cacheTagCollector->expects($this->exactly(2))
-            ->method('addTag')
-            ->with('custom_field');
+        $provider = new CustomFieldMappingCandidateProvider(
+            new StaticEntityRepository([]),
+            new TagAwareAdapter(new ArrayAdapter()),
+        );
+        $product = new ProductEntity();
+        $product->setCustomFields(['material' => 'Leather', 'private' => 'Do not expose']);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['product' => $product], [], null, null, null);
+
+        static::assertSame('Leather', $provider->resolveRootSource(MappingSourceReference::root('product', 'customFields.material'), $context)->value);
+        static::assertFalse($provider->resolveRootSource(MappingSourceReference::root('product', 'customFields.missing'), $context)->hasValue);
+    }
+
+    public function testCandidateCarriesOnlyItsOwnFieldAndSetCacheTags(): void
+    {
+        $field = $this->customField('material', CustomFieldTypes::TEXT);
+        $setId = Uuid::randomHex();
+        $field->setCustomFieldSetId($setId);
 
         $provider = new CustomFieldMappingCandidateProvider(
-            new StaticEntityRepository([new CustomFieldCollection([$this->customField('material', CustomFieldTypes::TEXT)])]),
+            new StaticEntityRepository([new CustomFieldCollection([$field])]),
             new TagAwareAdapter(new ArrayAdapter()),
-            $cacheTagCollector,
         );
 
-        $provider->provide('product');
-        $provider->provide('product');
+        $candidate = $provider->provide('product')[0];
+
+        static::assertSame([
+            'content-system-custom-field-' . $field->getId(),
+            'content-system-custom-field-set-' . $setId,
+        ], $candidate->cacheTags);
     }
 
     /**
@@ -105,6 +181,7 @@ class CustomFieldMappingCandidateProviderTest extends TestCase
     {
         $customField = new CustomFieldEntity();
         $customField->setId(Uuid::randomHex());
+        $customField->setCustomFieldSetId(Uuid::randomHex());
         $customField->setName($name);
         $customField->setType($type);
         $customField->setConfig($config);

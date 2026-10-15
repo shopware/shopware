@@ -4,15 +4,15 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\MappingRuntimeDiagnosticCollector;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -44,9 +44,8 @@ final readonly class ContextDeliveryResolver
     public function __construct(
         private ContextDistributor $distributor,
         private ContextPathResolver $pathResolver,
-        private AbstractContentSystemPropertyProjectionRegistry $projections,
-        private MappingTypeCompatibility $compatibility,
-        private ?AbstractContentSystemMappingCandidateRegistry $mappingSources = null,
+        private AbstractContentSystemMappingCandidateRegistry $mappingSources,
+        private StoredMappingInspector $mappingInspector,
     ) {
     }
 
@@ -76,6 +75,7 @@ final readonly class ContextDeliveryResolver
         ?Request $request = null,
         ?RenderingCacheContext $cacheContext = null,
         ?string $rootSource = null,
+        ?MappingRuntimeDiagnosticCollector $mappingDiagnostics = null,
     ): ContextDeliveryIndex {
         $deliveries = [];
 
@@ -90,6 +90,7 @@ final readonly class ContextDeliveryResolver
                 $request,
                 $cacheContext,
                 $rootSource,
+                $mappingDiagnostics,
             );
         }
 
@@ -116,6 +117,7 @@ final readonly class ContextDeliveryResolver
         ?Request $request,
         ?RenderingCacheContext $cacheContext,
         ?string $rootSource,
+        ?MappingRuntimeDiagnosticCollector $mappingDiagnostics,
     ): void {
         $delivery = $this->overlayRootContext(
             $element,
@@ -126,6 +128,7 @@ final readonly class ContextDeliveryResolver
             $request,
             $cacheContext,
             $rootSource,
+            $mappingDiagnostics,
         );
 
         $deliveries[$element->id] = $delivery;
@@ -153,6 +156,7 @@ final readonly class ContextDeliveryResolver
                 $request,
                 $cacheContext,
                 $rootSource,
+                $mappingDiagnostics,
             );
         }
     }
@@ -163,11 +167,9 @@ final readonly class ContextDeliveryResolver
      * Ordinary consumers match on their map key; mappings match on their typed source reference. Delivery lands
      * under `propertyAlias ?? consumerKey`, so a mapping lands on the property that keys its map entry.
      *
-     * An ambient `null` delivers nothing and writes no key, matching the provider null gate in
-     * {@see ContextDistributor::distribute()}: a key absent from a delivery is one nothing delivered, and an
-     * ambient null must not be turned into the present null that means a resolution ran and found nothing.
-     * A mapping whose source resolves to null writes no key either; `RenderedElementFactory` then omits the
-     * destination property instead of falling back to authored or loader-resolved data.
+     * An ambient `null` delivers nothing, matching the provider null gate in
+     * {@see ContextDistributor::distribute()}. An ordinary dotted path that resolves to null still delivers
+     * present null. Mappings resolve through their candidate's provider and omit a destination with no value.
      *
      * Root-scoped writes run after the parent's, so they win a shared property key. Nothing can produce that
      * collision today (`WiringPlanner::validatePropertyAliases()` makes the base keys an element's consumers
@@ -185,12 +187,10 @@ final readonly class ContextDeliveryResolver
         ?Request $request,
         ?RenderingCacheContext $cacheContext,
         ?string $rootSource,
+        ?MappingRuntimeDiagnosticCollector $mappingDiagnostics,
     ): ContextDelivery {
-        if ($ambientContext === [] && $salesChannelContext === null && $this->mappingSources === null) {
-            return $delivery;
-        }
-
         $context = $delivery->context;
+        $mappingFallbackKeys = $delivery->mappingFallbackKeys;
         $overlaid = false;
 
         foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
@@ -199,8 +199,19 @@ final readonly class ContextDeliveryResolver
             }
 
             $mappingSource = $consumer->source;
-            if ($mappingSource !== null && $mappingSource->type !== 'root') {
-                if ($this->mappingSources === null) {
+            if ($mappingSource !== null) {
+                if ($rootSource === null) {
+                    continue;
+                }
+
+                $candidate = $this->mappingInspector->admitStoredProperty(
+                    $element->component,
+                    (string) $consumerKey,
+                    $consumer->type,
+                    $mappingSource,
+                    $rootSource,
+                );
+                if ($candidate instanceof ContentSystemException) {
                     continue;
                 }
 
@@ -216,73 +227,92 @@ final readonly class ContextDeliveryResolver
                         $cacheContext,
                     ),
                 );
-                if ($resolved === null) {
+                if (!$resolved->hasValue) {
+                    $destinationKey = $consumer->propertyAlias ?? (string) $consumerKey;
+                    $mappingDiagnostics?->record(
+                        $element->id,
+                        $destinationKey,
+                        $mappingSource->displayName(),
+                        $resolved->isFailure()
+                            ? 'The mapping provider failed while resolving this source.'
+                            : \sprintf('The mapped source "%s" has no value.', $mappingSource->displayName()),
+                    );
+
+                    if (!$resolved->isFailure()) {
+                        unset($context[$destinationKey]);
+                        $mappingFallbackKeys[] = $destinationKey;
+                    }
+
                     continue;
                 }
 
-                if ($consumer->projection !== null) {
-                    $resolved = $this->project($element, (string) $consumerKey, $consumer, $consumer->projection, $resolved);
-                    if ($resolved === null) {
-                        continue;
-                    }
+                if (!$this->mappingInspector->acceptsResolvedValue($candidate, $resolved->value)) {
+                    $mappingDiagnostics?->record(
+                        $element->id,
+                        $consumer->propertyAlias ?? (string) $consumerKey,
+                        $mappingSource->displayName(),
+                        \sprintf('The mapped source "%s" returned a value incompatible with its candidate type.', $mappingSource->displayName()),
+                    );
+
+                    continue;
                 }
 
-                $context[$consumer->propertyAlias ?? $consumerKey] = $resolved;
+                $destinationKey = $consumer->propertyAlias ?? $consumerKey;
+                if ($resolved->value !== null && $this->isEmptyMappingValue($resolved->value)) {
+                    unset($context[$destinationKey]);
+                    $mappingFallbackKeys[] = $destinationKey;
+
+                    continue;
+                }
+
+                $context[$destinationKey] = $resolved->value;
                 $overlaid = true;
 
                 continue;
             }
 
-            if ($mappingSource !== null) {
-                // A mapping can outlive the candidate that admitted it. Recheck the live catalogue before
-                // reading from the ambient entity, since scalar leaves bypass the normal API-aware encoder.
-                // Loading it also lets providers attach their cache tags to this render, including layouts
-                // whose only mapping is a whole-field root mapping.
-                $candidate = $rootSource === null || $this->mappingSources === null
-                    ? null
-                    : ($this->mappingSources->forRootSource($rootSource)[$mappingSource->displayName()] ?? null);
-
-                if ($candidate === null || !$candidate->source->isSameAs($mappingSource)) {
-                    continue;
-                }
-            }
-
-            $contextPath = $mappingSource === null
-                ? (string) $consumerKey
-                : $mappingSource->displayName();
-            $sourceKey = explode('.', $contextPath, 2)[0];
+            $contextPath = (string) $consumerKey;
 
             foreach ($ambientContext as $ambientKey => $value) {
                 if ($value === null || !$this->pathResolver->matches($ambientKey, $contextPath)) {
                     continue;
                 }
 
-                $resolved = $mappingSource !== null || $contextPath !== $ambientKey
+                $resolved = $contextPath !== $ambientKey
                     ? $this->ambientValueFor($element, $contextPath, $consumer, $ambientKey, $value)
                     : $value;
-
-                // A dotted path that resolves to nothing writes NO key. A mapped property is omitted in the
-                // final element; optional ordinary context wiring keeps its established no-delivery behavior.
-                if ($resolved === null && $contextPath !== $ambientKey) {
-                    continue;
-                }
 
                 $context[$consumer->propertyAlias ?? $consumerKey] = $resolved;
                 $overlaid = true;
             }
         }
 
-        return $overlaid ? $delivery->withContext($context) : $delivery;
+        if (!$overlaid && $mappingFallbackKeys === $delivery->mappingFallbackKeys) {
+            return $delivery;
+        }
+
+        return new ContextDelivery(
+            $delivery->elementId,
+            $context,
+            $delivery->distributionReferencedKeys,
+            array_values(array_unique($mappingFallbackKeys)),
+        );
+    }
+
+    private function isEmptyMappingValue(mixed $value): bool
+    {
+        return $value === ''
+            || $value === []
+            || ($value instanceof \Countable && \count($value) === 0);
     }
 
     /**
      * An exact match hands on the SAME PHP instance, which is what makes the value-index instance map collapse
      * a root delivery onto the ambient loader value's ref. A dot path resolves through the value, which needs
      * a {@see Struct} to traverse: a required consumer that cannot get one fails naming this element, an
-     * optional one yields null — which the caller reads as "deliver nothing" rather than writing through.
+     * optional one yields null. Ordinary consumers receive that null; mapped consumers deliver nothing.
      *
-     * A declared projection runs last, on the resolved value, so the property receives the reshaped one. It is
-     * reached only for a mapping, which is the shape the codec admits a projection on.
+     * Mappings use provider dispatch above. This method only resolves ordinary root wiring.
      */
     private function ambientValueFor(
         StoredElement $element,
@@ -305,62 +335,10 @@ final readonly class ContextDeliveryResolver
             return null;
         } else {
             $path = $this->pathResolver->parseContextKey($consumerKey);
-            $resolved = $consumer->source !== null
-                ? $this->pathResolver->resolveMappingPath($data, $path, $consumer->required, $consumerKey, $element->id)
-                : $this->pathResolver->resolvePath($data, $path, $consumer->required, $consumerKey, $element->id);
+            $resolved = $this->pathResolver->resolvePath($data, $path, $consumer->required, $consumerKey, $element->id);
         }
 
-        if ($consumer->projection === null || $resolved === null) {
-            return $resolved;
-        }
-
-        return $this->project($element, $consumerKey, $consumer, $consumer->projection, $resolved);
-    }
-
-    /**
-     * Runs the declared projection over a resolved value.
-     *
-     * Two things can be wrong here, and both are the ground giving way under stored data the write gate did
-     * admit: the projection is gone (the plugin that registered it was removed) or the value is not the type
-     * it declared (a provider's candidate names the wrong input type, or the path's own shape changed). Either
-     * way this follows the same rule as the path resolution above — a required consumer fails naming the
-     * element, an optional one yields null, which the caller turns into delivering nothing.
-     *
-     * Every mapping an author makes is written optional, so in practice a storefront keeps rendering and falls
-     * back to the authored value rather than going down over a missing plugin.
-     */
-    private function project(
-        StoredElement $element,
-        string $consumerKey,
-        ContextConsumer $consumer,
-        string $name,
-        mixed $resolved,
-    ): mixed {
-        $projection = $this->projections->get($name);
-
-        if ($projection === null) {
-            return $this->projectionFailed($element, $consumerKey, $consumer, \sprintf('Projection "%s" is not registered', $name));
-        }
-
-        if (!$this->compatibility->admits($projection->inputType(), $resolved)) {
-            return $this->projectionFailed($element, $consumerKey, $consumer, \sprintf(
-                'Projection "%s" expects "%s", got "%s"',
-                $name,
-                $projection->inputType(),
-                get_debug_type($resolved)
-            ));
-        }
-
-        return $projection->project($resolved);
-    }
-
-    private function projectionFailed(StoredElement $element, string $consumerKey, ContextConsumer $consumer, string $reason): mixed
-    {
-        if ($consumer->required) {
-            throw ContentSystemException::contextPathNotResolvable($consumerKey, $element->id, $reason);
-        }
-
-        return null;
+        return $resolved;
     }
 
     /**

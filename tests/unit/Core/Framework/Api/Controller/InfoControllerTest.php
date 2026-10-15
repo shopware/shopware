@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
@@ -33,7 +34,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
@@ -56,6 +59,7 @@ use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -174,16 +178,52 @@ class InfoControllerTest extends TestCase
                     'description' => 'sw-experience-studio.mapping.category.name.description',
                     'group' => 'basic',
                     'valueType' => 'string',
-                    'compatibleTypes' => [],
+                    'compatibleTypes' => ['string'],
+                    'inlineMappable' => true,
                     'contextType' => 'single',
-                    'projection' => null,
                     'labelTranslations' => [],
                     'descriptionTranslations' => [],
+                    'canonicalToken' => '{{map:category.name}}',
                 ]],
                 // Present but empty, so a client never has to tell "offers nothing" apart from "unknown".
                 'none' => [],
             ],
         ], json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+    }
+
+    public function testPathlessTypedCandidateHasNoInlineTokenInCatalogue(): void
+    {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
+        $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
+        $rootSourceRegistry->method('knownRootSources')->willReturn(['category']);
+
+        $candidate = new MappingCandidate(
+            path: 'context:example',
+            label: 'Example',
+            description: '',
+            group: 'basic',
+            valueType: 'string',
+            source: new MappingSourceReference('context', 'example'),
+        );
+
+        $mappingCandidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $mappingCandidateRegistry->method('forRootSource')->willReturn(['context:example' => $candidate]);
+
+        $response = $this->createController(
+            rootSourceRegistry: $rootSourceRegistry,
+            mappingCandidateRegistry: $mappingCandidateRegistry,
+        )->contentSystemMappingCandidates();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $catalogueCandidate = $data['mappingCandidates']['category'][0];
+
+        static::assertSame('context:example', $catalogueCandidate['path']);
+        static::assertFalse($catalogueCandidate['inlineMappable']);
+        static::assertNull($catalogueCandidate['canonicalToken']);
+        static::assertTrue((new InlineMappingTokenParser())->parse('{{map:context:example}}')[0]->malformed);
     }
 
     #[TestDox('returns one root-source entry per known root source, in order, with its kind and provided context')]
@@ -781,8 +821,10 @@ class InfoControllerTest extends TestCase
             ),
             $layoutPresetRegistry ?? static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
             $mappingCandidateRegistry ?? static::createStub(AbstractContentSystemMappingCandidateRegistry::class),
+            new InlineMappingTokenParser(),
             null,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
+            new CacheTagCollector(new RequestStack(), $this->eventDispatcher),
         );
     }
 }

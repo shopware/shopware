@@ -281,6 +281,11 @@
           "other": "Sonstige"
         }
       },
+      "mappingMutationErrors": {
+        "propertyNotMappable": "Für diese Eigenschaft ist keine Datenzuordnung möglich. Wähle eine Eigenschaft, die Zuordnungen unterstützt.",
+        "unknownMappingPath": "Diese Datenquelle ist nicht mehr verfügbar. Wähle eine andere Quelle für diese Eigenschaft.",
+        "mappingTypeMismatch": "Diese Datenquelle ist mit der Eigenschaft nicht kompatibel. Wähle eine kompatible Quelle."
+      },
       "messageSaved": "Inhaltslayout erfolgreich gespeichert.",
       "messageSaveError": "Das Inhaltslayout konnte nicht gespeichert werden.",
       "messageSaveErrorDetail": "Das Inhaltslayout konnte nicht gespeichert werden: {detail}",

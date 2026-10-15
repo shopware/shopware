@@ -4,14 +4,13 @@ namespace Shopware\Core\Framework\ContentSystem\Mapping;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingToken;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
 use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
@@ -19,14 +18,11 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * The admissibility rules for stored data mappings, in one place and reporting-agnostic: every mapping names
- * a mappable property, a catalogued path, the projection the catalogue pairs that path with, and a value the
+ * a mappable property, a catalogued path, and a value the
  * property can hold.
  *
- * It answers with {@see MappingProblem}s rather than with anything a caller can return directly, because it
- * has two callers that must not diverge. {@see StoredMappingValidator} refuses the `content_layout` write;
- * {@see LayoutDiagnostics} reports the same findings on the diagnose and draft mutation routes, which is
- * what the Experience Studio reads. Before that second surface existed, mapping an element to a path the
- * catalogue could already prove wrong was silent in the editor and only failed on save.
+ * {@see StoredMappingValidator} refuses the `content_layout` write, {@see LayoutDiagnostics} reports findings
+ * on editor routes, and map mutations and default seeding use {@see admitProperty()} before storing a candidate.
  *
  * The rules are keyed on the ROOT SOURCE, not on the root-ambient context: a catalogue lookup needs the
  * source id, and a resolved context cannot supply one. That is the reason this is not simply another check
@@ -42,12 +38,10 @@ use Shopware\Core\Framework\Log\Package;
  * TWO KINDS OF MAPPING ARE JUDGED HERE, and they are found in different places. A whole-field mapping is a context
  * CONSUMER carrying a typed source, so it is declared and can be enumerated. An INLINE mapping is a `{{map:path}}`
  * token inside an `inlineMappable` string PROPERTY: nothing declares it, so {@see inspectElementInline()} scans the
- * text for it. Both report through {@see MappingProblem} and both are errors.
+ * text for it. Mapping-like text in other properties is literal and is not inspected.
  *
- * The inline rules are not merely a convenience for the author. The render path does not enforce them — expansion
- * resolves a catalogued token and leaves anything else verbatim, with no judgement of its own. The write gate and
- * diagnose route share {@see inspect()}, and the draft preview uses it too so inadmissible mappings are rejected
- * before a draft reaches the renderer.
+ * The write gate and diagnose route share {@see inspect()}, so mappings in opted-in properties are judged by the
+ * same rules. Preview reports mapping faults through diagnostics without blocking rendering.
  *
  * @internal
  */
@@ -59,7 +53,6 @@ final class StoredMappingInspector
         private readonly AbstractContentSystemMappingCandidateRegistry $candidateRegistry,
         private readonly MappingTypeCompatibility $compatibility,
         private readonly MappingConsumers $mappingConsumers,
-        private readonly AbstractContentSystemPropertyProjectionRegistry $projections,
         private readonly InlineMappingTokenParser $tokenParser,
     ) {
     }
@@ -72,14 +65,34 @@ final class StoredMappingInspector
     public function inspect(array $roots, string $rootSource): array
     {
         $problems = [];
-        $candidates = $this->candidateRegistry->forRootSource($rootSource);
 
         foreach ($this->flatten($roots) as $element) {
-            foreach ($this->inspectElement($element, $rootSource, $candidates) as $problem) {
+            foreach ($this->inspectElement($element, $rootSource) as $problem) {
                 $problems[] = $problem;
             }
 
-            foreach ($this->inspectElementInline($element, $rootSource, $candidates) as $problem) {
+            foreach ($this->inspectElementInline($element, $rootSource) as $problem) {
+                $problems[] = $problem;
+            }
+        }
+
+        return $problems;
+    }
+
+    /**
+     * Whole-field mapping findings only, for structural replacement code that reports dropped consumers.
+     * Inline-token diagnostics cannot represent dropped wiring because tokens are authored property text.
+     *
+     * @param list<StoredElement> $roots
+     *
+     * @return list<MappingProblem>
+     */
+    public function inspectWholeField(array $roots, string $rootSource): array
+    {
+        $problems = [];
+
+        foreach ($this->flatten($roots) as $element) {
+            foreach ($this->inspectElement($element, $rootSource) as $problem) {
                 $problems[] = $problem;
             }
         }
@@ -100,10 +113,8 @@ final class StoredMappingInspector
     public function inspectInline(array $roots, string $rootSource): array
     {
         $problems = [];
-        $candidates = $this->candidateRegistry->forRootSource($rootSource);
-
         foreach ($this->flatten($roots) as $element) {
-            foreach ($this->inspectElementInline($element, $rootSource, $candidates) as $problem) {
+            foreach ($this->inspectElementInline($element, $rootSource) as $problem) {
                 $problems[] = $problem;
             }
         }
@@ -112,11 +123,141 @@ final class StoredMappingInspector
     }
 
     /**
-     * @param array<string, MappingCandidate> $candidates
+     * Inline tokens are explicit mapping intent even when no root source is bound. Report that missing
+     * prerequisite without consulting a source-specific candidate catalogue. Whole-field mappings remain
+     * unjudged here because their admissibility cannot be determined without that catalogue.
+     *
+     * @param list<StoredElement> $roots
      *
      * @return list<MappingProblem>
      */
-    private function inspectElement(StoredElement $element, string $rootSource, array $candidates): array
+    public function inspectInlineWithoutRootSource(array $roots): array
+    {
+        $problems = [];
+
+        foreach ($this->flatten($roots) as $element) {
+            if (!$this->typeRegistry->has($element->component)) {
+                continue;
+            }
+
+            $declared = $this->typeRegistry->get($element->component)->properties();
+
+            foreach ($element->properties() as $key => $value) {
+                if (!$value->isString()) {
+                    continue;
+                }
+
+                $text = $value->asString();
+                if (!$this->tokenParser->containsToken($text)) {
+                    continue;
+                }
+
+                $propertyKey = (string) $key;
+                $property = $declared[$propertyKey] ?? null;
+                if ($property === null || !$property->inlineMappable()) {
+                    continue;
+                }
+
+                foreach ($this->tokenParser->parse($text) as $token) {
+                    $exception = $token->malformed
+                        ? ContentSystemException::malformedInlineMappingToken($token->path, $propertyKey)
+                        : ContentSystemException::inlineMappingRequiresRootSource($token->path, $propertyKey);
+                    $problems[] = new MappingProblem(
+                        $element->id,
+                        $propertyKey,
+                        $token->path,
+                        $exception,
+                    );
+                }
+            }
+        }
+
+        return $problems;
+    }
+
+    /**
+     * The admission decision used when creating a mapping or seeding a declared default. A successful
+     * candidate supplies the exact source and context type that must be stored together.
+     */
+    public function admitProperty(string $component, string $propertyKey, MappingSourceReference $source, string $rootSource): MappingCandidate|ContentSystemException
+    {
+        if (!$this->typeRegistry->has($component)) {
+            return ContentSystemException::propertyNotMappable($component, $propertyKey);
+        }
+
+        $property = $this->typeRegistry->get($component)->properties()[$propertyKey] ?? null;
+        if ($property === null || !$property->mappable()) {
+            return ContentSystemException::propertyNotMappable($component, $propertyKey);
+        }
+
+        return $this->propertyCandidate($component, $propertyKey, $property, $source, $rootSource);
+    }
+
+    /**
+     * The complete decision for a stored whole-field mapping, including its persisted cardinality. Rendering
+     * uses this same method as the write gate so a directly stored or stale layout cannot bypass admission.
+     */
+    public function admitStoredProperty(
+        string $component,
+        string $propertyKey,
+        ContextType $contextType,
+        MappingSourceReference $source,
+        string $rootSource,
+    ): MappingCandidate|ContentSystemException {
+        $candidate = $this->admitProperty($component, $propertyKey, $source, $rootSource);
+        if ($candidate instanceof ContentSystemException) {
+            return $candidate;
+        }
+
+        if ($contextType !== $candidate->contextType) {
+            return ContentSystemException::mappingContextTypeMismatch($source->displayName(), $contextType->value, $candidate->contextType->value);
+        }
+
+        return $candidate;
+    }
+
+    /**
+     * The shared candidate and text-type decision for an inline token. The caller separately owns token placement
+     * and the property's `inlineMappable` declaration, since both depend on the parsed token and target property.
+     */
+    public function admitInlinePath(string $path, string $rootSource): MappingCandidate|ContentSystemException
+    {
+        $candidate = $this->candidateRegistry->forRootSource($rootSource)[$path] ?? null;
+        if ($candidate === null || $candidate->path !== $path) {
+            return ContentSystemException::unknownInlineMappingPath($path, $rootSource);
+        }
+
+        if (!\in_array($candidate->valueType, InlineMappingInterpolator::STRINGIFIABLE_TYPES, true)) {
+            return ContentSystemException::inlineMappingValueNotStringifiable($path, $candidate->valueType);
+        }
+
+        return $candidate;
+    }
+
+    public function isInlineMappable(string $component, string $propertyKey): bool
+    {
+        if (!$this->typeRegistry->has($component)) {
+            return false;
+        }
+
+        $property = $this->typeRegistry->get($component)->properties()[$propertyKey] ?? null;
+
+        return $property?->inlineMappable() ?? false;
+    }
+
+    /**
+     * A non-null provider value is checked by the same compatibility owner used when its candidate is admitted.
+     * Present null is valid resolved data; the provider result, rather than this type check, distinguishes it from no value.
+     */
+    public function acceptsResolvedValue(MappingCandidate $candidate, mixed $value): bool
+    {
+        return $value === null || $this->compatibility->admits($candidate->valueType, $value);
+    }
+
+    /**
+     * @return list<MappingProblem>
+     */
+    private function inspectElement(StoredElement $element, string $rootSource): array
     {
         if (!$this->typeRegistry->has($element->component)) {
             // An unregistered component is already an intrinsic well-formedness violation; this rule set does
@@ -142,8 +283,19 @@ final class StoredMappingInspector
                 continue;
             }
 
-            $exception = $this->mappingFault($propertyKey, $consumer, $property, $element->component, $rootSource, $candidates);
+            $source = $consumer->source;
+            if ($source === null) {
+                continue;
+            }
 
+            $decision = $this->admitStoredProperty(
+                $element->component,
+                $propertyKey,
+                $consumer->type,
+                $source,
+                $rootSource,
+            );
+            $exception = $decision instanceof ContentSystemException ? $decision : null;
             if ($exception === null) {
                 continue;
             }
@@ -163,11 +315,9 @@ final class StoredMappingInspector
      * — because the gate and the expansion must agree on where a token counts. See
      * `Mapping\Inline\InlineMappingExpander` for why that boundary is where it is.
      *
-     * @param array<string, MappingCandidate> $candidates
-     *
      * @return list<MappingProblem>
      */
-    private function inspectElementInline(StoredElement $element, string $rootSource, array $candidates): array
+    private function inspectElementInline(StoredElement $element, string $rootSource): array
     {
         if (!$this->typeRegistry->has($element->component)) {
             return [];
@@ -190,15 +340,15 @@ final class StoredMappingInspector
             $propertyKey = (string) $key;
             $property = $declared[$propertyKey] ?? null;
 
+            if ($property === null || !$property->inlineMappable()) {
+                continue;
+            }
+
             foreach ($this->tokenParser->parse($text) as $token) {
                 $exception = $this->inlineFault(
-                    $element->component,
                     $propertyKey,
-                    $property,
                     $token,
-                    $text,
-                    $rootSource,
-                    $candidates
+                    $rootSource
                 );
 
                 if ($exception === null) {
@@ -213,88 +363,41 @@ final class StoredMappingInspector
     }
 
     /**
-     * The four inline rules, in the order an author is best served by: opt-in first, because until the property
-     * admits tokens at all nothing else about the path matters; then placement, because a token in a tag is wrong
-     * wherever it points; then the catalogue; then the value's shape.
-     *
-     * @param array<string, MappingCandidate> $candidates
+     * The inline rules for opted-in text: placement, catalogue membership, then the value's shape.
      */
     private function inlineFault(
-        string $component,
         string $propertyKey,
-        ?PropertySpecification $property,
         InlineMappingToken $token,
-        string $text,
         string $rootSource,
-        array $candidates,
     ): ?ContentSystemException {
-        // An undeclared key is reported under the same code as a declared one that did not opt in: neither can be
-        // shown to admit tokens, and the render path leaves both verbatim.
-        if ($property === null || !$property->inlineMappable()) {
-            return ContentSystemException::propertyNotInlineMappable($component, $propertyKey);
+        if ($token->malformed) {
+            return ContentSystemException::malformedInlineMappingToken($token->path, $propertyKey);
         }
 
-        if ($this->tokenParser->occursInsideMarkup($text, $token->offset)) {
+        if ($token->insideMarkup) {
             return ContentSystemException::inlineMappingTokenInMarkup($token->path, $propertyKey);
         }
 
-        $candidate = $candidates[$token->path] ?? null;
+        $decision = $this->admitInlinePath($token->path, $rootSource);
 
-        if ($candidate === null) {
-            return ContentSystemException::unknownInlineMappingPath($token->path, $rootSource);
-        }
-
-        // `valueType` is the EFFECTIVE type, after the candidate's own projection, which is exactly what gets
-        // written into the text — so this checks the right thing without consulting the projection at all.
-        if (!\in_array($candidate->valueType, InlineMappingInterpolator::STRINGIFIABLE_TYPES, true)) {
-            return ContentSystemException::inlineMappingValueNotStringifiable($token->path, $candidate->valueType);
-        }
-
-        return null;
+        return $decision instanceof ContentSystemException ? $decision : null;
     }
 
-    /**
-     * @param array<string, MappingCandidate> $candidates
-     */
-    private function mappingFault(
-        string $propertyKey,
-        ContextConsumer $consumer,
-        PropertySpecification $property,
+    private function propertyCandidate(
         string $component,
+        string $propertyKey,
+        ?PropertySpecification $property,
+        MappingSourceReference $source,
         string $rootSource,
-        array $candidates,
-    ): ?ContentSystemException {
-        if (!$property->mappable()) {
+    ): MappingCandidate|ContentSystemException {
+        if ($property === null || !$property->mappable()) {
             return ContentSystemException::propertyNotMappable($component, $propertyKey);
         }
 
-        // Non-null by MappingConsumers::isMapping(), checked at the call site.
-        $sourceName = $consumer->source?->displayName() ?? $propertyKey;
-        $candidate = $candidates[$sourceName] ?? null;
-        if ($candidate !== null && ($consumer->source === null || !$candidate->source->isSameAs($consumer->source))) {
-            $candidate = null;
-        }
-
-        if ($candidate === null) {
+        $sourceName = $source->displayName();
+        $candidate = $this->candidateForSource($source, $rootSource, $this->candidateRegistry->forRootSource($rootSource));
+        if ($candidate instanceof ContentSystemException) {
             return ContentSystemException::unknownMappingPath($sourceName, $rootSource);
-        }
-
-        // The candidate owns the pairing of path and projection, so the stored mapping has to carry the
-        // projection the catalogue offered it with — including carrying none where the candidate has none.
-        // Otherwise an author could keep a catalogued path and swap the transform, and the type check below
-        // would then be checking a type nothing produces: valueType describes the path AFTER the candidate's
-        // own projection, and says nothing about what a substituted one would yield.
-        $projection = $consumer->projection;
-
-        if ($projection !== $candidate->projection) {
-            return ContentSystemException::mappingProjectionMismatch($sourceName, $projection, $candidate->projection);
-        }
-
-        if ($projection !== null && $this->projections->get($projection) === null) {
-            // The name came from the candidate, so a provider is offering a transform the container does not
-            // have. Reported rather than thrown so one broken provider fails the layouts that use it instead
-            // of every layout.
-            return ContentSystemException::unknownPropertyProjection($projection, $sourceName);
         }
 
         $declaredType = $property->type()->type();
@@ -310,7 +413,22 @@ final class StoredMappingInspector
             );
         }
 
-        return null;
+        return $candidate;
+    }
+
+    /**
+     * @param array<string, MappingCandidate> $candidates
+     */
+    private function candidateForSource(
+        MappingSourceReference $source,
+        string $rootSource,
+        array $candidates,
+    ): MappingCandidate|ContentSystemException {
+        $candidate = $candidates[$source->displayName()] ?? null;
+
+        return $candidate !== null && $candidate->source->isSameAs($source)
+            ? $candidate
+            : ContentSystemException::unknownMappingPath($source->displayName(), $rootSource);
     }
 
     /**

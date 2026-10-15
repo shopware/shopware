@@ -9,8 +9,10 @@ function candidate(overrides: Partial<ContentSystemMappingCandidate> = {}): Cont
         description: 'sw-experience-studio.mapping.category.name.description',
         group: 'basic',
         valueType: 'string',
+        compatibleTypes: ['string'],
+        inlineMappable: true,
+        canonicalToken: `{{map:${overrides.path ?? 'category.name'}}}`,
         contextType: 'single',
-        projection: null,
         ...overrides,
     };
 }

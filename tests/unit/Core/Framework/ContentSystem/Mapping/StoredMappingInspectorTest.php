@@ -20,13 +20,10 @@ use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentPropertyProjection;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
-use Shopware\Core\Test\Stub\ContentSystem\StubUppercaseProjection;
 
 /**
  * The mapping admissibility rules, tested once here for the two surfaces that report them
@@ -41,8 +38,6 @@ class StoredMappingInspectorTest extends TestCase
     private const CATEGORY_NAME_PATH = 'category.name';
 
     private const CATEGORY_MEDIA_PATH = 'category.media';
-
-    private const CATEGORY_SHOUT_PATH = 'category.shoutedName';
 
     public function testAdmitsAMappingOntoAMappablePropertyFromACataloguedPath(): void
     {
@@ -87,56 +82,15 @@ class StoredMappingInspectorTest extends TestCase
         );
     }
 
-    public function testAdmitsAMappingCarryingTheProjectionItsCandidateDeclares(): void
+    public function testRejectsAStoredMappingWithDifferentContextCardinalityThanItsCandidate(): void
     {
-        $element = $this->elementMapping(self::CATEGORY_SHOUT_PATH, onto: 'text', projection: StubUppercaseProjection::NAME);
-
-        static::assertSame([], $this->inspector($this->textElementType(mappable: true))->inspect([$element], 'category'));
-    }
-
-    /**
-     * The candidate's `valueType` describes the value AFTER its own projection, so a mapping that drops the
-     * projection would be type-checked against a type nothing produces.
-     */
-    public function testRejectsAMappingThatDropsItsCandidatesProjection(): void
-    {
-        $element = $this->elementMapping(self::CATEGORY_SHOUT_PATH, onto: 'text');
+        $element = $this->elementMapping(self::CATEGORY_NAME_PATH, onto: 'text', contextType: ContextType::Collection);
 
         $problems = $this->inspector($this->textElementType(mappable: true))->inspect([$element], 'category');
 
         static::assertCount(1, $problems);
         static::assertSame(
-            ContentSystemException::mappingProjectionMismatch(self::CATEGORY_SHOUT_PATH, null, StubUppercaseProjection::NAME)->getMessage(),
-            $problems[0]->exception->getMessage()
-        );
-    }
-
-    public function testRejectsAProjectionOnACandidateThatDeclaresNone(): void
-    {
-        $element = $this->elementMapping(self::CATEGORY_NAME_PATH, onto: 'text', projection: StubUppercaseProjection::NAME);
-
-        $problems = $this->inspector($this->textElementType(mappable: true))->inspect([$element], 'category');
-
-        static::assertCount(1, $problems);
-        static::assertSame(
-            ContentSystemException::mappingProjectionMismatch(self::CATEGORY_NAME_PATH, StubUppercaseProjection::NAME, null)->getMessage(),
-            $problems[0]->exception->getMessage()
-        );
-    }
-
-    /**
-     * A provider bug rather than client input, reported as a problem so one broken provider fails only the
-     * layouts that use it.
-     */
-    public function testRejectsACandidateWhoseProjectionIsNotRegistered(): void
-    {
-        $element = $this->elementMapping(self::CATEGORY_SHOUT_PATH, onto: 'text', projection: StubUppercaseProjection::NAME);
-
-        $problems = $this->inspector($this->textElementType(mappable: true), projections: [])->inspect([$element], 'category');
-
-        static::assertCount(1, $problems);
-        static::assertSame(
-            ContentSystemException::unknownPropertyProjection(StubUppercaseProjection::NAME, self::CATEGORY_SHOUT_PATH)->getMessage(),
+            ContentSystemException::mappingContextTypeMismatch(self::CATEGORY_NAME_PATH, 'collection', 'single')->getMessage(),
             $problems[0]->exception->getMessage()
         );
     }
@@ -257,15 +211,42 @@ class StoredMappingInspectorTest extends TestCase
         static::assertSame([], $this->inspector($this->textElementType(inlineMappable: true))->inspect([$element], 'category'));
     }
 
-    #[TestDox('rejects an inline token in a property that did not declare inlineMappable')]
-    public function testRejectsAnInlineTokenInAPropertyThatDidNotOptIn(): void
+    public function testDiagnosesADotlessInlineTokenAsMalformed(): void
+    {
+        $element = $this->elementWithText('Buy the {{map:category}} today');
+
+        $problems = $this->inspector($this->textElementType(inlineMappable: true))->inspect([$element], 'category');
+
+        static::assertCount(1, $problems);
+        static::assertSame(
+            ContentSystemException::MALFORMED_INLINE_MAPPING_TOKEN,
+            $problems[0]->exception->getErrorCode(),
+        );
+        static::assertSame(
+            ContentSystemException::malformedInlineMappingToken('category', 'text')->getMessage(),
+            $problems[0]->exception->getMessage(),
+        );
+    }
+
+    public function testDiagnosesADotlessInlineTokenWithoutABoundRootSource(): void
+    {
+        $element = $this->elementWithText('{{map:category}}');
+
+        $problems = $this->inspector($this->textElementType(inlineMappable: true))->inspectInlineWithoutRootSource([$element]);
+
+        static::assertCount(1, $problems);
+        static::assertSame(
+            ContentSystemException::MALFORMED_INLINE_MAPPING_TOKEN,
+            $problems[0]->exception->getErrorCode(),
+        );
+    }
+
+    #[TestDox('treats mapping-looking text as literal in a property that did not declare inlineMappable')]
+    public function testIgnoresATokenInAPropertyThatDidNotOptIn(): void
     {
         $element = $this->elementWithText('Buy the {{map:category.name}} today');
 
-        $problems = $this->inspector($this->textElementType(inlineMappable: false))->inspect([$element], 'category');
-
-        static::assertCount(1, $problems);
-        static::assertSame(ContentSystemException::PROPERTY_NOT_INLINE_MAPPABLE, $problems[0]->exception->getErrorCode());
+        static::assertSame([], $this->inspector($this->textElementType(inlineMappable: false))->inspect([$element], 'category'));
     }
 
     #[TestDox('rejects an inline token naming a path the catalogue does not offer')]
@@ -302,6 +283,16 @@ class StoredMappingInspectorTest extends TestCase
     public function testRejectsAnInlineTokenInsideMarkup(): void
     {
         $element = $this->elementWithText('<a href="/p/{{map:category.name}}">link</a>');
+
+        $problems = $this->inspector($this->textElementType(inlineMappable: true))->inspect([$element], 'category');
+
+        static::assertCount(1, $problems);
+        static::assertSame(ContentSystemException::INLINE_MAPPING_TOKEN_IN_MARKUP, $problems[0]->exception->getErrorCode());
+    }
+
+    public function testRejectsAttributeTokenAfterQuotedGreaterThan(): void
+    {
+        $element = $this->elementWithText('<a title="a > {{map:category.name}}">link</a>');
 
         $problems = $this->inspector($this->textElementType(inlineMappable: true))->inspect([$element], 'category');
 
@@ -375,17 +366,16 @@ class StoredMappingInspectorTest extends TestCase
         string $onto,
         string $id = 'element-1',
         string $component = 'Sw:Content:Text',
-        ?string $projection = null,
+        ContextType $contextType = ContextType::Single,
     ): StoredElement {
         return new StoredElement(
             id: $id,
             component: $component,
             contextDefinitions: new ContextDefinitions(consumers: [
                 $onto => new ContextConsumer(
-                    type: ContextType::Single,
+                    type: $contextType,
                     required: false,
                     scope: ConsumerScope::Root,
-                    projection: $projection,
                     source: MappingSourceReference::fromRootPath($path),
                 ),
             ]),
@@ -399,12 +389,7 @@ class StoredMappingInspectorTest extends TestCase
             ->build();
     }
 
-    /**
-     * @param list<AbstractContentPropertyProjection>|null $projections null registers the stub the catalogue
-     *                                                                  below refers to; pass `[]` for an empty
-     *                                                                  container
-     */
-    private function inspector(ContentSystemElementTypeSpecification $textType, ?array $projections = null): StoredMappingInspector
+    private function inspector(ContentSystemElementTypeSpecification $textType): StoredMappingInspector
     {
         $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $typeRegistry->method('has')->willReturnCallback(
@@ -428,14 +413,6 @@ class StoredMappingInspectorTest extends TestCase
                 group: 'media',
                 valueType: MediaEntity::class,
             ),
-            self::CATEGORY_SHOUT_PATH => new MappingCandidate(
-                path: self::CATEGORY_SHOUT_PATH,
-                label: 'a label',
-                description: 'a description',
-                group: 'basic',
-                valueType: 'string',
-                projection: StubUppercaseProjection::NAME,
-            ),
         ]);
 
         return new StoredMappingInspector(
@@ -443,7 +420,6 @@ class StoredMappingInspectorTest extends TestCase
             $candidateRegistry,
             new MappingTypeCompatibility(),
             new MappingConsumers(),
-            new ContentSystemPropertyProjectionRegistry($projections ?? [new StubUppercaseProjection()]),
             new InlineMappingTokenParser(),
         );
     }

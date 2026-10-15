@@ -4,8 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MapProperty;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnmapProperty;
 use Shopware\Core\Framework\Log\Package;
@@ -20,8 +19,7 @@ final readonly class PropertyMappingMutationFactory
 {
     public function __construct(
         private AbstractContentSystemElementTypeRegistry $typeRegistry,
-        private AbstractContentSystemMappingCandidateRegistry $candidateRegistry,
-        private MappingTypeCompatibility $compatibility,
+        private StoredMappingInspector $mappingInspector,
     ) {
     }
 
@@ -29,8 +27,7 @@ final readonly class PropertyMappingMutationFactory
     {
         return new MapProperty(
             $this->typeRegistry,
-            $this->candidateRegistry,
-            $this->compatibility,
+            $this->mappingInspector,
             $rootSource,
             $elementId,
             $propertyKey,

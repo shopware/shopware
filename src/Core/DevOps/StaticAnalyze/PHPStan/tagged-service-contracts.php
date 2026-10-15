@@ -49,7 +49,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\AbstractContentSystemStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\AbstractContentSystemLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\AbstractContentSystemElementTypeLoader;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentPropertyProjection;
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Output\Format\AbstractResponseFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
@@ -88,7 +87,6 @@ return [
             'content_system.layout_preset_loader' => AbstractContentSystemLayoutPresetLoader::class,
             'content_system.mapping_candidate_provider' => AbstractMappingCandidateProvider::class,
             'content_system.output_format' => AbstractResponseFactory::class,
-            'content_system.property_projection' => AbstractContentPropertyProjection::class,
             'content_system.specification_source' => AbstractSpecificationSource::class,
             'content_system.style_option_loader' => AbstractContentSystemStyleOptionLoader::class,
             'content_system.type_loader' => AbstractContentSystemElementTypeLoader::class,

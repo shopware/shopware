@@ -145,14 +145,9 @@ final readonly class PropertyType
      * Which kinds of mapping candidate can fill this property: a single value, a collection, or — for a
      * union or a bare `object` — either.
      *
-     * This exists for the Administration's selection UI, which filters the catalogue down to the candidates
-     * that fit a property and cannot do the job with `type` alone: it has no way to tell `MediaCollection`
-     * from `MediaEntity`, since resolving a PHP class hierarchy in the browser is not on offer. Without this
-     * the gallery's `MediaCollection` property offers a category's single image, and an author who picks it
-     * gets an element that renders nothing.
-     *
-     * A collection-ness answer is the most the Administration needs — the finer assignability question is
-     * still `Mapping/MappingTypeCompatibility::permits()`'s at the write boundary, and still authoritative.
+     * The Administration uses this to filter candidates by cardinality. Declared-type assignability is also
+     * supplied by the server as candidate `compatibleTypes`, computed by
+     * `Mapping/MappingTypeCompatibility`; the browser does not reimplement PHP class compatibility.
      *
      * @return list<string> {@see ContextType} values, in declaration order and without repeats
      */

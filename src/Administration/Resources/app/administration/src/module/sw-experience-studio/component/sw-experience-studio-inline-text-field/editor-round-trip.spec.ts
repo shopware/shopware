@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { tokensToEditorHtml } from '../../util/inline-mapping.util';
 import { createMappingTokenNode } from '../../util/mapping-token-node';
+import type { ContentSystemInlineMappingToken } from 'src/core/service/api/content-system-mapping-candidate.api.service';
 
 /**
  * The one invariant that makes the inline mapping field usable: markup handed to `mt-text-editor` must survive being
@@ -17,14 +18,45 @@ import { createMappingTokenNode } from '../../util/mapping-token-node';
 describe('module/sw-experience-studio/component/sw-experience-studio-inline-text-field - editor round trip', () => {
     const KNOWN = new Set(['category.description']);
 
+    const parseFixture = (text: string): ContentSystemInlineMappingToken[] => {
+        const tokens: ContentSystemInlineMappingToken[] = [];
+        const tokenPattern = /\{\{\s*map:([A-Za-z0-9_.:-]+)\s*\}\}/g;
+        for (const result of text.matchAll(tokenPattern)) {
+            const path = result[1];
+            if (!path || !path.includes('.')) {
+                continue;
+            }
+
+            tokens.push({
+                path,
+                match: result[0],
+                canonicalToken: `{{map:${path}}}`,
+                offset: result.index,
+                insideMarkup: false,
+                malformed: false,
+            });
+        }
+
+        return tokens;
+    };
+
     const mountEditor = async (storedValue: string) => {
-        const modelValue = tokensToEditorHtml(storedValue, (path) => KNOWN.has(path));
+        const tokens = parseFixture(storedValue);
+        const modelValue = tokensToEditorHtml(
+            storedValue,
+            tokens,
+            (path) => KNOWN.has(path) || tokens.some((token) => token.path === path),
+        );
 
         const wrapper = mount(await wrapTestComponent('mt-text-editor', { sync: true }), {
             props: {
                 modelValue,
                 tipTapConfig: {
-                    extensions: [createMappingTokenNode({ resolveLabel: () => 'Category description' })],
+                    extensions: [
+                        createMappingTokenNode({
+                            resolveLabel: (path) => (KNOWN.has(path) ? 'Category description' : path),
+                        }),
+                    ],
                 },
             },
             global: {
@@ -40,17 +72,44 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
     };
 
     it.each([
-        ['a text mapped as a whole, stored as one bare token', '{{map:category.description}}'],
-        ['a token in prose', '<p>The {{map:category.description}} explains it.</p>'],
-        ['a token wrapped in a paragraph', '<p>{{map:category.description}}</p>'],
-        ['two tokens in one paragraph', '<p>{{map:category.description}} / {{map:category.description}}</p>'],
-        ['a token in a heading', '<h2>{{map:category.description}}</h2>'],
+        [
+            'a text mapped as a whole, stored as one bare token',
+            '{{map:category.description}}',
+        ],
+        [
+            'a token in prose',
+            '<p>The {{map:category.description}} explains it.</p>',
+        ],
+        [
+            'a token wrapped in a paragraph',
+            '<p>{{map:category.description}}</p>',
+        ],
+        [
+            'two tokens in one paragraph',
+            '<p>{{map:category.description}} / {{map:category.description}}</p>',
+        ],
+        [
+            'a token in a heading',
+            '<h2>{{map:category.description}}</h2>',
+        ],
         // tiptap's list schema puts a paragraph inside every item, so this is the shape the editor itself writes.
         // `<li>` holding bare text gates regardless of mapping, which is pre-existing `mt-text-editor` behaviour.
-        ['a token in a list item', '<ul><li><p>{{map:category.description}}</p></li></ul>'],
-        ['an uncatalogued token, left as text', '<p>{{map:category.nonsense}}</p>'],
-        ['an empty value', ''],
-        ['plain prose with no token at all', 'Just words.'],
+        [
+            'a token in a list item',
+            '<ul><li><p>{{map:category.description}}</p></li></ul>',
+        ],
+        [
+            'a parser-recognized token without a candidate label',
+            '<p>{{map:category.nonsense}}</p>',
+        ],
+        [
+            'an empty value',
+            '',
+        ],
+        [
+            'plain prose with no token at all',
+            'Just words.',
+        ],
     ])('does not lock the editor for %s', async (_name, storedValue) => {
         const wrapper = await mountEditor(storedValue);
 
@@ -65,10 +124,11 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
         expect(chip.text()).toBe('Category description');
     });
 
-    it('leaves an uncatalogued token as literal text rather than a chip', async () => {
+    it('keeps a parser-recognized token editable when the candidate catalogue has no label for it', async () => {
         const wrapper = await mountEditor('<p>{{map:category.nonsense}}</p>');
 
-        expect(wrapper.find('.sw-experience-studio-mapping-token').exists()).toBe(false);
-        expect(wrapper.find('.mt-text-editor__content').text()).toContain('{{map:category.nonsense}}');
+        const chip = wrapper.find('.sw-experience-studio-mapping-token');
+        expect(chip.exists()).toBe(true);
+        expect(chip.text()).toBe('category.nonsense');
     });
 });

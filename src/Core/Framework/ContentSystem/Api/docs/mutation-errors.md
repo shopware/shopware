@@ -7,6 +7,11 @@ A resolvability problem (an unresolved required property, a broken context chain
 | Condition                                                                                                | HTTP | Factory                                           |
 |----------------------------------------------------------------------------------------------------------|------|---------------------------------------------------|
 | Missing/invalid envelope field                                                                           | 400  | `#[MapRequestPayload]` validation (forced to 400) |
+| `map-property` source has missing, invalid, or unknown fields                                             | 400  | `invalidMappingSource` (`CONTENT_SYSTEM__INVALID_MAPPING_SOURCE`) |
+| `map-property` targets a property without mapping opt-in, an unavailable source, or an incompatible value type | 400 | `propertyNotMappable`, `unknownMappingPath`, `mappingTypeMismatch` |
+| `map-property` selects a Storefront context value while the element already uses the internal context requirement key for another loader | 400 | `mappingRequirementConflict` (`CONTENT_SYSTEM__MAPPING_REQUIREMENT_CONFLICT`) |
+| An inline mapping token has a malformed path without a member below its source | 400 | `malformedInlineMappingToken` (`CONTENT_SYSTEM__MALFORMED_INLINE_MAPPING_TOKEN`) |
+| An inline-mapped property exceeds 256 KiB | 400 | `inlineMappingInputTooLarge` (`CONTENT_SYSTEM__INLINE_MAPPING_INPUT_TOO_LARGE`) |
 | A referenced element id is not in the layout                                                             | 400  | `mutationTargetNotFound`                          |
 | Moving an element into itself or a descendant                                                            | 400  | `mutationCycle`                                   |
 | Inserting into a parent, moving under a different parent, or wrapping, without naming the target slot    | 400  | `mutationSlotRequired`                            |

@@ -281,6 +281,11 @@
           "other": "Other"
         }
       },
+      "mappingMutationErrors": {
+        "propertyNotMappable": "This property cannot use data mapping. Choose a property that supports mapping.",
+        "unknownMappingPath": "This data source is no longer available. Choose another source for this property.",
+        "mappingTypeMismatch": "This data source is incompatible with the property. Choose a compatible source."
+      },
       "messageSaved": "Content layout saved successfully.",
       "messageSaveError": "The content layout could not be saved.",
       "messageSaveErrorDetail": "The content layout could not be saved: {detail}",

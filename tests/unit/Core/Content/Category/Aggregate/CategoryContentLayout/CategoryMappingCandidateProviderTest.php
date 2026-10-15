@@ -6,11 +6,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryMappingCandidateProvider;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -42,7 +46,6 @@ class CategoryMappingCandidateProviderTest extends TestCase
 
         static::assertSame('string', $candidate->valueType);
         static::assertSame(ContextType::Single, $candidate->contextType);
-        static::assertNull($candidate->projection);
         static::assertSame('basic', $candidate->group);
     }
 
@@ -54,11 +57,19 @@ class CategoryMappingCandidateProviderTest extends TestCase
         static::assertSame('media', $candidate->group);
     }
 
+    public function testResolvesTheActiveCategoryTranslation(): void
+    {
+        $category = new CategoryEntity();
+        $category->setName('Raw name');
+        $category->setTranslated(['name' => 'Storefront name']);
+        $context = new MappingSourceResolutionContext(new StoredElement('element-1', 'Sw:Text'), ['category' => $category], [], null, null, null);
+
+        static::assertSame('Storefront name', $this->provider->resolveRootSource(MappingSourceReference::root('category', 'name'), $context)->value);
+    }
+
     /**
-     * The invariant the whole catalogue rests on. `ContextPathResolver` walks `Struct::getVars()` and needs a
-     * `Struct` at every intermediate step, so a path naming a member the served entity does not have resolves
-     * to null on every render — silently, since a non-required consumer does not throw. Asserting the member
-     * exists here is what turns "curated" into "curated correctly".
+     * Every offered path names a storefront category member. The provider explicitly reads those members so
+     * an accidentally renamed field would otherwise resolve to null on every render.
      */
     public function testEveryOfferedPathNamesAMemberOfTheServedCategoryEntity(): void
     {

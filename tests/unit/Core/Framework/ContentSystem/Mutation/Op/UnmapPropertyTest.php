@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
@@ -65,6 +66,41 @@ class UnmapPropertyTest extends TestCase
         $tree = new StoredTree([$element]);
 
         static::assertSame($tree, (new UnmapProperty('element-1', 'text'))->apply($tree));
+    }
+
+    public function testRemovesTheDerivedStorefrontContextRequirementWhenTheLastMatchingMappingIsRemoved(): void
+    {
+        $source = new MappingSourceReference('context', 'storefront', path: 'currency.isoCode');
+        $element = new StoredElement(
+            'element-1',
+            'Sw:Text',
+            dataRequirements: [StorefrontContextLoader::REQUIREMENT_KEY => StorefrontContextLoader::requirement()],
+            contextDefinitions: new ContextDefinitions(consumers: [
+                'text' => new ContextConsumer(ContextType::Single, false, scope: ConsumerScope::Root, source: $source),
+            ]),
+        );
+
+        $unmapped = (new UnmapProperty('element-1', 'text'))->apply(new StoredTree([$element]))->roots[0];
+
+        static::assertArrayNotHasKey(StorefrontContextLoader::REQUIREMENT_KEY, $unmapped->dataRequirements);
+    }
+
+    public function testKeepsTheDerivedStorefrontContextRequirementWhileAnotherMatchingMappingRemains(): void
+    {
+        $source = new MappingSourceReference('context', 'storefront', path: 'currency.isoCode');
+        $element = new StoredElement(
+            'element-1',
+            'Sw:Text',
+            dataRequirements: [StorefrontContextLoader::REQUIREMENT_KEY => StorefrontContextLoader::requirement()],
+            contextDefinitions: new ContextDefinitions(consumers: [
+                'text' => new ContextConsumer(ContextType::Single, false, scope: ConsumerScope::Root, source: $source),
+                'headline' => new ContextConsumer(ContextType::Single, false, scope: ConsumerScope::Root, source: $source),
+            ]),
+        );
+
+        $unmapped = (new UnmapProperty('element-1', 'text'))->apply(new StoredTree([$element]))->roots[0];
+
+        static::assertArrayHasKey(StorefrontContextLoader::REQUIREMENT_KEY, $unmapped->dataRequirements);
     }
 
     public function testThrowsWhenTheTargetElementDoesNotExist(): void

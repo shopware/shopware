@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
@@ -26,7 +27,8 @@ use Shopware\Core\Framework\Log\Package;
  *
  * - declared authored properties — every key the element's type declares except a resolvable reference,
  *   carrying the stored value under that key. A primitive, a bare `object` and any union are all authored
- * - requirement keys — the keys of the element's data requirements, carrying the resolved loader value
+ * - requirement keys — the keys of the element's data requirements, carrying the resolved loader value;
+ *   the private Storefront context mapping requirement is excluded
  * - delivered context keys — the keys context was actually delivered under, carrying the delivered value
  * - distribution-referenced keys — stored keys a parent's distribution config dereferences by name (today
  *   only {@see KeyedDistributionConfig::$keyProperty}),
@@ -41,9 +43,9 @@ use Shopware\Core\Framework\Log\Package;
  * undelivered consumer key are both absent. Keeping present-null and key-absent apart is the point of the
  * distinction.
  *
- * A consumer carrying a typed source — a data mapping — is an explicit replacement for the target property's
- * authored and loader-resolved value. If its source supplies nothing, no key is delivered and the target stays
- * omitted; a missing mapping never falls back to another value source.
+ * A consumer carrying a typed source — a data mapping — replaces the target property's authored and
+ * loader-resolved value when it resolves to a value, including an explicit null. A missing or empty mapping
+ * may use the authored or loader-resolved value instead. Invalid or failed mappings remain omitted.
  *
  * The same reading applies to a declared key with no stored value: the member carries "the stored value
  * under that key", so a declared reference property nothing filled is absent rather than null. An authored
@@ -87,6 +89,7 @@ final readonly class RenderedElementFactory
      * @param array<string, mixed> $deliveredContext keyed by the key context was delivered under
      * @param list<string> $distributionReferencedKeys stored keys a parent's distribution config names
      * @param array<string, list<RenderedElement>> $slots already-minted children
+     * @param list<string> $mappingFallbackKeys mapped destinations whose missing or empty source permits fallback
      */
     public function create(
         StoredElement $stored,
@@ -94,6 +97,7 @@ final readonly class RenderedElementFactory
         array $deliveredContext,
         array $distributionReferencedKeys,
         array $slots,
+        array $mappingFallbackKeys = [],
     ): ElementMintResult {
         $storedProperties = $stored->properties();
         $declaredProperties = $this->declaredProperties($stored->component);
@@ -119,7 +123,10 @@ final readonly class RenderedElementFactory
         }
 
         foreach ($this->declaredAuthoredKeys($declaredProperties) as $key) {
-            if (\in_array($key, $mappedPropertyKeys, true) && !\array_key_exists($key, $deliveredContext)) {
+            if (\in_array($key, $mappedPropertyKeys, true)
+                && !\array_key_exists($key, $deliveredContext)
+                && !\in_array($key, $mappingFallbackKeys, true)
+            ) {
                 continue;
             }
 
@@ -130,11 +137,20 @@ final readonly class RenderedElementFactory
         }
 
         foreach (array_keys($stored->dataRequirements) as $key) {
-            if (\in_array($key, $mappedPropertyKeys, true)) {
+            // This loader is a mapping input, never an element property or a response value.
+            if ($key === StorefrontContextLoader::REQUIREMENT_KEY) {
+                continue;
+            }
+
+            if (\in_array($key, $mappedPropertyKeys, true) && !\in_array($key, $mappingFallbackKeys, true)) {
                 continue;
             }
 
             if (\array_key_exists($key, $resolvedLoaderValues)) {
+                if (\in_array($key, $mappingFallbackKeys, true) && $resolvedLoaderValues[$key]->value === null) {
+                    continue;
+                }
+
                 $properties[$key] = $resolvedLoaderValues[$key]->value;
                 $provenance[$key] = new ValueProvenance(
                     ValueOrigin::LoaderResolved,

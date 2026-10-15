@@ -36,7 +36,6 @@ use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
@@ -76,6 +75,7 @@ class ReplaceElementTest extends TestCase
         $replace->apply($tree);
 
         static::assertSame(['el'], $replace->created());
+        static::assertSame($replace->created(), $replace->freshlyScaffolded());
     }
 
     #[TestDox('keeps wiring whose key matches a new-type reference property and does not report it as dropped')]
@@ -471,6 +471,19 @@ class ReplaceElementTest extends TestCase
         static::assertSame(['flexible'], $replace->droppedWiring());
     }
 
+    #[TestDox('drops an ordinary consumer targeting an all-primitive union on replacement')]
+    public function testReplaceDropsConsumerUnderAnAllPrimitiveUnionKey(): void
+    {
+        $consumer = new ContextConsumer(ContextType::Single, false);
+        $old = new StoredElement('el', 'Sw:Old', contextDefinitions: new ContextDefinitions([], ['flexible' => $consumer]));
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+
+        $result = $replace->apply(new StoredTree([$old]));
+
+        static::assertSame([], $result->roots[0]->contextDefinitions->getAllConsumers());
+        static::assertSame(['flexible'], $replace->droppedWiring());
+    }
+
     #[TestDox('carries a null stored under a key the new type declares as a primitive')]
     public function testReplaceCarriesANullUnderADeclaredPrimitive(): void
     {
@@ -600,7 +613,6 @@ class ReplaceElementTest extends TestCase
             $candidateRegistry,
             new MappingTypeCompatibility(),
             new MappingConsumers(),
-            new ContentSystemPropertyProjectionRegistry([]),
             new InlineMappingTokenParser(),
         );
         $old = StoredElementBuilder::create('Sw:Old', 'el')
@@ -620,6 +632,39 @@ class ReplaceElementTest extends TestCase
 
         static::assertSame($retained, isset($result->roots[0]->contextDefinitions->getAllConsumers()['text']));
         static::assertSame($retained ? [] : ['text'], $replace->droppedWiring());
+    }
+
+    public function testReplaceDoesNotReportAnInlineTokenProblemAsDroppedConsumerWiring(): void
+    {
+        $specification = ContentSystemElementTypeSpecificationBuilder::create('Sw:New')
+            ->primitive('text', 'string', inlineMappable: true)
+            ->build();
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'Sw:New');
+        $registry->method('get')->willReturn($specification);
+        $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $inspector = new StoredMappingInspector(
+            $registry,
+            $candidateRegistry,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            new InlineMappingTokenParser(),
+        );
+        $old = StoredElementBuilder::create('Sw:Old', 'el')->withProperty('text', 'Hello {{map:product.missing}}')->build();
+        $replace = new ReplaceElement(
+            $registry,
+            'el',
+            'Sw:New',
+            $this->bindingRegistry([]),
+            $this->unboundApplicator(),
+            $inspector,
+            'product',
+        );
+
+        $result = $replace->apply(new StoredTree([$old]));
+
+        static::assertSame([], $replace->droppedWiring());
+        static::assertSame('Hello {{map:product.missing}}', $result->roots[0]->property('text')?->asString());
     }
 
     /**

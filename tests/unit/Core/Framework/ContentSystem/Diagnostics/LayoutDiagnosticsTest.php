@@ -45,7 +45,6 @@ use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
@@ -1255,10 +1254,47 @@ class LayoutDiagnosticsTest extends TestCase
      * is admissible only against a particular catalogue, and a caller without a source id — the write gate's
      * well-formedness pass, `DraftLayoutChecker` — has nothing to judge it against and must not guess.
      */
-    #[TestDox('reports no mapping violation when no root source is given')]
-    public function testMappingIsUnjudgedWithoutARootSource(): void
+    #[TestDox('leaves a whole-field mapping unjudged when no root source is given')]
+    public function testWholeFieldMappingIsUnjudgedWithoutARootSource(): void
     {
         $report = $this->diagnoseMapping('category.name', rootSource: null)->report;
+
+        static::assertSame([], $report->bindingErrors());
+        static::assertTrue($report->isWellFormed());
+    }
+
+    #[TestDox('reports an inline mapping token when no root source is bound')]
+    public function testInlineMappingRequiresRootSource(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'el-1')
+            ->withProperties(['text' => 'Buy {{map:product.name}}'])
+            ->build();
+
+        $report = $this->diagnostics([
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                ->primitive('text', 'string', inlineMappable: true)
+                ->build(),
+        ])->analyze([$element], null)->report;
+
+        static::assertCount(1, $report->bindingErrors());
+        static::assertSame(ViolationCode::InvalidMapping, $report->bindingErrors()[0]->code);
+        static::assertSame('text', $report->bindingErrors()[0]->key);
+        static::assertStringContainsString('requires a layout with a bound root source', $report->bindingErrors()[0]->message);
+        static::assertTrue($report->isWellFormed());
+    }
+
+    #[TestDox('does not report a missing root source when a bound source provides no context values')]
+    public function testInlineMappingDoesNotRequireRootSourceWhenBoundContextIsEmpty(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'el-1')
+            ->withProperties(['text' => 'Buy {{map:product.name}}'])
+            ->build();
+
+        $report = $this->diagnostics([
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                ->primitive('text', 'string', inlineMappable: true)
+                ->build(),
+        ])->analyze([$element], [])->report;
 
         static::assertSame([], $report->bindingErrors());
         static::assertTrue($report->isWellFormed());
@@ -1409,7 +1445,6 @@ class LayoutDiagnosticsTest extends TestCase
             $candidateRegistry,
             new MappingTypeCompatibility(),
             new MappingConsumers(),
-            new ContentSystemPropertyProjectionRegistry([]),
             new InlineMappingTokenParser(),
         );
     }

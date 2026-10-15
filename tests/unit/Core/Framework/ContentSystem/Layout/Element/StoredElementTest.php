@@ -173,7 +173,6 @@ class StoredElementTest extends TestCase
                 'media',
                 ContextType::Single,
                 scope: ConsumerScope::Root,
-                projection: 'product_media_to_media',
                 source: MappingSourceReference::root('product', 'cover'),
             )
             ->build();
@@ -183,7 +182,6 @@ class StoredElementTest extends TestCase
                 'type' => 'single',
                 'required' => false,
                 'scope' => 'root',
-                'projection' => 'product_media_to_media',
                 'source' => ['type' => 'root', 'id' => 'product', 'path' => 'cover'],
             ],
             $element->jsonSerialize()['acceptsContext']['media']

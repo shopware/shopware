@@ -2,6 +2,8 @@ import template from './sw-experience-studio-preview.html.twig';
 import type { ContentLayoutEntity } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import './sw-experience-studio-preview.scss';
 
+const PREVIEW_RELOAD_DEBOUNCE_MS = 800;
+
 const { cloneDeep } = Shopware.Utils.object;
 
 type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
@@ -85,7 +87,7 @@ export default Shopware.Component.wrapComponentConfig({
     created() {
         this.debouncedLoadPreview = Shopware.Utils.debounce(() => {
             void this.loadPreview();
-        }, 300);
+        }, PREVIEW_RELOAD_DEBOUNCE_MS);
 
         this.previewMessageHandler = (event: MessageEvent) => {
             const payload = event.data as PreviewMessagePayload;

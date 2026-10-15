@@ -3,14 +3,15 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Provider\StorefrontContextMappingCandidateProvider;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
@@ -24,8 +25,7 @@ final class MapProperty extends AbstractLayoutMutation
 {
     public function __construct(
         private readonly AbstractContentSystemElementTypeRegistry $typeRegistry,
-        private readonly AbstractContentSystemMappingCandidateRegistry $candidateRegistry,
-        private readonly MappingTypeCompatibility $compatibility,
+        private readonly StoredMappingInspector $mappingInspector,
         private readonly string $rootSource,
         private readonly string $elementId,
         private readonly string $propertyKey,
@@ -42,28 +42,9 @@ final class MapProperty extends AbstractLayoutMutation
         }
 
         $this->requireRegistered($this->typeRegistry, $node->component);
-        $property = $this->typeRegistry->get($node->component)->properties()[$this->propertyKey] ?? null;
-
-        if ($property === null || !$property->mappable()) {
-            throw ContentSystemException::propertyNotMappable($node->component, $this->propertyKey);
-        }
-
-        $candidate = $this->candidateRegistry->forRootSource($this->rootSource)[$this->source->displayName()] ?? null;
-
-        if ($candidate === null || !$candidate->source->isSameAs($this->source)) {
-            throw ContentSystemException::unknownMappingPath($this->source->displayName(), $this->rootSource);
-        }
-
-        $declaredType = $property->type()->type();
-        if (
-            !$this->compatibility->permits($declaredType, $candidate->valueType)
-            || !\in_array($candidate->contextType->value, $property->type()->contextTypes(), true)
-        ) {
-            throw ContentSystemException::mappingTypeMismatch(
-                $this->propertyKey,
-                \is_array($declaredType) ? implode('|', $declaredType) : $declaredType,
-                $candidate->valueType,
-            );
+        $candidate = $this->mappingInspector->admitProperty($node->component, $this->propertyKey, $this->source, $this->rootSource);
+        if ($candidate instanceof ContentSystemException) {
+            throw $candidate;
         }
 
         $definitions = $node->contextDefinitions;
@@ -83,14 +64,23 @@ final class MapProperty extends AbstractLayoutMutation
             type: $candidate->contextType,
             required: false,
             scope: ConsumerScope::Root,
-            projection: $candidate->projection,
             source: $candidate->source,
         );
+
+        $requirements = $node->dataRequirements;
+        if (StorefrontContextMappingCandidateProvider::isApprovedSource($candidate->source)) {
+            $existing = $requirements[StorefrontContextLoader::REQUIREMENT_KEY] ?? null;
+            if ($existing !== null && ($existing->source !== StorefrontContextLoader::SOURCE || $existing->config->jsonSerialize() !== [])) {
+                throw ContentSystemException::mappingRequirementConflict(StorefrontContextLoader::REQUIREMENT_KEY);
+            }
+
+            $requirements[StorefrontContextLoader::REQUIREMENT_KEY] = StorefrontContextLoader::requirement();
+        }
 
         $replacement = $node->withContextDefinitions(new ContextDefinitions(
             $definitions->getAllProviders(),
             $consumers,
-        ));
+        ))->withDataRequirements($requirements);
         $this->affected = [$replacement->id];
 
         return $tree->replace($this->elementId, $replacement);

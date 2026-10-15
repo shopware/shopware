@@ -2,8 +2,15 @@
 
 namespace Shopware\Core\System\CustomField\ContentSystem\Mapping;
 
-use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolution;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -27,6 +34,8 @@ class CustomFieldMappingCandidateProvider extends AbstractMappingCandidateProvid
 {
     private const CACHE_TAG = 'custom_field_mapping_candidates';
 
+    private const SEARCH_BATCH_SIZE = 250;
+
     private const ROOT_SOURCES = ['category', 'landing_page', 'product'];
 
     /**
@@ -35,8 +44,13 @@ class CustomFieldMappingCandidateProvider extends AbstractMappingCandidateProvid
     public function __construct(
         private readonly EntityRepository $customFieldRepository,
         private readonly TagAwareCacheInterface $cache,
-        private readonly CacheTagCollector $cacheTagCollector,
+        private readonly LoggerInterface $logger = new NullLogger(),
     ) {
+    }
+
+    public static function registeredCandidateKeys(): array
+    {
+        return [];
     }
 
     public function supports(string $rootSource): bool
@@ -50,8 +64,6 @@ class CustomFieldMappingCandidateProvider extends AbstractMappingCandidateProvid
             return [];
         }
 
-        $this->cacheTagCollector->addTag('custom_field');
-
         return $this->cache->get(
             'content_system.custom_field_mapping_candidates.' . $rootSource,
             function (ItemInterface $item) use ($rootSource): array {
@@ -62,27 +74,74 @@ class CustomFieldMappingCandidateProvider extends AbstractMappingCandidateProvid
         );
     }
 
+    public function resolveRootSource(MappingSourceReference $source, MappingSourceResolutionContext $context): MappingSourceResolution
+    {
+        if ($source->type !== 'root' || !$this->supports($source->id) || !str_starts_with((string) $source->path, 'customFields.')) {
+            return MappingSourceResolution::noValue();
+        }
+
+        $entity = $context->rootValues[$source->id] ?? null;
+        if (!$entity instanceof ProductEntity && !$entity instanceof CategoryEntity && !$entity instanceof LandingPageEntity) {
+            return MappingSourceResolution::noValue();
+        }
+
+        $fieldName = substr((string) $source->path, \strlen('customFields.'));
+        $customFields = $entity->getCustomFields() ?? [];
+
+        return \array_key_exists($fieldName, $customFields)
+            ? MappingSourceResolution::resolved($customFields[$fieldName])
+            : MappingSourceResolution::noValue();
+    }
+
     /**
      * @return list<MappingCandidate>
      */
     private function loadCandidates(string $rootSource): array
     {
-        $criteria = (new Criteria())
-            ->addAssociation('customFieldSet.relations')
-            ->addFilter(new EqualsFilter('active', true))
-            ->addFilter(new EqualsFilter('storeApiAware', true))
-            ->addFilter(new EqualsFilter('customFieldSet.active', true))
-            ->addFilter(new EqualsFilter('customFieldSet.relations.entityName', $rootSource))
-            ->addSorting(new FieldSorting('name'));
+        /** @var array<string, list<array{candidate: MappingCandidate, id: string}>> $candidateRows */
+        $candidateRows = [];
+        $offset = 0;
+
+        do {
+            $criteria = (new Criteria())
+                ->addAssociation('customFieldSet.relations')
+                ->addFilter(new EqualsFilter('active', true))
+                ->addFilter(new EqualsFilter('storeApiAware', true))
+                ->addFilter(new EqualsFilter('customFieldSet.active', true))
+                ->addFilter(new EqualsFilter('customFieldSet.relations.entityName', $rootSource))
+                ->addSorting(new FieldSorting('name'))
+                ->setLimit(self::SEARCH_BATCH_SIZE)
+                ->setOffset($offset);
+            $fields = $this->customFieldRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+            foreach ($fields as $customField) {
+                $candidate = $this->candidate($rootSource, $customField);
+
+                if ($candidate !== null) {
+                    $candidateRows[$candidate->source->displayName()][] = [
+                        'candidate' => $candidate,
+                        'id' => $customField->getId(),
+                    ];
+                }
+            }
+
+            $fieldCount = $fields->count();
+            $offset += $fieldCount;
+        } while ($fieldCount === self::SEARCH_BATCH_SIZE);
 
         $candidates = [];
+        foreach ($candidateRows as $candidateKey => $rows) {
+            if (\count($rows) > 1) {
+                $this->logger->warning('Ambiguous custom-field mapping candidates were excluded from the catalogue.', [
+                    'rootSource' => $rootSource,
+                    'candidate' => $candidateKey,
+                    'customFieldIds' => array_column($rows, 'id'),
+                ]);
 
-        foreach ($this->customFieldRepository->search($criteria, Context::createDefaultContext())->getEntities() as $customField) {
-            $candidate = $this->candidate($rootSource, $customField);
-
-            if ($candidate !== null) {
-                $candidates[] = $candidate;
+                continue;
             }
+
+            $candidates[] = $rows[0]['candidate'];
         }
 
         return $candidates;
@@ -101,6 +160,12 @@ class CustomFieldMappingCandidateProvider extends AbstractMappingCandidateProvid
             return null;
         }
 
+        $cacheTags = [CustomFieldMappingCacheTags::candidate($customField->getId())];
+        $customFieldSetId = $customField->getCustomFieldSetId();
+        if ($customFieldSetId !== null) {
+            $cacheTags[] = CustomFieldMappingCacheTags::set($customFieldSetId);
+        }
+
         return new MappingCandidate(
             path: $rootSource . '.customFields.' . $customField->getName(),
             label: $customField->getName(),
@@ -109,6 +174,7 @@ class CustomFieldMappingCandidateProvider extends AbstractMappingCandidateProvid
             valueType: $valueType,
             labelTranslations: $this->translations($config['label'] ?? null),
             descriptionTranslations: $this->translations($config['helpText'] ?? null),
+            cacheTags: $cacheTags,
         );
     }
 

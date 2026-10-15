@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\StorefrontContext\StorefrontContextLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
@@ -60,6 +62,18 @@ class RenderedElementFactoryTest extends TestCase
         $rendered = $this->mint($stored, ['product' => $loaded], [], [], []);
 
         static::assertSame(['product' => $loaded], $rendered->properties);
+    }
+
+    public function testInternalStorefrontContextRequirementDoesNotBecomeARenderedProperty(): void
+    {
+        $loaded = new StubStruct();
+        $stored = StoredElementBuilder::create('Sw:Tile', 'element-1')
+            ->withDataRequirement(StorefrontContextLoader::REQUIREMENT_KEY, StorefrontContextLoader::SOURCE, new StorefrontContextLoaderConfig())
+            ->build();
+
+        $rendered = $this->mint($stored, [StorefrontContextLoader::REQUIREMENT_KEY => $loaded], [], [], []);
+
+        static::assertSame([], $rendered->properties);
     }
 
     #[TestDox('carries the value delivered under a context key')]
@@ -431,22 +445,37 @@ class RenderedElementFactoryTest extends TestCase
         static::assertNull($result->provenance['headline']->loaderIdentity);
     }
 
-    #[TestDox('omits an authored value when its mapped source was unavailable')]
-    public function testUnavailableMappingSuppressesAuthoredValue(): void
+    #[TestDox('uses authored content when the mapped source has no value')]
+    public function testMissingMappingUsesAuthoredValue(): void
     {
         $stored = StoredElementBuilder::create('Sw:Text', 'element-1')
             ->withProperty('headline', 'Authored fallback')
             ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.name'))
             ->build();
 
-        $result = $this->mintResult($stored, [], [], [], []);
+        $result = $this->mintResult($stored, [], [], [], [], mappingFallbackKeys: ['headline']);
 
-        static::assertArrayNotHasKey('headline', $result->element->properties);
-        static::assertArrayNotHasKey('headline', $result->provenance);
+        static::assertSame('Authored fallback', $result->element->properties['headline']);
+        static::assertSame(ValueOrigin::DeclaredAuthored, $result->provenance['headline']->origin);
     }
 
-    #[TestDox('omits a loader value when its mapped source was unavailable')]
-    public function testUnavailableMappingSuppressesLoaderValue(): void
+    #[TestDox('retains a resolved null for a mapped property instead of restoring its authored value')]
+    public function testResolvedNullMappingSuppressesAuthoredValue(): void
+    {
+        $stored = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withProperty('headline', 'Authored fallback')
+            ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.name'))
+            ->build();
+
+        $result = $this->mintResult($stored, [], ['headline' => null], [], []);
+
+        static::assertArrayHasKey('headline', $result->element->properties);
+        static::assertNull($result->element->properties['headline']);
+        static::assertSame(ValueOrigin::DeliveredContext, $result->provenance['headline']->origin);
+    }
+
+    #[TestDox('uses the loader-resolved value when the mapped source has no value')]
+    public function testMissingMappingUsesLoaderResolvedValue(): void
     {
         $stored = StoredElementBuilder::create('Sw:Text', 'element-1')
             ->withProperty('headline', 'Authored fallback')
@@ -454,10 +483,11 @@ class RenderedElementFactoryTest extends TestCase
             ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.name'))
             ->build();
 
-        $result = $this->mintResult($stored, ['headline' => new StubStruct()], [], [], []);
+        $loaded = new StubStruct();
+        $result = $this->mintResult($stored, ['headline' => $loaded], [], [], [], mappingFallbackKeys: ['headline']);
 
-        static::assertArrayNotHasKey('headline', $result->element->properties);
-        static::assertArrayNotHasKey('headline', $result->provenance);
+        static::assertSame($loaded, $result->element->properties['headline']);
+        static::assertSame(ValueOrigin::LoaderResolved, $result->provenance['headline']->origin);
     }
 
     #[TestDox('records nothing for a key no member wrote')]
@@ -568,6 +598,7 @@ class RenderedElementFactoryTest extends TestCase
      * @param list<string> $distributionKeys
      * @param array<string, list<RenderedElement>> $slots
      * @param string|list<string>|null $subjectType
+     * @param list<string> $mappingFallbackKeys
      */
     private function mintResult(
         StoredElement $stored,
@@ -576,6 +607,7 @@ class RenderedElementFactoryTest extends TestCase
         array $distributionKeys,
         array $slots,
         string|array|null $subjectType = null,
+        array $mappingFallbackKeys = [],
     ): ElementMintResult {
         $fingerprinter = new ValueFingerprinter();
 
@@ -589,7 +621,7 @@ class RenderedElementFactoryTest extends TestCase
             $loaderValues
         );
 
-        return $this->factory($subjectType)->create($stored, $resolved, $delivered, $distributionKeys, $slots);
+        return $this->factory($subjectType)->create($stored, $resolved, $delivered, $distributionKeys, $slots, $mappingFallbackKeys);
     }
 
     /**

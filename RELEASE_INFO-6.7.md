@@ -411,6 +411,12 @@ The product detail page links the terms below the GARAN label, in the new block 
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### Order recalculation keeps an open payment transaction in sync with the order total
+
+Recalculating an order, for example after editing it in the Administration, now moves the order's primary transaction to the new order total while the customer could still change the order's payment, so in the states of `OrderService::ALLOWED_TRANSACTION_STATES`: `open`, `cancelled`, `reminded`, `failed`, `chargeback` and `unconfirmed`. The transaction keeps its ID and state, and payment extensions reading `order_transaction.amount` of an order that isn't paid yet get the edited total instead of the amount the transaction was created with. Transactions in any other state keep their amount, also when the payment completes while the order is being edited.
+
+`OrderConverter::convertToCart()` now converts the order's transactions too, with the primary transaction first. With the new cart permission `CheckoutPermissions::KEEP_ORDER_TRANSACTION`, the cart processor keeps that transaction and moves it to the cart total instead of creating a new one, and `OrderConverter::convertToOrder()` writes it back as an update of its amount and payment method.
+
 ### Product reviews will require an author and a rating
 
 With `v6.8.0.0`, `POST /store-api/product/{productId}/review` rejects a review without `points`, and the `product_review` entity marks `externalUser` and `points` as required and only accepts `points` from 1 to 5, so creating a review through the Admin API, the Sync API or a repository without them fails. The destructive migration step of the 6.8 update fills `product_review.external_user` for existing reviews without an author, with the first name of the review's customer or an empty string, sets `points` to `0` for existing reviews without a rating, and makes both columns `NOT NULL`. `0` points stands for a review without a rating: `product.ratingAverage` already ignores such reviews, like it ignores reviews without `points` today. Integrations, imports and headless frontends that create reviews should send both fields now, and those that read `points` should treat `0` like a missing rating; enable the `v6.8.0.0` feature flag to test it.
@@ -556,6 +562,10 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 ## Administration
 
+### `sw-empty-state` stays available until 6.9
+
+The removal of the deprecated `sw-empty-state` component was moved from 6.8 to 6.9, so extensions using it keep working with 6.8. Development builds log a deprecation warning once per usage site, including the component path that renders it. Migrate to `mt-empty-state` before 6.9, see `UPGRADE-6.9.md`.
+
 ### Native setup components support defineModel()
 
 `defineModel()` was rejected at build time inside a Shopware `<script setup>` block, so a base component had to declare the prop and the `update:` emit of a `v-model` binding by hand. It is now supported in base components and behaves as in any Vue component — the prop, the emit, the modifiers object and `{ default }` are all Vue's own:
@@ -571,6 +581,7 @@ swDefinePublic({ modelValue });
 The binding is ordinary base state: private unless listed in `swDefinePublic({ ... })`, and a write to it still emits, from the template, from a parent holding a template ref, and through an override that replaced it.
 
 `defineModel()` stays rejected in an override component, which declares neither props nor emits. Base components can use Vue's conventional binding names, including `const title = defineModel('title')` and `[modelValue, modelModifiers] = defineModel()`.
+
 ### [Internal] Native `<sw-block>` names are isolated per component
 
 Native `<sw-block>` blocks are now identified by `componentName + blockName`, matching how TwigJS identifies a `{% block %}`. Previously they matched on the block name alone, so a `<sw-block extends="foo">` or a legacy Twig override of `foo` could apply to a `<sw-block name="foo">` in an unrelated component. Blocks with the same name in different components are now isolated, and a `name` / `extends` pair only resolves against each other within the same component. No action is required from core or plugin developers.

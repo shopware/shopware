@@ -76,6 +76,22 @@ class EntityDefinitionQueryHelperTest extends TestCase
         );
     }
 
+    #[DataProvider('provideRemoveExtensionPathSegments')]
+    public function testRemoveExtensionPathSegments(string $accessor, string $expected): void
+    {
+        static::assertSame($expected, EntityDefinitionQueryHelper::removeExtensionPathSegments($accessor));
+    }
+
+    public static function provideRemoveExtensionPathSegments(): \Generator
+    {
+        yield 'leading extensions segment is removed' => ['extensions.foo.id', 'foo.id'];
+        yield 'nested extensions segment is removed' => ['media.extensions.foo.id', 'media.foo.id'];
+        yield 'multiple extensions segments are removed' => ['extensions.a.extensions.b', 'a.b'];
+        yield 'substring is kept' => ['media.useextensions.r.email', 'media.useextensions.r.email'];
+        yield 'empty segment is kept' => ['media..user.email', 'media..user.email'];
+        yield 'accessor without extensions is unchanged' => ['product.name', 'product.name'];
+    }
+
     public static function provideTestGetField(): \Generator
     {
         yield 'unknown field' => [

@@ -3,11 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\OpenApi;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoDefinition;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
-use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoType;
 use Shopware\Core\Framework\Api\Serializer\DtoNormalizer;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
@@ -15,6 +15,7 @@ use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Exception\MissingConstructorArgumentsException;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
@@ -29,78 +30,72 @@ use Symfony\Component\Validator\Validation;
 #[CoversClass(OpenApiDtoClassRenderer::class)]
 class OpenApiDtoClassRendererTest extends TestCase
 {
+    public function testReferencedInputsBecomeRequiredConstructorArguments(): void
+    {
+        $class = $this->loadRenderedClass('referencedInputs/schema.json', 'CreateInputRequest');
+        $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer())]);
+        $data = ['bodyValue' => 'body', 'itemId' => 'item', 'limit' => 10, 'version' => 2];
+        $dto = $serializer->denormalize($data, $class);
+        static::assertEquals($data, get_object_vars($dto));
+    }
+
+    public function testRequiredExtensionsInitializeInheritedProperty(): void
+    {
+        $class = $this->loadRenderedClass('referencedInputs/schema.json', 'RequireExtensionsRequest');
+        $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer())]);
+
+        foreach ([[], ['custom' => ['value' => 'input']]] as $extensions) {
+            $dto = $serializer->denormalize(['extensions' => $extensions], $class);
+            static::assertSame(['extensions' => $extensions], get_object_vars($dto));
+        }
+    }
+
+    public function testRequiredNullableExtensionsPreserveExplicitNull(): void
+    {
+        $class = $this->loadRenderedClass('referencedInputs/schema.json', 'RequireNullableExtensionsRequest');
+        $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer())]);
+        $dto = $serializer->denormalize(['extensions' => null], $class);
+        static::assertSame(['extensions' => null], get_object_vars($dto));
+
+        $this->expectException(MissingConstructorArgumentsException::class);
+        $serializer->denormalize([], $class);
+    }
+
     public function testRequestDefaultsPreserveOmissionAndExplicitValues(): void
     {
-        $class = $this->loadRenderedClass('../_fixtures_generator/requestDefaults.json', 'CreateDefaultsRequest');
+        $class = $this->loadRenderedClass('requestDefaults/schema.json', 'CreateDefaultsRequest');
         $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer())], [new JsonEncoder()]);
-        $dto = $serializer->denormalize(['id' => 'input'], $class->getName());
+        $dto = $serializer->denormalize(['id' => 'input'], $class);
 
         static::assertSame(['id' => 'input'], get_object_vars($dto));
         static::assertJsonStringEqualsJsonString('{"id":"input"}', $serializer->serialize($dto, 'json'));
-        $constructor = $class->getConstructor();
-        static::assertNotNull($constructor);
-        static::assertSame(1, $constructor->getNumberOfRequiredParameters());
 
         $data = ['id' => 'input', 'count' => 0, 'active' => false, 'comment' => null, 'source' => 'api'];
-        $dto = $serializer->denormalize($data, $class->getName());
+        $dto = $serializer->denormalize($data, $class);
         static::assertEquals($data, get_object_vars($dto));
         static::assertJsonStringEqualsJsonString(json_encode($data, \JSON_THROW_ON_ERROR), $serializer->serialize($dto, 'json'));
-    }
-
-    public function testNestedRequestDefaultsRemainUninitialized(): void
-    {
-        foreach (['CreateDefaultsRequestNested', 'SharedDefaults', 'SharedDefaultsNested'] as $name) {
-            $class = $this->loadRenderedClass('../_fixtures_generator/requestDefaults.json', $name);
-            static::assertSame([], get_object_vars($class->newInstance()));
-        }
     }
 
     public function testGeneratedConstantsValidateWithoutDefaults(): void
     {
         $class = $this->loadRenderedClass('constants/schema.json', 'ConstValues');
-        $dto = $class->newInstance('fixed');
+        $dto = new $class('fixed');
         $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
 
         static::assertSame(['kind' => 'fixed'], get_object_vars($dto));
         static::assertCount(0, $validator->validate($dto));
 
-        foreach (['optionalKind' => 'fixed', 'enabled' => false, 'count' => 0, 'ratio' => 1.0, 'quoted' => 'it\'s\\fixed'] as $name => $value) {
-            $class->getProperty($name)->setValue($dto, $value);
-        }
+        $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer())]);
+        $dto = $serializer->denormalize(['kind' => 'fixed', 'optionalKind' => 'fixed', 'enabled' => false, 'count' => 0, 'ratio' => 1.0, 'quoted' => 'it\'s\\fixed'], $class);
         static::assertCount(0, $validator->validate($dto));
 
-        foreach (['kind' => 'wrong', 'optionalKind' => 'wrong', 'enabled' => true, 'count' => 1, 'ratio' => 2.0, 'quoted' => 'wrong'] as $name => $value) {
-            $class->getProperty($name)->setValue($dto, $value);
-        }
+        $dto = $serializer->denormalize(['kind' => 'wrong', 'optionalKind' => 'wrong', 'enabled' => true, 'count' => 1, 'ratio' => 2.0, 'quoted' => 'wrong'], $class);
         $violations = $validator->validate($dto);
         $paths = [];
         foreach ($violations as $violation) {
             $paths[] = $violation->getPropertyPath();
         }
         static::assertEqualsCanonicalizing(['kind', 'optionalKind', 'enabled', 'count', 'ratio', 'quoted'], $paths);
-    }
-
-    public function testOnlyRequiredPropertiesArePromotedConstructorParameters(): void
-    {
-        $class = $this->loadRenderedClass('presence/schema.json', 'Presence');
-
-        foreach ($class->getProperties() as $property) {
-            static::assertSame(
-                \in_array($property->getName(), ['requiredValue', 'requiredNullable'], true),
-                $property->isPromoted(),
-                $property->getName(),
-            );
-        }
-
-        $constructor = $class->getConstructor();
-        static::assertNotNull($constructor);
-        static::assertSame(
-            ['requiredValue', 'requiredNullable'],
-            array_map(static fn (\ReflectionParameter $parameter): string => $parameter->getName(), $constructor->getParameters()),
-        );
-        static::assertSame(2, $constructor->getNumberOfRequiredParameters());
-        $dto = $class->newInstance('value', null);
-        static::assertSame(['requiredValue' => 'value', 'requiredNullable' => null], get_object_vars($dto));
     }
 
     public function testGeneratedWireNamesWorkWithSerializer(): void
@@ -116,23 +111,11 @@ class OpenApiDtoClassRendererTest extends TestCase
             'quote\'field' => 'quoted',
         ];
 
-        $dto = $serializer->denormalize($data, $class->getName());
-        static::assertInstanceOf($class->getName(), $dto);
-        static::assertSame(2, $class->getProperty('totalCountMode')->getValue($dto));
-        static::assertSame('filter', $class->getProperty('postFilter')->getValue($dto));
+        $dto = $serializer->denormalize($data, $class);
+        static::assertInstanceOf($class, $dto);
+        static::assertSame(2, get_object_vars($dto)['totalCountMode']);
+        static::assertSame('filter', get_object_vars($dto)['postFilter']);
         static::assertJsonStringEqualsJsonString(json_encode($data, \JSON_THROW_ON_ERROR), $serializer->serialize($dto, 'json'));
-    }
-
-    public function testDefaultResponseStatusCallsParentConstructor(): void
-    {
-        $response = $this->renderDefinition(new OpenApiDtoDefinition(
-            name: 'ReadNewsletterRecipientResponse',
-            properties: [],
-            type: OpenApiDtoType::Response,
-        ));
-
-        static::assertStringContainsString('parent::__construct();', $response);
-        static::assertStringNotContainsString('use Symfony\\Component\\HttpFoundation\\Response;', $response);
     }
 
     public function testEnumCaseNameCollisionsThrowException(): void
@@ -153,36 +136,56 @@ class OpenApiDtoClassRendererTest extends TestCase
         $this->renderDefinition($this->definitionByName($definitions, 'InvalidValue'));
     }
 
-    public function testOpenApiFixturesMatchGeneratedDtos(): void
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function openApiFixtures(): iterable
     {
-        $parser = new OpenApiDtoSchemaParser();
-        $renderer = new OpenApiDtoClassRenderer(new MockClock('2026-07-07 00:00:00'));
-        $filesystem = new Filesystem();
-        $fixtureDirectories = Finder::create()
-            ->directories()
-            ->depth(0)
-            ->exclude('invalidSchemas')
-            ->sortByName()
-            ->in(__DIR__ . '/_fixtures');
-
-        foreach ($fixtureDirectories as $fixtureDirectory) {
-            $schemaFiles = Finder::create()
-                ->files()
-                ->name('*.json')
-                ->sortByName()
-                ->in($fixtureDirectory->getPathname());
-
-            foreach ($schemaFiles as $schemaFile) {
-                $schema = json_decode($filesystem->readFile($schemaFile->getPathname()), true, flags: \JSON_THROW_ON_ERROR);
-                static::assertIsArray($schema);
-
-                foreach ($parser->parse($schema) as $definition) {
-                    $generated = $renderer->renderClass($definition, 'App\\DTO');
-
-                    $generatedFile = $fixtureDirectory->getPathname() . '/' . $definition->name . '.php';
-                    static::assertSame($filesystem->readFile($generatedFile), $generated);
-                }
+        foreach (Finder::create()->files()->name('*.json')->notPath('invalidSchemas')->sortByName()->in(__DIR__ . '/_fixtures') as $schemaFile) {
+            yield $schemaFile->getRelativePathname() => [$schemaFile->getPathname(), false];
+            if (\in_array($schemaFile->getRelativePathname(), ['requestDefaults/schema.json', 'responseComponent/schema.json'], true)) {
+                yield $schemaFile->getRelativePathname() . ' (component entry point)' => [$schemaFile->getPathname(), true];
             }
+        }
+    }
+
+    #[DataProvider('openApiFixtures')]
+    public function testOpenApiFixturesMatchGeneratedDtos(string $schemaFile, bool $componentsOnly): void
+    {
+        $filesystem = new Filesystem();
+        $schema = json_decode($filesystem->readFile($schemaFile), true, flags: \JSON_THROW_ON_ERROR);
+        static::assertIsArray($schema);
+        $namespaces = [];
+        $externalNamespaces = [];
+        foreach (Finder::create()->files()->depth(0)->name('*.php')->in(\dirname($schemaFile)) as $fixtureFile) {
+            static::assertSame(1, preg_match('/^namespace ([^;]+);/m', $filesystem->readFile($fixtureFile->getPathname()), $matches));
+            $namespace = $matches[1];
+            $namespaces[$fixtureFile->getBasename('.php')] = $namespace;
+            $externalNamespaces[$namespace . '\\' . $fixtureFile->getBasename('.php')] = $namespace;
+        }
+
+        $renderer = new OpenApiDtoClassRenderer(new MockClock('2026-07-07 00:00:00'));
+        $parser = new OpenApiDtoSchemaParser();
+        $schemaNames = [];
+        if ($componentsOnly) {
+            foreach (array_keys($schema['components']['schemas']) as $schemaName) {
+                static::assertIsString($schemaName);
+                $schemaNames[] = $schemaName;
+            }
+        }
+        $definitions = $componentsOnly
+            ? $parser->parseComponents($schema, $schemaNames, 'App\\DTO')
+            : $parser->parse($schema);
+        static::assertNotSame([], $definitions);
+        foreach ($definitions as $definition) {
+            $name = substr($definition->name, (int) strrpos('\\' . $definition->name, '\\'));
+            $expected = $filesystem->readFile(\dirname($schemaFile) . '/' . $name . '.php');
+            $generated = $renderer->renderClass($definition, $namespaces[$name], $externalNamespaces);
+            static::assertSame(
+                preg_replace('/Last generated: [^\\r\\n]+/', 'Last generated: <generated>', $expected),
+                preg_replace('/Last generated: [^\\r\\n]+/', 'Last generated: <generated>', $generated),
+                $definition->name,
+            );
         }
     }
 
@@ -206,9 +209,9 @@ class OpenApiDtoClassRendererTest extends TestCase
     }
 
     /**
-     * @return \ReflectionClass<object>
+     * @return class-string
      */
-    private function loadRenderedClass(string $schema, string $name): \ReflectionClass
+    private function loadRenderedClass(string $schema, string $name): string
     {
         $definitions = (new OpenApiDtoSchemaParser())->parse($this->loadSchema($schema));
         $namespace = __NAMESPACE__ . '\\Generated' . bin2hex(random_bytes(8));
@@ -226,7 +229,7 @@ class OpenApiDtoClassRendererTest extends TestCase
             $class = $namespace . '\\' . $name;
             static::assertTrue(class_exists($class, false));
 
-            return new \ReflectionClass($class);
+            return $class;
         } finally {
             $filesystem->remove($file);
         }

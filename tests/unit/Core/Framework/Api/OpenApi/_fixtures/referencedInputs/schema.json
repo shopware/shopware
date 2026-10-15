@@ -1,0 +1,248 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Referenced request inputs",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/inputs/{itemId}": {
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/ItemId"
+                },
+                {
+                    "name": "locale",
+                    "in": "query",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "post": {
+                "operationId": "createInput",
+                "x-dto-namespace": "Shopware\\Core\\Example\\Operation",
+                "x-dto-package": "framework",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Version"
+                    },
+                    {
+                        "name": "locale",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/Language"
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/InputAlias"
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            },
+            "get": {
+                "operationId": "readInput",
+                "x-dto-namespace": "Shopware\\Core\\Example\\Operation",
+                "x-dto-package": "framework",
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        },
+        "/extensions": {
+            "post": {
+                "operationId": "requireExtensions",
+                "x-dto-namespace": "Shopware\\Core\\Example\\Operation",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "extensions"
+                                ],
+                                "properties": {
+                                    "extensions": {
+                                        "type": "object",
+                                        "additionalProperties": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        },
+        "/nullable-extensions": {
+            "post": {
+                "operationId": "requireNullableExtensions",
+                "x-dto-namespace": "Shopware\\Core\\Example\\Operation",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "extensions"
+                                ],
+                                "properties": {
+                                    "extensions": {
+                                        "type": [
+                                            "object",
+                                            "null"
+                                        ],
+                                        "additionalProperties": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        },
+        "/optional-extensions": {
+            "post": {
+                "operationId": "optionalExtensions",
+                "x-dto-namespace": "Shopware\\Core\\Example\\Operation",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "id"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "extensions": {
+                                        "type": "object",
+                                        "additionalProperties": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "requestBodies": {
+            "InputAlias": {
+                "$ref": "#/components/requestBodies/Input"
+            },
+            "Input": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/InputPayload"
+                        }
+                    }
+                }
+            }
+        },
+        "parameters": {
+            "ItemId": {
+                "name": "itemId",
+                "in": "path",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "Version": {
+                "name": "version",
+                "in": "query",
+                "required": true,
+                "schema": {
+                    "type": "integer"
+                }
+            },
+            "Language": {
+                "name": "sw-language-id",
+                "in": "header",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas": {
+            "InputPayload": {
+                "x-dto-inline": true,
+                "type": "object",
+                "required": [
+                    "bodyValue"
+                ],
+                "properties": {
+                    "bodyValue": {
+                        "type": "string"
+                    },
+                    "settings": {
+                        "$ref": "#/components/schemas/InputSettings"
+                    }
+                }
+            },
+            "InputSettings": {
+            "x-dto-namespace": "Shopware\\Core\\Example\\Shared",
+            "x-dto-package": "framework",
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                }
+            }
+        }
+    }
+}

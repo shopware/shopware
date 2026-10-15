@@ -1,6 +1,6 @@
 {
   "openapi": "3.2.0",
-  "info": [],
+  "info": {"title": "orderCreationExample", "version": "1.0.0"},
   "paths": {
     "/v2/checkout/order": {
       "post": {

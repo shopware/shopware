@@ -50,6 +50,7 @@ final class OpenApiDtoSchemaParser
      */
     public function parse(array $schema, bool $includeComponentSchemas = true, ?string $namespace = null): array
     {
+        $schema = $this->resolveRequestInputs($schema);
         $registry = $this->schemaRegistry($schema);
         $registry = $this->inheritComponentPackages(
             $schema,
@@ -90,6 +91,7 @@ final class OpenApiDtoSchemaParser
      */
     public function parseComponents(array $schema, array $schemaNames, string $namespace): array
     {
+        $schema = $this->resolveRequestInputs($schema);
         $registry = $this->schemaRegistry($schema);
         $registry = $this->inheritComponentPackages($schema, $registry, $schemaNames, includePaths: false);
         $componentTypes = $this->componentRootTypes($schema);
@@ -109,6 +111,84 @@ final class OpenApiDtoSchemaParser
         }
 
         return $this->preserveRequestPropertyPresence($this->deduplicate($definitions), $schema, $registry);
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     *
+     * @return array<string, mixed>
+     */
+    private function resolveRequestInputs(array $schema): array
+    {
+        $paths = $this->arrayAtPath($schema, ['paths']) ?? [];
+        foreach ($paths as $path => $pathData) {
+            if (!\is_array($pathData)) {
+                continue;
+            }
+
+            foreach (self::HTTP_METHODS as $method) {
+                $operation = $this->schemaAtKey($pathData, $method);
+                if ($operation === null) {
+                    continue;
+                }
+
+                $requestBody = $this->schemaAtKey($operation, 'requestBody');
+                if ($requestBody !== null) {
+                    $operation['requestBody'] = $this->resolveRequestReference($requestBody, $schema, 'requestBodies');
+                }
+
+                $parameters = [];
+                foreach ([...($this->arrayAtKey($pathData, 'parameters') ?? []), ...($this->arrayAtKey($operation, 'parameters') ?? [])] as $parameter) {
+                    if (!\is_array($parameter)) {
+                        continue;
+                    }
+
+                    $parameter = $this->resolveRequestReference($parameter, $schema, 'parameters');
+                    $name = $parameter['name'] ?? null;
+                    $location = $parameter['in'] ?? null;
+                    if (!\is_string($name) || !\is_string($location)) {
+                        continue;
+                    }
+
+                    // Operations override inherited parameters with the same name and location.
+                    $parameters[$location . ':' . $name] = $parameter;
+                }
+                $operation['parameters'] = array_values($parameters);
+                $paths[$path][$method] = $operation;
+            }
+        }
+        $schema['paths'] = $paths;
+
+        return $schema;
+    }
+
+    /**
+     * @param array<string, mixed> $input
+     * @param array<string, mixed> $schema
+     *
+     * @return array<string, mixed>
+     */
+    private function resolveRequestReference(array $input, array $schema, string $section): array
+    {
+        $seen = [];
+        while (($reference = $this->refFromSchema($input)) !== null) {
+            $prefix = '#/components/' . $section . '/';
+            if (!str_starts_with($reference, $prefix) || isset($seen[$reference])) {
+                throw FrameworkException::invalidArgumentException('Cannot resolve request reference "' . $reference . '".');
+            }
+            $seen[$reference] = true;
+            $name = str_replace(['~1', '~0'], ['/', '~'], substr($reference, \strlen($prefix)));
+            $resolved = $this->arrayAtPath($schema, ['components', $section, $name]);
+            if ($resolved === null) {
+                // Runtime API generation supplies some components, such as the language header.
+                return $input;
+            }
+
+            unset($input['$ref']);
+            $input = [...$resolved, ...$input];
+        }
+
+        return $input;
     }
 
     /**
@@ -952,6 +1032,10 @@ final class OpenApiDtoSchemaParser
             }
 
             if ($propertyName === 'extensions') {
+                if (\in_array($propertyName, $requiredFields, true)) {
+                    $dtoProperties[] = $this->createProperty($propertyName, $propertySchema, required: true, phpType: self::PHP_TYPE_ARRAY, arrayItemType: null, nullable: $this->mapOpenApiTypeToPhp($propertySchema, $registry)['nullable'], registry: $registry);
+                }
+
                 continue;
             }
 

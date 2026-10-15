@@ -1,6 +1,6 @@
 {
     "openapi": "3.1.0",
-    "info": {},
+    "info": {"title": "namespacedComponent", "version": "1.0.0"},
     "paths": {
         "/test": {
             "get": {

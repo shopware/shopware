@@ -1,4 +1,7 @@
 {
+    "openapi": "3.1.0",
+    "info": {"title": "constants", "version": "1.0.0"},
+    "paths": {},
     "components": {
         "schemas": {
             "ConstValues": {

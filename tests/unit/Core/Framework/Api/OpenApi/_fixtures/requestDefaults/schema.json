@@ -75,8 +75,9 @@
                     }
                 }
             },
-            "SharedDefaults": {
-                "x-dto-namespace": "App\\Shared",
+        "SharedDefaults": {
+            "x-dto-namespace": "App\\Shared",
+            "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "count": {

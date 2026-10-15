@@ -758,8 +758,9 @@ The deliverability card of digital products has a new "Allow multiple units per 
 Storefront analytics now send ecommerce events in the format Google documents for GA4. Tracking setups have to adapt to these changes:
 
 * With a `GTM-` tracking ID, ecommerce events are pushed to the data layer as `{ event, ecommerce }`. Google Tag Manager setups that read parameters from `eventModel` must use the `ecommerce` data layer variables instead.
-* Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings.
+* Items use `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`, and numeric values are numbers instead of strings. Amounts are rounded to cents.
 * The event `value` of cart, checkout and `purchase` events is the position price including promotion discounts, and the applied promotion codes are reported as `coupon`. Discounts are no longer reported as items.
+* `login` and `sign_up` are reported again, and adding a product by its number on the cart page reports `add_to_cart`. They stopped working with 6.6.10.0 and 6.7.11.0, when these forms changed.
 
 The `.hidden-line-items-information` element is only rendered for a sales channel with active analytics. The guide [Storefront analytics with Google Analytics 4](https://developer.shopware.com/docs/guides/plugins/plugins/storefront/advanced/storefront-analytics.html) describes the full payload.
 

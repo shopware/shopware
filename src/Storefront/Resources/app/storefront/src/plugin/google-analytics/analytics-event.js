@@ -63,7 +63,7 @@ export default class AnalyticsEvent
                     }
 
                     if (['value', 'tax', 'shipping'].includes(key)) {
-                        return [key, this._normalizeNumber(value)];
+                        return [key, this._normalizeAmount(value)];
                     }
 
                     return [key, value];
@@ -81,7 +81,11 @@ export default class AnalyticsEvent
             Object.entries(item)
                 .filter(([, value]) => value !== undefined && value !== null && value !== '')
                 .map(([key, value]) => {
-                    if (['price', 'quantity', 'discount', 'index'].includes(key)) {
+                    if (['price', 'discount'].includes(key)) {
+                        return [key, this._normalizeAmount(value)];
+                    }
+
+                    if (['quantity', 'index'].includes(key)) {
                         return [key, this._normalizeNumber(value)];
                     }
 
@@ -98,6 +102,18 @@ export default class AnalyticsEvent
     _normalizeNumber(value) {
         const number = Number(value);
         return Number.isNaN(number) ? value : number;
+    }
+
+    /**
+     * Amounts summed up in the browser carry floating point noise, such as `961.3899999999999`.
+     *
+     * @param {number|string} value
+     * @returns {number|string}
+     * @private
+     */
+    _normalizeAmount(value) {
+        const number = this._normalizeNumber(value);
+        return typeof number === 'number' ? Math.round(number * 100) / 100 : number;
     }
 
     disable() {

@@ -1108,22 +1108,19 @@ final class OpenApiDtoSchemaParser
     {
         $resolvedSchema = $this->dereferenceSchema($schema, $registry);
         $allOf = $this->schemaListAtKey($resolvedSchema, 'allOf');
+        $properties = [];
+        $required = $this->stringListAtKey($resolvedSchema, 'required');
         if ($allOf !== null) {
-            $properties = [];
-            $required = [];
-
             foreach ($allOf as $partialSchema) {
                 $partial = $this->resolveSchemaProperties($partialSchema, $registry);
                 $properties = [...$properties, ...$partial['properties']];
                 $required = [...$required, ...$partial['required']];
             }
-
-            return ['properties' => $properties, 'required' => array_values(array_unique($required))];
         }
 
         return [
-            'properties' => $this->arrayAtKey($resolvedSchema, 'properties') ?? [],
-            'required' => $this->stringListAtKey($resolvedSchema, 'required'),
+            'properties' => [...$properties, ...($this->arrayAtKey($resolvedSchema, 'properties') ?? [])],
+            'required' => array_values(array_unique($required)),
         ];
     }
 
@@ -1145,21 +1142,21 @@ final class OpenApiDtoSchemaParser
         array $operation,
     ): array {
         $definitions = [];
-        $sharedProperties = $this->arrayAtKey($requestSchema, 'properties') ?? [];
-        $sharedRequired = $this->stringListAtKey($requestSchema, 'required');
+        $shared = $this->resolveSchemaProperties($requestSchema, $registry);
 
         foreach ($variants as $variant) {
             $resolvedVariant = $this->dereferenceSchema($variant, $registry);
+            $resolvedProperties = $this->resolveSchemaProperties($variant, $registry);
             $title = $this->stringOrNull($variant['title'] ?? null);
             $variantDtoName = $title !== null && $title !== '' ? $this->toPascalCase($title) : $fallbackDtoName;
 
             $variantProperties = [
-                ...$sharedProperties,
-                ...($this->arrayAtKey($resolvedVariant, 'properties') ?? []),
+                ...$shared['properties'],
+                ...$resolvedProperties['properties'],
             ];
             $variantRequired = [
-                ...$sharedRequired,
-                ...$this->stringListAtKey($resolvedVariant, 'required'),
+                ...$shared['required'],
+                ...$resolvedProperties['required'],
             ];
             $extracted = $this->extractPropertiesFromSchema($variantProperties, array_values(array_unique($variantRequired)), $variantDtoName, $registry, $this->packageFromSchema($resolvedVariant) ?? $this->packageFromSchema($requestSchema), OpenApiDtoType::Request);
             $properties = $this->mergeProperties($extracted['properties'], $parameters);
@@ -1380,6 +1377,10 @@ final class OpenApiDtoSchemaParser
      */
     private function singleAllOfReference(array $schema): ?array
     {
+        if ($this->arrayAtKey($schema, 'properties') !== null || $this->stringListAtKey($schema, 'required') !== [] || $this->variants($schema) !== null) {
+            return null;
+        }
+
         $allOf = $this->schemaListAtKey($schema, 'allOf');
         if ($allOf === null || \count($allOf) !== 1) {
             return null;

@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCom
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAnalysisCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolResultCacheCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolResultRendererCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\MessengerMiddlewareCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\OverwriteSessionFactoryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
@@ -156,6 +157,8 @@ class Framework extends Bundle
         $container->addCompilerPass(new McpToolResultCacheCompilerPass(), priority: 15);
         $container->addCompilerPass(new McpToolAnalysisCompilerPass());
         $container->addCompilerPass(new McpServerBuilderCompilerPass());
+        // After the bundle's McpPass, which sets the reference handler this pass wraps.
+        $container->addCompilerPass(new McpToolResultRendererCompilerPass(), priority: -10);
         $container->addCompilerPass(new McpDebugCommandCompilerPass());
 
         $container->addCompilerPass(new DemodataCompilerPass());
@@ -188,7 +191,7 @@ class Framework extends Bundle
         // ServicesResetter only resets initialized services; Symfony 8.1 removes this requirement.
         // https://github.com/symfony/symfony/pull/63751
         // The test verifies whether the Symfony fix resolves this and lets us remove this workaround safely.
-        // @see \Shopware\Tests\Integration\Core\Framework\Adapter\Database\ReplicaConnectionResetterTest::testServicesResetterInitializesReplicaConnectionResetter()
+        // @see \Shopware\Tests\DevOps\Core\Framework\Adapter\Database\ReplicaConnectionResetterTest::testServicesResetterInitializesReplicaConnectionResetter()
         $this->container->get(ReplicaConnectionResetter::class);
     }
 }

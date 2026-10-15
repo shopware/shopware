@@ -12,9 +12,6 @@ use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-/**
- * @deprecated tag:v6.8.0 - Will be removed, use CategoryEntity directly
- */
 #[Package('framework')]
 class CategoryUrlExtension extends AbstractExtension
 {
@@ -29,10 +26,6 @@ class CategoryUrlExtension extends AbstractExtension
 
     public function getFunctions(): array
     {
-        if (Feature::isActive('v6.8.0.0')) {
-            return [];
-        }
-
         return [
             new TwigFunction('category_url', $this->getCategoryUrl(...), ['needs_context' => true, 'is_safe_callback' => $this->routingExtension->isUrlGenerationSafe(...)]),
             new TwigFunction('category_linknewtab', $this->isLinkNewTab(...)),
@@ -41,12 +34,15 @@ class CategoryUrlExtension extends AbstractExtension
 
     /**
      * @param array<string, mixed> $twigContext
+     *
+     * @deprecated tag:v6.9.0 - Use SalesChannelCategoryEntity::getSeoUrl() instead.
      */
     public function getCategoryUrl(array $twigContext, CategoryEntity $category): ?string
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            'The "category_url" function is deprecated and will be removed in v6.8.0.0. Use SalesChannelCategoryEntity::getSeoUrl() instead.'
+            'v6.9.0.0',
+            'The "category_url" function is deprecated and will be removed in v6.9.0.0. Use SalesChannelCategoryEntity::getSeoUrl() instead.',
+            silentUntil: 'v6.8.0.0',
         );
 
         if ($category instanceof SalesChannelCategoryEntity) {
@@ -58,11 +54,15 @@ class CategoryUrlExtension extends AbstractExtension
         return $this->categoryUrlGenerator->generate($category, $salesChannel);
     }
 
+    /**
+     * @deprecated tag:v6.9.0 - Use CategoryEntity::shouldOpenInNewTab() instead.
+     */
     public function isLinkNewTab(CategoryEntity $categoryEntity): bool
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            'The "category_linknewtab" function is deprecated and will be removed in v6.8.0.0. Use CategoryEntity::shouldOpenInNewTab() instead.'
+            'v6.9.0.0',
+            'The "category_linknewtab" function is deprecated and will be removed in v6.9.0.0. Use CategoryEntity::shouldOpenInNewTab() instead.',
+            silentUntil: 'v6.8.0.0',
         );
 
         return $categoryEntity->shouldOpenInNewTab();

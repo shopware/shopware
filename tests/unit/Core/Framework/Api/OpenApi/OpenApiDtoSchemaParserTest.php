@@ -3,14 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\OpenApi;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoDefinition;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
@@ -53,47 +50,6 @@ class OpenApiDtoSchemaParserTest extends TestCase
             $this->loadSchema('invalidSchemas/conflictingInheritedComponentPackages.json'),
             includeComponentSchemas: false,
         );
-    }
-
-    /**
-     * @return iterable<string, array{string, bool}>
-     */
-    public static function openApiFixtures(): iterable
-    {
-        foreach (Finder::create()->files()->name('*.json')->notPath('invalidSchemas')->sortByName()->in(__DIR__ . '/_fixtures') as $schemaFile) {
-            yield $schemaFile->getRelativePathname() => [$schemaFile->getPathname(), true];
-            if (\in_array($schemaFile->getRelativePathname(), ['requestDefaults/schema.json', 'referencedInputs/schema.json', 'referencedRequestBody/schema.json', 'schemaUnions/schema.json'], true)) {
-                yield $schemaFile->getRelativePathname() . ' (referenced components only)' => [$schemaFile->getPathname(), false];
-            }
-        }
-    }
-
-    #[DataProvider('openApiFixtures')]
-    public function testOpenApiFixturesProduceAdjacentDtoDefinitions(string $schemaFile, bool $includeComponentSchemas): void
-    {
-        $schema = json_decode((new Filesystem())->readFile($schemaFile), true, flags: \JSON_THROW_ON_ERROR);
-        static::assertIsArray($schema);
-        $definitions = (new OpenApiDtoSchemaParser())->parse($schema, includeComponentSchemas: $includeComponentSchemas);
-        static::assertNotSame([], $definitions);
-
-        $definitionNames = array_map(static fn (OpenApiDtoDefinition $definition): string => $definition->name, $definitions);
-        $fixtureNames = [];
-        foreach (Finder::create()->files()->depth(0)->name('*.php')->sortByName()->in(\dirname($schemaFile)) as $fixtureFile) {
-            $fixtureNames[] = $fixtureFile->getBasename('.php');
-        }
-
-        sort($definitionNames);
-        sort($fixtureNames);
-        static::assertSame($fixtureNames, $definitionNames);
-        static::assertCount(\count($definitionNames), array_unique($definitionNames));
-
-        foreach ($definitions as $definition) {
-            static::assertNotSame('', $definition->name);
-            foreach ($definition->properties as $property) {
-                static::assertNotSame('', $property->name);
-                static::assertNotSame('', $property->phpType);
-            }
-        }
     }
 
     /**

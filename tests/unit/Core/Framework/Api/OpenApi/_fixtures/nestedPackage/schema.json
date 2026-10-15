@@ -5,6 +5,7 @@
     "components": {
         "schemas": {
             "RangeFilter": {
+                "x-dto-namespace": "App\\DTO",
                 "x-dto-package": "framework",
                 "type": "object",
                 "properties": {

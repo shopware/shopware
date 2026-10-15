@@ -21,6 +21,7 @@
     "components": {
         "schemas": {
             "SuccessResponse": {
+                "x-dto-namespace": "App\\DTO",
                 "type": "object",
                 "properties": {
                     "success": {

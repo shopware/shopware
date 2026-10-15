@@ -5,6 +5,7 @@
     "components": {
         "schemas": {
             "Criteria": {
+                "x-dto-namespace": "App\\DTO",
                 "type": "object",
                 "properties": {
                     "associations": {

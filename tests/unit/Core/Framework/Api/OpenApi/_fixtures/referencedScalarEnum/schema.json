@@ -4,6 +4,7 @@
     "paths": {
         "/account/newsletter-recipient": {
             "get": {
+                "x-dto-namespace": "App\\DTO",
                 "operationId": "readNewsletterRecipient",
                 "responses": {
                     "201": {

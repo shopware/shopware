@@ -4,6 +4,7 @@
     "paths": {
         "/wire-names": {
             "post": {
+                "x-dto-namespace": "App\\DTO",
                 "operationId": "wireNames",
                 "parameters": [
                     {

@@ -7,6 +7,7 @@
     "paths": {
         "/defaults": {
             "post": {
+                "x-dto-namespace": "App\\DTO",
                 "operationId": "createDefaults",
                 "x-dto-package": "framework",
                 "requestBody": {

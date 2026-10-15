@@ -35,7 +35,6 @@ final class ElasticsearchTokenizer implements TokenizerInterface
 
         $tokens = preg_split('/\s+/u', mb_strtolower($string), -1, \PREG_SPLIT_NO_EMPTY) ?: [];
 
-        // Brackets around a word, e.g. `(cap`, keep the analyzer from matching the word by prefix
         $tokens = array_map(
             static fn (string $token): string => preg_replace('/^[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+$/u', '', $token) ?? $token,
             $tokens,

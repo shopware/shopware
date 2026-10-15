@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\RuntimeFieldInCriteriaException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnableToLoadPathException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -905,6 +906,11 @@ class DataAbstractionLayerException extends HttpException
     public static function accessorNotAllowedInApiScope(string $accessor): ApiProtectionException
     {
         return new ApiProtectionException($accessor);
+    }
+
+    public static function runtimeFieldInCriteria(string $accessor): RuntimeFieldInCriteriaException
+    {
+        return new RuntimeFieldInCriteriaException($accessor);
     }
 
     public static function entityRepositoryNotFound(string $entity): EntityRepositoryNotFoundException

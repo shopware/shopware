@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\RuntimeFieldInCriteriaException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -67,7 +66,7 @@ class ApiCriteriaValidator
                 $runtime = $field->getFlag(Runtime::class);
 
                 if ($runtime !== null) {
-                    throw new RuntimeFieldInCriteriaException($accessor);
+                    throw DataAbstractionLayerException::runtimeFieldInCriteria($accessor);
                 }
             }
         }

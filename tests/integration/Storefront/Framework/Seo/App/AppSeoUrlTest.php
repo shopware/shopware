@@ -371,6 +371,8 @@ class AppSeoUrlTest extends TestCase
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'title' => 'excellent',
             'content' => 'Does what it says on the box',
+            'externalUser' => 'Test',
+            'points' => 5,
         ]], $this->context);
         $this->createSalesChannelTemplate(self::PRODUCT_REVIEWS_ROUTE, 'product', 'my-reviews/{{ product.productNumber }}');
         $this->runWorker();

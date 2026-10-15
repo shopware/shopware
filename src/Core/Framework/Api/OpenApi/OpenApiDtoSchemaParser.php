@@ -1031,10 +1031,6 @@ final class OpenApiDtoSchemaParser
             }
 
             if ($propertyName === 'extensions') {
-                if (\in_array($propertyName, $requiredFields, true)) {
-                    $dtoProperties[] = $this->createProperty($propertyName, $propertySchema, required: true, phpType: self::PHP_TYPE_ARRAY, arrayItemType: null, nullable: $this->mapOpenApiTypeToPhp($propertySchema, $registry)['nullable'], registry: $registry);
-                }
-
                 continue;
             }
 

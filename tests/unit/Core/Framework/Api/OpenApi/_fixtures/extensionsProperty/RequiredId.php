@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @codeCoverageIgnore
  */
-final class RequiredExtensions extends AbstractDto
+final class RequiredId extends AbstractDto
 {
     /**
      * @internal
@@ -23,11 +23,6 @@ final class RequiredExtensions extends AbstractDto
     public function __construct(
         #[Assert\NotBlank]
         public string $id,
-        /**
-         * @var array<string, mixed>
-         */
-        array $extensions,
     ) {
-        $this->extensions = $extensions;
     }
 }

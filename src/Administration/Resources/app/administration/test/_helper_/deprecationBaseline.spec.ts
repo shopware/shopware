@@ -2,6 +2,9 @@
  * @sw-package framework
  */
 
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
     baselineDeprecation,
     currentRun,
@@ -10,7 +13,7 @@ import {
     resetBaseline,
     type DeprecationRun,
 } from './deprecationBaseline';
-import { deprecations, endDeprecationLog } from './deprecations';
+import { allowDeprecation, deprecations, endDeprecationLog } from './deprecations';
 import oldFunction from './_fixtures/deprecations/oldFunction';
 
 const message = 'oldFunction() is deprecated.';
@@ -35,7 +38,41 @@ function failureOfEndDeprecationLog(): string {
 }
 
 describe('test/_helper_/deprecationBaseline', () => {
-    beforeEach(resetBaseline);
+    let hitsDirectory: string;
+    const hitsDirectories: string[] = [];
+
+    beforeEach(() => {
+        resetBaseline();
+        // Keeps the hits of these specs away from the run's reporter, and its update mode away from these specs.
+        hitsDirectory = mkdtempSync(join(tmpdir(), 'deprecation-baseline-spec-'));
+        hitsDirectories.push(hitsDirectory);
+        process.env.DEPRECATION_BASELINE_HITS = hitsDirectory;
+        delete process.env.DEPRECATION_BASELINE;
+    });
+
+    // The setup's `afterEach` records the hits of a test after the hooks of this file ran.
+    afterAll(() => {
+        hitsDirectories.forEach((directory) => rmSync(directory, { recursive: true, force: true }));
+    });
+
+    /**
+     * The `[message, usage site]` pairs this worker recorded for the reporter during the test.
+     *
+     * @example
+     * expect(recordedHits()).toEqual([['oldFunction() is deprecated.', spec]]);
+     */
+    function recordedHits(): string[][] {
+        const hitsFile = join(hitsDirectory, `${process.pid}.jsonl`);
+
+        if (!existsSync(hitsFile)) {
+            return [];
+        }
+
+        return readFileSync(hitsFile, 'utf8')
+            .trim()
+            .split('\n')
+            .map((line) => JSON.parse(line) as string[]);
+    }
 
     describe('in a test', () => {
         it('lets a usage listed for the current run pass without an assertion', () => {
@@ -68,6 +105,72 @@ describe('test/_helper_/deprecationBaseline', () => {
             oldFunction();
 
             expect(failureOfEndDeprecationLog()).toContain(`1. ${message}\n   used in ${spec}`);
+        });
+    });
+
+    describe('for the reporter', () => {
+        it('records a listed usage the test did not assert, once', () => {
+            baselineDeprecation({ message, callSites: { [spec]: [currentRun()] } });
+
+            oldFunction();
+            oldFunction();
+            endDeprecationLog();
+
+            expect(recordedHits()).toEqual([[message, spec]]);
+        });
+
+        it('records a listed usage the test asserted', () => {
+            baselineDeprecation({ message, callSites: { [spec]: [currentRun()] } });
+
+            oldFunction();
+            expect(deprecations).toHaveTriggered(message);
+            endDeprecationLog();
+
+            expect(recordedHits()).toEqual([[message, spec]]);
+        });
+
+        it('records a listed usage the test allowed', () => {
+            baselineDeprecation({ message, callSites: { [spec]: [currentRun()] } });
+            allowDeprecation(message);
+
+            oldFunction();
+            endDeprecationLog();
+
+            expect(recordedHits()).toEqual([[message, spec]]);
+        });
+
+        it('does not record a usage listed only for the other run', () => {
+            baselineDeprecation({ message, callSites: { [spec]: [otherRun] } });
+
+            oldFunction();
+            expect(deprecations).toHaveTriggered(message);
+            endDeprecationLog();
+
+            expect(recordedHits()).toEqual([]);
+        });
+
+        it('lets every usage pass and records it with DEPRECATION_BASELINE=update, except asserted and allowed ones', () => {
+            process.env.DEPRECATION_BASELINE = 'update';
+            allowDeprecation('allowed()');
+
+            oldFunction();
+            Shopware.Feature.triggerDeprecationOrThrow('V6_9_0_0', 'asserted() is deprecated.');
+            Shopware.Feature.triggerDeprecationOrThrow('V6_9_0_0', 'allowed() is deprecated.');
+            expect(deprecations).toHaveTriggered('asserted()');
+
+            expect(failureOfEndDeprecationLog()).toBe('');
+            expect(recordedHits()).toEqual([[message, spec]]);
+        });
+
+        it('keeps recording a listed usage the test asserted with DEPRECATION_BASELINE=update', () => {
+            process.env.DEPRECATION_BASELINE = 'update';
+            baselineDeprecation({ message, callSites: { [spec]: [currentRun()] } });
+
+            oldFunction();
+            expect(deprecations).toHaveTriggered(message);
+            endDeprecationLog();
+
+            expect(recordedHits()).toEqual([[message, spec]]);
         });
     });
 

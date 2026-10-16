@@ -510,27 +510,36 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 ### Experimental: Vite 8 and HTTP/2 for the Administration behind the `ADMIN_VITE_8` feature flag
 
-The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8 (Rolldown and Oxc instead of Rollup and esbuild). Without the flag, the Administration is still built with Vite 6. The watcher (`composer watch:admin`) runs at `http://localhost:5173` with and without the flag.
-
-With the flag, the watcher can serve all files, including the files of extensions, over HTTP/2. Browsers only use HTTP/2 over TLS, so put HTTPS in front of the watcher in one of these ways:
-
-* Use a TLS-terminating proxy, for example the proxy of shopware-cli: run `shopware-cli project proxy up` and open `https://admin-watch.<project>.shopware.local`.
-* Set `SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE` and `SHOPWARE_ADMIN_HTTPS_KEY_FILE` to a certificate and its key, for example files created with [mkcert](https://github.com/FiloSottile/mkcert). Relative paths are resolved from the project root. The paths must be readable where the watcher runs, otherwise the watcher fails with a TLS error. The watcher then serves HTTPS on port 5173.
-
-Without the flag, the certificate variables still enable HTTPS, but Vite 6 serves it over HTTP/1.1.
-
-The flag becomes the default with Shopware 6.8. Activate it to test your extensions with Vite 8 already now:
+The new `ADMIN_VITE_8` feature flag builds the Administration and the Administration code of extensions with Vite 8.
+Vite 8 becomes the default with Shopware 6.8, so you can use the flag to test your extensions now:
 
 ```bash
 ADMIN_VITE_8=1 composer watch:admin
 ADMIN_VITE_8=1 composer build:js:admin
 ```
 
-To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`. This bundles the Administration code of plugins as well, but not of apps. Changes to plugin files reload the page instead of updating it through HMR.
+With the flag, building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
+The `postinstall` script of the Administration installs Vite 8 into `build/vite-8`.
+If your CI restores the Administration dependencies from a cache without running that script, also run `npm ci` in `build/vite-8`.
 
-Vite 8 is installed as an own package in `src/Administration/Resources/app/administration/build/vite-8` by the `postinstall` script of the Administration, next to Vite 6. If you install the dependencies without that script, for example with a cache that only covers the `node_modules` of the Administration, also run `npm ci` in `build/vite-8`. With the flag, building the Administration requires Node.js `^20.19.0 || >=22.12.0`.
+With the flag, the watcher serves all files over HTTP/2.
+Browsers only use HTTP/2 over HTTPS, so put HTTPS in front of the watcher:
 
-Vite 8 does not match extglob patterns like `!(*.spec)` in `import.meta.glob`. With the flag, Shopware still rewrites negated extglobs in plugins and apps and logs a warning for each one. 6.8 no longer rewrites them, so replace them with negated patterns like `['./**/*.{j,t}s', '!./**/*.spec.{j,t}s']`. If your Jest setup transforms `import.meta.glob` with `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions exclude nothing with negated patterns. A `^0.0.x` range does not pick up 0.0.6 automatically. For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
+* Run `shopware-cli project proxy up` and open `https://admin-watch.<project>.shopware.local`.
+* Or set `SHOPWARE_ADMIN_HTTPS_CERTIFICATE_FILE` and `SHOPWARE_ADMIN_HTTPS_KEY_FILE` to a certificate and its key, for example created with [mkcert](https://github.com/FiloSottile/mkcert).
+  Relative paths are resolved from the project root.
+
+To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
+It bundles the Administration and its plugins, but not apps.
+Changes to plugin files reload the page instead of using HMR.
+
+Vite 8 does not match extglob patterns like `!(*.spec)` in `import.meta.glob`.
+Replace them with negated patterns like `['./**/*.{j,t}s', '!./**/*.spec.{j,t}s']`.
+`composer admin:check-extensions` warns about them, and `composer run admin:code-mods -- --fix -v 6.8 -p YourPlugin` rewrites them.
+Until 6.8, Shopware rewrites them when the flag is active and logs a warning for each one.
+If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions ignore negated patterns.
+
+For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ### Native setup components support defineModel()
 

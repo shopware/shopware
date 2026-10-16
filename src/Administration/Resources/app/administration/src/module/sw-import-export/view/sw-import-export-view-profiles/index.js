@@ -66,17 +66,6 @@ export default {
             ];
         },
 
-        isNotSystemLanguage() {
-            return Shopware.Context.api.systemLanguageId !== Shopware.Context.api.languageId;
-        },
-
-        createTooltip() {
-            return {
-                showDelay: 300,
-                message: this.$t('sw-import-export.profile.addNewProfileTooltipLanguage'),
-                disabled: !this.isNotSystemLanguage,
-            };
-        },
     },
 
     created() {

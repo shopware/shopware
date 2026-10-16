@@ -14,18 +14,18 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['repositoryFactory', 'acl'],
 
-    data() {
-        return {
-            categoryCustomEntityProperty: '',
-        };
-    },
-
     props: {
         isLoading: {
             type: Boolean,
             required: false,
             default: false,
         },
+    },
+
+    data() {
+        return {
+            categoryCustomEntityProperty: '',
+        };
     },
 
     computed: {

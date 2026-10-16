@@ -26,6 +26,7 @@ Run them in `src/Administration/Resources/app/administration`, or through the co
 
 | Group | Rules | Why |
 |---|---|---|
+| Structure | `sw-core-rules/no-javascript-files`, `sw-core-rules/require-wrap-component-config`, `sw-core-rules/no-new-mixins` | New code is TypeScript, components are wrapped in `wrapComponentConfig()` so the Vue rules check them, shared logic goes into composables |
 | Size and complexity | `complexity` (15), `sw-core-rules/max-function-lines` (80, `setup()` 150), `max-params` (4), `max-nested-callbacks` (3), `max-depth` (4), `max-lines` (500), `sw-core-rules/max-component-members` (50), `vue/max-template-depth` (10) | Small units are easier to read, test and override |
 | Types | `@typescript-eslint/no-non-null-assertion`, `sw-core-rules/no-double-cast`, `sw-core-rules/no-ts-fix-me`, `@typescript-eslint/ban-ts-comment` | Types match the runtime values instead of being cast into shape |
 | Errors | `sw-core-rules/no-swallowed-errors` | A `.catch()` that drops the error needs a comment that says why |
@@ -47,7 +48,7 @@ Every `eslint-disable` comment needs a reason after `--`:
 const id = this.$route.params.id!;
 ```
 
-The size and complexity rules, the spec size limits and `sw-test-rules/no-vm-access` can't be disabled inline at all.
+The size and complexity rules, the structure rules, the spec size limits and `sw-test-rules/no-vm-access` can't be disabled inline at all.
 For them the baseline is the only way around, and the baseline can't grow.
 
 ## Baselines

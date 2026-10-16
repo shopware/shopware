@@ -8,8 +8,8 @@ import '../sw-settings-usage-data-consent-modal-sub-cards.scss';
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
+    name: 'sw-settings-usage-data-user-data-consent-card',
     template,
-    name: 'SwSettingsUsageDataUserDataConsentCard',
 
     emits: ['update:consent', 'legal-link-clicked'],
 

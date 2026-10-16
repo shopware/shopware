@@ -444,6 +444,10 @@ With `v6.8.0.0`, `POST /store-api/product/{productId}/review` rejects a review w
 
 `FloatField` takes an optional `minValue` and `maxValue`, like `IntField`. A write with a value outside the range fails with a `WriteConstraintViolationException`.
 
+### `NotFilter` negates a single filter
+
+`NotFilter` accepts a single filter instead of an operator and a list of queries, so `new NotFilter(new EqualsFilter('parentId', null))` replaces `new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)])`. Both create the same filter. The existing signature keeps working unchanged.
+
 ### Shared order restoration for Store API routes
 
 `Shopware\Core\Checkout\Cart\Order\OrderRestorer::restore()` builds the sales channel context and cart of an existing order through `OrderConverter`, so its decorators and the context assembled events keep being invoked; `addRequiredAssociations()` adds the associations the order has to be loaded with. Read-only Store API routes opt in with the route default `_allowOrderRestoration`. For a request with an `orderId`, the restored objects are stored as `sw-effective-sales-channel-context`, `sw-effective-context` and `sw-effective-cart` and injected by the `SalesChannelContext`, `Context`, `Cart` and `Criteria` argument resolvers; the session attributes and `sw-context-token` stay untouched. A failing restoration answers `CHECKOUT__ORDER_RESTORATION_FAILED`.

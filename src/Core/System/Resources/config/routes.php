@@ -19,6 +19,7 @@ return static function (RoutingConfigurator $routes): void {
     $routes->import('../../SalesChannel/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../SalesChannel/File/**/*Controller.php', 'attribute');
     $routes->import('../../StateMachine/Api/*Controller.php', 'attribute');
+    $routes->import('../../Unit/Api/*Controller.php', 'attribute');
     $routes->import('../../Currency/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../Language/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../Salutation/SalesChannel/**/*Route.php', 'attribute');

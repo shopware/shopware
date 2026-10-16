@@ -692,6 +692,9 @@ The order is the `parentOrder` computed of `sw-users-permissions-permissions-gri
 `Shopware.Feature.triggerDeprecationOrThrow(majorFlag, message)` warns about a deprecated Administration API in development builds and throws once the major flag is active, like its PHP counterpart.
 
 The `deprecated` option of components and props now follows the same lifecycle: it used to only warn and now throws in next-major mode. See the [coding guidelines](coding-guidelines/administration/feature-flags-and-deprecations.md#runtime-guards) for usage.
+
+Core usages that are not migrated yet are listed in `src/Administration/Resources/app/administration/src/meta/deprecation-baseline.json`. In next-major mode, a deprecation with a listed message logs a console error instead of throwing, so the Administration stays usable. Any other deprecation still throws.
+
 ### Order line items are paginated
 
 The line item list on the order detail page shows 10 items per page once an order has more than 10 top-level line items. A pagination with an items-per-page selection appears below the list. Searching or adding a line item returns to the first page.

@@ -5,14 +5,7 @@
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import {
-    baselineDeprecation,
-    currentRun,
-    deprecationBaselineKey,
-    isBaselined,
-    resetBaseline,
-    type DeprecationRun,
-} from './deprecationBaseline';
+import { baselineDeprecation, currentRun, isBaselined, resetBaseline, type DeprecationRun } from './deprecationBaseline';
 import { allowDeprecation, deprecations, endDeprecationLog } from './deprecations';
 import oldFunction from './_fixtures/deprecations/oldFunction';
 
@@ -189,14 +182,6 @@ describe('test/_helper_/deprecationBaseline', () => {
             resetBaseline();
 
             expect(isBaselined({ message, usageSite: spec })).toBe(false);
-        });
-    });
-
-    describe('deprecationBaselineKey', () => {
-        it('drops the component path the deprecation plugin appends', () => {
-            expect(deprecationBaselineKey('The component "sw-x" is deprecated.\nUsed in: sw-page > sw-x')).toBe(
-                'The component "sw-x" is deprecated.',
-            );
         });
     });
 

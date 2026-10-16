@@ -99,7 +99,27 @@ export default {
             });
         },
 
+        genericConfigKeys() {
+            return [
+                'customFieldType',
+                'customFieldPosition',
+                'label',
+                'helpText',
+                'placeholder',
+            ];
+        },
+
         ...mapPropertyErrors('currentCustomField', ['name']),
+    },
+
+    watch: {
+        'currentCustomField.config.customFieldType'(newType, oldType) {
+            if (!oldType || !newType || !this.currentCustomField._isNew) {
+                return;
+            }
+
+            this.resetTypeConfiguration(newType);
+        },
     },
 
     created() {
@@ -211,6 +231,24 @@ export default {
             this.currentCustomField.config = {
                 ...this.fieldTypes[customFieldType].config,
                 ...this.currentCustomField.config,
+            };
+        },
+
+        resetTypeConfiguration(customFieldType) {
+            const fieldType = this.fieldTypes[customFieldType];
+
+            if (!fieldType) {
+                return;
+            }
+
+            const genericConfig = Object.fromEntries(
+                Object.entries(this.currentCustomField.config).filter(([key]) => this.genericConfigKeys.includes(key)),
+            );
+
+            this.currentCustomField.type = fieldType.type || customFieldType;
+            this.currentCustomField.config = {
+                ...fieldType.config,
+                ...genericConfig,
             };
         },
 

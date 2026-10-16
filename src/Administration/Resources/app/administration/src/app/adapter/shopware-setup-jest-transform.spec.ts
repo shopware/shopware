@@ -4,18 +4,12 @@
 
 import { defineComponent, ref } from 'vue';
 import { mount } from '@vue/test-utils';
-import { _overridesMap } from 'src/app/adapter/composition-extension-system';
+import resetCompositionOverrides from 'test/_helper_/reset-composition-overrides';
 import ShopwareSetupJestTransformOverride from './_mocks_/sw-jest-transform-fixture.override.vue';
 import ShopwareSetupJestTransformBase from './_mocks_/sw-jest-transform-fixture.vue';
 
 describe('test/transformer/shopwareSetupVueTransformer', () => {
-    beforeEach(() => {
-        delete _overridesMap['sw-jest-transform-fixture'];
-    });
-
-    afterAll(() => {
-        delete _overridesMap['sw-jest-transform-fixture'];
-    });
+    beforeEach(resetCompositionOverrides);
 
     it('transforms and mounts Shopware setup Vue files through the real Jest Vue transformer', async () => {
         mount(ShopwareSetupJestTransformOverride);

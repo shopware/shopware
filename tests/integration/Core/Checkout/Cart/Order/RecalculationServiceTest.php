@@ -25,11 +25,12 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -63,6 +64,9 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 use Shopware\Core\Test\TestDefaults;
@@ -336,13 +340,11 @@ class RecalculationServiceTest extends TestCase
         // set token to be equal for further comparison
         $cart->setToken($convertedCart->getToken());
 
-        // transactions are currently not supported so they are excluded for comparison
-        $cart->setTransactions(new TransactionCollection());
-
         $this->removeExtensions($cart);
         $this->removeExtensions($convertedCart);
 
         // remove delivery information from line items
+        // the order stores the GARAN label each product was placed with, none for these products
 
         foreach ($cart->getDeliveries() as $delivery) {
             // remove address from ShippingLocation
@@ -352,10 +354,12 @@ class RecalculationServiceTest extends TestCase
             foreach ($delivery->getPositions() as $position) {
                 $position->getLineItem()->setDeliveryInformation(null);
                 $position->getLineItem()->setQuantityInformation(null);
+                $position->getLineItem()->setPayloadValue('garanLabel', null);
 
                 foreach ($position->getLineItem()->getChildren() as $lineItem) {
                     $lineItem->setDeliveryInformation(null);
                     $lineItem->setQuantityInformation(null);
+                    $lineItem->setPayloadValue('garanLabel', null);
                 }
             }
 
@@ -365,6 +369,7 @@ class RecalculationServiceTest extends TestCase
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {
             $lineItem->setDeliveryInformation(null);
             $lineItem->setQuantityInformation(null);
+            $lineItem->setPayloadValue('garanLabel', null);
         }
 
         $this->resetDataTimestamps($cart->getLineItems());
@@ -565,6 +570,86 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(19.0, $firstTax->getTaxRate());
         static::assertNotNull($lastTax);
         static::assertSame(5.0, $lastTax->getTaxRate());
+    }
+
+    public function testRecalculationMovesTheOpenTransactionToTheNewTotal(): void
+    {
+        $order = $this->persistCart($this->generateDemoCart());
+        $orderId = $order['orderId'];
+        $transactionId = $this->fetchOrderWithTransactions($orderId, $this->context)->getPrimaryOrderTransactionId();
+
+        $versionId = $this->createVersionedOrder($orderId);
+        $this->addProductToVersionedOrder('Test', 10.0, 19.0, $orderId, $versionId, $order['total']);
+
+        $versionedOrder = $this->fetchOrderWithTransactions($orderId, $this->context->createWithVersionId($versionId));
+        static::assertNotNull($versionedOrder->getTransactions());
+        static::assertCount(1, $versionedOrder->getTransactions());
+
+        $transaction = $versionedOrder->getTransactions()->first();
+        static::assertNotNull($transaction);
+        static::assertSame($transactionId, $transaction->getId());
+        static::assertSame(OrderTransactionStates::STATE_OPEN, $transaction->getStateMachineState()?->getTechnicalName());
+        static::assertSame($versionedOrder->getAmountTotal(), $transaction->getAmount()->getTotalPrice());
+        static::assertNotSame($order['total'], $transaction->getAmount()->getTotalPrice());
+    }
+
+    public function testRecalculationKeepsTheAmountOfAPaidTransaction(): void
+    {
+        $order = $this->persistCart($this->generateDemoCart());
+        $orderId = $order['orderId'];
+
+        $transactionId = $this->fetchOrderWithTransactions($orderId, $this->context)->getPrimaryOrderTransactionId();
+        static::assertNotNull($transactionId);
+        static::getContainer()->get(StateMachineRegistry::class)->transition(
+            new Transition(OrderTransactionDefinition::ENTITY_NAME, $transactionId, StateMachineTransitionActions::ACTION_PAID, 'stateId'),
+            $this->context
+        );
+
+        $versionId = $this->createVersionedOrder($orderId);
+        $this->addProductToVersionedOrder('Test', 10.0, 19.0, $orderId, $versionId, $order['total']);
+
+        $transaction = $this->fetchOrderWithTransactions($orderId, $this->context->createWithVersionId($versionId))->getTransactions()?->first();
+        static::assertNotNull($transaction);
+        static::assertSame(OrderTransactionStates::STATE_PAID, $transaction->getStateMachineState()?->getTechnicalName());
+        static::assertSame($order['total'], $transaction->getAmount()->getTotalPrice());
+    }
+
+    #[DataProvider('liveTransactionTransitionProvider')]
+    public function testMergeMovesTheTransactionOnlyWhileItStillAwaitsPayment(?string $liveTransition, bool $followsTheNewTotal): void
+    {
+        $order = $this->persistCart($this->generateDemoCart());
+        $orderId = $order['orderId'];
+        $transactionId = $this->fetchOrderWithTransactions($orderId, $this->context)->getPrimaryOrderTransactionId();
+        static::assertNotNull($transactionId);
+
+        $versionId = $this->createVersionedOrder($orderId);
+        $this->addProductToVersionedOrder('Test', 10.0, 19.0, $orderId, $versionId, $order['total']);
+
+        if ($liveTransition !== null) {
+            static::getContainer()->get(StateMachineRegistry::class)->transition(
+                new Transition(OrderTransactionDefinition::ENTITY_NAME, $transactionId, $liveTransition, 'stateId'),
+                $this->context
+            );
+        }
+
+        $this->orderRepository->merge($versionId, $this->context);
+
+        $mergedOrder = $this->fetchOrderWithTransactions($orderId, $this->context);
+        static::assertNotSame($order['total'], $mergedOrder->getAmountTotal());
+
+        $transaction = $mergedOrder->getTransactions()?->get($transactionId);
+        static::assertNotNull($transaction);
+        static::assertSame(
+            $followsTheNewTotal ? $mergedOrder->getAmountTotal() : $order['total'],
+            $transaction->getAmount()->getTotalPrice()
+        );
+    }
+
+    public static function liveTransactionTransitionProvider(): \Generator
+    {
+        yield 'still open' => [null, true];
+        yield 'partially paid during the edit' => [StateMachineTransitionActions::ACTION_PAID_PARTIALLY, false];
+        yield 'paid during the edit' => [StateMachineTransitionActions::ACTION_PAID, false];
     }
 
     public function testAddProductToOrderWithCustomerComment(): void
@@ -1569,6 +1654,10 @@ class RecalculationServiceTest extends TestCase
             }
         }
 
+        foreach ($cart->getTransactions() as $transaction) {
+            $transaction->setExtensions([]);
+        }
+
         $cart->setExtensions([]);
         $cart->setData(null);
     }
@@ -1834,6 +1923,16 @@ class RecalculationServiceTest extends TestCase
             'orderDateTime' => $order->getOrderDateTime(),
             'stateId' => $order->getStateId(),
         ];
+    }
+
+    private function fetchOrderWithTransactions(string $orderId, Context $context): OrderEntity
+    {
+        $criteria = (new Criteria([$orderId]))->addAssociation('transactions.stateMachineState');
+
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
+        static::assertNotNull($order);
+
+        return $order;
     }
 
     private function createVersionedOrder(string $orderId): string

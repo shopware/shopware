@@ -37,6 +37,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -1085,13 +1086,13 @@ class StockStorageTest extends TestCase
 
     private function collectAvailabilityEvents(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $hooks = EventHookDispatcher::fromContainer(static::getContainer());
 
-        $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, function (ProductNoLongerAvailableEvent $event): void {
+        $hooks->on(ProductNoLongerAvailableEvent::class, function (ProductNoLongerAvailableEvent $event): void {
             $this->noLongerAvailableIds = [...$this->noLongerAvailableIds, ...$event->getIds()];
         });
 
-        $this->addEventListener($dispatcher, ProductBackInStockEvent::class, function (ProductBackInStockEvent $event): void {
+        $hooks->on(ProductBackInStockEvent::class, function (ProductBackInStockEvent $event): void {
             $this->backInStockIds = [...$this->backInStockIds, ...$event->getIds()];
         });
     }

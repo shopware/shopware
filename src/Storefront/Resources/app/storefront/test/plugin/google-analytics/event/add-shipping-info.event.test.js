@@ -186,5 +186,31 @@ describe('plugin/google-analytics/events/add-shipping-info.event', () => {
 
         expect(window.gtag).not.toHaveBeenCalled();
     });
+
+    test('fires for a second shipping method that has the same name as the first', () => {
+        const markup = (id) => `
+            <div class="hidden-line-items-information" data-currency="EUR">
+                <span class="hidden-line-item" data-id="product-123" data-sku="product-123" data-name="Test Product"
+                    data-quantity="1" data-price="49.99"></span>
+            </div>
+            <div class="shipping-method-radio">
+                <input type="radio" class="shipping-method-input" value="${id}" checked>
+                <div class="shipping-method-description">
+                    <strong>Standard</strong>
+                </div>
+            </div>
+        `;
+
+        document.body.innerHTML = markup('method-1');
+        new AddShippingInfoEvent().execute();
+        document.body.innerHTML = markup('method-2');
+        new AddShippingInfoEvent().execute();
+        new AddShippingInfoEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledTimes(2);
+        expect(window.gtag).toHaveBeenNthCalledWith(2, 'event', 'add_shipping_info', expect.objectContaining({
+            'shipping_tier': 'Standard',
+        }));
+    });
 });
 

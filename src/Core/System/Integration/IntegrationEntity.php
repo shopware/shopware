@@ -156,6 +156,8 @@ class IntegrationEntity extends Entity
      */
     public function getWebhooks(): ?WebhookCollection
     {
+        $this->checkIfPropertyAccessIsAllowed('webhooks');
+
         return $this->webhooks;
     }
 

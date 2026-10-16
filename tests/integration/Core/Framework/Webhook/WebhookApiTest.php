@@ -122,6 +122,18 @@ class WebhookApiTest extends TestCase
         static::assertSame('https://app.example', $this->loadWebhook($webhookId)->getUrl());
     }
 
+    public function testAnAdminCanSwitchAnAppWebhookBackOn(): void
+    {
+        $webhookId = $this->createAppWebhook();
+        static::getContainer()->get(Connection::class)->update('webhook', ['active' => 0], ['id' => Uuid::fromHexToBytes($webhookId)]);
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/webhook/' . $webhookId, ['active' => true]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
+        static::assertTrue($this->loadWebhook($webhookId)->isActive());
+    }
+
     public function testAppWebhookCannotBeDeletedViaApi(): void
     {
         $webhookId = $this->createAppWebhook();
@@ -198,6 +210,27 @@ class WebhookApiTest extends TestCase
         static::assertSame('https://owner.example', $this->loadWebhook($webhookId)->getUrl());
     }
 
+    public function testAWebhookCannotBeDeletedAndRecreatedByAnotherUserInOneSyncRequest(): void
+    {
+        $webhookId = $this->createWebhookOwnedByAnotherUser();
+
+        $connection = static::getContainer()->get(Connection::class);
+        TestUser::createNewTestUser($connection, ['webhook:create', 'webhook:delete', 'product:read'])->authorizeBrowser($this->getBrowser());
+
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/sync', [
+            ['action' => 'delete', 'entity' => 'webhook', 'payload' => [['id' => $webhookId]]],
+            ['action' => 'upsert', 'entity' => 'webhook', 'payload' => [[
+                'id' => $webhookId,
+                'name' => 'Replaced',
+                'eventName' => 'product.written',
+                'url' => 'https://replaced.example',
+            ]]],
+        ]);
+
+        static::assertStringContainsString(WebhookException::WEBHOOK_NOT_OWNED, (string) $this->getBrowser()->getResponse()->getContent());
+        static::assertSame('https://owner.example', $this->loadWebhook($webhookId)->getUrl());
+    }
+
     public function testWebhookCannotBeUpdatedByAnIntegrationNamingItsOwner(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -239,6 +272,159 @@ class WebhookApiTest extends TestCase
         static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
 
         static::assertSame('https://owner.example', $this->loadWebhook($webhookId)->getUrl());
+    }
+
+    public function testWebhookCanBeLimitedToSomeOfItsOwnersRoles(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $user = TestUser::createNewTestUser($connection, ['webhook:create', 'product:read']);
+        $user->authorizeBrowser($this->getBrowser());
+
+        $roleId = $user->getAclRoleId();
+
+        $webhookId = $this->createWebhookWithAclRoles('product.written', [$roleId]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(['event_name' => 'product.written', 'acl_role_ids' => '["' . $roleId . '"]'], $this->fetchSubscription($webhookId));
+    }
+
+    public function testAclRolesTheOwnerDoesNotHoldAreRejected(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $user = TestUser::createNewTestUser($connection, ['webhook:create', 'product:read']);
+        $user->authorizeBrowser($this->getBrowser());
+
+        $notHeldRoleId = $this->createAclRole(['product:read']);
+        $webhookId = $this->createWebhookWithAclRoles('product.written', [$user->getAclRoleId(), $notHeldRoleId]);
+
+        $this->assertApiErrors([[
+            'code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION',
+            'field' => 'aclRoleIds',
+            'detail' => 'Role "' . $notHeldRoleId . '" is not held by the webhook\'s owner.',
+        ]]);
+        static::assertFalse($this->fetchSubscription($webhookId));
+    }
+
+    public function testAclRolesThatDoNotExistAreRejected(): void
+    {
+        $missingRoleId = Uuid::randomHex();
+        $webhookId = $this->createWebhookWithAclRoles('product.written', [$missingRoleId]);
+
+        $this->assertApiErrors([[
+            'code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION',
+            'field' => 'aclRoleIds',
+            'detail' => 'Role "' . $missingRoleId . '" does not exist.',
+        ]]);
+        static::assertFalse($this->fetchSubscription($webhookId));
+    }
+
+    public function testAnEmptyAclRoleListIsRejected(): void
+    {
+        $webhookId = $this->createWebhookWithAclRoles('product.written', []);
+
+        $this->assertApiErrors([[
+            'code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION',
+            'field' => 'aclRoleIds',
+            'detail' => 'aclRoleIds must not be empty. Leave it out to use all of the owner\'s roles.',
+        ]]);
+        static::assertFalse($this->fetchSubscription($webhookId));
+    }
+
+    public function testEmptyAclRoleEntriesAreRejected(): void
+    {
+        $webhookId = $this->createWebhookWithAclRoles('product.written', [$this->createAclRole(['product:read']), null, '', '0']);
+
+        $this->assertApiErrors([[
+            'code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION',
+            'field' => 'aclRoleIds',
+            'detail' => 'aclRoleIds must not contain empty entries.',
+        ]]);
+        static::assertFalse($this->fetchSubscription($webhookId));
+    }
+
+    public function testTheEventMustBeCoveredByTheAclRoles(): void
+    {
+        $webhookId = $this->createWebhookWithAclRoles('product.written', [$this->createAclRole(['order:read'])]);
+
+        $this->assertApiErrors([['code' => WebhookException::WEBHOOK_EVENT_PRIVILEGES_MISSING]]);
+        static::assertFalse($this->fetchSubscription($webhookId));
+    }
+
+    public function testAnAdminCannotGrantRolesTheOwnerLacks(): void
+    {
+        $webhookId = $this->createWebhookOwnedByAnotherUser();
+
+        $roleId = $this->createAclRole(['product:read']);
+        $this->getBrowser()->jsonRequest('PATCH', '/api/webhook/' . $webhookId, [
+            'aclRoleIds' => [$roleId],
+        ]);
+
+        $this->assertApiErrors([[
+            'code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION',
+            'field' => 'aclRoleIds',
+            'detail' => 'Role "' . $roleId . '" is not held by the webhook\'s owner.',
+        ]]);
+        static::assertSame(['event_name' => 'product.written', 'acl_role_ids' => null], $this->fetchSubscription($webhookId));
+    }
+
+    public function testAnEventChangeIsCheckedAgainstTheAclRoles(): void
+    {
+        $roleId = $this->createAclRole(['product:read']);
+        $webhookId = $this->createWebhookWithAclRoles('product.written', [$roleId]);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/webhook/' . $webhookId, [
+            'eventName' => 'order.written',
+        ]);
+
+        $this->assertApiErrors([['code' => WebhookException::WEBHOOK_EVENT_PRIVILEGES_MISSING]]);
+        static::assertSame(['event_name' => 'product.written', 'acl_role_ids' => '["' . $roleId . '"]'], $this->fetchSubscription($webhookId));
+    }
+
+    /**
+     * @param list<string|null> $aclRoleIds
+     */
+    private function createWebhookWithAclRoles(string $eventName, array $aclRoleIds): string
+    {
+        $webhookId = Uuid::randomHex();
+        $this->getBrowser()->jsonRequest('POST', '/api/webhook/', [
+            'id' => $webhookId,
+            'name' => 'My super webhook',
+            'eventName' => $eventName,
+            'url' => 'http://localhost',
+            'aclRoleIds' => $aclRoleIds,
+        ]);
+
+        return $webhookId;
+    }
+
+    /**
+     * @param list<string> $privileges
+     */
+    private function createAclRole(array $privileges): string
+    {
+        $roleId = Uuid::randomHex();
+
+        static::getContainer()->get(Connection::class)->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($roleId),
+            'name' => 'webhook-' . $roleId,
+            'privileges' => json_encode($privileges, \JSON_THROW_ON_ERROR),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        return $roleId;
+    }
+
+    /**
+     * @return array<string, mixed>|false
+     */
+    private function fetchSubscription(string $webhookId): array|false
+    {
+        return static::getContainer()->get(Connection::class)->fetchAssociative(
+            'SELECT `event_name`, `acl_role_ids` FROM `webhook` WHERE `id` = :id',
+            ['id' => Uuid::fromHexToBytes($webhookId)]
+        );
     }
 
     private function createWebhookOwnedByAnotherUser(?string $ownerUserId = null): string

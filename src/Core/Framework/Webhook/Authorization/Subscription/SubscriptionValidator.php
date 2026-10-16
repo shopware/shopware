@@ -24,9 +24,10 @@ class SubscriptionValidator
     /**
      * @param array<string, string> $subscriptions the event each subscription requests, keyed by however the caller
      *                                             identifies it; the refusals come back under the same keys
-     * @param list<string>|null $privileges the privileges the subscriber holds, or null when it holds every privilege
+     * @param array<string, list<string>|null> $privileges the privileges each subscription is held with, under the same
+     *                                                     keys as $subscriptions, or null when it holds every privilege
      */
-    public function validate(array $subscriptions, ?array $privileges, Subscriber $subscriber, Context $context): SubscriptionRefusals
+    public function validate(array $subscriptions, array $privileges, Subscriber $subscriber, Context $context): SubscriptionRefusals
     {
         if ($subscriptions === []) {
             return new SubscriptionRefusals();
@@ -51,11 +52,13 @@ class SubscriptionValidator
                 continue;
             }
 
-            if ($privileges === null) {
+            // a subscription without an entry holds no privileges, so a caller's mistake refuses it instead of permitting it
+            $held = \array_key_exists($key, $privileges) ? $privileges[$key] : [];
+            if ($held === null) {
                 continue;
             }
 
-            $missing = array_values(array_diff($hookableEvents[$eventName]['privileges'], $privileges));
+            $missing = array_values(array_diff($hookableEvents[$eventName]['privileges'], $held));
             if ($missing !== []) {
                 $missingPrivileges[$key] = $missing;
             }

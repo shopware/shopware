@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook\Authorization\Ownership;
 
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Acl\ApiCallerType;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -37,13 +37,12 @@ class RecordOwnerSubscriber implements EventSubscriberInterface
         }
 
         $source = $event->getContext()->getSource();
-        $integrationId = $source instanceof AdminApiSource ? $source->getIntegrationId() : null;
-        $ownerId = $source instanceof AdminApiSource ? Ownership::ownerIdOf($source) : null;
-        $column = $integrationId !== null ? 'owner_integration_id' : 'owner_user_id';
+        $ownerType = ApiCallerType::of($source);
+        $ownerId = $ownerType?->idOf($source);
 
         foreach ($inserts as $insert) {
-            if ($ownerId !== null) {
-                $insert->addPayload($column, Uuid::fromHexToBytes($ownerId));
+            if ($ownerType !== null && $ownerId !== null) {
+                $insert->addPayload(self::ownerColumn($ownerType), Uuid::fromHexToBytes($ownerId));
 
                 continue;
             }
@@ -53,5 +52,13 @@ class RecordOwnerSubscriber implements EventSubscriberInterface
                 $event->getExceptions()->add(WebhookException::webhookOwnerMissing());
             }
         }
+    }
+
+    private static function ownerColumn(ApiCallerType $type): string
+    {
+        return match ($type) {
+            ApiCallerType::User => 'owner_user_id',
+            ApiCallerType::Integration => 'owner_integration_id',
+        };
     }
 }

@@ -947,6 +947,12 @@ The zoom modal no longer waits for images without a source before it opens.
 
 These additions are experimental and become stable with 6.8.0.
 
+## Hosting & Configuration
+
+### Storefront readiness checks skip pages restricted by extensions
+
+The `ProductDetailReadiness` and `ProductListingReadiness` system checks only probe product and listing pages an anonymous visitor can see. Pages that extensions such as Dynamic Access restrict by rules no longer fail `bin/console system:check --context=pre_rollout`. If a sales channel has no visible page, the check reports `SKIPPED`. A sales channel whose domain cannot be resolved is now reported as its own failure, and the other sales channels are still checked.
+
 ## App system
 
 ### App requests keep body and signature across redirects

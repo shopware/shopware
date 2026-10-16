@@ -4,6 +4,8 @@
  * @sw-package framework
  */
 
+import { deprecations } from 'test/_helper_/deprecations';
+
 const { Module, Application } = Shopware;
 const ModuleFactory = Module;
 const register = ModuleFactory.register;
@@ -390,6 +392,7 @@ describe('core/factory/module.factory.js', () => {
                 },
             },
         });
+        expect(deprecations).toHaveTriggered('"snippets" property is deprecated');
     });
 
     it.activeFeatureFlags(['testFlag'])('should add settings item if feature flag is active', () => {

@@ -2,9 +2,15 @@
  * @sw-package framework
  */
 
+import { useProductionDeprecationGuard } from 'test/_helper_/deprecations';
+
 describe('src/app/service/feature.service', () => {
     beforeAll(() => {
         Shopware.Feature.init({ V7_0_0_0: false });
+    });
+
+    beforeEach(() => {
+        useProductionDeprecationGuard();
     });
 
     afterEach(() => {

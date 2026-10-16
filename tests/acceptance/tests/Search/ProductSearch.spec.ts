@@ -38,8 +38,9 @@ test('Customer is able to search products in shop', { tag: ['@Search', '@Storefr
 
         await test.step('Customer navigates to the results page to view all matching products', async () => {
             await ShopCustomer.presses(StorefrontSearchSuggest.searchSuggestTotalLink);
-            await ShopCustomer.expects(StorefrontSearchSuggest.searchHeadline).toContainText(productNameSuffix1);
-            await ShopCustomer.expects(StorefrontSearchSuggest.productListItems).toHaveCount(2);
+            await ShopCustomer.expects(StorefrontSearchSuggest.searchHeadline).toContainText(`Bottle - ${productNameSuffix1}` + ' ' + `Bowl - ${productNameSuffix2}`);
+            // The multi-word term can also match products of other workers, so keep "at least 2", but poll until the listing has rendered.
+            await ShopCustomer.expects.poll(() => StorefrontSearchSuggest.productListItems.count()).toBeGreaterThanOrEqual(2);
         });
     }
 );

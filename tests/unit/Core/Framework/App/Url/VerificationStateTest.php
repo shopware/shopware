@@ -25,6 +25,13 @@ class VerificationStateTest extends TestCase
         static::assertTrue($state->isNotHardFail());
     }
 
+    public function testAFailureReportsItsReason(): void
+    {
+        $state = new VerificationState(VerificationStatus::HARD_FAIL, 1, new \DateTimeImmutable(), 'Unexpected response');
+
+        static::assertSame('Unexpected response', $state->failureReason());
+    }
+
     public function testIsInBackoffTrueWhenNowBeforeAtPlusWait(): void
     {
         $at = new \DateTimeImmutable('2025-01-01T12:00:00Z');

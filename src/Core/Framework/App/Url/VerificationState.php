@@ -23,6 +23,13 @@ readonly class VerificationState
         return $this->status === $status;
     }
 
+    public function failureReason(): string
+    {
+        \assert(!$this->is(VerificationStatus::PASS) && $this->info !== null);
+
+        return $this->info;
+    }
+
     public function isNotHardFail(): bool
     {
         return $this->status !== VerificationStatus::HARD_FAIL;

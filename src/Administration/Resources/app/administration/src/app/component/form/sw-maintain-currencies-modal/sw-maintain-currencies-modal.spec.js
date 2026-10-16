@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 const currencies = [
     {
@@ -80,7 +80,7 @@ describe('src/app/component/form/sw-maintain-currencies-modal', () => {
 
     it('should be able to remove inheritance', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
         expect(inheritanceSwitch.isVisible()).toBe(true);
@@ -102,7 +102,7 @@ describe('src/app/component/form/sw-maintain-currencies-modal', () => {
 
     it('should be able to restore inheritance', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
         expect(inheritanceSwitch.isVisible()).toBe(true);

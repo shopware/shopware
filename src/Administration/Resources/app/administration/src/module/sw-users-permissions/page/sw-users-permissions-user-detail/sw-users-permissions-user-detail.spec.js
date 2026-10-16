@@ -3,7 +3,7 @@
 /**
  * @sw-package fundamentals@framework
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import TimezoneService from 'src/core/service/timezone.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import useModuleIconColors, { USER_MODULE_ICON_COLORS_CONFIG_KEY } from 'src/app/composables/use-module-icon-colors';
@@ -187,7 +187,7 @@ async function createWrapper(
     );
 
     // wait until all loading promises are done
-    await wrapper.vm.$nextTick();
+    await flushPromises();
 
     return wrapper;
 }

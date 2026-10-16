@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 /**
  * @sw-package checkout
@@ -62,7 +62,7 @@ async function createWrapper(privileges = []) {
 describe('module/sw-settings-payment/component/sw-settings-payment-sorting-modal', () => {
     it('should save reordered methods', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.sortedPaymentMethods = [wrapper.vm.sortedPaymentMethods[1], wrapper.vm.sortedPaymentMethods[0]];
 

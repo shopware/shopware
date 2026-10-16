@@ -1,7 +1,7 @@
 /**
  * @sw-package buyers-experience
  */
-import { config, mount } from '@vue/test-utils';
+import { config, mount, flushPromises } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
 async function createWrapper(viewportWidth = 1920) {
@@ -73,7 +73,7 @@ describe('src/app/asyncComponent/sidebar/sw-help-sidebar', () => {
         expect(wrapper.find('.sw-help-sidebar').exists()).toBeTruthy();
 
         Shopware.Store.get('adminHelpCenter').showHelpSidebar = false;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-help-sidebar').exists()).toBeFalsy();
     });

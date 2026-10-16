@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import EntityDefinitionFactory from 'src/core/factory/entity-definition.factory';
 
 async function createWrapper(privileges = []) {
@@ -111,14 +111,14 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
                 field: 'customFields.test',
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.fields).toEqual(['customFields.test']);
     });
 
     it('should return true if input is custom field', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isCustomField('customFields.test')).toBe(true);
     });
@@ -131,7 +131,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
                 field: 'json.test',
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.fields).toEqual(['json.test']);
     });
@@ -147,7 +147,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
                 parameters: null,
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.updateFields({ field: 'cheapestPrice.percentage', index: 0 });
 
@@ -165,7 +165,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
                 parameters: null,
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.changeType({ type: 'equals', parameters: null });
 
@@ -183,7 +183,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
                 parameters: null,
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.changeType({ type: 'range', parameters: { gte: null, lte: null } });
 
@@ -201,7 +201,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
                 parameters: null,
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.updateFields({ field: 'cheapestPrice', index: 0 });
 

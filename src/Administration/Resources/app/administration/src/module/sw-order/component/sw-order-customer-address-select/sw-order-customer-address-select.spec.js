@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
@@ -188,7 +188,7 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         jest.advanceTimersByTime(100);
 
         await flushPromises();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual(['1', '2']);
     });
@@ -228,7 +228,7 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         jest.advanceTimersByTime(100);
 
         await flushPromises();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const resultItems = singleSelect.findAll('.sw-select-result');
 
@@ -252,7 +252,7 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         jest.advanceTimersByTime(100);
 
         await flushPromises();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual(['1']);
     });
@@ -295,7 +295,7 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         jest.advanceTimersByTime(100);
 
         await flushPromises();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual(['30', '26']);
 

@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 
 const productMock = {
@@ -189,7 +189,7 @@ describe('src/module/sw-cms/elements/product-description-reviews/config', () => 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         await tabs.vm.$emit('new-item-active', 'options');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('options');
         expect(wrapper.find('sw-entity-single-select-stub').exists()).toBe(false);

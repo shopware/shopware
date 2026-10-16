@@ -4,7 +4,7 @@
  * @sw-package discovery
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 const mockSave = jest.fn(() => Promise.resolve());
 const mockGet = jest.fn();
@@ -584,7 +584,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
 
         wrapper.vm.salesChannel.languageId = 'language-id';
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeUndefined();
     });

@@ -2,7 +2,7 @@
  * @sw-package checkout
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/app/component/utils/sw-time-ago';
 
 // mock Date.now() to 2025-06-24 15:00
@@ -55,7 +55,7 @@ describe('src/app/component/utils/sw-time-ago', () => {
 
         jest.advanceTimersByTime(30000);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.now).toBe(1750777260000);
     });

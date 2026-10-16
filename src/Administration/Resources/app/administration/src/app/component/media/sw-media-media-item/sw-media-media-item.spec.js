@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper(mediaServiceFunctions = {}, props = {}) {
     return mount(await wrapTestComponent('sw-media-media-item', { sync: true }), {
@@ -129,7 +129,7 @@ describe('components/media/sw-media-media-item', () => {
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.vm.onChangeName(
             'new file name',
             {
@@ -163,7 +163,7 @@ describe('components/media/sw-media-media-item', () => {
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.vm.onChangeName(
             'new file name',
             {

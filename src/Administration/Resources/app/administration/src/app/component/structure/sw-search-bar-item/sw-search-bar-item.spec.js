@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar-item';
 import 'src/app/component/base/sw-highlight-text';
 import RecentlySearchService from 'src/app/service/recently-search.service';
@@ -105,7 +105,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-search-bar-item__link').exists()).toBe(true);
 
@@ -131,7 +131,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.find('.sw-search-bar-item__link').trigger('click');
 
         expect(wrapper.emitted('click-search-result')).toHaveLength(1);
@@ -164,7 +164,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('a.sw-search-bar-item__link').exists()).toBe(true);
 

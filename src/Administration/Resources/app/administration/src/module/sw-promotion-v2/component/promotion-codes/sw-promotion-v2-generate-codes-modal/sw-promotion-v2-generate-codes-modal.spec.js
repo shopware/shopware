@@ -1,7 +1,7 @@
 /**
  * @sw-package checkout
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 const mockCode = 'PREFIX_ABCD_SUFFIX';
 async function createWrapper(propsData = {}, apiService = {}) {
@@ -98,7 +98,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
 
     it('should generate a correct preview', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         jest.advanceTimersByTime(1000);
 
         expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__prefix').props('modelValue')).toBe('PREFIX_');
@@ -107,8 +107,8 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
         ).toBe('4');
         expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__suffix').props('modelValue')).toBe('_SUFFIX');
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+        await flushPromises();
 
         expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview').props('modelValue')).toBe(mockCode);
     });
@@ -118,10 +118,10 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
             individualCodePattern: '%d%d%d',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         jest.advanceTimersByTime(1000);
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+        await flushPromises();
 
         expect(wrapper.find('.sw-promotion-v2-generate-codes-modal__prefix').exists()).toBe(false);
         expect(wrapper.find('.sw-promotion-v2-generate-codes-modal__suffix').exists()).toBe(false);
@@ -133,7 +133,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
         expect(inputPreview.props('modelValue')).toBe(mockCode);
 
         expect(wrapper.get('.sw-promotion-v2-generate-codes-modal__custom-pattern').isVisible()).toBe(true);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview').props('modelValue')).toBe(mockCode);
     });
@@ -228,7 +228,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.get(alertWarningClass).exists()).toBeTruthy();
     });
 });

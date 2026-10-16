@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper(propsData = {}) {
     return mount(await wrapTestComponent('sw-label', { sync: true }), {
@@ -48,7 +48,7 @@ describe('src/app/component/base/sw-label', () => {
 
         dismissButton.element.dispatchEvent(mousedownEvent);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(mousedownEvent.defaultPrevented).toBe(true);
         expect(wrapper.emitted('dismiss')).toBeUndefined();

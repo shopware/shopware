@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import findByText from '../../../../../test/_helper_/find-by-text';
 
 const uploadSpy = jest.fn(() => Promise.resolve({}));
@@ -87,7 +87,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         const uploadButton = wrapper.get('.sw-extension-file-upload__button');
         await uploadButton.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await flushPromises();
 
         const warningModal = wrapper.get('.sw-extension-file-upload-confirm-modal');
@@ -215,7 +215,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         await fileInput.trigger('change');
 
         // check if error notification gets thrown
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const growlNotifications = Shopware.Store.get('notification').growlNotifications;
 
         expect(Object.keys(growlNotifications)).toHaveLength(1);

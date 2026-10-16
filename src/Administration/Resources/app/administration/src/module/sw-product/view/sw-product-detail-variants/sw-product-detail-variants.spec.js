@@ -3,7 +3,7 @@
 /**
  * @sw-package inventory
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-button';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
@@ -316,7 +316,7 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         });
 
         wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'digital');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('digital');
     });

@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
-import { mount, RouterLinkStub } from '@vue/test-utils';
+import { mount, RouterLinkStub, flushPromises } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/app/mixin/translate-with-fallback.mixin';
@@ -282,7 +282,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
     it('the add user button should be enabled', async () => {
         wrapper = await createWrapper(['users_and_permissions.creator']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const addUser = wrapper.find('.sw-users-permissions-user-listing__add-user-button');
         expect(addUser.attributes().disabled).toBeUndefined();
@@ -352,7 +352,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
         wrapper.vm.onDelete(user);
         wrapper.vm.onConfirmDelete(user);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBe(true);
         expect(deleteFunction).not.toHaveBeenCalled();

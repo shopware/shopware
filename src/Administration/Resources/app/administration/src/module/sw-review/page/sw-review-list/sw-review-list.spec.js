@@ -1,7 +1,7 @@
 /**
  * @sw-package after-sales
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 Shopware.Service().register('filterService', () => {
     return {
@@ -80,7 +80,7 @@ describe('module/sw-review/page/sw-review-list', () => {
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ total: 2 });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('sw-entity-listing-stub');

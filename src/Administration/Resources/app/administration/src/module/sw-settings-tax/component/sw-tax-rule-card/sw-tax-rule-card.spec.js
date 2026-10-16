@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 /**
  * @sw-package checkout
@@ -100,10 +100,10 @@ async function createWrapper(privileges = []) {
 describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
     const init = async (privileges, taxRules) => {
         const wrapper = await createWrapper(privileges);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({ taxRules });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         return { wrapper };
     };
@@ -191,7 +191,7 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
     it('should have a tax rate field with a correct "digits" property', async () => {
         const wrapper = await createWrapper(['tax.editor']);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const taxRuleDataGrid = wrapper.find('.sw-data-grid');
 

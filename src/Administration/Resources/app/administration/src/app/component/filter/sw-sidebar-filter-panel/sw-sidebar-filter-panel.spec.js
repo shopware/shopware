@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 describe('components/sw-sidebar-filter-panel', () => {
     async function createWrapper(activeFilterNumber = 0) {
@@ -49,7 +49,7 @@ describe('components/sw-sidebar-filter-panel', () => {
         await flushPromises();
 
         wrapper.vm.filterSidebarItem.isActive = true;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const resetAllSpy = jest.fn();
         wrapper.vm.$refs.filterPanel.resetAll = resetAllSpy;

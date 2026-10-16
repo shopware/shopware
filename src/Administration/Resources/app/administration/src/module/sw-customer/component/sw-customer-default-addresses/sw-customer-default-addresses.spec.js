@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 /**
  * @sw-package checkout
@@ -53,7 +53,7 @@ describe('module/sw-customer-default-addresses', () => {
     it('should render formatting address for billing address and shipping address', async () => {
         wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const swAddress = wrapper.findAll('.sw-address');
 

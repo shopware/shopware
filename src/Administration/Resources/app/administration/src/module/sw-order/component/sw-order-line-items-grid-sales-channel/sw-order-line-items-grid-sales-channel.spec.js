@@ -1,6 +1,6 @@
 /* eslint-disable sw-test-rules/test-file-max-lines-warning */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';
 
@@ -638,7 +638,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .link-danger');
         await deleteAllButton.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(Shopware.Store.get('swOrder').cart.lineItems).toHaveLength(0);
     });

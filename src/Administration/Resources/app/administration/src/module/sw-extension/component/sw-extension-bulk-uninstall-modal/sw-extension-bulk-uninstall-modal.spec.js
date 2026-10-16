@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper(propsData = {}) {
     return mount(await wrapTestComponent('sw-extension-bulk-uninstall-modal', { sync: true }), {
@@ -49,7 +49,7 @@ describe('src/module/sw-extension/component/sw-extension-bulk-uninstall-modal', 
 
         await wrapper.vm.emitClose();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted()).not.toHaveProperty('modal-close');
     });

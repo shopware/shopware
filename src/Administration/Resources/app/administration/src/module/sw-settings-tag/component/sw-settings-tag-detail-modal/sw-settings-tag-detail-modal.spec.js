@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 /**
  * @sw-package inventory
@@ -102,7 +102,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
         const wrapper = await createWrapper();
 
         await wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'assignments');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.initialTab).toBe('assignments');
         expect(wrapper.find('sw-settings-tag-detail-assignments-stub').exists()).toBe(true);
@@ -111,7 +111,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
 
     it('should set tag, to be added and to be deleted on create', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.tag).not.toBeNull();
 
@@ -133,7 +133,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
 
     it('should emit event on save', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({
             assignmentsToBeDeleted: {
@@ -152,7 +152,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
 
     it('should emit event on cancel', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.onCancel();
 
@@ -162,7 +162,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
 
     it('should increase and decrease counts from to be added and to be deleted', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setProps({
             counts: { products: 7 },
@@ -186,7 +186,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
 
     it('should add and remove assignments', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({
             assignmentsToBeDeleted: {

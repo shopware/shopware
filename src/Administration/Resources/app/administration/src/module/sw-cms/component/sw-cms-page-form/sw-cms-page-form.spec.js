@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import '../../mixin/sw-cms-state.mixin';
 
 let resizeObserverList = [];
@@ -98,8 +98,8 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
 
     it("should have only one empty state 'card'", async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+        await flushPromises();
         const lengthOfEmptyStates = wrapper.findAll('.sw-cms-page-form__block-card.is--empty').length;
 
         expect(lengthOfEmptyStates).toBe(1);
@@ -140,7 +140,7 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
         const blockFormDeviceActions = wrapper.find('.sw-cms-page-form__block-device-actions');
 
         await flushPromises();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(formDeviceActions.exists()).toBeTruthy();
         expect(blockFormDeviceActions.exists()).toBeTruthy();

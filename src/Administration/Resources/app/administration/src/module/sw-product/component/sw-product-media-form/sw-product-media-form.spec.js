@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 async function createWrapper() {
@@ -156,7 +156,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.find('.is--cover').exists()).toBeTruthy();
     });
 
@@ -169,7 +169,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
             showCoverLabel: false,
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.find('.is--cover').exists()).toBeFalsy();
 
         await wrapper.find('.sw-product-media-form__previews').find('.sw-product-image__context-button').trigger('click');

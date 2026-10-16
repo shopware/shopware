@@ -9,6 +9,7 @@ import {
     setupListingHooks,
     shopwareService,
 } from './sw-extension-my-extensions-listing.fixtures';
+import { flushPromises } from '@vue/test-utils';
 
 describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () => {
     setupListingHooks();
@@ -100,7 +101,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         await wrapper.vm.$router.push(routes[1]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
 
@@ -120,7 +121,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             },
         ]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
 
@@ -165,7 +166,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.findAll('.sw-self-maintained-extension-card').map((card) => card.text())).toEqual(['Alpha', 'Zeta']);
     });
@@ -186,7 +187,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if only shows first 25 extensions
         let extensionCards = wrapper.findAllComponents('.sw-self-maintained-extension-card');
@@ -225,7 +226,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if only shows first 25 extensions
         let extensionCards = wrapper.findAllComponents('.sw-self-maintained-extension-card');
@@ -277,7 +278,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('shopwareExtensions').setMyExtensions([...activeExtensions, ...inactiveExtensions]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const allExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
         expect(allExtensions).toHaveLength(25);
@@ -305,7 +306,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await selectMtSelectOptionByText(
             wrapper,
@@ -371,7 +372,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // not setting the sorting option via the dropdown because the default sorting is by their updatedAt value
 
@@ -397,7 +398,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('context').app.config.settings.appUrlReachable = false;
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const alert = wrapper.find('.sw-extension-my-extensions-listing__app-url-warning');
         expect(alert.isVisible()).toBe(true);

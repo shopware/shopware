@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 /**
  * @sw-package checkout
@@ -45,7 +45,7 @@ async function createWrapper(privileges = []) {
 describe('module/sw-settings-payment/component/sw-payment-card', () => {
     it('should not be able to edit a payment method', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editLink = wrapper.find('sw-internal-link-stub');
         expect(editLink.attributes().disabled).toBeTruthy();
@@ -56,7 +56,7 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
 
     it('should be able to edit a payment method', async () => {
         const wrapper = await createWrapper(['payment.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editLink = wrapper.find('sw-internal-link-stub');
         expect(editLink.attributes().disabled).toBeFalsy();
@@ -67,7 +67,7 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
 
     it('should correctly emit set-payment-active event', async () => {
         const wrapper = await createWrapper(['payment.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const activeToggle = wrapper.findComponent('.mt-switch');
         await activeToggle.vm.$emit('update:modelValue', false);

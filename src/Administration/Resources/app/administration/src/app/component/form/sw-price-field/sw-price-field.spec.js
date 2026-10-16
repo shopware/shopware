@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/app/component/form/sw-price-field';
 
 // mock data
@@ -328,7 +328,7 @@ describe('components/form/sw-price-field', () => {
         await wrapper.findByPlaceholder('sw-product.priceForm.placeholderPriceGross').setValue('123');
 
         // Wait for the debounce timer to start
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Type a number with a decimal separator at the end
         await wrapper.findByPlaceholder('sw-product.priceForm.placeholderPriceGross').setValue('123.');

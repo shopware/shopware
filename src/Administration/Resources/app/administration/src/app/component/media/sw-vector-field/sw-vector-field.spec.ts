@@ -6,7 +6,7 @@
     @typescript-eslint/no-unsafe-member-access,
     @typescript-eslint/no-explicit-any
 */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper(overrides: Record<string, unknown> = {}): Promise<any> {
     return mount((await wrapTestComponent('sw-vector-field', { sync: true })) as any, {
@@ -428,7 +428,7 @@ describe('src/app/component/media/sw-vector-field', () => {
             });
 
             wrapper.vm.onLinkToggle();
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.linked).toBe(true);
         });

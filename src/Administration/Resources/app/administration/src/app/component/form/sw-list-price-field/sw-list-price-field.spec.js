@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/app/component/form/sw-list-price-field';
 
 // mock data
@@ -95,7 +95,7 @@ describe('components/form/sw-list-price-field', () => {
 
     it('should set purchasePrice to default value when the input purchasePrices is empty', async () => {
         const wrapper = await setup({ hidePurchasePrices: true });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-list-price-field__purchase-price').exists()).toBeFalsy();
     });

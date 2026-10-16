@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 
@@ -162,7 +162,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
                 filterCriteria: null,
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.selected-label').exists()).toBeTruthy();
     });

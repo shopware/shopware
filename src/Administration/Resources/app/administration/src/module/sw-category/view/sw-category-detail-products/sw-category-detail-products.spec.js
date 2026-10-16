@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 const categoryMock = {
     media: [],
@@ -130,7 +130,7 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
         await wrapper
             .getComponent('.sw-category-detail-products__product-stream-select')
             .vm.$emit('update:value', 'some_product_stream_id');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.productStreamFilter).toEqual(['foo', 'bar']);
         expect(wrapper.vm.productStreamInvalid).toBe(false);
@@ -148,7 +148,7 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
         await wrapper
             .getComponent('.sw-category-detail-products__product-assignment-type-select')
             .vm.$emit('update:value', 'product');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.category.productStreamId).toBeNull();
     });

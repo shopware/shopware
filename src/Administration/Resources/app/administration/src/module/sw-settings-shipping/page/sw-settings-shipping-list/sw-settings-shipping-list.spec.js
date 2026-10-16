@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
@@ -137,7 +137,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -157,7 +157,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
 
     it('should not get search ranking fields when term is null', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -181,7 +181,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -204,7 +204,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
         });

@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 /**
  * @sw-package checkout
@@ -141,7 +141,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
             shippingMethod.taxType = 'fixed';
             shippingMethod.taxId = 'taxId';
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.taxRateId).toBe('taxId');
         });
@@ -152,7 +152,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
             shippingMethod.taxType = taxType;
             shippingMethod.taxId = 'taxId';
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.taxRateId).toBeNull();
         });

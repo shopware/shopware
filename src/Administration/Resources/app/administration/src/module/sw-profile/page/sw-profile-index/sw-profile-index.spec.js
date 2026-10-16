@@ -3,7 +3,7 @@
 /**
  * @sw-package fundamentals@framework
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { nextTick } from 'vue';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import TimezoneService from 'src/core/service/timezone.service';
@@ -293,7 +293,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
             isLoading: false,
             isUserLoading: false,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-profile__save-action');
 

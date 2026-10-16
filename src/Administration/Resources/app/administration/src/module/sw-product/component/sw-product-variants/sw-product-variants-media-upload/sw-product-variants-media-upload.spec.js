@@ -4,7 +4,7 @@
  * @sw-package inventory
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 describe('src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload', () => {
@@ -274,7 +274,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should get media default folder id when component got created', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.getMediaDefaultFolderId = jest.fn(() => {
             return Promise.resolve('id');
@@ -287,7 +287,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should get media default folder id successfully', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.getMediaDefaultFolderId = jest.fn(() => {
             return Promise.resolve('id');
@@ -301,7 +301,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should be able to add a new media', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const newMedia = [{ id: 'id', fileName: 'fileName', fileSize: 101 }];
         wrapper.vm.addMedia = jest.fn(() => {
@@ -318,7 +318,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should reject duplicated media', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entities = [{ productId: 101, mediaId: 'mediaId', position: 0 }];
         const newMedia = [{ id: 'id', fileName: 'fileName', fileSize: 101 }];
@@ -335,7 +335,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should not be able to add duplicated uploaded media', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entities = [{ productId: 101, mediaId: 'mediaId', position: 0 }];
 
@@ -353,7 +353,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should not be able to add a new media', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const newMedia = [{ id: 'id', fileName: 'fileName', fileSize: 101 }];
         wrapper.vm.createNotificationError = jest.fn();
@@ -373,7 +373,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should be able to upload a new media', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entities = [{ productId: 101, mediaId: 'mediaId', position: 0 }];
 
@@ -395,7 +395,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should not be able to upload a new media', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entities = [{ productId: 101, mediaId: 'mediaId', position: 0 }];
 

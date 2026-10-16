@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 /**
  * @sw-package after-sales
@@ -153,7 +153,7 @@ describe('module/sw-settings-newsletter/page/sw-settings-newsletter', () => {
     });
 
     it('should contain the settings card system', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(
             wrapper
                 .find(`.${classes.root}`)
@@ -165,7 +165,7 @@ describe('module/sw-settings-newsletter/page/sw-settings-newsletter', () => {
     });
 
     it('should contain the subscribeUrl', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(
             wrapper
                 .find(`.${classes.root}`)

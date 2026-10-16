@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 
@@ -263,7 +263,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
             { name: 'fooBar' },
         );
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(successNotificationSpy).toHaveBeenCalled();
     });
@@ -285,8 +285,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
             { name: 'fooBar' },
         );
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+        await flushPromises();
 
         expect(errorNotificationSpy).toHaveBeenCalledWith({
             message: 'sw-settings-product-feature-sets.detail.messageSaveError',

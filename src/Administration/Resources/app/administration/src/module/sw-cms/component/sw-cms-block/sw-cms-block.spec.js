@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 async function createWrapper(blockConfig = {}) {
@@ -91,7 +91,7 @@ describe('module/sw-cms/component/sw-cms-block', () => {
         expect(wrapper.get('.sw-cms-visibility-toggle-wrapper').classes()).not.toContain('is--expanded');
         wrapper.getComponent('.sw-cms-visibility-toggle-wrapper').vm.$emit('toggle');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.get('.sw-cms-visibility-toggle-wrapper').classes()).toContain('is--expanded');
     });
 

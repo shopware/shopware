@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-simple-search-field', { sync: true }), {
@@ -46,7 +46,7 @@ describe('components/base/sw-simple-search-field', () => {
         await wrapper.find('input[type="text"]').setValue('@input Sw Simple Search Field Typing');
 
         /* wait for `$emit('input')` */
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.emitted().input).toBeTruthy();
     });
 });

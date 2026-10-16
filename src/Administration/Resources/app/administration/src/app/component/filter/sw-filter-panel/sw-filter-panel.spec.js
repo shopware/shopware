@@ -8,7 +8,7 @@ import 'src/app/component/filter/sw-existence-filter';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/filter/sw-base-filter';
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
 
 const filters = [
@@ -157,12 +157,12 @@ describe('components/sw-filter-panel', () => {
     it('should update filter with updated values', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const booleanFilter = wrapper.find('.sw-boolean-filter');
         await selectMtSelectOptionByText(booleanFilter, 'sw-boolean-filter.active');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeFilters.filter1).toBeTruthy();
     });
@@ -232,7 +232,7 @@ describe('components/sw-filter-panel', () => {
 
         const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(Object.keys(wrapper.vm.activeFilters)).toHaveLength(1);
     });
@@ -260,7 +260,7 @@ describe('components/sw-filter-panel', () => {
         ];
 
         wrapper.vm.updateFilter('filter3', filterCriteria, filterValue);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         resolveStoredFilters({});
         await flushPromises();

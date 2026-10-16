@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper({ featureActive = false } = {}) {
     return mount(await wrapTestComponent('sw-media-modal-v2', { sync: true }), {
@@ -112,7 +112,7 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
             selection: [{ id: 'selected-media' }],
         });
         await tabs.vm.$emit('new-item-active', 'upload');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('upload');
         expect(wrapper.vm.selection).toEqual([]);

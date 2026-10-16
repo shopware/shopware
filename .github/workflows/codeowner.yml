@@ -1,10 +1,10 @@
 name: 'Code Owners'
 
-# Queue instead of cancel: a review and a push often arrive within a second, and a
-# cancelled run turns the PR's checks red although the next run reports the status.
+# Only a push cancels: its new head makes the running result stale, while a review on the same head queues
+# so its cancelled run does not turn the PR's checks red.
 concurrency:
   group: codeowners-${{ github.event.pull_request.number }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event.action == 'synchronize' }}
 
 on:
   pull_request_target:

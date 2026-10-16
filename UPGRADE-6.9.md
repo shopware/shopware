@@ -86,6 +86,26 @@ Implement `Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer` 
 
 # Administration
 
+## `sw-empty-state` removed
+
+The deprecated `sw-empty-state` component was removed. Use `mt-empty-state` instead:
+
+```html
+<!-- Before -->
+<sw-empty-state title="Short title" subline="Longer subline">
+    <template #actions>…</template>
+</sw-empty-state>
+
+<!-- After -->
+<mt-empty-state headline="Short title" description="Longer subline" icon="regular-products">
+    <template #button>…</template>
+</mt-empty-state>
+```
+
+`mt-empty-state` has no `icon` slot and no equivalent for the `absolute`, `emptyModule`, `autoHeight`, `showDescription` and `color` props. It also no longer falls back to the icon and description of the current module, so pass `icon` and `description` explicitly.
+
+It has no default slot either, and `description` renders plain text instead of HTML. It is left-aligned by default, set `centered` to keep the previous layout. Overrides of the `sw_empty_state_*` Twig blocks no longer apply.
+
 ## Legacy document components removed
 
 The legacy document services and components in the Administration were removed:
@@ -93,6 +113,22 @@ The legacy document services and components in the Administration were removed:
 - `DocumentApiService` (including `DocumentEvents`). Use the v2 Admin API routes (`/api/_action/order/document-v2/*`) instead.
 - The legacy document modals and their component registrations: `sw-order-document-settings-modal`, `sw-order-document-settings-invoice-modal`, `sw-order-document-settings-credit-note-modal`, `sw-order-document-settings-delivery-note-modal`, `sw-order-document-settings-storno-modal`, and `sw-order-select-document-type-modal`.
 
+# Storefront
+
+## Removed `category_url` and `category_linknewtab` Twig functions
+
+The `category_url` and `category_linknewtab` Twig functions have been removed.
+Use `category.seoUrl` instead of `category_url` and `category.shouldOpenInNewTab` instead of `category_linknewtab`.
+
+The `seoUrl` property is only available on `SalesChannelCategoryEntity`. If a template receives a plain `CategoryEntity`, update the data-loading code to load categories in the sales channel context and pass `SalesChannelCategoryEntity` instances to the template.
+
+```diff
+<a class="link"
+-   href="{{ category_url(item) }}"
++   href="{{ item.seoUrl }}"
+-   {% if category_linknewtab(item) %}target="_blank"{% endif %}
++   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
+</a>
 ## `$tc` and the vue-i18n 8 argument order removed
 
 The deprecated translation helpers `$tc()` and `Shopware.Snippet.tc()` were removed. Use `$t()` and `Shopware.Snippet.t()` instead, which handle pluralization natively.

@@ -1,5 +1,5 @@
 import type { Locator } from '@playwright/test';
-import type { expect } from '@fixtures/AcceptanceTest';
+import type { expect, FixtureTypes } from '@fixtures/AcceptanceTest';
 
 export type DocumentTypes =
     | 'invoice'
@@ -129,4 +129,53 @@ export async function screenshotDocument(
     });
 
     await pdfPage.close();
+}
+
+/**
+ * Deletes all documents of the given orders.
+ * Documents restrict the deletion of their order, so they have to be removed before the order cleanup runs.
+ * Dependent documents (e.g. credit notes, cancellation invoices) are deleted before the documents they reference.
+ */
+export async function deleteOrderDocuments(
+    AdminApiContext: FixtureTypes['AdminApiContext'],
+    orderIds: string[],
+): Promise<void> {
+    if (orderIds.length === 0) {
+        return;
+    }
+
+    const response = await AdminApiContext.post('search/document', {
+        data: {
+            filter: [{ type: 'equalsAny', field: 'orderId', value: orderIds }],
+            includes: { document: ['id', 'referencedDocumentId'] },
+        },
+    });
+    if (!response.ok()) {
+        throw new Error(`Searching documents failed with status ${response.status()}`);
+    }
+
+    const { data: documents } = (await response.json()) as {
+        data: { id: string; referencedDocumentId: string | null }[];
+    };
+    const dependentDocuments = documents.filter((document) => document.referencedDocumentId);
+    const referencedDocuments = documents.filter((document) => !document.referencedDocumentId);
+
+    for (const batch of [dependentDocuments, referencedDocuments]) {
+        if (batch.length === 0) {
+            continue;
+        }
+
+        const deleteResponse = await AdminApiContext.post('_action/sync', {
+            data: {
+                'delete-documents': {
+                    entity: 'document',
+                    action: 'delete',
+                    payload: batch.map(({ id }) => ({ id })),
+                },
+            },
+        });
+        if (!deleteResponse.ok()) {
+            throw new Error(`Deleting documents failed with status ${deleteResponse.status()}`);
+        }
+    }
 }

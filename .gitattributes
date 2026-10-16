@@ -38,3 +38,4 @@
 /UPGRADE-*.md merge=union
 
 .github/workflows/*.lock.yml linguist-generated=true
+**/eslint-suppressions.json linguist-generated=true

@@ -883,6 +883,14 @@ The product box now reports the price of a matching price rule or the first grad
 With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does.
 Cart, checkout and purchase events report them as `item_brand` and `item_category`.
 
+### Storefront analytics report each checkout step once
+
+`add_shipping_info` and `add_payment_info` are now reported once per selected method of a checkout, instead of on every reload of the confirm page.
+A new customer reports `add_shipping_info` when registering in the checkout.
+The reorder of an order in the account now reports one `add_to_cart` with all line items of the order, each with product number, name, price, brand and categories of the original order.
+Before, it reported only the last line item, with its ID instead of the product number and without name and price.
+The reorder of an order in the account now reports one `add_to_cart` with all products of the order, each with product number, name, price, quantity, brand and categories of the original order.
+The reorder form posts only the order, so the products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
 The reorder of an order in the account now reports one `add_to_cart` with all products of the order, each with product number, name, price, quantity, brand and categories of the original order.
 The reorder form posts only the order, so the products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
 

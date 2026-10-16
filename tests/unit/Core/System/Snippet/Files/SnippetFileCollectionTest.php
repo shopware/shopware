@@ -157,6 +157,16 @@ class SnippetFileCollectionTest extends TestCase
         static::assertCount(0, $result);
     }
 
+    public function testGetSnippetFilesWithLocaleFallbackRejectsTrailingNewline(): void
+    {
+        $collection = new SnippetFileCollection();
+        $collection->add(new MockSnippetFile('storefront.de-DE', 'de-DE', '{}', true, 'SwagPlugin'));
+
+        $result = $collection->getSnippetFilesWithLocaleFallback("de-AT\n");
+
+        static::assertSame([], $result);
+    }
+
     public function testGetSnippetFilesWithLocaleFallbackCombinesBothPriorityLevels(): void
     {
         $collection = new SnippetFileCollection();

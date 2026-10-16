@@ -41,7 +41,7 @@ class FeatureFlagExtension implements Extension
 
     public static function addTestNamespace(string $namespace): void
     {
-        if (preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*(\\\\[_a-zA-Z][_a-zA-Z0-9]*)*\\\\$/', $namespace) === 0) {
+        if (preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*(\\\\[_a-zA-Z][_a-zA-Z0-9]*)*\\\\$/D', $namespace) === 0) {
             throw new \InvalidArgumentException(
                 \sprintf(
                     'Namespace must be a valid PHP namespace ending with a backslash like this "%s", "%s" given.',

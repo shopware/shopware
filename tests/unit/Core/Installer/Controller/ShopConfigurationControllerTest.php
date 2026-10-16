@@ -40,7 +40,6 @@ use Twig\Environment;
 class ShopConfigurationControllerTest extends TestCase
 {
     use EnvTestBehaviour;
-    use InstallerControllerTestTrait;
 
     private MockObject&Environment $twig;
 
@@ -102,7 +101,7 @@ class ShopConfigurationControllerTest extends TestCase
             ],
             ['EUR', 'USD', 'GBP']
         );
-        $this->controller->setContainer($this->getInstallerContainer($this->twig, ['router' => $this->router]));
+        $this->controller->setContainer(InstallerControllerFixture::getInstallerContainer($this->twig, ['router' => $this->router]));
     }
 
     #[DataProvider('shopConfigurationPresetProvider')]
@@ -141,7 +140,7 @@ class ShopConfigurationControllerTest extends TestCase
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/shop-configuration.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'error' => null,
                     'countryIsos' => [
                         ['iso3' => 'DEU', 'default' => $expectedCountryIsoDefault === 'DEU', 'translated' => 'shopware.installer.select_country_deu'],
@@ -271,7 +270,7 @@ class ShopConfigurationControllerTest extends TestCase
         static::assertSame($expectedAdmin, $session->get('ADMIN_USER'));
     }
 
-    public function testPostConfigurationRouteDoesNotTakeOverASelectedLocaleWithATrailingNewline(): void
+    public function testPostConfigurationRouteDoesNotKeepALocaleWithATrailingNewline(): void
     {
         $request = new Request();
         $session = new Session(new MockArraySessionStorage());
@@ -279,22 +278,21 @@ class ShopConfigurationControllerTest extends TestCase
         $session->set(DatabaseConnectionInformation::class, new DatabaseConnectionInformation());
         $request->setSession($session);
         $request->attributes->set('_locale', 'de');
-
         $request->request->set('config_shop_language', 'de-DE');
-        $request->request->set('selected_languages', ['en-US', "fr-FR\n"]);
-
-        $this->setEnvVars(['HTTP_HOST' => 'localhost']);
-
+        $request->request->set('selected_languages', ["en-US\n"]);
+        $this->setEnvVars(['HTTP_HOST' => 'localhost', 'SCRIPT_NAME' => '/index.php']);
         $this->connection->method('fetchOne')->willReturn(Uuid::randomHex());
         $this->translator->method('trans')->willReturnCallback(static fn (string $key): string => $key);
+        $this->twig->expects($this->never())->method('render');
         $this->envConfigWriter->expects($this->once())->method('writeConfig');
-        $this->adminConfigService->expects($this->once())->method('createAdmin');
         $this->shopConfigService->expects($this->once())->method('updateShop');
+        $this->adminConfigService->expects($this->once())->method('createAdmin');
         $this->router->expects($this->once())->method('generate')->willReturn('/installer/translation');
 
         $this->controller->shopConfiguration($request);
 
-        static::assertSame(['en-US'], $session->get('SELECTED_LANGUAGES'));
+        // the newline keeps the value from being a full locale, and it is no known language short code either
+        static::assertSame([null], $session->get('SELECTED_LANGUAGES'));
     }
 
     public function testPostConfigurationRouteOnError(): void
@@ -335,7 +333,7 @@ class ShopConfigurationControllerTest extends TestCase
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/shop-configuration.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'error' => 'Test Exception',
                     'countryIsos' => [
                         ['iso3' => 'DEU', 'default' => true, 'translated' => 'shopware.installer.select_country_deu'],

@@ -474,7 +474,9 @@ class PluginLifecycleService
             $pluginBaseClass->deactivate($deactivateContext);
 
             if (!$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
-                $this->assetInstaller->removeAssetsOfBundle($plugin->getName());
+                // Retain the files until uninstall. A delayed remote delete could otherwise
+                // remove assets uploaded by a subsequent activation under the same keys.
+                $this->assetInstaller->removeAssetsOfBundle($plugin->getName(), false);
             }
 
             $plugin->setActive(false);

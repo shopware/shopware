@@ -12,6 +12,7 @@ import {
     planLabelChanges,
     type PullRequestFacts,
     summarizeActivity,
+    summarizeOpenThreads,
     type TimelineEvent,
     toReviewThreadEvents,
     toTimelineEvents,
@@ -110,6 +111,54 @@ test('an approved pull request that merges cleanly is only waiting for us', () =
 
     assert.equal(verdict.waitingOn, 'shopware');
     assert.equal(verdict.reason, 'just-merge-it');
+});
+
+test('an approved pull request with a question the author left open is theirs', () => {
+    // Regression: this is #20750, approved three times while two inline questions to the
+    // author stayed open, so `trunk` refused the merge that `just-merge-it` promised.
+    const verdict = classify({
+        reviewDecision: 'APPROVED',
+        reviewCount: 3,
+        approvals: 3,
+        lastMaintainerActivityAt: '2026-10-07T12:06:16Z',
+        lastOpenQuestionAt: '2026-10-07T12:00:29Z',
+    });
+
+    assert.equal(verdict.waitingOn, 'author');
+    assert.equal(verdict.reason, 'open-question');
+    assert.equal(verdict.since, '2026-10-07T12:00:29Z');
+});
+
+test('an approved pull request whose open threads the author answered is ours to resolve', () => {
+    const verdict = classify({ reviewDecision: 'APPROVED', reviewCount: 2, approvals: 2, lastOpenAnswerAt: '2026-10-08T09:00:00Z' });
+
+    assert.equal(verdict.waitingOn, 'shopware');
+    assert.equal(verdict.reason, 'open-thread-answered');
+    assert.equal(verdict.since, '2026-10-08T09:00:00Z');
+});
+
+test('one open question outweighs an answered thread, and a conflict outweighs both', () => {
+    const open = { reviewDecision: 'APPROVED', reviewCount: 2, approvals: 2, lastOpenQuestionAt: '2026-10-01T00:00:00Z', lastOpenAnswerAt: '2026-10-08T00:00:00Z' } as const;
+
+    assert.equal(classify(open).reason, 'open-question');
+    assert.equal(classify({ ...open, mergeable: 'CONFLICTING' }).reason, 'needs-rebase');
+});
+
+test('summarizeOpenThreads reads who wrote last in each unresolved thread and skips the rest', () => {
+    const comment = (login: string, createdAt: string, __typename = 'User') => ({ createdAt, author: { login, __typename } });
+
+    const open = summarizeOpenThreads(
+        [
+            { isResolved: false, comments: { nodes: [comment('larskemper', '2026-09-25T07:38:17Z')] } },
+            { isResolved: false, comments: { nodes: [comment('vintagesucks', '2026-10-07T12:00:00Z'), comment('littfed', '2026-10-08T08:00:00Z')] } },
+            { isResolved: true, comments: { nodes: [comment('marcelbrode', '2026-10-09T08:00:00Z')] } },
+            { isResolved: false, comments: { nodes: [comment('littfed', '2026-10-09T09:00:00Z'), comment('Copilot', '2026-10-10T08:00:00Z', 'Bot')] } },
+            { isResolved: false, comments: { nodes: [comment('copilot-pull-request-reviewer', '2026-10-11T08:00:00Z', 'Bot')] } },
+        ],
+        'littfed',
+    );
+
+    assert.deepEqual(open, { lastOpenQuestionAt: '2026-09-25T07:38:17Z', lastOpenAnswerAt: '2026-10-09T09:00:00Z' });
 });
 
 test('unresolved mergeability lands on us rather than on the contributor', () => {
@@ -288,6 +337,7 @@ test('toTimelineEvents reads each shape GitHub returns', () => {
 });
 
 const node = (overrides: Record<string, unknown> = {}) => ({
+    id: 'PR_1',
     number: 1,
     title: 'a pull request',
     url: 'https://github.com/shopware/shopware/pull/1',
@@ -341,8 +391,8 @@ test('a lone reply inside a review thread is activity the timeline does not repo
     // reply, which produces no timeline item, and reading the timeline alone dated the
     // pull request to April.
     const events = toReviewThreadEvents([
-        { comments: { nodes: [{ createdAt: '2026-07-21T09:00:00Z', author: { login: 'gecolay', __typename: 'User' } }] } },
-        { comments: { nodes: [{ createdAt: '2026-07-21T12:24:31Z', author: { login: 'keulinho', __typename: 'User' } }] } },
+        { isResolved: true, comments: { nodes: [{ createdAt: '2026-07-21T09:00:00Z', author: { login: 'gecolay', __typename: 'User' } }] } },
+        { isResolved: true, comments: { nodes: [{ createdAt: '2026-07-21T12:24:31Z', author: { login: 'keulinho', __typename: 'User' } }] } },
     ]);
 
     const activity = summarizeActivity(events, [{ state: 'CHANGES_REQUESTED', submittedAt: '2026-04-28T07:55:58Z' }], 'gecolay');

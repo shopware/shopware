@@ -206,7 +206,9 @@ class SCSSValidator
 
     private static function isHex(string $hexCode): bool
     {
-        return preg_match('/^[a-f0-9]*$/iD', $hexCode) === 1;
+        preg_match('/^[a-f0-9]*$/Di', $hexCode, $parsed);
+
+        return isset($parsed[0]) && $parsed[0] === $hexCode;
     }
 
     /**
@@ -243,10 +245,10 @@ class SCSSValidator
         $alphaOrFunction = '(?:' . $alpha . '|' . $scssFunction . ')';
 
         // Modern: hsl(h s% l% / a?)  (spaces; optional / alpha)
-        $patternModern = '/^hsl\(\s*' . $hueOrFunction . '\s+' . $percentOrFunction . '\s+' . $percentOrFunction . '(?:\s*\/\s*' . $alphaOrFunction . ')?\s*\)$/i';
+        $patternModern = '/^hsl\(\s*' . $hueOrFunction . '\s+' . $percentOrFunction . '\s+' . $percentOrFunction . '(?:\s*\/\s*' . $alphaOrFunction . ')?\s*\)$/Di';
 
         // Legacy: hsl(h, s%, l%)  (commas; no alpha)
-        $patternLegacy = '/^hsl\(\s*' . $hueOrFunction . '\s*,\s*' . $percentOrFunction . '\s*,\s*' . $percentOrFunction . '\s*\)$/i';
+        $patternLegacy = '/^hsl\(\s*' . $hueOrFunction . '\s*,\s*' . $percentOrFunction . '\s*,\s*' . $percentOrFunction . '\s*\)$/Di';
 
         return preg_match($patternModern, $hslCode) === 1 || preg_match($patternLegacy, $hslCode) === 1;
     }
@@ -274,7 +276,7 @@ class SCSSValidator
         $alphaOrFunction = '(?:' . $alpha . '|' . $scssFunction . ')';
 
         // Legacy HSLA: hsla(h, s%, l%, a)
-        $patternHsla = '/^hsla\(\s*' . $hueOrFunction . '\s*,\s*' . $percentOrFunction . '\s*,\s*' . $percentOrFunction . '\s*,\s*' . $alphaOrFunction . '\s*\)$/i';
+        $patternHsla = '/^hsla\(\s*' . $hueOrFunction . '\s*,\s*' . $percentOrFunction . '\s*,\s*' . $percentOrFunction . '\s*,\s*' . $alphaOrFunction . '\s*\)$/Di';
 
         return preg_match($patternHsla, $hslaCode) === 1;
     }
@@ -311,15 +313,15 @@ class SCSSValidator
         $alphaOrFunction = '(?:' . $alpha . '|' . $scssFunction . ')';
 
         // Modern: rgb(r g b / a?)  (spaces; optional / alpha)
-        $patternModern = '/^rgb\(\s*' . $rgbOrFunction . '\s+' . $rgbOrFunction . '\s+' . $rgbOrFunction . '(?:\s*\/\s*' . $alphaOrFunction . ')?\s*\)$/i';
+        $patternModern = '/^rgb\(\s*' . $rgbOrFunction . '\s+' . $rgbOrFunction . '\s+' . $rgbOrFunction . '(?:\s*\/\s*' . $alphaOrFunction . ')?\s*\)$/Di';
 
         // Legacy: rgb(r, g, b)  (commas; no alpha)
-        $patternLegacy = '/^rgb\(\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*\)$/i';
+        $patternLegacy = '/^rgb\(\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*\)$/Di';
 
         // SCSS variable or hex color format: rgb($variable / alpha?) or rgb(#fff / alpha?)
         $scssVariable = '\$(?![0-9])[a-zA-Z0-9-_]+';
         $hexColor = '#[a-f0-9]{3,8}';
-        $patternRgbWithColorOrVariable = '/^rgb\(\s*(?:' . $scssVariable . '|' . $hexColor . ')(?:\s*\/\s*' . $alphaOrFunction . ')?\s*\)$/i';
+        $patternRgbWithColorOrVariable = '/^rgb\(\s*(?:' . $scssVariable . '|' . $hexColor . ')(?:\s*\/\s*' . $alphaOrFunction . ')?\s*\)$/Di';
 
         return preg_match($patternModern, $rgbCode) === 1
             || preg_match($patternLegacy, $rgbCode) === 1
@@ -347,12 +349,12 @@ class SCSSValidator
         $alphaOrFunction = '(?:' . $alpha . '|' . $scssFunction . ')';
 
         // Classic 4-value format: rgba(r, g, b, a)
-        $patternRgba = '/^rgba\(\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*,\s*' . $alphaOrFunction . '\s*\)$/i';
+        $patternRgba = '/^rgba\(\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*,\s*' . $rgbOrFunction . '\s*,\s*' . $alphaOrFunction . '\s*\)$/Di';
 
         // SCSS variable or hex color format: rgba($variable, alpha) or rgba(#fff, alpha)
         $scssVariable = '\$(?![0-9])[a-zA-Z0-9-_]+';
         $hexColor = '#[a-f0-9]{3,8}';
-        $patternRgbaWithColorOrVariable = '/^rgba\(\s*(?:' . $scssVariable . '|' . $hexColor . ')\s*,\s*' . $alphaOrFunction . '\s*\)$/i';
+        $patternRgbaWithColorOrVariable = '/^rgba\(\s*(?:' . $scssVariable . '|' . $hexColor . ')\s*,\s*' . $alphaOrFunction . '\s*\)$/Di';
 
         return preg_match($patternRgba, $rgbaCode) === 1 || preg_match($patternRgbaWithColorOrVariable, $rgbaCode) === 1;
     }

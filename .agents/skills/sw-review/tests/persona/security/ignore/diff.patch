@@ -1,7 +1,7 @@
-diff --git a/src/Storefront/Resources/snippet/en_GB/storefront.en-GB.json b/src/Storefront/Resources/snippet/en_GB/storefront.en-GB.json
+diff --git a/src/Storefront/Resources/snippet/storefront.en.json b/src/Storefront/Resources/snippet/storefront.en.json
 index aaaaaaa..bbbbbbb 100644
---- a/src/Storefront/Resources/snippet/en_GB/storefront.en-GB.json
-+++ b/src/Storefront/Resources/snippet/en_GB/storefront.en-GB.json
+--- a/src/Storefront/Resources/snippet/storefront.en.json
++++ b/src/Storefront/Resources/snippet/storefront.en.json
 @@ -10,7 +10,7 @@
    "account": {
      "login": {

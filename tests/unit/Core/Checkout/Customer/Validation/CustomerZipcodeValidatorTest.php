@@ -183,8 +183,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $mock->validate('123456', $this->constraint);
     }
 
-    #[DataProvider('invalidAdvancedPatternZipcodeProvider')]
-    public function testInvalidZipcodeWithAdvancedValidationPattern(string $zipcode): void
+    public function testInvalidZipcodeWithAdvancedValidationPattern(): void
     {
         $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
@@ -226,16 +225,7 @@ class CustomerZipcodeValidatorTest extends TestCase
 
         $mock->initialize($executionContext);
 
-        $mock->validate($zipcode, $this->constraint);
-    }
-
-    /**
-     * @return iterable<string, array{string}>
-     */
-    public static function invalidAdvancedPatternZipcodeProvider(): iterable
-    {
-        yield 'too long' => ['1234567'];
-        yield 'trailing newline' => ["12345\n"];
+        $mock->validate('1234567', $this->constraint);
     }
 
     public function testValidZipcodeWithDefaultPattern(): void
@@ -267,7 +257,8 @@ class CustomerZipcodeValidatorTest extends TestCase
         $mock->validate('12345', $this->constraint);
     }
 
-    public function testInValidZipcodeWithDefaultPattern(): void
+    #[DataProvider('invalidZipcodeProvider')]
+    public function testInValidZipcodeWithDefaultPattern(string $zipcode, string $pattern = '\\d{5}'): void
     {
         $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
@@ -279,7 +270,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $country->setPostalCodeRequired(true);
         $country->setCheckPostalCodePattern(true);
         $country->setCheckAdvancedPostalCodePattern(false);
-        $country->setDefaultPostalCodePattern('\\d{5}');
+        $country->setDefaultPostalCodePattern($pattern);
         $country->setAdvancedPostalCodePattern(null);
 
         $result->method('getEntities')->willReturn(new CountryCollection([$country]));
@@ -309,6 +300,15 @@ class CustomerZipcodeValidatorTest extends TestCase
 
         $mock->initialize($executionContext);
 
-        $mock->validate('123', $this->constraint);
+        $mock->validate($zipcode, $this->constraint);
+    }
+
+    public static function invalidZipcodeProvider(): \Generator
+    {
+        yield 'too short' => ['123'];
+        yield 'trailing newline' => ["12345\n"];
+        // a stored pattern with a top-level alternation, as the Costa Rica default: each branch must be anchored at both ends
+        yield 'first alternative without the end anchor' => ['12345abc', '\\d{4,5}|\\d{3}-\\d{4}'];
+        yield 'second alternative without the start anchor' => ['abc123-4567', '\\d{4,5}|\\d{3}-\\d{4}'];
     }
 }

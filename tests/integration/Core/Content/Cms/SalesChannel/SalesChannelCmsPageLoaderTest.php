@@ -235,7 +235,9 @@ class SalesChannelCmsPageLoaderTest extends TestCase
             $salesChannelContextDe
         );
 
-        static::assertNotEmpty($pages->getEntities()->first()?->getSections()?->getBlocks()->getSlots()->get(self::$firstSlotId)?->getConfig());
+        $config = $pages->getEntities()->first()?->getSections()?->getBlocks()->getSlots()->get(self::$firstSlotId)?->getConfig();
+        static::assertNotNull($config);
+        static::assertNotCount(0, $config);
     }
 
     public function testInheritSlotConfigOverwriteByCategory(): void

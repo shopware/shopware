@@ -51,7 +51,7 @@ class SalesChannelCustomerAddressDefinitionTest extends TestCase
 
         $definition->processCriteria($criteria, $context);
 
-        static::assertNotEmpty($criteria->getFilters());
+        static::assertNotCount(0, $criteria->getFilters());
 
         $filter = $criteria->getFilters()[0] ?? null;
         static::assertInstanceOf(EqualsFilter::class, $filter);

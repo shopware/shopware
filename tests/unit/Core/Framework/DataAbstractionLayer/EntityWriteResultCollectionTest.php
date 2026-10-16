@@ -18,9 +18,9 @@ class EntityWriteResultCollectionTest extends TestCase
 {
     public function testFiltersByOperation(): void
     {
-        $insert = new EntityWriteResult('insert-id', [], 'product', EntityWriteResult::OPERATION_INSERT);
-        $update = new EntityWriteResult('update-id', [], 'product', EntityWriteResult::OPERATION_UPDATE);
-        $delete = new EntityWriteResult('delete-id', [], 'product', EntityWriteResult::OPERATION_DELETE);
+        $insert = $this->createWriteResult('insert-id', [], EntityWriteResult::OPERATION_INSERT);
+        $update = $this->createWriteResult('update-id', [], EntityWriteResult::OPERATION_UPDATE);
+        $delete = $this->createWriteResult('delete-id', [], EntityWriteResult::OPERATION_DELETE);
 
         $results = new EntityWriteResultCollection([$insert, $update, $delete]);
 
@@ -34,9 +34,9 @@ class EntityWriteResultCollectionTest extends TestCase
 
     public function testFiltersWhenAnyPayloadPropertyIsPresent(): void
     {
-        $withNull = new EntityWriteResult('null-id', ['active' => null], 'product', EntityWriteResult::OPERATION_UPDATE);
-        $withName = new EntityWriteResult('name-id', ['name' => 'Example'], 'product', EntityWriteResult::OPERATION_UPDATE);
-        $withoutMatch = new EntityWriteResult('stock-id', ['stock' => 10], 'product', EntityWriteResult::OPERATION_UPDATE);
+        $withNull = $this->createWriteResult('null-id', ['active' => null], EntityWriteResult::OPERATION_UPDATE);
+        $withName = $this->createWriteResult('name-id', ['name' => 'Example'], EntityWriteResult::OPERATION_UPDATE);
+        $withoutMatch = $this->createWriteResult('stock-id', ['stock' => 10], EntityWriteResult::OPERATION_UPDATE);
 
         $results = new EntityWriteResultCollection([$withNull, $withName, $withoutMatch]);
 
@@ -45,9 +45,9 @@ class EntityWriteResultCollectionTest extends TestCase
 
     public function testFiltersCanBeChainedWithoutChangingOriginalCollection(): void
     {
-        $matchingUpdate = new EntityWriteResult('matching-id', ['active' => true], 'product', EntityWriteResult::OPERATION_UPDATE);
-        $otherUpdate = new EntityWriteResult('other-id', ['stock' => 10], 'product', EntityWriteResult::OPERATION_UPDATE);
-        $matchingInsert = new EntityWriteResult('insert-id', ['active' => true], 'product', EntityWriteResult::OPERATION_INSERT);
+        $matchingUpdate = $this->createWriteResult('matching-id', ['active' => true], EntityWriteResult::OPERATION_UPDATE);
+        $otherUpdate = $this->createWriteResult('other-id', ['stock' => 10], EntityWriteResult::OPERATION_UPDATE);
+        $matchingInsert = $this->createWriteResult('insert-id', ['active' => true], EntityWriteResult::OPERATION_INSERT);
         $results = new EntityWriteResultCollection([$matchingUpdate, $otherUpdate, $matchingInsert]);
 
         $filtered = $results
@@ -97,5 +97,14 @@ class EntityWriteResultCollectionTest extends TestCase
 
         /** @phpstan-ignore argument.type */
         $results->add(new \stdClass());
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @param EntityWriteResult::OPERATION_* $operation
+     */
+    private function createWriteResult(string $primaryKey, array $payload, string $operation): EntityWriteResult
+    {
+        return new EntityWriteResult($primaryKey, $payload, 'product', $operation);
     }
 }

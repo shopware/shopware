@@ -22,10 +22,10 @@ class AdminModuleGeneratorTest extends TestCase
         $generator = new AdminModuleGenerator();
 
         $option = $generator->getCommandOption();
-        static::assertNotEmpty($option->getName());
-        static::assertNotEmpty($option->getDescription());
+        static::assertSame(AdminModuleGenerator::OPTION_NAME, $option->getName());
+        static::assertNotSame('', $option->getDescription());
         static::assertSame('Admin Module', $generator->getCommandOptionTitle());
-        static::assertNotEmpty($generator->getCommandOptionDescriptionLong());
+        static::assertNotSame('', $generator->getCommandOptionDescriptionLong());
     }
 
     #[DataProvider('addScaffoldConfigProvider')]

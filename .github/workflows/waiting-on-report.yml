@@ -1,6 +1,6 @@
 name: Waiting-on report
 
-# Reports who each open pull request is waiting for, into the job summary, and sets the
+# Reports who each open external pull request is waiting for, into the job summary, and sets the
 # matching `waiting-on/*` label. It comments nowhere and closes nothing — the rule and its
 # rationale live in .github/bin/js/waiting-on.ts.
 #

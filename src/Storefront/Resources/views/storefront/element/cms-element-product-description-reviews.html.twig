@@ -1,17 +1,17 @@
 {% block element_product_description_reviews %}
     {% set config = element.fieldConfig.elements %}
     {% set product = element.data.product %}
-    {% set descriptionTabId = "description-tab-" ~ product.id %}
-    {% set descriptionTabHref = "#description-tab-" ~ product.id ~ "-pane" %}
-    {% set descriptionTabContent = "description-tab-" ~ product.id ~ "-pane" %}
-    {% set reviewTabId = "review-tab-" ~ product.id %}
-    {% set reviewTabHref = "#review-tab-" ~ product.id ~ "-pane" %}
-    {% set reviewTabContent = "review-tab-" ~ product.id ~ "-pane" %}
+    {% set descriptionTabId = 'description-tab-' ~ product.id %}
+    {% set descriptionTabHref = '#description-tab-' ~ product.id ~ '-pane' %}
+    {% set descriptionTabContent = 'description-tab-' ~ product.id ~ '-pane' %}
+    {% set reviewTabId = 'review-tab-' ~ product.id %}
+    {% set reviewTabHref = '#review-tab-' ~ product.id ~ '-pane' %}
+    {% set reviewTabContent = 'review-tab-' ~ product.id ~ '-pane' %}
 
     {% if product %}
         <div class="product-detail-tabs cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}">
             {% if config.alignment.value %}
-                <div class="cms-element-alignment{% if config.alignment.value == "center" %} align-self-center{% elseif config.alignment.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+                <div class="cms-element-alignment{% if config.alignment.value == 'center' %} align-self-center{% elseif config.alignment.value == 'flex-end' %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}
                 <div class="card card-tabs">
                     {% block element_product_description_reviews_tabs_navigation %}
@@ -30,9 +30,9 @@
                                                role="tab"
                                                aria-controls="{{ descriptionTabContent }}"
                                                aria-selected="true">
-                                                <span>{{ "detail.tabsDescription"|trans|sw_sanitize }}</span>
+                                                <span>{{ 'detail.tabsDescription'|trans|sw_sanitize }}</span>
                                                 <span class="product-detail-tab-navigation-icon">
-                                                    {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
+                                                    {% sw_icon 'arrow-medium-right' style {pack:'solid'} %}
                                                 </span>
                                                 {% if product.translated.description|length > 0 %}
                                                     <span class="product-detail-tab-preview">
@@ -43,7 +43,7 @@
                                                                Therefor, only show the button when the length of the text is
                                                                greater or equal then 126 characters. #}
                                                         {% if product.translated.description|length >= 126 %}
-                                                            <span class="product-detail-tab-preview-more">{{ "detail.tabsPreviewMore"|trans|sw_sanitize }}</span>
+                                                            <span class="product-detail-tab-preview-more">{{ 'detail.tabsPreviewMore'|trans|sw_sanitize }}</span>
                                                         {% endif %}
                                                         </span>
                                                 {% endif %}
@@ -62,9 +62,9 @@
                                                    role="tab"
                                                    aria-controls="{{ reviewTabContent }}"
                                                    aria-selected="true">
-                                                    {{ "detail.tabsReview"|trans|sw_sanitize }}
+                                                    {{ 'detail.tabsReview'|trans|sw_sanitize }}
                                                     <span class="product-detail-tab-navigation-icon">
-                                                        {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
+                                                        {% sw_icon 'arrow-medium-right' style {pack:'solid'} %}
                                                     </span>
                                                 </a>
                                             </li>
@@ -108,7 +108,7 @@
                         </div>
                     {% endblock %}
                 </div>
-            {% if config.verticalAlign.value %}
+            {% if config.alignment.value %}
                 </div>
             {% endif %}
         </div>

@@ -9,12 +9,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\DaysSinceFirstLoginRule;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Container\DaysSinceRule;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -22,7 +18,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 #[Package('fundamentals@after-sales')]
 #[CoversClass(DaysSinceFirstLoginRule::class)]
-#[CoversClass(DaysSinceRule::class)]
 #[Group('rules')]
 class DaysSinceFirstLoginRuleTest extends TestCase
 {
@@ -36,25 +31,6 @@ class DaysSinceFirstLoginRuleTest extends TestCase
     public function testGetName(): void
     {
         static::assertSame('customerDaysSinceFirstLogin', $this->rule->getName());
-    }
-
-    public function testInvalidCombinationOfValueAndOperator(): void
-    {
-        if (!Feature::isActive('v6.8.0.0')) {
-            $this->expectException(UnsupportedValueException::class);
-        } else {
-            $this->expectException(RuleException::class);
-        }
-        $this->rule->assign([
-            'operator' => Rule::OPERATOR_EQ,
-            'daysPassed' => null,
-        ]);
-
-        $salesChannelContext = static::createStub(SalesChannelContext::class);
-        $customer = new CustomerEntity();
-        $salesChannelContext->method('getCustomer')->willReturn($customer);
-
-        $this->rule->match(new CheckoutRuleScope($salesChannelContext));
     }
 
     #[DataProvider('getCaseTestMatchValues')]

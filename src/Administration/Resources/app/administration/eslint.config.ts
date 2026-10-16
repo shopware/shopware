@@ -80,7 +80,11 @@ const testFiles = [
 ];
 
 // Inline disables are blocked for these rules, so eslint-suppressions.json is the only way around them
-const rulesWithoutInlineDisable: string[] = [];
+const rulesWithoutInlineDisable: string[] = [
+    'sw-test-rules/no-vm-access',
+    'sw-test-rules/test-file-max-lines-warning',
+    'sw-test-rules/test-file-max-lines-error',
+];
 
 /**
  * Shared rule policy applied to normal source files and TypeScript-specific overrides.
@@ -752,8 +756,9 @@ export default [
             ],
             'sw-test-rules/test-file-max-lines-error': [
                 'error',
-                { max: 1000 },
+                { max: 500 },
             ],
+            'sw-test-rules/no-vm-access': 'error',
         },
     },
 

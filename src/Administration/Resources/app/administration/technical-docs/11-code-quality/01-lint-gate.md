@@ -27,7 +27,10 @@ Run them in `src/Administration/Resources/app/administration`, or through the co
 | Group | Rules | Why |
 |---|---|---|
 | Errors | `sw-core-rules/no-swallowed-errors` | A `.catch()` that drops the error needs a comment that says why |
+| Tests | `sw-test-rules/no-vm-access`, spec files (500 lines) | Tests assert what a component renders, emits or requests |
 | Unused code | Fallow, configured in `.fallowrc.json` | Unused files, exports and dependencies are removed instead of copied |
+
+`sw-test-rules/no-vm-access` allows `.vm.$emit()`, which is how Vue Test Utils simulates an event from a child or stub.
 
 ## Inline disables
 

@@ -2,6 +2,8 @@
  * @sw-package framework
  * @private
  */
+import { appendFileSync } from 'node:fs';
+import { join } from 'node:path';
 import deprecationBaseline from 'src/meta/deprecation-baseline.json';
 import { isMajorRun, loadFeatureConfig } from './majorFeatureFlags';
 import type { RecordedDeprecation } from './deprecations';
@@ -32,6 +34,9 @@ const featureConfig = loadFeatureConfig();
 const checkedInBaseline = JSON.stringify(deprecationBaseline);
 let baseline = JSON.parse(checkedInBaseline) as Record<string, BaselinedUsages>;
 
+// The hits this worker appended, so a usage read on every render is appended only once per hits file.
+const recordedHits = new Set<string>();
+
 /**
  * The key of a deprecation in the baseline: the message without the component path the deprecation plugin
  * appends (`Used in: …`), so one key covers every place the deprecated API is used.
@@ -56,14 +61,53 @@ export function currentRun(): DeprecationRun {
 }
 
 /**
- * Whether the baseline lists the usage site of `entry` as a known usage of its deprecation in the current run.
+ * Whether the checked-in baseline lists the usage site of `entry` as a known usage of its deprecation in the
+ * current run, also with `DEPRECATION_BASELINE=update`.
+ *
+ * @private
+ * @example
+ * isListed({ message: 'oldFunction() is deprecated.', usageSite: 'src/app/main.ts' }); // false
+ */
+export function isListed({ message, usageSite }: Pick<RecordedDeprecation, 'message' | 'usageSite'>): boolean {
+    return baseline[deprecationBaselineKey(message)]?.[usageSite]?.includes(currentRun()) ?? false;
+}
+
+/**
+ * Whether the baseline lets the usage of `entry` pass without an assertion: it is listed for the current run.
+ * With `DEPRECATION_BASELINE=update`, every usage is, as the run rewrites the baseline from them.
  *
  * @private
  * @example
  * isBaselined({ message: 'oldFunction() is deprecated.', usageSite: 'src/app/main.ts' }); // false
  */
-export function isBaselined({ message, usageSite }: Pick<RecordedDeprecation, 'message' | 'usageSite'>): boolean {
-    return baseline[deprecationBaselineKey(message)]?.[usageSite]?.includes(currentRun()) ?? false;
+export function isBaselined(entry: Pick<RecordedDeprecation, 'message' | 'usageSite'>): boolean {
+    return process.env.DEPRECATION_BASELINE === 'update' || isListed(entry);
+}
+
+/**
+ * Tells `deprecationBaselineReporter.js` that the baseline let the usage of `entry` pass, through this worker's
+ * file in the directory the reporter created. Without the reporter, e.g. in a spec, it does nothing.
+ *
+ * @private
+ * @example
+ * recordBaselineHit({ message: 'oldFunction() is deprecated.', usageSite: 'src/app/main.ts' });
+ */
+export function recordBaselineHit({ message, usageSite }: Pick<RecordedDeprecation, 'message' | 'usageSite'>): void {
+    const hitsDirectory = process.env.DEPRECATION_BASELINE_HITS;
+
+    if (!hitsDirectory) {
+        return;
+    }
+
+    const hitsFile = join(hitsDirectory, `${process.pid}.jsonl`);
+    const hit = JSON.stringify([deprecationBaselineKey(message), usageSite]);
+
+    if (recordedHits.has(`${hitsFile} ${hit}`)) {
+        return;
+    }
+
+    recordedHits.add(`${hitsFile} ${hit}`);
+    appendFileSync(hitsFile, `${hit}\n`);
 }
 
 /**

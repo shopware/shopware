@@ -68,3 +68,16 @@ export function startNextTest(): void {
     endDeprecationLog();
     startDeprecationLog();
 }
+
+/**
+ * Lets a deprecation fail the test as in a default run, also when the suite runs with
+ * `DEPRECATION_BASELINE=update`, which lets every deprecation pass. Use it in specs that check which
+ * deprecations fail a test.
+ *
+ * @private
+ * @example
+ * beforeEach(ignoreBaselineUpdateRun);
+ */
+export function ignoreBaselineUpdateRun(): void {
+    delete process.env.DEPRECATION_BASELINE;
+}

@@ -275,7 +275,8 @@
                         "description": "The `sw-access-key` header is missing."
                     },
                     "429": {
-                        "description": "Too many promotion code submissions. Wait for the number of seconds provided in the error before retrying."
+                        "$ref": "#/components/responses/429",
+                        "description": "Too many repeated line item additions. Wait for the number of seconds provided in the error before retrying."
                     }
                 },
                 "security": [

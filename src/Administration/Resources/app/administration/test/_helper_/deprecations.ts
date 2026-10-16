@@ -6,7 +6,7 @@
 import { getDefaultActiveFeatureFlags } from './defaultActiveFeatureFlags';
 import normalizeFeatureFlag from './normalizeFeatureFlag';
 import { usageSite } from './deprecationUsageSite';
-import { isBaselined } from './deprecationBaseline';
+import { isBaselined, isListed, recordBaselineHit } from './deprecationBaseline';
 
 /**
  * What an assertion or allowance matches a deprecation message against: a string matches part of it, a RegExp
@@ -170,7 +170,29 @@ export function recordDeprecation(message: string): void {
  * deprecations.entries.filter((entry) => failsTheTest(entry, deprecations.allowed));
  */
 export function failsTheTest(entry: RecordedDeprecation, allowed: readonly Expected[]): boolean {
-    return !entry.asserted && !allowed.some((expected) => matches(expected, entry.message)) && !isBaselined(entry);
+    return isUnasserted(entry, allowed) && !isBaselined(entry);
+}
+
+/**
+ * Whether the test neither asserted nor allowed `entry`, so only the baseline can let it pass.
+ *
+ * @example
+ * isUnasserted(entry, deprecations.allowed);
+ */
+function isUnasserted(entry: RecordedDeprecation, allowed: readonly Expected[]): boolean {
+    return !entry.asserted && !allowed.some((expected) => matches(expected, entry.message));
+}
+
+/**
+ * Whether the baseline still needs `entry`, so its reporter keeps the usage listed: a listed usage always does,
+ * even when the test asserted or allowed it, as the running Administration reaches it too. An update run adds
+ * only the usages the test neither asserted nor allowed.
+ *
+ * @example
+ * deprecations.entries.filter((entry) => needsBaselineEntry(entry, deprecations.allowed));
+ */
+function needsBaselineEntry(entry: RecordedDeprecation, allowed: readonly Expected[]): boolean {
+    return isListed(entry) || (isUnasserted(entry, allowed) && isBaselined(entry));
 }
 
 /**
@@ -209,15 +231,17 @@ function location(frame: string): string {
 
 /**
  * Ends the log of the current test and clears it with its allowances, then throws one error listing every
- * deprecation that fails the test, each with where it is used and the frames that lead there. The Jest setup
- * calls it after each test.
+ * deprecation that fails the test, each with where it is used and the frames that lead there. The usages the
+ * deprecation baseline still needs go to its reporter. The Jest setup calls it after each test.
  *
  * @private
  * @example
  * afterEach(endDeprecationLog);
  */
 export function endDeprecationLog(): void {
-    const failing = deprecations.entries.filter((entry) => failsTheTest(entry, deprecations.allowed));
+    const { entries, allowed } = deprecations;
+    entries.filter((entry) => needsBaselineEntry(entry, allowed)).forEach(recordBaselineHit);
+    const failing = entries.filter((entry) => failsTheTest(entry, allowed));
 
     deprecations.isRecording = false;
     deprecations.entries.length = 0;

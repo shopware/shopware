@@ -4,7 +4,12 @@
 
 import { deprecations, startDeprecationLog } from '../deprecations';
 import oldFunction from '../_fixtures/deprecations/oldFunction';
-import { failureOfEndDeprecationLog, oldFunctionMessage, triggerOtherDeprecation } from './deprecations-test-setup';
+import {
+    failureOfEndDeprecationLog,
+    ignoreBaselineUpdateRun,
+    oldFunctionMessage,
+    triggerOtherDeprecation,
+} from './deprecations-test-setup';
 
 /**
  * `report` with every `:line:column` replaced, so the assertion survives edits that move code.
@@ -17,6 +22,8 @@ function withoutLineNumbers(report: string): string {
 }
 
 describe('test/_helper_/deprecations - endDeprecationLog', () => {
+    beforeEach(ignoreBaselineUpdateRun);
+
     it('passes when the test asserted every deprecation', () => {
         oldFunction();
 

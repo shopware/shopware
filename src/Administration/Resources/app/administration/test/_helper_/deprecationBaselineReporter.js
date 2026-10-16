@@ -1,0 +1,193 @@
+/**
+ * @sw-package framework
+ * @private
+ *
+ * Keeps `src/meta/deprecation-baseline.json` in step with the specs (see `deprecationBaseline.ts`). After a full,
+ * green run it fails on usages the baseline lists for this run that no spec needed, or with
+ * `DEPRECATION_BASELINE=update` rewrites this run's markings from the usages the workers let pass.
+ */
+const { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } = require('node:fs');
+const { tmpdir } = require('node:os');
+const { join } = require('node:path');
+
+class DeprecationBaselineReporter {
+    /**
+     * @param {object} globalConfig Jest's global config, to tell a full run from a filtered one.
+     * @param {{ baselinePath: string, run: 'default' | 'major' }} options `run`: whether the run activates a major.
+     */
+    constructor(globalConfig, { baselinePath, run }) {
+        this.globalConfig = globalConfig;
+        this.baselinePath = baselinePath;
+        this.run = run;
+    }
+
+    onRunStart() {
+        this.error = undefined;
+        this.hitsDirectory = mkdtempSync(join(tmpdir(), 'deprecation-baseline-'));
+        // The workers start after this and inherit the environment, so they know where to record.
+        process.env.DEPRECATION_BASELINE_HITS = this.hitsDirectory;
+    }
+
+    onRunComplete(_testContexts, results) {
+        const hits = readHits(this.hitsDirectory);
+        rmSync(this.hitsDirectory, { recursive: true, force: true });
+        const isUpdate = process.env.DEPRECATION_BASELINE === 'update';
+
+        if (!isFullRun(this.globalConfig)) {
+            if (isUpdate) {
+                this.fail('DEPRECATION_BASELINE=update needs a full run of composer admin:unit or admin:unit:major.');
+            }
+
+            return;
+        }
+
+        // A failed spec may have stopped before some of its usages, so its hits are incomplete.
+        if (!isGreen(results)) {
+            if (isUpdate) {
+                this.fail(`DEPRECATION_BASELINE=update did not write ${this.baselinePath}: fix the failing specs first.`);
+            }
+
+            return;
+        }
+
+        const baseline = JSON.parse(readFileSync(this.baselinePath, 'utf8'));
+
+        if (isUpdate) {
+            writeFileSync(this.baselinePath, `${JSON.stringify(markRun(baseline, hits, this.run), null, 4)}\n`);
+
+            return;
+        }
+
+        const stale = findStale(baseline, hits, this.run);
+
+        if (stale.length > 0) {
+            this.fail(
+                `The deprecation baseline lists usages no spec of the ${this.run} run needs anymore. ` +
+                    `Remove "${this.run}" from them in ${this.baselinePath}:\n${stale.join('\n')}`,
+            );
+        }
+    }
+
+    /**
+     * Jest marks the run as failed when a reporter returns an error, but does not print it.
+     */
+    fail(message) {
+        console.error(message);
+        this.error = new Error(message);
+    }
+
+    getLastError() {
+        return this.error;
+    }
+}
+
+/**
+ * Whether every spec ran. A filtered run cannot tell a stale entry from one whose spec it skipped.
+ * `--changedSince` and `--lastCommit` set `onlyChanged`, and `--findRelatedTests` takes its files as `nonFlagArgs`.
+ *
+ * @example
+ * isFullRun(globalConfig); // false for `jest src/app`
+ */
+function isFullRun(globalConfig) {
+    return ![
+        globalConfig.nonFlagArgs.length > 0,
+        globalConfig.testPathPatterns.isSet(),
+        globalConfig.testNamePattern,
+        globalConfig.onlyChanged,
+        globalConfig.onlyFailures,
+        globalConfig.shard,
+        globalConfig.bail > 0,
+        // Not in the global config: they filter the projects, or the spec files of a project.
+        process.argv.some((arg) => /^--(test-?path-?ignore-?patterns|select-?projects)\b/i.test(arg)),
+    ].some(Boolean);
+}
+
+/**
+ * Whether every spec ran through: no failed test, no suite that crashed, no error of Jest itself.
+ *
+ * @example
+ * isGreen(results); // false after a crashed suite
+ */
+function isGreen(results) {
+    return results.numFailedTests === 0 && results.numFailedTestSuites === 0 && !results.runExecError;
+}
+
+/**
+ * The usages the baseline let pass in all workers, each as `JSON.stringify([message, site])`, without duplicates.
+ *
+ * @example
+ * readHits(directory); // Set { '["oldFunction() is deprecated.","src/app/main.ts"]' }
+ */
+function readHits(hitsDirectory) {
+    return new Set(
+        readdirSync(hitsDirectory).flatMap((file) =>
+            readFileSync(join(hitsDirectory, file), 'utf8').split('\n').filter(Boolean),
+        ),
+    );
+}
+
+/**
+ * The usages the baseline lists for `run` that are missing from `hits`, as `<site>: <message>`.
+ *
+ * @example
+ * findStale({ 'old() is deprecated.': { 'sw-page': ['major'] } }, new Set(), 'major'); // ['sw-page: old() is deprecated.']
+ */
+function findStale(baseline, hits, run) {
+    return Object.entries(baseline).flatMap(([message, sites]) =>
+        Object.entries(sites)
+            .filter(([site, runs]) => runs.includes(run) && !hits.has(JSON.stringify([message, site])))
+            .map(([site]) => `${site}: ${message}`),
+    );
+}
+
+/**
+ * `baseline` with `run` marked on exactly the usages in `hits`, keeping the markings of the other run. A usage
+ * no run marks anymore is dropped.
+ *
+ * @example
+ * markRun({ 'old() is deprecated.': { 'sw-page': ['default'] } }, new Set(['["old() is deprecated.","sw-page"]']), 'major');
+ * // { 'old() is deprecated.': { 'sw-page': ['default', 'major'] } }
+ */
+function markRun(baseline, hits, run) {
+    const marked = {};
+    const mark = (message, site, markedRun) => {
+        marked[message] = marked[message] ?? {};
+        marked[message][site] = [...(marked[message][site] ?? []), markedRun];
+    };
+
+    Object.entries(baseline).forEach(([message, sites]) => {
+        Object.entries(sites).forEach(([site, runs]) => {
+            runs.filter((otherRun) => otherRun !== run).forEach((otherRun) => mark(message, site, otherRun));
+        });
+    });
+    [...hits].forEach((hit) => {
+        const [message, site] = JSON.parse(hit);
+        mark(message, site, run);
+    });
+
+    return sorted(marked);
+}
+
+/**
+ * `baseline` with its messages, sites and runs sorted, so a rewrite diffs only where usages changed.
+ *
+ * @example
+ * sorted({ 'b()': { 'sw-b': ['major'] }, 'a()': { 'sw-a': ['major', 'default'] } });
+ * // { 'a()': { 'sw-a': ['default', 'major'] }, 'b()': { 'sw-b': ['major'] } }
+ */
+function sorted(baseline) {
+    return Object.fromEntries(
+        Object.keys(baseline)
+            .sort()
+            .map((message) => [
+                message,
+                Object.fromEntries(
+                    Object.keys(baseline[message])
+                        .sort()
+                        .map((site) => [site, [...baseline[message][site]].sort()]),
+                ),
+            ]),
+    );
+}
+
+module.exports = DeprecationBaselineReporter;

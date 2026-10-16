@@ -4,9 +4,16 @@
 
 import { deprecations } from '../deprecations';
 import oldFunction from '../_fixtures/deprecations/oldFunction';
-import { failureOfEndDeprecationLog, oldFunctionMessage, triggerOtherDeprecation } from './deprecations-test-setup';
+import {
+    failureOfEndDeprecationLog,
+    ignoreBaselineUpdateRun,
+    oldFunctionMessage,
+    triggerOtherDeprecation,
+} from './deprecations-test-setup';
 
 describe('test/_helper_/deprecations - toHaveTriggered', () => {
+    beforeEach(ignoreBaselineUpdateRun);
+
     it('passes for a deprecation the test ran into', () => {
         oldFunction();
 

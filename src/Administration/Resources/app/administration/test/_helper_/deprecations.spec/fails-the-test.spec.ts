@@ -3,9 +3,11 @@
  */
 
 import { failsTheTest, type RecordedDeprecation } from '../deprecations';
-import { oldFunctionMessage } from './deprecations-test-setup';
+import { ignoreBaselineUpdateRun, oldFunctionMessage } from './deprecations-test-setup';
 
 describe('test/_helper_/deprecations - failsTheTest', () => {
+    beforeEach(ignoreBaselineUpdateRun);
+
     const recorded: RecordedDeprecation = {
         message: oldFunctionMessage,
         stack: '',

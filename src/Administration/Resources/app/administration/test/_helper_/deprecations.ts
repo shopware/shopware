@@ -163,8 +163,7 @@ export function recordDeprecation(message: string): void {
 
 /**
  * Whether a recorded deprecation fails the test
- * It fails the test if it was neither explicitly asserted nor allowed by `allowDeprecation(...)`
- * Neither does one at a usage site `src/meta/deprecation-baseline.json` lists for the current run.
+ * It fails the test if it was neither explicitly asserted nor allowed by `allowDeprecation(...)` nor baselined
  *
  * @private
  * @example

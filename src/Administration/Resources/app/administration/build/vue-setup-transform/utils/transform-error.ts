@@ -35,6 +35,9 @@ class ShopwareSetupTransformError extends Error {
 
     frame: string | null = null;
 
+    /** The module Vite/Rollup attribute the error to; without it they fall back to the importer. */
+    id: string | null = null;
+
     /**
      * Carries a source position so build, lint, and editor adapters can report the same error.
      *

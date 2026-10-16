@@ -589,6 +589,11 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 The removal of the deprecated `sw-empty-state` component was moved from 6.8 to 6.9, so extensions using it keep working with 6.8. Development builds log a deprecation warning once per usage site, including the component path that renders it. Migrate to `mt-empty-state` before 6.9, see `UPGRADE-6.9.md`.
 
+The new ESLint rule `sw-deprecation-rules/no-sw-empty-state-usage` migrates most usages automatically.
+Run it with `composer run admin:code-mods -- --fix --plugin-name <PluginName>` or `composer admin:check-extensions -- --fix`.
+Usages with custom `icon` slot content or markup in the default slot are reported for manual migration.
+Review the `TODO Codemod` comments it adds to the converted templates.
+
 ### Native setup components support defineModel()
 
 `defineModel()` was rejected at build time inside a Shopware `<script setup>` block, so a base component had to declare the prop and the `update:` emit of a `v-model` binding by hand. It is now supported in base components and behaves as in any Vue component — the prop, the emit, the modifiers object and `{ default }` are all Vue's own:

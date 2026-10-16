@@ -256,6 +256,7 @@ const baseRules = {
         'error',
         ...Object.keys(limitRules),
         'vue/max-template-depth',
+        'sw-test-rules/no-vm-access',
         'sw-test-rules/test-file-max-lines-warning',
         'sw-test-rules/test-file-max-lines-error',
     ],
@@ -781,8 +782,9 @@ export default [
             ],
             'sw-test-rules/test-file-max-lines-error': [
                 'error',
-                { max: 1000 },
+                { max: 500 },
             ],
+            'sw-test-rules/no-vm-access': 'error',
         },
     },
 

@@ -92,6 +92,10 @@ export default {
     },
 
     computed: {
+        adminEsEnable() {
+            return Shopware.Context.app.adminEsEnable ?? false;
+        },
+
         product() {
             return Shopware.Store.get('swProductDetail').product;
         },

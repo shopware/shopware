@@ -73,6 +73,24 @@ class WebhookExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
     }
 
+    public function testWebhookEventNotPermitted(): void
+    {
+        $e = WebhookException::webhookEventNotPermitted('order.written');
+
+        static::assertSame('Subscribing to event "order.written" is not permitted.', $e->getMessage());
+        static::assertSame('FRAMEWORK__WEBHOOK_EVENT_NOT_PERMITTED', $e->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+    }
+
+    public function testWebhookEventPrivilegesMissing(): void
+    {
+        $e = WebhookException::webhookEventPrivilegesMissing('product.written', ['product:read', 'order:read']);
+
+        static::assertSame('Subscribing to event "product.written" requires the privileges: product:read, order:read.', $e->getMessage());
+        static::assertSame('FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING', $e->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+    }
+
     public function testUnsupportedMessage(): void
     {
         $e = WebhookException::unsupportedMessage('stdClass');

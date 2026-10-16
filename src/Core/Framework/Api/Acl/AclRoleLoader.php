@@ -44,7 +44,8 @@ class AclRoleLoader
     }
 
     /**
-     * An app's integration only has its app's role, never the integration's own roles or admin flag.
+     * An app's integration only has its app's role, never the integration's own roles or admin flag. A deleted
+     * integration has no roles.
      *
      * @param list<string> $integrationIds
      *
@@ -61,7 +62,8 @@ class AclRoleLoader
              FROM integration i
              LEFT JOIN app a ON a.integration_id = i.id AND a.acl_role_id IS NOT NULL
              LEFT JOIN integration_role ir ON ir.integration_id = i.id AND a.id IS NULL
-             WHERE i.id IN (:ids)',
+             WHERE i.id IN (:ids)
+               AND i.deleted_at IS NULL',
             ['ids' => Uuid::fromHexToBytesList(array_values(array_unique($integrationIds)))],
             ['ids' => ArrayParameterType::BINARY]
         ));

@@ -130,3 +130,6 @@ do not create them, and do not use them in tests, fixtures, or examples unless t
 | **Snippets**           | `composer translation:lint`   | Manual fix required                          |
 | **Prettier** (Admin)   | `composer format:admin`       | `composer format:admin:fix`                  |
 | **GitHub Actions**     | `composer lint:actions`       | `composer lint:actions:fix`                  |
+
+`composer eslint:admin:fix` also removes baseline entries that are no longer needed; every new violation must be fixed manually.
+See `src/Administration/Resources/app/administration/technical-docs/11-code-quality/01-lint-gate.md`.

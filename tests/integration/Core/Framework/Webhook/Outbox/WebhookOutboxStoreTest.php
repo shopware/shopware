@@ -297,6 +297,27 @@ class WebhookOutboxStoreTest extends TestCase
         static::assertSame(WebhookOutboxStore::CANCEL_REASON_SUSPENDED, $surplusLog['failure_reason']);
     }
 
+    public function testFindDisabledWebhookIdsWithHeldRowsReturnsOnlyDisabledWebhooksWithPausedRows(): void
+    {
+        $this->createWebhook('wh-disabled');
+        $this->insertHealth('wh-disabled', EndpointState::Disabled);
+        static::assertNotNull($this->store->recordHeldOutboxEntry($this->toEntry($this->createMessage('evt-disabled-held', 'wh-disabled'))));
+
+        $this->createWebhook('wh-healthy');
+        $this->insertHealth('wh-healthy', EndpointState::Healthy);
+        static::assertNotNull($this->store->recordHeldOutboxEntry($this->toEntry($this->createMessage('evt-healthy-held', 'wh-healthy'))));
+
+        $this->createWebhook('wh-disabled-claimable');
+        $this->insertHealth('wh-disabled-claimable', EndpointState::Disabled);
+        static::assertNotNull($this->store->recordOutboxEntry($this->toEntry($this->createMessage('evt-disabled-queued', 'wh-disabled-claimable'))));
+
+        $ids = $this->store->findDisabledWebhookIdsWithHeldRows();
+
+        static::assertContains($this->ids->get('wh-disabled'), $ids);
+        static::assertNotContains($this->ids->get('wh-healthy'), $ids, 'a HEALTHY held row is a stranded hold, not this finder\'s concern');
+        static::assertNotContains($this->ids->get('wh-disabled-claimable'), $ids, 'a DISABLED webhook with no paused row must not be returned');
+    }
+
     public function testBackfillDeliveryCreatesDeliveryForQueuedEventLog(): void
     {
         $this->createWebhook('wh-1');

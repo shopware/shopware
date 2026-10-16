@@ -39,6 +39,22 @@ class GaranLabelResolver
         );
     }
 
+    /**
+     * @return array{guaranteeMonths: int, brand: string, modelIdentifier: string}|null
+     */
+    public function resolveSnapshot(ProductEntity $product): ?array
+    {
+        if ($this->resolveDuration($product) === null) {
+            return null;
+        }
+
+        return [
+            'guaranteeMonths' => (int) $product->getGuaranteeMonths(),
+            'brand' => trim((string) $product->getManufacturer()?->getTranslation('name')),
+            'modelIdentifier' => trim((string) $product->getManufacturerNumber()),
+        ];
+    }
+
     public function resolveDuration(ProductEntity $product): ?string
     {
         if (!$product->isGuaranteeConfirmed()) {

@@ -37,21 +37,53 @@ function isAssertionCall(node) {
     return node.callee.type === 'Identifier' && node.callee.name.startsWith('expect');
 }
 
-function isExistenceAssertion(expectCall) {
-    const [subject] = expectCall.arguments;
+function isVmAccess(subject) {
+    return subject?.type === 'MemberExpression' && !subject.computed && subject.property.name === 'vm';
+}
+
+// Only the mounted `wrapper` itself: `button.exists()` on a found element checks what renders.
+function isWrapperExistsCall(subject) {
+    return (
+        subject?.type === 'CallExpression' &&
+        subject.arguments.length === 0 &&
+        subject.callee.type === 'MemberExpression' &&
+        !subject.callee.computed &&
+        subject.callee.property.name === 'exists' &&
+        subject.callee.object.type === 'Identifier' &&
+        subject.callee.object.name === 'wrapper'
+    );
+}
+
+function getMatcherCall(expectCall) {
     const matcher = expectCall.parent;
 
-    return (
-        expectCall.callee.name === 'expect' &&
-        subject?.type === 'MemberExpression' &&
-        !subject.computed &&
-        subject.property.name === 'vm' &&
-        matcher.type === 'MemberExpression' &&
-        matcher.object === expectCall &&
-        EXISTENCE_MATCHERS.has(matcher.property.name) &&
-        matcher.parent.type === 'CallExpression' &&
-        matcher.parent.callee === matcher
-    );
+    if (matcher.type !== 'MemberExpression' || matcher.object !== expectCall || matcher.computed) {
+        return null;
+    }
+
+    return matcher.parent.type === 'CallExpression' && matcher.parent.callee === matcher ? matcher.parent : null;
+}
+
+function isTrueMatcher(matcherCall) {
+    const name = matcherCall.callee.property.name;
+    const [expected] = matcherCall.arguments;
+
+    return name === 'toBeTruthy' || (name === 'toBe' && expected?.type === 'Literal' && expected.value === true);
+}
+
+function isExistenceAssertion(expectCall) {
+    const [subject] = expectCall.arguments;
+    const matcherCall = getMatcherCall(expectCall);
+
+    if (expectCall.callee.name !== 'expect' || !matcherCall) {
+        return false;
+    }
+
+    if (isVmAccess(subject)) {
+        return EXISTENCE_MATCHERS.has(matcherCall.callee.property.name);
+    }
+
+    return isWrapperExistsCall(subject) && isTrueMatcher(matcherCall);
 }
 
 module.exports = {

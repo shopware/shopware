@@ -49,6 +49,27 @@ ruleTester.run('no-smoke-test', rule, {
             name: 'ignores a test without a callback',
             code: `it.todo('renders the title');`,
         },
+        {
+            name: 'allows checking that a found element exists',
+            code: `it('renders the button', () => {
+                const button = wrapper.find('button');
+                expect(button.exists()).toBe(true);
+            });`,
+        },
+        {
+            name: 'allows checking that the wrapper is gone',
+            code: `it('unmounts', () => {
+                wrapper.unmount();
+                expect(wrapper.exists()).toBe(false);
+            });`,
+        },
+        {
+            name: 'allows wrapper.exists() next to a real assertion',
+            code: `it('hides the pagination', () => {
+                expect(wrapper.exists()).toBe(true);
+                expect(wrapper.find('.sw-pagination').isVisible()).toBe(false);
+            });`,
+        },
     ],
     invalid: [
         {
@@ -92,6 +113,21 @@ ruleTester.run('no-smoke-test', rule, {
                 });
             });`,
             errors: [{ ...smokeTest, line: 5 }],
+        },
+        {
+            name: 'reports a test that only checks that the wrapper exists',
+            code: `it('should mount successfully', async () => {
+                const wrapper = await createWrapper();
+                expect(wrapper.exists()).toBe(true);
+            });
+            it('should not crash', async () => {
+                await wrapper.setData({ canvas: null });
+                expect(wrapper.exists()).toBeTruthy();
+            });`,
+            errors: [
+                smokeTest,
+                smokeTest,
+            ],
         },
     ],
 });

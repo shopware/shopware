@@ -71,10 +71,10 @@
     "max-lines": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "max-params": {
       "count": 1
     },
-    "max-params": {
+    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -136,10 +136,10 @@
     }
   },
   "scripts/extensionTooling/check-typescript-program.ts": {
-    "max-lines-per-function": {
+    "max-params": {
       "count": 1
     },
-    "max-params": {
+    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -451,7 +451,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 7
+      "count": 6
     }
   },
   "src/app/component/app/sw-app-topbar-button/index.js": {
@@ -490,7 +490,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/component/base/sw-address/sw-address.spec.js": {
@@ -618,7 +618,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 9
+      "count": 8
     }
   },
   "src/app/component/base/sw-chart/index.js": {
@@ -1093,7 +1093,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/component/entity/sw-category-tree-field/index.js": {
@@ -1115,7 +1115,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 12
+      "count": 11
     }
   },
   "src/app/component/entity/sw-entity-listing/index.js": {
@@ -1197,7 +1197,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 6
+      "count": 5
     }
   },
   "src/app/component/extension-api/sw-extension-teaser-popover/index.ts": {
@@ -1397,7 +1397,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 8
+      "count": 2
     }
   },
   "src/app/component/filter/sw-number-filter/index.js": {
@@ -1545,7 +1545,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 29
+      "count": 28
     }
   },
   "src/app/component/form/select/base/sw-select-base/index.js": {
@@ -1911,7 +1911,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 54
+      "count": 51
     }
   },
   "src/app/component/form/sw-datepicker-deprecated/index.js": {
@@ -1943,7 +1943,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 11
+      "count": 8
     }
   },
   "src/app/component/form/sw-email-field-deprecated/index.js": {
@@ -2093,7 +2093,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 44
+      "count": 42
     }
   },
   "src/app/component/form/sw-purchase-price-field/index.js": {
@@ -2215,7 +2215,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 5
+      "count": 4
     }
   },
   "src/app/component/form/sw-switch-field-deprecated/index.js": {
@@ -2265,10 +2265,10 @@
     "max-lines": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-component-members": {
       "count": 1
     },
-    "sw-core-rules/max-component-members": {
+    "max-lines-per-function": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -2283,7 +2283,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 7
+      "count": 6
     }
   },
   "src/app/component/form/sw-text-editor/sw-text-editor-table-toolbar/index.js": {
@@ -2345,7 +2345,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 54
+      "count": 53
     }
   },
   "src/app/component/form/sw-text-field-deprecated/index.js": {
@@ -2643,7 +2643,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 21
+      "count": 20
     }
   },
   "src/app/component/media/sw-media-modal-delete/index.js": {
@@ -2697,7 +2697,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 17
+      "count": 16
     }
   },
   "src/app/component/media/sw-media-modal-move/index.js": {
@@ -2922,14 +2922,11 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 5
+      "count": 1
     }
   },
   "src/app/component/meteor-wrapper/mt-text-editor/mt-text-editor.spec.js": {
     "sw-core-rules/no-javascript-files": {
-      "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
@@ -2971,9 +2968,6 @@
   "src/app/component/meteor/sw-meteor-card/sw-meteor-card.spec.js": {
     "sw-core-rules/no-javascript-files": {
       "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
-      "count": 1
     }
   },
   "src/app/component/meteor/sw-meteor-navigation/sw-meteor-navigation.spec.js": {
@@ -2986,7 +2980,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 4
+      "count": 3
     }
   },
   "src/app/component/meteor/sw-meteor-single-select/index.js": {
@@ -3486,9 +3480,6 @@
   "src/app/component/rule/sw-condition-tree-node/sw-condition-tree-node.spec.js": {
     "sw-core-rules/no-javascript-files": {
       "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
-      "count": 5
     }
   },
   "src/app/component/rule/sw-condition-tree/index.js": {
@@ -3926,7 +3917,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 8
+      "count": 6
     }
   },
   "src/app/component/structure/sw-media-modal-renderer/index.ts": {
@@ -3939,7 +3930,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 8
+      "count": 6
     }
   },
   "src/app/component/structure/sw-modals-renderer/index.ts": {
@@ -4043,7 +4034,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 84
+      "count": 83
     }
   },
   "src/app/component/structure/sw-search-more-results/index.js": {
@@ -4098,7 +4089,7 @@
       "count": 2
     },
     "sw-test-rules/no-vm-access": {
-      "count": 3
+      "count": 1
     }
   },
   "src/app/component/structure/sw-ui-shell-update-2026-modal/sw-ui-shell-update-2026-modal.spec/visibility.spec.ts": {
@@ -4154,10 +4145,10 @@
     "max-lines": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-component-members": {
       "count": 1
     },
-    "sw-core-rules/max-component-members": {
+    "max-lines-per-function": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -5025,10 +5016,10 @@
     "@typescript-eslint/ban-ts-comment": {
       "count": 2
     },
-    "max-lines-per-function": {
+    "max-params": {
       "count": 1
     },
-    "max-params": {
+    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -6148,10 +6139,10 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
     },
-    "max-lines-per-function": {
+    "max-params": {
       "count": 1
     },
-    "max-params": {
+    "max-lines-per-function": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -6462,10 +6453,10 @@
     "complexity": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "max-params": {
       "count": 1
     },
-    "max-params": {
+    "max-lines-per-function": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -8433,7 +8424,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 24
+      "count": 16
     }
   },
   "src/module/sw-bulk-edit/index.js": {
@@ -8505,7 +8496,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 70
+      "count": 69
     },
     "sw-test-rules/test-file-max-lines-error": {
       "count": 1
@@ -8521,11 +8512,11 @@
     "max-lines": {
       "count": 1
     },
-    "max-lines-per-function": {
-      "count": 2
-    },
     "sw-core-rules/max-component-members": {
       "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
     },
     "sw-core-rules/no-javascript-files": {
       "count": 1
@@ -8715,7 +8706,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 10
+      "count": 8
     }
   },
   "src/module/sw-category/component/sw-category-sales-channel-multi-select/index.js": {
@@ -8919,7 +8910,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 6
+      "count": 3
     }
   },
   "src/module/sw-category/view/sw-category-detail-products/index.js": {
@@ -8938,7 +8929,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 10
+      "count": 6
     }
   },
   "src/module/sw-category/view/sw-category-detail-seo/index.js": {
@@ -9859,7 +9850,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 6
+      "count": 5
     }
   },
   "src/module/sw-cms/component/sw-cms-create-wizard/index.ts": {
@@ -9944,7 +9935,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 92
+      "count": 88
     }
   },
   "src/module/sw-cms/component/sw-cms-layout-modal/index.js": {
@@ -9995,9 +9986,6 @@
   "src/module/sw-cms/component/sw-cms-missing-element-modal/sw-cms-missing-element-modal.spec.js": {
     "sw-core-rules/no-javascript-files": {
       "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
-      "count": 2
     }
   },
   "src/module/sw-cms/component/sw-cms-page-form/index.ts": {
@@ -10122,7 +10110,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 50
+      "count": 45
     },
     "sw-test-rules/test-file-max-lines-error": {
       "count": 1
@@ -10236,7 +10224,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 11
+      "count": 10
     }
   },
   "src/module/sw-cms/elements/buy-box/config/index.js": {
@@ -10318,7 +10306,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 9
+      "count": 8
     }
   },
   "src/module/sw-cms/elements/cross-selling/config/index.js": {
@@ -10398,7 +10386,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 13
+      "count": 10
     }
   },
   "src/module/sw-cms/elements/form/config/index.js": {
@@ -10495,7 +10483,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 17
+      "count": 16
     }
   },
   "src/module/sw-cms/elements/image-gallery/config/index.js": {
@@ -10553,7 +10541,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 24
+      "count": 23
     }
   },
   "src/module/sw-cms/elements/image-slider/config/index.js": {
@@ -10749,7 +10737,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 3
+      "count": 2
     }
   },
   "src/module/sw-cms/elements/product-description-reviews/config/index.js": {
@@ -10805,9 +10793,6 @@
   "src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-delete-modal/sw-cms-el-config-product-listing-config-delete-modal.spec.js": {
     "sw-core-rules/no-javascript-files": {
       "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
-      "count": 2
     }
   },
   "src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid/index.js": {
@@ -10834,7 +10819,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 37
+      "count": 36
     }
   },
   "src/module/sw-cms/elements/product-listing/config/config.spec/fixtures.js": {
@@ -10850,7 +10835,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 48
+      "count": 44
     }
   },
   "src/module/sw-cms/elements/product-listing/config/index.js": {
@@ -10961,7 +10946,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 30
+      "count": 29
     }
   },
   "src/module/sw-cms/elements/product-slider/config/index.js": {
@@ -11084,7 +11069,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 14
+      "count": 13
     }
   },
   "src/module/sw-cms/elements/text/config/index.js": {
@@ -11311,7 +11296,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 90
+      "count": 83
     },
     "sw-test-rules/test-file-max-lines-error": {
       "count": 1
@@ -11446,14 +11431,11 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 15
+      "count": 12
     }
   },
   "src/module/sw-custom-entity/component/sw-generic-seo-general-card/sw-generic-seo-general-card.spec.js": {
     "sw-core-rules/no-javascript-files": {
-      "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
       "count": 1
     }
   },
@@ -11467,7 +11449,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 14
+      "count": 8
     }
   },
   "src/module/sw-custom-entity/page/sw-generic-custom-entity-detail/index.ts": {
@@ -11488,7 +11470,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 25
+      "count": 15
     },
     "sw-test-rules/test-file-max-lines-error": {
       "count": 1
@@ -11504,7 +11486,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 21
+      "count": 16
     }
   },
   "src/module/sw-custom-entity/sw-custom-entity.spec.js": {
@@ -12471,7 +12453,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 64
+      "count": 57
     }
   },
   "src/module/sw-extension/page/sw-extension-my-extensions-recommendation/index.js": {
@@ -12551,7 +12533,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 35
+      "count": 28
     },
     "sw-test-rules/test-file-max-lines-error": {
       "count": 1
@@ -12952,7 +12934,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 4
+      "count": 3
     }
   },
   "src/module/sw-flow/component/modals/sw-flow-set-entity-custom-field-modal/index.js": {
@@ -13491,7 +13473,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 20
+      "count": 19
     }
   },
   "src/module/sw-import-export/component/sw-import-export-entity-path-select/index.js": {
@@ -14006,7 +13988,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 72
+      "count": 69
     }
   },
   "src/module/sw-mail-template/page/sw-mail-template-index/index.js": {
@@ -14336,7 +14318,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 7
+      "count": 5
     }
   },
   "src/module/sw-media/component/sw-media-save-modal/index.js": {
@@ -14355,7 +14337,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 5
+      "count": 4
     }
   },
   "src/module/sw-media/default-search-configuration.js": {
@@ -14521,7 +14503,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 12
+      "count": 11
     }
   },
   "src/module/sw-order/component/sw-order-address-selection/index.js": {
@@ -14632,7 +14614,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 31
+      "count": 19
     }
   },
   "src/module/sw-order/component/sw-order-create-invalid-promotion-modal/index.js": {
@@ -14662,7 +14644,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 11
+      "count": 7
     }
   },
   "src/module/sw-order/component/sw-order-create-promotion-modal/index.js": {
@@ -14719,7 +14701,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 18
+      "count": 17
     },
     "sw-test-rules/test-file-max-lines-error": {
       "count": 1
@@ -14770,13 +14752,13 @@
     "max-lines": {
       "count": 1
     },
-    "max-lines-per-function": {
-      "count": 1
-    },
     "max-params": {
       "count": 1
     },
     "sw-core-rules/max-component-members": {
+      "count": 1
+    },
+    "max-lines-per-function": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -14802,7 +14784,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 41
+      "count": 38
     }
   },
   "src/module/sw-order/component/sw-order-document-settings-credit-note-modal/index.js": {
@@ -14907,7 +14889,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 16
+      "count": 14
     }
   },
   "src/module/sw-order/component/sw-order-inline-field/index.js": {
@@ -14954,7 +14936,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 8
+      "count": 6
     },
     "sw-test-rules/test-file-max-lines-error": {
       "count": 1
@@ -15052,7 +15034,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 36
+      "count": 35
     }
   },
   "src/module/sw-order/component/sw-order-product-select/index.js": {
@@ -15301,7 +15283,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 3
+      "count": 1
     }
   },
   "src/module/sw-order/component/sw-order-upload-document-modal/sw-order-upload-document-modal.spec.js": {
@@ -15373,7 +15355,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 13
+      "count": 12
     }
   },
   "src/module/sw-order/page/sw-order-detail/index.js": {
@@ -15595,7 +15577,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 7
+      "count": 2
     }
   },
   "src/module/sw-payments/index.spec.js": {
@@ -16014,9 +15996,6 @@
   "src/module/sw-product/component/sw-product-packaging-form/index.spec.js": {
     "sw-core-rules/no-javascript-files": {
       "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
-      "count": 6
     }
   },
   "src/module/sw-product/component/sw-product-price-form/index.js": {
@@ -16162,7 +16141,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 3
+      "count": 2
     }
   },
   "src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/index.js": {
@@ -16190,7 +16169,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 65
+      "count": 64
     }
   },
   "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection/index.js": {
@@ -16297,9 +16276,6 @@
   "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing/sw-product-variants-delivery-listing.spec.js": {
     "sw-core-rules/no-javascript-files": {
       "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
-      "count": 4
     }
   },
   "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media/index.js": {
@@ -16438,14 +16414,14 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
-    "max-lines-per-function": {
-      "count": 2
-    },
     "max-nested-callbacks": {
       "count": 5
     },
     "max-params": {
       "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
     },
     "sw-core-rules/no-javascript-files": {
       "count": 1
@@ -16568,7 +16544,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 38
+      "count": 24
     },
     "sw-test-rules/test-file-max-lines-error": {
       "count": 1
@@ -16722,7 +16698,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 28
+      "count": 27
     },
     "sw-test-rules/test-file-max-lines-error": {
       "count": 1
@@ -17559,7 +17535,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 10
+      "count": 9
     }
   },
   "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products/index.js": {
@@ -17919,7 +17895,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 54
+      "count": 53
     },
     "sw-test-rules/test-file-max-lines-error": {
       "count": 1
@@ -18395,7 +18371,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 5
+      "count": 4
     }
   },
   "src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base/index.js": {
@@ -18433,7 +18409,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 7
+      "count": 6
     }
   },
   "src/module/sw-settings-custom-field/component/sw-custom-field-type-base/index.js": {
@@ -18786,10 +18762,10 @@
     "max-lines": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-component-members": {
       "count": 1
     },
-    "sw-core-rules/max-component-members": {
+    "max-lines-per-function": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -19094,7 +19070,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 7
+      "count": 4
     }
   },
   "src/module/sw-settings-logging/component/sw-settings-logging-mail-sent-info/index.js": {
@@ -19424,7 +19400,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 5
+      "count": 3
     }
   },
   "src/module/sw-settings-payment/component/sw-plugin-box/index.js": {
@@ -19615,7 +19591,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 9
+      "count": 7
     }
   },
   "src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service.js": {
@@ -19694,7 +19670,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 4
+      "count": 3
     }
   },
   "src/module/sw-settings-rule/component/sw-settings-rule-tree-item/index.js": {
@@ -19723,7 +19699,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 9
+      "count": 8
     }
   },
   "src/module/sw-settings-rule/constant/sw-settings-rule.constant.js": {
@@ -19782,7 +19758,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 41
+      "count": 40
     }
   },
   "src/module/sw-settings-rule/page/sw-settings-rule-list/index.js": {
@@ -19863,7 +19839,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 4
+      "count": 2
     }
   },
   "src/module/sw-settings-salutation/acl/index.js": {
@@ -20090,7 +20066,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 10
+      "count": 9
     }
   },
   "src/module/sw-settings-search/index.js": {
@@ -20809,7 +20785,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 23
+      "count": 22
     }
   },
   "src/module/sw-settings-tag/index.js": {
@@ -21099,17 +21075,11 @@
   "src/module/sw-settings-usage-data/component/sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-store-data-consent-card/sw-settings-usage-data-store-data-consent-card.spec.js": {
     "sw-core-rules/no-javascript-files": {
       "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
-      "count": 2
     }
   },
   "src/module/sw-settings-usage-data/component/sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-user-data-consent-card/sw-settings-usage-data-user-data-consent-card.spec.js": {
     "sw-core-rules/no-javascript-files": {
       "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
-      "count": 2
     }
   },
   "src/module/sw-settings-usage-data/component/sw-settings-usage-data-consent-modal/sw-settings-usage-data-consent-modal.spec.js": {
@@ -21180,9 +21150,6 @@
   "src/module/sw-settings/component/sw-system-config-media-upload/sw-system-config-media-upload.spec.js": {
     "sw-core-rules/no-javascript-files": {
       "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
-      "count": 3
     }
   },
   "src/module/sw-settings/component/sw-system-config/index.js": {
@@ -21218,7 +21185,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 127
+      "count": 126
     }
   },
   "src/module/sw-settings/index.js": {

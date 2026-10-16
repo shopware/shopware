@@ -541,8 +541,6 @@ The Store API schema no longer restricts the line item `type` to the core values
 
 Show a line item whose `type` you don't know from its common fields, such as `label`, `quantity` and the price, and ignore its `payload`. If you generate types from the schema, cast `payload` to `ProductLineItemPayload` or `PromotionLineItemPayload` after checking `type`. Extensions that add a line item type can describe its payload the same way by adding an `if`/`then` entry to `allOf` of `LineItem` and `OrderLineItem` in their own Store API schema files. Keys an extension adds to a core payload go into the `properties` of `ProductLineItemPayload` or `PromotionLineItemPayload` in those files. Undeclared keys aren't part of the schema, so generated types don't contain them.
 
-`POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart; the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart, and `checkout.cart.reorder` wraps the whole route
-
 ### Store API resolves the context from the storefront session on request
 
 A Store API request that sends the storefront session cookie together with `sw-access-key` and the new header `sw-context-source: session` is resolved with the context token held in that session, so a client embedded in a storefront page shares the shopper's cart and login without managing a token. Login, registration, logout and password changes made this way are written back into the session.
@@ -566,6 +564,7 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 ### Store API payment, shipping and checkout gateway routes accept an `orderId`
 
 `/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
+
 ### New Store API route to add the products of an order to the cart
 
 `POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart
@@ -933,11 +932,6 @@ To pass different options to the viewer, override the new blocks `element_image_
 The zoom modal no longer waits for images without a source before it opens.
 
 These additions are experimental and become stable with 6.8.0.
-### Reorder posts only the order id
-### Reorder rebuilds its items from the order
-### Reorder resolves its line items from the order
-
-The reorder form no longer posts `lineItems`, so its two hidden input blocks are empty and deprecated; add or drop reorder items with the `checkout.cart.collect-reorder-line-items` extension instead
 
 ## App system
 

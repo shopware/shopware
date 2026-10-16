@@ -39,7 +39,7 @@ class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
         private readonly ShopIdProvider $shopIdProvider,
         private readonly LoggerInterface $logger,
         private readonly AppUrlVerifier $appUrlVerifier,
-        private readonly string $appUrl,
+        private readonly string $shopUrl,
     ) {
     }
 
@@ -62,10 +62,10 @@ class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
             // no resolution needed
             return;
         } catch (ShopIdChangeSuggestedException $e) {
-            $state = $this->appUrlVerifier->forceVerify($this->appUrl);
+            $state = $this->appUrlVerifier->forceVerify($this->shopUrl);
 
             if (!$state->is(VerificationStatus::PASS)) {
-                throw AppException::appUrlFailedVerification($this->appUrl, $state->failureReason());
+                throw AppException::appUrlFailedVerification($this->shopUrl, $state->failureReason());
             }
 
             $this->shopIdProvider->regenerateAndSetShopId($e->shopId->id);

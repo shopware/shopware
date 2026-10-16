@@ -44,7 +44,7 @@ class AppRegistrationService
         private readonly HandshakeFactory $handshakeFactory,
         private readonly Client $httpClient,
         private readonly EntityRepository $appRepository,
-        private readonly string $appUrl,
+        private readonly string $shopUrl,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly string $shopwareVersion,
         private readonly ClockInterface $clock,
@@ -158,10 +158,10 @@ class AppRegistrationService
 
     private function verifyAppUrl(): void
     {
-        $state = $this->appUrlVerifier->forceVerify($this->appUrl);
+        $state = $this->appUrlVerifier->forceVerify($this->shopUrl);
 
         if (!$state->is(VerificationStatus::PASS)) {
-            throw AppException::appUrlFailedVerification($this->appUrl, $state->failureReason());
+            throw AppException::appUrlFailedVerification($this->shopUrl, $state->failureReason());
         }
     }
 
@@ -327,7 +327,7 @@ class AppRegistrationService
             'apiKey' => $integration->getAccessKey(),
             'secretKey' => $secretAccessKey,
             'timestamp' => (string) $this->clock->now()->getTimestamp(),
-            'shopUrl' => $this->appUrl,
+            'shopUrl' => $this->shopUrl,
             'shopId' => $shopId->id,
         ];
     }

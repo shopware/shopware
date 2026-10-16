@@ -22,6 +22,8 @@ class UnitEntity extends Entity
 
     protected ?string $name = null;
 
+    protected ?string $uneceCode = null;
+
     protected ?UnitTranslationCollection $translations = null;
 
     protected ?ProductCollection $products = null;
@@ -44,6 +46,16 @@ class UnitEntity extends Entity
     public function setName(?string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getUneceCode(): ?string
+    {
+        return $this->uneceCode;
+    }
+
+    public function setUneceCode(?string $uneceCode): void
+    {
+        $this->uneceCode = $uneceCode;
     }
 
     public function getTranslations(): ?UnitTranslationCollection

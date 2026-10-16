@@ -25,8 +25,14 @@ class WebhookEntity extends Entity
 
     protected ?string $appId = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - Use `endpointState` from `GET /api/app-system/webhook/state`. Removed with WEBHOOKS_REWORK.
+     */
     protected bool $active;
 
+    /**
+     * @deprecated tag:v6.8.0 - Failure counters are internal; read `endpointState` from `GET /api/app-system/webhook/state`. Removed with WEBHOOKS_REWORK.
+     */
     protected int $errorCount;
 
     protected ?AppEntity $app = null;
@@ -91,21 +97,41 @@ class WebhookEntity extends Entity
         $this->app = $app;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Use `endpointState` from `GET /api/app-system/webhook/state`. Removed with WEBHOOKS_REWORK.
+     *
+     * @phpstan-ignore shopware.deprecatedMethod (legacy BC accessor)
+     */
     public function isActive(): bool
     {
         return $this->active;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - The health model owns the active flag. Removed with WEBHOOKS_REWORK.
+     *
+     * @phpstan-ignore shopware.deprecatedMethod (legacy BC accessor)
+     */
     public function setActive(bool $active): void
     {
         $this->active = $active;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Failure counters are internal; read `endpointState` from `GET /api/app-system/webhook/state`. Removed with WEBHOOKS_REWORK.
+     *
+     * @phpstan-ignore shopware.deprecatedMethod (legacy BC accessor)
+     */
     public function getErrorCount(): int
     {
         return $this->errorCount;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - The health model owns failure counting. Removed with WEBHOOKS_REWORK.
+     *
+     * @phpstan-ignore shopware.deprecatedMethod (legacy BC accessor)
+     */
     public function setErrorCount(int $errorCount): void
     {
         $this->errorCount = $errorCount;

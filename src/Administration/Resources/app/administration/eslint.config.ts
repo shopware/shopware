@@ -68,6 +68,47 @@ const filenameRulesPatched = {
 const vueParserSetup = pluginVue.configs['flat/recommended'].find((c) => c.name === 'vue/base/setup-for-vue');
 const vueParser = vueParserSetup.languageOptions.parser;
 
+const testFiles = [
+    '**/*.spec.js',
+    '**/*.spec.ts',
+    '**/*.spec/*.js',
+    '**/*.spec/*.ts',
+    '**/fixtures/*.js',
+    'test/**/*.js',
+    'test/**/*.ts',
+];
+
+const limitRules = {
+    complexity: [
+        'error',
+        15,
+    ],
+    'sw-core-rules/max-function-lines': [
+        'error',
+        { max: 80, setupMax: 150, skipBlankLines: true, skipComments: true },
+    ],
+    'max-params': [
+        'error',
+        4,
+    ],
+    'max-nested-callbacks': [
+        'error',
+        3,
+    ],
+    'max-depth': [
+        'error',
+        4,
+    ],
+    'max-lines': [
+        'error',
+        { max: 500, skipBlankLines: true, skipComments: true },
+    ],
+    'sw-core-rules/max-component-members': [
+        'error',
+        { max: 50 },
+    ],
+};
+
 /**
  * Shared rule policy applied to normal source files and TypeScript-specific overrides.
  *
@@ -564,6 +605,10 @@ export default [
             'sw-deprecation-rules/no-sw-tabs-usage': 'error',
             'vue/no-useless-template-attributes': 'error',
             'vue/no-lone-template': 'error',
+            'vue/max-template-depth': [
+                'error',
+                { maxDepth: 10 },
+            ],
 
             'eol-last': 'off',
             'max-len': 'off',
@@ -631,15 +676,7 @@ export default [
 
     // Test files
     {
-        files: [
-            '**/*.spec.js',
-            '**/*.spec.ts',
-            '**/*.spec/*.js',
-            '**/*.spec/*.ts',
-            '**/fixtures/*.js',
-            'test/**/*.js',
-            'test/**/*.ts',
-        ],
+        files: testFiles,
         ...jestPlugin.configs['flat/recommended'],
         languageOptions: {
             ...jestPlugin.configs['flat/recommended'].languageOptions,
@@ -720,6 +757,20 @@ export default [
                 'error',
                 { max: 1000 },
             ],
+        },
+    },
+
+    // Size and complexity limits for source files
+    {
+        files: [
+            '**/*.js',
+            '**/*.ts',
+            '**/*.tsx',
+            '**/*.vue',
+        ],
+        ignores: testFiles,
+        rules: {
+            ...limitRules,
         },
     },
 

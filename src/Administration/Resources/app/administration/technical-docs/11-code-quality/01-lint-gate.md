@@ -26,8 +26,12 @@ Run them in `src/Administration/Resources/app/administration`, or through the co
 
 | Group | Rules | Why |
 |---|---|---|
+| Size and complexity | `complexity` (15), `sw-core-rules/max-function-lines` (80, `setup()` 150), `max-params` (4), `max-nested-callbacks` (3), `max-depth` (4), `max-lines` (500), `sw-core-rules/max-component-members` (50), `vue/max-template-depth` (10) | Small units are easier to read, test and override |
 | Errors | `sw-core-rules/no-swallowed-errors` | A `.catch()` that drops the error needs a comment that says why |
 | Unused code | knip | Unused files, exports and dependencies are removed instead of copied |
+
+`setup()` gets 150 lines because it wires all composables of a component in one function, where the Options API spreads the same logic over many small ones.
+Logic that does not fit belongs in a composable.
 
 ## Baselines
 
@@ -35,6 +39,7 @@ Run them in `src/Administration/Resources/app/administration`, or through the co
 |---|---|
 | `src/Administration/Resources/app/administration/eslint-suppressions.json` | ESLint in the Administration |
 | `src/Administration/Resources/app/administration/knip-baseline.json` | knip in the Administration |
+| `src/Storefront/Resources/app/administration/eslint-suppressions.json` | ESLint in the Storefront's Administration modules |
 
 `eslint-suppressions.json` counts the violations per file and rule.
 A file passes while it has at most as many violations of a rule as recorded.

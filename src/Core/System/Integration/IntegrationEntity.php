@@ -13,6 +13,8 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachi
 
 /**
  * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\TwigFieldVisibilityTest
  */
 #[Package('fundamentals@framework')]
 class IntegrationEntity extends Entity

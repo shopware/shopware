@@ -1,1 +1,80 @@
-{}
+{
+    "The \"sw-tabs\" wrapper is deprecated and will be removed in v6.9.0.0. Please use \"mt-tabs\" instead.": {
+        "sw-bulk-edit-custom-fields > sw-tabs": [
+            "default",
+            "major"
+        ],
+        "sw-cms-el-config-text > sw-tabs": [
+            "default"
+        ],
+        "sw-cms-layout-assignment-modal > sw-tabs": [
+            "default"
+        ],
+        "sw-custom-field-set-renderer > sw-tabs": [
+            "default"
+        ],
+        "sw-custom-field-translated-labels > sw-tabs": [
+            "default"
+        ],
+        "sw-extension-component-section > sw-tabs": [
+            "default"
+        ],
+        "sw-flow-rule-modal > sw-tabs": [
+            "default"
+        ],
+        "sw-media-modal-folder-settings > sw-tabs": [
+            "default"
+        ],
+        "sw-meteor-card > sw-tabs": [
+            "default"
+        ],
+        "sw-meteor-page > sw-tabs": [
+            "default"
+        ],
+        "sw-order-new-customer-modal > sw-tabs": [
+            "default"
+        ],
+        "sw-settings-logging-mail-sent-info > sw-tabs": [
+            "default"
+        ],
+        "sw-settings-rule-detail > sw-tabs": [
+            "default"
+        ],
+        "sw-settings-tag-detail-modal > sw-tabs": [
+            "default"
+        ],
+        "sw-settings-usage-data > sw-tabs": [
+            "default"
+        ]
+    },
+    "The old usage of \"sw-loader\" is deprecated and will be removed in v6.8.0.0. Please use \"mt-loader\" instead.": {
+        "sw-extension-card-bought > sw-loader": [
+            "default",
+            "major"
+        ],
+        "sw-select-base > sw-loader": [
+            "default",
+            "major"
+        ]
+    },
+    "The old usage of \"sw-popover\" is deprecated and will be removed in v6.8.0.0. Please use \"mt-floating-ui\" instead.": {
+        "sw-colorpicker-deprecated > sw-popover": [
+            "default"
+        ],
+        "sw-condition-unit-menu > sw-popover": [
+            "default"
+        ],
+        "sw-context-button > sw-popover": [
+            "default"
+        ],
+        "sw-media-field > sw-popover": [
+            "default"
+        ],
+        "sw-multi-tag-select > sw-popover": [
+            "default"
+        ],
+        "sw-select-result-list > sw-popover": [
+            "default"
+        ]
+    }
+}

@@ -242,12 +242,9 @@ class ThemeService implements ResetInterface
 
         $this->themeRepository->update([$data], $context);
 
-        if ($theme->getSalesChannels() === null) {
-            // refresh runtime config here as theme will not be compiled later
-            $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
-
-            return;
-        }
+        // Administration resets inherited values before saving. Replace that intermediate
+        // runtime configuration even for unassigned themes and descendants compiled asynchronously.
+        $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
 
         $this->compileThemeById($themeId, $context, null, false);
     }
@@ -440,24 +437,22 @@ class ThemeService implements ResetInterface
     {
         $mappings = new ThemeSalesChannelCollection();
         $themeData = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(theme.id)) as id, LOWER(HEX(childTheme.id)) as dependentId,
-            LOWER(HEX(tsc.sales_channel_id)) as saleschannelId,
-            LOWER(HEX(dtsc.sales_channel_id)) as dsaleschannelId
-            FROM theme
-            LEFT JOIN theme as childTheme ON childTheme.parent_theme_id = theme.id
-            LEFT JOIN theme_sales_channel as tsc ON theme.id = tsc.theme_id
-            LEFT JOIN theme_sales_channel as dtsc ON childTheme.id = dtsc.theme_id
-            WHERE theme.id = :id',
+            'WITH RECURSIVE dependent_themes AS (
+                SELECT id FROM theme WHERE id = :id
+                UNION DISTINCT
+                SELECT child.id
+                FROM theme AS child
+                INNER JOIN dependent_themes AS parent ON child.parent_theme_id = parent.id
+            )
+            SELECT LOWER(HEX(dependent_themes.id)) AS id,
+                   LOWER(HEX(tsc.sales_channel_id)) AS saleschannelId
+            FROM dependent_themes
+            INNER JOIN theme_sales_channel AS tsc ON tsc.theme_id = dependent_themes.id',
             ['id' => Uuid::fromHexToBytes($themeId)]
         );
 
         foreach ($themeData as $data) {
-            if (isset($data['id']) && isset($data['saleschannelId']) && $data['id'] === $themeId) {
-                $mappings->add(new ThemeSalesChannel($data['id'], $data['saleschannelId']));
-            }
-            if (isset($data['dependentId']) && isset($data['dsaleschannelId'])) {
-                $mappings->add(new ThemeSalesChannel($data['dependentId'], $data['dsaleschannelId']));
-            }
+            $mappings->add(new ThemeSalesChannel($data['id'], $data['saleschannelId']));
         }
 
         return $mappings;

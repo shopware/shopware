@@ -38,10 +38,44 @@ class McpToolResultParser
         }
 
         if ($decoded->success) {
-            return new McpToolResult(data: $decoded->data ?? null, meta: $meta);
+            return $this->success($decoded->data ?? null, $meta);
         }
 
         return new McpToolResult(error: $this->error($decoded), meta: $meta);
+    }
+
+    /**
+     * @param array<string, mixed> $meta
+     */
+    private function success(mixed $data, array $meta): McpToolResult
+    {
+        // A result too large to return inline: McpToolResponse stored it and put the pointer in `_meta`.
+        // Only that pointer becomes a link; another `resourceUri` of an extension stays plain metadata.
+        $uri = $meta['resourceUri'] ?? null;
+        if (!\is_string($uri) || !str_starts_with($uri, McpToolResultPointer::URI_PREFIX)) {
+            return new McpToolResult(data: $data, meta: $meta);
+        }
+
+        // The note becomes the summary, so the model doesn't read it twice.
+        $note = \is_string($meta['note'] ?? null) ? $meta['note'] : null;
+        unset($meta['note']);
+        $expiresAt = \is_string($meta['expiresAt'] ?? null) ? \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $meta['expiresAt']) : false;
+        // Promoted to the result's expiry, which the renderer sends as `shopware/expiresAt`.
+        unset($meta['expiresAt']);
+
+        return new McpToolResult(
+            data: $data,
+            summary: $note,
+            meta: $meta,
+            expiresAt: $expiresAt ?: null,
+            links: [new McpToolResultLink(
+                $uri,
+                'tool-result',
+                $note,
+                'application/json',
+                \is_int($meta['responseSize'] ?? null) ? $meta['responseSize'] : null,
+            )],
+        );
     }
 
     private function error(\stdClass $envelope): McpToolError

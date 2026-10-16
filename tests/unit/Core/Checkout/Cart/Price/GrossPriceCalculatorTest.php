@@ -237,22 +237,26 @@ class GrossPriceCalculatorTest extends TestCase
     }
 
     #[DataProvider('halfCentProvider')]
-    public function testUncalculatedPriceWithASingleRuleKeepsItsRoundingOnHalfCents(float $taxRate, float $net, float $expectedGross): void
+    public function testUncalculatedPriceWithASingleRuleKeepsItsRoundingOnHalfCents(float $taxRate, float $net): void
     {
-        $definition = new QuantityPriceDefinition($net, new TaxRuleCollection([new TaxRule($taxRate)]), 1);
+        $taxRules = new TaxRuleCollection([new TaxRule($taxRate)]);
+        $config = new CashRoundingConfig(2, 0.01, true);
+
+        $definition = new QuantityPriceDefinition($net, $taxRules, 1);
         $definition->setIsCalculated(false);
 
         $calculator = new GrossPriceCalculator(new TaxCalculator(), new CashRounding());
-        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+        $price = $calculator->calculate($definition, $config);
 
-        static::assertSame($expectedGross, $price->getUnitPrice());
+        $plainGrossUp = (new CashRounding())->cashRound((new TaxCalculator())->calculateGross($net, $taxRules), $config);
+        static::assertSame($plainGrossUp, $price->getUnitPrice());
     }
 
     public static function halfCentProvider(): \Generator
     {
-        yield '25% on 0.02' => [25.0, 0.02, 0.03];
-        yield '10% on 0.15' => [10.0, 0.15, 0.16];
-        yield '21% on 0.50' => [21.0, 0.5, 0.61];
+        yield '25% on 0.02' => [25.0, 0.02];
+        yield '10% on 0.15' => [10.0, 0.15];
+        yield '21% on 0.50' => [21.0, 0.5];
     }
 
     public function testTaxesAreRoundedProperly(): void

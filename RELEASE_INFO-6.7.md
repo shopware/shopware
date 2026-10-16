@@ -896,7 +896,8 @@ The reorder form posts only the order, so the products are rendered into the for
 
 ### Storefront analytics report item variants and graduated prices
 
-Storefront analytics now report the selected options of a variant as `item_variant`. `add_to_cart` on the product detail page reports the graduated price of the quantity the cart holds after the add.
+Storefront analytics now report the selected options of a variant as `item_variant`.
+`add_to_cart` on the product detail page reports the graduated price of the quantity the cart holds after the add.
 
 ### Essential characteristics label custom fields with their snippet
 

@@ -117,9 +117,12 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
             return;
         }
 
+        // Group IPv6 addresses in the same /64; keep IPv4 addresses unchanged.
+        $clientIp = IpUtils::anonymize($clientIp, 0, 8);
+
         if ($isPromotion) {
-            // Share the allowance across codes and IPv6 addresses in the same /64; keep IPv4 addresses unchanged.
-            $this->rateLimiter->ensureAccepted(RateLimiter::PROMOTION_CODE, IpUtils::anonymize($clientIp, 0, 8) . '-' . $context->getSalesChannelId());
+            // Different promotion codes must share an allowance instead of each starting a new per-item allowance.
+            $this->rateLimiter->ensureAccepted(RateLimiter::PROMOTION_CODE, $clientIp . '-' . $context->getSalesChannelId());
 
             return;
         }

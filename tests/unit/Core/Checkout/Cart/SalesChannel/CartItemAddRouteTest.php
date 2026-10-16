@@ -228,6 +228,20 @@ class CartItemAddRouteTest extends TestCase
         ]);
     }
 
+    public function testProductIpv6AddressesSharePerItemPrefixAllowance(): void
+    {
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->exactly(2))->method('ensureAccepted')
+            ->with(RateLimiter::CART_ADD_LINE_ITEM, 'product-id-2001:db8:1234:5678::-' . self::SALES_CHANNEL_ID, self::SALES_CHANNEL_ID);
+        $route = $this->createRoute($rateLimiter, new RequestStack());
+
+        foreach (['2001:db8:1234:5678::1', '2001:db8:1234:5678::2'] as $ip) {
+            $route->add(Request::create('/', server: ['REMOTE_ADDR' => $ip]), new Cart('test'), $this->createSalesChannelContext(), [
+                new LineItem('product', LineItem::PRODUCT_LINE_ITEM_TYPE, 'product-id'),
+            ]);
+        }
+    }
+
     public function testPromotionIpv6AddressesSharePrefixAllowance(): void
     {
         $rateLimiter = $this->createMock(RateLimiter::class);

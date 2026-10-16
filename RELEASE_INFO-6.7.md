@@ -64,7 +64,7 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 Promotion code submissions through the Store API and Storefront now share a rate limit per client IP and sales channel.
 Promotion codes use a separate allowance from the per-item `cart_add_line_item` limit, so submitting a different code does not start a new allowance.
-IPv6 addresses within the same `/64` share the promotion allowance; IPv4 addresses are limited individually.
+Both promotion and per-item rate limits group IPv6 addresses within the same `/64`; IPv4 addresses are limited individually.
 Configure the backoff policy through `shopware.api.rate_limiter.promotion_code`.
 Store API clients receive HTTP 429 when throttled, while Storefront shoppers receive a message with the waiting time.
 

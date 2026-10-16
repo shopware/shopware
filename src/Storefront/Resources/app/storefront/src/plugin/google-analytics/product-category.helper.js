@@ -28,11 +28,12 @@ export default class ProductCategoryHelper
             return;
         }
 
+        const context = ProductCategoryHelper._context();
         const entries = ProductCategoryHelper._read()
-            .filter(entry => entry.productId !== productId)
+            .filter(entry => entry.productId !== productId || entry.context !== context)
             .slice(-(LIMIT - 1));
 
-        entries.push({ productId, categories, expires: Date.now() + TTL });
+        entries.push({ productId, context, categories, expires: Date.now() + TTL });
 
         ProductCategoryHelper._write(entries);
     }
@@ -46,19 +47,34 @@ export default class ProductCategoryHelper
             return {};
         }
 
-        return ProductCategoryHelper._read().find(entry => entry.productId === productId)?.categories ?? {};
+        const context = ProductCategoryHelper._context();
+
+        return ProductCategoryHelper._read()
+            .find(entry => entry.productId === productId && entry.context === context)?.categories ?? {};
     }
 
     /**
      * @param {string[]} productIds
      */
     static forget(productIds) {
+        const context = ProductCategoryHelper._context();
         const entries = ProductCategoryHelper._read();
-        const remaining = entries.filter(entry => !productIds.includes(entry.productId));
+        const remaining = entries.filter(entry => entry.context !== context || !productIds.includes(entry.productId));
 
         if (remaining.length !== entries.length) {
             ProductCategoryHelper._write(remaining);
         }
+    }
+
+    /**
+     * Sales channels and languages on the same origin share the local storage, while the category
+     * names and the main category of a product depend on both.
+     *
+     * @returns {string}
+     * @private
+     */
+    static _context() {
+        return `${window.salesChannelId ?? ''}:${document.documentElement.lang ?? ''}`;
     }
 
     /**

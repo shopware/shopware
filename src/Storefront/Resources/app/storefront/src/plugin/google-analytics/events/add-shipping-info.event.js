@@ -39,7 +39,9 @@ export default class AddShippingInfoEvent extends AnalyticsEvent
         }
 
         const shippingTier = this._getShippingTier();
-        if (CheckoutStepHelper.hasReported('add_shipping_info', shippingTier)) {
+        // method names are not unique, so a reload is recognised by the id of the checked method
+        const methodKey = document.querySelector('.shipping-method-input:checked')?.getAttribute('value') || shippingTier;
+        if (CheckoutStepHelper.hasReported('add_shipping_info', methodKey)) {
             return;
         }
 
@@ -58,7 +60,7 @@ export default class AddShippingInfoEvent extends AnalyticsEvent
             'items': lineItems,
         });
 
-        CheckoutStepHelper.markReported('add_shipping_info', shippingTier);
+        CheckoutStepHelper.markReported('add_shipping_info', methodKey);
     }
 
     /**

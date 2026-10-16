@@ -192,4 +192,30 @@ describe('plugin/google-analytics/events/add-payment-info.event', () => {
             ],
         });
     });
+
+    test('fires for a second payment method that has the same name as the first', () => {
+        const markup = (id) => `
+            <div class="hidden-line-items-information" data-currency="EUR">
+                <span class="hidden-line-item" data-id="product-123" data-sku="product-123" data-name="Test Product"
+                    data-quantity="1" data-price="49.99"></span>
+            </div>
+            <div class="payment-method-radio">
+                <input type="radio" class="payment-method-input" value="${id}" checked>
+                <div class="payment-method-description">
+                    <strong>Standard</strong>
+                </div>
+            </div>
+        `;
+
+        document.body.innerHTML = markup('method-1');
+        new AddPaymentInfoEvent().execute();
+        document.body.innerHTML = markup('method-2');
+        new AddPaymentInfoEvent().execute();
+        new AddPaymentInfoEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledTimes(2);
+        expect(window.gtag).toHaveBeenNthCalledWith(2, 'event', 'add_payment_info', expect.objectContaining({
+            'payment_type': 'Standard',
+        }));
+    });
 });

@@ -19,15 +19,11 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
- * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Package('discovery')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class AnalyticsController extends StorefrontController
 {
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly AbstractBreadcrumbRoute $breadcrumbRoute,
         private readonly SalesChannelAnalyticsLoader $analyticsLoader,
@@ -35,14 +31,7 @@ class AnalyticsController extends StorefrontController
     }
 
     /**
-     * The category path analytics report for a product, as the category names from the top level
-     * down. Product elements do not carry it, because loading the categories of every product would
-     * slow down each render for an event that only fires on a click, so the analytics script asks
-     * for it when it is needed.
-     *
-     * It is the breadcrumb of the product detail page, resolved by the Store API breadcrumb route.
-     * Only the analytics script calls it, so a sales channel without active analytics gets a 404
-     * before anything is loaded.
+     * The category names of the product breadcrumb, loaded on demand so product elements do not carry them.
      */
     #[Route(
         path: '/widgets/analytics/product-categories',

@@ -25,9 +25,9 @@ describe('plugin/google-analytics/events/add-shipping-info-on-register.event', (
         jest.clearAllMocks();
     });
 
-    function renderRegisterPage(shippingTier = 'Standard') {
+    function renderRegisterPage(shippingTier = 'Standard', methodId = `shipping-${shippingTier}`) {
         document.body.innerHTML = `${cart}
-            ${shippingTier === null ? '' : `<div class="d-none" data-analytics-shipping-tier="${shippingTier}"></div>`}
+            ${shippingTier === null ? '' : `<div class="d-none" data-analytics-shipping-tier="${shippingTier}" data-analytics-shipping-method-id="${methodId}"></div>`}
             <form class="register-form"></form>
         `;
     }
@@ -37,10 +37,10 @@ describe('plugin/google-analytics/events/add-shipping-info-on-register.event', (
         event._onFormSubmit({ target: form });
     }
 
-    function renderConfirmPage(shippingTier) {
+    function renderConfirmPage(shippingTier, methodId = `shipping-${shippingTier}`) {
         document.body.innerHTML = `${cart}
             <div class="shipping-method-radio">
-                <input class="shipping-method-input" type="radio" checked>
+                <input class="shipping-method-input" type="radio" value="${methodId}" checked>
                 <div class="shipping-method-description"><strong>${shippingTier}</strong></div>
             </div>
         `;
@@ -112,6 +112,16 @@ describe('plugin/google-analytics/events/add-shipping-info-on-register.event', (
         new AddShippingInfoEvent().execute();
 
         expect(shippingEvents().map(parameters => parameters.shipping_tier)).toEqual(['Standard']);
+    });
+
+    test('is reported again on the confirm page for another method with the same name', () => {
+        renderRegisterPage('Standard', 'shipping-1');
+        submitRegistration();
+
+        renderConfirmPage('Standard', 'shipping-2');
+        new AddShippingInfoEvent().execute();
+
+        expect(shippingEvents().map(parameters => parameters.shipping_tier)).toEqual(['Standard', 'Standard']);
     });
 
     /**

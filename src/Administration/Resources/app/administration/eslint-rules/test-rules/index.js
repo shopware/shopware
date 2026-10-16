@@ -9,5 +9,6 @@ module.exports = {
         'test-file-max-lines-warning': require('./test-file-max-lines/warning'),
         'test-file-max-lines-error': require('./test-file-max-lines/error'),
         'no-vm-access': require('./no-vm-access'),
+        'no-smoke-test': require('./no-smoke-test'),
     },
 };

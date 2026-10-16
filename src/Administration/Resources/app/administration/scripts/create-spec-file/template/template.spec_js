@@ -35,9 +35,5 @@ describe('<component-path>', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
-    // TODO: Add more component tests
+    // TODO: Add tests for what the component renders, emits or requests
 });

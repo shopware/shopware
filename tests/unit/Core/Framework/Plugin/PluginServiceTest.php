@@ -219,7 +219,7 @@ class PluginServiceTest extends TestCase
         $pluginService = new PluginService(
             __DIR__,
             __DIR__,
-            new StaticEntityRepository([new PluginCollection()]),
+            new StaticEntityRepository([new PluginCollection(), new PluginCollection()]),
             $languageRepo,
             $pluginFinder,
             new VersionSanitizer()
@@ -228,6 +228,10 @@ class PluginServiceTest extends TestCase
         $pluginService->refreshPlugins(Context::createDefaultContext(), static::createStub(IOInterface::class));
 
         static::assertCount(2, $languageLookups);
+
+        $pluginService->refreshPlugins(Context::createDefaultContext(), static::createStub(IOInterface::class));
+
+        static::assertCount(4, $languageLookups, 'Every refresh has to look the locales up again');
     }
 
     private function getComposerPackage(string $version = '1.0.0'): CompletePackage

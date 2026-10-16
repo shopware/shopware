@@ -20,12 +20,13 @@ use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Language\LanguageCollection;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('framework')]
-class PluginService
+class PluginService implements ResetInterface
 {
     final public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';
 
@@ -51,7 +52,7 @@ class PluginService
     public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): ExceptionCollection
     {
         $errors = new ExceptionCollection();
-        $this->languageIdsByLocale = [];
+        $this->reset();
         $pluginsFromFileSystem = $this->pluginFinder->findPlugins($this->pluginDir, $this->projectDir, $errors, $composerIO);
 
         $installedPlugins = $this->getPlugins(new Criteria(), $shopwareContext);
@@ -153,6 +154,11 @@ class PluginService
     /**
      * @throws PluginNotFoundException
      */
+    public function reset(): void
+    {
+        $this->languageIdsByLocale = [];
+    }
+
     public function getPluginByName(string $pluginName, Context $context): PluginEntity
     {
         $criteria = new Criteria();

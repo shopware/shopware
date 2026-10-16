@@ -62,6 +62,8 @@ class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
             // no resolution needed
             return;
         } catch (ShopIdChangeSuggestedException $e) {
+            // Verify APP_URL before storing it with the shop ID. Once stored, the change counts as
+            // resolved, so a broken APP_URL would be accepted and every re-registration below would fail.
             $state = $this->appUrlVerifier->forceVerify($this->shopUrl);
 
             if (!$state->is(VerificationStatus::PASS)) {

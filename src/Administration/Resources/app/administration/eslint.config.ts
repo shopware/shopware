@@ -80,7 +80,7 @@ const testFiles = [
     'test/**/*.ts',
 ];
 
-// Inline disables are blocked for these rules, so eslint-suppressions.json is the only way around a limit
+// Inline disables are blocked for these rules, so eslint-suppressions.json is the only way around them
 const limitRules = {
     complexity: [
         'error',
@@ -269,6 +269,10 @@ const baseRules = {
     '@eslint-community/eslint-comments/no-restricted-disable': [
         'error',
         ...Object.keys(limitRules),
+        'sw-core-rules/no-javascript-files',
+        'sw-core-rules/no-new-mixins',
+        'sw-core-rules/require-wrap-component-config',
+        'sw-test-rules/no-vm-access',
         'vue/max-template-depth',
         'sw-test-rules/test-file-max-lines-warning',
         'sw-test-rules/test-file-max-lines-error',
@@ -832,6 +836,7 @@ export default [
             '**/*.js',
             '**/*.ts',
             '**/*.tsx',
+            '**/*.vue',
         ],
         ignores: testFiles,
         rules: {
@@ -844,6 +849,7 @@ export default [
         files: [
             'src/**/*.js',
             'src/**/*.ts',
+            'src/**/*.vue',
         ],
         ignores: testFiles,
         rules: {

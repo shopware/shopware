@@ -24,7 +24,7 @@ describe('test/_helper_/deprecations - endDeprecationLog', () => {
         expect(failureOfEndDeprecationLog()).toBe('');
     });
 
-    it('lists each unasserted deprecation with the lines that led to it', () => {
+    it('lists each unasserted deprecation with where it is used and the lines that led to it', () => {
         oldFunction();
         triggerOtherDeprecation();
 
@@ -34,10 +34,12 @@ describe('test/_helper_/deprecations - endDeprecationLog', () => {
                 '`expect(deprecations).toHaveTriggered(message)` from `test/_helper_/deprecations`.',
                 '',
                 '1. oldFunction() is deprecated.',
+                '   used in test/_helper_/deprecations.spec/end-deprecation-log.spec.ts',
                 '   ↳ test/_helper_/_fixtures/deprecations/oldFunction.ts:<line>:<col>',
                 '   ↳ test/_helper_/deprecations.spec/end-deprecation-log.spec.ts:<line>:<col>',
                 '',
                 '2. otherFunction() is deprecated.',
+                '   used in test/_helper_/deprecations.spec/end-deprecation-log.spec.ts',
                 '   ↳ test/_helper_/deprecations.spec/deprecations-test-setup.ts:<line>:<col>',
                 '   ↳ test/_helper_/deprecations.spec/end-deprecation-log.spec.ts:<line>:<col>',
             ].join('\n'),

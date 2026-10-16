@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -35,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\Stub\Checkout\EmptyPrice;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -230,6 +232,57 @@ class ProductCartProcessorTest extends TestCase
         $product->setCategoryTree(['a']);
         $processor->collect($data, $cart, $context, new CartBehavior());
         static::assertSame($lineItem->getPayloadValue('categoryIds'), ['a']);
+    }
+
+    /**
+     * @param array<string, mixed> $unit
+     */
+    #[DataProvider('uneceCodePayloadProvider')]
+    public function testPayloadStoresTheUneceCodeOfTheUnit(?array $unit, ?string $expectedCode): void
+    {
+        $cart = new Cart('test');
+        $lineItem = new LineItem('A', 'product', 'A');
+
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+
+        $product = (new SalesChannelProductEntity())->assign([
+            'id' => 'A',
+            'calculatedPrice' => new EmptyPrice(),
+            'calculatedPrices' => new PriceCollection(),
+            'calculatedMaxPurchase' => 1,
+            'productNumber' => 'A',
+            'stock' => 1,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
+            'unit' => $unit === null ? null : (new UnitEntity())->assign($unit),
+        ]);
+
+        $processor = new ProductCartProcessor(
+            static::createStub(ProductGateway::class),
+            static::createStub(QuantityPriceCalculator::class),
+            static::createStub(ProductFeatureBuilder::class),
+            static::createStub(ProductPriceCalculator::class),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(Connection::class),
+            new EventDispatcher()
+        );
+
+        $data = new CartDataCollection();
+        $data->set('product-A', $product);
+
+        $processor->collect($data, $cart, static::createStub(SalesChannelContext::class), new CartBehavior());
+
+        static::assertArrayHasKey('uneceCode', $lineItem->getPayload());
+        static::assertSame($expectedCode, $lineItem->getPayload()['uneceCode']);
+    }
+
+    /**
+     * @return iterable<string, array{unit: array<string, mixed>|null, expectedCode: string|null}>
+     */
+    public static function uneceCodePayloadProvider(): iterable
+    {
+        yield 'unit with a code' => ['unit' => ['id' => 'unit-id', 'uneceCode' => 'KGM'], 'expectedCode' => 'KGM'];
+        yield 'unit without a code' => ['unit' => ['id' => 'unit-id'], 'expectedCode' => null];
+        yield 'no unit' => ['unit' => null, 'expectedCode' => null];
     }
 
     public function testPayloadIsTranslated(): void

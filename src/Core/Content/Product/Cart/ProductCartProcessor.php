@@ -402,6 +402,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'markAsTopseller' => $product->getMarkAsTopseller(),
             'purchasePrices' => $purchasePrices ? json_encode($purchasePrices, \JSON_THROW_ON_ERROR) : null,
             'productNumber' => $product->getProductNumber(),
+            'uneceCode' => $product->getUnit()?->getUneceCode(),
             'manufacturerId' => $product->getManufacturerId(),
             'taxId' => $product->getTaxId(),
             'tagIds' => $product->getTagIds(),

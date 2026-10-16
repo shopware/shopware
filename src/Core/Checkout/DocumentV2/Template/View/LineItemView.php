@@ -46,7 +46,7 @@ final readonly class LineItemView
         public string $name,
         public float $quantity,
         public float $basisQuantity,
-        public UnitCode $unitCode,
+        public string $unitCode,
         public float $netUnitPrice,
         public float $lineTotal,
         public TaxCategory $taxCategory,
@@ -162,7 +162,7 @@ final readonly class LineItemView
             name: $lineItem->getLabel(),
             quantity: $quantity,
             basisQuantity: self::PRICE_BASIS_QUANTITY,
-            unitCode: UnitCode::PIECE,
+            unitCode: self::getUnitCode($lineItem),
             netUnitPrice: $totalNet / $quantity,
             lineTotal: $totalNet,
             taxCategory: TaxCategory::fromRate($taxRate),
@@ -260,11 +260,18 @@ final readonly class LineItemView
             name: $lineItem->getLabel(),
             quantity: $quantity,
             basisQuantity: self::PRICE_BASIS_QUANTITY,
-            unitCode: UnitCode::PIECE,
+            unitCode: self::getUnitCode($lineItem),
             netUnitPrice: $lineTotal / $quantity,
             lineTotal: $lineTotal,
             taxCategory: TaxCategory::fromRate($taxRate),
             taxRate: $taxRate,
         );
+    }
+
+    private static function getUnitCode(OrderLineItemEntity $lineItem): string
+    {
+        $uneceCode = $lineItem->getPayload()['uneceCode'] ?? null;
+
+        return \is_string($uneceCode) && $uneceCode !== '' ? $uneceCode : UnitCode::PIECE->value;
     }
 }

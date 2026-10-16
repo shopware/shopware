@@ -153,6 +153,10 @@
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
+                    "uneceCode": {
+                        "type": ["string", "null"],
+                        "description": "UN/ECE Recommendation 20 or 21 code of the product unit when the line item was calculated. Missing on carts and orders from before 6.7.16.0."
+                    },
                     "productType": {
                         "$ref": "#/components/schemas/Product/properties/type",
                         "description": "Can be missing on carts saved before 6.7.7.0."

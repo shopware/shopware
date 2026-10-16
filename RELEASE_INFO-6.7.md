@@ -74,6 +74,13 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Promotion code rate limiting
+
+Promotion code submissions through the Store API and Storefront now share a separate rate limit.
+Promotion codes use a separate allowance from the per-item `cart_add_line_item` limit, so submitting a different code does not start a new allowance.
+Configure the backoff policy through `shopware.api.rate_limiter.promotion_code`.
+Store API clients receive HTTP 429 when throttled, while Storefront shoppers receive a message with the waiting time.
+
 ### Invalid price definition exception factory
 
 Use `DataAbstractionLayerException::invalidPriceFieldType()` instead of constructing the deprecated `InvalidPriceFieldTypeException`. The factory preserves the legacy exception in 6.7 and returns `DataAbstractionLayerException` with the same error code and message when `v6.8.0.0` is active.

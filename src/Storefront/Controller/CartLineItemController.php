@@ -144,6 +144,8 @@ class CartLineItemController extends StorefrontController
                 $cart = $this->cartService->add($cart, $lineItem, $context);
 
                 $this->traceErrors($cart);
+            } catch (RateLimitExceededException $exception) {
+                $this->addFlash(self::INFO, $this->trans('error.rateLimitExceeded', ['%seconds%' => $exception->getWaitTime()]));
             } catch (\Exception) {
                 $this->addFlash(self::DANGER, $this->trans('error.message-default'));
             }

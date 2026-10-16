@@ -9,6 +9,7 @@ on:
       - ".github/aw/**"
       - ".github/dependabot.yml"
       - ".gitattributes"
+      - ".agents/skills/sw-review/**"
   workflow_dispatch:
 
 permissions:
@@ -45,3 +46,24 @@ jobs:
             echo "::error::gh aw compile output differs from the committed files. Run 'gh aw compile' with the pinned version and commit the result."
             exit 1
           fi
+
+  review-routing:
+    name: sw-review routing cases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Deterministic classification of real PR diffs (no LLM). Node runs the TypeScript
+      # directly (type stripping, no build step). The routing test fails on an empty
+      # fixture directory, so it cannot pass without evaluating cases. The grader library
+      # stays Bash because skillgrade mounts it into the eval workspaces.
+      - name: Check grader syntax
+        run: bash -n .agents/skills/sw-review/tests/_lib.sh
+
+      - name: Run classifier unit tests and routing cases
+        run: |
+          set -euo pipefail
+          node --test .agents/skills/sw-review/scripts/*.test.ts .agents/skills/sw-review/tests/routing/*.test.ts

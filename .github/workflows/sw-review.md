@@ -56,6 +56,29 @@ checkout:
   ref: ${{ github.event.pull_request.head.sha || format('refs/pull/{0}/head', github.event.issue.number || github.event.inputs.pr_number) }}
   fetch-depth: 0
 
+# Deterministic classification runs here, outside the agent sandbox: the sandbox cannot
+# execute repository scripts or redirect output. The agent reads the result with `cat`.
+# This step runs on the host with the job token, before gh aw restores `.agents` from
+# the base branch, so the scripts come from TRUSTED_REF and never from the checked-out
+# PR head: a pull request must not be able to put code in the path of this step.
+steps:
+  - name: Compute the sw-review change profile
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number || github.event.inputs.pr_number }}
+      GH_TOKEN: ${{ github.token }}
+      # base branch head for label runs; the default branch for /sw-review comments; the dispatched branch for manual runs
+      TRUSTED_REF: ${{ github.event.pull_request.base.sha || github.sha }}
+    run: |
+      set -euo pipefail
+      scripts="${RUNNER_TEMP}/sw-review-scripts"
+      mkdir -p "$scripts" .sw-review
+      git cat-file -e "${TRUSTED_REF}^{commit}" 2>/dev/null || git fetch --no-tags origin "$TRUSTED_REF"
+      if ! git archive "$TRUSTED_REF" .agents/skills/sw-review/scripts | tar -x --strip-components=4 -C "$scripts"; then
+        printf '{"available": false, "reason": "%s has no .agents/skills/sw-review/scripts"}\n' "$TRUSTED_REF" > .sw-review/profile.json
+        exit 0
+      fi
+      node "$scripts/ci-profile.ts" .sw-review/profile.json
+
 engine:
   id: claude
   model: claude-sonnet-5-5   # orchestrator/default; security & architecture personas escalate to opus below (COST.md strong tier)
@@ -91,6 +114,7 @@ tools:
     - "git fetch"
     - "git rev-parse"
     - "git merge-base"
+    - "mkdir"
 
 safe-outputs:
   messages:
@@ -133,12 +157,15 @@ You are the orchestrator. Follow the policy above:
 1. Gather the review packet once (PR metadata, changed files, commits via the
    `pull_requests` MCP toolset; the diff via `git diff <base>...HEAD` on the
    checked-out head).
-2. Discover cheaply, gate personas off the changed file classes, and slice the
-   diff per persona.
+2. Read the precomputed change profile (`cat .sw-review/profile.json`, see the
+   policy), gate personas off the path classes and signals, attach the
+   selected guides to the personas they name, and slice the diff per persona.
 3. For each gated persona, you MUST dispatch one persona-worker via the `Task`
    tool, selecting the matching sub-agent by name (`security`, `architecture`,
-   `code-style`, `ux`, `open-source` — defined in the `## agent:` blocks below)
-   and handing it only its slice (by path when the diff is large). NEVER review
+   `code-style`, `ux`, `maintainer` — defined in the `## agent:` blocks below)
+   and handing it only its slice (by path when the diff is large), the
+   `change_profile` from the profile file, and the guide paths selected for
+   that persona. NEVER review
    a persona's slice yourself inline — not even for a small diff: the per-persona
    model escalation (`security`/`architecture` run on Opus) only happens inside
    the sub-agent, so an inline review silently downgrades those personas. Do not
@@ -159,8 +186,9 @@ description: Security-focused Shopware PR review persona (auth, ACL, input valid
 model: claude-opus-5-5
 tools: Read, Grep, Glob, Bash
 ---
-You are the `security` PR-review persona-worker. Load your authoritative lens from
-`.agents/skills/sw-review/personas/security.md`, plus `references/RUNTIME.md`,
+You are the `security` PR-review persona-worker. Load your authoritative lens
+from `.agents/skills/sw-review/personas/security.md`, every guide path the
+orchestrator handed you (whole), plus `references/RUNTIME.md`,
 `references/CLASSIFICATION.md` (severity, confidence, decision), and
 `references/SCHEMA.md` (JSON shape); consult `references/DIFF-DISCIPLINE.md` only
 for deletions, renames, generated/vendor files, or context expansion. Review ONLY
@@ -178,7 +206,8 @@ model: claude-opus-5-5
 tools: Read, Grep, Glob, Bash
 ---
 You are the `architecture` PR-review persona-worker. Load your authoritative lens
-from `.agents/skills/sw-review/personas/architecture.md`, plus `references/RUNTIME.md`,
+from `.agents/skills/sw-review/personas/architecture.md`, every guide path the
+orchestrator handed you (whole), plus `references/RUNTIME.md`,
 `references/CLASSIFICATION.md`, and `references/SCHEMA.md`; consult
 `references/DIFF-DISCIPLINE.md` only when needed. Review ONLY the diff slice the
 orchestrator hands you; expand context only after a candidate finding exists.
@@ -194,7 +223,8 @@ model: claude-sonnet-5-5
 tools: Read, Grep, Glob, Bash
 ---
 You are the `code-style` PR-review persona-worker. Load your authoritative lens
-from `.agents/skills/sw-review/personas/code-style.md`, plus `references/RUNTIME.md`,
+from `.agents/skills/sw-review/personas/code-style.md`, every guide path the
+orchestrator handed you (whole), plus `references/RUNTIME.md`,
 `references/CLASSIFICATION.md`, and `references/SCHEMA.md`. Do not flag anything
 formatters/linters already enforce. Review ONLY the diff slice the orchestrator
 hands you. `blocking` is never appropriate for this persona. Return exactly one
@@ -209,26 +239,28 @@ description: UX-focused Shopware PR review persona (admin Vue, storefront Twig, 
 model: claude-sonnet-5-5
 tools: Read, Grep, Glob, Bash
 ---
-You are the `ux` PR-review persona-worker. Load your authoritative lens from
-`.agents/skills/sw-review/personas/ux.md`, plus `references/RUNTIME.md`,
+You are the `ux` PR-review persona-worker. Load your authoritative lens
+from `.agents/skills/sw-review/personas/ux.md`, every guide path the
+orchestrator handed you (whole), plus `references/RUNTIME.md`,
 `references/CLASSIFICATION.md`, and `references/SCHEMA.md`. Only flag what this PR
 adds or changes. Review ONLY the diff slice the orchestrator hands you. Return
 exactly one per-persona JSON object per the schema as your final message text —
 no prose, no fence. Never publish anything yourself (no safe-output or GitHub
 tools); the orchestrator alone merges and publishes.
 
-## agent: `open-source`
+## agent: `maintainer`
 ---
-name: open-source
-description: Open-source-focused Shopware PR review persona (PR/commit hygiene, UPGRADE notes, deprecations, public ecosystem impact).
+name: maintainer
+description: Maintainer-focused Shopware PR review persona (is this the platform's job, ecosystem contracts, UPGRADE/RELEASE_INFO, PR hygiene, external-contributor tone).
 model: claude-sonnet-5-5
 tools: Read, Grep, Glob, Bash
 ---
-You are the `open-source` PR-review persona-worker. Load your authoritative lens
-from `.agents/skills/sw-review/personas/open-source.md`, plus `references/RUNTIME.md`,
+You are the `maintainer` PR-review persona-worker. Load your authoritative lens
+from `.agents/skills/sw-review/personas/maintainer.md`, every guide path the
+orchestrator handed you (whole), plus `references/RUNTIME.md`,
 `references/CLASSIFICATION.md`, and `references/SCHEMA.md`. Commit hygiene applies
-only when commits are provided; keep external-contributor tone welcoming. Review
-ONLY the diff slice the orchestrator hands you. Return exactly one per-persona
-JSON object per the schema as your final message text — no prose, no fence. Never
-publish anything yourself (no safe-output or GitHub tools); the orchestrator
-alone merges and publishes.
+only when commits are provided; keep external-contributor tone welcoming. Scope
+findings carry `requires_human: true`. Review ONLY the diff slice the
+orchestrator hands you. Return exactly one per-persona JSON object per the schema
+as your final message text — no prose, no fence. Never publish anything yourself
+(no safe-output or GitHub tools); the orchestrator alone merges and publishes.

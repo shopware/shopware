@@ -386,7 +386,8 @@ export function createPluginDevJson(extensions: ExtensionDefinition[], useBundle
             entry.hmrSrc = useBundledDev ? `${base}bundledDevClient.mjs` : `${base}@vite/client`;
         }
 
-        pluginDevJson[extension.technicalName] = entry;
+        // A bundle with an Administration entry and a meteor-app comes as one plugin and one app definition
+        pluginDevJson[extension.technicalName] = { ...pluginDevJson[extension.technicalName], ...entry };
     });
 
     return pluginDevJson;

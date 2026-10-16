@@ -159,6 +159,25 @@ describe('build/vite-plugins/utils', () => {
             });
         });
 
+        it('keeps the entry files of the plugin when the bundle also ships an app', () => {
+            const appOfPlugin: ExtensionDefinition = {
+                ...plugin,
+                path: '/plugins/SwagExample/src/Resources/app/meteor-app',
+                filePath: '/plugins/SwagExample/src/Resources/app/meteor-app/index.html',
+                isPlugin: false,
+                isApp: true,
+            };
+
+            expect(createPluginDevJson([plugin, appOfPlugin], false)).toEqual({
+                metadata: 'shopware',
+                'swag-example': {
+                    js: '/_internal_ext/swag-example/main.ts',
+                    hmrSrc: '/_internal_ext/swag-example/@vite/client',
+                    html: '/_internal_ext/swag-example/index.html',
+                },
+            });
+        });
+
         it('only contains the metadata without extensions', () => {
             expect(createPluginDevJson([], true)).toEqual({ metadata: 'shopware' });
         });

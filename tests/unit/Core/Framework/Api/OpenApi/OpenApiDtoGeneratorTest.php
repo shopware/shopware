@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
+use Shopware\Core\Framework\Api\OpenApi\OpenApiOperationReader;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Filesystem\Filesystem;
@@ -53,8 +54,10 @@ class OpenApiDtoGeneratorTest extends TestCase
         $schemaDirectory = $frameworkPath . '/Api/ApiDefinition/Generator/Schema/StoreApi';
         $this->filesystem->mkdir($schemaDirectory);
         $this->filesystem->copy($schemaFile, $schemaDirectory . '/schema.json');
+        $operationReader = new OpenApiOperationReader();
         $generator = new OpenApiDtoGenerator(
-            new OpenApiDtoSchemaParser(),
+            $operationReader,
+            new OpenApiDtoSchemaParser($operationReader),
             new OpenApiDtoClassRenderer(new MockClock('2026-07-07 00:00:00')),
             $this->filesystem,
             ['Framework' => ['path' => $frameworkPath]],

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerationCheckResult;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
+use Shopware\Core\Framework\Api\OpenApi\OpenApiOperationReader;
 use Shopware\Core\Framework\FrameworkException;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Command\Command;
@@ -127,7 +128,7 @@ class OpenApiDtoGenerationCommandTest extends TestCase
             static::assertStringNotContainsString('public array $value,', $generatedDto);
             static::assertFileExists($generatedRequestPath);
             static::assertStringContainsString(
-                'public ?SimpleFilter $simpleFilter = null,',
+                'public SimpleFilter $simpleFilter;',
                 $filesystem->readFile($generatedRequestPath),
             );
         } finally {
@@ -276,8 +277,11 @@ class OpenApiDtoGenerationCommandTest extends TestCase
         Filesystem $filesystem,
         ?ClockInterface $generatedAt = null
     ): OpenApiDtoGenerator {
+        $operationReader = new OpenApiOperationReader();
+
         return new OpenApiDtoGenerator(
-            new OpenApiDtoSchemaParser(),
+            $operationReader,
+            new OpenApiDtoSchemaParser($operationReader),
             new OpenApiDtoClassRenderer($generatedAt ?? new MockClock('2026-07-08')),
             $filesystem,
             ['Framework' => ['path' => $projectRoot . '/src/Core/Framework']],

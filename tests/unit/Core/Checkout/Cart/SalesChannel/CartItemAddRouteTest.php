@@ -201,18 +201,64 @@ class CartItemAddRouteTest extends TestCase
         ]);
     }
 
-    public function testStorefrontProductsUsePerItemRateLimit(): void
+    public function testStorefrontProductsAreNotRateLimited(): void
     {
         $requestStack = new RequestStack();
         $requestStack->push(Request::create('/', server: ['REMOTE_ADDR' => '127.0.0.1']));
         $rateLimiter = $this->createMock(RateLimiter::class);
-        $rateLimiter->expects($this->once())->method('ensureAccepted')
-            ->with(RateLimiter::CART_ADD_LINE_ITEM, 'product-id-127.0.0.1-' . self::SALES_CHANNEL_ID, self::SALES_CHANNEL_ID);
+        $rateLimiter->expects($this->never())->method('ensureAccepted');
         $route = $this->createRoute($rateLimiter, $requestStack);
 
         $route->add(new Request(), new Cart('test'), $this->createSalesChannelContext(), [
             new LineItem('product', LineItem::PRODUCT_LINE_ITEM_TYPE, 'product-id'),
         ]);
+    }
+
+    public function testStoreApiProductsUsePassedRequestIp(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('/', server: ['REMOTE_ADDR' => '127.0.0.2']));
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())->method('ensureAccepted')
+            ->with(RateLimiter::CART_ADD_LINE_ITEM, 'product-id-127.0.0.1-' . self::SALES_CHANNEL_ID, self::SALES_CHANNEL_ID);
+        $route = $this->createRoute($rateLimiter, $requestStack);
+
+        $route->add(Request::create('/', server: ['REMOTE_ADDR' => '127.0.0.1']), new Cart('test'), $this->createSalesChannelContext(), [
+            new LineItem('product', LineItem::PRODUCT_LINE_ITEM_TYPE, 'product-id'),
+        ]);
+    }
+
+    public function testPromotionIpv6AddressesSharePrefixAllowance(): void
+    {
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->exactly(2))->method('ensureAccepted')
+            ->with(RateLimiter::PROMOTION_CODE, '2001:db8:1234:5678::-' . self::SALES_CHANNEL_ID);
+        $route = $this->createRoute($rateLimiter, new RequestStack());
+
+        foreach (['2001:db8:1234:5678::1', '2001:db8:1234:5678::2'] as $ip) {
+            $route->add(Request::create('/', server: ['REMOTE_ADDR' => $ip]), new Cart('test'), $this->createSalesChannelContext(), [
+                new LineItem('promotion', LineItem::PROMOTION_LINE_ITEM_TYPE, 'example-code'),
+            ]);
+        }
+    }
+
+    public function testPromotionIpv4AddressesKeepSeparateAllowances(): void
+    {
+        $keys = [];
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->exactly(2))->method('ensureAccepted')
+            ->willReturnCallback(static function (string $route, string $key) use (&$keys): void {
+                $keys[] = $key;
+            });
+        $route = $this->createRoute($rateLimiter, new RequestStack());
+
+        foreach (['192.0.2.1', '192.0.2.2'] as $ip) {
+            $route->add(Request::create('/', server: ['REMOTE_ADDR' => $ip]), new Cart('test'), $this->createSalesChannelContext(), [
+                new LineItem('promotion', LineItem::PROMOTION_LINE_ITEM_TYPE, 'example-code'),
+            ]);
+        }
+
+        static::assertSame(['192.0.2.1-' . self::SALES_CHANNEL_ID, '192.0.2.2-' . self::SALES_CHANNEL_ID], $keys);
     }
 
     public function testStoreApiPromotionRateLimitRejectsBeforeAddingItem(): void

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
@@ -76,17 +77,8 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
                 }
             }
 
-            $clientIp = ($this->requestStack->getMainRequest() ?? $request)->getClientIp();
             foreach ($items as $item) {
-                if ($clientIp !== null) {
-                    if ($item->getType() === LineItem::PROMOTION_LINE_ITEM_TYPE) {
-                        // Different promotion codes must share an allowance instead of each starting a new per-item allowance.
-                        $this->rateLimiter->ensureAccepted(RateLimiter::PROMOTION_CODE, $clientIp . '-' . $context->getSalesChannelId());
-                    } else {
-                        $cacheKey = ($item->getReferencedId() ?? $item->getId()) . '-' . $clientIp . '-' . $context->getSalesChannelId();
-                        $this->rateLimiter->ensureAccepted(RateLimiter::CART_ADD_LINE_ITEM, $cacheKey, $context->getSalesChannelId());
-                    }
-                }
+                $this->applyRateLimits($item, $request, $context);
 
                 $alreadyExists = $cart->has($item->getId());
                 $cart->add($item);
@@ -107,5 +99,32 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
 
             return $response;
         });
+    }
+
+    /**
+     * Promotions use the main request because CartService passes an empty request for Storefront calls.
+     * Other line items keep the passed request so the existing per-item limit remains API-only.
+     */
+    private function applyRateLimits(LineItem $item, Request $request, SalesChannelContext $context): void
+    {
+        $isPromotion = $item->getType() === LineItem::PROMOTION_LINE_ITEM_TYPE;
+        if ($isPromotion) {
+            $request = $this->requestStack->getMainRequest() ?? $request;
+        }
+
+        $clientIp = $request->getClientIp();
+        if ($clientIp === null) {
+            return;
+        }
+
+        if ($isPromotion) {
+            // Share the allowance across codes and IPv6 addresses in the same /64; keep IPv4 addresses unchanged.
+            $this->rateLimiter->ensureAccepted(RateLimiter::PROMOTION_CODE, IpUtils::anonymize($clientIp, 0, 8) . '-' . $context->getSalesChannelId());
+
+            return;
+        }
+
+        $cacheKey = ($item->getReferencedId() ?? $item->getId()) . '-' . $clientIp . '-' . $context->getSalesChannelId();
+        $this->rateLimiter->ensureAccepted(RateLimiter::CART_ADD_LINE_ITEM, $cacheKey, $context->getSalesChannelId());
     }
 }

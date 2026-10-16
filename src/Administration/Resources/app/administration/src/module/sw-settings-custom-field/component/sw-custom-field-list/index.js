@@ -61,6 +61,10 @@ export default {
         isLoading(value) {
             this.$emit('loading-changed', value);
         },
+
+        'set.id'() {
+            this.loadCustomFields();
+        },
     },
 
     created() {

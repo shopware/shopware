@@ -554,6 +554,14 @@ export default {
         },
     },
 
+    watch: {
+        documentConfigId(documentConfigId) {
+            if (documentConfigId !== this.documentConfig.id) {
+                this.createdComponent();
+            }
+        },
+    },
+
     methods: {
         async createdComponent() {
             this.isLoading = true;

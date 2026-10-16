@@ -293,4 +293,33 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-
         const editMenuItem = wrapper.find('.sw-custom-field-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
     });
+
+    it('should load the custom fields of the new set when the set id changes', async () => {
+        const repo = mockCustomFieldRepository();
+        const searchSpy = jest.spyOn(repo, 'search');
+        const wrapper = await createWrapper([], repo);
+        await flushPromises();
+        searchSpy.mockClear();
+
+        await wrapper.setProps({ set: { id: 'other-set-id', customFields: {} } });
+        await flushPromises();
+
+        expect(searchSpy).toHaveBeenCalledTimes(1);
+        expect(searchSpy.mock.calls[0][0].filters).toEqual([
+            expect.objectContaining({ field: 'customFieldSetId', value: 'other-set-id' }),
+        ]);
+    });
+
+    it('should not reload the custom fields when the page reloads the same set after saving', async () => {
+        const repo = mockCustomFieldRepository();
+        const searchSpy = jest.spyOn(repo, 'search');
+        const wrapper = await createWrapper([], repo);
+        await flushPromises();
+        searchSpy.mockClear();
+
+        await wrapper.setProps({ set: { ...set } });
+        await flushPromises();
+
+        expect(searchSpy).not.toHaveBeenCalled();
+    });
 });

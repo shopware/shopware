@@ -281,12 +281,14 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                                 ],
                             }],
                             'sw-deprecation-rules/no-deprecated-component-usage': ['error'],
+                            'sw-deprecation-rules/no-sw-empty-state-usage': ['error'],
                         };
                     }
 
                     return {
                         'sw-deprecation-rules/no-deprecated-components': 'off',
                         'sw-deprecation-rules/no-deprecated-component-usage': 'off',
+                        'sw-deprecation-rules/no-sw-empty-state-usage': 'off',
                     };
                 })(),
                 // Disabled rules

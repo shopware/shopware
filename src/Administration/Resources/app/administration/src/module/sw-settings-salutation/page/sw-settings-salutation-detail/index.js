@@ -126,7 +126,7 @@ export default {
 
     watch: {
         salutationId() {
-            if (!this.salutationId) {
+            if (this.salutationId !== this.salutation?.id) {
                 this.createdComponent();
             }
         },

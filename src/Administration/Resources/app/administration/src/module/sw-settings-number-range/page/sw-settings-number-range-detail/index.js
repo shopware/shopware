@@ -203,6 +203,9 @@ export default {
         'numberRange.start'() {
             this.getPreview();
         },
+        '$route.params.id'() {
+            this.createdComponent();
+        },
     },
 
     created() {

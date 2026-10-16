@@ -128,6 +128,16 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
+    watch: {
+        '$route.params.id'(): void {
+            this.createdComponent();
+        },
+
+        '$route.params.entityName'(): void {
+            this.createdComponent();
+        },
+    },
+
     created(): void {
         this.createdComponent();
     },
@@ -196,6 +206,8 @@ export default Shopware.Component.wrapComponentConfig({
                                 id: this.customEntityData.id,
                             },
                         });
+
+                        return;
                     }
 
                     void this.loadData();

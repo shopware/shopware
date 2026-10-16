@@ -199,9 +199,7 @@ export default {
 
     watch: {
         customerGroupId() {
-            if (!this.customerGroupId) {
-                this.createdComponent();
-            }
+            this.createdComponent();
         },
         'customerGroup.registrationTitle'() {
             this.registrationTitleError = null;

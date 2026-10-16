@@ -319,4 +319,26 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             expect(onLoadCustomerGroupSpy).toHaveBeenCalled();
         });
     });
+
+    it('should load the new customer group when the customerGroupId changes', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.customerGroup.id).toBe('1');
+
+        const getSpy = jest.spyOn(customerGroupRepository, 'get').mockImplementation((id) => {
+            return Promise.resolve({
+                id,
+                name: 'Gross price customer group',
+                registrationSalesChannels: [],
+                isNew: () => false,
+            });
+        });
+
+        await wrapper.setProps({ customerGroupId: '2' });
+        await flushPromises();
+
+        expect(getSpy).toHaveBeenCalledWith('2', expect.anything(), expect.anything());
+        expect(wrapper.vm.customerGroup.id).toBe('2');
+    });
 });

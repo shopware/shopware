@@ -4,6 +4,7 @@
  * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 import TimezoneService from 'src/core/service/timezone.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import useModuleIconColors, { USER_MODULE_ICON_COLORS_CONFIG_KEY } from 'src/app/composables/use-module-icon-colors';
@@ -74,19 +75,21 @@ async function createWrapper(
                             if (entityName === 'user') {
                                 return {
                                     search: () => Promise.resolve(),
-                                    get: () => {
-                                        return Promise.resolve({
-                                            active: true,
-                                            localeId: '7dc07b43229843d387bb5f59233c2d66',
-                                            username: 'admin',
-                                            firstName: '',
-                                            lastName: 'admin',
-                                            email: 'info@shopware.com',
-                                            accessKeys: {
-                                                entity: 'product',
-                                            },
-                                        });
-                                    },
+                                    get:
+                                        options.userGet ??
+                                        (() => {
+                                            return Promise.resolve({
+                                                active: true,
+                                                localeId: '7dc07b43229843d387bb5f59233c2d66',
+                                                username: 'admin',
+                                                firstName: '',
+                                                lastName: 'admin',
+                                                email: 'info@shopware.com',
+                                                accessKeys: {
+                                                    entity: 'product',
+                                                },
+                                            });
+                                        }),
                                     save: () => Promise.resolve(),
                                 };
                             }
@@ -114,7 +117,7 @@ async function createWrapper(
                     validationService: {},
                 },
                 mocks: {
-                    $route: {
+                    $route: options.route ?? {
                         params: {
                             id: '1a2b3c4d',
                         },
@@ -748,5 +751,36 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
 
         expect(wrapper.vm.isLoading).toBe(false);
         expect(saveSpy).not.toHaveBeenCalled();
+    });
+
+    it('should load the new user when the route id changes', async () => {
+        await wrapper.unmount();
+
+        const route = reactive({
+            params: { id: 'first-id' },
+            meta: { $module: { icon: 'regular-content' } },
+        });
+        const userGet = jest.fn((id) =>
+            Promise.resolve({
+                id,
+                username: id,
+                accessKeys: { entity: 'product' },
+            }),
+        );
+        wrapper = await createWrapper('users_and_permissions.editor', {
+            global: { stubs: {} },
+            route,
+            userGet,
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.user.id).toBe('first-id');
+
+        route.params.id = 'second-id';
+        await flushPromises();
+
+        expect(userGet).toHaveBeenCalledTimes(2);
+        expect(wrapper.vm.userId).toBe('second-id');
+        expect(wrapper.vm.user.id).toBe('second-id');
     });
 });

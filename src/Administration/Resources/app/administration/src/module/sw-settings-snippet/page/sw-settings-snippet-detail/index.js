@@ -102,6 +102,14 @@ export default {
         },
     },
 
+    watch: {
+        '$route.params.key'(key) {
+            if (key !== this.translationKeyOrigin) {
+                this.createdComponent();
+            }
+        },
+    },
+
     created() {
         this.createdComponent();
     },

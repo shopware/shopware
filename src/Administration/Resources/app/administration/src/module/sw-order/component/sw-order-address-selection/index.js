@@ -168,6 +168,10 @@ export default {
             immediate: true,
         },
 
+        'orderCustomer.customerId'() {
+            this.getCustomer();
+        },
+
         currentAddress(newValue, oldValue) {
             if (newValue || !oldValue) {
                 return;

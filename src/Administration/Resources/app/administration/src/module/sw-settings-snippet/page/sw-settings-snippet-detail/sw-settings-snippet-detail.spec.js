@@ -2,6 +2,7 @@
  * @sw-package fundamentals@discovery
  */
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 
 function getSnippetSets() {
     const data = [
@@ -95,7 +96,7 @@ function getSnippets() {
 const saveMock = jest.fn(() => Promise.resolve());
 
 describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
-    async function createWrapper(privileges = []) {
+    async function createWrapper(privileges = [], route = null, router = null) {
         return mount(
             await wrapTestComponent('sw-settings-snippet-detail', {
                 sync: true,
@@ -103,7 +104,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
             {
                 global: {
                     mocks: {
-                        $route: {
+                        $route: route ?? {
                             meta: {
                                 $module: {
                                     color: 'blue',
@@ -119,6 +120,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                                 key: 'account.addressCreateBtn',
                             },
                         },
+                        ...(router ? { $router: router } : {}),
                     },
                     provide: {
                         repositoryFactory: {
@@ -247,6 +249,53 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         expect(wrapper.vm.translationKey).toBe('test1');
         expect(wrapper.vm.translationKeyOrigin).toBe('test1');
         expect(wrapper.vm.$route.params.key).toBe('test1');
+    });
+
+    it('should load the snippets of the new key when the route key changes', async () => {
+        const route = reactive({
+            meta: { $module: { color: 'blue', icon: 'icon' } },
+            query: { page: 1, limit: 25, ids: [] },
+            params: { key: 'account.addressCreateBtn' },
+        });
+        const wrapper = await createWrapper(['snippet.viewer'], route);
+        await flushPromises();
+
+        const getCustomListSpy = jest.spyOn(wrapper.vm.snippetSetService, 'getCustomList');
+
+        route.params.key = 'test1';
+        await flushPromises();
+
+        expect(wrapper.vm.translationKey).toBe('test1');
+        expect(wrapper.vm.translationKeyOrigin).toBe('test1');
+        expect(getCustomListSpy).toHaveBeenCalledWith(1, 25, { translationKey: ['test1'] });
+    });
+
+    it('should load the snippets only once when saving pushes the renamed key', async () => {
+        const route = reactive({
+            meta: { $module: { color: 'blue', icon: 'icon' } },
+            query: { page: 1, limit: 25, ids: [] },
+            params: { key: 'account.addressCreateBtn' },
+        });
+        const router = {
+            push: jest.fn(({ params }) => {
+                route.params.key = params.key;
+            }),
+        };
+        const wrapper = await createWrapper(['snippet.viewer', 'snippet.editor'], route, router);
+        await flushPromises();
+
+        const searchSpy = jest.spyOn(wrapper.vm.snippetSetRepository, 'search');
+
+        wrapper.vm.translationKey = 'test1';
+        wrapper.vm.onSave();
+        await flushPromises();
+
+        wrapper.vm.saveFinish();
+        await flushPromises();
+
+        expect(router.push).toHaveBeenCalledWith(expect.objectContaining({ params: { key: 'test1', origin: 'test1' } }));
+        expect(route.params.key).toBe('test1');
+        expect(searchSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should return a criteria with no limit', async () => {

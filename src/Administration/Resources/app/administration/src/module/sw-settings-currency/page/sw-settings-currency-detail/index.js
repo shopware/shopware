@@ -183,7 +183,7 @@ export default {
 
     watch: {
         currencyId() {
-            if (!this.currencyId) {
+            if (this.currencyId !== this.currency.id) {
                 this.createdComponent();
             }
         },

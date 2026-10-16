@@ -243,6 +243,10 @@ export default {
         languageId() {
             this.createdComponent();
         },
+
+        '$route.params.id'() {
+            this.createdComponent();
+        },
     },
 
     created() {

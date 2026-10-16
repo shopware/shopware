@@ -169,14 +169,16 @@
             {% endblock %}
 
             {% block sw_sales_channel_detail_domains_input_snippet_set %}
-            <sw-entity-single-select
-                v-model:value="currentDomain.snippetSetId"
-                entity="snippet_set"
-                :criteria="snippetSetCriteria"
+            <sw-grouped-single-select
+                class="sw-sales-channel-detail-domains__domain-snippet-set-select"
+                :value="currentDomain.snippetSetId"
+                :options="snippetSetOptions"
+                :groups="snippetSetGroups"
+                :search-function="snippetSetSearchFunction"
                 :label="$t('sw-sales-channel.detail.labelInputSnippet')"
                 required
                 show-clearable-button
-                @option-select="onOptionSelect"
+                @update:value="onSnippetSetSelect"
             />
             {% endblock %}
         </sw-container>

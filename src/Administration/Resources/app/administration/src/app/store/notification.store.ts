@@ -95,6 +95,9 @@ function _getStorageKey() {
     return `notifications#${userId}`;
 }
 
+/**
+ * @public
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function getNotificationsForUser() {
     const storageKey = _getStorageKey();

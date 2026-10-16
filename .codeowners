@@ -53,6 +53,8 @@ src/Core/Framework/Resources/views/documents/** @shopware/product-cc-after-sales
 # The baselines have no owner: the "Lint baselines do not grow" job fails when one grows, and shrinking needs no review.
 src/Administration/Resources/app/administration/eslint.config.ts @shopware/product-cc-framework
 src/Administration/Resources/app/administration/eslint-rules/** @shopware/product-cc-framework
+src/Administration/Resources/app/administration/knip.json @shopware/product-cc-framework
+src/Administration/Resources/app/administration/scripts/knip-baseline.mjs @shopware/product-cc-framework
 src/Administration/Resources/app/administration/scripts/init-eslint-baseline.mjs @shopware/product-cc-framework
 & .github/bin/js/check-baseline-growth.ts @shopware/product-cc-framework
 

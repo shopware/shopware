@@ -56,9 +56,10 @@ Jest                # Testing framework
 
 ## Lint gate
 
-- `npm run lint` checks the coding rules. Existing violations live in `eslint-suppressions.json`, which may only shrink.
-- Fix every violation your change adds. Never regenerate the baseline.
-- Fixed a violation or deleted a file? Run `npm run lint:fix` and commit the smaller baseline.
+- `npm run lint` and `npm run lint:knip` check the coding rules. Existing violations live in `eslint-suppressions.json` and `knip-baseline.json`, which may only shrink.
+- Fix every violation your change adds. Never regenerate a baseline.
+- Fixed a violation or deleted a file? Run `npm run lint:fix` or `npm run lint:knip:prune` and commit the smaller baseline.
+- Tag exports that extensions may use with `@public`, otherwise knip reports them as unused.
 - Moved files, new folders and the full rule list: `technical-docs/11-code-quality/01-lint-gate.md`.
 
 ## Scripts
@@ -67,7 +68,7 @@ In a Docker environment prepend `docker compose exec web ...`.
 
 ```bash
 # Linting
-composer eslint:admin # Run ESLint
+composer eslint:admin # Run types, ESLint, knip, Stylelint and Prettier
 composer eslint:admin:fix # Run ESLint with --fix and remove baseline entries that are no longer needed
 composer stylelint:admin # Run Stylelint
 composer stylelint:admin:fix # Run Stylelint with --fix

@@ -60,12 +60,18 @@ export const object = {
     has: has,
 };
 
+/**
+ * @public
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const debug = {
     warn: warn,
     error: error,
 };
 
+/**
+ * @public
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const format = {
     currency: currency,
@@ -98,6 +104,9 @@ export const string = {
     isValidCidr: stringUtils.isValidCidr,
 };
 
+/**
+ * @public
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const types = {
     isObject: typesUtils.isObject,
@@ -123,6 +132,9 @@ export const fileReader = {
     getNameAndExtensionFromUrl: fileReaderUtils.getNameAndExtensionFromUrl,
 };
 
+/**
+ * @public
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const sort = {
     afterSort: sortUtils.afterSort,
@@ -191,6 +203,9 @@ function createId<UUID extends string>(): UUID {
     return uuidv7().replace(/-/g, '') as UUID;
 }
 
+/**
+ * @public
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function moveItem(entity: MutationObserver[], oldIndex: number, newIndex: number) {
     if (newIndex === null) {

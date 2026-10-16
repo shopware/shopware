@@ -23,7 +23,8 @@ final readonly class AdminSearchIndexingMessage implements AsyncMessageInterface
         private string $indexer,
         private array $indices,
         private array $ids,
-        private array $toRemoveIds = []
+        private array $toRemoveIds = [],
+        private bool $indexingRun = false
     ) {
     }
 
@@ -54,6 +55,16 @@ final readonly class AdminSearchIndexingMessage implements AsyncMessageInterface
     }
 
     /**
+     * Whether this message belongs to a full indexing run. Only those count down the remaining document count of
+     * the {@see \Shopware\Elasticsearch\Admin\AdminCreateAliasTask} that promotes the index; live updates of single
+     * entities must not.
+     */
+    public function isIndexingRun(): bool
+    {
+        return $this->indexingRun;
+    }
+
+    /**
      * @experimental stableVersion:v6.8.0 feature:DEDUPLICATABLE_MESSAGES
      */
     public function deduplicationId(): ?string
@@ -69,6 +80,7 @@ final readonly class AdminSearchIndexingMessage implements AsyncMessageInterface
             $this->indexer,
             $sortedIndices,
             $sortedIds,
+            $this->indexingRun,
         ]);
 
         if ($data === false) {

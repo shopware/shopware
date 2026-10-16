@@ -12,15 +12,15 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_7\Migration1787220016AddOwnerToWebhook;
+use Shopware\Core\Migration\V6_7\Migration1787220016AddOwnerAndAclRoleIdsToWebhook;
 use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(Migration1787220016AddOwnerToWebhook::class)]
-class Migration1787220016AddOwnerToWebhookTest extends TestCase
+#[CoversClass(Migration1787220016AddOwnerAndAclRoleIdsToWebhook::class)]
+class Migration1787220016AddOwnerAndAclRoleIdsToWebhookTest extends TestCase
 {
     use KernelTestBehaviour;
     use MigrationTestTrait;
@@ -34,22 +34,23 @@ class Migration1787220016AddOwnerToWebhookTest extends TestCase
 
     public function testGetCreationTimestamp(): void
     {
-        static::assertSame(1787220016, (new Migration1787220016AddOwnerToWebhook())->getCreationTimestamp());
+        static::assertSame(1787220016, (new Migration1787220016AddOwnerAndAclRoleIdsToWebhook())->getCreationTimestamp());
     }
 
     public function testMigrationAddsColumns(): void
     {
-        $migration = new Migration1787220016AddOwnerToWebhook();
+        $migration = new Migration1787220016AddOwnerAndAclRoleIdsToWebhook();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
         static::assertTrue(TableHelper::columnExists($this->connection, 'webhook', 'owner_user_id'));
         static::assertTrue(TableHelper::columnExists($this->connection, 'webhook', 'owner_integration_id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'webhook', 'acl_role_ids'));
     }
 
     public function testMigrationAssignsAppLessWebhooksWithoutOwnerToANewAdminIntegration(): void
     {
-        (new Migration1787220016AddOwnerToWebhook())->update($this->connection);
+        (new Migration1787220016AddOwnerAndAclRoleIdsToWebhook())->update($this->connection);
 
         $userId = TestUser::createNewTestUser($this->connection)->getUserId();
         $ownerlessId = Uuid::randomBytes();
@@ -60,16 +61,16 @@ class Migration1787220016AddOwnerToWebhookTest extends TestCase
         $this->insertWebhook($otherOwnerlessId, 'other-ownerless', null);
         $this->insertWebhook($ownedByUserId, 'owned-by-user', $userId);
 
-        (new Migration1787220016AddOwnerToWebhook())->update($this->connection);
+        (new Migration1787220016AddOwnerAndAclRoleIdsToWebhook())->update($this->connection);
 
         $webhooks = $this->fetchWebhooks([$ownerlessId, $otherOwnerlessId, $ownedByUserId]);
         $integrationId = $webhooks[Uuid::fromBytesToHex($ownerlessId)]['owner_integration_id'];
         static::assertIsString($integrationId);
 
         static::assertEquals([
-            Uuid::fromBytesToHex($ownerlessId) => ['active' => 1, 'owner_user_id' => null, 'owner_integration_id' => $integrationId],
-            Uuid::fromBytesToHex($otherOwnerlessId) => ['active' => 1, 'owner_user_id' => null, 'owner_integration_id' => $integrationId],
-            Uuid::fromBytesToHex($ownedByUserId) => ['active' => 1, 'owner_user_id' => $userId, 'owner_integration_id' => null],
+            Uuid::fromBytesToHex($ownerlessId) => ['name' => '[Legacy] ownerless', 'active' => 1, 'owner_user_id' => null, 'owner_integration_id' => $integrationId],
+            Uuid::fromBytesToHex($otherOwnerlessId) => ['name' => '[Legacy] other-ownerless', 'active' => 1, 'owner_user_id' => null, 'owner_integration_id' => $integrationId],
+            Uuid::fromBytesToHex($ownedByUserId) => ['name' => 'owned-by-user', 'active' => 1, 'owner_user_id' => $userId, 'owner_integration_id' => null],
         ], $webhooks);
 
         static::assertEquals(
@@ -80,10 +81,10 @@ class Migration1787220016AddOwnerToWebhookTest extends TestCase
 
     public function testMigrationCreatesNoIntegrationWithoutOwnerlessWebhooks(): void
     {
-        (new Migration1787220016AddOwnerToWebhook())->update($this->connection);
+        (new Migration1787220016AddOwnerAndAclRoleIdsToWebhook())->update($this->connection);
         $integrations = $this->connection->fetchOne('SELECT COUNT(*) FROM integration');
 
-        (new Migration1787220016AddOwnerToWebhook())->update($this->connection);
+        (new Migration1787220016AddOwnerAndAclRoleIdsToWebhook())->update($this->connection);
 
         static::assertSame($integrations, $this->connection->fetchOne('SELECT COUNT(*) FROM integration'));
     }
@@ -109,7 +110,7 @@ class Migration1787220016AddOwnerToWebhookTest extends TestCase
     private function fetchWebhooks(array $ids): array
     {
         return $this->connection->fetchAllAssociativeIndexed(
-            'SELECT LOWER(HEX(id)), active, LOWER(HEX(owner_user_id)) AS owner_user_id, LOWER(HEX(owner_integration_id)) AS owner_integration_id FROM webhook WHERE id IN (:ids)',
+            'SELECT LOWER(HEX(id)), name, active, LOWER(HEX(owner_user_id)) AS owner_user_id, LOWER(HEX(owner_integration_id)) AS owner_integration_id FROM webhook WHERE id IN (:ids)',
             ['ids' => $ids],
             ['ids' => ArrayParameterType::BINARY]
         );

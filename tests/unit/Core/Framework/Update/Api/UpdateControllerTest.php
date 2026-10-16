@@ -14,8 +14,6 @@ use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
-use Shopware\Core\Framework\Update\Services\SecurityReleaseDetector;
-use Shopware\Core\Framework\Update\Struct\SecurityRelease;
 use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\Framework\Update\UpdateException;
 use Shopware\Core\Kernel;
@@ -46,7 +44,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.5.1.0'
         );
 
@@ -72,7 +69,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.1.0'
         );
 
@@ -98,7 +94,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.1.0.0',
             shopwareUpdateEnabled: false,
         );
@@ -162,7 +157,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.1.0'
         );
 
@@ -186,7 +180,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.1.0'
         );
 
@@ -215,7 +208,6 @@ class UpdateControllerTest extends TestCase
             $eventDispatcher,
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.1.0'
         );
 
@@ -265,7 +257,6 @@ class UpdateControllerTest extends TestCase
             $eventDispatcher,
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.1.0'
         );
 
@@ -305,7 +296,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.1.0.0',
             clusterSetup: true,
         );
@@ -328,7 +318,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.1.0',
             clusterSetup: true,
         );
@@ -350,7 +339,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.1.0',
             shopwareUpdateEnabled: false,
         );
@@ -372,7 +360,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.1.0',
             shopwareUpdateEnabled: false,
         );
@@ -394,7 +381,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             $systemConfig,
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.1.0',
             shopwareUpdateEnabled: false,
         );
@@ -411,7 +397,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.1.0',
             updateModuleHidden: true,
         );
@@ -434,10 +419,10 @@ class UpdateControllerTest extends TestCase
         }
     }
 
-    public function testSecurityReleaseReturnsEmptyWhenNoUpdate(): void
+    public function testSecurityReleaseReturnsEmptyWhenNoSecurityRelease(): void
     {
         $apiClient = static::createStub(ApiClient::class);
-        $apiClient->method('checkForUpdates')->willReturn(new Version(['version' => '6.1.0', 'date' => '2020-01-01']));
+        $apiClient->method('checkForSecurityUpdates')->willReturn(new Version());
 
         $updateController = new UpdateController(
             $apiClient,
@@ -446,7 +431,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.1.0'
         );
 
@@ -455,15 +439,10 @@ class UpdateControllerTest extends TestCase
         static::assertSame('{}', (string) $response->getContent());
     }
 
-    public function testSecurityReleaseReturnsEmptyWhenUpdateIsNotSecurityRelease(): void
+    public function testSecurityReleaseReturnsEmptyWhenInstalledVersionIsCurrent(): void
     {
-        $version = new Version(['version' => '6.2.0', 'date' => '2020-01-01']);
-
         $apiClient = static::createStub(ApiClient::class);
-        $apiClient->method('checkForUpdates')->willReturn($version);
-
-        $detector = static::createStub(SecurityReleaseDetector::class);
-        $detector->method('detect')->willReturn(new SecurityRelease());
+        $apiClient->method('checkForSecurityUpdates')->willReturn(new Version(['version' => '6.1.0', 'date' => '2020-01-01']));
 
         $updateController = new UpdateController(
             $apiClient,
@@ -472,7 +451,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            $detector,
             '6.1.0'
         );
 
@@ -481,21 +459,20 @@ class UpdateControllerTest extends TestCase
         static::assertSame('{}', (string) $response->getContent());
     }
 
-    public function testSecurityReleaseReturnsReleaseWhenUpdateIsSecurityRelease(): void
+    public function testSecurityReleaseReturnsReleaseWhenSecurityReleaseExists(): void
     {
-        $version = new Version(['version' => '6.2.0', 'date' => '2020-01-01']);
+        $version = new Version([
+            'version' => '6.2.0',
+            'date' => '2020-01-01',
+            'fixedVulnerabilities' => [
+                ['severity' => 'low', 'summary' => 'Minor', 'link' => 'https://example.com'],
+                ['severity' => 'critical', 'summary' => 'RCE', 'link' => 'https://example.com'],
+                ['severity' => 'medium', 'summary' => 'XSS', 'link' => 'https://example.com'],
+            ],
+        ]);
 
         $apiClient = static::createStub(ApiClient::class);
-        $apiClient->method('checkForUpdates')->willReturn($version);
-
-        $securityRelease = new SecurityRelease();
-        $securityRelease->isSecurityRelease = true;
-        $securityRelease->version = '6.2.0';
-        $securityRelease->highestSeverity = 'critical';
-        $securityRelease->totalVulnerabilities = 1;
-
-        $detector = static::createStub(SecurityReleaseDetector::class);
-        $detector->method('detect')->willReturn($securityRelease);
+        $apiClient->method('checkForSecurityUpdates')->willReturn($version);
 
         $updateController = new UpdateController(
             $apiClient,
@@ -504,17 +481,17 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            $detector,
             '6.1.0'
         );
 
         $response = $updateController->securityRelease();
 
         $content = (string) $response->getContent();
+
         static::assertJson($content);
-        static::assertStringContainsString('"isSecurityRelease":true', $content);
         static::assertStringContainsString('"version":"6.2.0"', $content);
         static::assertStringContainsString('"highestSeverity":"critical"', $content);
+        static::assertStringContainsString('"totalVulnerabilities":3', $content);
     }
 
     private function createController(?StoreClient $storeClient = null, ?SystemConfigService $systemConfig = null): UpdateController
@@ -526,7 +503,6 @@ class UpdateControllerTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             $systemConfig ?? static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
-            static::createStub(SecurityReleaseDetector::class),
             '6.1.0'
         );
     }

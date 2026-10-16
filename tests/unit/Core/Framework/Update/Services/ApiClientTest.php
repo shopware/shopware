@@ -98,6 +98,58 @@ class ApiClientTest extends TestCase
         $client->checkForUpdates();
     }
 
+    public function testCheckForSecurityUpdatesReturnsEmptyVersionWhenNoSecurityReleaseExists(): void
+    {
+        $responses = [
+            new MockResponse('[]', ['Content-Type' => 'application/json']),
+        ];
+
+        $client = new ApiClient(new MockHttpClient($responses), '6.4.0.0', __DIR__, new NativeClock());
+        $version = $client->checkForSecurityUpdates();
+
+        static::assertSame('', $version->version);
+    }
+
+    public function testCheckForSecurityUpdatesReturnsLatestSecurityReleaseRegardlessOfInstalledVersion(): void
+    {
+        $responses = [
+            new MockResponse('["6.4.10.0", "6.4.5.0"]', ['Content-Type' => 'application/json']),
+            new MockResponse('{"title": "Shopware Security Release", "body": "Fixes", "date": "2021-09-01", "version": "6.4.10.0", "fixedVulnerabilities": []}', ['Content-Type' => 'application/json']),
+        ];
+
+        $client = new ApiClient(new MockHttpClient($responses), '6.5.0.0', __DIR__, new NativeClock());
+        $version = $client->checkForSecurityUpdates();
+
+        static::assertSame('6.4.10.0', $version->version);
+    }
+
+    public function testCheckForSecurityUpdatesReturnsLatestSecurityRelease(): void
+    {
+        $responses = [
+            new MockResponse('["6.4.10.0", "6.4.5.0"]', ['Content-Type' => 'application/json']),
+            new MockResponse('{"title": "Shopware Security Release", "body": "Fixes", "date": "2021-09-01", "version": "6.4.10.0", "fixedVulnerabilities": [{"severity": "critical", "summary": "RCE", "link": "https://example.com"}]}', ['Content-Type' => 'application/json']),
+        ];
+
+        $client = new ApiClient(new MockHttpClient($responses), '6.4.0.0', __DIR__, new NativeClock());
+        $version = $client->checkForSecurityUpdates();
+
+        static::assertSame('6.4.10.0', $version->version);
+        static::assertSame('critical', $version->fixedVulnerabilities[0]['severity'] ?? '');
+    }
+
+    public function testCheckForSecurityUpdatesReturnsEmptyVersionWhenChangelogNotFound(): void
+    {
+        $responses = [
+            new MockResponse('["6.4.10.0"]', ['Content-Type' => 'application/json']),
+            new MockResponse('', ['http_code' => 404]),
+        ];
+
+        $client = new ApiClient(new MockHttpClient($responses), '6.4.0.0', __DIR__, new NativeClock());
+        $version = $client->checkForSecurityUpdates();
+
+        static::assertSame('', $version->version);
+    }
+
     public function testDownloadRecoveryToolDoesNothing(): void
     {
         $_SERVER['SW_RECOVERY_NEXT_VERSION'] = '6.4.0.0';

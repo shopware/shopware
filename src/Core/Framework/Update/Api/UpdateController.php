@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
-use Shopware\Core\Framework\Update\Services\SecurityReleaseDetector;
 use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep;
+use Shopware\Core\Framework\Update\Struct\SecurityRelease;
 use Shopware\Core\Framework\Update\UpdateException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
@@ -45,7 +45,6 @@ class UpdateController extends AbstractController
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfig,
         private readonly AbstractExtensionLifecycle $extensionLifecycleService,
-        private readonly SecurityReleaseDetector $securityReleaseDetector,
         private readonly string $shopwareVersion,
         private readonly bool $shopwareUpdateEnabled = true,
         private readonly bool $updateModuleHidden = false,
@@ -84,17 +83,20 @@ class UpdateController extends AbstractController
     )]
     public function securityRelease(): JsonResponse
     {
-        $update = $this->apiClient->checkForUpdates();
+        $update = $this->apiClient->checkForSecurityUpdates();
 
         if (version_compare($this->shopwareVersion, $update->version, '>=')) {
             return new JsonResponse();
         }
 
-        $securityRelease = $this->securityReleaseDetector->detect($update);
-
-        if (!$securityRelease->isSecurityRelease) {
-            return new JsonResponse();
-        }
+        $securityRelease = new SecurityRelease();
+        $securityRelease->isSecurityRelease = true;
+        $securityRelease->version = $update->version;
+        $securityRelease->title = $update->title;
+        $securityRelease->date = $update->date;
+        $securityRelease->vulnerabilities = $update->fixedVulnerabilities;
+        $securityRelease->totalVulnerabilities = \count($update->fixedVulnerabilities);
+        $securityRelease->highestSeverity = $this->determineHighestSeverity($update->fixedVulnerabilities);
 
         return new JsonResponse($securityRelease->jsonSerialize());
     }
@@ -227,5 +229,37 @@ class UpdateController extends AbstractController
         $kernel->reboot(null, new StaticKernelPluginLoader($classLoad));
 
         return $kernel->getContainer();
+    }
+
+    /**
+     * @param array<array{severity?: string, summary: string, link: string}> $vulnerabilities
+     */
+    private function determineHighestSeverity(array $vulnerabilities): string
+    {
+        if ($vulnerabilities === []) {
+            return 'unknown';
+        }
+
+        $rank = [
+            'low' => 1,
+            'medium' => 2,
+            'high' => 3,
+            'critical' => 4,
+        ];
+
+        $highestRank = 0;
+        $highestSeverity = 'unknown';
+
+        foreach ($vulnerabilities as $vulnerability) {
+            $severity = mb_strtolower($vulnerability['severity'] ?? 'unknown');
+            $severityRank = $rank[$severity] ?? 0;
+
+            if ($severityRank > $highestRank) {
+                $highestRank = $severityRank;
+                $highestSeverity = $severity;
+            }
+        }
+
+        return $highestSeverity;
     }
 }

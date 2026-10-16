@@ -25,7 +25,7 @@ export default Component.wrapComponentConfig({
 
     computed: {
         isVisible(): boolean {
-            return this.securityRelease !== null && this.securityRelease.isSecurityRelease;
+            return this.securityRelease?.version !== undefined
         },
 
         bannerVariant(): 'critical' | 'attention' {

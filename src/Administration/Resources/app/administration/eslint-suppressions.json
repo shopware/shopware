@@ -1,22 +1,1413 @@
 {
+  "build.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "build/vite-plugins/virtual-shopware-modules/definitions.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 8
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 4
+    }
+  },
+  "build/vite-plugins/virtual-shopware-modules/index.spec.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 2
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "build/vue-setup-transform/utils/ast-traversal.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "scripts/codemods/sfc-migration/runtime-equivalence-harness.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "scripts/codemods/sfc-migration/sfc-migration.spec.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "scripts/extensionTooling/report.spec/color.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "scripts/extensionTooling/report.spec/helpers.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "scripts/extensionTooling/select.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 7
+    }
+  },
+  "scripts/extensionTooling/test-helpers.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "scripts/generate-shopware-modules/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/adapter/composition-extension-system/attach-overrides.spec.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 2
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 3
+    }
+  },
+  "src/app/adapter/composition-extension-system/index.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 10
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 10
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 4
+    }
+  },
+  "src/app/adapter/composition-extension-system/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/adapter/composition-extension-system/options-api-setup-shim.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 15
+    }
+  },
+  "src/app/adapter/composition-extension-system/options-api-setup-shim.spec/base-writes.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 11
+    }
+  },
+  "src/app/adapter/composition-extension-system/options-api-setup-shim.spec/inheritance.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/app/adapter/composition-extension-system/options-api-setup-shim.spec/override-local-state.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 3
+    }
+  },
+  "src/app/adapter/composition-extension-system/options-api-setup-shim.spec/registration-timing.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/app/adapter/composition-extension-system/options-api-setup-shim.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 3
+    }
+  },
+  "src/app/adapter/options-composition-shim.integrative.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/app/adapter/options-composition-shim.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/adapter/options-composition-shim.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 5
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 2
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 4
+    }
+  },
+  "src/app/adapter/view/sw-vue-devtools.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 5
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 3
+    }
+  },
+  "src/app/adapter/view/vue.adapter.spec/initialization.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/adapter/view/vue.adapter.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 14
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/app/component/base/sw-chart/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/data-grid/sw-data-grid/sw-data-grid.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/extension-api/sw-extension-component-section/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
   "src/app/component/extension-api/sw-iframe-renderer/index.ts": {
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
+  "src/app/component/form/select/base/sw-select-selection-list/sw-select-selection-list.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule/sw-advanced-selection-rule.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/select/entity/sw-entity-single-select/sw-entity-single-select.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-code-editor/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/app/component/form/sw-colorpicker-deprecated/sw-colorpicker-deprecated.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/app/component/form/sw-datepicker-deprecated/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-datepicker/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-password-field/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/form/sw-snippet-field-edit-modal/sw-snippet-field-edit-modal.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    }
+  },
+  "src/app/component/form/sw-text-editor/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/app/component/form/sw-text-editor/sw-text-editor.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/grid/sw-grid/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/grid/sw-pagination/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/list/sw-sortable-list/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 6
+    }
+  },
+  "src/app/component/media/sw-image-slider/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-base-item/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-compact-upload-v2/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-field/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-folder-content/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-folder-item/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-folder-item/sw-media-folder-item.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-list-selection-v2/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-media-item/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
   "src/app/component/media/sw-media-modal-delete/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
+  "src/app/component/media/sw-media-modal-folder-dissolve/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-modal-move/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-modal-replace/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-preview-v2/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-replace/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-upload-v2/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-upload-v2/sw-media-upload-v2.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-media-url-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-model-editor-collapse/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/app/component/media/sw-model-editor/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 5
+    }
+  },
   "src/app/component/media/sw-model-editor/sw-model-editor.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 27
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 5
     }
   },
+  "src/app/component/media/sw-model-viewer/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    }
+  },
   "src/app/component/media/sw-model-viewer/sw-model-viewer.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 16
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 5
+    }
+  },
+  "src/app/component/media/sw-sidebar-media-item/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-vector-field/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/media/sw-vector-field/sw-vector-field.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 7
+    }
+  },
+  "src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping/index.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping/sw-text-editor-toolbar-button-cms-data-mapping.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-link/sw-text-editor-toolbar-button-link.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/meteor/tab-slot-parser.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/component/modal/sw-confirm-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/modal/sw-image-preview-modal/sw-image-preview-modal.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-billing-zip-code/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-customer-custom-field/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-date-range/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-generic-line-item/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-generic/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-goods-count/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-goods-price/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-is-always-valid/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-line-item-custom-field/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-line-item-goods-total/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-line-item-in-category/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-line-item-property/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-line-item-purchase-price/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-line-item-with-quantity/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-line-item/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-not-found/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-order-custom-field/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-script/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-shipping-zip-code/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/condition-type/sw-condition-time-range/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-base-line-item/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-is-net-select/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/rule/sw-condition-tree/sw-condition-tree.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/sidebar/sw-help-sidebar/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    }
+  },
+  "src/app/component/sidebar/sw-sidebar-item/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/sidebar/sw-sidebar/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.spec/active-state.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 12
+    }
+  },
+  "src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.spec/collapsed-sidebar.spec.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 13
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 3
+    }
+  },
+  "src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.spec/create-wrapper.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-block-override/shim/twig-block-shim-adapter.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-block-override/sw-block/index.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-card-view/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-error/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-in-app-purchase-checkout/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-inheritance-warning/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-language-info/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-language-switch/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-media-modal-renderer/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/app/component/structure/sw-modals-renderer/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-page/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-sales-channel-switch/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-search-bar-item/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-search-bar/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-search-bar/sw-search-bar.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-search-more-results/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-sidebar-renderer/sw-sidebar-renderer.spec/overlay-focus-trap.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 4
+    }
+  },
+  "src/app/component/structure/sw-ui-shell-update-2026-modal/sw-ui-shell-update-2026-modal.spec/create-wrapper.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/component/structure/sw-ui-shell-update-2026-modal/sw-ui-shell-update-2026-modal.spec/theme-select.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/app/component/structure/sw-ui-shell-update-2026-modal/sw-ui-shell-update-2026-modal.spec/visibility.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/component/tree/sw-tree/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/tree/sw-tree/sw-tree.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-color-badge/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-dismissible-notices/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-duplicated-media-v2/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-external-link/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-inherit-wrapper/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-internal-link/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-loader-deprecated/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-overlay/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-popover-deprecated/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-progress-bar/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-step-display/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-step-item/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-text-preview/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-time-ago/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-upload-listener/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/utils/sw-upload-status/sw-upload-status.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/component/wizard/sw-wizard/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/composables/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-cms-element-deprecated.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 8
+    }
+  },
+  "src/app/composables/use-cms-element.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 4
+    }
+  },
+  "src/app/composables/use-cms-state.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-context.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/app/composables/use-inline-snippet.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-inline-snippet.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/app/composables/use-listing.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/app/composables/use-media-sidebar-modal.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 4
+    }
+  },
+  "src/app/composables/use-module-icon-colors.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/app/composables/use-notification.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-placeholder.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/app/composables/use-placeholder.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-position.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-position.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 12
+    }
+  },
+  "src/app/composables/use-salutation.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-snackbar.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-theme.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-translate-with-fallback.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/app/composables/use-user-settings.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-user-settings.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-validation.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/composables/use-video-cover.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/decorator/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/directive/click-outside.directive.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/app/directive/dragdrop.directive.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/directive/index.ts": {
+    "@eslint-community/eslint-comments/no-unlimited-disable": {
+      "count": 1
+    },
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/directive/popover.directive.ts": {
+    "@eslint-community/eslint-comments/no-unlimited-disable": {
+      "count": 1
+    },
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/directive/tooltip.directive.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 32
+    }
+  },
+  "src/app/filter/index.ts": {
+    "@eslint-community/eslint-comments/no-unlimited-disable": {
+      "count": 1
+    },
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init-post/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init-post/language.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/app/init-post/product-analytics.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/init-post/user-information.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/app/init-post/worker.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    }
+  },
+  "src/app/init-pre/api-services.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 5
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/app/init-pre/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init-pre/state.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/app/init/action-button.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/cms.init.ts": {
+    "sw-core-rules/no-ts-fix-me": {
+      "count": 1
+    }
+  },
+  "src/app/init/component-helper.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/component.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/context.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/app/init/directive.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/extension-data-handling.init.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/extension-data-handling.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/init/filter-factory.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/init/filter.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/app/init/http.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/in-app-purchase-checkout.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/locale.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/login.init.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/menu-item.init.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/init/mixin.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/app/init/modals.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/modules.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/page-loading-screen.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/repository.init.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/repository.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    }
+  },
+  "src/app/init/router.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    }
+  },
+  "src/app/init/settings-item.init.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/init/shortcut.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 8
+    }
+  },
+  "src/app/init/sidebar.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/tabs.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/init/teaser-popover.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/theme.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/topbar-button.init.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/init/window.init.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/app/main.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 8
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 6
+    },
+    "sw-core-rules/no-ts-fix-me": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/discard-detail-page-changes.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/app/mixin/form-field.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 10
+    }
+  },
+  "src/app/mixin/generic-condition.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 12
+    }
+  },
+  "src/app/mixin/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/listing.mixin.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/listing.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 3
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 4
+    }
+  },
+  "src/app/mixin/placeholder.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/position.mixin.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/position.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 12
+    }
+  },
+  "src/app/mixin/remove-api-error.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 5
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    }
+  },
+  "src/app/mixin/rule-between-operator.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 5
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 5
+    }
+  },
+  "src/app/mixin/rule-container.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 3
+    }
+  },
+  "src/app/mixin/sw-inline-snippet.mixin.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/app/mixin/user-settings.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/mixin/validation.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 6
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/app/plugin/devtool-helper.plugin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    }
+  },
+  "src/app/plugin/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/app/plugin/meteor-sdk-data.plugin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/app/plugin/shortcut.plugin.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/plugin/shortcut.plugin.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/route/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/acl.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/app/service/app-acl.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/app-cms.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/app/service/cache.service.spec.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 3
+    }
+  },
+  "src/app/service/cache.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/custom-field.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/entity-validation.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 11
+    }
+  },
+  "src/app/service/feature.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/file-validation.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/filter.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
     }
   },
   "src/app/service/filter.service.spec.js": {
@@ -24,74 +1415,3892 @@
       "count": 1
     }
   },
+  "src/app/service/locale-to-language.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/map-errors.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 6
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "sw-core-rules/no-ts-fix-me": {
+      "count": 1
+    }
+  },
   "src/app/service/media-default-folder.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
+  "src/app/service/media-format.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 5
+    }
+  },
+  "src/app/service/privileges.service.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/product-type.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/recently-search.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/rule-condition.service.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/rule-condition.service.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/app/service/search-preferences.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/search-ranking.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/app/service/search-ranking.service.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/search-type.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/shortcut.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/snackbar.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/service/state-style.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    }
+  },
+  "src/app/state/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/admin-menu.store.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/admin-menu.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/context.store.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/app/store/error.store.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 7
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 6
+    }
+  },
+  "src/app/store/error.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 5
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 9
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/store/extension-component-sections.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/extension-sdk-module.store.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/app/store/extension-sdk-module.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/extensions.store.spec.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    }
+  },
+  "src/app/store/in-app-purchase-checkout.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/app/store/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/main-module.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/marketing.store.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/media-modal.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/app/store/menu-item.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/modals.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/notification.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    }
+  },
+  "src/app/store/rule-conditions-config.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/app/store/settings-item.store.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/app/store/shopware-apps.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/app/store/sidebar.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/sw-bulk-edit.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/app/store/teaser-popover.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/bundle.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
   "src/core/application.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 14
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 8
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
+  "src/core/consent/broadcast-changes.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/consent/sdk-handler.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/data/ShopwareError.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/data/changeset-generator.data.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/data/criteria.data.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/data/entity-collection.data.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/data/entity-definition.data.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/core/data/entity-factory.data.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/data/entity-hydrator.data.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 3
+    }
+  },
+  "src/core/data/entity.data.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/core/data/error-codes/login.error-codes.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/data/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/data/repository-factory.data.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/core/data/repository.data.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 4
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/core/extension-api.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 5
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/core/factory/async-component.factory.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/factory/async-component.factory.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 30
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 15
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 2
+    },
+    "sw-core-rules/no-ts-fix-me": {
+      "count": 10
+    }
+  },
+  "src/core/factory/cache-adapter.factory.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/factory/cache-adapter.factory.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/factory/directive.factory.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/factory/filter.factory.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/factory/http-client-adapter.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    }
+  },
+  "src/core/factory/http-client-adapter.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/core/factory/http-client.types.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 6
+    }
+  },
   "src/core/factory/http.factory.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
   "src/core/factory/http.factory.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
+  "src/core/factory/locale.factory.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 4
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/core/factory/mixin.factory.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/core/factory/module.factory.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/factory/module.factory.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "sw-core-rules/no-ts-fix-me": {
+      "count": 1
+    }
+  },
+  "src/core/factory/plugin-boot.factory.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/factory/router.factory.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/factory/service.factory.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/core/factory/shortcut.factory.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/factory/state-deprecated.factory.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/factory/state.factory.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "sw-core-rules/no-ts-fix-me": {
+      "count": 2
+    }
+  },
+  "src/core/factory/transform-legacy-block-conditionals.spec/fixtures.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/factory/transform-legacy-block-conditionals.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/core/feature.spec.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/core/feature.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/helper/device.helper.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/helper/flattree.helper.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/helper/i18n-legacy-syntax.helper.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/core/helper/i18n-legacy-syntax.helper.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/helper/mcp-privilege.helper.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/core/helper/middleware.helper.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/helper/sanitizer.helper.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/core/helper/store-loader.helper.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/core/service/api/acl.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/app-action-button.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/app-cms-blocks.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/business-events.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/cache.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/calculate-price.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/cart-store-api.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/checkout-store.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/config.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/custom-snippet.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/core/service/api/customer-group-registration.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/customer-validation.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/document.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/excludedSearchTerm.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/extension-sdk.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/core/service/api/flow-actions.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/guest-customer-convert.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/import-export.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/integration.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/known-ips.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/language-plugin.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/mail.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/mcp-tool.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/media-folder.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/media-presigned-upload.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/media.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/core/service/api/message-queue.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/message-stats.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/notifications.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/number-range.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/order-state-machine.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/order.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/product-export.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/promotion-sync.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/recommendations.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/sales-channel.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/scheduled-task.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/search.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/seo-url-template.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/seo-url.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/snippet-set.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/snippet.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/sso-invitation.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/sso-settings.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/state-machine.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/store-context.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/sync.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/system-config.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/tag.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/tag.api.service.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 6
+    }
+  },
+  "src/core/service/api/translation.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/update.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/user-activity.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/user-activity.service.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/core/service/api/user-input-sanitize.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/user-recovery.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/user-validation.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/user.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
   "src/core/service/api/validation.api.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
+  "src/core/service/customer-group-registration-listener.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/entity-mapping.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/core/service/extension-api-data.service.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
   "src/core/service/extension-api-data.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 15
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 4
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 5
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 3
     }
   },
+  "src/core/service/jsonapi-parser.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
   "src/core/service/login.service.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
+  "src/core/service/login.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 6
+    }
+  },
+  "src/core/service/plugin-updates-listener.service.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/core/service/shopware-updates-listener.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/util.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 11
+    }
+  },
+  "src/core/service/utils/debug.utils.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    }
+  },
+  "src/core/service/utils/dom.utils.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/utils/file-reader.utils.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/core/service/utils/format.utils.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 9
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 3
+    }
+  },
+  "src/core/service/utils/object.utils.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 18
+    }
+  },
+  "src/core/service/utils/sort.utils.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/utils/string.utils.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/service/utils/types.utils.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/core/service/utils/vue-helper.utils.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/core/service/validation.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    }
+  },
+  "src/core/shopware.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/telemetry/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/worker/admin-worker.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/worker/admin-worker.shared-worker.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/worker/admin-worker.worker.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/core/worker/worker-notification-listener.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/global.types.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    },
+    "sw-core-rules/no-ts-fix-me": {
+      "count": 33
+    }
+  },
+  "src/html-shim.d.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/index.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/meta/meta.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-description/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-change-type/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-cancellation-invoice/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-credit-note/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-bulk-edit/init/services.init.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-customer/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-customer/sw-bulk-edit-customer.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-order/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-order/sw-bulk-edit-order.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-product/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/page/sw-bulk-edit-product/sw-bulk-edit-product.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/service/bulk-edit.api.factory.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/service/handler/bulk-edit-base.handler.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/service/handler/bulk-edit-customer.handler.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/service/handler/bulk-edit-order.handler.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-detail-menu/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-entry-point-card/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-entry-point-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-entry-point-overwrite-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-layout-card/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-link-settings/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-sales-channel-multi-select/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-seo-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-tree/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-tree/sw-category-tree.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-category-view/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-landing-page-tree/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/component/sw-landing-page-view/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/default-search-configuration.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-category/page/sw-category-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/page/sw-category-detail/store.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/module/sw-category/page/sw-category-detail/store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-category/view/sw-category-detail-base/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-category/view/sw-category-detail-cms/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/view/sw-category-detail-products/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/view/sw-category-detail-seo/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/view/sw-landing-page-detail-base/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-category/view/sw-landing-page-detail-cms/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 14
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-block/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-create-wizard/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-form-sync/index.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-inherit-wrapper/index.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 5
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-inherit-wrapper/sw-cms-inherit-wrapper.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-layout-assignment-modal/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 25
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-layout-assignment-modal/sw-cms-layout-assignment-modal.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-list-item/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 2
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-page-form/index.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 5
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-reset-inheritance/index.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-section/index.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 5
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-section/sw-cms-section-actions/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-section/sw-cms-section-config/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-sidebar/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 33
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-sidebar/sw-cms-sidebar-nav-element/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-sidebar/sw-cms-sidebar.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-slot/sw-cms-slot.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-stage-section-selection/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/component/sw-cms-toolbar/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/constant/sw-cms.constant.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/default-search-configuration.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/form/component/templates/form-contact/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/form/component/templates/form-newsletter/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/image-gallery/index.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/image-slider/config/config.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/module/sw-cms/elements/image-slider/index.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-listing/config/config.spec/filter.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-cms/elements/product-listing/config/config.spec/fixtures.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/product-listing/config/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    }
+  },
+  "src/module/sw-cms/elements/product-listing/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/elements/video/component/index.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 3
+    }
+  },
+  "src/module/sw-cms/elements/video/config/index.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 6
+    }
+  },
+  "src/module/sw-cms/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-cms/page/sw-cms-detail/sw-cms-detail.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
   "src/module/sw-cms/page/sw-cms-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/page/sw-cms-list/sw-cms-list.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/service/cms-block-favorites.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/service/cms-element-favorites.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/service/cms.service.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-cms/service/cms.service.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 6
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/module/sw-custom-entity/component/sw-custom-entity-input-field/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-custom-entity/component/sw-generic-cms-page-assignment/index.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/module/sw-custom-entity/component/sw-generic-social-media-card/index.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/module/sw-custom-entity/page/sw-generic-custom-entity-detail/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/module/sw-custom-entity/page/sw-generic-custom-entity-list/index.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-address-form-options/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-address-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-base-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-base-info/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-card/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-convert-guest-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/component/sw-customer-default-addresses/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
   "src/module/sw-customer/component/sw-customer-imitate-customer-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/constant/sw-customer.constant.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/default-search-configuration.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-customer/page/sw-customer-create/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/page/sw-customer-create/sw-customer-create.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/page/sw-customer-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/page/sw-customer-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/view/sw-customer-detail-addresses/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/view/sw-customer-detail-base/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-customer/view/sw-customer-detail-order/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-dashboard/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-export-channel-tracking/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension-sdk/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/component/sw-extension-card-bought/sw-extension-card-bought.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/module/sw-extension/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
   "src/module/sw-extension/page/sw-extension-app-module-page/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
+  "src/module/sw-extension/page/sw-extension-config/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    }
+  },
   "src/module/sw-extension/page/sw-extension-my-extensions-account/index.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/service/extension-store-action.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-extension/service/shopware-extension.service.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    }
+  },
+  "src/module/sw-extension/service/shopware-extension.service.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 2
+    }
+  },
+  "src/module/sw-extension/store/extensions.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "sw-core-rules/no-ts-fix-me": {
+      "count": 3
+    }
+  },
+  "src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/sw-first-run-wizard-modal.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/component/sw-plugin-card/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-finish/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-base/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-credentials/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-account/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-base/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-shopware-domain/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-first-run-wizard/view/sw-first-run-wizard-store/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/modals/sw-flow-mail-send-modal/sw-flow-mail-send-modal.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/sw-flow-sequence-action/sw-flow-sequence-action.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/sw-flow-sequence-condition/sw-flow-sequence-condition.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/component/sw-flow-trigger/sw-flow-trigger.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/page/sw-flow-detail/sw-flow-detail.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    }
+  },
+  "src/module/sw-flow/page/sw-flow-index/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/service/flow-builder.service.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/service/flow-builder.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/store/flow.store.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/module/sw-flow/store/flow.store.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 6
+    }
+  },
+  "src/module/sw-flow/view/listing/sw-flow-list-flow-templates/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-csv-page/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-general-page/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-mapping-page/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-activity-result-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-activity/sw-import-export-activity.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-field-indicators/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-general/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/component/sw-import-export-entity-path-select/sw-import-export-entity-path-select.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 5
+    }
+  },
+  "src/module/sw-import-export/service/importExportProfileMapping.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/service/importExportUpdateByMapping.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-import-export/service/mocks/mappings.mock.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    }
+  },
+  "src/module/sw-integration/component/sw-integration-mcp-allowlist/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-integration/component/sw-integration-mcp-allowlist/mcp-allowlist.utils.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/module/sw-integration/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/module/sw-integration/page/sw-integration-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-landing-page/default-search-configuration.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-landing-page/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-login/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-login/view/sw-login-login/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 7
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 5
+    }
+  },
+  "src/module/sw-login/view/sw-login-recovery-info/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-login/view/sw-login-recovery-recovery/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 3
+    }
+  },
+  "src/module/sw-login/view/sw-login-recovery/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 5
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 5
+    }
+  },
+  "src/module/sw-mail-template/component/sw-mail-header-footer-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/component/sw-mail-template-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-header-footer-create/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-header-footer-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-template-create/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-template-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-template-detail/sw-mail-template-detail.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-mail-template/page/sw-mail-template-index/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-manufacturer/default-search-configuration.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-manufacturer/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-manufacturer/page/sw-manufacturer-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-manufacturer/page/sw-manufacturer-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-folder-info/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo-metadata-item/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo-multiple/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo-usage/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-quickinfo/sw-media-quickinfo.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 8
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-sidebar/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sidebar/sw-media-tag/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sw-media-breadcrumbs/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sw-media-collapse/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sw-media-display-options/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sw-media-library/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-media/component/sw-media-modal-v2/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/component/sw-media-save-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/default-search-configuration.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-media/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-media/page/sw-media-index/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-newsletter-recipient/default-search-configuration.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-newsletter-recipient/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/sw-newsletter-recipient-list.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-address-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-address-selection/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-create-address-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-create-details-body/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-create-details-footer/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-create-details-header/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-create-initial-modal/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-create-invalid-promotion-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-create-options/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-order/component/sw-order-create-promotion-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-customer-address-select/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-customer-comment/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-customer-grid/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-customer-grid/sw-order-customer-grid.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-delivery-metadata/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-details-state-card/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-card/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-card/sw-order-document-card.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-settings-credit-note-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-settings-delivery-note-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-settings-invoice-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-settings-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-document-settings-storno-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-general-info/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-inline-field/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-leave-page-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-line-items-grid-sales-channel/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-line-items-grid-sales-channel/sw-order-line-items-grid-sales-channel.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-line-items-grid/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-nested-line-items-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-nested-line-items-row/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-new-customer-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-product-select/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-promotion-field/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-promotion-tag-field/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-save-changes-beforehand-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-saveable-field/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-select-document-type-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-send-document-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-send-document-modal/sw-order-send-document-modal.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-state-change-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-state-history-card-entry/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-state-history-card/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-state-history-modal/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-state-select-v2/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/component/sw-order-user-card/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/default-search-configuration.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-order/mixin/cart-notification.mixin.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 3
+    }
+  },
+  "src/module/sw-order/page/sw-order-create/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/page/sw-order-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/page/sw-order-detail/sw-order-detail.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/page/sw-order-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/page/sw-order-list/sw-order-list.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/service/documentV2.service.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/store/order.store.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 23
+    }
+  },
+  "src/module/sw-order/store/order.store.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/view/sw-order-create-base/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/view/sw-order-create-details/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/view/sw-order-create-general/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-order/view/sw-order-create-initial/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/view/sw-order-detail-details/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/view/sw-order-detail-documents/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-order/view/sw-order-detail-general/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-payments/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-privilege-error/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-privilege-error/page/sw-privilege-error/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product-stream/component/sw-product-stream-value/sw-product-stream-value.custom-field-label.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 3
+    }
+  },
+  "src/module/sw-product-stream/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-add-properties-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-basic-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-category-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-clone-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-cross-selling-assignment/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-cross-selling-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-deliverability-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-feature-set-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-guarantee-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-layout-assignment/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-measurement-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-measurement-form/sw-product-measurement-form.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-product/component/sw-product-media-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-packaging-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-price-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-properties/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-properties/sw-product-properties.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-seo-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-settings-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-settings-mode/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variant-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variant-modal/sw-product-variant-modal.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/sw-product-modal-variant-generation.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field/sw-product-variants-price-field.spec.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload/sw-product-variants-media-upload.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-variants/sw-product-variants-overview/sw-product-variants-overview.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-visibility-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/component/sw-product-visibility-select/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/default-search-configuration.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/helper/sw-products-variants-generator.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/helper/sw-products-variants-generator.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-product/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-product/page/sw-product-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/page/sw-product-detail/sw-product-detail.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/page/sw-product-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/page/sw-product-list/sw-product-list.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-base/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-base/sw-product-detail-base.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-context-prices/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-cross-selling/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-layout/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-reviews/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-reviews/sw-product-detail-reviews.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-seo/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-specifications/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-specifications/sw-product-detail-specifications.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-variants/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-product/view/sw-product-detail-variants/sw-product-detail-variants.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-profile/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-profile/page/sw-profile-index/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-profile/page/sw-profile-index/sw-profile-index.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-profile/view/sw-profile-index-general/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-profile/view/sw-profile-index-search-preferences/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-profile/view/sw-profile-index-search-preferences/sw-profile-index-search-preferences.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-discount-type/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-rule-selection/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-trigger/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-description/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-discount-selection/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/component/sw-promotion-v2-sales-channel-select/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/default-search-configuration.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-promotion-v2/init/services.init.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/page/sw-promotion-v2-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/page/sw-promotion-v2-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/service/promotion-code.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/view/sw-promotion-v2-conditions/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/component/sw-property-detail-base/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/component/sw-property-option-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/component/sw-property-option-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/default-search-configuration.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-property/page/sw-property-create/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/page/sw-property-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-property/page/sw-property-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-review/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-review/page/sw-review-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-review/page/sw-review-detail/sw-review-detail.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-review/page/sw-review-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-agentic-commerce-tracking-config/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-defaults-select/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-detail-domains/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-detail-domains/sw-sales-channel-detail-domains.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-measurement/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-modal-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/default-search-configuration.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-sales-channel/page/sw-sales-channel-create/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/page/sw-sales-channel-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/page/sw-sales-channel-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/service/domain-link.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/service/sales-channel-favorites.service.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    },
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/service/sales-channel-file.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-create-base/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-commerce-integration/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-base/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-base/sw-sales-channel-detail-base.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison-preview/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-product-export-insights/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-products/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-sales-channel/view/sw-sales-channel-detail-products/sw-sales-channel-detail-products.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-basic-information/component/sw-settings-captcha-select-v2/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-basic-information/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/module/sw-settings-basic-information/page/sw-settings-basic-information/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-basic-information/service/captcha.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-cache/component/sw-settings-cache-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-cache/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-cache/page/sw-settings-cache-index/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-cart/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-cart/page/sw-settings-cart/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/component/sw-country-state-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/component/sw-multi-snippet-drag-and-drop/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    },
+    "sw-core-rules/no-ts-fix-me": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/component/sw-multi-snippet-drag-and-drop/sw-multi-snippet-drag-and-drop.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },
   "src/module/sw-settings-country/component/sw-settings-country-address-handling/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 11
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
     }
   },
+  "src/module/sw-settings-country/component/sw-settings-country-address-handling/sw-settings-country-address-handling.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/component/sw-settings-country-currency-dependent-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/component/sw-settings-country-general/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/component/sw-settings-country-new-snippet-modal/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 4
+    },
+    "sw-core-rules/no-ts-fix-me": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/component/sw-settings-country-state/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-country/page/sw-settings-country-create/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/page/sw-settings-country-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-country/page/sw-settings-country-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-currency/component/sw-settings-currency-country-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-currency/component/sw-settings-price-rounding/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-currency/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-currency/page/sw-settings-currency-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-currency/page/sw-settings-currency-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-translated-labels/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-base/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-checkbox/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-date/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-entity/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-number/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-select/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-text-editor/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/component/sw-custom-field-type-text/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-create/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-customer-group/default-search-configuration.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-customer-group/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail/sw-settings-customer-group-detail.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-customer-group/page/sw-settings-customer-group-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-delivery-times/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-create/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-document/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-document/page/sw-settings-document-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-document/page/sw-settings-document-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
   "src/module/sw-settings-language/component/sw-settings-language-add-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 2
     }
   },
+  "src/module/sw-settings-language/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-language/page/sw-settings-language-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
   "src/module/sw-settings-language/page/sw-settings-language-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 2
+    }
+  },
+  "src/module/sw-settings-listing/component/sw-settings-listing-default-sales-channel/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/component/sw-settings-listing-delete-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/component/sw-settings-listing-option-general-info/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/component/sw-settings-listing-visibility-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-listing/page/sw-settings-listing-option-base/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/page/sw-settings-listing-option-create/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/page/sw-settings-listing/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-listing/page/sw-settings-listing/sw-settings-listing.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-logging/component/sw-settings-logging-entry-info/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-logging/component/sw-settings-logging-mail-sent-info/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-logging/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-logging/page/sw-settings-logging-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-login-registration/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-login-registration/page/sw-settings-login-registration/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-mailer/component/sw-settings-mailer-smtp/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-mailer/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-mailer/page/sw-settings-mailer/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-measurement/component/sw-settings-measurement-default-units/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-measurement/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-measurement/page/sw-settings-measurement/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-media/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-media/page/sw-settings-media/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-message-stats/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-newsletter/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-newsletter/page/sw-settings-newsletter/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-number-range/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-number-range/page/sw-settings-number-range-create/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-number-range/page/sw-settings-number-range-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-number-range/page/sw-settings-number-range-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/component/sw-payment-card/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/component/sw-plugin-box/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/component/sw-settings-payment-sorting-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/default-search-configuration.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-payment/page/sw-settings-payment-create/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/page/sw-settings-payment-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/page/sw-settings-payment-overview/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-payment/store/overview-cards.store.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-product-feature-sets/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/page/sw-settings-rule-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/page/sw-settings-rule-detail/sw-settings-rule-detail.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/page/sw-settings-rule-list/sw-settings-rule-list.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments/sw-settings-rule-detail-assignments.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-salutation/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-salutation/page/sw-settings-salutation-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-salutation/page/sw-settings-salutation-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-example-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-excluded-search-terms/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-live-search-keyword/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-live-search/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-search-behaviour/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-searchable-content-customfields/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-searchable-content-general/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/component/sw-settings-search-searchable-content/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-search/init/services.init.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "src/module/sw-settings-search/page/sw-settings-search/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/service/livesearch.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/service/productIndex.api.service.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/view/sw-settings-search-view-general/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-search/view/sw-settings-search-view-live-search/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-seo/component/sw-seo-main-category/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-seo/component/sw-seo-url-template-card/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-seo/component/sw-seo-url/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-seo/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-seo/page/sw-settings-seo/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
     }
   },
   "src/module/sw-settings-services/component/sw-settings-services-grant-permissions-modal/index.ts": {
@@ -99,9 +5308,410 @@
       "count": 1
     }
   },
+  "src/module/sw-settings-services/service/index.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-services/service/service-registry-client.spec.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-services/service/shopware-services.service.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-services/store/shopware-services.store.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/component/sw-price-rule-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/sw-settings-shipping-price-matrices.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/component/sw-settings-shipping-tax-cost/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/default-search-configuration.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-shipping/page/sw-settings-shipping-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/page/sw-settings-shipping-detail/store.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-shipping/page/sw-settings-shipping-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-sitemap/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-sitemap/page/sw-settings-sitemap/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-sidebar/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-snippet/page/sw-settings-snippet-create/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/page/sw-settings-snippet-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/page/sw-settings-snippet-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/page/sw-settings-snippet-list/sw-settings-snippet-list.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-snippet/page/sw-settings-snippet-set-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-state-machine/component/sw-settings-state-machine-state-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-state-machine/component/sw-settings-state-machine-state-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-state-machine/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-state-machine/page/sw-settings-state-machine-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-state-machine/page/sw-settings-state-machine-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-store/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tag/component/sw-settings-tag-detail-assignments/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tag/component/sw-settings-tag-detail-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tag/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-tag/page/sw-settings-tag-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-provider-sorting-modal/index.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-rule-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states-cell/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-cell/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-range-cell/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code-range/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-settings-tax-rule-type-zip-code/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/component/sw-tax-rule-card/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-tax/page/sw-settings-tax-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
   "src/module/sw-settings-tax/page/sw-settings-tax-list/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
     "sw-core-rules/no-swallowed-errors": {
       "count": 1
+    }
+  },
+  "src/module/sw-settings-tax/page/sw-settings-tax-provider-detail/index.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings-units/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings-units/page/sw-settings-units-detail/index.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings/component/sw-settings-item/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings/component/sw-system-config/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings/component/sw-system-config/sw-system-config.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-settings/page/sw-settings-index/index.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-settings/page/sw-settings-index/sw-settings-index.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/component/sw-users-permissions-role-mcp-reference-modal/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-additional-permissions/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-configuration/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-detailed-additional-permissions/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-detailed-permissions-grid/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid/sw-users-permissions-permissions-grid.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-role-listing/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/components/sw-users-permissions-user-listing/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
+    }
+  },
+  "src/module/sw-users-permissions/page/sw-users-permissions-role-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/page/sw-users-permissions-role-detail/sw-users-permissions-role-detail.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/page/sw-users-permissions-user-create/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/page/sw-users-permissions-user-detail/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/page/sw-users-permissions-user-detail/sw-users-permissions-user-detail.spec.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/page/sw-users-permissions/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/view/sw-users-permissions-role-view-detailed/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "src/module/sw-users-permissions/view/sw-users-permissions-role-view-general/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "test/_helper_/componentWrapper/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "test/_helper_/mock-timezone.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "test/_helper_/virtual-shopware-modules/resolve-module.spec.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    },
+    "sw-core-rules/no-double-cast": {
+      "count": 1
+    }
+  },
+  "test/_setup/jest-extensions.spec.ts": {
+    "sw-core-rules/no-double-cast": {
+      "count": 6
+    }
+  },
+  "test/_setup/prepare_environment.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 3
+    }
+  },
+  "test/_setup/test-utils.d.ts": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 1
+    }
+  },
+  "test/webpack/assets/ExamplePluginForTesting/src/Resources/administration/src/app/component/dummy-component/index.js": {
+    "@eslint-community/eslint-comments/require-description": {
+      "count": 2
     }
   }
 }

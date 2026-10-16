@@ -26,10 +26,19 @@ Run them in `src/Administration/Resources/app/administration`, or through the co
 
 | Group | Rules | Why |
 |---|---|---|
+| Types | `@typescript-eslint/no-non-null-assertion`, `sw-core-rules/no-double-cast`, `sw-core-rules/no-ts-fix-me`, `@typescript-eslint/ban-ts-comment` | Types match the runtime values instead of being cast into shape |
 | Errors | `sw-core-rules/no-swallowed-errors` | A `.catch()` that drops the error needs a comment that says why |
+| Escape hatches | `@eslint-community/eslint-comments/*` | Every disable comment states a reason |
 | Unused code | Fallow, configured in `.fallowrc.json` | Unused files, exports and dependencies are removed instead of copied |
 
 ## Inline disables
+
+Every `eslint-disable` comment needs a reason after `--`:
+
+```ts
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- the route guard only renders this page with an id
+const id = this.$route.params.id!;
+```
 
 Some rules can't be disabled inline.
 They are listed in `rulesWithoutInlineDisable` in `eslint.config.ts`.

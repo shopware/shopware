@@ -17,5 +17,7 @@ module.exports = {
         'valid-shopware-setup': require('./valid-shopware-setup'),
         'native-setup-filename': require('./native-setup-filename'),
         'no-swallowed-errors': require('./no-swallowed-errors'),
+        'no-double-cast': require('./no-double-cast'),
+        'no-ts-fix-me': require('./no-ts-fix-me'),
     },
 };

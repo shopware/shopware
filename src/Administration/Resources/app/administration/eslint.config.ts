@@ -210,6 +210,19 @@ const baseRules = {
     'vue/one-component-per-file': 'off',
 
     'sw-core-rules/no-swallowed-errors': 'error',
+    '@eslint-community/eslint-comments/require-description': [
+        'error',
+        {
+            ignore: [
+                'eslint-enable',
+                'eslint-env',
+                'exported',
+                'global',
+                'globals',
+            ],
+        },
+    ],
+    '@eslint-community/eslint-comments/no-unlimited-disable': 'error',
     '@eslint-community/eslint-comments/no-restricted-disable': [
         'error',
         ...rulesWithoutInlineDisable,
@@ -769,7 +782,13 @@ export default [
         ],
         rules: {
             ...baseRules,
-            '@typescript-eslint/ban-ts-comment': 0,
+            '@typescript-eslint/ban-ts-comment': [
+                'error',
+                { minimumDescriptionLength: 10 },
+            ],
+            '@typescript-eslint/no-non-null-assertion': 'error',
+            'sw-core-rules/no-double-cast': 'error',
+            'sw-core-rules/no-ts-fix-me': 'error',
             '@typescript-eslint/no-unsafe-member-access': 'error',
             '@typescript-eslint/no-unsafe-call': 'error',
             '@typescript-eslint/no-unsafe-assignment': 'error',

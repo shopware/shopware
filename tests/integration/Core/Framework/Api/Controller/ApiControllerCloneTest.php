@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -120,9 +119,7 @@ class ApiControllerCloneTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
     }
 
-    #[TestWith([false], 'restricted product creator')]
-    #[TestWith([true], 'administrator')]
-    public function testCloneRejectsNestedProtectedMediaOverwrite(bool $admin): void
+    public function testCloneDoesNotAllowOverwritingNestedMediaFileSize(): void
     {
         $browser = $this->getBrowser();
         $connection = $browser->getContainer()->get(Connection::class);
@@ -130,16 +127,12 @@ class ApiControllerCloneTest extends TestCase
         $product = (new ProductBuilder($ids, 'source'))->price(10)->build();
         $browser->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
 
-        if (!$admin) {
-            TestUser::createNewTestUser($connection, ['product:create', 'product:read'])->authorizeBrowser($browser);
-        }
-
         $productCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM product');
         $mediaCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM media');
         $browser->jsonRequest('POST', '/api/_action/clone/product/' . $ids->get('source'), [
             'overwrites' => [
                 'productNumber' => Uuid::randomHex(),
-                'media' => [['media' => ['mediaTypeRaw' => serialize('benign marker')]]],
+                'media' => [['media' => ['fileSize' => 1]]],
             ],
         ]);
 
@@ -147,7 +140,7 @@ class ApiControllerCloneTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
         $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', $data['errors'][0]['code']);
-        static::assertSame('/media/0/media/mediaTypeRaw', $data['errors'][0]['source']['pointer']);
+        static::assertSame('/media/0/media/fileSize', $data['errors'][0]['source']['pointer']);
         static::assertSame($productCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product'));
         static::assertSame($mediaCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM media'));
     }

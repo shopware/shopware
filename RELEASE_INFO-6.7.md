@@ -589,6 +589,11 @@ Existing app-less webhooks have no recorded creator, so the update creates an ad
 ### New Store API route to add the products of an order to the cart
 
 `POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart
+### Webhooks belonging to an app can no longer be changed through the API
+
+Webhooks that belong to an app (`app_id` is set) are managed through the app's manifest. Requests that update or delete them through the Admin API or Sync API are rejected with a `400` and `FRAMEWORK__APP_WEBHOOK_NOT_MODIFIABLE`, whatever privileges the caller holds. Apps continue to add, change and remove their own webhooks through their manifest when they are installed or updated.
+
+Webhooks can also no longer be cloned through `POST /api/_action/clone/webhook/{id}`: the request is rejected with a `403` and `FRAMEWORK__CLONE_PROTECTED`. A clone kept the original's app, so it could deliver an app's events to another url.
 
 ## Administration
 

@@ -417,6 +417,12 @@ export default {
     },
 
     methods: {
+        getProductLabel(item) {
+            const name = item.translated?.name || item.name;
+
+            return item.productNumber ? `${item.productNumber} - ${name}` : name;
+        },
+
         onChangeType(type, parameters) {
             this.$emit('type-change', { type, parameters });
         },

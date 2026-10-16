@@ -134,7 +134,6 @@
     "/integration/{integrationId}",
     "/license/cancel/{licenseId}",
     "/license/rate/{extensionId}",
-    "/oauth/authorize",
     "/script/{hook}",
     "/service/activate/{serviceName}",
     "/service/deactivate/{serviceName}",

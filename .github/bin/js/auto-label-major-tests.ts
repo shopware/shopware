@@ -20,7 +20,8 @@
  *
  * The PHP arm retains that repository-wide marker detection. The Administration
  * Jest arm uses the same markers only in Administration source and test files;
- * a feature-registry change enables both arms because it changes both baselines.
+ * a feature-registry change enables both arms because it changes both baselines. A change to the
+ * Jest deprecation baseline enables the Jest arm, so the major run checks the usages it lists for that run.
  * Acceptance spec changes enable the ATS arm, using the same paths as
  * acceptance-tests-changed; fixtures, tasks and dependency-only changes do not.
  */
@@ -29,6 +30,7 @@ export const FEATURE_REGISTRY_PATH = 'src/Core/Framework/Resources/config/packag
 export const ADMINISTRATION_APP_PATH = 'src/Administration/Resources/app/administration/';
 export const ADMINISTRATION_SOURCE_PATH = `${ADMINISTRATION_APP_PATH}src/`;
 export const ADMINISTRATION_TEST_PATH = `${ADMINISTRATION_APP_PATH}test/`;
+export const ADMINISTRATION_DEPRECATION_BASELINE_PATH = `${ADMINISTRATION_SOURCE_PATH}meta/deprecation-baseline.json`;
 
 type PullRequestLabel = {
     name: string;
@@ -216,7 +218,7 @@ export function hasMajorMarkers(diff: string, majorFlags: string[]): boolean {
 export function hasMajorJsMarkers(diff: string, majorFlags: string[]): boolean {
     const files = splitDiffByFile(diff);
 
-    if (files.some(({ path }) => path === FEATURE_REGISTRY_PATH)) {
+    if (files.some(({ path }) => path === FEATURE_REGISTRY_PATH || path === ADMINISTRATION_DEPRECATION_BASELINE_PATH)) {
         return true;
     }
 

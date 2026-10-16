@@ -101,13 +101,16 @@ export default class Feature {
         this.reportedDeprecations.add(message);
 
         if (isMajorActive) {
+            // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices -- this is the guard's own emitter
             error(
                 'Deprecation',
                 `${message}\nThis deprecation is in the core deprecation baseline, so it does not throw yet. Migrate your usage before the major: it will throw then.`,
             );
         } else if (this.isRegistered(majorFlag) || UNREGISTERED_UPCOMING_MAJORS.includes(majorFlag.toUpperCase())) {
+            // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices -- this is the guard's own emitter
             warn('Deprecation', message);
         } else {
+            // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices -- this is the guard's own emitter
             error(
                 'Deprecation',
                 `${message}\nNote: this deprecation has a typo: "${majorFlag}" is an unknown feature flag. Please fix it.`,

@@ -565,6 +565,10 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 `/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
 
+### New Store API route to add the products of an order to the cart
+
+`POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart
+
 ## Administration
 
 ### `sw-empty-state` stays available until 6.9
@@ -901,6 +905,10 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 ### Legal guarantee notice on the registration and other privacy notices
 
 `component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.
+
+### Reorder resolves its line items from the order
+
+The reorder form no longer posts `lineItems`, so its two hidden input blocks are empty and deprecated; add or drop reorder items with the `checkout.cart.collect-reorder-line-items` extension instead
 
 ### Savings percentage is based on the regulation price
 

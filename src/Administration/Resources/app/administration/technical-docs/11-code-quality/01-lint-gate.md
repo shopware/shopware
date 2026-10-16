@@ -29,8 +29,11 @@ Run them in `src/Administration/Resources/app/administration`, or through the co
 | Size and complexity | `complexity` (15), `sw-core-rules/max-function-lines` (80, `setup()` 150), `max-params` (4), `max-nested-callbacks` (3), `max-depth` (4), `max-lines` (500), `sw-core-rules/max-component-members` (50), `vue/max-template-depth` (10) | Small units are easier to read, test and override |
 | Types | `@typescript-eslint/no-non-null-assertion`, `sw-core-rules/no-double-cast`, `sw-core-rules/no-ts-fix-me`, `@typescript-eslint/ban-ts-comment` | Types match the runtime values instead of being cast into shape |
 | Errors | `sw-core-rules/no-swallowed-errors` | A `.catch()` that drops the error needs a comment that says why |
+| Tests | `sw-test-rules/no-vm-access`, spec files (500 lines) | Tests assert what a component renders, emits or requests |
 | Escape hatches | `@eslint-community/eslint-comments/*` | Every disable comment states a reason |
 | Unused code | knip | Unused files, exports and dependencies are removed instead of copied |
+
+`sw-test-rules/no-vm-access` allows `.vm.$emit()`, which is how Vue Test Utils simulates an event from a child or stub.
 
 `setup()` gets 150 lines because it wires all composables of a component in one function, where the Options API spreads the same logic over many small ones.
 Logic that does not fit belongs in a composable.
@@ -44,7 +47,7 @@ Every `eslint-disable` comment needs a reason after `--`:
 const id = this.$route.params.id!;
 ```
 
-The size and complexity rules can't be disabled inline at all.
+The size and complexity rules, the spec size limits and `sw-test-rules/no-vm-access` can't be disabled inline at all.
 For them the baseline is the only way around, and the baseline can't grow.
 
 ## Baselines

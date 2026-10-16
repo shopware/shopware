@@ -1,5 +1,7 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
+import CheckoutStepHelper from 'src/plugin/google-analytics/checkout-step.helper';
 import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
+import ProductCategoryHelper from 'src/plugin/google-analytics/product-category.helper';
 
 export default class PurchaseEvent extends AnalyticsEvent
 {
@@ -32,10 +34,15 @@ export default class PurchaseEvent extends AnalyticsEvent
             return;
         }
 
-        gtag('event', 'purchase', {
+        this.pushEvent('purchase', {
             'transaction_id': orderNumber,
             'items': LineItemHelper.getLineItems(),
             ...LineItemHelper.getAdditionalProperties(),
         });
+
+        // the checkout is done, so a following one reports its shipping and payment steps again
+        CheckoutStepHelper.reset();
+        // the ordered products left the cart, so their requested categories are not needed anymore
+        ProductCategoryHelper.forget(LineItemHelper.getProductIds());
     }
 }

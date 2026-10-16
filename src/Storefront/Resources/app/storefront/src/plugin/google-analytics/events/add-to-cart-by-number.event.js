@@ -14,7 +14,7 @@ export default class AddToCartByNumberEvent extends AnalyticsEvent
     }
 
     execute() {
-        const addToCartForm = document.querySelector('.cart-add-product');
+        const addToCartForm = document.querySelector('.cart-add-product-container form');
         if (!addToCartForm) {
             return;
         }
@@ -31,14 +31,14 @@ export default class AddToCartByNumberEvent extends AnalyticsEvent
             return;
         }
 
-        const input = event.currentTarget.querySelector('.form-control');
+        const input = event.currentTarget.querySelector('input[name="number"]');
         const additionalProperties = LineItemHelper.getAdditionalProperties();
 
-        gtag('event', 'add_to_cart', {
+        this.pushEvent('add_to_cart', {
             'currency': additionalProperties.currency,
             'items': [
                 {
-                    'id': input.value,
+                    'item_id': input.value,
                     'quantity': 1,
                 },
             ],

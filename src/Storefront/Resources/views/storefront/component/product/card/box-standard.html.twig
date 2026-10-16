@@ -4,6 +4,10 @@
         {% set name = product.translated.name %}
         {% set brand = product.manufacturer.translated.name|default('') %}
         {% set price = product.calculatedPrice.unitPrice %}
+        {# a matching price rule or graduated prices replace the default price, like in the buy widget #}
+        {% if product.calculatedPrices.count > 0 %}
+            {% set price = product.calculatedPrices.first.unitPrice %}
+        {% endif %}
         {% set sku = product.productNumber %}
 
         {% set cover = product.cover.media %}
@@ -20,7 +24,13 @@
             {% set routeArguments = routeArguments|merge({ referrerCategoryId: referrerCategoryId }) %}
         {% endif %}
 
-        <div class="card product-box box-{{ layout }}" data-product-information="{{ {id, name, brand, price, sku}|json_encode }}">
+        {% set productInformation = { id, name, brand, price, sku } %}
+        {# the variant options are only read by the analytics script #}
+        {% if storefrontAnalytics and storefrontAnalytics.isActive() %}
+            {% set productInformation = productInformation|merge({ variant: displayParent ? '' : variation|map(option => option.option)|join(', ') }) %}
+        {% endif %}
+
+        <div class="card product-box box-{{ layout }}" data-product-information="{{ productInformation|json_encode }}">
             {% block component_product_box_content %}
                 <div class="card-body">
                     {% block component_product_box_badges %}

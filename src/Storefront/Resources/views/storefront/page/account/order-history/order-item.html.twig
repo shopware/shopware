@@ -113,6 +113,7 @@
                                                       id="orderDetailForm-{{ order.Id }}"
                                                       method="post"
                                                       class="order-table-header-context-menu-content-form"
+                                                      {% if storefrontAnalytics and storefrontAnalytics.isActive() %}data-analytics-currency="{{ order.currency.isoCode }}"{% endif %}
                                                       data-add-to-cart="true">
                                                     {% block page_account_order_item_context_menu_reorder_form_redirect %}
                                                         <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
@@ -125,6 +126,30 @@
                                                             {% block page_account_order_item_context_menu_reorder_form_line_item_input %}{% endblock %}
                                                         {% endfor %}
                                                     {% endblock %}
+
+                                                    {# the reorder route adds the products of the order on the server, so `add_to_cart` reads them from here #}
+                                                    {% if storefrontAnalytics and storefrontAnalytics.isActive() %}
+                                                        {% for lineItem in order.lineItems ?? [] %}
+                                                            {% if lineItem.type == PRODUCT_LINE_ITEM_TYPE and lineItem.referencedId and (lineItem.extensions.productAvailability.visible ?? true) %}
+                                                                {% block page_account_order_item_context_menu_reorder_form_line_item_analytics %}
+                                                                    {% set categoryAttributes = '' %}
+                                                                    {% for name in lineItem.payload.categoryNames|default([])|slice(0, 5) %}
+                                                                        {% set categoryAttributes = categoryAttributes ~ ' data-category-' ~ loop.index ~ '="' ~ name|e('html_attr') ~ '"' %}
+                                                                    {% endfor %}
+                                                                    <span class="d-none"
+                                                                          data-analytics-line-item
+                                                                          data-id="{{ lineItem.referencedId }}"
+                                                                          data-sku="{{ lineItem.payload.productNumber ?? lineItem.referencedId }}"
+                                                                          data-name="{{ lineItem.label }}"
+                                                                          data-price="{{ lineItem.unitPrice }}"
+                                                                          data-quantity="{{ lineItem.quantity }}"
+                                                                          data-variant="{{ lineItem.payload.options|default([])|map(option => option.option)|join(', ') }}"
+                                                                          data-brand="{{ lineItem.payload.manufacturerName|default('') }}"
+                                                                          {{ categoryAttributes|raw }}></span>
+                                                                {% endblock %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endif %}
 
                                                     {% block page_account_order_item_context_menu_reorder_form_button %}
                                                         <button class="dropdown-item order-table-header-context-menu-content-link" type="submit">{{ 'account.orderContextMenuReorder'|trans|sw_sanitize }}</button>

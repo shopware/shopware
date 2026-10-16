@@ -75,10 +75,10 @@ class ProductDetailReadinessCheck extends BaseCheck
 
         $extra = [];
         $requestStatus = [];
-        foreach ($domains as $salesChannelId => $domain) {
+        foreach ($domains as $domain) {
             try {
                 $productId = $this->fetchVisibleProductId($domain);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // e.g. no context for a domain whose currency is no longer assigned, the other sales channels are still probed
                 $requestStatus[Status::FAILURE->name] = Status::FAILURE;
                 $extra[] = $this->util->createExceptionResult($domain->url, $e)->getVars();

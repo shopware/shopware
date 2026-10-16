@@ -316,7 +316,7 @@ class ProductListingReadinessCheckTest extends TestCase
             });
 
         $this->util->method('createExceptionResult')->willReturnCallback(
-            static fn (string $url, \Exception $e): StorefrontHealthCheckResult => StorefrontHealthCheckResult::create($url, Response::HTTP_BAD_REQUEST, 0.0, $e->getMessage())
+            static fn (string $url, \Throwable $e): StorefrontHealthCheckResult => StorefrontHealthCheckResult::create($url, Response::HTTP_BAD_REQUEST, 0.0, $e->getMessage())
         );
 
         $this->util->method('generateDomainUrl')->willReturnCallback(
@@ -349,7 +349,7 @@ class ProductListingReadinessCheckTest extends TestCase
         $this->contextFactory->method('create')->willReturnCallback(
             function (SalesChannelDomain $domain): SalesChannelContext {
                 if (\in_array($domain->id, $this->domainsWithoutContext, true)) {
-                    throw new \RuntimeException('no context for this domain');
+                    throw new \Error('no context for this domain');
                 }
 
                 $this->contextDomains[] = $domain;

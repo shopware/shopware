@@ -82,7 +82,7 @@ class ProductListingReadinessCheck extends BaseCheck
         foreach ($domains as $salesChannelId => $domain) {
             try {
                 $navigationId = $this->resolveVisibleNavigationId($domain, $navigationIds[$salesChannelId] ?? []);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // e.g. no context for a domain whose currency is no longer assigned, the other sales channels are still probed
                 $requestStatus[Status::FAILURE->name] = Status::FAILURE;
                 $extra[] = $this->util->createExceptionResult($domain->url, $e)->getVars();
@@ -145,6 +145,7 @@ class ProductListingReadinessCheck extends BaseCheck
         $criteria->setTitle('product-listing-readiness-check');
         $criteria->addFilter(new EqualsFilter('active', true));
 
+        // no sorting needed: the result is only used for lookups by ID, the candidate order decides below
         $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
 
         // keep the order of the candidates, so child listing pages are preferred over the navigation category

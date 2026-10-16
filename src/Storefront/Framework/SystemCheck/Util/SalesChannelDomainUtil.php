@@ -92,7 +92,7 @@ readonly class SalesChannelDomainUtil
      * @description Records an exception that prevented a storefront page from being probed as the failed result
      * of that page, so the check can go on with the other sales channels and still report what went wrong.
      */
-    public function createExceptionResult(string $url, \Exception $e, float $responseTime = 0.0, ?Request $request = null): StorefrontHealthCheckResult
+    public function createExceptionResult(string $url, \Throwable $e, float $responseTime = 0.0, ?Request $request = null): StorefrontHealthCheckResult
     {
         $this->logger->error(\sprintf('Error during systemcheck: "%s"', $e->getMessage()), ['exception' => $e, 'url' => $url, 'request' => $request]);
 

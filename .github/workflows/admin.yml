@@ -74,6 +74,29 @@ jobs:
         working-directory: src/Administration/Resources/app/administration
         run: npm run format
 
+  # Only pull requests and merge queue entries have a base commit to compare with
+  baseline-growth:
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
+    runs-on: ubuntu-24.04
+    name: "Lint baselines do not grow"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Fetch the base commit
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+        run: git fetch --no-tags --depth=1 origin "$BASE_SHA"
+
+      - name: Compare the baselines with the base commit
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+        run: |
+          node .github/bin/js/check-baseline-growth.ts --base "$BASE_SHA" \
+            src/Administration/Resources/app/administration/eslint-suppressions.json \
+            src/Administration/Resources/app/administration/knip-baseline.json \
+            src/Storefront/Resources/app/administration/eslint-suppressions.json
+
   admin:
     needs:
       - markdown-only-changes

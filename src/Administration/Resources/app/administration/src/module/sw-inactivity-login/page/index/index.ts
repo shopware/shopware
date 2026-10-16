@@ -37,6 +37,12 @@ export default Component.wrapComponentConfig({
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.title,
+        };
+    },
+
     computed: {
         title(): string {
             const moduleName = this.$t('global.sw-inactivity-login.general.mainMenuItemIndex');
@@ -44,12 +50,6 @@ export default Component.wrapComponentConfig({
 
             return `${moduleName} | ${adminName}`;
         },
-    },
-
-    metaInfo() {
-        return {
-            title: this.title,
-        };
     },
 
     created() {

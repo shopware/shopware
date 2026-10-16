@@ -1,5 +1,44 @@
 {
+  "src/core/service/api/theme.api.service.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    }
+  },
+  "src/core/service/api/theme.api.service.spec.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    }
+  },
+  "src/extension/sw-sales-channel/index.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    }
+  },
+  "src/extension/sw-sales-channel/page/sw-sales-channel-detail/index.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
+    "sw-core-rules/require-wrap-component-config": {
+      "count": 1
+    }
+  },
+  "src/extension/sw-sales-channel/page/sw-sales-channel-detail/index.spec.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    }
+  },
+  "src/extension/sw-sales-channel/view/sw-sales-channel-detail-theme/index.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
+    "sw-core-rules/require-wrap-component-config": {
+      "count": 1
+    }
+  },
   "src/extension/sw-sales-channel/view/sw-sales-channel-detail-theme/index.spec.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
     "sw-test-rules/no-vm-access": {
       "count": 32
     }
@@ -7,24 +46,101 @@
   "src/init/api-service.init.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    }
+  },
+  "src/init/api-service.init.spec.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    }
+  },
+  "src/main.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-settings-storefront/component/sw-settings-storefront-configuration/index.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
+    "sw-core-rules/require-wrap-component-config": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-settings-storefront/component/sw-settings-storefront-configuration/sw-settings-storefront-configuration.spec.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
     }
   },
   "src/modules/sw-settings-storefront/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-settings-storefront/index.spec.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-settings-storefront/page/sw-settings-storefront-index/index.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
+    "sw-core-rules/require-wrap-component-config": {
+      "count": 1
     }
   },
   "src/modules/sw-settings-storefront/page/sw-settings-storefront-index/sw-settings-storefront-index.spec.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
     "sw-test-rules/no-vm-access": {
       "count": 30
     }
   },
+  "src/modules/sw-theme-manager/acl/index.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-theme-manager/acl/index.spec.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-theme-manager/component/sw-theme-list-item/index.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
+    "sw-core-rules/require-wrap-component-config": {
+      "count": 1
+    }
+  },
   "src/modules/sw-theme-manager/component/sw-theme-list-item/sw-theme-list-item.spec.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
     "sw-test-rules/no-vm-access": {
       "count": 14
     }
   },
+  "src/modules/sw-theme-manager/component/sw-theme-modal/index.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
+    "sw-core-rules/require-wrap-component-config": {
+      "count": 1
+    }
+  },
   "src/modules/sw-theme-manager/component/sw-theme-modal/sw-theme-modal.spec.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
     "sw-test-rules/no-vm-access": {
       "count": 18
     }
@@ -32,9 +148,28 @@
   "src/modules/sw-theme-manager/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
+    },
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-theme-manager/index.spec.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-theme-manager/mixin/sw-theme.mixin.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
+    "sw-core-rules/no-new-mixins": {
+      "count": 1
     }
   },
   "src/modules/sw-theme-manager/mixin/sw-theme.mixin.spec.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
     "sw-test-rules/no-vm-access": {
       "count": 70
     }
@@ -45,6 +180,12 @@
     },
     "sw-core-rules/max-component-members": {
       "count": 1
+    },
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
+    "sw-core-rules/require-wrap-component-config": {
+      "count": 1
     }
   },
   "src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig": {
@@ -53,10 +194,21 @@
     }
   },
   "src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.spec.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
     "sw-test-rules/no-vm-access": {
       "count": 80
     },
     "sw-test-rules/test-file-max-lines-error": {
+      "count": 1
+    }
+  },
+  "src/modules/sw-theme-manager/page/sw-theme-manager-list/index.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
+    "sw-core-rules/require-wrap-component-config": {
       "count": 1
     }
   },
@@ -66,6 +218,9 @@
     }
   },
   "src/modules/sw-theme-manager/page/sw-theme-manager-list/sw-theme-manager-list.spec.js": {
+    "sw-core-rules/no-javascript-files": {
+      "count": 1
+    },
     "sw-test-rules/no-vm-access": {
       "count": 38
     }

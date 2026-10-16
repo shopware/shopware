@@ -13,9 +13,9 @@ const { debounce } = Shopware.Utils;
 export default Component.wrapComponentConfig({
     template,
 
-    emits: ['is-loading', 'is-not-loading'],
-
     inject: ['validationApiService'],
+
+    emits: ['is-loading', 'is-not-loading'],
 
     data(): {
         email: string;

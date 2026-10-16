@@ -52,6 +52,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
+    data() {
+        return {
+            activeTabName: '',
+        };
+    },
+
     computed: {
         componentSections(): ComponentSectionEntry[] {
             const sections = this.sortSections(
@@ -91,12 +97,6 @@ export default Shopware.Component.wrapComponentConfig({
                 );
             });
         },
-    },
-
-    data() {
-        return {
-            activeTabName: '',
-        };
     },
 
     methods: {

@@ -41,7 +41,6 @@ export type stateStyleService = {
  * @memberOf module:core/service/login
  * @constructor
  * @method createStateStyleService
- * @returns {Object}
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class StateStyleService {

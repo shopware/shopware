@@ -24,6 +24,7 @@ import filenameRules from 'eslint-plugin-filename-rules';
 import vuejsAccessibility from 'eslint-plugin-vuejs-accessibility';
 import listeners from 'eslint-plugin-listeners';
 import json from '@eslint/json';
+import jsdoc from 'eslint-plugin-jsdoc';
 
 import swTestRules from 'eslint-plugin-sw-test-rules';
 import twigVue from 'eslint-plugin-twig-vue';
@@ -194,6 +195,19 @@ const baseRules = {
     ],
     'vue/prefer-import-from-vue': 'off',
     'vue/one-component-per-file': 'off',
+
+    // Lost with eslint-config-airbnb-base in the ESLint 9 update, restored with its options
+    'no-else-return': [
+        'error',
+        { allowElseIf: false },
+    ],
+    'no-useless-return': 'error',
+    'no-lonely-if': 'error',
+    'no-unneeded-ternary': [
+        'error',
+        { defaultAssignment: false },
+    ],
+    'no-nested-ternary': 'error',
 };
 
 export default [
@@ -228,6 +242,12 @@ export default [
             // .ts of the same name shadows them), so the typed parser cannot resolve them.
             'build/**/*.d.ts',
         ],
+    },
+
+    {
+        linterOptions: {
+            reportUnusedDisableDirectives: 'error',
+        },
     },
 
     { ...js.configs.recommended, ignores: ['**/*.json'] },
@@ -731,9 +751,15 @@ export default [
             '**/*.ts',
             '**/*.tsx',
         ],
+        plugins: {
+            jsdoc,
+        },
         rules: {
             ...baseRules,
             '@typescript-eslint/ban-ts-comment': 0,
+            // The signature already holds the type in TypeScript
+            'jsdoc/no-types': 'error',
+            'jsdoc/informative-docs': 'error',
             '@typescript-eslint/no-unsafe-member-access': 'error',
             '@typescript-eslint/no-unsafe-call': 'error',
             '@typescript-eslint/no-unsafe-assignment': 'error',
@@ -756,6 +782,9 @@ export default [
                 { caughtErrors: 'all', caughtErrorsIgnorePattern: '^_' },
             ],
             '@typescript-eslint/prefer-promise-reject-errors': 'warn',
+            '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
+            '@typescript-eslint/no-unnecessary-template-expression': 'error',
+            '@typescript-eslint/no-unnecessary-type-conversion': 'error',
             'sw-deprecation-rules/no-compat-conditions': ['error'],
             'sw-core-rules/enforce-async-component-registers': 'error',
             'sw-deprecation-rules/no-empty-listeners': [

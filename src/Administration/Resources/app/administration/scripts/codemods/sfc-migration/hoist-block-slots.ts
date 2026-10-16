@@ -104,6 +104,22 @@ function openingTagEnd(source: string, start: number): number {
     return -1;
 }
 
+function nonHoistableReason(slotName: string, owner: ElementNode | null, solePath: boolean): string | null {
+    if (slotName === '[dynamic]') {
+        return `${NON_HOISTABLE} (dynamic slot name)`;
+    }
+
+    if (owner === null || !ownsNamedSlots(owner)) {
+        return `${NON_HOISTABLE} (no component owns the slot)`;
+    }
+
+    if (!solePath) {
+        return `${NON_HOISTABLE} (the block wraps more than the slot)`;
+    }
+
+    return null;
+}
+
 /**
  * Every named-slot template whose direct parent is a converted block, each with the chain of blocks it
  * has to be hoisted through and the reason it cannot be, if any.
@@ -144,16 +160,7 @@ function findSites(nodes: TemplateChildNode[], parent: ElementNode | null, ances
                 inner = chain[position];
             }
 
-            const reason =
-                slotName === '[dynamic]'
-                    ? `${NON_HOISTABLE} (dynamic slot name)`
-                    : owner === null || !ownsNamedSlots(owner)
-                      ? `${NON_HOISTABLE} (no component owns the slot)`
-                      : !solePath
-                        ? `${NON_HOISTABLE} (the block wraps more than the slot)`
-                        : null;
-
-            sites.push({ slot: element, chain, reason });
+            sites.push({ slot: element, chain, reason: nonHoistableReason(slotName, owner, solePath) });
         }
 
         sites.push(...findSites(element.children, element, parent === null ? [] : [...ancestors, parent]));

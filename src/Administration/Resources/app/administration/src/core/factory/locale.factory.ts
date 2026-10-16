@@ -56,7 +56,6 @@ let systemFallbackLocale: string | null = null;
 
 /**
  * Get the complete locale registry
- * @returns {Map}
  */
 function getLocaleRegistry() {
     return localeRegistry;

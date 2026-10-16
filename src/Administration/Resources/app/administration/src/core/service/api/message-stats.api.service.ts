@@ -37,8 +37,6 @@ class MessageStatsApiService extends ApiService {
 
     /**
      * Get message statistics
-     *
-     * @returns {Promise<MessageStatsResponse>}
      */
     getStats(): Promise<MessageStatsResponse> {
         const headers = this.getBasicHeaders();

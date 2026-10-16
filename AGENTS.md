@@ -1,6 +1,7 @@
 # Shopware 6
 
-Shopware is an open-source e-commerce platform with API-first architecture exposing three distinct APIs (Admin, Store, Sync) alongside a built-in Twig-based storefront. It uses a custom Data Abstraction Layer instead of a traditional ORM, an event-driven extension system replacing decorators, and Flow Builder for business automation.
+Shopware is an open-source e-commerce platform with API-first architecture exposing three distinct APIs (Admin, Store, Sync) alongside a built-in Twig-based storefront.
+It uses a custom Data Abstraction Layer instead of a traditional ORM, an event-driven extension system replacing decorators, and Flow Builder for business automation.
 
 ## Project Structure
 
@@ -44,17 +45,23 @@ shopware/
 
 ## AI Skills
 
-This repo ships Agent Skills under `.agents/skills/`, with `.claude/skills` as a symlink for Claude Code compatibility. Skills normally match their `description` against the task — best-effort and model-decided, **not guaranteed** — while skills with unattended CI twins require explicit invocation. The mandatory steps below are therefore stated here, in the always-loaded file, so they apply even when no skill is triggered.
+This repo ships Agent Skills under `.agents/skills/`, with `.claude/skills` as a symlink for Claude Code compatibility.
+Skills normally match their `description` against the task — best-effort and model-decided, **not guaranteed** — while skills with unattended CI twins require explicit invocation.
+The mandatory steps below are therefore stated here, in the always-loaded file, so they apply even when no skill is triggered.
 
-### Definition of Done — mandatory for every change
+### Definition of Done — mandatory for every significant change
 
 Before you commit or hand work back:
-- **Behaviour change ⇒ tests are required.** Admin JS/TS/Vue → follow `shopware-admin-js`; PHP → `shopware-phpunit-tests`. Twig-only template changes follow the rule below. Style-only, snippet/translation, and docs-only changes do not need tests; still add one when it is useful and follows an established pattern.
-- **Twig-only template changes ⇒ never add PHP integration tests just to render or assert Twig output.** A direct render without a Storefront request can cache empty request-dependent Twig globals in the shared test kernel and break unrelated later tests. Run the Storefront Twig lint; use browser/acceptance coverage when the rendered behaviour needs testing.
+- **Behaviour change ⇒ tests are required.** Admin JS/TS/Vue → follow `shopware-admin-js`; PHP → `shopware-phpunit-tests`.
+  Twig-only template changes follow the rule below. Style-only, snippet/translation, and docs-only changes do not need tests;
+  still add one when it is useful and follows an established pattern.
+- **Twig-only template changes ⇒ never add PHP integration tests just to render or assert Twig output.**
+  A direct render without a Storefront request can cache empty request-dependent Twig globals in the shared test kernel and break unrelated later tests.
+  Run the Storefront Twig lint; use browser/acceptance coverage when the rendered behaviour needs testing.
 - **Writing a PR title or description? → follow `shopware-pr-hygiene`** — the Shopware PR template is required, not a generic one.
-- **Behavioural change, feature, deprecation, or config change? → check `shopware-release-docs`** for RELEASE_INFO / UPGRADE entries. Put a blank line before and after every heading in those files; the Markdown renderer otherwise glues the heading to the previous paragraph.
+- **Behavioural change, feature, deprecation, or config change? → check `shopware-release-docs`** for RELEASE_INFO / UPGRADE entries.
 - **Touching `.github/workflows/`, `.github/actions/`, or `.github/bin/`? → follow [`.github/AGENTS.md`](.github/AGENTS.md)** — a CI job must never report success without proving the work ran.
-- **Commit with a conventional message incl. scope**, e.g. `feat(administration): …`.
+- **Asked to commit changes? Commit with a conventional message incl. scope**, e.g. `feat(administration): …`. Never commit without explicitly beeing told to do so.
 - **After review feedback or CI failures**, create a follow-up commit; do not amend or force-push unless explicitly asked.
 - **Lint every file you touched** per the File Linting table below.
 
@@ -86,11 +93,27 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 
 **MANDATORY**: All code must follow the guidelines in `coding-guidelines/`.
 
+### Writing Markdown
+
+This rules apply to every file with the ending `*.md`.
+
+- Put a blank line before and after every heading
+- Put only one sentence into one line.
+  Add a line break after the sentence ends.
+  If a sentence is getting too long, it is possible to add a line break after a comma or semicolon.
+- Indent continuation lines inside list items to align with the item's content (2 spaces for - ), instead of relying on lazy continuation lines.
+- Do not add a line break in the middle of a sentence, without a punctuation sign before it.
+- Add an empty line before a code example enclosed with code fences.
+
 ## Snippets & Translations
 
-German snippets differ in register between the two UIs. The Administration addresses the user informally ("Du"), the Storefront formally ("Sie"). Keep each domain consistent when adding or editing `de` snippets.
+German snippets differ in register between the two UIs.
+The Administration addresses the user informally ("Du"), the Storefront formally ("Sie").
+Keep each domain consistent when adding or editing `de` snippets.
 
-Snippet files are named by language, not locale: `en.json` / `de.json` in the Administration, `storefront.en.json` / `storefront.de.json` in the Storefront. Locale-specific names such as `en-GB.json` or `storefront.de-DE.json` are the legacy scheme; do not create them, and do not use them in tests, fixtures, or examples unless the test deliberately covers the legacy loader.
+Snippet files are named by language, not locale: `en.json` / `de.json` in the Administration, `storefront.en.json` / `storefront.de.json` in the Storefront.
+Locale-specific names such as `en-GB.json` or `storefront.de-DE.json` are the legacy scheme;
+do not create them, and do not use them in tests, fixtures, or examples unless the test deliberately covers the legacy loader.
 
 ## File Linting
 

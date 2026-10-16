@@ -183,7 +183,7 @@ const swOrderStore = Shopware.Store.register({
         },
 
         getCart({ salesChannelId, contextToken }: { salesChannelId: EntityKey<'sales_channel'>; contextToken: string }) {
-            if (`${contextToken}`.length !== 32) {
+            if (contextToken.length !== 32) {
                 throw new Error('Invalid context token');
             }
 
@@ -198,7 +198,7 @@ const swOrderStore = Shopware.Store.register({
         },
 
         cancelCart({ salesChannelId, contextToken }: { salesChannelId: EntityKey<'sales_channel'>; contextToken: string }) {
-            if (`${contextToken}`.length !== 32) {
+            if (contextToken.length !== 32) {
                 throw new Error('Invalid context token');
             }
 

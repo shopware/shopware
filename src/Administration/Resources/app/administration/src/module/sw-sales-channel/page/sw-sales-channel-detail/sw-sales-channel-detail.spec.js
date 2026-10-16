@@ -46,11 +46,12 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
             'routerPush',
         ].some((key) => Object.hasOwn(optionsOrLegacyArg, key));
 
-    const normalizedOptions = Array.isArray(optionsOrLegacyArg)
-        ? { routeParams: { id: '1a2b3c4d' } }
-        : hasOptionsShape
-          ? optionsOrLegacyArg
-          : { routeParams: optionsOrLegacyArg };
+    let normalizedOptions = { routeParams: optionsOrLegacyArg };
+    if (Array.isArray(optionsOrLegacyArg)) {
+        normalizedOptions = { routeParams: { id: '1a2b3c4d' } };
+    } else if (hasOptionsShape) {
+        normalizedOptions = optionsOrLegacyArg;
+    }
 
     const {
         routeParams = { id: '1a2b3c4d' },

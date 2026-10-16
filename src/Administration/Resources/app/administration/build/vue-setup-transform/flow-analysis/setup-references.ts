@@ -144,7 +144,7 @@ type SetupRenameTarget = {
  * by the dedicated branch in `collectSetupRenameTargets`, which reports the same expansion.
  */
 function isShorthandPropertyValue(node: Identifier, parent: BabelNode | null): boolean {
-    return parent?.type === 'ObjectProperty' && parent.shorthand === true && parent.value === node;
+    return parent?.type === 'ObjectProperty' && parent.shorthand && parent.value === node;
 }
 
 /**

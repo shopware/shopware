@@ -51,6 +51,14 @@ const DefaultAddressFormat = [
 ] as string[][];
 const PREVIEW_LOADING_HIDE_DELAY = 300 as number;
 
+function getDropTargetIndex(dropData: DragItem, targetLineLength: number): number {
+    if (typeof dropData.targetIndex === 'number') {
+        return dropData.targetIndex;
+    }
+
+    return typeof dropData.linePosition === 'number' ? dropData.index : targetLineLength;
+}
+
 /**
  * @sw-package fundamentals@discovery
  *
@@ -355,12 +363,7 @@ export default Component.wrapComponentConfig({
                     typeof dropData.linePosition === 'number' ? dropData.linePosition : dropData.index;
                 const targetLine = [...(this.addressFormat[targetLinePosition] ?? [])];
                 const sourceLine = [...(this.addressFormat[dragData.linePosition] ?? [])];
-                const targetIndex =
-                    typeof dropData.targetIndex === 'number'
-                        ? dropData.targetIndex
-                        : typeof dropData.linePosition === 'number'
-                          ? dropData.index
-                          : targetLine.length;
+                const targetIndex = getDropTargetIndex(dropData, targetLine.length);
 
                 if (dragData.linePosition === targetLinePosition) {
                     return;

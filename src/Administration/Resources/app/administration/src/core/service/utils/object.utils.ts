@@ -65,7 +65,7 @@ export function hasOwnProperty(scope: any, prop: string): boolean {
 }
 
 /**
- * Deep copy an object
+ * Copies through JSON, so functions and undefined values are dropped and dates become strings.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function deepCopyObject<O extends object>(copyObject: O): O {
@@ -89,10 +89,6 @@ export function deepMergeObject<FO extends object, SO extends object>(firstObjec
 /**
  * Get a simple recursive diff of two objects.
  * Does not consider an entity schema or entity related logic.
- *
- * @param {Object} a
- * @param {Object} b
- * @return {*}
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, sw-deprecation-rules/private-feature-declarations
 export function getObjectDiff(a: any, b: any): any {

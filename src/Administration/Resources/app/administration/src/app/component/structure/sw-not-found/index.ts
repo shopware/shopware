@@ -3,6 +3,7 @@
  */
 
 import template from './sw-not-found.html.twig';
+import './sw-not-found.scss';
 
 /**
  * @private - Only to be used by the Shopware Admin
@@ -18,5 +19,17 @@ export default Shopware.Component.wrapComponentConfig({
                 this.$t('global.sw-admin-menu.textShopwareAdmin'),
             ].join(' | '),
         };
+    },
+
+    methods: {
+        goBack() {
+            // Without a previous Administration page, e.g. on a direct visit, going back would leave the Administration
+            if (!this.$router.options.history.state.back) {
+                void this.$router.push({ name: 'sw.dashboard.index' });
+                return;
+            }
+
+            this.$router.go(-1);
+        },
     },
 });

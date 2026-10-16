@@ -4,6 +4,7 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { VueWrapper } from '@vue/test-utils';
+import type MockAdapter from 'axios-mock-adapter';
 
 declare global {
     var activeFeatureFlags: string[];
@@ -18,6 +19,18 @@ declare global {
         msg?: string | RegExp;
         msgCheck?: (...args: unknown[]) => boolean;
     }[];
+
+    /**
+     * The HTTP client behind the `repositoryFactory` service. A request without a matching response
+     * fails the spec with a `console.error`, and the newest response for a method and URL wins.
+     */
+    var repositoryFactoryMock: {
+        clientMock: MockAdapter;
+        responses: {
+            addResponse(response: { method: string; url: string | RegExp; status?: number; response: unknown }): void;
+        };
+        showError: boolean;
+    };
 
     namespace jest {
         interface FeatureFlagTest {

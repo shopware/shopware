@@ -647,7 +647,13 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
         );
         const url = `/_action/version/${versionId}/${this.entityName.replace(/_/g, '-')}/${entityId}`;
 
-        return fetch(this.httpClient.getUri({ url, useAxiosV1: true }), {
+        const uri = this.httpClient.getUri({
+            url,
+            // @deprecated tag:v6.8.0 - Remove this option, axios 1.x is the only transport.
+            useAxiosV1: true,
+        });
+
+        return fetch(uri, {
             method: 'POST',
             headers,
             body: JSON.stringify({}),
@@ -801,6 +807,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
     private buildRequestConfig(headers: ReturnType<Repository<EntityName>['buildHeaders']>) {
         return {
             headers,
+            // @deprecated tag:v6.8.0 - Remove this option, axios 1.x is the only transport.
             useAxiosV1: true,
         };
     }

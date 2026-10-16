@@ -880,9 +880,11 @@ The product box now reports the price of a matching price rule or the first grad
 
 ### Storefront analytics report brand and category of products added from a product box
 
-With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does. Cart, checkout and purchase events report them as `item_brand` and `item_category`.
+With active analytics, adding a product from a product box now posts its brand and categories in the line item payload, like the buy widget does.
+Cart, checkout and purchase events report them as `item_brand` and `item_category`.
 
-The reorder of an order in the account now reports one `add_to_cart` with all products of the order, each with product number, name, price, quantity, brand and categories of the original order. The reorder form posts only the order, so the products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
+The reorder of an order in the account now reports one `add_to_cart` with all products of the order, each with product number, name, price, quantity, brand and categories of the original order.
+The reorder form posts only the order, so the products are rendered into the form as `[data-analytics-line-item]` elements while analytics is active.
 
 ### Essential characteristics label custom fields with their snippet
 

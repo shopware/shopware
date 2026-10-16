@@ -35,21 +35,6 @@ final class OpenApiDtoGenerator
     /**
      * @var list<string>
      */
-    private const HTTP_METHODS = [
-        'get',
-        'post',
-        'put',
-        'patch',
-        'delete',
-        'options',
-        'head',
-        'trace',
-        'query',
-    ];
-
-    /**
-     * @var list<string>
-     */
     private const API_SCHEMA_DIRECTORIES = ['AdminApi', 'StoreApi'];
 
     private const GENERATED_AT_LINE_PATTERN = '# \* Last generated: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\n#';
@@ -62,6 +47,7 @@ final class OpenApiDtoGenerator
      * @param array{Framework: array{path: string}} $bundles
      */
     public function __construct(
+        private readonly OpenApiOperationReader $operationReader,
         private readonly OpenApiDtoSchemaParser $schemaParser,
         private readonly OpenApiDtoClassRenderer $classRenderer,
         private readonly Filesystem $filesystem,
@@ -238,18 +224,20 @@ final class OpenApiDtoGenerator
                 continue;
             }
 
-            foreach (self::HTTP_METHODS as $method) {
-                $operation = $pathItem[$method] ?? null;
-                if (!\is_array($operation)) {
-                    continue;
-                }
+            foreach ($this->operationReader->read($pathItem) as $entry) {
+                $operation = $entry['operation'];
 
                 $namespace = $this->namespaceFromSchema($operation);
                 if ($namespace === null) {
                     continue;
                 }
 
-                $groups[$namespace][$pathKey][$method] = $operation;
+                $location = $entry['location'];
+                if (isset($location[1])) {
+                    $groups[$namespace][$pathKey][$location[0]][$location[1]] = $operation;
+                } else {
+                    $groups[$namespace][$pathKey][$location[0]] = $operation;
+                }
                 if (\is_array($pathItem['parameters'] ?? null)) {
                     $groups[$namespace][$pathKey]['parameters'] = $pathItem['parameters'];
                 }

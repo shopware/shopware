@@ -80,6 +80,7 @@ use Shopware\Core\Framework\Api\OAuth\UserRepository;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
+use Shopware\Core\Framework\Api\OpenApi\OpenApiOperationReader;
 use Shopware\Core\Framework\Api\Response\DTOResponseListener;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterfaceValueResolver;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry;
@@ -349,7 +350,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator(StoreApiSchemaMigrationScopeProviderInterface::SERVICE_TAG),
         ]);
 
-    $services->set(OpenApiDtoSchemaParser::class);
+    $services->set(OpenApiOperationReader::class);
+
+    $services->set(OpenApiDtoSchemaParser::class)
+        ->args([
+            service(OpenApiOperationReader::class),
+        ]);
 
     $services->set(OpenApiDtoClassRenderer::class)
         ->args([
@@ -358,6 +364,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(OpenApiDtoGenerator::class)
         ->args([
+            service(OpenApiOperationReader::class),
             service(OpenApiDtoSchemaParser::class),
             service(OpenApiDtoClassRenderer::class),
             service(Filesystem::class),

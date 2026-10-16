@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\OpenApi;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
+use Shopware\Core\Framework\Api\OpenApi\OpenApiOperationReader;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
@@ -16,19 +17,26 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(OpenApiDtoSchemaParser::class)]
 class OpenApiDtoSchemaParserTest extends TestCase
 {
+    private OpenApiDtoSchemaParser $parser;
+
+    protected function setUp(): void
+    {
+        $this->parser = new OpenApiDtoSchemaParser(new OpenApiOperationReader());
+    }
+
     public function testCyclicRequestBodyReferenceThrowsException(): void
     {
         $schema = $this->loadSchema('invalidSchemas/cyclicRequestBody.json');
         $this->expectExceptionObject(FrameworkException::invalidArgumentException('Cannot resolve request reference "#/components/requestBodies/InputAlias".'));
 
-        (new OpenApiDtoSchemaParser())->parse($schema);
+        $this->parser->parse($schema);
     }
 
     public function testDuplicateNormalizedPropertiesThrowException(): void
     {
         $this->expectException(FrameworkException::class);
 
-        (new OpenApiDtoSchemaParser())->parse($this->loadSchema('invalidSchemas/duplicateProperties.json'));
+        $this->parser->parse($this->loadSchema('invalidSchemas/duplicateProperties.json'));
     }
 
     public function testDuplicateDtoNamesThrowException(): void
@@ -37,7 +45,7 @@ class OpenApiDtoSchemaParserTest extends TestCase
             'Component schema and operation generate the same DTO name "CreateOrderRequest". Use unique names or mark the composition-only component with "x-dto-inline": true.',
         ));
 
-        (new OpenApiDtoSchemaParser())->parse($this->loadSchema('invalidSchemas/duplicateDtoNames.json'));
+        $this->parser->parse($this->loadSchema('invalidSchemas/duplicateDtoNames.json'));
     }
 
     public function testConflictingInheritedComponentPackagesThrowException(): void
@@ -46,7 +54,7 @@ class OpenApiDtoSchemaParserTest extends TestCase
             'Component schema "Order" inherits conflicting DTO packages "checkout" and "framework". Set "x-dto-package" explicitly on the component.',
         ));
 
-        (new OpenApiDtoSchemaParser())->parse(
+        $this->parser->parse(
             $this->loadSchema('invalidSchemas/conflictingInheritedComponentPackages.json'),
             includeComponentSchemas: false,
         );

@@ -29,20 +29,10 @@ final class OpenApiDtoSchemaParser
         self::PHP_TYPE_MIXED,
         self::PHP_TYPE_STRING,
     ];
-    /**
-     * @var list<string>
-     */
-    private const HTTP_METHODS = [
-        'get',
-        'post',
-        'put',
-        'patch',
-        'delete',
-        'options',
-        'head',
-        'trace',
-        'query',
-    ];
+
+    public function __construct(private readonly OpenApiOperationReader $operationReader)
+    {
+    }
 
     /**
      * @param array<string, mixed> $schema
@@ -125,11 +115,8 @@ final class OpenApiDtoSchemaParser
                 continue;
             }
 
-            foreach (self::HTTP_METHODS as $method) {
-                $operation = $this->schemaAtKey($pathData, $method);
-                if ($operation === null) {
-                    continue;
-                }
+            foreach ($this->operationReader->read($pathData) as $entry) {
+                $operation = $entry['operation'];
 
                 $requestBody = $this->schemaAtKey($operation, 'requestBody');
                 if ($requestBody !== null) {
@@ -153,8 +140,16 @@ final class OpenApiDtoSchemaParser
                     $parameters[$location . ':' . $name] = $parameter;
                 }
                 $operation['parameters'] = array_values($parameters);
-                $paths[$path][$method] = $operation;
+                $location = $entry['location'];
+                if (isset($location[1])) {
+                    $additionalOperations = $this->arrayAtKey($pathData, 'additionalOperations') ?? [];
+                    $additionalOperations[$location[1]] = $operation;
+                    $pathData['additionalOperations'] = $additionalOperations;
+                } else {
+                    $pathData[$location[0]] = $operation;
+                }
             }
+            $paths[$path] = $pathData;
         }
         $schema['paths'] = $paths;
 
@@ -335,11 +330,8 @@ final class OpenApiDtoSchemaParser
                 continue;
             }
 
-            foreach (self::HTTP_METHODS as $method) {
-                $operation = $this->schemaAtKey($pathData, $method);
-                if ($operation === null) {
-                    continue;
-                }
+            foreach ($this->operationReader->read($pathData) as $entry) {
+                $operation = $entry['operation'];
 
                 $request = $this->arrayAtPath($operation, ['requestBody', 'content', 'application/json', 'schema']);
                 $requestRef = $request !== null ? $this->refFromSchema($request) : null;
@@ -635,11 +627,8 @@ final class OpenApiDtoSchemaParser
                 continue;
             }
 
-            foreach (self::HTTP_METHODS as $method) {
-                $operation = $this->schemaAtKey($pathData, $method);
-                if ($operation === null) {
-                    continue;
-                }
+            foreach ($this->operationReader->read($pathData) as $entry) {
+                $operation = $entry['operation'];
 
                 $operationId = $operation['operationId'] ?? null;
                 if (!\is_string($operationId) || $operationId === '') {
@@ -742,11 +731,8 @@ final class OpenApiDtoSchemaParser
                 continue;
             }
 
-            foreach (self::HTTP_METHODS as $method) {
-                $operation = $this->schemaAtKey($pathData, $method);
-                if ($operation === null) {
-                    continue;
-                }
+            foreach ($this->operationReader->read($pathData) as $entry) {
+                $operation = $entry['operation'];
 
                 $operationId = $operation['operationId'] ?? null;
                 if (!\is_string($operationId) || $operationId === '') {

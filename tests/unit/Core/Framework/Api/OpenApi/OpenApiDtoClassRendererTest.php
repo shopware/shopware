@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
+use Shopware\Core\Framework\Api\OpenApi\OpenApiOperationReader;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\MockClock;
@@ -34,7 +35,7 @@ class OpenApiDtoClassRendererTest extends TestCase
     {
         $schema = json_decode((new Filesystem())->readFile(__DIR__ . '/_fixtures/invalidSchemas/' . $fixture), true, flags: \JSON_THROW_ON_ERROR);
         static::assertIsArray($schema);
-        $definitions = (new OpenApiDtoSchemaParser())->parse($schema);
+        $definitions = (new OpenApiDtoSchemaParser(new OpenApiOperationReader()))->parse($schema);
         $renderer = new OpenApiDtoClassRenderer(new MockClock('2026-07-07 00:00:00'));
 
         $this->expectException(FrameworkException::class);

@@ -97,6 +97,61 @@
                         }
                     }
                 }
+            },
+            "additionalOperations": {
+                "COPY": {
+                    "operationId": "copyInput",
+                    "x-dto-namespace": "Shopware\\Core\\Example\\CustomOperation",
+                    "x-dto-package": "framework",
+                    "parameters": [
+                        {
+                            "$ref": "#/components/parameters/Version"
+                        },
+                        {
+                            "name": "locale",
+                            "in": "query",
+                            "required": false,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "requestBody": {
+                        "$ref": "#/components/requestBodies/CopyInputAlias"
+                    },
+                    "responses": {
+                        "201": {
+                            "description": "Copied input",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/CopyInputResult"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "REPORT": {
+                    "operationId": "reportInput",
+                    "x-dto-namespace": "Shopware\\Core\\Example\\Operation",
+                    "x-dto-package": "framework",
+                    "requestBody": {
+                        "$ref": "#/components/requestBodies/InputAlias"
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Input report",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/InputSearchResult"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/optional-extensions": {
@@ -148,6 +203,19 @@
                         }
                     }
                 }
+            },
+            "CopyInputAlias": {
+                "$ref": "#/components/requestBodies/CopyInput"
+            },
+            "CopyInput": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CopyInputPayload"
+                        }
+                    }
+                }
             }
         },
         "parameters": {
@@ -180,7 +248,9 @@
             "InputSearchResult": {
                 "x-dto-inline": true,
                 "type": "object",
-                "required": ["matched"],
+                "required": [
+                    "matched"
+                ],
                 "properties": {
                     "matched": {
                         "type": "boolean"
@@ -206,13 +276,41 @@
                 }
             },
             "InputSettings": {
-            "x-dto-namespace": "Shopware\\Core\\Example\\Shared",
-            "x-dto-package": "framework",
+                "x-dto-namespace": "Shopware\\Core\\Example\\Shared",
+                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "enabled": {
                         "type": "boolean",
                         "default": true
+                    }
+                }
+            },
+            "CopyInputPayload": {
+                "type": "object",
+                "required": [
+                    "target"
+                ],
+                "properties": {
+                    "target": {
+                        "type": "string"
+                    },
+                    "settings": {
+                        "$ref": "#/components/schemas/InputSettings"
+                    }
+                }
+            },
+            "CopyInputResult": {
+                "type": "object",
+                "required": [
+                    "copied"
+                ],
+                "properties": {
+                    "copied": {
+                        "type": "boolean"
+                    },
+                    "settings": {
+                        "$ref": "#/components/schemas/InputSettings"
                     }
                 }
             }

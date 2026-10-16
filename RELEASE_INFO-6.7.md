@@ -334,6 +334,10 @@ This will allow async payment methods to leave the order transaction in "unconfi
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
 
+### Sync requests report products deleted earlier in the request as deleted
+
+A sync request that deletes a product and then its prices, media, cross-sellings, manufacturer or another entity whose deletion would update that product, for example its inherited data or a reference set to `null`, no longer reports the product as updated. The product now appears in `deleted` of the sync response and triggers `product.deleted` instead of `product.written`.
+
 ### Large MCP tool results from extensions are offloaded like core results
 
 MCP tools from plugins and bundles that extend `McpToolResponse` now store results larger than 100 KB in the tool-result cache on the Admin API endpoint, like core tools already did. The response then contains `_meta.resourceUri` instead of the full data, and the model reads the data with `resources/read`. Before, these results were always returned inline. On the Store API endpoint, results stay inline until it has a tool-result resource to read them back.

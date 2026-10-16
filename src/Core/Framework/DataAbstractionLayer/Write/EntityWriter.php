@@ -236,6 +236,10 @@ class EntityWriter implements EntityWriterInterface
 
                 $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, $key, $writeContext->getContext());
 
+                if ($this->isDeletedInQueue($queue, $affectedDefinition->getEntityName(), $primary)) {
+                    continue;
+                }
+
                 $existence = new EntityExistence($affectedDefinition->getEntityName(), $primary, true, false, false, []);
 
                 $command = new UpdateCommand($affectedDefinition, [], $primary, $existence, '');
@@ -318,6 +322,10 @@ class EntityWriter implements EntityWriterInterface
 
                 $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, ['id' => $key], $writeContext->getContext());
 
+                if ($this->isDeletedInQueue($queue, $affectedDefinition->getEntityName(), $primary)) {
+                    continue;
+                }
+
                 $existence = new EntityExistence($affectedDefinition->getEntityName(), $primary, true, false, false, []);
 
                 if ($definition->isVersionAware()) {
@@ -336,6 +344,29 @@ class EntityWriter implements EntityWriterInterface
                 );
             }
         }
+    }
+
+    /**
+     * @param array<string, string> $primaryKey
+     */
+    private function isDeletedInQueue(WriteCommandQueue $queue, string $entityName, array $primaryKey): bool
+    {
+        ksort($primaryKey);
+
+        foreach ($queue->getCommands()[$entityName] ?? [] as $command) {
+            if (!$command instanceof DeleteCommand) {
+                continue;
+            }
+
+            $deletedPrimaryKey = $command->getPrimaryKey();
+            ksort($deletedPrimaryKey);
+
+            if ($deletedPrimaryKey === $primaryKey) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

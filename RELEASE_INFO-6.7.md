@@ -1124,6 +1124,12 @@ Selecting a language sets the snippet set with the same locale, or the first set
 Overrides of that block or of the computed `snippetSetCriteria` need to be adjusted:
 the component now loads all snippet sets and locales once in `createdComponent` and builds the options in the computed `snippetSetOptions`.
 
+### Administration deprecation notices go through the feature lifecycle
+
+The hand-rolled deprecation warnings in the Administration now go through `Shopware.Feature.triggerDeprecationOrThrow()`, so they throw once their major flag is active instead of staying a console message forever. This covers `sw-tabs`, `sw-loader`, `sw-popover`, `sw-skeleton-bar`, the `items` prop of `sw-entity-listing`, the Options API compatibility shim and the legacy theme config labels and help texts in `sw-theme-manager-detail`.
+
+Deprecation notices for the legacy Twig override shim and for deprecated extension SDK position identifiers and data sets still only warn and do not throw, because no removal version exists for them yet.
+
 ## Storefront
 
 ### Category Twig function removal postponed to 6.9

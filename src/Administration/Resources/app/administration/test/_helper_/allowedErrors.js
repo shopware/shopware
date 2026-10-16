@@ -17,36 +17,6 @@ export const sendTimeoutExpired = {
     method: 'error',
 };
 
-/**
- * Pre-major deprecation warnings, silenced because the suite runs both sides of a feature flag.
- */
-export const deprecationWarning = {
-    msg: '[Deprecation]',
-    method: 'warn',
-};
-
-export const deprecatedTabComponent = {
-    method: 'warn',
-    msgCheck: (_, msg1) => {
-        if (typeof msg1 !== 'string') {
-            return false;
-        }
-
-        return msg1.includes('The old usage of "sw-tabs" is deprecated');
-    },
-};
-
-export const deprecatedPopoverComponent = {
-    method: 'warn',
-    msgCheck: (_, msg1) => {
-        if (typeof msg1 !== 'string') {
-            return false;
-        }
-
-        return msg1.includes('The old usage of "sw-popover" is deprecated');
-    },
-};
-
 // Vue 3 component resolution warnings for non-registered components in tests.
 // sw-block and sw-block-parent are excluded: they are registered globally by the Jest setup, and
 // silencing them is what let an unresolved <sw-block> add a DOM element the application does not have.

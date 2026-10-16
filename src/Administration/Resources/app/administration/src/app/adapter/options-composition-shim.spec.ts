@@ -11,23 +11,13 @@ import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from 's
 import type { OverrideFn } from 'src/app/adapter/options-composition-shim';
 import { mount } from '@vue/test-utils';
 import { ref, computed, defineComponent, nextTick, reactive, provide } from 'vue';
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
 
-/**
- * Helper: wraps convertOptionsApiOverrideToCompositionApi and silences the
- * deprecation console.warn that fires on every call.
- */
-function convertWithSilencedWarning(
-    componentName: string,
-    config: Parameters<typeof convertOptionsApiOverrideToCompositionApi>[1],
-) {
-    const spy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    const result = convertOptionsApiOverrideToCompositionApi(componentName, config);
-    spy.mockRestore();
-    return result;
-}
+const shimDeprecation = 'is being overridden with Options API patterns';
 
 describe('src/app/adapter/options-composition-shim', () => {
     beforeEach(() => {
+        allowDeprecation(shimDeprecation);
         const entries = [...Object.keys(_overridesMap)];
         entries.forEach((key) => {
             delete _overridesMap[key];
@@ -177,7 +167,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             const wrapper = mount(originalComponent);
             expect(wrapper.find('.msg').text()).toBe('original');
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return { message: 'overridden' };
                 },
@@ -191,7 +181,7 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should convert data() return values to refs', () => {
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return { count: 42, name: 'test' };
                 },
@@ -227,7 +217,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             const wrapper = mount(originalComponent);
             expect(wrapper.find('.count').text()).toBe('Count: 1');
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     increment() {
                         this.count += 10;
@@ -265,7 +255,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             const wrapper = mount(originalComponent);
             expect(wrapper.find('.count').text()).toBe('Count: 1');
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     increment() {
                         this.$super('increment');
@@ -289,7 +279,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 increment: () => {},
             };
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     doSomething() {
                         this.$super('nonExistentMethod');
@@ -326,7 +316,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             const wrapper = mount(originalComponent);
             expect(wrapper.find('.doubled').text()).toBe('Doubled: 10');
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 computed: {
                     doubled() {
                         return this.count * 3;
@@ -367,7 +357,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             const wrapper = mount(originalComponent);
             expect(wrapper.find('.doubled').text()).toBe('Doubled: 10');
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 computed: {
                     doubled: {
                         get(): number {
@@ -414,7 +404,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             const wrapper = mount(originalComponent);
             expect(wrapper.find('.greeting').text()).toBe('Greeting: Hello World');
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 computed: {
                     greeting() {
                         return `Goodbye ${this.name}`;
@@ -452,7 +442,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             const wrapper = mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 watch: {
                     count(newVal: number, oldVal: number) {
                         watchCallback(newVal, oldVal);
@@ -489,7 +479,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 watch: {
                     count: {
                         handler(newVal: number, oldVal: number) {
@@ -529,7 +519,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             const wrapper = mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     onCountChange(newVal: number, oldVal: number) {
                         methodCallback(newVal, oldVal);
@@ -607,7 +597,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 name: ref('test'),
             };
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     getCount() {
                         return this.count;
@@ -629,7 +619,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 count: ref(1),
             };
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     setCount() {
                         this.count = 100;
@@ -647,7 +637,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             const previousState = {};
             const props = { title: 'Hello' };
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     getTitle() {
                         return this.title;
@@ -665,7 +655,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 count: ref(1),
             };
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return { count: 999 };
                 },
@@ -719,7 +709,6 @@ describe('src/app/adapter/options-composition-shim', () => {
             const result = overrideFn(previousState, {}) as Record<string, any>;
             result.accessVueProperty();
 
-            // Filter out the deprecation warning to check only property warnings
             const propertyWarnings = consoleWarn.mock.calls.filter(
                 (call) => typeof call[0] === 'string' && call[0].includes('not found in component state'),
             );
@@ -744,7 +733,6 @@ describe('src/app/adapter/options-composition-shim', () => {
             const result = overrideFn(previousState, {}) as Record<string, any>;
             result.accessInternal();
 
-            // Filter out the deprecation warning to check only property warnings
             const propertyWarnings = consoleWarn.mock.calls.filter(
                 (call) => typeof call[0] === 'string' && call[0].includes('not found in component state'),
             );
@@ -817,7 +805,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             };
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 mixins: [myMixin],
                 methods: {
                     increment() {
@@ -844,7 +832,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 },
             };
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 mixins: [myMixin],
                 data() {
                     return { localValue: 'from-override' };
@@ -880,7 +868,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 mixins: [myMixin],
             });
 
@@ -907,7 +895,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 created() {
                     createdCallback();
                 },
@@ -935,7 +923,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 beforeCreate() {
                     beforeCreateCallback();
                 },
@@ -961,7 +949,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 mounted() {
                     mountedCallback();
                 },
@@ -992,7 +980,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 beforeUnmount() {
                     beforeUnmountCallback();
                 },
@@ -1033,7 +1021,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 created() {
                     capturedCount = this.count;
                 },
@@ -1067,7 +1055,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 mixins: [myMixin],
                 created() {
                     callOrder.push('component-created');
@@ -1106,7 +1094,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 mixins: [mixinA, mixinB],
                 created() {
                     callOrder.push('component');
@@ -1135,7 +1123,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return { extra: 'test' };
                 },
@@ -1168,7 +1156,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 mounted() {
                     mountedCallback();
                 },
@@ -1222,34 +1210,18 @@ describe('src/app/adapter/options-composition-shim', () => {
     });
 
     describe('Deprecation warning:', () => {
-        it('should log deprecation warning when shim is activated', () => {
-            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
+        it('should report the activated shim as deprecated, naming the component, the replacement and the migration docs', () => {
             convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: { foo() {} },
             });
 
-            expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('[Deprecation Warning]'));
-            expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('originalComponent'));
-            expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('overrideComponentSetup()'));
-
-            consoleWarn.mockRestore();
-        });
-
-        it('should include migration docs link in deprecation warning', () => {
-            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-            convertOptionsApiOverrideToCompositionApi('originalComponent', {
-                methods: { foo() {} },
-            });
-
-            expect(consoleWarn).toHaveBeenCalledWith(
-                expect.stringContaining(
-                    'https://developer.shopware.com/docs/resources/references/core-reference/administration-reference/composition-api',
-                ),
+            expect(deprecations).toHaveTriggered(`Component "originalComponent" ${shimDeprecation}`);
+            expect(deprecations).toHaveTriggered(
+                'Please migrate your override to use Shopware.Component.overrideComponentSetup()',
             );
-
-            consoleWarn.mockRestore();
+            expect(deprecations).toHaveTriggered(
+                'See: https://developer.shopware.com/docs/resources/references/core-reference/administration-reference/composition-api',
+            );
         });
     });
 
@@ -1276,7 +1248,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             const wrapper = mount(originalComponent);
             expect(wrapper.find('.count').text()).toBe('Count: 0');
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     increment() {
                         this.$super('increment');
@@ -1314,7 +1286,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             const wrapper = mount(originalComponent);
             expect(wrapper.find('.extra').text()).toBe('Extra: none');
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return { extraInfo: 'overridden data' };
                 },
@@ -1352,7 +1324,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             const wrapper = mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return { extra: 'from-override' };
                 },
@@ -1406,7 +1378,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             expect(wrapper.find('.count').text()).toBe('Count: 0');
 
             // Plugin A override (Options API)
-            const pluginAOverride = convertWithSilencedWarning('originalComponent', {
+            const pluginAOverride = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     increment() {
                         this.$super('increment');
@@ -1420,7 +1392,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             await flushPromises();
 
             // Plugin B override (Options API) - builds on Plugin A
-            const pluginBOverride = convertWithSilencedWarning('originalComponent', {
+            const pluginBOverride = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     increment() {
                         this.$super('increment');
@@ -1455,7 +1427,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             expect(wrapper.find('.msg').text()).toBe('core');
 
             // Plugin A
-            const pluginA = convertWithSilencedWarning('originalComponent', {
+            const pluginA = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return { message: 'plugin-a' };
                 },
@@ -1467,7 +1439,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             expect(wrapper.find('.msg').text()).toBe('plugin-a');
 
             // Plugin B
-            const pluginB = convertWithSilencedWarning('originalComponent', {
+            const pluginB = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return { message: 'plugin-b' };
                 },
@@ -1500,7 +1472,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             expect(wrapper.find('.display').text()).toBe('Display: Core: 5');
 
             // Plugin A: Override computed
-            const pluginA = convertWithSilencedWarning('originalComponent', {
+            const pluginA = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 computed: {
                     display() {
                         return `Plugin A: ${this.count}`;
@@ -1514,7 +1486,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             expect(wrapper.find('.display').text()).toBe('Display: Plugin A: 5');
 
             // Plugin B: Override computed again
-            const pluginB = convertWithSilencedWarning('originalComponent', {
+            const pluginB = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 computed: {
                     display() {
                         return `Plugin B: ${this.count * 2}`;
@@ -1546,7 +1518,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             const wrapper = mount(originalComponent);
             expect(wrapper.find('.name').text()).toBe('Name: original');
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return { name: 'overridden' };
                 },
@@ -1560,7 +1532,7 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle empty data function', () => {
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return {};
                 },
@@ -1572,7 +1544,7 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle null/undefined data gracefully', () => {
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return null as any;
                 },
@@ -1599,7 +1571,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             const wrapper = mount(originalComponent);
             expect(wrapper.find('.display').text()).toBe('5');
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 computed: {
                     display() {
                         return `Modified: ${this.count}`;
@@ -1615,8 +1587,8 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should resolve inject internally without exposing keys in the override result', () => {
-            // Suppress all warnings (deprecation + Vue "inject outside setup" since we call
-            // the override function directly in this unit test, outside a component context).
+            // Suppresses Vue's "inject outside setup" warning: the test calls the override function
+            // directly, outside a component context.
             const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
             const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
@@ -1637,7 +1609,7 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle config with no Options API patterns gracefully', () => {
-            const overrideFn = convertWithSilencedWarning('originalComponent', {});
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {});
 
             const result = overrideFn({}, {});
 
@@ -1650,7 +1622,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 count: ref(10),
             };
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     getDoubledCount() {
                         return this.count * 2;
@@ -1668,7 +1640,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 count: ref(0),
             };
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     addToCount(amount: number) {
                         this.count += amount;
@@ -1696,7 +1668,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 inject: ['myService'],
                 created() {
                     capturedService = this.myService;
@@ -1728,7 +1700,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 inject: { myVal: { from: 'nonExistentKey', default: 'fallback-value' } } as any,
                 created() {
                     capturedVal = this.myVal;
@@ -1756,7 +1728,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 inject: ['someService'],
                 created() {
                     // capture what was actually returned in the result (not injectedValues)
@@ -1811,7 +1783,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 mixins: [shallowMixin],
                 created() {
                     callOrder.push('component');
@@ -1851,7 +1823,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 mixins: [shallowMixin],
                 created() {
                     capturedResult = (this as any).deepMethod();
@@ -1882,8 +1854,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            // Call convertOptionsApiOverrideToCompositionApi directly so the deprecation
-            // warning is also captured by our single spy (filtered out below).
             const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 watch: {
                     'user.name'(newVal: any) {
@@ -1968,7 +1938,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     doEmit() {
                         this.$emit('custom-event', 'payload');
@@ -2002,7 +1972,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 async created() {
                     if (this.$nextTick) {
                         await this.$nextTick(() => {
@@ -2035,7 +2005,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 mounted() {
                     capturedRef = this.$refs;
                 },
@@ -2067,7 +2037,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             const wrapper = mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return { address: { city: 'Berlin' } };
                 },
@@ -2081,7 +2051,7 @@ describe('src/app/adapter/options-composition-shim', () => {
         });
 
         it('should handle nested object data with deep reactivity', () => {
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return {
                         user: { address: { city: 'Berlin' } },
@@ -2115,7 +2085,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 mixins: [myMixin],
                 created() {
                     capturedService = this.repositoryFactory;
@@ -2153,7 +2123,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 mixins: [shallowMixin],
                 created() {
                     capturedAcl = this.acl;
@@ -2188,7 +2158,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 mixins: [myMixin],
                 inject: { myService: { from: 'myService', default: 'component-default' } } as any,
                 created() {
@@ -2213,7 +2183,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                 selectedId: ref('previous-value'),
             };
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return { selectedId: undefined };
                 },
@@ -2246,7 +2216,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             const wrapper = mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 watch: {
                     count: {
                         handler(newVal: number) {
@@ -2295,7 +2265,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 watch: {
                     count: [
                         function (this: any, newVal: number) {
@@ -2414,7 +2384,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 watch: {
                     count(newVal: number) {
                         watchCallback(newVal);
@@ -2464,7 +2434,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             // Override that throws in created - matching Vue's native behavior, the error
             // must propagate and the override must not be applied (count stays at 0).
-            const failingOverride = convertWithSilencedWarning('originalComponent', {
+            const failingOverride = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return { count: 50 };
                 },
@@ -2485,7 +2455,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             expect(wrapper.find('.count').text()).toBe('0');
 
             // Subsequent overrides must still apply — the failing one is marked as done to prevent retries
-            const successOverride = convertWithSilencedWarning('originalComponent', {
+            const successOverride = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return { count: 100 };
                 },
@@ -2514,7 +2484,7 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: {
                     doEmit() {
                         this.$emit('my-event', 'hello');
@@ -2553,7 +2523,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 created() {
                     // $emit should be undefined because getCurrentInstance() was null when the
                     // override was applied after mount (outside setup() context).
@@ -2585,7 +2555,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             // convertWithSilencedWarning internally calls spy.mockRestore(), so our consoleWarn spy
             // must be set up AFTER the call to avoid it being restored before the hook warning fires.
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 beforeUnmount() {},
                 methods: { noop() {} },
             });
@@ -2620,7 +2590,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             mount(originalComponent);
 
-            const overrideFn = convertWithSilencedWarning('originalComponent', {
+            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 created() {
                     createdCallback();
                 },
@@ -2656,13 +2626,13 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             const wrapper = mount(originalComponent);
 
-            const overrideA = convertWithSilencedWarning('originalComponent', {
+            const overrideA = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 data() {
                     return { count: 42 };
                 },
             });
 
-            const overrideB = convertWithSilencedWarning('originalComponent', {
+            const overrideB = convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 computed: {
                     label() {
                         return `Custom: ${this.count}`;

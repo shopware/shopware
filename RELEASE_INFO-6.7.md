@@ -12,6 +12,15 @@ Since 6.7.14.0, most line item conditions of the Rule Builder evaluated only lin
 
 The conditions now evaluate a line item by the data it carries instead of by its type, so line items of any type work with the built-in conditions again, with no change needed in extensions.
 
+### "Item with price/list price ratio" no longer matches line items without a list price
+
+Since 6.7.9.0, the Rule Builder condition "Item with price/list price ratio" treated line items without a list price as having a ratio of `0`.
+Conditions such as "Is less than 1" therefore also matched every line item without a list price,
+so promotions meant for reduced products applied to all products.
+
+Line items without a list price no longer have a ratio, so only the operators "Is not equal to" and "Is empty" match them.
+If you used "Is equal to 0" to target line items without a list price, use "Is empty" instead.
+
 ## Features
 
 ### System configuration tabs

@@ -9,6 +9,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['feature'],
 
+    emits: ['update:value', 'change'],
+
     props: {
         value: {
             type: [

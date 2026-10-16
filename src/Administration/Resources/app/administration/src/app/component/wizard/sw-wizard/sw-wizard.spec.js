@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/app/component/wizard/sw-wizard';
 import 'src/app/component/wizard/sw-wizard-page';
 
@@ -78,7 +78,7 @@ describe('src/app/component/wizard/sw-wizard', () => {
 
         expect(wrapper.vm.pagesCount).toBe(6);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const emitted = wrapper.emitted();
 
         expect(emitted['pages-updated']).toHaveLength(6);
@@ -95,7 +95,7 @@ describe('src/app/component/wizard/sw-wizard', () => {
 
         expect(wrapper.vm.pagesCount).toBe(4);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const emitted = wrapper.emitted();
 
         expect(emitted['pages-updated']).toHaveLength(6);

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 const uploadTaskMock = {
     running: false,
@@ -111,7 +111,7 @@ describe('components/utils/sw-duplicated-media-v2', () => {
         await wrapper.setData({ failedUploadTasks: [uploadTaskMock] });
 
         await wrapper.vm.solveDuplicate();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const expectedTask = { ...uploadTaskMock, ...{ targetId: 'foo' } };
 

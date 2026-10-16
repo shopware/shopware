@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { nextTick } from 'vue';
 
 const parentProductData = {
@@ -219,7 +219,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
         // remove purchasePrices of parent
         wrapper.vm.parentProduct.purchasePrices = undefined;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const priceInheritance = wrapper.find('.sw-product-price-form__price-list');
         const priceSwitchInheritance = priceInheritance.find('.sw-inheritance-switch');

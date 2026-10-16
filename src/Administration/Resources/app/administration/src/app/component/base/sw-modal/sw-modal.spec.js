@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper(additionalSlots = null) {
     return shallowMount(await wrapTestComponent('sw-modal', { sync: true }), {
@@ -185,7 +185,7 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         expect(wrapper.get('.sw-modal').classes('sw-modal--has-sidebar')).toBe(false);
 
         Shopware.Store.get('adminHelpCenter').showHelpSidebar = true;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.get('.sw-modal').classes('sw-modal--has-sidebar')).toBe(true);
     });

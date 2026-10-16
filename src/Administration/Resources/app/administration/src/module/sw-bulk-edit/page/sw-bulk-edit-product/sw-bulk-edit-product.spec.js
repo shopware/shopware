@@ -3,7 +3,7 @@
 /**
  * @sw-package inventory
  */
-import { config, DOMWrapper, mount } from '@vue/test-utils';
+import { config, DOMWrapper, mount, flushPromises } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
 let bulkEditResponse = {
@@ -992,10 +992,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         wrapper.vm.onInheritanceRemove({ name: 'isPriceInherited' });
         wrapper.vm.bulkEditProduct.isPriceInherited.isChanged = true;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.onInheritanceRestore({ name: 'isPriceInherited' });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.onProcessData();
 

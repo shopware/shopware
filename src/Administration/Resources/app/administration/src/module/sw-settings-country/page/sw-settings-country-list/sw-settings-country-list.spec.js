@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
     return mount(
@@ -131,7 +131,7 @@ async function createWrapper(privileges = []) {
 describe('module/sw-settings-country/page/sw-settings-country-list', () => {
     it('should be able to view a country', async () => {
         const wrapper = await createWrapper(['country.viewer']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const elementItemAction = wrapper.find('.sw-country-list__edit-action');
 
@@ -141,7 +141,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should be able to create a new country', async () => {
         const wrapper = await createWrapper(['country.creator']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-country-list__button-create');
 
@@ -150,7 +150,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should not be able to create a new country', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-country-list__button-create');
 
@@ -159,7 +159,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should be able to edit a country', async () => {
         const wrapper = await createWrapper(['country.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const elementItemAction = wrapper.find('.sw-country-list__edit-action');
 
@@ -169,7 +169,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should not be able to edit a country', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-country-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
@@ -177,7 +177,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should be able to inline edit a country', async () => {
         const wrapper = await createWrapper(['country.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-settings-country-list-grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -186,7 +186,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should not be able to inline edit a country', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-settings-country-list-grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -195,7 +195,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should be able to delete a country', async () => {
         const wrapper = await createWrapper(['country.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-country-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
@@ -203,7 +203,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should not be able to delete a country', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-country-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
@@ -211,7 +211,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
     it('should be able to delete mutilple country', async () => {
         const wrapper = await createWrapper(['country.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteSelection = wrapper.find('.sw-settings-country-list-grid');
         expect(deleteSelection.attributes()['show-selection']).toBeTruthy();

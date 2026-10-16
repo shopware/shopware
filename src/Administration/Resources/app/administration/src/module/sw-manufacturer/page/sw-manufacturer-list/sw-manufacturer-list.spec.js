@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
@@ -72,7 +72,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
     it('should be able to inline edit', async () => {
         const wrapper = await createWrapper(['product_manufacturer.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -81,7 +81,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
     it('should not be able to inline edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -90,7 +90,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
     it('should be able to inline delete', async () => {
         const wrapper = await createWrapper(['product_manufacturer.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -99,7 +99,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
     it('should not be able to inline delete', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -111,7 +111,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -131,7 +131,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
     it('should not get search ranking fields when term is null', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -155,7 +155,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -178,7 +178,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
         });

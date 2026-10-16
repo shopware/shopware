@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 // from Defaults.php
 const STOREFRONT_TYPE_ID = '8a243080f92e4c719546314b577cf82b';
@@ -116,7 +116,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
         });
         await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.refreshCurrentSeoUrl();
 
@@ -144,7 +144,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             salesChannelId: 'a-sales-channel-without-seo-urls',
         });
         await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.refreshCurrentSeoUrl();
 
@@ -212,7 +212,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
         });
         await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.refreshCurrentSeoUrl();
 
@@ -277,7 +277,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
         });
         await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.refreshCurrentSeoUrl();
 

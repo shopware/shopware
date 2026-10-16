@@ -1,7 +1,7 @@
 /**
  * @sw-package checkout
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
@@ -143,7 +143,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -165,7 +165,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -191,7 +191,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -216,7 +216,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
         });

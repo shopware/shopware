@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 const mockProducts = [
     {
@@ -127,7 +127,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
             filters: mockFilter,
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(spyPreviewProduct).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.systemCurrency).toStrictEqual(mockCurrency);

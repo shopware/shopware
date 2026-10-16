@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
@@ -131,7 +131,7 @@ describe('src/module/sw-cms/elements/text/config', () => {
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         await tabs.vm.$emit('new-item-active', 'settings');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('settings');
         expect(wrapper.find('.sw-cms-el-config-text__tab-content').exists()).toBe(false);
@@ -150,7 +150,7 @@ describe('src/module/sw-cms/elements/text/config', () => {
         expect(input.element.value).toBe(updatedContent);
 
         await input.trigger('input');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.element.config.content.value).toBe(updatedContent);
         expect(wrapper.emitted('element-update')).toBeTruthy();
@@ -193,7 +193,7 @@ describe('src/module/sw-cms/elements/text/config', () => {
         expect(input.element.value).toBe(updatedContent);
 
         await input.trigger('blur');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.element.config.content.value).toBe(updatedContent);
         expect(wrapper.emitted('element-update')).toBeTruthy();

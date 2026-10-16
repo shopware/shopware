@@ -5,6 +5,7 @@
 import { TOOLTIP_OPEN_TRIGGER_PROPS } from 'src/app/component/structure/sw-admin-menu-item';
 import createWrapper from './create-wrapper';
 import catalogues from './catalogues';
+import { flushPromises } from '@vue/test-utils';
 
 describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', () => {
     beforeEach(() => {
@@ -227,7 +228,7 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
 
             await row.trigger('mouseover');
             jest.advanceTimersByTime(300);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(tooltip!.parentElement!.style.display).not.toBe('none');
 
@@ -306,7 +307,7 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
             await row.trigger('mouseover');
             await row.trigger('focus');
             jest.advanceTimersByTime(300);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(tooltip!.parentElement!.style.display).toBe('none');
 

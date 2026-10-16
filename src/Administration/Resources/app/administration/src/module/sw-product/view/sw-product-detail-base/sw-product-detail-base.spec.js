@@ -4,7 +4,7 @@
  * @sw-package inventory
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { nextTick } from 'vue';
 
@@ -277,7 +277,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             states: ['is-download'],
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const physicalCardElement = wrapper.find('.sw-product-detail-base__deliverability');
         expect(physicalCardElement.exists()).toBeFalsy();
@@ -426,7 +426,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
     it('should set media as cover when product media is empty and media is not glb file', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const media = { id: 'id', fileName: 'fileName', fileSize: 101 };
 
@@ -474,7 +474,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             },
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const promotionSwitch = wrapper.find('.sw-product-basic-form__promotion-switch');
         expect(promotionSwitch.attributes().style).toBe('display: none;');
@@ -494,7 +494,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             },
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const labellingCardElement = wrapper.find('.sw-product-detail-base__labelling-card');
         expect(labellingCardElement.attributes().style).toBe('display: none;');
@@ -506,7 +506,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'media')];
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const mediaCardElement = wrapper.find('.sw-product-detail-base__media');
         expect(mediaCardElement.attributes().style).toBe('display: none;');
@@ -520,7 +520,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             ...modeSettings.filter((item) => item !== 'general_information'),
         ];
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const infoCardElement = wrapper.find('.sw-product-detail-base__info');
         expect(infoCardElement.attributes().style).toBe('display: none;');
@@ -532,7 +532,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'prices')];
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const infoCardElement = wrapper.find('.sw-product-detail-base__prices');
         expect(infoCardElement.attributes().style).toBe('display: none;');
@@ -544,7 +544,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'deliverability')];
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const infoCardElement = wrapper.find('.sw-product-detail-base__deliverability');
         expect(infoCardElement.attributes().style).toBe('display: none;');
@@ -558,7 +558,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             ...modeSettings.filter((item) => item !== 'visibility_structure'),
         ];
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const infoCardElement = wrapper.find('.sw-product-detail-base__visibility-structure');
         expect(infoCardElement.attributes().style).toBe('display: none;');

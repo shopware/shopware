@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/app/component/structure/sw-media-modal-renderer';
 
 describe('src/app/component/structure/sw-media-modal-renderer', () => {
@@ -31,7 +31,7 @@ describe('src/app/component/structure/sw-media-modal-renderer', () => {
             fileAccepted: 'image/*',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         modal = wrapper.find('sw-media-modal-v2-stub');
         expect(modal.exists()).toBeTruthy();
@@ -45,14 +45,14 @@ describe('src/app/component/structure/sw-media-modal-renderer', () => {
             fileAccepted: 'image/*',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         let modal = wrapper.findComponent('sw-media-modal-v2-stub');
         expect(modal.exists()).toBeTruthy();
 
         modal.vm.$emit('modal-close');
         expect(storeCloseModal).toHaveBeenCalled();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         modal = wrapper.find('sw-media-modal-v2-stub');
         expect(modal.exists()).toBeFalsy();
@@ -71,7 +71,7 @@ describe('src/app/component/structure/sw-media-modal-renderer', () => {
             callback: jest.fn(),
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const modal = wrapper.findComponent('sw-media-modal-v2-stub');
         modal.vm.$emit('media-modal-selection-change', [
@@ -88,7 +88,7 @@ describe('src/app/component/structure/sw-media-modal-renderer', () => {
             },
         ]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(wrapper.vm.mediaModal.callback).toHaveBeenCalledWith([
             {
                 fileName: 'test.jpg',

@@ -3,7 +3,7 @@
 /**
  * @sw-package discovery
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { reactive } from 'vue';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -426,7 +426,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         const openLayoutAssignmentModalSpy = jest.spyOn(wrapper.vm, 'openLayoutAssignmentModal');
         const SaveSpy = jest.spyOn(wrapper.vm.pageRepository, 'save');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({
             isLoading: false,
@@ -474,12 +474,12 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         const State = Shopware.Store._rootState.state.value.cmsPage;
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.onDemoEntityChange();
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+        await flushPromises();
 
         expect(State.currentDemoEntity).toMatchObject({
             id: categoryID,
@@ -491,8 +491,8 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         wrapper.vm.onDemoEntityChange('TEST-ID');
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+        await flushPromises();
 
         expect(State.currentDemoEntity).toMatchObject({
             id: categoryID,
@@ -517,20 +517,20 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         const State = Shopware.Store._rootState.state.value.cmsPage;
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.onDemoEntityChange();
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+        await flushPromises();
 
         expect(State.currentDemoEntity).toBeNull();
         expect(State.currentDemoProducts).toEqual([]);
 
         wrapper.vm.onDemoEntityChange('TEST-ID');
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+        await flushPromises();
 
         expect(State.currentDemoEntity).toMatchObject({ id: productID });
         expect(State.currentDemoProducts).toEqual([]);
@@ -552,12 +552,12 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         expect(wrapper.vm.showLayoutAssignmentModal).toBe(false);
         wrapper.findComponent('.sw-cms-sidebar').vm.$emit('open-layout-set-as-default');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
 
         wrapper.findComponent('.sw-cms-detail__confirm-set-as-default-modal').vm.$emit('confirm');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
 
@@ -596,7 +596,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         expect(wrapper.vm.showLayoutAssignmentModal).toBe(false);
         wrapper.findComponent('.sw-cms-sidebar').vm.$emit('open-layout-set-as-default');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
 
@@ -605,17 +605,17 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(confirmModal.props('text')).toBe('sw-cms.components.setDefaultLayoutModal.infoText');
 
         confirmModal.vm.$emit('close');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
 
         wrapper.findComponent('.sw-cms-sidebar').vm.$emit('open-layout-set-as-default');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
 
         wrapper.findComponent('.sw-cms-detail__confirm-set-as-default-modal').vm.$emit('cancel');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
         expect(saveSpy).toHaveBeenCalledTimes(0);

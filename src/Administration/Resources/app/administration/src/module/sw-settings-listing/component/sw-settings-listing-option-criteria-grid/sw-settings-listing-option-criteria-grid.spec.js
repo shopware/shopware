@@ -1,4 +1,4 @@
-import { DOMWrapper, mount } from '@vue/test-utils';
+import { DOMWrapper, mount, flushPromises } from '@vue/test-utils';
 
 /**
  * @sw-package inventory
@@ -217,7 +217,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
             '300d8964173b47d79cf4e348b09fce08',
         ]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         getProductSortingFieldsByName = wrapper.vm.getProductSortingFieldsByName({
             field: 'customFields.custom_movies_aspernatur_enim_error',

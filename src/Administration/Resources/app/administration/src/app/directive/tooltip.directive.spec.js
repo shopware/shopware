@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, flushPromises } from '@vue/test-utils';
 
 import { tooltipRegistry } from 'src/app/directive/tooltip.directive';
 
@@ -84,7 +84,7 @@ describe('directives/tooltip', () => {
 
     it('should not be created when target element gets deleted before creation of tooltip', async () => {
         const wrapper = await createWrapper('a tooltip');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.trigger('mouseenter');
 

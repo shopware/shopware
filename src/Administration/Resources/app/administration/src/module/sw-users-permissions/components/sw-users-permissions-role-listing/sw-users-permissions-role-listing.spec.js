@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFunction = () => {}) {
     return mount(
@@ -116,7 +116,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
     it('should enable the edit context menu item', async () => {
         wrapper = await createWrapper(['users_and_permissions.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.setData({
             roles: [{}, {}],
         });
@@ -130,7 +130,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
     it('should enable the delete context menu item', async () => {
         wrapper = await createWrapper(['users_and_permissions.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.setData({
             roles: [{}, {}],
         });

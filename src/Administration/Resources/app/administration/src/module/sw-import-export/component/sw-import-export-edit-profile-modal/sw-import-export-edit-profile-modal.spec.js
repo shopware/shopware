@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import ImportExportProfileMappingService from '../../service/importExportProfileMapping.service';
 
 function getMockParentProfiles(total = 1) {
@@ -173,7 +173,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
         await tabs.vm.$emit('new-item-active', 'mappings');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('mappings');
         expect(wrapper.find('sw-import-export-edit-profile-general-stub').exists()).toBe(false);

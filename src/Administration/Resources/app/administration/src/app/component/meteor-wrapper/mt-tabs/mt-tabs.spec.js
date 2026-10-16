@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { h } from 'vue';
 
 async function createWrapper(options = {}) {
@@ -198,7 +198,7 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
         expect(wrapper.find('.mt-tabs__custom-content').exists()).toBe(false);
 
         await mtTabsOriginal.vm.$emit('new-item-active', 'tab3');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.mt-tabs__custom-content').exists()).toBe(false);
         expect(wrapper.find('.sw-extension-component-section').exists()).toBe(false);

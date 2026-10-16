@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 /**
  * @sw-package checkout
@@ -108,7 +108,7 @@ async function createWrapper(privileges = []) {
 describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list', () => {
     it('should not be able to create a new delivery time if user does not have create permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-delivery-time-list__create');
 
@@ -117,7 +117,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
 
     it('should be able to create a new delivery time if user has create permission', async () => {
         const wrapper = await createWrapper(['delivery_times.creator']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-delivery-time-list__create');
 
@@ -126,7 +126,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
 
     it('should not be able to edit if user does not have edit permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
@@ -134,7 +134,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
 
     it('should be able to edit if user has edit permission', async () => {
         const wrapper = await createWrapper(['delivery_times.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
@@ -142,7 +142,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
 
     it('should not be able to delete if user does not have delete permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
@@ -150,7 +150,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
 
     it('should be able to delete if user has delete permission', async () => {
         const wrapper = await createWrapper(['delivery_times.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
@@ -158,7 +158,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
 
     it('should hide item selection if user does not have delete permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-settings-delivery-time-list-grid');
         expect(entityList.attributes()['show-selection']).toBeFalsy();
@@ -166,7 +166,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
 
     it('should show item selection if user has delete permission', async () => {
         const wrapper = await createWrapper(['delivery_times.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-settings-delivery-time-list-grid');
         expect(entityList.attributes()['show-selection']).toBeTruthy();

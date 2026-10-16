@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import { DOMWrapper, mount } from '@vue/test-utils';
+import { DOMWrapper, mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper(privileges = [], languageId = null, stubTranslationIsoField = true) {
     const languageRepositoryGet = jest.fn((id) => {
@@ -281,7 +281,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         expect(wrapper.find('.sw-settings-language-detail__created-banner').exists()).toBe(false);
 
         wrapper.vm.justCreated = true;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-settings-language-detail__created-banner').exists()).toBe(true);
     });

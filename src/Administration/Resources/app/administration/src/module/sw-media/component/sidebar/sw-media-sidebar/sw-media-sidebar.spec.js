@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import uuid from 'test/_helper_/uuid';
 
 async function createWrapper(items, mediaRepositoryFunctions = {}) {
@@ -80,7 +80,7 @@ describe('module/sw-media/component/sidebar/sw-media-sidebar', () => {
         };
 
         const wrapper = await createWrapper(mediaItems, mediaRepositoryFunctions);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const mediaQuickInfo = wrapper.findComponent('.sw-media-quickinfo');
         expect(mediaQuickInfo.exists()).toBe(true);
 

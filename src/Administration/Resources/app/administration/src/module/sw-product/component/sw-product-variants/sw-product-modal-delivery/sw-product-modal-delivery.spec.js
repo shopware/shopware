@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper({ featureActive = false, product = {}, save = () => Promise.resolve({}) } = {}) {
     return mount(await wrapTestComponent('sw-product-modal-delivery', { sync: true }), {
@@ -140,7 +140,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
         await flushPromises();
 
         wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'media');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('media');
         expect(wrapper.find('.sw-product-variants-delivery-order').exists()).toBe(false);

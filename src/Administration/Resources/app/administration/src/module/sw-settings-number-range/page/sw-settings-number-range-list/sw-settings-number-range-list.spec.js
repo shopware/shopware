@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
     return mount(
@@ -105,7 +105,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
     });
 
     it('should not allow edit without permission', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const entityListing = wrapper.find('.sw-settings-number-range-list-grid');
         expect(entityListing.exists()).toBeTruthy();
         expect(entityListing.attributes()['allow-inline-edit']).toBeFalsy();
@@ -113,15 +113,15 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
 
     it('should allow edit with edit permission', async () => {
         wrapper = await createWrapper(['number_ranges.editor']);
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+        await flushPromises();
         const entityListing = wrapper.find('.sw-settings-number-range-list-grid');
         expect(entityListing.exists()).toBeTruthy();
         expect(entityListing.attributes()['allow-inline-edit']).toBeTruthy();
     });
 
     it('should not allow edit without edit permission', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
@@ -129,15 +129,15 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
 
     it('should now allow delete without delete permission', async () => {
         wrapper = await createWrapper(['number_ranges.editor']);
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
     });
 
     it('should not be able to delete if user does not have delete permission', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
@@ -145,8 +145,8 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
 
     it('should be able to delete if user has delete permission', async () => {
         wrapper = await createWrapper(['number_ranges.deleter']);
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();

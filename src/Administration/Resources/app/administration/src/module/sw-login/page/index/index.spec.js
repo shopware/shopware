@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
 async function createWrapper(methodOverrides = {}, mocks = {}) {
     const swLogin = await wrapTestComponent('sw-login', {
@@ -76,7 +76,7 @@ describe('src/module/sw-login/page/index/index.js', () => {
         expect(wrapper.find('.sw-login__forgot-password-action').exists()).toBe(false);
 
         wrapper.vm.setLoginConfig({ useDefault: true, url: '' });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-login__forgot-password-action').exists()).toBe(true);
     });
@@ -85,7 +85,7 @@ describe('src/module/sw-login/page/index/index.js', () => {
         wrapper = await createWrapper({}, { $route: { name: 'sw.login.index.login' } });
 
         wrapper.vm.setLoginConfig({ useDefault: false, url: 'https://sso.example' });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-login__forgot-password-action').exists()).toBe(false);
     });

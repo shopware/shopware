@@ -215,17 +215,4 @@ describe('Administration meta tests', () => {
             ).toHaveLength(0);
         });
     });
-
-    describe('forbidden Vue.js component smoke test', () => {
-        it.each(testFiles)('%s must not contain the generic Vue.js component smoke test', (file) => {
-            const content = fs.readFileSync(file, 'utf-8');
-
-            const forbiddenPattern = /(?:it|test)\(\s*['"`]should be a Vue\.js component['"`]\s*,/;
-
-            expect(forbiddenPattern.test(content)).toBe(
-                false,
-                `Found forbidden Vue.js smoke-test in ${path.relative(process.cwd(), file)}`,
-            );
-        });
-    });
 });

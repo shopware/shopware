@@ -37,7 +37,7 @@
     "complexity": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 2
     }
   },
@@ -60,7 +60,7 @@
     "complexity": {
       "count": 2
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 2
     }
   },
@@ -74,7 +74,7 @@
     "max-params": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -87,7 +87,7 @@
     "complexity": {
       "count": 2
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -110,7 +110,7 @@
     "complexity": {
       "count": 2
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 2
     }
   },
@@ -131,7 +131,7 @@
     "max-lines": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 3
     }
   },
@@ -139,7 +139,7 @@
     "max-params": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -147,7 +147,7 @@
     "complexity": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -182,7 +182,7 @@
     }
   },
   "scripts/extensionTooling/setup-bridge.ts": {
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -192,7 +192,7 @@
     }
   },
   "scripts/extensionTooling/setup-discovery.ts": {
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -200,7 +200,7 @@
     "complexity": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -257,7 +257,7 @@
     "complexity": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-double-cast": {
@@ -299,7 +299,7 @@
     }
   },
   "src/app/adapter/composition-extension-system/options-api-setup-shim.ts": {
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 2
     },
     "sw-core-rules/no-double-cast": {
@@ -338,7 +338,7 @@
     "@typescript-eslint/no-non-null-assertion": {
       "count": 2
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-double-cast": {
@@ -365,7 +365,7 @@
     "complexity": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 2
     }
   },
@@ -2268,7 +2268,7 @@
     "sw-core-rules/max-component-members": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -2458,7 +2458,7 @@
     "max-lines": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -3524,7 +3524,7 @@
     }
   },
   "src/app/component/rule/sw-condition-unit-menu/index.js": {
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -4049,7 +4049,7 @@
     }
   },
   "src/app/component/structure/sw-sidebar-renderer/index.ts": {
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -4148,7 +4148,7 @@
     "sw-core-rules/max-component-members": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -4434,7 +4434,7 @@
     }
   },
   "src/app/component/utils/sw-shortcut-overview/index.js": {
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -4629,7 +4629,7 @@
     }
   },
   "src/app/composables/use-cms-state.ts": {
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -4652,7 +4652,7 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-double-cast": {
@@ -4660,7 +4660,7 @@
     }
   },
   "src/app/composables/use-media-grid-listener.ts": {
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -4670,7 +4670,7 @@
     }
   },
   "src/app/composables/use-media-sidebar-modal.ts": {
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -4685,7 +4685,7 @@
     }
   },
   "src/app/composables/use-notification.ts": {
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -4714,7 +4714,7 @@
     "@typescript-eslint/ban-ts-comment": {
       "count": 12
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -4747,7 +4747,7 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 3
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-double-cast": {
@@ -4765,7 +4765,7 @@
     }
   },
   "src/app/composables/use-video-cover.ts": {
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -4793,7 +4793,7 @@
     }
   },
   "src/app/decorator/state-styling-provider.decorator.ts": {
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -5019,7 +5019,7 @@
     "max-params": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -5111,7 +5111,7 @@
     "complexity": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-double-cast": {
@@ -5143,7 +5143,7 @@
     "max-depth": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-double-cast": {
@@ -5766,7 +5766,7 @@
     "complexity": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -5882,7 +5882,7 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -5928,7 +5928,7 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -5967,7 +5967,7 @@
     "complexity": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -6062,7 +6062,7 @@
     }
   },
   "src/app/service/product-stream-condition.service.js": {
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -6123,7 +6123,7 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -6142,7 +6142,7 @@
     "max-params": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -6167,7 +6167,7 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -6456,7 +6456,7 @@
     "max-params": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -6742,7 +6742,7 @@
     "complexity": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -6812,7 +6812,7 @@
     "complexity": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-ts-fix-me": {
@@ -6834,7 +6834,7 @@
     "complexity": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -7723,7 +7723,7 @@
     "@typescript-eslint/no-non-null-assertion": {
       "count": 5
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-swallowed-errors": {
@@ -7770,7 +7770,7 @@
     "max-lines": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     }
   },
@@ -8515,7 +8515,7 @@
     "sw-core-rules/max-component-members": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 2
     },
     "sw-core-rules/no-javascript-files": {
@@ -11728,7 +11728,7 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -12512,7 +12512,7 @@
     }
   },
   "src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/index.js": {
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -13091,7 +13091,7 @@
     "max-lines": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -14758,7 +14758,7 @@
     "sw-core-rules/max-component-members": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -15396,7 +15396,7 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 2
     },
     "sw-core-rules/no-javascript-files": {
@@ -16420,7 +16420,7 @@
     "max-params": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 2
     },
     "sw-core-rules/no-javascript-files": {
@@ -16490,7 +16490,7 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -18765,7 +18765,7 @@
     "sw-core-rules/max-component-members": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -19784,7 +19784,7 @@
     "max-lines": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {
@@ -20051,7 +20051,7 @@
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
     },
-    "max-lines-per-function": {
+    "sw-core-rules/max-function-lines": {
       "count": 1
     },
     "sw-core-rules/no-javascript-files": {

@@ -86,9 +86,9 @@ const limitRules = {
         'error',
         15,
     ],
-    'max-lines-per-function': [
+    'sw-core-rules/max-function-lines': [
         'error',
-        { max: 80, skipBlankLines: true, skipComments: true },
+        { max: 80, setupMax: 150, skipBlankLines: true, skipComments: true },
     ],
     'max-params': [
         'error',

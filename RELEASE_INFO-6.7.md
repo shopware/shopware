@@ -2,6 +2,11 @@
 
 ## Critical Fixes
 
+### Clone overwrites respect nested field write protection
+
+The Admin API clone action now enforces field write protection in nested association and extension overwrites.
+Integrations must omit fields that are not writable in their request scope.
+
 ### Theme configuration updates reach all descendants
 
 Saving a base theme now updates inherited runtime configuration and recompiles assigned descendant themes at every inheritance level.

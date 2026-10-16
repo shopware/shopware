@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -13,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -115,6 +118,46 @@ class ApiControllerCloneTest extends TestCase
 
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+    }
+
+    #[DataProvider('cloneOverwriteActorProvider')]
+    public function testCloneRejectsNestedProtectedMediaOverwrite(bool $admin): void
+    {
+        $browser = $this->getBrowser();
+        $connection = $browser->getContainer()->get(Connection::class);
+        $ids = new IdsCollection();
+        $product = (new ProductBuilder($ids, 'source'))->price(10)->build();
+        $browser->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        if (!$admin) {
+            TestUser::createNewTestUser($connection, ['product:create', 'product:read'])->authorizeBrowser($browser);
+        }
+
+        $productCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM product');
+        $mediaCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM media');
+        $browser->jsonRequest('POST', '/api/_action/clone/product/' . $ids->get('source'), [
+            'overwrites' => [
+                'productNumber' => Uuid::randomHex(),
+                'media' => [['media' => ['mediaTypeRaw' => serialize('benign marker')]]],
+            ],
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', $data['errors'][0]['code']);
+        static::assertSame('/media/0/media/mediaTypeRaw', $data['errors'][0]['source']['pointer']);
+        static::assertSame($productCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM product'));
+        static::assertSame($mediaCount, (int) $connection->fetchOne('SELECT COUNT(*) FROM media'));
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function cloneOverwriteActorProvider(): iterable
+    {
+        yield 'restricted product creator' => [false];
+        yield 'administrator' => [true];
     }
 
     public function testCloneDoesNotAllowCloningUser(): void

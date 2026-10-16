@@ -174,6 +174,26 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.hasNewVersionId).toBe(false);
     });
 
+    it('should remove the version of the previous order when another order is opened', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const previousOrderId = wrapper.vm.orderId;
+        const previousVersionId = wrapper.vm.versionContext.versionId;
+        const nextOrderId = Shopware.Utils.createId();
+        wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
+        wrapper.vm.orderRepository.createVersion = jest.fn(() => Promise.resolve({ versionId: 'nextVersionId' }));
+
+        await wrapper.setProps({ orderId: nextOrderId });
+        await flushPromises();
+
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(previousOrderId, previousVersionId);
+        expect(wrapper.vm.orderRepository.createVersion).toHaveBeenCalledWith(nextOrderId);
+        expect(wrapper.vm.versionContext.versionId).toBe('nextVersionId');
+        expect(wrapper.vm.hasNewVersionId).toBe(true);
+    });
+
     it('should keep the version when the page is stored in the back-forward cache', async () => {
         wrapper = await createWrapper();
         wrapper.vm.orderRepository.deleteVersionWithKeepalive = jest.fn(() => Promise.resolve());

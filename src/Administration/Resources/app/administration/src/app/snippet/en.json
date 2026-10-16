@@ -1,5 +1,10 @@
 {
   "global": {
+    "sw-verify-user-modal": {
+      "ssoReauthStartError": "The sign-in at your identity provider could not be started. Please try again.",
+      "ssoReauthCompletedTitle": "Signed in again",
+      "ssoReauthCompletedMessage": "Your identity provider has verified you. Please repeat the action that asked for the verification."
+    },
     "error-codes": {
       "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Missing permissions.",
       "FRAMEWORK__DELETE_RESTRICTED": "Deletion failed.",

@@ -214,8 +214,7 @@ class PluginServiceTest extends TestCase
             return ['foo'];
         };
 
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepo */
-        $languageRepo = new StaticEntityRepository(array_fill(0, 8, $languageSearch));
+        $languageRepo = StaticEntityRepository::of(LanguageCollection::class, array_fill(0, 8, $languageSearch));
 
         $pluginService = new PluginService(
             __DIR__,

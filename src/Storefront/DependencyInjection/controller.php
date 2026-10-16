@@ -5,6 +5,7 @@ namespace Shopware\Storefront\DependencyInjection;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartReorderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddWishlistProductRoute;
@@ -45,6 +46,7 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\ProductListRoute;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRoute;
@@ -228,6 +230,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(HtmlSanitizer::class),
             service(ProductListRoute::class),
             service(LineItemFactoryRegistry::class),
+            service(CartReorderRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -337,6 +340,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SeoUrlPlaceholderHandlerInterface::class),
             service(ProductReviewLoader::class),
             service(ProductPurchaseLimitRoute::class),
+            service(GaranLabelRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

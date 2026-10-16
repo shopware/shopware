@@ -48,6 +48,8 @@
  *        author has answered it                           -> shopware  (re-review-pending)
  *   4. review decision APPROVED
  *        head conflicts with the base branch              -> author    (needs-rebase)
+ *        an unresolved thread where we wrote last         -> author    (open-question)
+ *        an unresolved thread where the author wrote last -> shopware  (open-thread-answered)
  *        mergeability not computed yet                    -> shopware  (mergeability-unknown)
  *        otherwise                                        -> shopware  (just-merge-it)
  *   5. at least one approval, decision still open         -> shopware  (second-review-missing)
@@ -66,6 +68,12 @@
  * approvals, so one approval reads as REVIEW_REQUIRED, indistinguishable from a pull
  * request nobody has opened. That is the state #9265 (approved 12 May 2025) and #19124
  * have been sitting in, and it is invisible in the GitHub UI's own filters.
+
+The thread cases in step 4 exist because `trunk` requires every conversation to be
+resolved: an approval with a question still open does not merge. On #20750 two reviewers
+asked something inline, approved anyway, and the author never answered, so `just-merge-it`
+sent us to a merge button GitHub would not let us press. A thread only bots wrote in is
+not a question anyone has to answer and is left out.
  *
  * Unknowns resolve towards us, never towards the contributor: a pull request we cannot
  * classify lands in `shopware` so the worst case is that we look at it again.
@@ -93,6 +101,9 @@
  * CONTRIBUTOR, which is fine for a report and not good enough to route a reminder on.
  */
 
+import { applyProjectChanges, fetchProject, parseTeamProjects, planProjectChanges, summarizeProjectChanges } from './waiting-on-project.ts';
+import { parseChannels, planReminders, postSlackMessage, renderReminder, type Slack } from './waiting-on-slack.ts';
+
 export type WaitingOn = 'author' | 'shopware' | 'nobody';
 
 export type WaitingOnReason =
@@ -102,6 +113,8 @@ export type WaitingOnReason =
     | 'changes-requested'
     | 're-review-pending'
     | 'needs-rebase'
+    | 'open-question'
+    | 'open-thread-answered'
     | 'mergeability-unknown'
     | 'just-merge-it'
     | 'second-review-missing'
@@ -156,7 +169,13 @@ export type Activity = {
     readyForReviewAt?: string;
 };
 
-export type PullRequestFacts = Activity & {
+/** The newest last word in the unresolved review threads, split by who wrote it. */
+export type OpenThreads = {
+    lastOpenQuestionAt?: string;
+    lastOpenAnswerAt?: string;
+};
+
+export type PullRequestFacts = Activity & OpenThreads & {
     createdAt: string;
     isDraft: boolean;
     isParked: boolean;
@@ -235,6 +254,24 @@ export function classifyPullRequest(facts: PullRequestFacts): WaitingOnVerdict {
                 reason: 'needs-rebase',
                 message: 'is approved but conflicts with its base branch',
                 since: lastMaintainerActivityAt ?? createdAt,
+            };
+        }
+
+        if (facts.lastOpenQuestionAt) {
+            return {
+                waitingOn: 'author',
+                reason: 'open-question',
+                message: 'is approved, but a review thread still waits for the author to answer',
+                since: facts.lastOpenQuestionAt,
+            };
+        }
+
+        if (facts.lastOpenAnswerAt) {
+            return {
+                waitingOn: 'shopware',
+                reason: 'open-thread-answered',
+                message: 'is approved, and the author answered a review thread nobody has resolved',
+                since: facts.lastOpenAnswerAt,
             };
         }
 
@@ -365,37 +402,41 @@ export function summarizeActivity(events: TimelineEvent[], latestOpinionatedRevi
     return activity;
 }
 
+/** What the verdict is computed from; the sweep and the per-event update read the same. */
+export const PULL_REQUEST_FIELDS = `
+    id
+    number
+    title
+    url
+    createdAt
+    isDraft
+    authorAssociation
+    reviewDecision
+    mergeable
+    author { login __typename }
+    labels(first: 50) { nodes { name } }
+    approvals: reviews(states: APPROVED) { totalCount }
+    allReviews: reviews(first: 1) { totalCount }
+    latestOpinionatedReviews(first: 20) { nodes { state submittedAt } }
+    reviewThreads(last: 50) { nodes { isResolved comments(last: 3) { nodes { createdAt author { login __typename } } } } }
+    timelineItems(last: 40, itemTypes: [ISSUE_COMMENT, PULL_REQUEST_REVIEW, PULL_REQUEST_COMMIT, READY_FOR_REVIEW_EVENT, CONVERT_TO_DRAFT_EVENT]) {
+        nodes {
+            __typename
+            ... on IssueComment { createdAt author { login __typename } }
+            ... on PullRequestReview { submittedAt author { login __typename } }
+            ... on PullRequestCommit { commit { committedDate author { user { login } } } }
+            ... on ReadyForReviewEvent { createdAt actor { login __typename } }
+            ... on ConvertToDraftEvent { createdAt actor { login __typename } }
+        }
+    }
+`;
+
 const OPEN_PULL_REQUESTS_QUERY = `
     query($owner: String!, $repo: String!, $after: String) {
         repository(owner: $owner, name: $repo) {
             pullRequests(states: OPEN, first: 15, after: $after) {
                 pageInfo { hasNextPage endCursor }
-                nodes {
-                    number
-                    title
-                    url
-                    createdAt
-                    isDraft
-                    authorAssociation
-                    reviewDecision
-                    mergeable
-                    author { login __typename }
-                    labels(first: 50) { nodes { name } }
-                    approvals: reviews(states: APPROVED) { totalCount }
-                    allReviews: reviews(first: 1) { totalCount }
-                    latestOpinionatedReviews(first: 20) { nodes { state submittedAt } }
-                    reviewThreads(last: 50) { nodes { comments(last: 3) { nodes { createdAt author { login __typename } } } } }
-                    timelineItems(last: 40, itemTypes: [ISSUE_COMMENT, PULL_REQUEST_REVIEW, PULL_REQUEST_COMMIT, READY_FOR_REVIEW_EVENT, CONVERT_TO_DRAFT_EVENT]) {
-                        nodes {
-                            __typename
-                            ... on IssueComment { createdAt author { login __typename } }
-                            ... on PullRequestReview { submittedAt author { login __typename } }
-                            ... on PullRequestCommit { commit { committedDate author { user { login } } } }
-                            ... on ReadyForReviewEvent { createdAt actor { login __typename } }
-                            ... on ConvertToDraftEvent { createdAt actor { login __typename } }
-                        }
-                    }
-                }
+                nodes { ${PULL_REQUEST_FIELDS} }
             }
         }
     }
@@ -419,10 +460,12 @@ type TimelineNode = {
 };
 
 type ReviewThreadNode = {
+    isResolved: boolean;
     comments: { nodes: { createdAt: string; author?: { login: string; __typename: string } | null }[] };
 };
 
-type PullRequestNode = {
+export type PullRequestNode = {
+    id: string;
     number: number;
     title: string;
     url: string;
@@ -487,11 +530,32 @@ export function toReviewThreadEvents(nodes: ReviewThreadNode[]): TimelineEvent[]
     );
 }
 
+/** Who wrote last in each unresolved thread, people only; see the rule for why it matters. */
+export function summarizeOpenThreads(nodes: ReviewThreadNode[], authorLogin?: string): OpenThreads {
+    const open: OpenThreads = {};
+
+    for (const thread of nodes.filter((candidate) => !candidate.isResolved)) {
+        const last = toReviewThreadEvents([thread]).filter(isHuman).sort((left, right) => left.at.localeCompare(right.at)).at(-1);
+        if (last === undefined) {
+            continue;
+        }
+
+        if (last.actor === authorLogin) {
+            open.lastOpenAnswerAt = latest(open.lastOpenAnswerAt, last.at);
+        } else {
+            open.lastOpenQuestionAt = latest(open.lastOpenQuestionAt, last.at);
+        }
+    }
+
+    return open;
+}
+
 export function factsOf(node: PullRequestNode): PullRequestFacts {
     const events = [...toTimelineEvents(node.timelineItems.nodes), ...toReviewThreadEvents(node.reviewThreads.nodes)];
 
     return {
         ...summarizeActivity(events, node.latestOpinionatedReviews.nodes, node.author?.login),
+        ...summarizeOpenThreads(node.reviewThreads.nodes, node.author?.login),
         createdAt: node.createdAt,
         isDraft: node.isDraft,
         isParked: node.labels.nodes.some((label) => label.name === PARKED_LABEL),
@@ -502,11 +566,11 @@ export function factsOf(node: PullRequestNode): PullRequestFacts {
     };
 }
 
-type GraphqlClient = {
+export type GraphqlClient = {
     graphql<T>(query: string, variables: Record<string, unknown>): Promise<T>;
 };
 
-type IssuesClient = {
+export type IssuesClient = {
     rest: {
         issues: {
             addLabels(options: { owner: string; repo: string; issue_number: number; labels: string[] }): Promise<unknown>;
@@ -515,7 +579,7 @@ type IssuesClient = {
     };
 };
 
-type Core = {
+export type Core = {
     info(message: string): void;
     warning(message: string): void;
     error(message: string): void;
@@ -526,7 +590,7 @@ type Core = {
     };
 };
 
-type Context = {
+export type Context = {
     repo: { owner: string; repo: string };
 };
 
@@ -576,11 +640,14 @@ export async function resolveMergeability(github: GraphqlClient, core: Core, rep
 }
 
 export type Row = {
+    /** The GraphQL node id, which the project sync adds items by. */
+    id: string;
     number: number;
     title: string;
     url: string;
     author: string;
     authorAssociation: string;
+    labels: string[];
     waitingOn: WaitingOn;
     reason: WaitingOnReason;
     label: string;
@@ -603,11 +670,13 @@ export function buildRows(nodes: PullRequestNode[], now: Date): Row[] {
             const verdict = classifyPullRequest(factsOf(node));
 
             return {
+                id: node.id,
                 number: node.number,
                 title: node.title,
                 url: node.url,
                 author: node.author.login,
                 authorAssociation: node.authorAssociation,
+                labels: node.labels.nodes.map((label) => label.name),
                 waitingOn: verdict.waitingOn,
                 reason: verdict.reason,
                 label: WAITING_ON_LABEL[verdict.waitingOn],
@@ -721,11 +790,24 @@ export async function applyLabelChanges(
     return failed;
 }
 
+export type ReportOptions = {
+    dryRun?: boolean;
+    /**
+     * The organization project to mirror the verdicts into, with a client allowed to write it.
+     * `teams` is the JSON of WAITING_ON_TEAM_PROJECTS: a project per team label, which gets
+     * the pull requests carrying that label on top of the main project, which gets all of them.
+     */
+    project?: { github: GraphqlClient; number: number; teams?: string };
+    /** Where the reminders for external pull requests go; see waiting-on-slack.ts. */
+    reminders?: { slack: Slack; channels: string | undefined };
+};
+
 /**
- * Labels every open pull request with its verdict unless `dryRun` is set. The `rows` output
- * carries the verdicts as JSON so a later stage can consume them without this having to change.
+ * Labels every open pull request with its verdict and mirrors it into the project, unless
+ * `dryRun` is set. The `rows` output carries the verdicts as JSON so a later stage can
+ * consume them without this having to change.
  */
-export async function reportWaitingOn({ github, core, context }: { github: GraphqlClient & IssuesClient; core: Core; context: Context }, dryRun = false): Promise<void> {
+export async function reportWaitingOn({ github, core, context }: { github: GraphqlClient & IssuesClient; core: Core; context: Context }, { dryRun = false, project, reminders }: ReportOptions = {}): Promise<void> {
     const nodes = await fetchOpenPullRequests(github, context.repo);
     core.info(`Read ${nodes.length} open pull request(s).`);
 
@@ -747,14 +829,60 @@ export async function reportWaitingOn({ github, core, context }: { github: Graph
     core.info(`Counted as human: ${[...humans].sort().join(', ')}`);
 
     const changes = planLabelChanges(nodes, rows);
-    const failed = dryRun ? [] : await applyLabelChanges(github, core, context.repo, changes);
+    const failedLabels = dryRun ? [] : await applyLabelChanges(github, core, context.repo, changes);
 
     core.summary.addRaw(renderReport(rows));
     core.summary.addRaw(`\n${changes.length} pull request(s) ${dryRun ? 'would have had their label changed (dry run)' : 'had their label changed'}.\n`);
+
+    const failedItems: string[] = [];
+    if (project !== undefined) {
+        const { owner, repo } = context.repo;
+        const targets = [
+            { number: project.number, rows, archive: true },
+            ...[...parseTeamProjects(project.teams)].map(([teamLabel, number]) => ({ number, rows: rows.filter((row) => row.labels.includes(teamLabel)), archive: false })),
+        ];
+
+        for (const target of targets) {
+            // A team's project missing a field must not keep the other projects from their sync.
+            try {
+                const { schema, items } = await fetchProject(project.github, core, owner, target.number, `${owner}/${repo}`);
+                const projectChanges = planProjectChanges(target.rows, items, { archive: target.archive });
+
+                failedItems.push(...(dryRun ? [] : await applyProjectChanges(project.github, core, schema, projectChanges)));
+                core.summary.addRaw(`\nProject ${owner}/${target.number}${dryRun ? ' (dry run, nothing written)' : ''}: ${summarizeProjectChanges(projectChanges)}.\n`);
+            } catch (error) {
+                failedItems.push(`project ${target.number}`);
+                core.error(error instanceof Error ? error.message : String(error));
+            }
+        }
+    }
+
+    const failedReminders: string[] = [];
+    if (reminders !== undefined) {
+        const boardUrl = project !== undefined ? `https://github.com/orgs/${context.repo.owner}/projects/${project.number}` : undefined;
+        const planned = planReminders(rows, parseChannels(reminders.channels), new Date());
+
+        for (const reminder of planned) {
+            // One channel failing must not keep the others from their reminders.
+            try {
+                await postSlackMessage(dryRun ? {} : reminders.slack, core, reminder.channel, renderReminder(reminder, boardUrl));
+            } catch (error) {
+                failedReminders.push(reminder.channel);
+                core.error(error instanceof Error ? error.message : String(error));
+            }
+        }
+        core.summary.addRaw(`\n${planned.reduce((sum, reminder) => sum + reminder.rows.length, 0)} external pull request(s) due for a Slack reminder${dryRun ? ' (dry run, nothing sent)' : ''}.\n`);
+    }
+
     await core.summary.write();
     core.setOutput('rows', JSON.stringify(rows));
 
-    if (failed.length > 0) {
-        throw new Error(`Failed to update the waiting-on label on ${failed.length} pull request(s): ${failed.map((number) => `#${number}`).join(', ')}`);
+    const failures = [
+        ...(failedLabels.length > 0 ? [`the waiting-on label on ${failedLabels.map((number) => `#${number}`).join(', ')}`] : []),
+        ...(failedItems.length > 0 ? [`the project for ${failedItems.join(', ')}`] : []),
+        ...(failedReminders.length > 0 ? [`the Slack reminder for ${failedReminders.join(', ')}`] : []),
+    ];
+    if (failures.length > 0) {
+        throw new Error(`Failed to update ${failures.join(' and ')}`);
     }
 }

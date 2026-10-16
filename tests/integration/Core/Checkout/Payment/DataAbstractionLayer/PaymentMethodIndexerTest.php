@@ -234,6 +234,6 @@ class PaymentMethodIndexerTest extends TestCase
         // Check messenger if there is another new PaymentMethodIndexingMessage (it shouldn't)
         /** @var TraceableMessageBus $messageBus */
         $messages = $messageBus->getDispatchedMessages();
-        static::assertEmpty($messages);
+        static::assertCount(0, $messages);
     }
 }

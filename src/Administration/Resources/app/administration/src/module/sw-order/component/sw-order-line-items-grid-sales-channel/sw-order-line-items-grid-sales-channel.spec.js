@@ -674,4 +674,51 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         expect(wrapper.emitted('on-save-item')[0][0].label).toBe('Credit item');
         expect(wrapper.emitted('on-save-item')[0][0].priceDefinition.price).toBe(-100);
     });
+
+    it('removes a newly added item from the selection when its inline editing is cancelled', async () => {
+        const wrapper = await createWrapper();
+        const orderStore = Shopware.Store.get('swOrder');
+        orderStore.setCartToken('token');
+        orderStore.setCartLineItems([{ ...mockItems[1] }]);
+        await wrapper.setProps({ cart: orderStore.cart, isCustomerActive: true });
+
+        await wrapper.find('.sw-order-line-items-grid-sales-channel__add-product').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--selection input').setChecked(true);
+        expect(wrapper.find('.sw-data-grid__bulk').exists()).toBe(true);
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__inline-edit-cancel').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-data-grid__bulk').exists()).toBe(false);
+    });
+
+    it('keeps only the items that are still in the reloaded cart selected after a new item is saved', async () => {
+        const wrapper = await createWrapper();
+        const orderStore = Shopware.Store.get('swOrder');
+        const existingItem = { ...mockItems[1] };
+        orderStore.setCartToken('token');
+        orderStore.setCartLineItems([existingItem]);
+        await wrapper.setProps({ cart: orderStore.cart, isCustomerActive: true });
+
+        await wrapper.find('.sw-order-line-items-grid-sales-channel__add-product').trigger('click');
+        await flushPromises();
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--label input').setValue('Product 1');
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--selection input').setChecked(true);
+        await wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--selection input').setChecked(true);
+        expect(wrapper.find('.sw-data-grid__bulk-selected-count').text()).toBe('2');
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__inline-edit-save').trigger('click');
+        await flushPromises();
+        expect(wrapper.emitted('on-save-item')).toHaveLength(1);
+
+        orderStore.setCart({ ...orderStore.cart, lineItems: [{ ...mockItems[0], id: 'persisted-item' }, existingItem] });
+        await wrapper.setProps({ cart: orderStore.cart });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-data-grid__bulk-selected-count').text()).toBe('1');
+        expect(wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--selection input').element.checked).toBe(true);
+    });
 });

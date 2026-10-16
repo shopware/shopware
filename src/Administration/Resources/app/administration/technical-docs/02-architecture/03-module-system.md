@@ -44,7 +44,7 @@ The module factory (`core/factory/module.factory.ts`) provides the following key
 - **`getModuleRegistry()`** - Returns all registered modules
 - **`getModuleByEntityName(entityName)`** - Finds modules by entity
 - **`getModuleRoutes()`** - Gets all module routes
-- **`getModuleSnippets()`** - Retrieves translation snippets
+- **`getModuleSnippets()`** - Retrieves translation snippets (**deprecated**, will be removed in v6.8.0)
 
 ### Module Manifest Structure
 
@@ -88,6 +88,7 @@ interface ModuleManifest {
     
     // Search & Translations
     defaultSearchConfiguration?: SearchConfig;
+    /** @deprecated tag:v6.8.0 - Will be removed, snippets are loaded from the `snippet` folders */
     snippets?: { [lang: string]: unknown };
 }
 ```
@@ -266,7 +267,11 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
 
 ### 6. Translation Snippets
 
-Modules provide localized strings for their interface:
+> **Deprecated:** The `snippets` property of the module manifest is deprecated and will be removed in v6.8.0.
+> Snippets are loaded from the `snippet` folders by the initial snippets request, so simply place
+> `en.json` / `de.json` files in the module's `snippet` folder instead of registering them in the manifest.
+
+Modules provided localized strings for their interface via the manifest:
 
 ```javascript
 // Snippet registration (typically in separate files)

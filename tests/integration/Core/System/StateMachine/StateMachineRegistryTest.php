@@ -117,7 +117,7 @@ EOF;
         $this->createOrderWithPartiallyReturnedDeliveryState();
         $availableTransitions = $this->stateMachineRegistry->getAvailableTransitions('order_delivery', $this->fetchFirstIdFromTable('order_delivery'), 'stateId', Context::createDefaultContext());
 
-        static::assertNotEmpty($availableTransitions);
+        static::assertNotCount(0, $availableTransitions);
         static::assertCount(2, $availableTransitions);
 
         $reopenActionExisted = false;
@@ -146,9 +146,9 @@ EOF;
         $transition = new Transition('order_delivery', $orderDeliveryId, 'retour', 'stateId');
         $stateCollection = $this->stateMachineRegistry->transition($transition, Context::createDefaultContext());
 
-        static::assertNotEmpty($stateCollection);
-        static::assertNotEmpty($stateCollection->get('fromPlace'));
-        static::assertNotEmpty($stateCollection->get('toPlace'));
+        static::assertNotCount(0, $stateCollection);
+        static::assertNotNull($stateCollection->get('fromPlace'));
+        static::assertNotNull($stateCollection->get('toPlace'));
         $fromPlace = $stateCollection->get('fromPlace');
         $toPlace = $stateCollection->get('toPlace');
         static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
@@ -161,9 +161,9 @@ EOF;
         $transition = new Transition('order_delivery', $orderDeliveryId, 'retour_partially', 'stateId');
         $stateCollection = $this->stateMachineRegistry->transition($transition, Context::createDefaultContext());
 
-        static::assertNotEmpty($stateCollection);
-        static::assertNotEmpty($stateCollection->get('fromPlace'));
-        static::assertNotEmpty($stateCollection->get('toPlace'));
+        static::assertNotCount(0, $stateCollection);
+        static::assertNotNull($stateCollection->get('fromPlace'));
+        static::assertNotNull($stateCollection->get('toPlace'));
         $fromPlace = $stateCollection->get('fromPlace');
         $toPlace = $stateCollection->get('toPlace');
         static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());

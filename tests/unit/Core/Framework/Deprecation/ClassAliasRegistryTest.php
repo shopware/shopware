@@ -22,7 +22,7 @@ class ClassAliasRegistryTest extends TestCase
 
         foreach (ClassAliasRegistry::ALIASES as $previousClassName => $currentClassName) {
             static::assertTrue(class_exists($previousClassName, autoload: false));
-            static::assertTrue($currentClassName === (new \ReflectionClass($previousClassName))->getName());
+            self::assertAliasOf($currentClassName, $previousClassName);
         }
     }
 
@@ -35,8 +35,7 @@ class ClassAliasRegistryTest extends TestCase
         ]);
 
         static::assertTrue(class_exists($previousClassName, autoload: false));
-        // @phpstan-ignore argument.type (The alias is registered immediately above.)
-        static::assertSame(self::class, (new \ReflectionClass($previousClassName))->getName());
+        self::assertAliasOf(self::class, $previousClassName);
         static::assertSame(self::class, ClassAliasRegistry::aliases()[$previousClassName]);
         static::assertSame(self::class, (new ClassAliasMap())->canonicalClassName($previousClassName));
     }
@@ -75,5 +74,14 @@ PHP;
             'Cannot register class alias "Shopware\\Administration\\Controller\\NotificationController" to "Shopware\\Core\\Framework\\Notification\\Api\\NotificationController": the name already refers to "Shopware\\Administration\\Controller\\NotificationController".',
             $process->getErrorOutput(),
         );
+    }
+
+    /**
+     * Two names are subtypes of each other only when they refer to the same class.
+     */
+    private static function assertAliasOf(string $currentClassName, string $previousClassName): void
+    {
+        static::assertTrue(is_a($previousClassName, $currentClassName, true), $previousClassName . ' must resolve to ' . $currentClassName);
+        static::assertTrue(is_a($currentClassName, $previousClassName, true), $previousClassName . ' must resolve to ' . $currentClassName);
     }
 }

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Shopware\Storefront\Checkout\Order\OrderProductAvailabilityResolver;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
@@ -55,6 +56,7 @@ class AccountOrderPageLoaderTest extends TestCase
             $this->eventDispatcher,
             $this->orderRoute,
             $this->translator,
+            static::createStub(OrderProductAvailabilityResolver::class),
         );
     }
 

@@ -8,6 +8,7 @@ test('As an admin, I want to create new flows from templates, so that I can easi
         AdminFlowBuilderDetail,
         IdProvider,
         AdminApiContext,
+        TestDataService,
     }) => {
 
     const flowTemplateName = 'Order placed';
@@ -42,6 +43,7 @@ test('As an admin, I want to create new flows from templates, so that I can easi
         await ShopAdmin.expects(AdminFlowBuilderDetail.saveButtonLoader).toBeVisible()
         await ShopAdmin.expects(AdminFlowBuilderDetail.saveButtonLoader).not.toBeVisible()
         const flowId = await getFlowId(flowName, AdminApiContext);
+        TestDataService.addCreatedRecord('flow', flowId);
         const flowEqualsTemplate = await compareFlowTemplateWithFlow(flowId, flowTemplateId, AdminApiContext);
         ShopAdmin.expects(flowEqualsTemplate).toBe(true);
         });

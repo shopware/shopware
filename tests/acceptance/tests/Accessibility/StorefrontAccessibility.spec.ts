@@ -1,4 +1,34 @@
-import { test } from '@fixtures/AcceptanceTest';
+import { test, expect } from '@fixtures/AcceptanceTest';
+
+const placedOrderIds: string[] = [];
+
+// Documents generated for the placed order would block its deletion (ON DELETE RESTRICT) in the TestDataService cleanup.
+test.afterEach(async ({ AdminApiContext }) => {
+    const orderIds = placedOrderIds.splice(0);
+    if (orderIds.length === 0) {
+        return;
+    }
+
+    const response = await AdminApiContext.post('search-ids/document', {
+        data: { filter: [{ type: 'equalsAny', field: 'orderId', value: orderIds }] },
+    });
+    expect(response.ok()).toBeTruthy();
+    const { data: documentIds } = (await response.json()) as { data: string[] };
+
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (documentIds.length > 0) {
+        const deleteResponse = await AdminApiContext.post('_action/sync', {
+            data: {
+                'delete-documents': {
+                    entity: 'document',
+                    action: 'delete',
+                    payload: documentIds.map((id) => ({ id })),
+                },
+            },
+        });
+        expect(deleteResponse.ok()).toBeTruthy();
+    }
+});
 
 test('The Storefront should implement accessibility best practices.', { tag: ['@Accessibility', '@Storefront'] }, async ({
     ShopCustomer,
@@ -9,6 +39,7 @@ test('The Storefront should implement accessibility best practices.', { tag: ['@
     ProceedFromCartToCheckout,
     ConfirmTermsAndConditions,
     SubmitOrder,
+    StorefrontCheckoutFinish,
     StorefrontProductDetail,
     StorefrontCategory,
     StorefrontAccountLogin,
@@ -18,7 +49,7 @@ test('The Storefront should implement accessibility best practices.', { tag: ['@
     StorefrontAccountProfile,
     StorefrontAccountAddresses,
     StorefrontAccountPayment,
-    StorefrontPageNotFound
+    StorefrontPageNotFound,
 }) => {
     test.slow();
 
@@ -61,6 +92,9 @@ test('The Storefront should implement accessibility best practices.', { tag: ['@
 
         await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
         await ShopCustomer.attemptsTo(SubmitOrder());
+        const orderId = StorefrontCheckoutFinish.getOrderId();
+        placedOrderIds.push(orderId);
+        TestDataService.addCreatedRecord('order', orderId);
 
         await ShopCustomer.attemptsTo(ValidateAccessibility('Checkout Finish', true));
     });

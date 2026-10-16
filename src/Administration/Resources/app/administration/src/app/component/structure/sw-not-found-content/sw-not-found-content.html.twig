@@ -7,13 +7,13 @@
         :description="$t('sw-not-found.description')"
     >
         <template #button>
-            {% block sw_not_found_content_dashboard_button %}
+            {% block sw_not_found_content_back_button %}
             <mt-button
-                class="sw-not-found-content__dashboard-button"
+                class="sw-not-found-content__back-button"
                 variant="primary"
-                @click="goToDashboard"
+                @click="goBack"
             >
-                {{ $t('sw-not-found.buttonDashboard') }}
+                {{ $t('global.default.back') }}
             </mt-button>
             {% endblock %}
         </template>

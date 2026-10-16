@@ -11,7 +11,7 @@ async function createWrapper(props) {
     return mount(await wrapTestComponent('sw-extension-app-module-page', { sync: true }), {
         global: {
             stubs: {
-                'sw-not-found-content': await wrapTestComponent('sw-not-found-content', {
+                'sw-extension-app-module-error-page': await wrapTestComponent('sw-extension-app-module-error-page', {
                     sync: true,
                 }),
                 'sw-page': await wrapTestComponent('sw-page', {
@@ -98,7 +98,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         });
         await flushPromises();
 
-        expect(wrapper.find('.sw-not-found-content').exists()).toBe(true);
+        expect(wrapper.find('.sw-extension-app-module-error-page').exists()).toBe(true);
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
     });
 
@@ -111,7 +111,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         });
         await flushPromises();
 
-        expect(wrapper.find('.sw-not-found-content').exists()).toBe(false);
+        expect(wrapper.find('.sw-extension-app-module-error-page').exists()).toBe(false);
         expect(wrapper.find('sw-loader-stub').exists()).toBe(true);
     });
 
@@ -129,7 +129,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         jest.runAllTimers();
         await wrapper.vm.$nextTick();
 
-        wrapper.get('.sw-not-found-content');
+        wrapper.get('.sw-extension-app-module-error-page');
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
     });
 
@@ -154,7 +154,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         jest.runAllTimers();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw-not-found-content').exists()).toBe(false);
+        expect(wrapper.find('.sw-extension-app-module-error-page').exists()).toBe(false);
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
     });
 

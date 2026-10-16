@@ -1383,8 +1383,7 @@
   },
   "sw-not-found": {
     "title": "Seite nicht gefunden",
-    "description": "Die gesuchte Seite konnte nicht gefunden werden. Möglicherweise wurde sie verschoben oder existiert nicht mehr.",
-    "buttonDashboard": "Zurück zum Dashboard"
+    "description": "Die gesuchte Seite konnte nicht gefunden werden. Möglicherweise wurde sie verschoben oder existiert nicht mehr."
   },
   "sw-property-search": {
     "placeholderSearch": "Ausprägungen durchsuchen ...",

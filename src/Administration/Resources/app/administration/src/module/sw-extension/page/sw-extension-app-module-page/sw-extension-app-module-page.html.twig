@@ -23,7 +23,7 @@
 
             <template v-if="!appLoaded">
                 <template v-if="timedOut">
-                    <sw-not-found-content />
+                    <sw-extension-app-module-error-page />
                 </template>
 
                 <template v-else>
@@ -32,7 +32,7 @@
             </template>
         </template>
 
-        <sw-not-found-content v-else-if="appsLoaded && suspend" />
+        <sw-extension-app-module-error-page v-else-if="appsLoaded && suspend" />
 
         <sw-loader v-else />
     </template>

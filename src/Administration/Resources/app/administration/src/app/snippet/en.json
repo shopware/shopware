@@ -1383,8 +1383,7 @@
   },
   "sw-not-found": {
     "title": "Page not found",
-    "description": "The page you were looking for could not be found. It may have been moved or no longer exists.",
-    "buttonDashboard": "Back to dashboard"
+    "description": "The page you were looking for could not be found. It may have been moved or no longer exists."
   },
   "sw-property-search": {
     "placeholderSearch": "Search values...",

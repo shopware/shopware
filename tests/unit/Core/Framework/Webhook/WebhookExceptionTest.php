@@ -64,6 +64,15 @@ class WebhookExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 
+    public function testWebhookNotOwned(): void
+    {
+        $e = WebhookException::webhookNotOwned('webhookId');
+
+        static::assertSame('Webhook "webhookId" can only be changed by its owner.', $e->getMessage());
+        static::assertSame('FRAMEWORK__WEBHOOK_NOT_OWNED', $e->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+    }
+
     public function testUnsupportedMessage(): void
     {
         $e = WebhookException::unsupportedMessage('stdClass');

@@ -4,11 +4,13 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestIntegration;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
@@ -166,6 +168,95 @@ class WebhookApiTest extends TestCase
                 ['id' => Uuid::fromHexToBytes($webhookId)]
             )
         );
+    }
+
+    public function testWebhookCannotBeUpdatedByAnotherUser(): void
+    {
+        $webhookId = $this->createWebhookOwnedByAnotherUser();
+
+        $connection = static::getContainer()->get(Connection::class);
+        TestUser::createNewTestUser($connection, ['webhook:update'])->authorizeBrowser($this->getBrowser());
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/webhook/' . $webhookId, [
+            'url' => 'https://attacker.example',
+        ]);
+
+        $this->assertApiErrors([['code' => WebhookException::WEBHOOK_NOT_OWNED]]);
+        static::assertSame('https://owner.example', $this->loadWebhook($webhookId)->getUrl());
+    }
+
+    public function testWebhookCannotBeDeletedByAnotherUser(): void
+    {
+        $webhookId = $this->createWebhookOwnedByAnotherUser();
+
+        $connection = static::getContainer()->get(Connection::class);
+        TestUser::createNewTestUser($connection, ['webhook:delete'])->authorizeBrowser($this->getBrowser());
+
+        $this->getBrowser()->jsonRequest('DELETE', '/api/webhook/' . $webhookId);
+
+        $this->assertApiErrors([['code' => WebhookException::WEBHOOK_NOT_OWNED]]);
+        static::assertSame('https://owner.example', $this->loadWebhook($webhookId)->getUrl());
+    }
+
+    public function testWebhookCannotBeUpdatedByAnIntegrationNamingItsOwner(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $owner = TestUser::createNewAdminTestUser($connection);
+        $webhookId = $this->createWebhookOwnedByAnotherUser($owner->getUserId());
+
+        $integration = TestIntegration::create($connection, ['webhook:update']);
+        $this->authorizeBrowserWithIntegration($this->getBrowser(), $integration->getId());
+        $this->getBrowser()->setServerParameter('HTTP_SW_APP_USER_ID', $owner->getUserId());
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/webhook/' . $webhookId, [
+            'url' => 'https://attacker.example',
+        ]);
+
+        $this->assertApiErrors([['code' => WebhookException::WEBHOOK_NOT_OWNED]]);
+        static::assertSame('https://owner.example', $this->loadWebhook($webhookId)->getUrl());
+    }
+
+    public function testWebhookCanBeUpdatedByItsOwner(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $owner = TestUser::createNewTestUser($connection, ['webhook:create', 'webhook:update']);
+        $owner->authorizeBrowser($this->getBrowser());
+
+        $webhookId = Uuid::randomHex();
+        $this->getBrowser()->jsonRequest('POST', '/api/webhook/', [
+            'id' => $webhookId,
+            'name' => 'My super webhook',
+            'eventName' => 'product.written',
+            'url' => 'http://localhost',
+        ]);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/webhook/' . $webhookId, [
+            'url' => 'https://owner.example',
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
+
+        static::assertSame('https://owner.example', $this->loadWebhook($webhookId)->getUrl());
+    }
+
+    private function createWebhookOwnedByAnotherUser(?string $ownerUserId = null): string
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $ownerUserId ??= TestUser::createNewTestUser($connection)->getUserId();
+
+        $webhookId = Uuid::randomHex();
+        $connection->insert('webhook', [
+            'id' => Uuid::fromHexToBytes($webhookId),
+            'name' => 'Someone elses webhook',
+            'event_name' => 'product.written',
+            'url' => 'https://owner.example',
+            'owner_user_id' => Uuid::fromHexToBytes($ownerUserId),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        return $webhookId;
     }
 
     private function createAppWebhook(): string

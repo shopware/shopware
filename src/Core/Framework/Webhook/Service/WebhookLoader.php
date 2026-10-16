@@ -73,7 +73,8 @@ class WebhookLoader
             <<<'SQL'
                 SELECT
                     LOWER(HEX(`id`)) as webhookId,
-                    LOWER(HEX(`app_id`)) as appId
+                    LOWER(HEX(`app_id`)) as appId,
+                    LOWER(HEX(COALESCE(`owner_integration_id`, `owner_user_id`))) as ownerId
                 FROM `webhook`
                 WHERE `id` IN (:webhookIds)
             SQL,
@@ -82,7 +83,11 @@ class WebhookLoader
         );
 
         return array_map(
-            static fn (array $row) => new Ownership($row['webhookId'], $row['appId']),
+            static fn (array $row) => new Ownership(
+                $row['webhookId'],
+                $row['appId'],
+                $row['ownerId'],
+            ),
             $rows
         );
     }

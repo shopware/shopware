@@ -372,6 +372,20 @@ class SearchCasesTest extends TestCase
         ];
 
         $ids = new IdsCollection();
+        yield 'bracket attached to a word does not stop the word from matching by prefix' => [
+            'ids' => $ids,
+            'products' => [
+                self::product($ids, 'b5-target', 'DE-B5-1', 'Tennis Captain Hat'),
+                self::product($ids, 'b5-other', 'DE-B5-2', 'Hammer Tool'),
+            ],
+            'searchFields' => ['name'],
+            'searchScores' => ['name' => 1000],
+            'minScore' => null,
+            'term' => 'tennis (capt',
+            'expectedFirst' => 'b5-target',
+        ];
+
+        $ids = new IdsCollection();
         yield 'lone G query does not hit products that only contain bare G from HSS-G' => [
             'ids' => $ids,
             'products' => [

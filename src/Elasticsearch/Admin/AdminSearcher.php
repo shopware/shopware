@@ -280,6 +280,8 @@ class AdminSearcher
     {
         $term = mb_substr(trim($rawTerm), 0, $this->termMaxLength);
 
+        $term = preg_replace('/(?<!\S)[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+(?!\S)/u', '', $term) ?? $term;
+
         $term = (string) mb_eregi_replace('\s(or)\s', '|', $term);
         $term = (string) mb_eregi_replace('\s(and)\s', ' + ', $term);
 

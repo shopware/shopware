@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Log\Package;
  * preserving the term verbatim and letting the analyzer split it produces strictly better matches
  * for technical strings like `5,5`, `M8x20` or `HSS-G`.
  *
+ * Brackets at the start or end of a token (e.g. `(cap`) are stripped: the analyzer still splits them
+ * off for exact matches, but a prefix match on the whole token would miss the word.
+ *
  * Tokens that contain no letters or digits at all (e.g. `&%$`, `---`) are still rejected here so a
  * pure-punctuation request does not reach Elasticsearch.
  */
@@ -31,6 +34,11 @@ final class ElasticsearchTokenizer implements TokenizerInterface
         $tokenMinimumLength ??= AbstractTokenFilter::DEFAULT_MIN_SEARCH_TERM_LENGTH;
 
         $tokens = preg_split('/\s+/u', mb_strtolower($string), -1, \PREG_SPLIT_NO_EMPTY) ?: [];
+
+        $tokens = array_map(
+            static fn (string $token): string => preg_replace('/^[()\[\]{}<>\\\\]+|[()\[\]{}<>\\\\]+$/u', '', $token) ?? $token,
+            $tokens,
+        );
 
         $tokens = array_filter(
             $tokens,

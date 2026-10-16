@@ -36,7 +36,7 @@ class ProcessIsolationInTestsTest extends TestCase
         if ($expectedAttribute !== null) {
             static::assertStringContainsString($fileName, $context->getFailures()[0]);
             static::assertStringContainsString('`' . $expectedAttribute . '`', $context->getFailures()[0]);
-            static::assertStringContainsString('shared PHPUnit process', $context->getFailures()[0]);
+            static::assertStringContainsString('silently loses the guards we rely on', $context->getFailures()[0]);
         }
     }
 

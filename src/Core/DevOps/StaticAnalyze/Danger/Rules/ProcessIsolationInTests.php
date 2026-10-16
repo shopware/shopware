@@ -36,7 +36,7 @@ class ProcessIsolationInTests
 
         if ($violations !== []) {
             $context->failure(
-                'Unit and devops tests run in the shared PHPUnit process: process isolation re-bootstraps per test and runs outside the PHPUnit extensions.'
+                'A test in a separate process re-bootstraps PHPUnit and runs outside our PHPUnit extensions, so it is slow and silently loses the guards we rely on.'
                 . ' Restore the global state the test changes instead:<br/>'
                 . implode('<br/>', $violations)
             );

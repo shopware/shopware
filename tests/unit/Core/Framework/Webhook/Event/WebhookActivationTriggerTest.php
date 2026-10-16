@@ -17,7 +17,7 @@ class WebhookActivationTriggerTest extends TestCase
     public function testValues(): void
     {
         static::assertSame(
-            ['trial', 'idle', 'manual', 'app_reset'],
+            ['trial', 'idle', 'manual', 'app_reset', 'app_reactivate_api'],
             array_column(WebhookActivationTrigger::cases(), 'value'),
         );
     }

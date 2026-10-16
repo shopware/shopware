@@ -129,6 +129,7 @@ class DefinitionValidator
         'mcp_list_version',
         'webhook_delivery',
         'webhook_stream',
+        'webhook_health',
     ];
 
     /**

@@ -111,6 +111,10 @@ export default {
     },
 
     watch: {
+        customer(customer) {
+            this.activeCustomer = customer;
+        },
+
         currentAddress(newValue, oldValue) {
             if (newValue || !oldValue) {
                 return;

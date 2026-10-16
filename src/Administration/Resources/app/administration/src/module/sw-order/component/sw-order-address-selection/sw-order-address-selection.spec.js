@@ -607,4 +607,19 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(selectedAddress.exists()).toBe(true);
         expect(selectedAddressContent.text()).toBe('Denesik Bridge, 05132 Bernierstad');
     });
+
+    it('should load the customer of the new order when the order is replaced while the selection stays mounted', async () => {
+        await flushPromises();
+
+        const orderDetailStore = Shopware.Store.get('swOrderDetail');
+        orderDetailStore.order = {
+            ...orderDetailStore.order,
+            orderCustomer: {
+                customerId: '2b8f9d5e0c4a4b1f8e7d6c5b4a392817',
+            },
+        };
+        await flushPromises();
+
+        expect(orderDetailStore.loadCustomer).toHaveBeenLastCalledWith('2b8f9d5e0c4a4b1f8e7d6c5b4a392817');
+    });
 });

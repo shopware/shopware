@@ -394,4 +394,25 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         expect(wrapper.getComponent('.sw-customer-address-form').props('disabled')).toBe(false);
         expect(wrapper.getComponent('.sw-customer-address-form-options').props('disabled')).toBe(false);
     });
+
+    it('should show the addresses of the new customer when the customer is replaced while the view stays mounted', async () => {
+        await wrapper.setProps({
+            customer: {
+                id: '2',
+                addresses: [
+                    {
+                        id: '2',
+                        lastName: 'Schmidt',
+                        firstName: 'Erika',
+                        city: 'Hamburg',
+                        street: 'Jungfernstieg 1',
+                        zipcode: '20095',
+                    },
+                ],
+            },
+        });
+
+        expect(wrapper.vm.activeCustomer.id).toBe('2');
+        expect(wrapper.find('td').text()).toContain('Schmidt');
+    });
 });

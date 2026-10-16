@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-explicit-emits -- mt-checkbox's update:modelValue and the deprecated field's update:value reach the parent only through $attrs. @deprecated tag:v6.8.0 - Remove together with the component */
 import template from './sw-checkbox-field.html.twig';
 
 /**

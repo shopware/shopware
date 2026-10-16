@@ -69,6 +69,14 @@ In Jest, every deprecation a test runs into fails the test unless the test asser
 - A usage site is `<template author> > <component>` when the guard runs inside a component: the component that guards, and the component whose template renders it (`sw-loader` alone when a spec mounts it). Outside a component, it is the path of the file that calls the deprecated function, relative to the Administration, or the spec that calls it.
 - Each usage site lists the Jest runs it passes in: `default` (`composer admin:unit`) and `major` (`composer admin:unit:major`, CI job "Jest Admin (major)").
 - Never add a usage to make a failing spec pass: migrate it to the replacement instead. Add an entry only on purpose, e.g. when a new guard lands before its callers are migrated.
+- A full, green run fails on usages listed for it that no spec needs anymore. Remove the run from them when you migrate a usage.
+
+To regenerate the file, run both commands below, then review the diff. Each run rewrites only its own markings, and only after a full, green run:
+
+```bash
+DEPRECATION_BASELINE=update composer admin:unit
+DEPRECATION_BASELINE=update composer admin:unit:major
+```
 
 A spec that tests a deprecated path on purpose asserts the deprecation instead of listing it:
 

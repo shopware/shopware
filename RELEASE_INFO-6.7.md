@@ -2,6 +2,13 @@
 
 ## Critical Fixes
 
+### Content Security Policy for static HTML and SVG assets on Apache
+
+The Apache `.htaccess.dist` template now sends `script-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'` for existing `.html` files under `public/media` and `public/thumbnail`, and for SVG files.
+Application-rendered HTML and bundled HTML applications retain their existing behavior.
+Ensure your deployed `.htaccess` contains the updated Shopware section; installations without the Shopware update markers must merge it manually.
+Custom static documents must work without scripts, embedded documents, base URL overrides or form submissions; images and styles remain permitted.
+
 ### Sales channel contexts expose the default currency again
 
 `SalesChannelContext::getSalesChannel()->getCurrency()` returns the sales channel's default currency again, including when another currency is selected for the context. This restores the behavior before 6.7.15.0 for extensions that read the default currency. Use `SalesChannelContext::getCurrency()` for the currently selected currency.

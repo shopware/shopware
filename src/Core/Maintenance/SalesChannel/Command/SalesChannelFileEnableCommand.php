@@ -101,14 +101,25 @@ class SalesChannelFileEnableCommand extends Command
      */
     private function validIds(array $ids, OutputInterface $output): array
     {
-        $ids = array_values(array_unique(array_map(strtolower(...), $ids)));
-        $invalidIds = array_values(array_filter($ids, static fn (string $id): bool => !Uuid::isValid($id)));
+        $validIds = [];
+        $invalidIds = [];
+        foreach ($ids as $id) {
+            $id = strtolower($id);
+
+            if (Uuid::isValid($id)) {
+                $validIds[$id] = $id;
+
+                continue;
+            }
+
+            $invalidIds[$id] = $id;
+        }
 
         if ($invalidIds !== []) {
             $output->writeln(\sprintf('Ignored invalid id(s): %s', implode(', ', $invalidIds)));
         }
 
-        return array_values(array_diff($ids, $invalidIds));
+        return array_values($validIds);
     }
 
     /**

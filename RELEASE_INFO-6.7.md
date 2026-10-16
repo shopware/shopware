@@ -813,6 +813,12 @@ The deliverability card of digital products has a new "Allow multiple units per 
 - The Twig block `sw_product_media_form_grid_item` renders a single grid item, so an override can render its own items and keep `{% parent %}` for the product media.
 - The method `moveGalleryItem(item, position)` moves a grid item when it is dragged or marked as cover. Override it together with `galleryItems` when your items share the position space with the product media.
 
+### Administration deprecation notices go through the feature lifecycle
+
+The hand-rolled deprecation warnings in the Administration now go through `Shopware.Feature.triggerDeprecationOrThrow()`, so they throw once their major flag is active instead of staying a console message forever. This covers `sw-tabs`, `sw-loader`, `sw-popover`, `sw-skeleton-bar`, the `items` prop of `sw-entity-listing`, the Options API compatibility shim and the legacy theme config labels and help texts in `sw-theme-manager-detail`.
+
+Deprecation notices for the legacy Twig override shim and for deprecated extension SDK position identifiers and data sets still only warn and do not throw, because no removal version exists for them yet.
+
 ## Storefront
 
 ### Category Twig function removal postponed to 6.9

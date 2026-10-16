@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -36,13 +37,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(ApiCriteriaValidator::class)]
 class ApiCriteriaValidatorTest extends TestCase
 {
-    /**
-     * @param class-string<\Exception>|null $expectedException
-     */
-    #[DataProvider('criteriaProvider')]
-    public function testCriteria(Criteria $criteria, Context $context, ?string $expectedException): void
+    private ApiCriteriaValidator $validator;
+
+    protected function setUp(): void
     {
-        $validator = new ApiCriteriaValidator(
+        $this->validator = new ApiCriteriaValidator(
             new StaticDefinitionInstanceRegistry(
                 [
                     SalesChannelProductDefinition::class,
@@ -52,11 +51,18 @@ class ApiCriteriaValidatorTest extends TestCase
                 static::createStub(EntityWriteGatewayInterface::class)
             )
         );
+    }
 
+    /**
+     * @param class-string<\Exception>|null $expectedException
+     */
+    #[DataProvider('criteriaProvider')]
+    public function testCriteria(Criteria $criteria, Context $context, ?string $expectedException): void
+    {
         $e = null;
 
         try {
-            $validator->validate('product', $criteria, $context);
+            $this->validator->validate('product', $criteria, $context);
         } catch (\Exception $e) {
         }
 
@@ -64,6 +70,30 @@ class ApiCriteriaValidatorTest extends TestCase
             static::assertNull($e);
         } else {
             static::assertInstanceOf($expectedException, $e);
+        }
+    }
+
+    public function testAFieldTheApiDoesNotExposeIsABadRequest(): void
+    {
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('orderLineItems.id', 1));
+
+        try {
+            $this->validator->validate('product', $criteria, new Context(new SalesChannelApiSource('test')));
+            static::fail('Expected an ApiProtectionException');
+        } catch (ApiProtectionException $e) {
+            static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        }
+    }
+
+    public function testARuntimeFieldInTheCriteriaIsABadRequest(): void
+    {
+        $criteria = (new Criteria())->addFilter(new ContainsFilter('variation', Uuid::randomHex()));
+
+        try {
+            $this->validator->validate('product', $criteria, new Context(new AdminApiSource('test')));
+            static::fail('Expected a RuntimeFieldInCriteriaException');
+        } catch (RuntimeFieldInCriteriaException $e) {
+            static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         }
     }
 

@@ -102,6 +102,7 @@ class TemplateDataExtensionTest extends TestCase
         static::assertArrayHasKey('themeId', $globals);
         static::assertSame($themeId, $globals['themeId']);
 
+        // @deprecated tag:v6.8.0 - Remove these assertions when the controllerName and controllerAction globals are removed permanently.
         static::assertArrayNotHasKey('controllerName', $globals);
         static::assertArrayNotHasKey('controllerAction', $globals);
 

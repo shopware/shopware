@@ -1938,11 +1938,6 @@
       "count": 1
     }
   },
-  "src/app/component/form/sw-datepicker/sw-datepicker.spec.js": {
-    "sw-core-rules/no-javascript-files": {
-      "count": 1
-    }
-  },
   "src/app/component/form/sw-dynamic-url-field/sw-dynamic-url-field.spec.js": {
     "sw-core-rules/no-javascript-files": {
       "count": 1

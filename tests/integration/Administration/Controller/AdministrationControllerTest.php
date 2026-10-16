@@ -51,7 +51,45 @@ class AdministrationControllerTest extends TestCase
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($response);
         static::assertArrayHasKey('de-DE', $response);
-        static::assertArrayHasKey('en-GB', $response);
+        // en-GB is not provided because all snippets are already provided in de-DE, so no fallback snippet is needed
+        static::assertArrayNotHasKey('en-GB', $response);
+    }
+
+    public function testSnippetRouteDoesNotDeliverSnippetsTwice(): void
+    {
+        $this->getBrowser()->request('GET', '/api/_admin/snippets?locale=de-DE');
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
+        $content = $this->getBrowser()->getResponse()->getContent();
+        static::assertNotFalse($content);
+
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($response);
+        static::assertNotEmpty($response['de-DE']);
+
+        $duplicates = array_intersect_key(
+            $this->flattenSnippets($response['de-DE']),
+            $this->flattenSnippets($response['en-GB'] ?? [])
+        );
+
+        static::assertSame([], array_keys($duplicates));
+    }
+
+    public function testSnippetRouteOnlyDeliversUnauthenticatedNamespacesWithoutAuthentication(): void
+    {
+        $browser = $this->createClient(authorized: false);
+        $browser->request('GET', '/api/_admin/snippets?locale=de-DE');
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+        $content = $browser->getResponse()->getContent();
+        static::assertNotFalse($content);
+
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($response);
+
+        foreach ($response as $localeSnippets) {
+            static::assertEmpty(array_diff(array_keys($localeSnippets), ['sw-login', 'global']));
+        }
+
+        static::assertArrayHasKey('sw-login', ($response['de-DE'] ?? []) + ($response['en-GB'] ?? []));
     }
 
     public function testResetExcludedSearchTermIncorrectLanguageId(): void
@@ -372,5 +410,26 @@ class AdministrationControllerTest extends TestCase
         $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext());
 
         return $salesChannel;
+    }
+
+    /**
+     * @param array<string, mixed> $snippets
+     *
+     * @return array<string, mixed>
+     */
+    private function flattenSnippets(array $snippets, string $prefix = ''): array
+    {
+        $flat = [];
+        foreach ($snippets as $key => $value) {
+            if (\is_array($value)) {
+                $flat += $this->flattenSnippets($value, $prefix . $key . '.');
+
+                continue;
+            }
+
+            $flat[$prefix . $key] = $value;
+        }
+
+        return $flat;
     }
 }

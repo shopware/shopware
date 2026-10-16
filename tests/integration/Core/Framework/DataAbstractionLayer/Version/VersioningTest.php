@@ -44,6 +44,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -1952,6 +1953,25 @@ class VersioningTest extends TestCase
         $versionId = $this->orderRepository->createVersion($this->createOrder(), $this->context);
 
         static::assertTrue(Uuid::isValid($versionId));
+    }
+
+    public function testCreateOrderVersionOfAClonedOrderSourceOnlyCopiesItsOwnDeliveries(): void
+    {
+        $orderId = $this->createOrder();
+        $this->orderRepository->clone($orderId, $this->context, null, new CloneBehavior([
+            'orderNumber' => Uuid::randomHex(),
+            'deepLinkCode' => Uuid::randomHex(),
+        ]));
+
+        $versionId = $this->orderRepository->createVersion($orderId, $this->context);
+
+        static::assertSame(
+            [$orderId],
+            static::getContainer()->get(Connection::class)->fetchFirstColumn(
+                'SELECT LOWER(HEX(order_id)) FROM order_delivery WHERE version_id = :versionId',
+                ['versionId' => Uuid::fromHexToBytes($versionId)]
+            )
+        );
     }
 
     public function testCascadeDeleteFlag(): void

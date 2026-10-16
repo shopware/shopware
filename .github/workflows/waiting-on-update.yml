@@ -8,6 +8,9 @@ name: Waiting-on update
 # Only privileged triggers, so a fork's pull request still gets a writing token and the
 # octo-sts identity: pull_request_target, issue_comment, and workflow_run for reviews, which
 # waiting-on-review-relay.yml relays. Nothing from the pull request is checked out or run.
+#
+# Pull request and comment events only dispatch the update, so the update runs that cancel
+# each other belong to the default branch and never show up as red checks on the pull request.
 
 on:
   pull_request_target:
@@ -30,23 +33,41 @@ on:
 
 permissions: {}
 
-# The newest event wins; an update that gets cancelled leaves nothing the next one does not fix.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.issue.number || inputs.number || github.event.workflow_run.id }}
-  cancel-in-progress: true
-
 jobs:
-  update:
-    name: Update the pull request's waiting-on state
+  dispatch:
+    name: Dispatch the waiting-on update
     # Our own `waiting-on/*` label writes start no runs (GITHUB_TOKEN), but a person setting one
     # by hand would; the verdict does not depend on it, so that event is skipped.
     if: >-
       github.repository == 'shopware/shopware' && (
         (github.event_name == 'pull_request_target' && !startsWith(github.event.label.name, 'waiting-on/')) ||
-        (github.event_name == 'issue_comment' && github.event.issue.pull_request && github.event.comment.user.type != 'Bot') ||
+        (github.event_name == 'issue_comment' && github.event.issue.pull_request && github.event.comment.user.type != 'Bot')
+      )
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    steps:
+      # a workflow_dispatch sent with GITHUB_TOKEN is the one event that still starts a run
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          gh workflow run waiting-on-update.yml --repo "$GITHUB_REPOSITORY" --ref "$DEFAULT_BRANCH" -f number="$NUMBER"
+
+  update:
+    name: Update the pull request's waiting-on state
+    if: >-
+      github.repository == 'shopware/shopware' && (
         (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
         github.event_name == 'workflow_dispatch'
       )
+    # The newest event wins; an update that gets cancelled leaves nothing the next one does not fix.
+    # At job level, so runs whose job is skipped never cancel a running update.
+    concurrency:
+      group: ${{ github.workflow }}-${{ inputs.number || github.event.workflow_run.id }}
+      cancel-in-progress: true
     runs-on: ubuntu-24.04
     permissions:
       actions: read
@@ -73,7 +94,7 @@ jobs:
           identity: ManageProjects
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
-          NUMBER_FROM_EVENT: ${{ github.event.pull_request.number || github.event.issue.number || inputs.number }}
+          NUMBER_FROM_EVENT: ${{ inputs.number }}
           RELAY_FILE: ${{ github.event_name == 'workflow_run' && format('{0}/relay/pr-number.txt', runner.temp) || '' }}
           DRY_RUN: ${{ inputs.dry-run || false }}
           PROJECT_NUMBER: ${{ vars.WAITING_ON_PROJECT_NUMBER }}

@@ -1,4 +1,4 @@
-/* eslint-disable sw-core-rules/require-explicit-emits -- the deprecated tabs' new-item-active reaches the parent only through $attrs */
+/* eslint-disable sw-core-rules/require-explicit-emits -- the deprecated tabs' new-item-active reaches the parent only through $attrs. @deprecated tag:v6.9.0 - Remove together with the component */
 import { Fragment, Text, type VNode } from 'vue';
 import type { RouteLocationRaw, Router } from 'vue-router';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';

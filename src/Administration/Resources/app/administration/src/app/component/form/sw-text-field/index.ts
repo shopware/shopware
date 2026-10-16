@@ -1,4 +1,4 @@
-/* eslint-disable sw-core-rules/require-explicit-emits -- the deprecated field's update:value reaches the parent only through $attrs */
+/* eslint-disable sw-core-rules/require-explicit-emits -- the deprecated field's update:value reaches the parent only through $attrs. @deprecated tag:v6.8.0 - Remove together with the component */
 import template from './sw-text-field.html.twig';
 
 /**

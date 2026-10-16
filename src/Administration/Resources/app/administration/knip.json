@@ -1,0 +1,31 @@
+{
+  "entry": [
+    "src/index.ts",
+    "_jest.config.ts",
+    "test/globalTeardown.js",
+    "eslint-rules/*/*.js",
+    "extension-tooling/*.mjs",
+    "lighthouserc.js",
+    "lighthouse-auth.js",
+    "jsdoc.config.js",
+    "scripts/runNpmAudit.ts"
+  ],
+  "ignore": [
+    "scripts/codemods/sfc-migration/__fixtures__/**",
+    "build/vite-plugins/**/{_fixtures,fixtures}/**"
+  ],
+  "ignoreFiles": [
+    "src/core/factory/state-deprecated.factory.js",
+    "src/core/helper/store-loader.helper.js"
+  ],
+  "paths": {
+    "scss/*": ["src/app/assets/scss/*.scss"],
+    "src/*": ["src/*"]
+  },
+  "vite": {
+    "config": [],
+    "entry": ["vite.config.mts"]
+  },
+  "ignoreDependencies": ["shopware"],
+  "ignoreUnresolved": ["administrationtest/globalTeardown\\.js$"]
+}

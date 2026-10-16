@@ -296,6 +296,8 @@
         "init:db": " ",
         "init:js": " ",
         "init:testdb": "Initializes the test database",
+        "knip:admin": "Finds unused files, exports and dependencies in the Administration with knip",
+        "knip:admin:prune": "Removes fixed entries from the Administration's knip baseline",
         "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'cs' and 'translation:lint'",
         "lint:actions": "Lints GitHub Actions workflows/actions with actionlint, checks their formatting with yamlfmt, and audits them with zizmor",
         "lint:actions:fix": "Formats GitHub Actions workflows/actions with yamlfmt",
@@ -465,6 +467,8 @@
             "@putenv FORCE_INSTALL=true",
             "@php src/Core/TestBootstrap.php"
         ],
+        "knip:admin": "@npm:admin run lint:knip",
+        "knip:admin:prune": "@npm:admin run lint:knip:prune",
         "lint": [
             "@stylelint",
             "@eslint",

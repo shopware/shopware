@@ -31,7 +31,9 @@ export default class AddPaymentInfoEvent extends AnalyticsEvent
         }
 
         const paymentType = this._getPaymentType();
-        if (CheckoutStepHelper.hasReported('add_payment_info', paymentType)) {
+        // method names are not unique, so a reload is recognised by the id of the checked method
+        const methodKey = document.querySelector('.payment-method-input:checked')?.getAttribute('value') || paymentType;
+        if (CheckoutStepHelper.hasReported('add_payment_info', methodKey)) {
             return;
         }
 
@@ -50,7 +52,7 @@ export default class AddPaymentInfoEvent extends AnalyticsEvent
             'items': lineItems,
         });
 
-        CheckoutStepHelper.markReported('add_payment_info', paymentType);
+        CheckoutStepHelper.markReported('add_payment_info', methodKey);
     }
 
     /**

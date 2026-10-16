@@ -5,16 +5,21 @@ import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-settings-units-detail.html.twig';
 import type Repository from '../../../../core/data/repository.data';
 import { mapPropertyErrors } from '../../../../app/service/map-errors.service';
+import useNotification from '../../../../app/composables/use-notification';
 
-const { Component, Mixin } = Shopware;
+type CustomFieldDataProvider = {
+    getCustomFieldSets(
+        entityName: string,
+        forceReload: boolean,
+        limit: number | null,
+    ): Promise<Entity<'custom_field_set'>[]>;
+};
 
 /**
  * @private
  */
-export default Component.wrapComponentConfig({
+export default Shopware.Component.wrapComponentConfig({
     template,
-
-    mixins: [Mixin.getByName('notification')],
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
@@ -23,31 +28,16 @@ export default Component.wrapComponentConfig({
          * Either the id of the unit when in edit mode or null when in create mode.
          */
         unitId: {
-            type: String as unknown as PropType<EntityKey<'unit'> | null>,
+            type: [String, null] as PropType<EntityKey<'unit'> | null>,
             required: false,
             default: null,
         },
     },
 
-    computed: {
-        unitRepository(): Repository<'unit'> {
-            return this.repositoryFactory.create('unit');
-        },
+    setup() {
+        const { createNotificationError } = useNotification();
 
-        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
-        customFieldSetRepository(): Repository<'custom_field_set'> {
-            return this.repositoryFactory.create('custom_field_set');
-        },
-
-        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
-        customFieldSetCriteria(): Criteria {
-            const criteria = new Criteria(1, null);
-            criteria.addFilter(Criteria.equals('relations.entityName', 'unit'));
-
-            return criteria;
-        },
-
-        ...mapPropertyErrors('unit', ['name', 'shortCode']),
+        return { createNotificationError };
     },
 
     data(): {
@@ -64,9 +54,30 @@ export default Component.wrapComponentConfig({
         };
     },
 
+    computed: {
+        unitRepository(): Repository<'unit'> {
+            return this.repositoryFactory.create('unit');
+        },
+
+        ...mapPropertyErrors('unit', ['name', 'shortCode']),
+
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
+        customFieldSetRepository(): Repository<'custom_field_set'> {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
+        customFieldSetCriteria(): Criteria {
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equals('relations.entityName', 'unit'));
+
+            return criteria;
+        },
+    },
+
     watch: {
         unitId() {
-            this.loadUnit();
+            void this.loadUnit();
         },
 
         isSaveSuccessful(newValue) {
@@ -81,88 +92,89 @@ export default Component.wrapComponentConfig({
     },
 
     created() {
-        const customFieldDataProviderService = this.customFieldDataProviderService as {
-            getCustomFieldSets(
-                entityName: string,
-                forceReload: boolean,
-                limit: number | null,
-            ): Promise<Entity<'custom_field_set'>[]>;
-        };
-
-        customFieldDataProviderService
-            .getCustomFieldSets('unit', false, null)
-            .then((result) => {
-                this.customFieldSets = result;
-
-                if (this.unitId !== null) {
-                    this.loadUnit();
-
-                    return;
-                }
-
-                this.unit = this.unitRepository.create(Shopware.Context.api);
-                this.isLoading = false;
-            })
-            .catch(() => {
-                this.createNotificationError({
-                    message: this.$t('sw-settings-units.notification.errorMessage'),
-                });
-
-                this.isLoading = false;
-            });
+        void this.createdComponent();
     },
 
     methods: {
-        loadUnit(): void {
+        async createdComponent(): Promise<void> {
+            const customFieldDataProvider = this.customFieldDataProviderService as CustomFieldDataProvider;
+
+            try {
+                this.customFieldSets = await customFieldDataProvider.getCustomFieldSets('unit', false, null);
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('sw-settings-units.notification.errorMessage'),
+                });
+                this.isLoading = false;
+
+                return;
+            }
+
+            if (this.unitId !== null) {
+                await this.loadUnit();
+
+                return;
+            }
+
+            this.unit = this.unitRepository.create(Shopware.Context.api);
+            this.isLoading = false;
+        },
+
+        async loadUnit(): Promise<void> {
             if (this.unitId === null) {
                 return;
             }
 
             this.isLoading = true;
 
-            this.unitRepository
-                .get(this.unitId, Shopware.Context.api)
-                .then((unit) => {
-                    this.unit = unit;
-
-                    this.isLoading = false;
-                })
-                .catch((error: { message: string }) => {
-                    this.createNotificationError({
-                        message: this.$t(error.message),
-                    });
+            try {
+                this.unit = await this.unitRepository.get(this.unitId, Shopware.Context.api);
+            } catch (error) {
+                this.createNotificationError({
+                    message: this.$t((error as Error).message),
                 });
+            } finally {
+                this.isLoading = false;
+            }
         },
 
-        onSave(): void {
+        async onSave(): Promise<void> {
             if (this.unit === null) {
                 return;
             }
 
             this.isLoading = true;
-            this.unitRepository
-                .save(this.unit)
-                .then(() => {
-                    this.isSaveSuccessful = true;
 
-                    void this.$router.push({
-                        name: 'sw.settings.units.detail',
-                        params: { id: this.unit?.id ?? '' },
-                    });
-
-                    this.isLoading = false;
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        message: this.$t('sw-settings-units.notification.errorMessage'),
-                    });
-
-                    this.isLoading = false;
+            try {
+                await this.unitRepository.save(this.unit, Shopware.Context.api);
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('sw-settings-units.notification.errorMessage'),
                 });
+                this.isLoading = false;
+
+                return;
+            }
+
+            this.isSaveSuccessful = true;
+
+            if (this.unit.id === this.unitId) {
+                // Reloading resets the origin of the entity, so the next save only sends new changes
+                await this.loadUnit();
+
+                return;
+            }
+
+            this.isLoading = false;
+            // The route change sets the unitId prop, whose watcher loads the saved unit
+            await this.$router.push({
+                name: 'sw.settings.units.detail',
+                params: { id: this.unit.id },
+            });
         },
 
         onChangeLanguage(): void {
-            this.loadUnit();
+            void this.loadUnit();
         },
     },
 });

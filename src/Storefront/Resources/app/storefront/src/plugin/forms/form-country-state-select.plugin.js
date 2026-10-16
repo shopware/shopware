@@ -207,7 +207,7 @@ export default class CountryStateSelectPlugin extends Plugin {
      * @private
      */
     _ownsVatIdField() {
-        return !(this._differentShippingCheckbox && this.options.prefix === 'billingAddress');
+        return this.options.prefix !== 'shippingAddress';
     }
 
     /**
@@ -361,10 +361,7 @@ export default class CountryStateSelectPlugin extends Plugin {
     _onFormFieldToggleChange(event) {
         this._differentShippingCheckbox = event.target.checked;
 
-        const scopeElementSelector = this._differentShippingCheckbox ? '.register-shipping' : '.register-billing';
-        const scopeElement = document.querySelector(scopeElementSelector);
-
-        const countrySelect = scopeElement.querySelector(this.options.countrySelectSelector);
+        const countrySelect = this.scopeElement.querySelector(this.options.countrySelectSelector);
         const countrySelectCurrentOption = countrySelect.options[countrySelect.selectedIndex];
 
         const vatIdRequired = !!countrySelectCurrentOption.getAttribute(this.options.vatIdRequired);

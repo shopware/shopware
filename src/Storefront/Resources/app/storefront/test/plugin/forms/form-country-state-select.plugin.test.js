@@ -467,7 +467,7 @@ describe('Form country state select plugin', () => {
         expect(vatIdFieldLabel.innerHTML.includes('form-required-label')).toBe(false);
     });
 
-    it('should not update VAT ID field when different shipping address is selected and prefix is billingAddress', async () => {
+    it('should not update VAT ID field when prefix is shippingAddress', async () => {
         template = `
             <form id="registerForm" class="register-shipping" action="/register" method="post">
 
@@ -476,32 +476,140 @@ describe('Form country state select plugin', () => {
                     <input type="text" name="vatIds[]" id="vatIds" class="form-name">
                 </div>
 
-                <select class="country-select" data-initial-country-id="">
-                    <option disabled="disabled" value="" selected="selected">Select country...</option>
-                    <option data-vat-id-required="1" data-state-required="0">Netherlands</option>
-                    <option data-vat-id-required="0" data-state-required="0">Germany</option>
+                <select class="country-select" data-initial-country-id="NL">
+                    <option selected="selected" value="NL" data-vat-id-required="1" data-state-required="0"
+                            data-vat-id-pattern="NL[0-9]{9}B[0-9]{2}" data-check-vat-id-pattern="1">Netherlands</option>
+                    <option value="DE" data-vat-id-required="0" data-state-required="0">Germany</option>
                 </select>
                 <select class="country-state-select" data-initial-country-state-id="">
-                    <option>Select state..</option>
+                    <option data-placeholder-option="true">Select state..</option>
                 </select>
             </form>
         `;
 
         document.body.innerHTML = template;
 
-        const plugin = createPlugin({ prefix: 'billingAddress' });
+        const plugin = createPlugin({ prefix: 'shippingAddress' });
         await new Promise(process.nextTick);
 
-        const event = { target: { checked: true } };
-
-        plugin._differentShippingCheckbox = true;
-        plugin._onFormFieldToggleChange(event);
+        plugin._onFormFieldToggleChange({ target: { checked: true } });
 
         const vatIdInput = document.querySelector(plugin.options.vatIdFieldInput);
         const vatIdFieldLabel = document.querySelector('label[for="vatIds"]');
 
         expect(vatIdInput.hasAttribute('aria-required')).toBe(false);
+        expect(vatIdInput.hasAttribute('pattern')).toBe(false);
         expect(vatIdFieldLabel.innerHTML.includes('form-required-label')).toBe(false);
+    });
+
+    describe('registration form with billing and shipping address', () => {
+        const registerTemplate = `
+            <form id="registerForm" action="/register" method="post">
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name" value="BE0123456789">
+                </div>
+
+                <div class="register-billing">
+                    <select class="country-select" data-initial-country-id="BE">
+                        <option value="DE" data-vat-id-required="" data-state-required="0"
+                                data-vat-id-pattern="DE[0-9]{9}" data-check-vat-id-pattern="1">Germany</option>
+                        <option selected="selected" value="BE" data-vat-id-required="1" data-state-required="0"
+                                data-vat-id-pattern="BE0[0-9]{9}" data-check-vat-id-pattern="1">Belgium</option>
+                        <option value="NL" data-vat-id-required="" data-state-required="0"
+                                data-vat-id-pattern="NL[0-9]{9}B[0-9]{2}" data-check-vat-id-pattern="1">Netherlands</option>
+                    </select>
+                    <select class="country-state-select" data-initial-country-state-id="">
+                        <option data-placeholder-option="true">Select state..</option>
+                    </select>
+                </div>
+
+                <div class="register-shipping">
+                    <select class="country-select" data-initial-country-id="DE">
+                        <option selected="selected" value="DE" data-vat-id-required="" data-state-required="0"
+                                data-vat-id-pattern="DE[0-9]{9}" data-check-vat-id-pattern="1">Germany</option>
+                        <option value="BE" data-vat-id-required="1" data-state-required="0"
+                                data-vat-id-pattern="BE0[0-9]{9}" data-check-vat-id-pattern="1">Belgium</option>
+                    </select>
+                    <select class="country-state-select" data-initial-country-state-id="">
+                        <option data-placeholder-option="true">Select state..</option>
+                    </select>
+                </div>
+            </form>
+        `;
+
+        function createAddressPlugins() {
+            const billingPlugin = new FormCountryStateSelectPlugin(document.querySelector('.register-billing'), {
+                prefix: 'billingAddress',
+                scopeElementSelector: '.register-billing',
+            });
+            const shippingPlugin = new FormCountryStateSelectPlugin(document.querySelector('.register-shipping'), {
+                prefix: 'shippingAddress',
+                scopeElementSelector: '.register-shipping',
+            });
+
+            return { billingPlugin, shippingPlugin };
+        }
+
+        beforeEach(() => {
+            document.body.innerHTML = registerTemplate;
+        });
+
+        it('should keep the billing country rules on page load although the shipping address is initialised later', async () => {
+            createAddressPlugins();
+            await new Promise(process.nextTick);
+
+            const vatIdField = document.querySelector('#vatIds');
+
+            expect(vatIdField.getAttribute('pattern')).toBe('BE0[0-9]{9}');
+            expect(vatIdField.hasAttribute('aria-required')).toBe(true);
+        });
+
+        it('should keep the billing country rules when a different shipping address is selected', async () => {
+            const { billingPlugin, shippingPlugin } = createAddressPlugins();
+            await new Promise(process.nextTick);
+
+            billingPlugin._onFormFieldToggleChange({ target: { checked: true } });
+            shippingPlugin._onFormFieldToggleChange({ target: { checked: true } });
+
+            const vatIdField = document.querySelector('#vatIds');
+
+            expect(vatIdField.getAttribute('pattern')).toBe('BE0[0-9]{9}');
+            expect(vatIdField.hasAttribute('aria-required')).toBe(true);
+        });
+
+        it('should keep the billing country rules when the shipping country changes', async () => {
+            createAddressPlugins();
+            await new Promise(process.nextTick);
+
+            const shippingCountrySelect = document.querySelector('.register-shipping .country-select');
+            shippingCountrySelect.value = 'BE';
+            shippingCountrySelect.dispatchEvent(new Event('change'));
+            shippingCountrySelect.value = 'DE';
+            shippingCountrySelect.dispatchEvent(new Event('change'));
+
+            const vatIdField = document.querySelector('#vatIds');
+
+            expect(vatIdField.getAttribute('pattern')).toBe('BE0[0-9]{9}');
+            expect(vatIdField.hasAttribute('aria-required')).toBe(true);
+        });
+
+        it('should apply the rules of a newly selected billing country while a different shipping address is selected', async () => {
+            const { billingPlugin, shippingPlugin } = createAddressPlugins();
+            await new Promise(process.nextTick);
+
+            billingPlugin._onFormFieldToggleChange({ target: { checked: true } });
+            shippingPlugin._onFormFieldToggleChange({ target: { checked: true } });
+
+            const billingCountrySelect = document.querySelector('.register-billing .country-select');
+            billingCountrySelect.value = 'NL';
+            billingCountrySelect.dispatchEvent(new Event('change'));
+
+            const vatIdField = document.querySelector('#vatIds');
+
+            expect(vatIdField.getAttribute('pattern')).toBe('NL[0-9]{9}B[0-9]{2}');
+            expect(vatIdField.hasAttribute('aria-required')).toBe(false);
+        });
     });
 
     it('should call update field/select methods with booleans for required parameters', async () => {

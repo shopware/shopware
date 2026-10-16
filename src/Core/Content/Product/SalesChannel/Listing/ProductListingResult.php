@@ -41,10 +41,7 @@ class ProductListingResult extends EntitySearchResult
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0', 'createFrom()'));
 
         $instance = self::createFrom($result);
-
-        if ($availableSortings !== null) {
-            $instance->availableSortings = $availableSortings;
-        }
+        $instance->availableSortings = $availableSortings ?? $instance->availableSortings ?? new ProductSortingCollection();
         $instance->sorting = $sorting;
         $instance->currentFilters = $currentFilters;
         $instance->streamId = $streamId;

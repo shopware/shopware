@@ -578,6 +578,13 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 ### Store API payment, shipping and checkout gateway routes accept an `orderId`
 
 `/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
+### Webhooks without an app are now authorized against their owner
+
+Webhooks created through the Admin API without an app (`POST /api/webhook` without `app_id`) are now authorized against the ACL privileges of the user or integration that created them. An admin owner receives every event it subscribes to, and a non-admin owner only receives events it is allowed to read.
+
+The owner is recorded from the session and cannot be set through the API. Deleting the owning user or integration also deletes its app-less webhooks: a webhook has no meaning once the owner whose privileges authorize it is gone. App webhooks go through the same check: their owner is the app's integration, so they are authorized against the app's role as before.
+
+Existing app-less webhooks have no recorded creator, so the update creates an admin integration labelled "Legacy webhooks" and assigns them to it. They keep receiving every event they subscribe to. Audit these webhooks after updating: recreate any that should run with narrower privileges as the user or integration it belongs to. Deleting the "Legacy webhooks" integration also deletes the webhooks assigned to it.
 
 ### New Store API route to add the products of an order to the cart
 

@@ -77,6 +77,17 @@ describe('plugin/google-analytics/events without ecommerce data', () => {
         expect(window.gtag).not.toHaveBeenCalled();
     });
 
+    // the server forwards a password that no longer meets the password policies to the recovery
+    test('login reports nothing when the next page asks to recover the password', () => {
+        new LoginEvent()._onFormSubmit(formEvent('login-form'));
+        document.body.innerHTML = '<form class="account-recover-password-form card"></form>';
+
+        new LoginEvent().execute();
+        document.body.innerHTML = '';
+
+        expect(window.gtag).not.toHaveBeenCalled();
+    });
+
     test('login reports nothing on a page without a submitted login', () => {
         new LoginEvent().execute();
 

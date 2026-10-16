@@ -17,9 +17,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomain;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainContextFactory;
@@ -31,7 +31,6 @@ use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainContextFact
 class SalesChannelDomainContextFactoryTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
-    use EventDispatcherBehaviour;
     use KernelTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -81,8 +80,7 @@ class SalesChannelDomainContextFactoryTest extends TestCase
         ]], Context::createDefaultContext());
         static::getContainer()->get(CartRuleLoader::class)->invalidate();
 
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CartCreatedEvent::class,
             static function (CartCreatedEvent $event): void {
                 $lineItem = new LineItem('seeded-by-an-extension', LineItem::CUSTOM_LINE_ITEM_TYPE);
@@ -105,16 +103,22 @@ class SalesChannelDomainContextFactoryTest extends TestCase
      */
     public function testTheRuleMatchingCartIsNotStoredEvenWhenItChanges(): void
     {
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        $cartChanged = false;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             ExtensionDispatcher::post(CheckoutCartRuleLoaderExtension::NAME),
-            static function (CheckoutCartRuleLoaderExtension $extension): void {
-                static::assertInstanceOf(RuleLoaderResult::class, $extension->result);
+            static function (CheckoutCartRuleLoaderExtension $extension) use (&$cartChanged): void {
+                if (!$extension->result instanceof RuleLoaderResult) {
+                    return;
+                }
+
                 $extension->result->getCart()->add(new LineItem('added-by-an-extension', LineItem::CUSTOM_LINE_ITEM_TYPE));
+                $cartChanged = true;
             }
         );
 
         $context = static::getContainer()->get(SalesChannelDomainContextFactory::class)->create($this->domain);
+
+        static::assertTrue($cartChanged);
 
         $storedCarts = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT COUNT(*) FROM `cart` WHERE `token` = :token', ['token' => $context->getToken()]);

@@ -18,13 +18,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelProcessCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
 
@@ -36,7 +36,6 @@ class ProductListingReadinessCheckTest extends TestCase
 {
     use CacheTestBehaviour;
     use DatabaseTransactionBehaviour;
-    use EventDispatcherBehaviour;
     use KernelTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -118,8 +117,7 @@ class ProductListingReadinessCheckTest extends TestCase
             $this->createMainNavigationWithSalesChannelAssignment($this->ids->get('sales-channel-2'), false),
         );
 
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             'sales_channel.category.loaded',
             static function (SalesChannelEntityLoadedEvent $event) use ($categoryIds): void {
                 foreach ($event->getEntities() as $category) {
@@ -161,8 +159,7 @@ class ProductListingReadinessCheckTest extends TestCase
      */
     private function restrictCategories(array $categoryIds, ?string $unlessRuleId = null): void
     {
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             'sales_channel.category.process.criteria',
             static function (SalesChannelProcessCriteriaEvent $event) use ($categoryIds, $unlessRuleId): void {
                 if ($unlessRuleId !== null && \in_array($unlessRuleId, $event->getSalesChannelContext()->getRuleIds(), true)) {

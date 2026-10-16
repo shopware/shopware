@@ -88,6 +88,26 @@ Implement `Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer` 
 
 # Administration
 
+## `sw-empty-state` removed
+
+The deprecated `sw-empty-state` component was removed. Use `mt-empty-state` instead:
+
+```html
+<!-- Before -->
+<sw-empty-state title="Short title" subline="Longer subline">
+    <template #actions>…</template>
+</sw-empty-state>
+
+<!-- After -->
+<mt-empty-state headline="Short title" description="Longer subline" icon="regular-products">
+    <template #button>…</template>
+</mt-empty-state>
+```
+
+`mt-empty-state` has no `icon` slot and no equivalent for the `absolute`, `emptyModule`, `autoHeight`, `showDescription` and `color` props. It also no longer falls back to the icon and description of the current module, so pass `icon` and `description` explicitly.
+
+It has no default slot either, and `description` renders plain text instead of HTML. It is left-aligned by default, set `centered` to keep the previous layout. Overrides of the `sw_empty_state_*` Twig blocks no longer apply.
+
 ## Legacy document components removed
 
 The legacy document services and components in the Administration were removed:

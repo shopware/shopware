@@ -21038,14 +21038,6 @@
       "count": 1
     }
   },
-  "src/module/sw-settings-units/page/sw-settings-units-detail/index.ts": {
-    "sw-core-rules/no-double-cast": {
-      "count": 1
-    },
-    "vue/order-in-components": {
-      "count": 2
-    }
-  },
   "src/module/sw-settings-units/page/sw-settings-units-list/index.js": {
     "sw-core-rules/no-javascript-files": {
       "count": 1

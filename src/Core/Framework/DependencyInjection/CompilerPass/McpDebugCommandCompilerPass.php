@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -22,6 +23,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * stays reachable both directly and through "debug:mcp --native".
  */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class McpDebugCommandCompilerPass implements CompilerPassInterface
 {
     public const NATIVE_COMMAND_NAME = 'debug:mcp:native';

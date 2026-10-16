@@ -15,6 +15,7 @@ type AvailableDocumentTypesResponse = {
 
 type DocumentCreateResponse = {
     documentId: string;
+    documentNumber?: string;
     deepLinkCode: string;
     formats: string[];
 };

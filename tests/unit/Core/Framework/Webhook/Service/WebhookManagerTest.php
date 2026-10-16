@@ -25,7 +25,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\AppEventPolicy;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PrivilegePolicy;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -245,7 +247,7 @@ class WebhookManagerTest extends TestCase
 
         $this->getWebhookManager(false)->dispatch($event);
         $messages = $this->bus->getMessages();
-        static::assertEmpty($messages);
+        static::assertCount(0, $messages);
     }
 
     public function testWebhookCacheKeepsInactiveAppStateUntilCleared(): void
@@ -306,7 +308,7 @@ class WebhookManagerTest extends TestCase
         $this->getWebhookManager(false)->dispatch($event);
 
         $messages = $this->bus->getMessages();
-        static::assertEmpty($messages);
+        static::assertCount(0, $messages);
     }
 
     public function testWebhooksForLiveVersionOnlyAreSentIfPayloadDoesNotHaveAnyVersionId(): void
@@ -572,7 +574,7 @@ class WebhookManagerTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             $this->webhookOutboxStore,
-            new PolicyRegistry([]),
+            new PolicyRegistry([new AppEventPolicy(), new PrivilegePolicy($this->webhookLoader)]),
         );
     }
 

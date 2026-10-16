@@ -621,7 +621,7 @@
                                         "type": "string"
                                     },
                                     "points": {
-                                        "description": "The review rating for the product. When it is omitted, the review is saved without a rating.",
+                                        "description": "The review rating for the product, from 1 to 5. When it is omitted, the review is saved without a rating. From Shopware 6.8.0.0 on it is required.",
                                         "type": "number",
                                         "format": "double"
                                     }

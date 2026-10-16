@@ -16,7 +16,6 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\Loader\AbstractAppMcpLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 
@@ -25,7 +24,6 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
  */
 #[Package('framework')]
 #[CoversClass(AppMcpToolLoader::class)]
-#[CoversClass(AbstractAppMcpLoader::class)]
 class AppMcpToolLoaderTest extends TestCase
 {
     private Connection&Stub $connection;

@@ -32,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\String\Inflector\EnglishInflector;
 
@@ -125,6 +126,7 @@ class DefinitionValidator
         'consent_log',
         'mcp_tool_result_cache',
         'mcp_toolset_session',
+        'mcp_list_version',
         'webhook_delivery',
         'webhook_stream',
     ];
@@ -233,6 +235,8 @@ class DefinitionValidator
 
             $violations = array_merge_recursive($violations, $this->validateColumn($definition, $schema));
 
+            $violations = array_merge_recursive($violations, $this->validateInheritanceColumns($definition, $schema));
+
             $violations = array_merge_recursive($violations, $this->checkEntityNameConstant($definition));
 
             $struct = ArrayEntity::class;
@@ -253,13 +257,9 @@ class DefinitionValidator
             }
 
             // @phpstan-ignore variable.implicitArray (The `notices` were accidentally omitted during a refactor of the class, we should add them back later to the output)
+            $notices[$definitionClass] = $this->validateDataFieldNotPrefixedByEntityName($definition);
             $notices[$definitionClass] = array_merge_recursive(
-                $violations[$definitionClass],
-                $this->validateDataFieldNotPrefixedByEntityName($definition)
-            );
-
-            $notices[$definitionClass] = array_merge_recursive(
-                $violations[$definitionClass],
+                $notices[$definitionClass],
                 $this->checkParentDefinition($definition)
             );
 
@@ -1013,6 +1013,55 @@ class DefinitionValidator
     }
 
     /**
+     * @return array<string, list<string>>
+     */
+    private function validateInheritanceColumns(EntityDefinition $definition, Schema $schema): array
+    {
+        if (!$schema->hasTable($definition->getEntityName())) {
+            return [];
+        }
+
+        $table = $schema->getTable($definition->getEntityName());
+        $violations = [];
+
+        foreach ($definition->getFields() as $field) {
+            if (!$field instanceof AssociationField || !$field->is(Inherited::class)) {
+                continue;
+            }
+
+            $columnName = $field->getPropertyName();
+
+            if (!$definition->isInheritanceAware()) {
+                $violations[] = \sprintf(
+                    'Field %s on %s is flagged as Inherited, but the definition is not inheritance aware. Remove the `%s` flag from the field or make the definition inheritance aware by overriding `isInheritanceAware()`.',
+                    $columnName,
+                    $this->displayName($definition),
+                    Inherited::class
+                );
+
+                continue;
+            }
+
+            if ($table->hasColumn($columnName)) {
+                continue;
+            }
+
+            $violations[] = \sprintf(
+                'Field %s on %s is flagged as Inherited but the inheritance helper column `%s` is missing on table `%s`. Add a migration which uses the `%s` and calls $this->updateInheritance($connection, \'%s\', \'%s\').',
+                $columnName,
+                $this->displayName($definition),
+                $columnName,
+                $definition->getEntityName(),
+                InheritanceUpdaterTrait::class,
+                $definition->getEntityName(),
+                $columnName
+            );
+        }
+
+        return [$this->displayName($definition) => $violations];
+    }
+
+    /**
      * Validates that PrimaryKey flags in entity definition match the database PRIMARY KEY constraint
      *
      * @return array<string, list<string>>
@@ -1309,7 +1358,7 @@ class DefinitionValidator
     private function getShortClassName(EntityDefinition $definition): string
     {
         if ($definition instanceof AttributeEntityDefinition) {
-            return lcfirst((string) preg_replace('/^.*\\\\|Entity$/', '', $definition->getEntityClass()));
+            return lcfirst((string) preg_replace('/^.*\\\\|Entity$/D', '', $definition->getEntityClass()));
         }
 
         return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass()));

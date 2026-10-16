@@ -33,7 +33,7 @@ import SwProductList from './page';
 - **`init/`**: Boot sequence (See AGENTS.md)
 - **`component/`**: Global UI components (See AGENTS.md)
 - **`store/`**: Pinia stores (See AGENTS.md)
-- **`composables/`**: Vue 3 hooks (use-context, use-session, use-system)
+- **`composables/`**: Vue 3 hooks (use-context, use-session, use-system). Mixin replacements listed in `composables/index.ts` are public as `Shopware.Composables` and `shopware:composables`
 - **`mixin/`**: Legacy shared logic (prefer composables)
 - **`assets/scss/`**: Global styles, variables, mixins
 - **`snippet/`**: Translations (de.json, en.json)

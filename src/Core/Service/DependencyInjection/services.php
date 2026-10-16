@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
+use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\Api\PermissionController;
 use Shopware\Core\Service\Api\ServiceController;
@@ -160,6 +161,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('scheduled_task.repository'),
             service('logger'),
             service(LifecycleManager::class),
+            service(FirstRunWizardService::class),
         ])
         ->tag('messenger.message_handler');
 

@@ -27,11 +27,25 @@ Run them in `src/Administration/Resources/app/administration`, or through the co
 | Group | Rules | Why |
 |---|---|---|
 | Size and complexity | `complexity` (15), `sw-core-rules/max-function-lines` (80, `setup()` 150), `max-params` (4), `max-nested-callbacks` (3), `max-depth` (4), `max-lines` (500), `sw-core-rules/max-component-members` (50), `vue/max-template-depth` (10) | Small units are easier to read, test and override |
+| Types | `@typescript-eslint/no-non-null-assertion`, `sw-core-rules/no-double-cast`, `sw-core-rules/no-ts-fix-me`, `@typescript-eslint/ban-ts-comment` | Types match the runtime values instead of being cast into shape |
 | Errors | `sw-core-rules/no-swallowed-errors` | A `.catch()` that drops the error needs a comment that says why |
+| Escape hatches | `@eslint-community/eslint-comments/*` | Every disable comment states a reason |
 | Unused code | knip | Unused files, exports and dependencies are removed instead of copied |
 
 `setup()` gets 150 lines because it wires all composables of a component in one function, where the Options API spreads the same logic over many small ones.
 Logic that does not fit belongs in a composable.
+
+## Inline disables
+
+Every `eslint-disable` comment needs a reason after `--`:
+
+```ts
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- the route guard only renders this page with an id
+const id = this.$route.params.id!;
+```
+
+The size and complexity rules can't be disabled inline at all.
+For them the baseline is the only way around, and the baseline can't grow.
 
 ## Baselines
 

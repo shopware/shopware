@@ -68,9 +68,9 @@ class Migration1787220016AddOwnerAndAclRoleIdsToWebhookTest extends TestCase
         static::assertIsString($integrationId);
 
         static::assertEquals([
-            Uuid::fromBytesToHex($ownerlessId) => ['active' => 1, 'owner_user_id' => null, 'owner_integration_id' => $integrationId],
-            Uuid::fromBytesToHex($otherOwnerlessId) => ['active' => 1, 'owner_user_id' => null, 'owner_integration_id' => $integrationId],
-            Uuid::fromBytesToHex($ownedByUserId) => ['active' => 1, 'owner_user_id' => $userId, 'owner_integration_id' => null],
+            Uuid::fromBytesToHex($ownerlessId) => ['name' => '[Legacy] ownerless', 'active' => 1, 'owner_user_id' => null, 'owner_integration_id' => $integrationId],
+            Uuid::fromBytesToHex($otherOwnerlessId) => ['name' => '[Legacy] other-ownerless', 'active' => 1, 'owner_user_id' => null, 'owner_integration_id' => $integrationId],
+            Uuid::fromBytesToHex($ownedByUserId) => ['name' => 'owned-by-user', 'active' => 1, 'owner_user_id' => $userId, 'owner_integration_id' => null],
         ], $webhooks);
 
         static::assertEquals(
@@ -110,7 +110,7 @@ class Migration1787220016AddOwnerAndAclRoleIdsToWebhookTest extends TestCase
     private function fetchWebhooks(array $ids): array
     {
         return $this->connection->fetchAllAssociativeIndexed(
-            'SELECT LOWER(HEX(id)), active, LOWER(HEX(owner_user_id)) AS owner_user_id, LOWER(HEX(owner_integration_id)) AS owner_integration_id FROM webhook WHERE id IN (:ids)',
+            'SELECT LOWER(HEX(id)), name, active, LOWER(HEX(owner_user_id)) AS owner_user_id, LOWER(HEX(owner_integration_id)) AS owner_integration_id FROM webhook WHERE id IN (:ids)',
             ['ids' => $ids],
             ['ids' => ArrayParameterType::BINARY]
         );

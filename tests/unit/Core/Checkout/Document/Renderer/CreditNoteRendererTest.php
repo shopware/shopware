@@ -441,25 +441,34 @@ class CreditNoteRendererTest extends TestCase
         $connection->method('createQueryBuilder')->willReturn($queryBuilder);
         $referenceInvoiceLoader = new ReferenceInvoiceLoader($connection);
 
-        $connection->method('fetchAllAssociative')->willReturn([
-            [
-                'language_id' => 'language-test-id',
-                'ids' => self::ORDER_ID,
-            ],
-        ]);
-
         /*
-        fetchFirstColumn has to return different results based on the parameter shape:
-            getCreditIdsOnInvoiceDocument > credit items already part of the invoice
-            getPreviouslyCreditedIdsForInvoice > credit items already part of other credit notes
+        fetchAllAssociative has to return different results based on the parameter shape:
+            the language chunk of the orders
+            getCreditIdsOnInvoiceDocuments > credit items already part of the invoice
+            getPreviouslyCreditedIdsForInvoices > credit items already part of other credit notes
         */
-        $connection->method('fetchFirstColumn')
-            ->willReturnCallback(static function ($sql, $params) use ($invoiceCreditIds, $creditNoteCreditIds) {
+        $connection->method('fetchAllAssociative')
+            ->willReturnCallback(static function ($sql, $params = []) use ($invoiceCreditIds, $creditNoteCreditIds, $invoiceData) {
+                $invoiceId = $invoiceData[0]['id'] ?? '';
+                $creditRow = static fn (string $hexId): array => [
+                    'invoice_id' => $invoiceId,
+                    'id' => Uuid::fromHexToBytes($hexId),
+                ];
+
                 if (\array_key_exists('creditTechnicalName', $params)) {
-                    return array_map(static fn ($hexIds) => Uuid::fromHexToBytes($hexIds), $creditNoteCreditIds);
+                    return array_map($creditRow, $creditNoteCreditIds);
                 }
 
-                return array_map(static fn ($hexIds) => Uuid::fromHexToBytes($hexIds), $invoiceCreditIds);
+                if (\array_key_exists('referencedInvoiceIds', $params)) {
+                    return array_map($creditRow, $invoiceCreditIds);
+                }
+
+                return [
+                    [
+                        'language_id' => 'language-test-id',
+                        'ids' => self::ORDER_ID,
+                    ],
+                ];
             });
 
         return new CreditNoteRenderer(

@@ -1,0 +1,127 @@
+# Lint gate
+
+> Status: Stable
+
+The lint gate is the set of rules that `npm run lint` and `npm run lint:knip` check in the Administration.
+Rules that only live in documents do not hold, so every rule a tool can check is part of the gate.
+
+Existing violations are recorded in baselines.
+New code has to follow every rule, and the baselines may only shrink.
+The decision behind the gate is in [`adr/2026-10-16-administration-lint-gate.md`](../../../../../../../adr/2026-10-16-administration-lint-gate.md).
+
+## Commands
+
+Run them in `src/Administration/Resources/app/administration`, or through the composer wrappers in the repository root.
+
+| Command | What it does |
+|---|---|
+| `npm run lint` | ESLint with the gate rules and `eslint-suppressions.json` |
+| `npm run lint:knip` | knip with `knip-baseline.json`, finds unused files, exports and dependencies |
+| `npm run lint:all` | Types, ESLint, knip, Stylelint and Prettier (`composer eslint:admin`) |
+| `npm run lint:fix` | ESLint autofix, removes suppressions that are no longer needed (`composer eslint:admin:fix`) |
+| `npm run lint:knip:prune` | Removes knip baseline entries that are fixed |
+| `npm run lint:baseline:init` | Creates `eslint-suppressions.json` for a folder that has none yet |
+
+## Rules
+
+| Group | Rules | Why |
+|---|---|---|
+| Structure | `sw-core-rules/no-javascript-files`, `sw-core-rules/require-wrap-component-config`, `sw-core-rules/no-new-mixins`, `sw-core-rules/require-explicit-emits` | New code is TypeScript, components are wrapped in `wrapComponentConfig()` so the Vue rules check them, shared logic goes into composables |
+| Size and complexity | `complexity` (15), `sw-core-rules/max-function-lines` (80, `setup()` 150), `max-params` (4), `max-nested-callbacks` (3), `max-depth` (4), `max-lines` (500), `sw-core-rules/max-component-members` (50), `vue/max-template-depth` (10), spec files (500 lines) | Small units are easier to read, test and override |
+| Types | `@typescript-eslint/no-non-null-assertion`, `sw-core-rules/no-double-cast`, `sw-core-rules/no-ts-fix-me`, `@typescript-eslint/ban-ts-comment`, `jsdoc/no-types`, `jsdoc/informative-docs`, `@typescript-eslint/no-unnecessary-*` | Types match the runtime values instead of being cast into shape |
+| Errors | `sw-core-rules/no-swallowed-errors` | A `.catch()` that drops the error needs a comment that says why |
+| Tests | `sw-test-rules/no-smoke-test`, `sw-test-rules/no-vm-access` | Tests assert what a component renders, emits or requests |
+| Escape hatches | `@eslint-community/eslint-comments/*`, unused disable directives | Every disable comment states a reason, and an unused one fails the lint |
+| Unused code | knip | Unused files, exports and dependencies are removed instead of copied |
+
+`sw-test-rules/no-vm-access` allows `.vm.$emit()`, which is how Vue Test Utils simulates an event from a child or stub.
+
+`setup()` gets 150 lines because it wires all composables of a component in one function, where the Options API spreads the same logic over many small ones.
+Logic that does not fit belongs in a composable.
+
+## Inline disables
+
+Every `eslint-disable` comment needs a reason after `--`:
+
+```ts
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-conversion -- extensions post the height, so it can arrive as a string
+const parsed = Number(height);
+```
+
+The size and complexity rules and the structure rules can't be disabled inline at all.
+For them the baseline is the only way around, and the baseline can't grow.
+
+## Baselines
+
+| Baseline | Covers |
+|---|---|
+| `src/Administration/Resources/app/administration/eslint-suppressions.json` | ESLint in the Administration |
+| `src/Administration/Resources/app/administration/knip-baseline.json` | knip in the Administration |
+| `src/Storefront/Resources/app/administration/eslint-suppressions.json` | ESLint in the Storefront's Administration modules |
+
+`eslint-suppressions.json` counts the violations per file and rule.
+A file passes while it has at most as many violations of a rule as recorded.
+One more, even in a line you did not touch, fails the lint.
+
+The CI job "Lint baselines do not grow" compares the totals per rule (ESLint) and per issue type (knip) with the base branch.
+It fails when a total grows, or when a baseline still holds entries of a deleted file.
+Shrinking needs no review, so the baselines have no code owner.
+
+Never regenerate a baseline with `eslint --suppress-all` or `KNIP_BASELINE_WRITE=1`.
+That would record every new violation as an old one.
+`npm run lint:baseline:init` refuses to run when a baseline exists.
+
+## When the gate fails
+
+### A rule fires in a file you changed
+
+Fix the violation.
+If the file already has baselined violations of that rule, your change added one more.
+
+### You fixed a violation
+
+ESLint fails with "There are suppressions left that do not occur anymore".
+Run `npm run lint:fix` and commit the smaller `eslint-suppressions.json`.
+
+knip fails with "baseline entries are fixed".
+Run `npm run lint:knip:prune` and commit the smaller `knip-baseline.json`.
+
+### You moved or renamed a file
+
+The baseline stores paths, so the violations of the moved file count as new.
+Fix them if you can: a moved JavaScript file is a good moment to convert it to TypeScript.
+
+If you can't fix them in the same change, move the entries:
+
+1. Run `npm run lint:fix`, which removes the entries of the old path.
+2. Run `npx eslint <new path> --suppress-rule <rule>` for each rule that still fires.
+
+The totals stay the same, so the growth check passes.
+
+### You deleted a file
+
+Run `npm run lint:fix`.
+The growth check fails as long as the baseline holds entries of the deleted file.
+
+### You added an export that extensions use
+
+knip reports exports that nothing in the Administration imports.
+Extensions import from `src/` too, so knip can't see their usage.
+Tag every export that extensions may use with `@public`, knip then skips it:
+
+```ts
+/**
+ * @public
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function getCurrentInstance(): ComponentInstanceWithSetupContext | null {
+```
+
+`@public` only tells knip that the export is used outside the Administration.
+`@private` keeps its meaning for backwards compatibility: anything without it is public API.
+Files that are public as a whole are listed under `ignoreFiles` in `knip.json`, and everything in `extension-tooling/` is a knip entry point.
+
+### A new folder uses the gate
+
+Run `npm run lint:baseline:init` once in the folder, which needs its own `lint` script, and commit the new `eslint-suppressions.json`.
+Add it to the "Lint baselines do not grow" job in `.github/workflows/admin.yml`.

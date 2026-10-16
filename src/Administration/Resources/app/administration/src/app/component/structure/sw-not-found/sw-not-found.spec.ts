@@ -37,7 +37,6 @@ async function createWrapper(historyBack: string | null = '/sw/product/index') {
 describe('src/app/component/structure/sw-not-found', () => {
     afterEach(() => {
         document.title = '';
-        // @ts-expect-error - the flag is set by the plugin on install
         metaInfoPlugin.pluginInstalled = false;
     });
 

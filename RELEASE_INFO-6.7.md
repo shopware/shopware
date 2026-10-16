@@ -74,6 +74,14 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Document-type deprecations
+
+Constructing the deprecated document-type definitions, entities and collections, including empty collections, throws when `v6.9.0.0` is active. Their getters and setters emit no deprecation notices. Use `document.typeName` and the document v2 type registry instead of the legacy DAL entities.
+
+### Import/export profile translation construction in major mode
+
+Constructing the deprecated `ImportExportProfileTranslationDefinition`, `ImportExportProfileTranslationEntity` or `ImportExportProfileTranslationCollection`, including an empty collection, now throws when `v6.8.0.0` is active. All remain usable before removal, without per-accessor deprecation notices. Profile label translations are being removed in 6.8; use the profile's technical name instead.
+
 ### Invalid price definition exception factory
 
 Use `DataAbstractionLayerException::invalidPriceFieldType()` instead of constructing the deprecated `InvalidPriceFieldTypeException`. The factory preserves the legacy exception in 6.7 and returns `DataAbstractionLayerException` with the same error code and message when `v6.8.0.0` is active.

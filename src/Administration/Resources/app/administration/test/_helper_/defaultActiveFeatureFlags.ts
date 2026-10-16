@@ -3,7 +3,6 @@
  */
 
 // A symbol so it cannot collide with anything a spec puts on `globalThis`.
-// `test/_setup/feature-flag-test-environment.js` reads the same key on its `this.global`.
 const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
 
 /**
@@ -18,10 +17,12 @@ const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatur
  * expect(globalThis.activeFeatureFlags).toEqual([...getDefaultActiveFeatureFlags(), 'NEW_FEATURE']);
  * ```
  *
+ * `target` is the global to read from; the Jest environment passes the test realm's global.
+ *
  * @private
  */
-export function getDefaultActiveFeatureFlags(): string[] {
-    return (Reflect.get(globalThis, defaultActiveFeatureFlagsSymbol) as string[] | undefined) ?? [];
+export function getDefaultActiveFeatureFlags(target: object = globalThis): string[] {
+    return (Reflect.get(target, defaultActiveFeatureFlagsSymbol) as string[] | undefined) ?? [];
 }
 
 /**

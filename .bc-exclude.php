@@ -109,5 +109,8 @@ return [
         // Classes in that namespace are considered internal
         preg_quote('CHANGED: The return type of Twig\Extension\AbstractExtension#getNodeVisitors() changed from no type to array', '/'),
         preg_quote('Shopware\Core\Framework\Adapter\Twig', '/'),
+
+        // Useless /api/oauth/authorize endpoint removed without replacement, it only threw or returned void
+        preg_quote('REMOVED: Method Shopware\Core\Framework\Api\Controller\AuthController#authorize() was removed', '/'),
     ],
 ];

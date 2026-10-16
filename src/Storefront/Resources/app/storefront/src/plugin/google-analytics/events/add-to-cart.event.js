@@ -35,7 +35,7 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
         const formElement = event.target;
 
         // the reorder in the account adds all line items of an order with one form
-        const lineItemElements = formElement?.querySelectorAll?.('[data-analytics-line-item]') ?? [];
+        const lineItemElements = formElement.querySelectorAll('[data-analytics-line-item]');
         if (lineItemElements.length > 0) {
             this._pushLineItems(formData, formElement, lineItemElements);
             return;

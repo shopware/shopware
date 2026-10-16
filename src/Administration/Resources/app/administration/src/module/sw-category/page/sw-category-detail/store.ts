@@ -72,5 +72,8 @@ const swCategoryDetailStore = Shopware.Store.register({
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type SwCategoryDetailStore = ReturnType<typeof swCategoryDetailStore>;
 
+/**
+ * @public
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default swCategoryDetailStore;

@@ -3,6 +3,9 @@
  */
 import type { AppModuleDefinition } from 'src/core/service/api/app-modules.service';
 
+/**
+ * @public
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface ShopwareAppsState {
     apps: AppModuleDefinition[];
@@ -30,5 +33,8 @@ const shopwareApps = Shopware.Store.register({
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ShopwareApps = ReturnType<typeof shopwareApps>;
 
+/**
+ * @public
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default shopwareApps;

@@ -1,4 +1,5 @@
 import NativeEventEmitter from 'src/helper/emitter.helper';
+import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 import AddToCartEvent from 'src/plugin/google-analytics/events/add-to-cart.event';
 
 /**
@@ -385,5 +386,25 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
             ],
         });
         expect([...formData.keys()].some(key => key.includes('[payload]'))).toBe(false);
+    });
+
+    test('reports a reordered line item without product number, price and quantity in the shop currency', () => {
+        const currencySpy = jest.spyOn(ProductPageHelper, 'getCurrency').mockReturnValue('EUR');
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstance.el = document.createElement('form');
+        addToCartInstance.el.innerHTML = '<span data-analytics-line-item data-id="product-1" data-name="Gift card"></span>';
+        addToCartInstance.$emitter = new NativeEventEmitter(addToCartInstance.el);
+        addToCartInstances.push(addToCartInstance);
+
+        new AddToCartEvent().execute();
+        addToCartInstance.$emitter.publish('beforeFormSubmit', new FormData());
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', {
+            'currency': 'EUR',
+            'value': 0,
+            'items': [{ item_id: 'product-1', item_name: 'Gift card' }],
+        });
+
+        currencySpy.mockRestore();
     });
 });

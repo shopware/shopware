@@ -52,9 +52,11 @@ class Migration1787220016AddOwnerAndAclRoleIdsToWebhook extends MigrationStep
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
+        // the name prefix lets merchants find these webhooks again, e.g. to audit them
         $connection->executeStatement(
             'UPDATE `webhook`
-             SET `owner_integration_id` = :integrationId
+             SET `owner_integration_id` = :integrationId,
+                 `name` = LEFT(CONCAT(\'[Legacy] \', `name`), 255)
              WHERE `app_id` IS NULL
                AND `owner_user_id` IS NULL
                AND `owner_integration_id` IS NULL',

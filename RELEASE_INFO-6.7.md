@@ -482,6 +482,9 @@ The data context hash of the cart products only covers the sales channel context
 The cart reloads product data only when this hash changes, so extensions whose product data or prices depend on other state get stale cart data.
 Listeners can add parts to this event to include additional state in the hash for every state outside the sales channel context to force a reload of product data when that state changes.
 
+### Deleting a tree reports every level as deleted
+
+Deleting an entity whose cascade reaches the same entity on several levels, for example a category with nested child categories, now reports every removed row as deleted. Before, the levels between the root and the deepest level were deleted without a delete result, so no `EntityDeletedEvent`, no `*.deleted` webhook and no entry in the `deleted` part of the sync response was created for them. Webhook and app consumers now receive these additional deletes.
 ### Apps without permissions can't declare required privileges for MCP tools
 
 An app's MCP tool may only list `<required-privileges>` in `mcp.xml` that the app declares in the `<permissions>` of its manifest, because the tool's script runs with the app's integration role. Apps without a `<permissions>` block skipped this check, although they have no privileges at all. They are now checked like every other app, so such an app fails to install or update with the message naming the missing permission. Add the permissions to the manifest, or remove the required privileges from the tool.

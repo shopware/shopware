@@ -4,6 +4,67 @@
 import type { Plugin } from 'vite';
 import MagicString from 'magic-string';
 
+type AstNode = { type: string; start: number; end: number } & Record<string, unknown>;
+
+type ParseWithLang = (input: string, options: { lang: 'js' | 'ts' }) => unknown;
+
+function isAstNode(value: unknown): value is AstNode {
+    return typeof value === 'object' && value !== null && typeof (value as AstNode).type === 'string';
+}
+
+function visit(value: unknown, parent: AstNode | null, callback: (node: AstNode, parent: AstNode | null) => void): void {
+    if (Array.isArray(value)) {
+        value.forEach((child) => visit(child, parent, callback));
+        return;
+    }
+
+    if (!isAstNode(value)) {
+        return;
+    }
+
+    callback(value, parent);
+    Object.values(value).forEach((child) => visit(child, value, callback));
+}
+
+function isMemberAccess(node: unknown, objectMatches: (object: unknown) => boolean, property: string): boolean {
+    return (
+        isAstNode(node) &&
+        node.type === 'MemberExpression' &&
+        node.computed === false &&
+        isAstNode(node.property) &&
+        node.property.name === property &&
+        objectMatches(node.object)
+    );
+}
+
+function isProcessEnvNodeEnv(node: AstNode): boolean {
+    const isProcess = (object: unknown) => isAstNode(object) && object.type === 'Identifier' && object.name === 'process';
+
+    return isMemberAccess(node, (object) => isMemberAccess(object, isProcess, 'env'), 'NODE_ENV');
+}
+
+function isWriteTarget(node: AstNode, parent: AstNode | null): boolean {
+    if (!parent) {
+        return false;
+    }
+
+    switch (parent.type) {
+        case 'AssignmentExpression':
+        case 'AssignmentPattern':
+        case 'ForInStatement':
+        case 'ForOfStatement':
+            return parent.left === node;
+        case 'UpdateExpression':
+        case 'RestElement':
+        case 'ArrayPattern':
+            return true;
+        case 'UnaryExpression':
+            return parent.operator === 'delete';
+        default:
+            return false;
+    }
+}
+
 /**
  * @private
  *
@@ -33,8 +94,17 @@ export default function NodeEnvDefinePlugin(): Plugin {
                 code: 'process.env.NODE_ENV',
             },
             handler(code, id) {
+                // Typed with Vite 6, but the bundled dev mode only exists in Vite 8, whose parser also reads the
+                // TypeScript sources this `pre` plugin gets
+                const parse = this.parse as unknown as ParseWithLang;
+                const lang = /\.[cm]?tsx?$/.test(id.split('?')[0]) ? 'ts' : 'js';
                 const magicString = new MagicString(code);
-                magicString.replaceAll(/\bprocess\.env\.NODE_ENV\b/g, nodeEnv);
+
+                visit(parse.call(this, code, { lang }), null, (node, parent) => {
+                    if (isProcessEnvNodeEnv(node) && !isWriteTarget(node, parent)) {
+                        magicString.overwrite(node.start, node.end, nodeEnv);
+                    }
+                });
 
                 if (!magicString.hasChanged()) {
                     return null;

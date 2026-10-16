@@ -8,3 +8,20 @@
 .sw-condition .sw-condition__container:has(> .sw-product-stream-filter__fields) {
     grid-template-columns: minmax(var(--scale-size-256), auto) minmax(var(--scale-size-256), 1fr) auto;
 }
+
+.sw-condition .sw-condition__container {
+    > .sw-condition__value-content:has(.sw-product-stream-value),
+    > .sw-product-stream-filter__fields {
+        max-height: none;
+    }
+
+    .sw-condition__value-content > .sw-product-stream-value,
+    .sw-product-stream-value .sw-block-field__block {
+        max-height: none;
+    }
+
+    .sw-product-stream-value .sw-select-selection-list {
+        flex-wrap: wrap;
+        overflow: visible;
+    }
+}

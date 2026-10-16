@@ -14,6 +14,7 @@ use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Symfony\ParameterMap;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Instrumentation\DurationMetric;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 
 /**
@@ -71,7 +72,9 @@ class NoUnconfiguredMetricAllowed implements Rule
             return [];
         }
 
-        if ((string) $node->class !== ConfiguredMetric::class) {
+        // both value objects carry the metric name as their first constructor argument
+        $class = (string) $node->class;
+        if ($class !== ConfiguredMetric::class && $class !== DurationMetric::class) {
             return [];
         }
 

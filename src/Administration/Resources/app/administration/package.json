@@ -28,7 +28,7 @@
     "preinstall": "node ./scripts/validate-package-json/index.mjs",
     "postinstall": "patch-package",
     "lint": "eslint src test build/vue-setup-transform build/vite-plugins/virtual-shopware-modules extension-tooling scripts/extensionTooling scripts/generate-shopware-modules scripts/codemods build.ts --cache",
-    "lint:all": "npm run lint:types && npm run lint && npm run lint:scss && npm run format",
+    "lint:all": "npm run lint:types && npm run lint && npm run lint:knip && npm run lint:scss && npm run format",
     "lint:baseline:init": "node ./scripts/init-eslint-baseline.mjs",
     "lint:debugging": "eslint",
     "lint:deprecations": "FILES=$(git status -s | awk '/(js|ts|vue|html\\.twig)$/ {print $2}'); [ -z \"$FILES\" ] || eslint --rule '\"sw-deprecation-rules/private-feature-declarations\": \"error\"' $FILES",

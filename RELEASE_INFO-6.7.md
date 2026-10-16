@@ -899,6 +899,14 @@ The reorder form posts only the order, so the products are rendered into the for
 Storefront analytics now report the selected options of a variant as `item_variant`.
 `add_to_cart` on the product detail page reports the graduated price of the quantity the cart holds after the add.
 
+### Storefront analytics request the categories of products outside a category
+
+For a product the page breadcrumb does not describe, such as on the homepage or the wishlist, or in a product slider of a category page, `add_to_cart` and the wishlist events now report the categories of the product.
+They are requested from the new HTTP cached route `frontend.analytics.product-categories`, which returns a 404 for a sales channel without active analytics.
+The browser keeps the requested categories in the local storage under `swGaProductCategories`, so the cart, checkout and purchase events report them as well without requesting anything.
+
+The wishlist page holds the removal of a product back for at most one second, until `remove_from_wishlist` is sent.
+
 ### Essential characteristics label custom fields with their snippet
 
 Essential characteristics of a product now label a custom field with its `customFields.<name>` snippet, which Shopware creates in every snippet set when the custom field is created. Editing that snippet in Settings > Snippets, or overriding it in a theme's snippet files, changes the label shown in the cart, the off-canvas cart and the checkout. Before, only the label from the custom field's configuration was used and changes to the snippet had no effect.

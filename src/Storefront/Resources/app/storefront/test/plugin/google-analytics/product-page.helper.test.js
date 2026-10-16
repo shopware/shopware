@@ -1,5 +1,6 @@
 import Feature from 'src/helper/feature.helper';
 import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
+import ProductCategoryHelper from 'src/plugin/google-analytics/product-category.helper';
 
 describe('plugin/google-analytics/product-page.helper', () => {
     beforeEach(() => {
@@ -152,6 +153,125 @@ describe('plugin/google-analytics/product-page.helper', () => {
         document.body.innerHTML = '<script type="application/ld+json">{"@type":"Product"}</script>';
 
         expect(ProductPageHelper.getCurrency()).toBe('GBP');
+    });
+
+    describe('categories requested from the storefront', () => {
+        const url = '/widgets/analytics/product-categories';
+
+        beforeEach(() => {
+            window.router = { 'frontend.analytics.product-categories': url };
+            global.fetch = jest.fn(() => Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve(['Clothing', 'Shirts']),
+            }));
+        });
+
+        afterEach(() => {
+            delete window.router;
+            delete window.activeRoute;
+            delete global.fetch;
+        });
+
+        test('uses the breadcrumb of a category listing without a request', async () => {
+            window.activeRoute = 'frontend.navigation.page';
+            document.body.innerHTML = `
+                <nav aria-label="breadcrumb"><span class="breadcrumb-title">Sale</span></nav>
+                <div class="cms-element-product-listing-wrapper">
+                    <div class="card product-box" data-product-information='{"id":"product-1"}'><button class="buy"></button></div>
+                </div>
+            `;
+
+            await expect(ProductPageHelper.resolveCategories('product-1', document.querySelector('.buy')))
+                .resolves.toEqual({ item_category: 'Sale' });
+            expect(global.fetch).not.toHaveBeenCalled();
+        });
+
+        // a slider beside the listing of a category page shows products of any category
+        test('requests the path of a product element outside the listing of a category page', async () => {
+            window.activeRoute = 'frontend.navigation.page';
+            document.body.innerHTML = `
+                <nav aria-label="breadcrumb"><span class="breadcrumb-title">Sale</span></nav>
+                <div class="cms-element-product-slider">
+                    <div class="card product-box" data-product-information='{"id":"product-1"}'><button class="buy"></button></div>
+                </div>
+            `;
+
+            await expect(ProductPageHelper.resolveCategories('product-1', document.querySelector('.buy')))
+                .resolves.toEqual({ item_category: 'Clothing', item_category2: 'Shirts' });
+            expect(global.fetch).toHaveBeenCalledWith(`${url}?productId=product-1`, expect.anything());
+        });
+
+        test('requests the path of a product on a page without breadcrumb', async () => {
+            window.activeRoute = 'frontend.home.page';
+            document.body.innerHTML = '<div class="card product-box" data-product-information=\'{"id":"product-1"}\'><button class="buy"></button></div>';
+
+            await expect(ProductPageHelper.resolveCategories('product-1', document.querySelector('.buy')))
+                .resolves.toEqual({ item_category: 'Clothing', item_category2: 'Shirts' });
+            expect(global.fetch).toHaveBeenCalledWith(`${url}?productId=product-1`, expect.anything());
+        });
+
+        test('keeps the requested path for the cart and checkout events', async () => {
+            window.activeRoute = 'frontend.home.page';
+            window.localStorage.clear();
+
+            await ProductPageHelper.resolveCategories('product-1');
+
+            expect(ProductCategoryHelper.get('product-1')).toEqual({ item_category: 'Clothing', item_category2: 'Shirts' });
+        });
+
+        test('requests the path of a product element on a detail page', async () => {
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = `
+                <nav aria-label="breadcrumb"><span class="breadcrumb-title">Page product category</span></nav>
+                <div class="card product-box" data-product-information='{"id":"product-2"}'><button class="buy"></button></div>
+            `;
+
+            await expect(ProductPageHelper.resolveCategories('product-2', document.querySelector('.buy')))
+                .resolves.toEqual({ item_category: 'Clothing', item_category2: 'Shirts' });
+        });
+
+        test('reports no categories when the request fails', async () => {
+            global.fetch = jest.fn(() => Promise.resolve({ ok: false }));
+
+            await expect(ProductPageHelper.resolveCategories('product-1')).resolves.toEqual({});
+        });
+
+        test('reports no categories when the request throws', async () => {
+            global.fetch = jest.fn(() => Promise.reject(new Error('offline')));
+
+            await expect(ProductPageHelper.resolveCategories('product-1')).resolves.toEqual({});
+        });
+
+        test('reports no categories when the request takes too long', async () => {
+            jest.useFakeTimers();
+            global.fetch = jest.fn((requestUrl, { signal }) => new Promise((resolve, reject) => {
+                signal.addEventListener('abort', () => reject(new Error('aborted')));
+            }));
+
+            const resolved = ProductPageHelper.resolveCategories('product-1');
+            jest.advanceTimersByTime(ProductPageHelper.CATEGORY_REQUEST_TIMEOUT);
+
+            await expect(resolved).resolves.toEqual({});
+            jest.useRealTimers();
+        });
+
+        test('requests nothing without the route, which is only rendered for active analytics', async () => {
+            delete window.router;
+
+            await expect(ProductPageHelper.resolveCategories('product-1')).resolves.toEqual({});
+            expect(global.fetch).not.toHaveBeenCalled();
+        });
+
+        test('maps at most the five levels GA4 supports', () => {
+            expect(ProductPageHelper.mapCategories(['1', '2', '3', '4', '5', '6'])).toEqual({
+                item_category: '1',
+                item_category2: '2',
+                item_category3: '3',
+                item_category4: '4',
+                item_category5: '5',
+            });
+            expect(ProductPageHelper.mapCategories(undefined)).toEqual({});
+        });
     });
 
     describe('graduated prices', () => {
@@ -324,8 +444,10 @@ describe('plugin/google-analytics/product-page.helper', () => {
         test('reports the breadcrumb categories for a product element on a listing', () => {
             document.body.innerHTML = `
                 ${breadcrumb}
-                <div class="card product-box" data-product-information='{"id":"product-1"}'>
-                    <button class="buy"></button>
+                <div class="cms-element-product-listing-wrapper">
+                    <div class="card product-box" data-product-information='{"id":"product-1"}'>
+                        <button class="buy"></button>
+                    </div>
                 </div>
             `;
 
@@ -335,13 +457,40 @@ describe('plugin/google-analytics/product-page.helper', () => {
             });
         });
 
+        test('reports no categories for a product element outside the listing', () => {
+            document.body.innerHTML = `
+                ${breadcrumb}
+                <div class="cms-element-product-slider">
+                    <div class="card product-box" data-product-information='{"id":"product-1"}'>
+                        <button class="buy"></button>
+                    </div>
+                </div>
+            `;
+
+            expect(ProductPageHelper.getCategoriesFor('product-1', document.querySelector('.buy'))).toEqual({});
+        });
+
+        // the wishlist button reports only the product id, the element is found by its class
         test('reports the breadcrumb categories without the element of the interaction', () => {
-            document.body.innerHTML = breadcrumb;
+            document.body.innerHTML = `
+                ${breadcrumb}
+                <div class="cms-element-product-listing-wrapper">
+                    <div class="card product-box" data-product-information='{"id":"product-1"}'>
+                        <div class="product-wishlist-product-1"></div>
+                    </div>
+                </div>
+            `;
 
             expect(ProductPageHelper.getCategoriesFor('product-1')).toEqual({
                 item_category: 'Clothing',
                 item_category2: 'Shirts',
             });
+        });
+
+        test('reports no categories for a product the page shows no element of', () => {
+            document.body.innerHTML = breadcrumb;
+
+            expect(ProductPageHelper.getCategoriesFor('product-1')).toEqual({});
         });
 
         test('reports no categories for a product element on a detail page', () => {

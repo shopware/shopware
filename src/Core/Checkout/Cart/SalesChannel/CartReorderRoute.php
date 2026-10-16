@@ -74,7 +74,8 @@ class CartReorderRoute
         $items = $this->extensions->publish(
             name: CheckoutCartCollectReorderLineItemsExtension::NAME,
             extension: new CheckoutCartCollectReorderLineItemsExtension($order, $cart, $context),
-            function: $this->collectLineItems(...),
+            // the dispatcher calls back with every extension param, collecting only needs two of them
+            function: fn (OrderEntity $order, Cart $cart, SalesChannelContext $context): array => $this->collectLineItems($order, $context),
         );
 
         // null would make the add route read the posted items instead, which this route must never do
@@ -84,7 +85,7 @@ class CartReorderRoute
     /**
      * @return list<LineItem>
      */
-    private function collectLineItems(OrderEntity $order, Cart $cart, SalesChannelContext $context): array
+    private function collectLineItems(OrderEntity $order, SalesChannelContext $context): array
     {
         $quantities = [];
 

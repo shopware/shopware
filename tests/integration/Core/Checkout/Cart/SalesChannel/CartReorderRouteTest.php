@@ -57,7 +57,7 @@ class CartReorderRouteTest extends TestCase
         $this->browser->request('POST', '/store-api/account/login', ['email' => $email, 'password' => 'shopware']);
 
         $contextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
@@ -150,7 +150,7 @@ class CartReorderRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $content);
         static::assertCount(1, $response['lineItems'], 'only the still available product may end up in the cart');
         static::assertSame($availableId, $response['lineItems'][0]['referencedId']);
-        static::assertNotEmpty($response['errors'], 'the skipped products are reported as cart errors');
+        static::assertCount(3, $response['errors'], 'every skipped product is reported as a cart error');
     }
 
     public function testPromotionLineItemsAreNotReAdded(): void

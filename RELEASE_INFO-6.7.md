@@ -60,6 +60,11 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Services can be reset between requests in long running runtimes
+
+With the new `LONGRUNNING_ENVIRONMENT` feature flag, services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application. Without the flag the reset never runs, so resettable services keep their state for the whole lifetime of a worker in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole). Enable the flag if you run Shopware in such a runtime; in PHP-FPM setups it changes nothing. Extensions that rely on state surviving across requests must move that state to an explicit cache or store.
+
+The flag also disables Symfony's own `http_cache` service, even if `framework.http_cache.enabled` is set in the project configuration. HTTP caching keeps being handled by Shopware's own cache layer. Projects that reference the `http_cache` service must remove those references before enabling the flag. The flag becomes the default with Shopware 6.8.
 ### Invalid price definition exception factory
 
 Use `DataAbstractionLayerException::invalidPriceFieldType()` instead of constructing the deprecated `InvalidPriceFieldTypeException`. The factory preserves the legacy exception in 6.7 and returns `DataAbstractionLayerException` with the same error code and message when `v6.8.0.0` is active.

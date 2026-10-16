@@ -422,6 +422,11 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 
 <details>
 
+## Services are reset between requests
+
+Services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application. This was opt-in with the `LONGRUNNING_ENVIRONMENT` feature flag in 6.7; the flag is removed. Extensions that relied on state surviving across requests in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole) must move that state to an explicit cache or store.
+
+Symfony's own `http_cache` service is no longer available, even if `framework.http_cache.enabled` is set in the project configuration. HTTP caching is handled by Shopware's own cache layer. Remove references to the `http_cache` service from your project.
 ## Invalid price definition exceptions
 
 `PriceDefinitionFieldSerializer` now throws `DataAbstractionLayerException` for invalid price-definition types instead of the removed `InvalidPriceFieldTypeException`. Update exception catches and use `DataAbstractionLayerException::invalidPriceFieldType()` to construct this error. Its error code, status, and message remain unchanged.

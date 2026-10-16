@@ -249,8 +249,11 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
         core.map((route) => {
             if (route.root === true) {
-                // Keep children defined on the root route itself, e.g. the catch-all route for unknown URLs
-                route.children = [...moduleNormalRoutes, ...(route.children ?? [])];
+                // Keep children defined on the root route itself, e.g. the catch-all route for unknown URLs.
+                // The login-only boot has no module routes, so the catch-all would match every Administration URL there.
+                route.children = LoginService.isLoggedIn()
+                    ? [...moduleNormalRoutes, ...(route.children ?? [])]
+                    : moduleNormalRoutes;
             }
 
             return route;

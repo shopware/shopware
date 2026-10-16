@@ -194,11 +194,12 @@ describe('core/factory/router.factory.js', () => {
             delete Application.view.getComponentForRoute;
         });
 
-        function createRouter() {
+        function createRouter({ loggedIn = true } = {}) {
             const factory = new Shopware.Classes._private.RouterFactory(
                 VueRouter,
                 undefined,
                 Application.getContainer('factory').module,
+                { isLoggedIn: () => loggedIn },
             );
 
             // The factory mutates the route definitions, so every router gets its own copy
@@ -242,6 +243,16 @@ describe('core/factory/router.factory.js', () => {
             expect(router.resolve('/').name).toBe('core');
             expect(router.resolve('/login').name).toBe('sw.login.index');
             expect(router.resolve('/error').name).toBe('error');
+        });
+
+        it('should not register the not found page for the login-only boot', () => {
+            const router = createRouter({ loggedIn: false });
+
+            expect(router.hasRoute('sw.not.found.index')).toBe(false);
+            expect(router.resolve('/sw/dashboard/index').matched.map((record) => record.name)).toEqual([
+                'core',
+                'sw.dashboard.index',
+            ]);
         });
     });
 });

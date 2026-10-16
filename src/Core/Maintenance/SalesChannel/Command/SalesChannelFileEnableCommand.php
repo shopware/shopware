@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelFile\SalesChannelFileCollection;
+use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -28,8 +29,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class SalesChannelFileEnableCommand extends Command
 {
-    private const FILE_FAMILY = 'agentic';
-
     private const FILE_NAMES = ['llms.txt', 'AGENTS.md'];
 
     /**
@@ -60,7 +59,13 @@ class SalesChannelFileEnableCommand extends Command
         }
 
         $context = Context::createCLIContext();
-        $salesChannelIds = $this->findSalesChannelIds($all ? null : $this->validIds($ids, $output), $context);
+        $requestedIds = $all ? null : $this->validIds($ids, $output);
+        $salesChannelIds = $this->findSalesChannelIds($requestedIds, $context);
+
+        $unmatchedIds = array_values(array_diff($requestedIds ?? [], $salesChannelIds));
+        if ($unmatchedIds !== []) {
+            $output->writeln(\sprintf('Ignored id(s) that match no Storefront or Headless sales channel: %s', implode(', ', $unmatchedIds)));
+        }
 
         if ($salesChannelIds === []) {
             $output->write('No files were enabled. No Storefront or Headless sales channel matches.');
@@ -142,7 +147,7 @@ class SalesChannelFileEnableCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(
             new EqualsAnyFilter('salesChannelId', $salesChannelIds),
-            new EqualsFilter('fileFamily', self::FILE_FAMILY),
+            new EqualsFilter('fileFamily', SalesChannelFile::DEFAULT_FILE_FAMILY),
         );
 
         $existing = [];
@@ -160,7 +165,7 @@ class SalesChannelFileEnableCommand extends Command
 
                 $missingFiles[] = [
                     'salesChannelId' => $salesChannelId,
-                    'fileFamily' => self::FILE_FAMILY,
+                    'fileFamily' => SalesChannelFile::DEFAULT_FILE_FAMILY,
                     'fileName' => $fileName,
                     'enabled' => true,
                 ];

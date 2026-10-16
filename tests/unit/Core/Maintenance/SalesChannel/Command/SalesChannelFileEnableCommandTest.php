@@ -152,6 +152,21 @@ class SalesChannelFileEnableCommandTest extends TestCase
         );
     }
 
+    public function testIdsWithoutAStorefrontOrHeadlessSalesChannelAreReported(): void
+    {
+        $salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class, [[self::STOREFRONT_ID]]);
+        $fileRepository = new StaticEntityRepository([new SalesChannelFileCollection()]);
+
+        $tester = new CommandTester(new SalesChannelFileEnableCommand($salesChannelRepository, $fileRepository));
+
+        static::assertSame(Command::SUCCESS, $tester->execute(['ids' => [self::STOREFRONT_ID, self::HEADLESS_ID]]));
+        static::assertSame(
+            'Ignored id(s) that match no Storefront or Headless sales channel: ' . self::HEADLESS_ID . \PHP_EOL
+            . 'Enabled 2 file(s) for 1 sales channel(s)',
+            $tester->getDisplay(),
+        );
+    }
+
     public function testOnlyInvalidIdsDoNotSelectEverySalesChannel(): void
     {
         $salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class);

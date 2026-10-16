@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const createWrapper = async ({ routeName = 'sw.mail.template.index.templates', routerPush = jest.fn() } = {}) => {
     return mount(
@@ -134,6 +135,11 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
      * @deprecated tag:v6.8.0 - This test will be removed.
      */
     describe('tabbed layout', () => {
+        beforeEach(() => {
+            // The listing mixin still calls the deprecated `getList()` of the page when it is created.
+            allowDeprecation('sw-mail-template-index.getList() is deprecated');
+        });
+
         it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs with router-view instead of lists', async () => {
             const wrapper = await createWrapper({
                 routeName: 'sw.mail.template.index.header_footer',

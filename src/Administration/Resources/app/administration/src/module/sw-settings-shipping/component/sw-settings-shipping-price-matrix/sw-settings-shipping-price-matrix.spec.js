@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { deprecations } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package checkout
@@ -114,8 +115,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     it.activeFeatureFlags(['v6.8.0.0'])('should have price filter option', async () => {
         const wrapper = await createWrapper();
 
-        // shippingRuleFilterCriteria is deprecated and will be removed. Use ruleFilterCriteria instead
         const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
+
+        expect(deprecations).toHaveTriggered('sw-settings-shipping-price-matrix.shippingRuleFilterCriteria is deprecated');
 
         expect(shippingRuleFilterCriteria.filters[0].queries).toHaveLength(2);
         expect(shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('price');

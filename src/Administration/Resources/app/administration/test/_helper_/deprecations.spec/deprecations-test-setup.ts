@@ -16,8 +16,6 @@ export const oldFunctionMessage = 'oldFunction() is deprecated.';
  * in production.
  *
  * @private
- * @example
- * triggerOtherDeprecation();
  */
 export function triggerOtherDeprecation(): void {
     Shopware.Feature.triggerDeprecationOrThrow('V6_9_0_0', 'otherFunction() is deprecated.');
@@ -28,7 +26,9 @@ export function triggerOtherDeprecation(): void {
  *
  * @private
  * @example
- * expect(failureOfEndDeprecationLog()).toContain('1. oldFunction() is deprecated.');
+ * const failure = failureOfEndDeprecationLog();
+ * expect(failure).toContain('1. oldFunction() is deprecated.');
+ * expect(failure).not.toContain('otherFunction() is deprecated.');
  */
 export function failureOfEndDeprecationLog(): string {
     try {

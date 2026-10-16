@@ -37,6 +37,14 @@ ruleTester.run('require-wrap-component-config', rule, {
             name: 'ignores objects passed to other calls',
             code: 'createStore({ state: {}, methods: {} });',
         },
+        {
+            name: 'ignores an API response mock with a data key',
+            code: "export default { data: [{ id: '1' }], total: 1 };",
+        },
+        {
+            name: 'ignores a dependency injection helper exporting provide and inject',
+            code: 'export default { provide, inject };',
+        },
     ],
     invalid: [
         {

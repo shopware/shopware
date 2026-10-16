@@ -2,38 +2,47 @@
  * @sw-package framework
  */
 
-// An object literal with one of these keys is a component, a module or store definition has none of them.
-const COMPONENT_OPTION_KEYS = new Set([
-    'template',
-    'render',
-    'setup',
-    'props',
-    'emits',
-    'data',
-    'computed',
-    'methods',
-    'watch',
-    'inject',
-    'provide',
-    'mixins',
-    'extends',
-    'components',
-    'directives',
-    'inheritAttrs',
-    'compatConfig',
-    'beforeCreate',
-    'created',
-    'beforeMount',
-    'mounted',
-    'beforeUpdate',
-    'updated',
-    'beforeUnmount',
-    'unmounted',
-    'beforeDestroy',
-    'destroyed',
-    'activated',
-    'deactivated',
-    'errorCaptured',
+const isFunction = (value) => ['FunctionExpression', 'ArrowFunctionExpression'].includes(value.type);
+const isObjectOrArray = (value) => ['ObjectExpression', 'ArrayExpression'].includes(value.type);
+const isAnything = () => true;
+
+// An object literal with one of these keys, holding a value of the shape a component uses, is a component.
+// Checking the shape keeps `export default { provide, inject }` or `{ data: [] }` from counting.
+const COMPONENT_OPTION_KEYS = new Map([
+    ['template', isAnything],
+    ['extends', isAnything],
+    ['compatConfig', isAnything],
+    ['inheritAttrs', (value) => value.type === 'Literal' && typeof value.value === 'boolean'],
+    ['provide', (value) => isFunction(value) || value.type === 'ObjectExpression'],
+    ...[
+        'props',
+        'emits',
+        'computed',
+        'methods',
+        'watch',
+        'inject',
+        'mixins',
+        'components',
+        'directives',
+    ].map((key) => [key, isObjectOrArray]),
+    ...[
+        'render',
+        'setup',
+        'data',
+        'beforeCreate',
+        'created',
+        'beforeMount',
+        'mounted',
+        'beforeUpdate',
+        'updated',
+        'beforeUnmount',
+        'unmounted',
+        'beforeDestroy',
+        'destroyed',
+        'activated',
+        'deactivated',
+        'errorCaptured',
+    ].map((key) => [key, isFunction]),
 ]);
 
 const FACTORY_METHODS = new Set([
@@ -50,11 +59,14 @@ function getPropertyName(property) {
     return property.key.type === 'Identifier' ? property.key.name : String(property.key.value);
 }
 
+function isComponentOption(property) {
+    const hasComponentShape = COMPONENT_OPTION_KEYS.get(getPropertyName(property));
+
+    return !!hasComponentShape && hasComponentShape(property.value);
+}
+
 function isComponentOptions(node) {
-    return (
-        node?.type === 'ObjectExpression' &&
-        node.properties.some((property) => COMPONENT_OPTION_KEYS.has(getPropertyName(property)))
-    );
+    return node?.type === 'ObjectExpression' && node.properties.some(isComponentOption);
 }
 
 function getCalleeName(callExpression) {
@@ -115,4 +127,5 @@ function findProperty(node, name) {
 module.exports = {
     findProperty,
     getComponentDeclaration,
+    getPropertyName,
 };

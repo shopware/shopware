@@ -74,7 +74,7 @@ All blocks of this template are available in the template which renders this tem
                 {% block document_line_item_table_prices %}
                     {% if config.displayPrices %}
                         {% block document_line_item_table_row_tax_rate %}
-                            <td class="align-right">{% block document_line_item_table_column_tax_rate %}{% for tax in lineItem.price.taxRules %}{{ tax.taxRate }} % {% if loop.last %}{% else %}<br>{% endif %}{% endfor %}{% endblock %}</td>
+                            <td class="align-right">{% block document_line_item_table_column_tax_rate %}{% for tax in lineItem.price.taxRules %}{{ tax.taxRate }} % {% if not loop.last %}<br>{% endif %}{% else %}{% if lineItem.price.calculatedTaxes is empty %}0 %{% endif %}{% endfor %}{% endblock %}</td>
                         {% endblock %}
                         {% block document_line_item_row_table_unit_price %}
                             <td class="align-right">

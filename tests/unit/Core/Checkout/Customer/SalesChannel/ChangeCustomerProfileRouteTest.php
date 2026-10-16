@@ -206,7 +206,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(CustomerValidationFactory::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             $salutationRepository,
-            new ExtensionDispatcher(new EventDispatcher())
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $customer = new CustomerEntity();

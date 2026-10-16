@@ -17,6 +17,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Clock\NativeClock;
 
@@ -242,6 +243,39 @@ class SystemConfigServiceTest extends TestCase
         );
     }
 
+    /**
+     * @return iterable<string, array{int|float|string}>
+     */
+    public static function emptyScalarOverridesProvider(): iterable
+    {
+        yield 'empty string overrides global value' => [''];
+        yield 'integer zero overrides global value' => [0];
+        yield 'float zero overrides global value' => [0.0];
+        yield 'string zero overrides global value' => ['0'];
+    }
+
+    #[DataProvider('emptyScalarOverridesProvider')]
+    public function testEmptyScalarSalesChannelValueOverridesGlobalValueInAllReadMethods(int|float|string $override): void
+    {
+        $this->systemConfigService->set('foo.bar', 'global');
+        $this->systemConfigService->set('foo.bar', $override, TestDefaults::SALES_CHANNEL);
+
+        static::assertSame($override, $this->systemConfigService->get('foo.bar', TestDefaults::SALES_CHANNEL));
+        static::assertSame($override, $this->systemConfigService->all(TestDefaults::SALES_CHANNEL)['foo']['bar']);
+        static::assertSame(
+            ['foo.bar' => $override],
+            $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL, true)
+        );
+    }
+
+    public function testEmptyNestedSalesChannelValueOverridesValueFromParentConfig(): void
+    {
+        $this->systemConfigService->set('foo.bar', ['baz' => 'global']);
+        $this->systemConfigService->set('foo.bar.baz', [], TestDefaults::SALES_CHANNEL);
+
+        static::assertSame([], $this->systemConfigService->get('foo.bar.baz', TestDefaults::SALES_CHANNEL));
+    }
+
     public function testGetDomainNoData(): void
     {
         $actual = $this->systemConfigService->getDomain('foo');
@@ -350,22 +384,18 @@ class SystemConfigServiceTest extends TestCase
 
     public function testWebhookEventsFired(): void
     {
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
+        $payload = null;
 
-        $called = false;
-
-        $this->addEventListener($eventDispatcher, SystemConfigChangedHook::class, static function (SystemConfigChangedHook $event) use (&$called): void {
-            static::assertSame([
-                'changes' => ['foo.bar'],
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            ], $event->getWebhookPayload());
-
-            $called = true;
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SystemConfigChangedHook::class, static function (SystemConfigChangedHook $event) use (&$payload): void {
+            $payload = $event->getWebhookPayload();
         });
 
         $this->systemConfigService->set('foo.bar', 'test', TestDefaults::SALES_CHANNEL);
 
-        static::assertTrue($called);
+        static::assertSame([
+            'changes' => ['foo.bar'],
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ], $payload);
     }
 
     public function testDeleteExtensionConfigurationDeletesAcrossAllSalesChannels(): void
@@ -385,13 +415,25 @@ class SystemConfigServiceTest extends TestCase
         static::assertTrue($this->systemConfigService->getBool($configKey2));
         static::assertTrue($this->systemConfigService->getBool($configKey2, TestDefaults::SALES_CHANNEL));
 
-        // Add event listeners to capture dispatched events, structured by scope
-        $dispatchedEvents = [];
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        // Capture dispatched events, structured by scope below
+        $events = [];
 
         $listener = static function (
             BeforeSystemConfigMultipleChangedEvent|SystemConfigMultipleChangedEvent|SystemConfigChangedHook $event
-        ) use (&$dispatchedEvents): void {
+        ) use (&$events): void {
+            $events[] = $event;
+        };
+
+        EventHookDispatcher::fromContainer(static::getContainer())->on(BeforeSystemConfigMultipleChangedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SystemConfigMultipleChangedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SystemConfigChangedHook::class, $listener);
+
+        $this->systemConfigService->deleteExtensionConfiguration($extensionName, [
+            ['cards' => [['elements' => [['name' => 'testSetting1'], ['name' => 'testSetting2']]]]],
+        ]);
+
+        $dispatchedEvents = [];
+        foreach ($events as $event) {
             $eventClass = $event::class;
 
             if ($event instanceof SystemConfigChangedHook) {
@@ -404,15 +446,7 @@ class SystemConfigServiceTest extends TestCase
 
             $scope = $salesChannelId === null ? 'global' : 'sales_channel';
             $dispatchedEvents[$eventClass][$scope][] = $event;
-        };
-
-        $this->addEventListener($eventDispatcher, BeforeSystemConfigMultipleChangedEvent::class, $listener);
-        $this->addEventListener($eventDispatcher, SystemConfigMultipleChangedEvent::class, $listener);
-        $this->addEventListener($eventDispatcher, SystemConfigChangedHook::class, $listener);
-
-        $this->systemConfigService->deleteExtensionConfiguration($extensionName, [
-            ['elements' => [['name' => 'testSetting1'], ['name' => 'testSetting2']]],
-        ]);
+        }
 
         // Reset the memoized values
         $this->getContainer()->get(MemoizedSystemConfigStore::class)->reset();

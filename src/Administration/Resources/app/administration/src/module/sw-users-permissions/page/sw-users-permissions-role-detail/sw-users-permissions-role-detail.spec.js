@@ -311,7 +311,89 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         expect(wrapper.vm.role.privileges).not.toContain('product:update');
         expect(wrapper.vm.role.privileges).not.toContain('order:read');
 
-        expect(wrapper.vm.detailedPrivileges).toEqual(['product:update', 'order:read']);
+        expect(wrapper.vm.detailedPrivileges).toEqual([
+            'language:read',
+            'currency:read',
+            'product:update',
+            'order:read',
+        ]);
+    });
+
+    it('should preselect the default user privileges for a new role', async () => {
+        let savedPrivileges = null;
+        const saveFunction = jest.fn((role) => {
+            savedPrivileges = [...role.privileges];
+
+            return Promise.resolve();
+        });
+        wrapper = await createWrapper({}, { isNew: true }, { isSso: false }, saveFunction);
+
+        await flushPromises();
+
+        expect(wrapper.vm.detailedPrivileges).toEqual([
+            'language:read',
+            'locale:read',
+            'message_queue_stats:read',
+            'log_entry:create',
+            'currency:read',
+            'country:read',
+            'scheduled_task:read',
+        ]);
+
+        await wrapper.vm.saveRole({ access: '1a2b3c' });
+
+        expect(savedPrivileges).toEqual([
+            'country:read',
+            'currency:read',
+            'language:read',
+            'locale:read',
+            'log_entry:create',
+            'message_queue_stats:read',
+            'scheduled_task:read',
+        ]);
+    });
+
+    it('should keep stored default user privileges when saving', async () => {
+        wrapper = await createWrapper({
+            privileges: [
+                'system.clear_cache',
+                'system:clear:cache',
+                'locale:read',
+                'log_entry:create',
+            ],
+            privilegeMappingEntries: [
+                {
+                    category: 'additional_permissions',
+                    parent: null,
+                    key: 'system',
+                    roles: {
+                        clear_cache: {
+                            privileges: ['system:clear:cache'],
+                            dependencies: [],
+                        },
+                    },
+                },
+            ],
+        });
+
+        await flushPromises();
+
+        const contextMock = { access: '1a2b3c' };
+        wrapper.vm.saveRole(contextMock);
+
+        expect(wrapper.vm.roleRepository.save).toHaveBeenCalledWith(
+            {
+                isNew: isNew,
+                name: 'demoRole',
+                privileges: [
+                    'system.clear_cache',
+                    'system:clear:cache',
+                    'locale:read',
+                    'log_entry:create',
+                ].sort(),
+            },
+            contextMock,
+        );
     });
 
     it('should save privilege with all privileges and admin privilege key combination', async () => {

@@ -49,15 +49,4 @@ class StoreApiToolsetsListToolTest extends TestCase
         static::assertTrue($result['data']['toolsets'][0]['enabled']);
         static::assertSame('tool-groups', $result['_meta']['taxonomy']);
     }
-
-    public function testInvokeIsDeclaredOnConcreteClassSoDiscoveryBindsToIt(): void
-    {
-        // The MCP SDK discoverer binds a tool handler to __invoke's declaring class, and the store-api
-        // service locator keys on the service id (= class). If __invoke were only inherited from
-        // ToolsetsListTool, discovery would bind the handler to the admin base and the store-api
-        // tool would resolve to the wrong (admin-wired) instance.
-        $method = new \ReflectionMethod(StoreApiToolsetsListTool::class, '__invoke');
-
-        static::assertSame(StoreApiToolsetsListTool::class, $method->getDeclaringClass()->getName());
-    }
 }

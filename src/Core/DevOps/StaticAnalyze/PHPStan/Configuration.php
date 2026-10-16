@@ -52,8 +52,32 @@ final readonly class Configuration
     /**
      * @return list<string>
      */
+    public function getFeatureSkipInUnitTestsEnabledNamespaces(): array
+    {
+        return $this->parameters['featureSkipInUnitTestsEnabledNamespaces'] ?? [];
+    }
+
+    /**
+     * @return list<string>
+     */
     public function getKernelInUnitTestsEnabledNamespaces(): array
     {
         return $this->parameters['kernelInUnitTestsEnabledNamespaces'] ?? [];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getReflectionInUnitTestsEnabledNamespaces(): array
+    {
+        return $this->parameters['reflectionInUnitTestsEnabledNamespaces'] ?? [];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getRuntimeListenerOnSharedEventDispatcherEnabledNamespaces(): array
+    {
+        return $this->parameters['runtimeListenerOnSharedEventDispatcherEnabledNamespaces'] ?? [];
     }
 }

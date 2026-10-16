@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Media;
 
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
-use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -18,6 +18,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Media\MediaType\MediaType;
+use Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface;
 use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
@@ -88,6 +89,8 @@ class MediaEntity extends Entity
     protected ?ProductMediaCollection $productMedia = null;
 
     protected ?ProductCollection $productOpenGraphImages = null;
+
+    protected ?ProductCollection $productGuaranteeTerms = null;
 
     protected ?UserCollection $avatarUsers = null;
 
@@ -341,6 +344,16 @@ class MediaEntity extends Entity
     public function setProductOpenGraphImages(ProductCollection $productOpenGraphImages): void
     {
         $this->productOpenGraphImages = $productOpenGraphImages;
+    }
+
+    public function getProductGuaranteeTerms(): ?ProductCollection
+    {
+        return $this->productGuaranteeTerms;
+    }
+
+    public function setProductGuaranteeTerms(ProductCollection $productGuaranteeTerms): void
+    {
+        $this->productGuaranteeTerms = $productGuaranteeTerms;
     }
 
     public function getAvatarUsers(): ?UserCollection
@@ -704,6 +717,14 @@ class MediaEntity extends Entity
     public function isSpatialObject(): bool
     {
         return $this->mediaType instanceof SpatialObjectType;
+    }
+
+    /**
+     * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
+     */
+    public function isSpatial(): bool
+    {
+        return $this->mediaType instanceof SpatialMediaTypeInterface;
     }
 
     /**

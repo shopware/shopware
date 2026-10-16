@@ -21,6 +21,13 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                 await AdminLandingPageCreate.filtersResultPopoverItemList
                     .filter({ hasText: landingPageData.salesChannel })
                     .click();
+                // Filling the SEO URL does not click outside the select, so dismiss its popover before it can cover Save.
+                await AdminLandingPageCreate.page.keyboard.press('Escape');
+                await ShopAdmin.expects(
+                    AdminLandingPageCreate.filtersResultPopoverItemList.filter({
+                        hasText: landingPageData.salesChannel,
+                    }),
+                ).not.toBeVisible();
                 await ShopAdmin.fillsIn(AdminLandingPageCreate.seoUrlInput, landingPageData.seoUrl);
 
                 if (layoutName) {
@@ -54,7 +61,9 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                     }
                 }
                 await AdminLandingPageCreate.saveLandingPageButton.click();
-                await AdminLandingPageCreate.loadingSpinner.waitFor({ state: 'hidden' });
+                await AdminLandingPageCreate.loadingSpinner.waitFor({
+                    state: 'hidden',
+                });
                 // Wait until landing page is saved via API
                 const response = await AdminLandingPageCreate.page.waitForResponse(
                     `${process.env['APP_URL']}api/search/landing-page`,

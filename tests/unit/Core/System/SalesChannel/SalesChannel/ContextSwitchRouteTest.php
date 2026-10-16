@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,8 +19,12 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\ContextTokenResponse;
+use Shopware\Core\System\SalesChannel\Extension\ContextSwitchRouteExtension;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -37,7 +42,8 @@ class ContextSwitchRouteTest extends TestCase
             static::createStub(DataValidator::class),
             static::createStub(SalesChannelContextPersister::class),
             $this->createEventDispatcher(),
-            static::createStub(SalesChannelContextServiceInterface::class)
+            static::createStub(SalesChannelContextServiceInterface::class),
+            new ExtensionDispatcher(new EventDispatcher())
         ))->getDecorated();
     }
 
@@ -78,7 +84,8 @@ class ContextSwitchRouteTest extends TestCase
             $validator,
             $contextPersister,
             $this->createEventDispatcher(),
-            $contextService
+            $contextService,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $response = $route->switchContext(
@@ -140,7 +147,8 @@ class ContextSwitchRouteTest extends TestCase
             $validator,
             $contextPersister,
             $this->createEventDispatcher(),
-            $contextService
+            $contextService,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $response = $route->switchContext(
@@ -164,7 +172,8 @@ class ContextSwitchRouteTest extends TestCase
             static::createStub(DataValidator::class),
             static::createStub(SalesChannelContextPersister::class),
             $this->createEventDispatcher(),
-            static::createStub(SalesChannelContextServiceInterface::class)
+            static::createStub(SalesChannelContextServiceInterface::class),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $this->expectExceptionObject(CartException::customerNotLoggedIn());
@@ -182,6 +191,31 @@ class ContextSwitchRouteTest extends TestCase
     {
         yield 'billing address id' => [[SalesChannelContextService::BILLING_ADDRESS_ID => '0']];
         yield 'shipping address id' => [[SalesChannelContextService::SHIPPING_ADDRESS_ID => '0']];
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $data = new RequestDataBag([SalesChannelContextService::LANGUAGE_ID => Uuid::randomHex()]);
+        $context = Generator::generateSalesChannelContext();
+        $response = new ContextTokenResponse('token');
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('context-switch-route.switch-context.pre', static function (ContextSwitchRouteExtension $extension) use ($data, $context, $response): void {
+            static::assertSame(['data' => $data, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ContextSwitchRoute(
+            static::createStub(DataValidator::class),
+            static::createStub(SalesChannelContextPersister::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SalesChannelContextServiceInterface::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->switchContext($data, $context));
     }
 
     private function createSalesChannelContext(

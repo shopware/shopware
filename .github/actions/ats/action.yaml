@@ -24,7 +24,7 @@ inputs:
   major:
     default: ""
     required: false
-    description: "Simulate a major: the FEATURE_ALL value, either a single major (v6.8.0.0) or major for all of them"
+    description: "Mark this run as the major variant for artifact and Currents naming"
   php-version:
     default: "8.4"
     required: false
@@ -104,8 +104,6 @@ runs:
     - name: Define environment
       shell: bash
       run: |
-        # `true` is the legacy spelling of `major`.
-        echo "FEATURE_ALL=${{ inputs.major == 'true' && 'major' || inputs.major }}" >> $GITHUB_ENV
         echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
         echo "MAILER_DSN=smtp://localhost:1025" >> $GITHUB_ENV
         echo "MAILPIT_BASE_URL=http://localhost:8025" >> $GITHUB_ENV
@@ -197,7 +195,7 @@ runs:
       # being non-empty avoids uploading the Lighthouse HTML report, which is written on every run.
       if: always() && (hashFiles(format('{0}/test-results/**/trace.zip', inputs.directory)) != '' || contains(inputs.project, 'Visual'))
       with:
-        # The major lane is part of the name: several lanes run the same project/shard/PHP combination.
+        # Distinguish the major variant from the regular run of the same project/shard/PHP combination.
         name: ${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}${{ inputs.major && format('-{0}', inputs.major) || '' }}
         path: ${{ inputs.directory }}/test-results/
         retention-days: 3

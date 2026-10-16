@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartReorderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
@@ -882,7 +883,8 @@ class CartLineItemControllerTest extends TestCase
         ?CartService $cartService = null,
         ?ProductLineItemFactory $productLineItemFactory = null,
         ?AbstractProductListRoute $productListRoute = null,
-        ?LineItemFactoryRegistry $lineItemRegistry = null
+        ?LineItemFactoryRegistry $lineItemRegistry = null,
+        ?CartReorderRoute $cartReorderRoute = null
     ): CartLineItemController {
         $controller = new CartLineItemController(
             $cartService ?? $this->cartService,
@@ -891,6 +893,7 @@ class CartLineItemControllerTest extends TestCase
             static::createStub(HtmlSanitizer::class),
             $productListRoute ?? $this->productListRouteMock,
             $lineItemRegistry ?? $this->lineItemRegistryMock,
+            $cartReorderRoute ?? static::createStub(CartReorderRoute::class),
         );
 
         if (isset($this->container)) {

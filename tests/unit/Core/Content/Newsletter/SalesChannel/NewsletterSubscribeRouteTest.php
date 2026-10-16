@@ -12,11 +12,14 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
+use Shopware\Core\Content\Newsletter\Extension\NewsletterSubscribeRouteExtension;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRouteResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -33,6 +36,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -100,6 +104,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             static::createStub(RequestStack::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
@@ -145,6 +150,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             static::createStub(RequestStack::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
@@ -200,6 +206,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             static::createStub(RequestStack::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
@@ -243,6 +250,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             static::createStub(RequestStack::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
@@ -290,6 +298,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             static::createStub(RequestStack::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
@@ -374,6 +383,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $requestStack,
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
@@ -411,6 +421,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $requestStack,
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         static::expectException(RateLimitExceededException::class);
@@ -500,6 +511,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             static::createStub(RequestStack::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             $customerRepository,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
@@ -885,5 +897,34 @@ class NewsletterSubscribeRouteTest extends TestCase
             ],
             'expectedEvent' => NewsletterRegisterEvent::class,
         ];
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $dataBag = new RequestDataBag();
+        $validateStorefrontUrl = true;
+        $response = static::createStub(NewsletterSubscribeRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('newsletter-subscribe-route.subscribe.pre', function (NewsletterSubscribeRouteExtension $extension) use ($dataBag, $validateStorefrontUrl, $response): void {
+            static::assertSame(['dataBag' => $dataBag, 'context' => $this->salesChannelContext, 'validateStorefrontUrl' => $validateStorefrontUrl], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new NewsletterSubscribeRoute(
+            static::createStub(EntityRepository::class),
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->subscribeWithResponse($dataBag, $this->salesChannelContext, $validateStorefrontUrl));
     }
 }

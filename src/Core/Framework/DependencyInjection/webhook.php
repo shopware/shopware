@@ -16,8 +16,10 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\AppEventPolicy;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\NotHookablePolicy;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PrivilegePolicy;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommand;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -174,7 +176,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MessageBusInterface::class),
             service('logger'),
         ])
-        ->tag('console.command');
+        ->tag('console.command')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(WebhookManager::class)
         ->lazy()
@@ -209,6 +212,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(NotHookablePolicy::class)
         ->args([service(BusinessEventRegistry::class)])
         ->tag('shopware.webhook.policy');
+
+    $services->set(AppEventPolicy::class)
+        ->tag('shopware.webhook.policy');
+
+    $services->set(PrivilegePolicy::class)
+        ->args([service(WebhookLoader::class)])
+        ->tag('shopware.webhook.policy')
+        ->tag('kernel.event_subscriber')
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(HookableEventFactory::class)
         ->lazy()

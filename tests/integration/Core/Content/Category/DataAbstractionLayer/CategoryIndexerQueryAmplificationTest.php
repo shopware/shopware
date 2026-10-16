@@ -211,9 +211,10 @@ class CategoryIndexerQueryAmplificationTest extends TestCase
             EntityWriteResult::OPERATION_UPDATE
         );
 
-        $events = new NestedEventCollection();
-        $events->add(new EntityWrittenEvent(CategoryDefinition::ENTITY_NAME, [$categoryResult], $context));
-        $events->add(new EntityWrittenEvent(CategoryTranslationDefinition::ENTITY_NAME, [$translationResult], $context));
+        $events = new NestedEventCollection([
+            new EntityWrittenEvent(CategoryDefinition::ENTITY_NAME, [$categoryResult], $context),
+            new EntityWrittenEvent(CategoryTranslationDefinition::ENTITY_NAME, [$translationResult], $context),
+        ]);
 
         return new EntityWrittenContainerEvent($context, $events, []);
     }

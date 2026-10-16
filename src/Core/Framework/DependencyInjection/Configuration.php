@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
@@ -661,10 +662,12 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('name')->end()
                         ->booleanNode('default')->defaultFalse()->end()
-                        ->booleanNode('major')->defaultFalse()->end()
-                        // Only for a major flag that is not named after its major: the major it
-                        // arrives in, so FEATURE_ALL=v6.8.0.0 can leave out a later major's flags.
-                        ->scalarNode('majorVersion')->end()
+                        ->stringNode('major')->cannotBeEmpty()
+                            ->validate()
+                                ->ifTrue(static fn (string $major): bool => !\preg_match('/^v\d+\.\d+\.0\.0$/D', $major))
+                                ->thenInvalid('The parent major must be a canonical version flag such as "v6.8.0.0".')
+                            ->end()
+                        ->end()
                         ->booleanNode('toggleable')->defaultFalse()->end()
                         ->scalarNode('description')->end()
                     ->end()
@@ -684,6 +687,18 @@ class Configuration implements ConfigurationInterface
 
                         return $flags;
                     })
+                    ->end()
+                ->validate()
+                    ->ifTrue(static function (array $flags): bool {
+                        foreach ($flags as $name => $flag) {
+                            if (isset($flag['major']) && Feature::isMajorVersionFlag((string) $name)) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    })
+                    ->thenInvalid('A major version flag cannot declare a parent major.')
                     ->end()
             ->end();
 
@@ -1317,7 +1332,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
-            ->arrayPrototype()->scalarPrototype()->end()
+            ->arrayPrototype()->variablePrototype()->end()
             ->end()
             ->validate()
             ->ifFalse(
@@ -1690,6 +1705,11 @@ class Configuration implements ConfigurationInterface
                     ->info('Timeout in seconds for app webhook MCP tool calls.')
                     ->defaultValue(10)
                     ->min(1)
+                ->end()
+                ->integerNode('tool_result_cache_ttl')
+                    ->info('Seconds a stored oversized MCP tool result is kept before the cleanup task removes it. The task runs hourly, so a result can stay up to an hour longer.')
+                    ->defaultValue(ToolResultCacheStorage::DEFAULT_TTL_SECONDS)
+                    ->min(60)
                 ->end()
             ->end();
 

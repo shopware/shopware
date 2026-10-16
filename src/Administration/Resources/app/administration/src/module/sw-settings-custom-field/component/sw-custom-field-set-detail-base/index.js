@@ -74,12 +74,12 @@ export default {
 
                 relation.searchField = {};
 
-                Object.keys(this.$root.$i18n.messages).forEach((locale) => {
+                Object.keys(this.$root.$i18n.messages.value).forEach((locale) => {
                     if (!this.$te(`global.entities.${entityName}`)) {
                         return;
                     }
 
-                    relation.searchField[locale] = this.$t(`global.entities.${entityName}`, 2, locale);
+                    relation.searchField[locale] = this.$t(`global.entities.${entityName}`, 2, { locale });
                 });
 
                 return relation;

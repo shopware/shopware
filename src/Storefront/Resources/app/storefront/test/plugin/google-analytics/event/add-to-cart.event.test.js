@@ -185,6 +185,46 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         });
     });
 
+    test('stays silent for a reorder form, which posts no line items', () => {
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstances.push(addToCartInstance);
+
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+        const event = new AddToCartEvent();
+        event.execute();
+
+        const formData = new FormData();
+        formData.append('redirectTo', 'frontend.cart.offcanvas');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).not.toHaveBeenCalled();
+        expect(warn).not.toHaveBeenCalled();
+
+        warn.mockRestore();
+    });
+
+    test('warns when a line item form carries no product id', () => {
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstances.push(addToCartInstance);
+
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+        const event = new AddToCartEvent();
+        event.execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][quantity]', '2');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).not.toHaveBeenCalled();
+        expect(warn).toHaveBeenCalled();
+
+        warn.mockRestore();
+    });
+
     test('does not fire event when AddToCart plugin is not present', () => {
         // addToCartInstances is empty
         const event = new AddToCartEvent();
@@ -359,20 +399,18 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         addToCartInstance.el = document.createElement('form');
         addToCartInstance.el.setAttribute('data-analytics-currency', 'USD');
         addToCartInstance.el.innerHTML = `
-            <span data-analytics-line-item data-id="product-1" data-sku="SW-1" data-name="Shirt" data-price="19.99"
+            <span data-analytics-line-item data-id="product-1" data-sku="SW-1" data-name="Shirt" data-price="19.99" data-quantity="2"
                   data-brand="Brand" data-category-1="Clothing" data-category-2="Shirts"></span>
-            <span data-analytics-line-item data-id="product-2" data-sku="SW-2" data-name="Cap" data-price="5" data-brand=""></span>
+            <span data-analytics-line-item data-id="product-2" data-sku="SW-2" data-name="Cap" data-price="5" data-quantity="3" data-brand=""></span>
         `;
         addToCartInstance.$emitter = new NativeEventEmitter(addToCartInstance.el);
         addToCartInstances.push(addToCartInstance);
 
         new AddToCartEvent().execute();
 
+        // the reorder form posts only the redirect, the route resolves the products of the order
         const formData = new FormData();
-        formData.append('lineItems[product-1][id]', 'product-1');
-        formData.append('lineItems[product-1][quantity]', '2');
-        formData.append('lineItems[product-2][id]', 'product-2');
-        formData.append('lineItems[product-2][quantity]', '3');
+        formData.append('redirectTo', 'frontend.cart.offcanvas');
 
         addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
 

@@ -145,6 +145,20 @@ class SCSSValidatorTest extends TestCase
             ],
             'hsl(120 50% 50% / 0.8)',
         ];
+        yield 'color correct rgb with hex color and alpha' => [
+            [
+                'type' => 'color',
+                'value' => 'rgb(#ff0000 / 0.5)',
+            ],
+            'rgb(#ff0000 / 0.5)',
+        ];
+        yield 'color correct rgba with scss variable' => [
+            [
+                'type' => 'color',
+                'value' => 'rgba($my-color, 0.5)',
+            ],
+            'rgba($my-color, 0.5)',
+        ];
         yield 'color correct hsla' => [
             [
                 'type' => 'color',
@@ -335,6 +349,62 @@ class SCSSValidatorTest extends TestCase
             [
                 'type' => 'color',
                 'value' => 'rgba(255, 0, 0, 1.5)',
+            ],
+            '#ffffff00',
+        ];
+        yield 'hsl with trailing newline is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => "hsl(120, 50%, 50%)\n",
+            ],
+            '#ffffff00',
+        ];
+        yield 'hsla with trailing newline is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => "hsla(120, 50%, 50%, 0.8)\n",
+            ],
+            '#ffffff00',
+        ];
+        yield 'rgb with trailing newline is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => "rgb(0, 0, 0)\n",
+            ],
+            '#ffffff00',
+        ];
+        yield 'rgba with trailing newline is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => "rgba(0, 0, 0, 0.5)\n",
+            ],
+            '#ffffff00',
+        ];
+        yield 'modern hsl with trailing newline is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => "hsl(120 50% 50%)\n",
+            ],
+            '#ffffff00',
+        ];
+        yield 'modern rgb with trailing newline is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => "rgb(0 0 0)\n",
+            ],
+            '#ffffff00',
+        ];
+        yield 'rgb with hex color and trailing newline is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => "rgb(#ff0000 / 0.5)\n",
+            ],
+            '#ffffff00',
+        ];
+        yield 'rgba with scss variable and trailing newline is sanitized' => [
+            [
+                'type' => 'color',
+                'value' => "rgba(\$my-color, 0.5)\n",
             ],
             '#ffffff00',
         ];

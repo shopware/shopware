@@ -71,7 +71,7 @@ export default class FormHandler extends Plugin {
          *
          * @type {string}
          */
-        formFieldSelector: 'input, textarea, select',
+        formFieldSelector: !window.Feature.isActive('v6.8.0.0') ? 'input, textarea, select' : null,
 
         /**
          * Define if a loading indicator should be shown on the submit button.
@@ -109,6 +109,11 @@ export default class FormHandler extends Plugin {
      * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
     set formFields(formFields) {
+        window.Feature.triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The "formFields" property is deprecated. It will be removed in v6.8.0.0. Please use the "formFieldSelector" property instead.',
+        );
+
         this._formFields = formFields;
     }
 

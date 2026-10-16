@@ -26,6 +26,7 @@ export default {
 
     data() {
         return {
+            paymentMethodId: null,
             paymentMethod: null,
             mediaItem: null,
             uploadTag: 'sw-payment-method-upload-tag',
@@ -133,6 +134,10 @@ export default {
             if (this.paymentMethod.mediaId) {
                 this.setMediaItem({ targetId: this.paymentMethod.mediaId });
             }
+        },
+
+        '$route.params.id'() {
+            this.createdComponent();
         },
     },
 

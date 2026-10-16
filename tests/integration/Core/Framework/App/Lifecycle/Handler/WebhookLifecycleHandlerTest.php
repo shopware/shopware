@@ -8,7 +8,6 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
-use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\WebhookLifecycleHandler;
@@ -215,22 +214,6 @@ class WebhookLifecycleHandlerTest extends TestCase
 
         // should now be three
         static::assertCount(3, $webhookCache);
-    }
-
-    public function testDeactivateSwitchesOffWebhooksTheAppCreatedThroughTheApi(): void
-    {
-        $app = $this->appFixture->createApp(ManifestFixture::empty());
-        $appWebhookId = $this->insertApiWebhook(ownerIntegrationId: $app->getIntegrationId());
-        $userWebhookId = $this->insertApiWebhook(ownerUserId: TestUser::createNewTestUser($this->connection)->getUserId());
-
-        $this->handler->deactivate(new AppActivationContext($app, Context::createDefaultContext()));
-
-        static::assertFalse($this->findWebhook($appWebhookId)?->isActive());
-        static::assertTrue($this->findWebhook($userWebhookId)?->isActive());
-
-        $this->handler->activate(new AppActivationContext($app, Context::createDefaultContext()));
-
-        static::assertTrue($this->findWebhook($appWebhookId)?->isActive());
     }
 
     public function testUninstallDeletesWebhooksTheAppCreatedThroughTheApi(): void

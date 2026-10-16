@@ -103,8 +103,10 @@ class WebhookLoader
                 w.acl_role_ids as aclRoleIds
             FROM webhook w
             LEFT JOIN app a ON (a.id = w.app_id)
+            LEFT JOIN app owner_app ON (owner_app.integration_id = w.owner_integration_id)
             WHERE w.active = 1
               AND COALESCE(a.integration_id, w.owner_integration_id, w.owner_user_id) IS NOT NULL
+              AND (owner_app.id IS NULL OR owner_app.active = 1)
         SQL;
 
         $rows = $this->connection->fetchAllAssociative($sql);

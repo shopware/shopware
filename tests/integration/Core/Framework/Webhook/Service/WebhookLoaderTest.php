@@ -223,6 +223,23 @@ class WebhookLoaderTest extends TestCase
         static::assertSame([], static::getContainer()->get(WebhookLoader::class)->getWebhooks());
     }
 
+    public function testWebhooksOwnedByAnAppsIntegrationAreOnlyLoadedWhileTheAppIsActive(): void
+    {
+        $this->installApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
+        $integrationId = $this->connection->fetchOne('SELECT LOWER(HEX(integration_id)) FROM app WHERE name = :name', ['name' => 'minimal']);
+        static::assertIsString($integrationId);
+        $this->insertWebhook(ownerIntegrationId: $integrationId);
+        $loader = static::getContainer()->get(WebhookLoader::class);
+
+        $this->connection->update('app', ['active' => 0], ['name' => 'minimal']);
+        static::assertSame([], $loader->getWebhooks());
+
+        $this->connection->update('app', ['active' => 1], ['name' => 'minimal']);
+        static::assertCount(1, $loader->getWebhooks());
+
+        $this->removeApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
+    }
+
     public function testGetSubscriptionsOfAUserOwnedWebhook(): void
     {
         $owner = TestUser::createNewTestUser($this->connection, ['product:read']);

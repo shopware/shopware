@@ -110,6 +110,18 @@ class AclRoleLoaderTest extends TestCase
         );
     }
 
+    public function testADeletedIntegrationHasNoRoles(): void
+    {
+        $integration = TestIntegration::create($this->connection, ['product:read']);
+        $this->connection->update(
+            'integration',
+            ['deleted_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+            ['id' => Uuid::fromHexToBytes($integration->getId())]
+        );
+
+        static::assertSame([], $this->loader->getIntegrationRoles([$integration->getId()]));
+    }
+
     public function testUnknownIdsAreLeftOut(): void
     {
         static::assertSame([], $this->loader->getUserRoles([Uuid::randomHex()]));

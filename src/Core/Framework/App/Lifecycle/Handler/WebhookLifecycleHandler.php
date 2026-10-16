@@ -8,7 +8,6 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Flow\Action\Action;
-use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -46,16 +45,6 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
         $this->persist($context);
     }
 
-    public function activate(AppActivationContext $context): void
-    {
-        $this->setApiWebhooksActive($context->app->getIntegrationId(), true);
-    }
-
-    public function deactivate(AppActivationContext $context): void
-    {
-        $this->setApiWebhooksActive($context->app->getIntegrationId(), false);
-    }
-
     public function uninstall(AppRemovalContext $context): void
     {
         $this->deleteApiWebhooks($context->app->getIntegrationId());
@@ -69,16 +58,6 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
     /**
      * Webhooks an app created through the Admin API are owned by its integration, not linked by app id.
      */
-    private function setApiWebhooksActive(string $integrationId, bool $active): void
-    {
-        $this->connection->update(
-            'webhook',
-            ['active' => (int) $active],
-            ['owner_integration_id' => Uuid::fromHexToBytes($integrationId)]
-        );
-        $this->cacheClearer->clearWebhookCache();
-    }
-
     private function deleteApiWebhooks(string $integrationId): void
     {
         $this->connection->delete('webhook', ['owner_integration_id' => Uuid::fromHexToBytes($integrationId)]);

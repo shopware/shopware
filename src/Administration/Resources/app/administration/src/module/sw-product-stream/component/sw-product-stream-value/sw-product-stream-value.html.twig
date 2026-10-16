@@ -316,7 +316,7 @@
                             class="product-view"
                             :variations="item.variation"
                         >
-                            {{ item.translated.name || item.name }}
+                            {{ getProductLabel(item) }}
                         </sw-product-variant-info>
                     </slot>
                 </template>
@@ -329,7 +329,7 @@
                         {% block sw_product_stream_value_results_list_result_label %}
                         <span class="sw-select-result__result-item-text">
                             <sw-product-variant-info :variations="item.variation">
-                                {{ item.translated.name || item.name }}
+                                {{ getProductLabel(item) }}
                             </sw-product-variant-info>
                         </span>
                         {% endblock %}

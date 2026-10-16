@@ -53,6 +53,7 @@ Jest                # Testing framework
 - Do NOT introduce breaking changes to public APIs without prior discussion
 - Model new code on these reference implementations, not on the code next to it, which often predates our current rules:
   - Component with spec: `src/app/component/media/sw-media-folder-thumbnail/`
+  - Component that loads and saves an entity with ACL, with spec: `src/module/sw-settings-units/page/sw-settings-units-detail/`
   - Composable with spec: `src/app/composables/use-theme.ts`
   - Pinia store with spec: `src/app/store/tabs.store.ts`
 - Use the provided linting and formatting scripts (see below)

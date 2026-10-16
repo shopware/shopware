@@ -380,11 +380,11 @@ shopware:
                 policy: 'time_backoff'
                 reset: '24 hours'
                 limits:
-                    - limit: 3
+                    - limit: 50
                       interval: '30 seconds'
-                    - limit: 5
+                    - limit: 100
                       interval: '60 seconds'
-                    - limit: 10
+                    - limit: 200
                       interval: '90 seconds'
             cart_add_line_item:
                 enabled: true

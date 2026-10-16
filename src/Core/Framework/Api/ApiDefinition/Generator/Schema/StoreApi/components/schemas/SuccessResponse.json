@@ -6,6 +6,8 @@
         "schemas": {
             "SuccessResponse": {
                 "type": "object",
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Response\\StoreApi",
+                "x-dto-package": "framework",
                 "properties": {
                     "success": {
                         "type": "boolean"
